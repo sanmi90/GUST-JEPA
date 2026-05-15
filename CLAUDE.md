@@ -51,7 +51,7 @@ Training
   Gradient clip 1.0. 80k iterations.
 
 Data
-- Split is locked at `split_v1.json` at the repo root (sha256-anchored to inventory).
+- Split is locked at `configs/splits/split_v1.json` (sha256-anchored to inventory).
 - 31 train cases (108 encounters), 6 Test B cases (28 enc), 4 Test C cases (24 enc).
   Baseline (no gust) is in `train` (encounters 0-3) and Test A (encounters 4-5) like
   any other periodic case; it is also flagged `is_calibration_reference: true` so
@@ -74,7 +74,7 @@ Path resolution
 - Set `PREVENT_ROOT` to the PREVENT project root (the directory that contains `data/`).
   Example: `export PREVENT_ROOT=$HOME/PREVENT`.
 - Full path to a case file is `${PREVENT_ROOT}/${case.relative_path}` where
-  `case.relative_path` is taken from `split_v1.json` (for example
+  `case.relative_path` is taken from `configs/splits/split_v1.json` (for example
   `data/raw/periodic/Baseline.h5` or `data/raw/periodic/run3/Gust_???_*.h5`).
 - In Hydra configs, declare `data.prevent_root: ${oc.env:PREVENT_ROOT,~/PREVENT}` and
   resolve case paths in the dataset loader via
@@ -102,7 +102,7 @@ Inventory and parser
 - Example filename: `Gust_001_x-1.965_y-0.387_s1.0_d0.5.h5` decodes to
   (G = +1.0, D = 0.5, Y = +0.10).
 - If PREVENT regenerates its inventory, copy the new YAML into `data_manifest/` and
-  re-run `python build_split_manifest.py` to refresh `split_v1.json`.
+  re-run `python build_split_manifest.py` to refresh `configs/splits/split_v1.json`.
 
 Per-file structure
 - Each case is a single HDF5 with 480 (run3) or 800 (periodic) frames at dt_tc = 0.05.
@@ -149,10 +149,11 @@ vortex-jepa/
 ├── SESSION_DATA_PREP.md                 # preprocessing plan (with Step 0 status section)
 ├── SESSION_REPORT_2026-05-15.md         # report from the bootstrap session
 ├── requirements.txt
-├── build_split_manifest.py              # regenerates split_v1.json from the inventory
-├── split_v1.json                        # locked split manifest
+├── build_split_manifest.py              # regenerates the split manifest from the inventory
 ├── configs/
-│   └── preprocessing.yaml               # schema-baked preprocessing params (v1.0.0)
+│   ├── preprocessing.yaml               # schema-baked preprocessing params (v1.0.0)
+│   └── splits/
+│       └── split_v1.json                # locked split manifest
 ├── data_manifest/
 │   └── raw_cases_inventory.yaml         # data parser manifest (do not edit by hand)
 ├── scripts/
@@ -191,7 +192,7 @@ outside this repo. See "Dataset layout" above.
   - `test_adaln_zero.py`: predictor is identity at initialization
   - `test_encoder_shapes.py`: HybridCNNViTEncoder I/O contracts at common resolutions
   - `test_predictor_causal.py`: future frames cannot leak into past predictions
-  - `test_splits.py`: split_v1.json round-trips through the loader
+  - `test_splits.py`: configs/splits/split_v1.json round-trips through the loader
 - All random sources seeded (torch, numpy, random, torch.cuda); seed logged in every run
 - bf16 mixed precision on the user's RTX 6000 96 GB (single GPU is sufficient)
 - Type hints everywhere in `src/`; Google-style docstrings
@@ -207,8 +208,8 @@ outside this repo. See "Dataset layout" above.
   - `lambda_sigreg`             (SIGReg weight; null until the bisection lands)
   - `seed`                      (full deterministic seed for the run)
 - Additional keys (required for any run that will appear in the paper):
-  - `split_sha256`              (sha256 of `split_v1.json` at run start)
-  - `inventory_sha256`          (from `split_v1.json` -> `source_inventory.sha256`)
+  - `split_sha256`              (sha256 of `configs/splits/split_v1.json` at run start)
+  - `inventory_sha256`          (from `configs/splits/split_v1.json` -> `source_inventory.sha256`)
   - `code_sha256` (or `git_commit`)  (hash of the source tree at run start)
   - `auto_fallback_triggered`   (bool; true if SIGReg -> VICReg auto-fallback fired)
   - `wandb_run_id`              (echoed back to stdout and to the W&B summary)
@@ -300,7 +301,7 @@ Auto-fallback rule (hard-coded in `src/training/train_jepa.py`):
 - Do not random-split impact events within a case. Contiguous holdout only.
 - Do not stratify Test B by source group. Pool periodic and run3.
 - Do not touch Test C (G = +4 cases) for model selection. Reported only at the end.
-- Do not edit `split_v1.json` by hand. Regenerate via `python build_split_manifest.py`.
+- Do not edit `configs/splits/split_v1.json` by hand. Regenerate via `python build_split_manifest.py`.
 - Do not copy, symlink, or commit raw DNS data into this repo. The data is owned by the
   PREVENT project and accessed via the `PREVENT_ROOT` environment variable. The repo
   must remain code-and-config only.
@@ -313,7 +314,7 @@ Auto-fallback rule (hard-coded in `src/training/train_jepa.py`):
 - `HANDOFF.md`: decision log with rationales, open questions, suggested next steps
 - `SESSION_DATA_PREP.md`: preprocessing plan plus Step 0 schema findings
 - `SESSION_REPORT_2026-05-15.md`: bootstrap-session report (what landed, what was verified)
-- `split_v1.json`: locked data split with rationales as inline keys
+- `configs/splits/split_v1.json`: locked data split with rationales as inline keys
 - `data_manifest/raw_cases_inventory.yaml`: data parser manifest
 - `configs/preprocessing.yaml`: schema-baked preprocessing params (v1.0.0)
 - `outputs/schema_inspection/schema.yaml`: raw HDF5 schema as inspected

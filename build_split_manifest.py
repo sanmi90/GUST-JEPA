@@ -21,7 +21,7 @@ from pathlib import Path
 
 REPO = Path(__file__).resolve().parent
 INVENTORY_PATH = REPO / "data_manifest" / "raw_cases_inventory.yaml"
-OUTPUT_PATH = REPO / "split_v1.json"
+OUTPUT_PATH = REPO / "configs" / "splits" / "split_v1.json"
 
 # Test B selection: 6 interior cases, pooled across periodic and run3.
 # Picked for diversity in (G, D, Y) with D = 1.0 as primary interior axis,

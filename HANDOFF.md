@@ -33,7 +33,7 @@ with vortex-jepa by reference, not by copy.
   workstation this is `$HOME/PREVENT`. Data files are at
   `${PREVENT_ROOT}/data/raw/periodic/` and `${PREVENT_ROOT}/data/raw/periodic/run3/`.
 - The vortex-jepa repo contains only `data_manifest/raw_cases_inventory.yaml` (a
-  snapshot of the PREVENT-side inventory at bootstrap time) and `split_v1.json` at the
+  snapshot of the PREVENT-side inventory at bootstrap time) and `configs/splits/split_v1.json` at the
   repo root (the locked split manifest). Both reference the data by relative path;
   resolution is `Path(PREVENT_ROOT) / case["relative_path"]`.
 - If PREVENT regenerates its inventory, copy the new YAML over and re-run
@@ -134,7 +134,7 @@ Sanity ablation: a variant with c in the encoder. We expect probing R^2 for c to
 high (because the encoder sees c directly) but forecasting horizon to degrade, since the
 latent now encodes c redundantly and loses capacity for state.
 
-### D7: Data split locked in split_v1.json (superseded in part by D9)
+### D7: Data split locked in configs/splits/split_v1.json (superseded in part by D9)
 
 Single split, no k-fold for the moment. K-fold is deferred until a candidate architecture
 is promising (avoid burning compute on cross-validation of architectures that do not work).
@@ -199,26 +199,35 @@ Effect on counts:
 - Train cases: 30 -> 31
 - Train encounters: 104 -> 108
 - Test A encounters: 44 -> 46
-- A new `n_cases_calibration_reference` field in `split_v1.json` summary equals 1.
+- A new `n_cases_calibration_reference` field in `configs/splits/split_v1.json` summary equals 1.
 
 Alternative considered: keep Baseline excluded from train but make it accessible by
 flag for calibration runs. Rejected because it duplicates the data path and adds a
 special case the model never sees during training.
 
-### D10: Path layout for the bootstrap session (2026-05-15)
+### D10: Path layout for the bootstrap session (2026-05-15, revised same day)
 
-Three files that originated outside the repo or in sandbox paths were placed as
-follows during bootstrap:
-- `split_v1.json` lives at the repo root (not `configs/splits/`).
-- `data_manifest/raw_cases_inventory.yaml` (not `configs/raw_cases_inventory.yaml`).
-- `build_split_manifest.py` lives at the repo root (not `scripts/`).
+The aspirational repo layout in CLAUDE.md places the split manifest under
+`configs/splits/`, the inventory under `configs/`, and the build script under
+`scripts/`. At the start of the bootstrap session all three files were elsewhere
+(`split_v1.json` at the repo root, `data_manifest/raw_cases_inventory.yaml`,
+`build_split_manifest.py` at the repo root). The original D10 left them in place
+to avoid rewiring relative paths mid-session.
 
-Rationale: these files were already at these locations when the bootstrap session
-started. Moving them mid-session would have rewired every relative path in code that
-had just been written and tested. The aspirational layout in CLAUDE.md previously
-showed them under `configs/`/`scripts/`; the actual layout takes precedence and
-CLAUDE.md has been updated to match. A future cleanup pass may relocate them; if so,
-update both this file and CLAUDE.md.
+Carlos approved moving the split manifest later the same day. Final state after
+the Session 1 follow-up:
+
+- `configs/splits/split_v1.json` - moved here from the repo root via `git mv`,
+  contents unchanged. SHA256 of the manifest is unchanged by the move:
+  `44ea16ba87dfbfd6ec78a165553c1d95b0df329afa6d711774a592f12bb7aa21`. All code
+  and doc references updated to the new path; the four-check loader smoke test
+  still passes.
+- `data_manifest/raw_cases_inventory.yaml` - stays at `data_manifest/`. The
+  divergence from the aspirational `configs/raw_cases_inventory.yaml` is
+  low-stakes and may be revisited.
+- `build_split_manifest.py` - stays at the repo root. Carlos's spec mentions
+  it by name without a directory; relocation under `scripts/` is also a
+  low-stakes divergence and may be revisited.
 
 ### D11: Rename impact_aware_start_range -> impact_overlap_start_range (2026-05-15)
 
@@ -229,7 +238,7 @@ suggested "guarantees frame 40 is in the sub-trajectory", which is true only for
 `start >= 9` (since `start = 8` yields `[8, 40)`).
 
 Resolution: rename the field to `impact_overlap_start_range` everywhere
-(`split_v1.json`, `build_split_manifest.py`, `src/data/episode_dataset.py`).
+(`configs/splits/split_v1.json`, `build_split_manifest.py`, `src/data/episode_dataset.py`).
 `impact_aware_fraction` keeps its name (it is the mixture weight, not a range).
 Behavior is unchanged; the 0.814 observed vs 0.811 predicted impact-overlap
 fraction is the validation that the sampler does what it should.
@@ -238,12 +247,12 @@ Rationale: the issue was purely a misleading name; the math and code are correct
 Renaming is the lowest-risk fix and avoids the alternatives (shift range to
 `[9, 40]` or widen to `L = 33`, both of which change behavior). The semantics are
 now documented inline in the `subtrajectory_sampling.rationale` field of
-`split_v1.json` and in the `EpisodeDataset` docstring.
+`configs/splits/split_v1.json` and in the `EpisodeDataset` docstring.
 
 Alternative considered: redefine `L` or the range so frame 40 is strictly
 in-window. Rejected because behavior is fine; the original name was wrong.
 
-`split_v1.json` SHA256 after the rename:
+`configs/splits/split_v1.json` SHA256 after the rename:
 `44ea16ba87dfbfd6ec78a165553c1d95b0df329afa6d711774a592f12bb7aa21`. This is the
 manifest hash to log under `split_sha256` in W&B (see CLAUDE.md "Logging (W&B)").
 
@@ -253,7 +262,7 @@ manifest hash to log under `split_sha256` in W&B (see CLAUDE.md "Logging (W&B)")
    on the cached partition v1: vorticity-domain argmax mean = 40.8, force-domain
    argmax mean = 38.8 (both over the [25, 55] window). The distribution is bimodal in
    the vorticity domain (strong gusts peak pre-impact, weak gusts post-impact) and
-   tighter in the force domain. The split_v1.json estimate of 40 is retained.
+   tighter in the force domain. The configs/splits/split_v1.json estimate of 40 is retained.
    Resolved.
 
 2. Frame-skip. Default is 2, giving 60 effective frames per encounter at dt_eff = 0.1.

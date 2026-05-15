@@ -62,7 +62,7 @@ class EpisodeDataset(torch.utils.data.Dataset):
         repo = Path(__file__).resolve().parents[2]
         with open(repo / "configs" / "preprocessing.yaml") as f:
             config = yaml.safe_load(f)
-        with open(repo / f"split_{partition}.json") as f:
+        with open(repo / "configs" / "splits" / f"split_{partition}.json") as f:
             split_manifest = json.load(f)
 
         prevent_root = Path(prevent_root or os.environ.get("PREVENT_ROOT", "/home/carlos/PREVENT"))

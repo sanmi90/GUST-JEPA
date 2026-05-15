@@ -123,5 +123,5 @@ Partition v1 frozen and training-ready. Steps 0–6 of `SESSION_DATA_PREP.md` co
 1. JEPA model (encoder + predictor) and training loop — pick an architecture (ViT-style encoder over `omega_z` per frame, transformer predictor over frame embeddings).
 2. Wire `wandb`/`tensorboard` logging keyed to `preprocessing_version`, `partition_version`, and `is_calibration_reference` flags.
 3. Decide on observable augmentation: feed `C_L`/`C_D`/`p_wall` to the predictor (or only to a decoder head).
-4. Reconsider the off-by-one in `impact_aware_start_range`.
+4. ~~Reconsider the off-by-one in `impact_aware_start_range`.~~ Resolved 2026-05-15 by renaming to `impact_overlap_start_range` (HANDOFF D11, commit `f1c1e52`); behavior unchanged. The split manifest also moved to `configs/splits/split_v1.json` in the Session 1 follow-up; SHA256 = `44ea16ba87dfbfd6ec78a165553c1d95b0df329afa6d711774a592f12bb7aa21`.
 5. Optional: extend the QC notebook with a small "out-of-tolerance gallery" (cases where vorticity argmax sits at 25 or 55) for diagnostic value.
