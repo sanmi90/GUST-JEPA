@@ -1,0 +1,109 @@
+# Schema-baked preprocessing parameters for partition v1.
+# Cross-references (do not duplicate):
+#   data_manifest/raw_cases_inventory.yaml   case_id <-> filename mapping
+#   outputs/schema_inspection/schema.yaml    raw HDF5 schema as inspected
+# Edit-by-hand only when bumping preprocessing_version.
+
+preprocessing_version: '1.0.0'
+partition_target: v1
+created_iso: '2026-05-15T16:00:00+00:00'
+
+# -------------------------------------------------------------
+# Raw-file decoding (resolved during Step 0 schema inspection).
+# -------------------------------------------------------------
+raw:
+  velocity_path: /u
+  velocity_component_order: [u_x, u_y, u_z]      # mesh frame; chord along x, freestream tilted
+  curl_path: /curlU
+  omega_z_index: 2                                # /curlU[..., 2] is the spanwise component
+  omega_z_sign_convention: 'du/dy - dv/dx'        # opposite of standard right-hand rule (verified by wake correlation = -0.86 vs computed dv/dx - du/dy)
+  inside_solid_path: /inside_solid
+  sensors_p_path: /sensors/p
+  sensors_xyz_path: /sensors/xyz
+  airfoil_xy_path: /airfoil_xy
+  forces_CL_path: /forces/CL
+  forces_CD_path: /forces/CD
+  forces_time_path: /forces/time
+  coords_x_path: /x
+  coords_y_path: /y
+  coords_z_path: /z
+
+# -------------------------------------------------------------
+# Grid + domain geometry (frozen for partition v1).
+# -------------------------------------------------------------
+grid:
+  shape_field: [192, 96, 32]                      # (nx, ny, nz); applies to /u, /curlU, /inside_solid
+  x_range: [-1.5, 4.5]
+  y_range: [-1.5, 1.5]
+  z_range: [0.0, 1.0]
+  L_z: 1.0                                        # = chord; spanwise extent
+  mid_span_index: 16                              # nz // 2; z[16] ~ 0.5161 (NOT argmin(|z|)=0, which is a periodic boundary)
+
+domain:
+  mesh_aligned_with: airfoil_chord
+  freestream_angle_deg: 14.0
+  U_inf: 1.0
+  c: 1.0
+
+# -------------------------------------------------------------
+# Sensor layout. /sensors/p shape (1536, T); /sensors/xyz pattern shows the
+# inner (fast-varying) axis is z-station: for each of 192 surface points, the
+# 8 z-stations are listed consecutively. Reshape: (192, 8, T), mean axis=1.
+# -------------------------------------------------------------
+sensors:
+  n_surface_points: 192
+  n_z_stations: 8
+  z_stations: [0.0626, 0.1876, 0.3125, 0.4375, 0.5625, 0.6875, 0.8124, 0.9374]
+  reshape_order: ['n_surface_points', 'n_z_stations', 'T']
+  spanwise_aggregation: mean
+
+# -------------------------------------------------------------
+# Encounter framing.
+# -------------------------------------------------------------
+encounter:
+  frames_per_encounter: 120
+  dt_tc: 0.05
+  gust_period_tc: 6.0
+  impact_frame_estimate: 40
+  impact_window_frames: [25, 55]
+  impact_validated_on: 'Gust_007 (G+4.00_D1.00_Y+0.10): CL_min @ frame 29 (-7.60); CL_max @ frame 51 (+10.82)'
+
+# -------------------------------------------------------------
+# Per-encounter outputs.
+# -------------------------------------------------------------
+outputs:
+  omega_z:
+    shape: [120, 192, 96]
+    dtype: float32
+    chunks: [1, 192, 96]
+    compression: gzip
+    nan_fill: 0.0                                 # /curlU is NaN in solid cells; fill with 0
+  p_wall:
+    shape: [120, 192]
+    dtype: float32
+    chunks: [120, 192]
+  C_L:
+    shape: [120]
+    dtype: float32
+  C_D:
+    shape: [120]
+    dtype: float32
+
+# -------------------------------------------------------------
+# Cache layout.
+# -------------------------------------------------------------
+cache:
+  root_env: VORTEX_JEPA_CACHE
+  root_default: 'data/processed/vortex-jepa'      # under $PREVENT_ROOT
+  partition_subdir: '{partition_version}'         # e.g. 'v1'
+  case_subdir: '{case_id}'
+  encounter_file: 'encounter_{encounter_index:02d}.h5'
+
+# -------------------------------------------------------------
+# Notes (not consumed by code; for the next reviewer).
+# -------------------------------------------------------------
+notes:
+  - 'CM (moment coefficient) is not stored in the raw HDF5; /forces has CL, CD, lift, drag only. If CM is needed, integrate /sensors/p along /airfoil_xy at each frame.'
+  - 'No 3D pressure field is stored. The plan Step 2 spanwise-tolerance averaging is not applicable; aggregate the 8 z-stations directly.'
+  - 'Spatial cropping is not applied in v1; native 192x96 grid is preserved.'
+  - 'Solid mask /inside_solid has 2624 cells out of 192*96*32=589824 (~0.44%). omega_z output is NaN-filled with 0 across the cache; downstream code may re-derive the mask if needed.'
