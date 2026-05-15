@@ -1,9 +1,12 @@
 """Per-encounter, sub-trajectory dataset for JEPA training.
 
 Reads the partition v1 cache (omega_z, p_wall, C_L, C_D per encounter) and
-yields fixed-length sub-trajectories. The start frame is drawn from an
-impact-aware mixture (default 70% impact-aware in [8, 40], 30% uniform in
-[0, n_frames - L]) so the model sees the gust event in most batches.
+yields fixed-length sub-trajectories. The start frame is drawn from a two-branch
+mixture: with probability `impact_aware_fraction` (default 0.7) the start is
+sampled uniformly from `impact_overlap_start_range` (default [8, 40]; any start
+in this range yields a sub-trajectory [start, start + L) whose intersection with
+the impact window [25, 55] contains at least 7 frames). Otherwise the start is
+uniform over the full episode (`uniform_start_range`, default [0, n_frames - L]).
 
 Split semantics (consume `split_v{partition}.json`):
     train   -> for each case with split == 'train', enumerate train_encounter_indices
@@ -47,7 +50,7 @@ class EpisodeDataset(torch.utils.data.Dataset):
         cache_root: str | Path | None = None,
         subtraj_len: int = 32,
         impact_aware_fraction: float = 0.7,
-        impact_aware_start_range: tuple[int, int] | None = None,
+        impact_overlap_start_range: tuple[int, int] | None = None,
         uniform_start_range: tuple[int, int] | None = None,
         return_pressure: bool = True,
         return_forces: bool = True,
@@ -70,8 +73,8 @@ class EpisodeDataset(torch.utils.data.Dataset):
         cache_root = Path(cache_root)
 
         n_frames = int(config["encounter"]["frames_per_encounter"])
-        if impact_aware_start_range is None:
-            impact_aware_start_range = tuple(split_manifest["subtrajectory_sampling"]["impact_aware_start_range"])
+        if impact_overlap_start_range is None:
+            impact_overlap_start_range = tuple(split_manifest["subtrajectory_sampling"]["impact_overlap_start_range"])
         if uniform_start_range is None:
             ur = split_manifest["subtrajectory_sampling"].get("uniform_start_range")
             uniform_start_range = tuple(ur) if ur else (0, n_frames - subtraj_len)
@@ -83,7 +86,7 @@ class EpisodeDataset(torch.utils.data.Dataset):
         self.return_pressure = bool(return_pressure)
         self.return_forces = bool(return_forces)
         self.impact_aware_fraction = float(impact_aware_fraction)
-        self.impact_aware_start_range = (int(impact_aware_start_range[0]), int(impact_aware_start_range[1]))
+        self.impact_overlap_start_range = (int(impact_overlap_start_range[0]), int(impact_overlap_start_range[1]))
         self.uniform_start_range = (int(uniform_start_range[0]), int(uniform_start_range[1]))
         self.n_frames = n_frames
         self._seed = seed
@@ -113,7 +116,7 @@ class EpisodeDataset(torch.utils.data.Dataset):
 
     def _sample_start(self, rng: np.random.Generator) -> int:
         if rng.random() < self.impact_aware_fraction:
-            lo, hi = self.impact_aware_start_range
+            lo, hi = self.impact_overlap_start_range
         else:
             lo, hi = self.uniform_start_range
         return int(rng.integers(lo, hi + 1))

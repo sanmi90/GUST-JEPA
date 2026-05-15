@@ -140,12 +140,19 @@ def main():
         "subtrajectory_sampling": {
             "subtraj_length": 32,
             "impact_aware_fraction": 0.70,
-            "impact_aware_start_range": [8, 40],
+            "impact_overlap_start_range": [8, 40],
             "uniform_start_range": [0, 88],
             "rationale": (
-                "With L = 32 and impact at frame ~ 40, any start in [8, 40] guarantees "
-                "the sub-trajectory contains the impact window. 30 percent uniform sampling "
-                "preserves coverage of pre-launch convection and post-impact recovery."
+                "With L = 32 and impact window [25, 55], any start in "
+                "impact_overlap_start_range = [8, 40] yields a sub-trajectory "
+                "[start, start + 32) whose intersection with the impact window contains "
+                "at least 7 frames. This is the 'impact-aware' branch of the mixture: "
+                "impact_aware_fraction is the mixture weight (probability of drawing "
+                "from this branch), impact_overlap_start_range is the qualifying start "
+                "range. Note: start = 8 produces sub-traj [8, 40), which does NOT contain "
+                "frame 40 itself but does contain the impact-window prefix [25, 40). The "
+                "30 percent uniform branch preserves coverage of pre-launch convection "
+                "and post-impact recovery."
             ),
         },
         "split_policy": {

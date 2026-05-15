@@ -30,7 +30,10 @@ Priorities:
 ## Locked decisions (do not revisit without explicit user approval)
 
 Architecture
-- Encoder: hybrid CNN stem (~3M params) + 6-layer ViT (~7M params, hidden 256, 8 heads),
+- Encoder input: omega_z at native cache resolution (192, 96), single channel
+  (mid-plane spanwise vorticity from `/curlU[..., 16, 2]`).
+- Encoder: hybrid CNN stem (~3M params, 3 downsampling stages -> 24 x 12 feature map
+  at 256 channels = 288 spatial tokens) + 6-layer ViT (~7M params, hidden 256, 8 heads),
   d = 32 latent via [CLS]-token + 1-layer MLP projection with BatchNorm (NOT LayerNorm).
 - Predictor: 6-layer autoregressive transformer, hidden 384, 16 heads, dropout 0.1,
   AdaLN-Zero conditioning on (G, D, Y, phi_t), RoPE temporal positions, causal mask.
@@ -192,6 +195,27 @@ outside this repo. See "Dataset layout" above.
 - All random sources seeded (torch, numpy, random, torch.cuda); seed logged in every run
 - bf16 mixed precision on the user's RTX 6000 96 GB (single GPU is sufficient)
 - Type hints everywhere in `src/`; Google-style docstrings
+
+## Logging (W&B)
+
+- W&B is the primary logger (`wandb` in `requirements.txt`).
+- Set `WANDB_PROJECT=vortex-jepa` in the environment before any training run; export it
+  or place it in a local `.env` that the training entrypoint loads.
+- Every run must log the following keys so it can be traced back to a frozen manifest:
+  - `preprocessing_version`     (from `configs/preprocessing.yaml`)
+  - `partition_version`         (e.g. `v1`)
+  - `lambda`                    (SIGReg / VICReg weight; null until tuned)
+  - `seed`                      (full deterministic seed for the run)
+- Recommended additional fields:
+  - `split_sha256`              (sha256 of `split_v1.json`)
+  - `inventory_sha256`          (from `split_v1.json` -> `source_inventory.sha256`)
+  - `wandb_run_id`              (echoed back to stdout and to W&B summary)
+- W&B group: `partition_v{N}` (e.g. `partition_v1`) so all runs on the same partition
+  cluster together in the UI.
+- Tags: baseline runs use the baseline name (`pldm`, `fukami_ae`, `solera_rico`, `pod`).
+  Ablations use `ablation:<name>` (e.g. `ablation:sigreg_off`, `ablation:c_in_encoder`).
+- A run that does not log all four required keys is considered untraceable and should
+  not be used in the paper.
 
 ## Writing style (any prose, papers, docs)
 

@@ -215,6 +215,29 @@ showed them under `configs/`/`scripts/`; the actual layout takes precedence and
 CLAUDE.md has been updated to match. A future cleanup pass may relocate them; if so,
 update both this file and CLAUDE.md.
 
+### D11: Rename impact_aware_start_range -> impact_overlap_start_range (2026-05-15)
+
+The locked range `[8, 40]` with `L = 32` produces sub-trajectories whose intersection
+with the impact window `[25, 55]` contains at least 7 frames. This is what the
+"impact-aware" branch of the sampler actually guarantees. The previous name
+suggested "guarantees frame 40 is in the sub-trajectory", which is true only for
+`start >= 9` (since `start = 8` yields `[8, 40)`).
+
+Resolution: rename the field to `impact_overlap_start_range` everywhere
+(`split_v1.json`, `build_split_manifest.py`, `src/data/episode_dataset.py`).
+`impact_aware_fraction` keeps its name (it is the mixture weight, not a range).
+Behavior is unchanged; the 0.814 observed vs 0.811 predicted impact-overlap
+fraction is the validation that the sampler does what it should.
+
+Rationale: the issue was purely a misleading name; the math and code are correct.
+Renaming is the lowest-risk fix and avoids the alternatives (shift range to
+`[9, 40]` or widen to `L = 33`, both of which change behavior). The semantics are
+now documented inline in the `subtrajectory_sampling.rationale` field of
+`split_v1.json` and in the `EpisodeDataset` docstring.
+
+Alternative considered: redefine `L` or the range so frame 40 is strictly
+in-window. Rejected because behavior is fine; the original name was wrong.
+
 ## Open questions
 
 1. Empirical impact frame. The estimate of 40 was validated in the bootstrap session
@@ -245,13 +268,7 @@ update both this file and CLAUDE.md.
    doubles the effective training data. Implement but ablate to verify it does not
    destabilize SIGReg.
 
-7. Off-by-one in impact_aware_start_range. The locked range `[8, 40]` with L = 32 means
-   `start = 8` gives sub-trajectory frames `[8, 40)`, which does NOT include frame 40.
-   Frame 40 is guaranteed in the sub-trajectory only for `start >= 9`. The observed
-   70/30 mixture statistic (0.814 vs predicted 0.811) is still correct; this is a
-   labeling vs semantics question. Decide whether to shift the range to `[9, 40]`,
-   widen to `[8, 40]` with L = 33, or accept the current convention and update the
-   plan text.
+(D11 closes the prior off-by-one item for impact_aware_start_range.)
 
 ## Suggested next steps (ordered)
 

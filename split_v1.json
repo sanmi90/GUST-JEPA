@@ -1,6 +1,6 @@
 {
   "manifest_version": "split_v1",
-  "created_iso": "2026-05-15T17:02:35.897363+00:00",
+  "created_iso": "2026-05-15T20:02:58.322511+00:00",
   "source_inventory": {
     "version": "raw_cases_inventory_v1",
     "created_iso": "2026-05-15T09:07:24.925657+00:00",
@@ -25,7 +25,7 @@
   "subtrajectory_sampling": {
     "subtraj_length": 32,
     "impact_aware_fraction": 0.7,
-    "impact_aware_start_range": [
+    "impact_overlap_start_range": [
       8,
       40
     ],
@@ -33,7 +33,7 @@
       0,
       88
     ],
-    "rationale": "With L = 32 and impact at frame ~ 40, any start in [8, 40] guarantees the sub-trajectory contains the impact window. 30 percent uniform sampling preserves coverage of pre-launch convection and post-impact recovery."
+    "rationale": "With L = 32 and impact window [25, 55], any start in impact_overlap_start_range = [8, 40] yields a sub-trajectory [start, start + 32) whose intersection with the impact window contains at least 7 frames. This is the 'impact-aware' branch of the mixture: impact_aware_fraction is the mixture weight (probability of drawing from this branch), impact_overlap_start_range is the qualifying start range. Note: start = 8 produces sub-traj [8, 40), which does NOT contain frame 40 itself but does contain the impact-window prefix [25, 40). The 30 percent uniform branch preserves coverage of pre-launch convection and post-impact recovery."
   },
   "split_policy": {
     "test_c_criterion": "G == +4.0 (4 periodic cases)",
