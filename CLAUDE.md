@@ -199,23 +199,26 @@ outside this repo. See "Dataset layout" above.
 ## Logging (W&B)
 
 - W&B is the primary logger (`wandb` in `requirements.txt`).
-- Set `WANDB_PROJECT=vortex-jepa` in the environment before any training run; export it
-  or place it in a local `.env` that the training entrypoint loads.
-- Every run must log the following keys so it can be traced back to a frozen manifest:
+- Set `WANDB_PROJECT=vortex-jepa` in the environment before any training run; export
+  it or place it in a local `.env` that the training entrypoint loads.
+- Four REQUIRED keys logged on every run so it can be traced back to a frozen manifest:
   - `preprocessing_version`     (from `configs/preprocessing.yaml`)
   - `partition_version`         (e.g. `v1`)
-  - `lambda`                    (SIGReg / VICReg weight; null until tuned)
+  - `lambda_sigreg`             (SIGReg weight; null until the bisection lands)
   - `seed`                      (full deterministic seed for the run)
-- Recommended additional fields:
-  - `split_sha256`              (sha256 of `split_v1.json`)
+- Additional keys (required for any run that will appear in the paper):
+  - `split_sha256`              (sha256 of `split_v1.json` at run start)
   - `inventory_sha256`          (from `split_v1.json` -> `source_inventory.sha256`)
-  - `wandb_run_id`              (echoed back to stdout and to W&B summary)
-- W&B group: `partition_v{N}` (e.g. `partition_v1`) so all runs on the same partition
-  cluster together in the UI.
-- Tags: baseline runs use the baseline name (`pldm`, `fukami_ae`, `solera_rico`, `pod`).
-  Ablations use `ablation:<name>` (e.g. `ablation:sigreg_off`, `ablation:c_in_encoder`).
-- A run that does not log all four required keys is considered untraceable and should
-  not be used in the paper.
+  - `code_sha256` (or `git_commit`)  (hash of the source tree at run start)
+  - `auto_fallback_triggered`   (bool; true if SIGReg -> VICReg auto-fallback fired)
+  - `wandb_run_id`              (echoed back to stdout and to the W&B summary)
+- W&B run group: `partition_v1` (one group per partition; v2 becomes `partition_v2`).
+- W&B tags: `[architecture_name, regularizer_name]` (e.g. `[hybrid_cnn_vit, sigreg]`,
+  `[pldm, vicreg_7term]`, `[fukami_ae, none]`). Baseline runs use the baseline name as
+  `architecture_name`; ablation runs use the ablated variant's `architecture_name` and
+  `regularizer_name` so they share a tag axis with the main runs.
+- A run missing any of the four required keys is considered untraceable and must
+  not appear in the paper.
 
 ## Writing style (any prose, papers, docs)
 

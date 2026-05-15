@@ -90,6 +90,11 @@ Alternatives considered:
   resolution. Listed as an ablation.
 - Pure ConvNet: rejected because it does not match LeWM's SIGReg-on-projection recipe
   cleanly. Listed as an ablation.
+- 4-stage CNN stem (input (192, 96) -> 12 x 6 feature map at 256 channels = 72 spatial
+  tokens). Not committed in v1; recorded as the deferred "shallow-stem" ablation
+  (cheaper attention, coarser features). Decision tabled until the main 3-stage run
+  produces results to compare against. A 2-stage variant (48 x 24 = 1152 tokens) is
+  also possible but not currently tabled.
 
 ### D4: Latent dimension d = 32
 
@@ -237,6 +242,10 @@ now documented inline in the `subtrajectory_sampling.rationale` field of
 
 Alternative considered: redefine `L` or the range so frame 40 is strictly
 in-window. Rejected because behavior is fine; the original name was wrong.
+
+`split_v1.json` SHA256 after the rename:
+`44ea16ba87dfbfd6ec78a165553c1d95b0df329afa6d711774a592f12bb7aa21`. This is the
+manifest hash to log under `split_sha256` in W&B (see CLAUDE.md "Logging (W&B)").
 
 ## Open questions
 
