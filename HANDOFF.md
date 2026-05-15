@@ -40,8 +40,9 @@ with vortex-jepa by reference, not by copy.
   `python build_split_manifest.py`. The split manifest pins
   `source_inventory.sha256` so a stale inventory will be visible at load time.
 - The preprocessed per-encounter cache lives at `${VORTEX_JEPA_CACHE}/{partition}/`
-  (default `${PREVENT_ROOT}/data/processed/vortex-jepa/`). Partition v1 is frozen at
-  206 encounters (1.3 GB). See `configs/preprocessing.yaml` for the freeze parameters.
+  (default `${PREVENT_ROOT}/data/processed/vortex-jepa/`). Partition v1 currently
+  holds 214 encounters (~1.35 GB) across 43 cases (extended once by D12). See
+  `configs/preprocessing.yaml` for the cache parameters.
 
 ## Decision history
 
@@ -139,10 +140,10 @@ latent now encodes c redundantly and loses capacity for state.
 Single split, no k-fold for the moment. K-fold is deferred until a candidate architecture
 is promising (avoid burning compute on cross-validation of architectures that do not work).
 
-Final split (as updated by D9 on 2026-05-15):
-- Train: 31 cases, 108 encounters (first 4 of 6 periodic, first 3 of 4 run3).
+Final split (as updated by D9, then amended by D12, all on 2026-05-15):
+- Train: 33 cases, 114 encounters (first 4 of 6 periodic, first 3 of 4 run3).
   Baseline is included as a periodic train case.
-- Test A (impact-instant generalization): same 31 cases, 46 held-out last encounters
+- Test A (impact-instant generalization): same 33 cases, 48 held-out last encounters
   (last 2 of 6 periodic, last 1 of 4 run3). Baseline contributes its last 2 encounters.
 - Test B (parametric interpolation): 6 interior cases pooled across source groups,
   28 encounters.
@@ -255,6 +256,50 @@ in-window. Rejected because behavior is fine; the original name was wrong.
 `configs/splits/split_v1.json` SHA256 after the rename:
 `44ea16ba87dfbfd6ec78a165553c1d95b0df329afa6d711774a592f12bb7aa21`. This is the
 manifest hash to log under `split_sha256` in W&B (see CLAUDE.md "Logging (W&B)").
+
+### D12: Absorb two new run3 cases into v1 (2026-05-15, late session)
+
+Carlos's collaborator dropped two run3 files in `$PREVENT_ROOT/data/raw/periodic/run3/`
+(`Gust_023_x-1.989_y-0.290_s1.0_d1.5.h5` and
+`Gust_024_x-1.892_y-0.678_s-1.0_d1.0.h5`). Decoded:
+- `G+1.00_D1.50_Y+0.20` (run3, defaults to `train`)
+- `G-1.00_D1.00_Y-0.20` (run3, defaults to `train`)
+
+Rather than create v2 (which the original plan in SESSION_DATA_PREP.md Step 5 would
+prescribe), the two cases were absorbed directly into v1 per Carlos's direction
+("Add everything into v1, update whatever you need"). v1 is no longer the 41-case
+partition it was at the close of the bootstrap session; it is now 43 cases /
+214 encounters.
+
+Rationale: at this stage of the project (Session 2 starting on three model
+primitives), maintaining a separate v2 partition for two extra cases would add
+versioning overhead with little benefit. v1 has not yet produced any reported
+training checkpoint, so the partition-immutability rule in D5 has not yet had to
+bite. Once v1 produces a paper-reportable checkpoint, the next absorption MUST
+go to v2.
+
+Effect on counts:
+- Train cases: 31 -> 33 (+2 new run3 train cases).
+- Train encounters: 108 -> 114 (+6 = 2 cases x 3 encounters each).
+- Test A encounters: 46 -> 48 (+2 = 2 cases x 1 encounter each).
+- Total cases: 41 -> 43.
+- Total encounters: 206 -> 214.
+
+Cache:
+- 8 new encounter files written to
+  `${VORTEX_JEPA_CACHE}/v1/{G+1.00_D1.50_Y+0.20, G-1.00_D1.00_Y-0.20}/encounter_*.h5`.
+- The 206 existing encounter files are untouched (preprocess.py skipped them).
+
+`configs/splits/split_v1.json` regenerated. New SHA256:
+`0f07a746383dc38e0ea7c4841d3559468ca8b4d9e2e2ab493996ac636c07a096`
+(the pre-absorption SHA documented in D11 is `44ea16ba...`, preserved in git
+history at commit 78b0fa1). When logging W&B `split_sha256` for runs that touch
+the absorbed v1, use the new hash.
+
+Alternative considered: build v2 with these two cases (per the original Step 5
+plan). Rejected as premature partition-versioning at the current pre-training
+stage. The four-check loader smoke test was re-run with the updated counts and
+still passes (114 / 48 / 28 / 24, overlap fraction 0.804, seed=42 reproducible).
 
 ## Open questions
 
@@ -372,7 +417,7 @@ Latent dynamics on manifolds
 - bf16 mixed precision is fine for encoder + predictor, but compute Epps-Pulley in fp32
   for numerical stability. The characteristic function involves complex exponentials
   whose magnitude is well-bounded but whose differences are not.
-- The training set is small (108 train encounters). Use spanwise mirror, small temporal
+- The training set is small (114 train encounters). Use spanwise mirror, small temporal
   jitter on episode start, and the optional (Y, G, omega_z) sign-flip symmetry. Do NOT
   use rotations.
 - High probe R^2 on the encoder for c is a red flag, not a success. The encoder is

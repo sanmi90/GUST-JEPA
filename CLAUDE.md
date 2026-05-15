@@ -52,12 +52,12 @@ Training
 
 Data
 - Split is locked at `configs/splits/split_v1.json` (sha256-anchored to inventory).
-- 31 train cases (108 encounters), 6 Test B cases (28 enc), 4 Test C cases (24 enc).
+- 33 train cases (114 encounters), 6 Test B cases (28 enc), 4 Test C cases (24 enc).
   Baseline (no gust) is in `train` (encounters 0-3) and Test A (encounters 4-5) like
   any other periodic case; it is also flagged `is_calibration_reference: true` so
   calibration tooling can still identify the no-gust reference. Within training cases,
   Test A holds last 2 of 6 (periodic) or last 1 of 4 (run3) encounters:
-  46 encounters total.
+  48 encounters total.
 - |G| = 3 stays in training. Test C is G = +4 only. Periodic trailing partials discarded.
 - Impact frame ~ 40 (vortex centroid crosses LE at t ~ 1.965 t/c). QC across the cached
   partition v1: vorticity argmax mean = 40.8, force argmax mean = 38.8 over [25, 55].
