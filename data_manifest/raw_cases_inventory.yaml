@@ -4,7 +4,7 @@
 # Edit-by-hand discouraged; rerun the script to refresh.
 
 manifest_version: raw_cases_inventory_v1
-created_iso: '2026-05-15T20:50:57.188522+00:00'
+created_iso: '2026-05-16T08:14:20.065373+00:00'
 source: scripts/periodic_v2/100c_raw_cases_inventory.py
 
 # -------------------------------------------------------------
@@ -48,9 +48,9 @@ parser:
 # Summary.
 # -------------------------------------------------------------
 summary:
-  n_cases_total: 43
+  n_cases_total: 45
   n_cases_periodic: 21
-  n_cases_run3: 22
+  n_cases_run3: 24
   n_parse_errors: 0
   n_duplicate_case_ids: 0
 
@@ -615,4 +615,30 @@ cases:
     Y: -0.20
     Y_from_y_file: -0.199939
     Y_from_x_file: -0.202545
+
+  - filename: Gust_025_x-1.916_y-0.581_s-1.0_d1.5.h5
+    relative_path: data/raw/periodic/run3/Gust_025_x-1.916_y-0.581_s-1.0_d1.5.h5
+    source_group: run3
+    n_frames: 480
+    n_encounters_full: 4
+    trailing_partial_frames: 0
+    case_id: G-1.00_D1.50_Y-0.10
+    G: -1.00
+    D: 1.50
+    Y: -0.10
+    Y_from_y_file: -0.099970
+    Y_from_x_file: -0.103339
+
+  - filename: Gust_026_x-1.989_y-0.290_s-1.5_d1.0.h5
+    relative_path: data/raw/periodic/run3/Gust_026_x-1.989_y-0.290_s-1.5_d1.0.h5
+    source_group: run3
+    n_frames: 480
+    n_encounters_full: 4
+    trailing_partial_frames: 0
+    case_id: G-1.50_D1.00_Y+0.20
+    G: -1.50
+    D: 1.00
+    Y: +0.20
+    Y_from_y_file: +0.199939
+    Y_from_x_file: +0.198411
 

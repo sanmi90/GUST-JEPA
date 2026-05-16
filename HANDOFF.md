@@ -301,6 +301,56 @@ plan). Rejected as premature partition-versioning at the current pre-training
 stage. The four-check loader smoke test was re-run with the updated counts and
 still passes (114 / 48 / 28 / 24, overlap fraction 0.804, seed=42 reproducible).
 
+### D14: Absorb two more run3 cases into v1 (2026-05-16)
+
+Carlos's collaborator dropped two more run3 files in
+`$PREVENT_ROOT/data/raw/periodic/run3/` overnight
+(`Gust_025_x-1.916_y-0.581_s-1.0_d1.5.h5` and
+`Gust_026_x-1.989_y-0.290_s-1.5_d1.0.h5`, both timestamped 2026-05-16 09:17).
+Decoded with the locked alpha=14 degree rotation:
+
+- `G-1.00_D1.50_Y-0.10`  (run3, defaults to `train`)
+- `G-1.50_D1.00_Y+0.20`  (run3, defaults to `train`)
+
+Both new case_ids do not collide with the existing inventory; both stay
+inside |G| <= 3, so neither pushes the extrapolation envelope (|G| = 4 stays
+held out in Test C).
+
+Following D12's pattern, these were absorbed into v1 rather than v2: v1 has
+still not produced a paper-reportable training checkpoint, so the
+partition-immutability rule has not yet had to bite. The next absorption
+after the first reportable v1 run MUST go to v2.
+
+Effect on counts:
+- Train cases: 33 -> 35 (+2 new run3 train cases).
+- Train encounters: 114 -> 120 (+6 = 2 cases x 3 train-encounter slots each).
+- Test A encounters: 48 -> 50 (+2 = 2 cases x 1 held-out encounter each).
+- Total cases: 43 -> 45.
+- Total encounters: 214 -> 222.
+
+Cache:
+- 8 new encounter files written at
+  `${VORTEX_JEPA_CACHE}/v1/{G-1.00_D1.50_Y-0.10, G-1.50_D1.00_Y+0.20}/encounter_*.h5`.
+- The 214 pre-existing encounter files are untouched (preprocess.py skipped them).
+
+`data_manifest/raw_cases_inventory.yaml` regenerated via
+`scripts/100c_raw_cases_inventory.py`; summary now reports
+`n_cases_total: 45`, `n_cases_periodic: 21`, `n_cases_run3: 24`,
+`n_parse_errors: 0`, `n_duplicate_case_ids: 0`. New inventory SHA256:
+`d67d65d369097875403169c8065f56d4612479be2b4712a177d8d7505d76f74f`
+(pinned in the split manifest at `source_inventory.sha256`).
+
+`configs/splits/split_v1.json` regenerated via `python build_split_manifest.py`.
+New SHA256:
+`f21abb5d48008031d628042bd46743a82e3dd28c194e8a66dc22e7dee8b8bf8c`
+(D12's hash `0f07a746383dc38e0ea7c4841d3559468ca8b4d9e2e2ab493996ac636c07a096`
+is preserved in git history at commit 029226f). When logging W&B
+`split_sha256` for runs that touch the absorbed v1, use the new hash.
+
+Alternative considered: build v2 with these two cases. Rejected for the same
+reason as D12 -- premature partition-versioning while the project still has
+no v1 training checkpoint to compare against.
+
 ### D13: SIGReg follows LeWM Appendix A, no N multiplier (2026-05-16)
 
 The Session 2 implementation of `src/models/sigreg.py` uses the LeWM appendix-A
