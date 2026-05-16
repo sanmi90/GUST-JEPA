@@ -301,6 +301,55 @@ plan). Rejected as premature partition-versioning at the current pre-training
 stage. The four-check loader smoke test was re-run with the updated counts and
 still passes (114 / 48 / 28 / 24, overlap fraction 0.804, seed=42 reproducible).
 
+### D13: SIGReg follows LeWM Appendix A, no N multiplier (2026-05-16)
+
+The Session 2 implementation of `src/models/sigreg.py` uses the LeWM appendix-A
+definition of the Epps-Pulley statistic:
+
+```
+T^(m) = integral over t of  w(t) * |phi_N(t; h^(m)) - phi_0(t)|^2  dt
+SIGReg(Z) = (1 / M) sum_m T^(m)
+```
+
+There is no leading `N` multiplier. This contradicts the official LeJEPA paper
+PyTorch listing (arXiv:2511.08544, Lst. "epps-pulley-pytorch"), which ends with
+`T = torch.trapz(err, t, dim=1) * N`. The applied LeWM paper (arXiv:2603.19312
+appendix A, equation EP) gives the definition without the `N` multiplier and is
+the more authoritative source for this project's training recipe.
+
+Effect on the unit-test thresholds in `tests/test_sigreg.py`: the original
+SESSION2_MODEL_PRIMITIVES.md spec proposed thresholds (Gaussian < 0.1,
+Student-t df=2 > 5.0, Uniform > 1.0) that are not simultaneously satisfiable
+under either convention (with multiplier the Gaussian asymptotic mean is ~1.0;
+without it the Student-t empirical value at B=4096 is ~0.12). Thresholds were
+re-calibrated empirically against a numpy reference for the no-multiplier
+formula on B=4096 batches:
+
+- Gaussian            < 0.01   (empirical ~ 1e-4)
+- Student-t df=2      > 0.05   (empirical ~ 0.12)
+- Uniform(-1, 1)      > 0.02   (empirical ~ 0.05)
+
+All six SIGReg unit tests pass. The relative ordering (Gaussian << Uniform <
+Student-t) is preserved and is what the regularizer needs to discriminate to
+work as an anti-collapse signal. The numerical scale of SIGReg in training is
+absorbed into the outer regularization weight `lambda` (CLAUDE.md "Locked
+decisions" allows `lambda` to be tuned by bisection over [0.001, 1.0]); the
+choice of scaling here does not affect the bisection's logical search range,
+only the numerical value of the optimum.
+
+Alternative considered: use the LeJEPA paper code's `* N` multiplier and
+re-calibrate the Gaussian threshold up to < 2.0. Rejected because LeWM is the
+direct architectural template for this project (CLAUDE.md), and the LeJEPA
+paper's main-text definition (Section 4.2.3, equation Epps-Pulley) is also
+written without the multiplier; the `* N` in the PyTorch listing is an
+implementation choice that does not survive the appendix-A presentation that
+LeWM cites.
+
+Knot range stays at `[0.2, 4]` per the spec, even though LeJEPA's reference
+code uses `[-5, 5]`. The half-axis choice is harmless: the integrand is
+symmetric in `t` and the integrand at `t in [0, 0.2)` is negligible (both
+phi_N and phi_0 equal 1 at `t = 0`).
+
 ## Open questions
 
 1. Empirical impact frame. The estimate of 40 was validated in the bootstrap session
