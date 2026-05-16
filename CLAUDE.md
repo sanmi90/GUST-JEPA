@@ -52,12 +52,12 @@ Training
 
 Data
 - Split is locked at `configs/splits/split_v1.json` (sha256-anchored to inventory).
-- 33 train cases (114 encounters), 6 Test B cases (28 enc), 4 Test C cases (24 enc).
+- 35 train cases (120 encounters), 6 Test B cases (28 enc), 4 Test C cases (24 enc).
   Baseline (no gust) is in `train` (encounters 0-3) and Test A (encounters 4-5) like
   any other periodic case; it is also flagged `is_calibration_reference: true` so
   calibration tooling can still identify the no-gust reference. Within training cases,
   Test A holds last 2 of 6 (periodic) or last 1 of 4 (run3) encounters:
-  48 encounters total.
+  50 encounters total.
 - |G| = 3 stays in training. Test C is G = +4 only. Periodic trailing partials discarded.
 - Impact frame ~ 40 (vortex centroid crosses LE at t ~ 1.965 t/c). QC across the cached
   partition v1: vorticity argmax mean = 40.8, force argmax mean = 38.8 over [25, 55].
@@ -148,6 +148,8 @@ vortex-jepa/
 ├── README.md
 ├── SESSION_DATA_PREP.md                 # preprocessing plan (with Step 0 status section)
 ├── SESSION_REPORT_2026-05-15.md         # report from the bootstrap session
+├── SESSION2_MODEL_PRIMITIVES.md         # Session 2 plan (model primitives spec)
+├── SESSION_REPORT_2026-05-16.md         # report from Session 2 (primitives, D13, D14)
 ├── requirements.txt
 ├── build_split_manifest.py              # regenerates the split manifest from the inventory
 ├── configs/
@@ -161,9 +163,19 @@ vortex-jepa/
 │   ├── inspect_raw_hdf5.py              # Step 0 schema inspector
 │   └── preprocess.py                    # extracts per-encounter cache (omega_z, p_wall, C_L, C_D)
 ├── src/
-│   └── data/
+│   ├── data/
+│   │   ├── __init__.py
+│   │   └── episode_dataset.py           # PyTorch Dataset with impact-aware sampler
+│   └── models/
 │       ├── __init__.py
-│       └── episode_dataset.py           # PyTorch Dataset with impact-aware sampler
+│       ├── sigreg.py                    # LeWM appendix-A SIGReg (bf16 autocast safe)
+│       ├── adaln.py                     # AdaLN-Zero (identity-on-residual at init)
+│       └── rope.py                      # 1D temporal RoPE for the predictor
+├── tests/
+│   ├── __init__.py
+│   ├── test_sigreg.py                   # 6 tests (Session 2)
+│   ├── test_adaln_zero.py               # 4 tests (Session 2)
+│   └── test_rope.py                     # 5 tests (Session 2)
 ├── notebooks/
 │   └── 00_qc_partition_v1.ipynb         # QC: cache integrity + impact-frame + sanity plots
 ├── outputs/                             # gitignored: schema_inspection/, checkpoints/, logs/, figures/
@@ -172,12 +184,11 @@ vortex-jepa/
 
 Planned but not yet created (added when the corresponding step is reached):
 - `configs/encoder/`, `configs/predictor/`, `configs/loss/`, `configs/data/`, `configs/sweep/`
-- `src/models/{encoder,predictor,decoder,adaln,rope,sigreg,vicreg,jepa}.py`
+- `src/models/{encoder,predictor,decoder,vicreg,jepa}.py`
 - `src/baselines/{pod,fukami_ae,solera_rico,pldm}.py`
 - `src/training/{train_jepa,train_decoder,train_baseline,scheduler,scheduled_sampling,diagnostics}.py`
 - `src/evaluation/{reconstruction,forecasting,probing,surprise,visualization}.py`
 - `scripts/{train_jepa,train_baseline,sweep_lambda,evaluate_paper}.py`
-- `tests/`
 
 The repo intentionally contains NO `data/` directory. Raw DNS data lives at
 `${PREVENT_ROOT}/data/raw/periodic/` and `${PREVENT_ROOT}/data/raw/periodic/run3/`
@@ -186,10 +197,19 @@ outside this repo. See "Dataset layout" above.
 ## Coding conventions
 
 - Python 3.10+, PyTorch 2.x, Hydra for configs, W&B for logging
-- ruff + black --line-length 100 + mypy --strict on src/models
-- pytest for unit tests; minimum suite:
-  - `test_sigreg.py`: Epps-Pulley vs scipy.stats.normaltest on Gaussian samples
-  - `test_adaln_zero.py`: predictor is identity at initialization
+- black --line-length 100 + mypy --strict on src/models. `ruff` is the target
+  linter but is not yet installed in `.venv`; `flake8 --max-line-length=100`
+  is the current stopgap.
+- pytest for unit tests. Landed suite (Session 2, 15 tests green):
+  - `test_sigreg.py` (6 tests): Gaussian / Student-t df=2 / Uniform(-1, 1)
+    distribution thresholds, M-projection invariance, gradient flow, bf16
+    autocast dtype promotion
+  - `test_adaln_zero.py` (4 tests): zero outputs at init, identity-on-residual
+    block at init, gradient nonzero after one optimizer step, time-axis
+    broadcast on `(B, T, cond_dim)` input
+  - `test_rope.py` (5 tests): identity at position 0, dot-product offset
+    invariance, cache shapes, cache dtypes, ValueError on odd head_dim
+  Planned (Session 3+):
   - `test_encoder_shapes.py`: HybridCNNViTEncoder I/O contracts at common resolutions
   - `test_predictor_causal.py`: future frames cannot leak into past predictions
   - `test_splits.py`: configs/splits/split_v1.json round-trips through the loader
@@ -267,11 +287,12 @@ python scripts/train_decoder.py jepa_checkpoint=outputs/checkpoints/jepa_v1.pt
 # (Planned) Full paper evaluation suite
 python scripts/evaluate_paper.py checkpoint=outputs/checkpoints/jepa_v1.pt
 
-# Tests and style (planned, no suite yet)
-pytest tests/
-ruff check src/
-black --check src/
-mypy --strict src/models
+# Tests and style. Session 2 primitives have a 15-test suite in tests/.
+pytest tests/                                            # 15 passed (sigreg, adaln_zero, rope)
+black --check --line-length 100 src/ tests/
+flake8 --max-line-length=100 src/ tests/                 # ruff not yet installed; flake8 stopgap
+# (Planned) ruff check src/ tests/
+# (Planned, once src/models grows the encoder + predictor) mypy --strict src/models
 ```
 
 ## Risk-management (must be implemented)
@@ -314,6 +335,8 @@ Auto-fallback rule (hard-coded in `src/training/train_jepa.py`):
 - `HANDOFF.md`: decision log with rationales, open questions, suggested next steps
 - `SESSION_DATA_PREP.md`: preprocessing plan plus Step 0 schema findings
 - `SESSION_REPORT_2026-05-15.md`: bootstrap-session report (what landed, what was verified)
+- `SESSION2_MODEL_PRIMITIVES.md`: Session 2 plan (the spec the model primitives implement)
+- `SESSION_REPORT_2026-05-16.md`: Session 2 report (primitives, D13 SIGReg scaling, D14 absorption)
 - `configs/splits/split_v1.json`: locked data split with rationales as inline keys
 - `data_manifest/raw_cases_inventory.yaml`: data parser manifest
 - `configs/preprocessing.yaml`: schema-baked preprocessing params (v1.0.0)
