@@ -2,7 +2,7 @@
 
 Session handoff document for the vortex-jepa project.
 
-Last updated: 2026-05-15.
+Last updated: 2026-05-16.
 
 If you are picking up this project mid-stream (new collaborator, new Claude session, or
 returning after a break), read this document first. CLAUDE.md is the operational guide.
@@ -398,6 +398,72 @@ is preserved in git history at commit 029226f). When logging W&B
 Alternative considered: build v2 with these two cases. Rejected for the same
 reason as D12 -- premature partition-versioning while the project still has
 no v1 training checkpoint to compare against.
+
+### D16: Default predictor conditioning is c = (G, D, Y), no phi_t (2026-05-16)
+
+The predictor's AdaLN-Zero conditioning at the default run uses the static
+descriptor c = (G, D, Y) only. The phase variable phi_t proposed in the
+architectural specification Section 3.4 is not part of the default. The
+predictor's internal AdaLN call still takes a (B, T, cond_dim) tensor with
+cond_dim = 3 (c broadcast across t), so a future switch to cond_dim = 4 is a
+one-line change.
+
+Rationale: closer to the LeWM precedent (LeWM uses per-step actions only because
+the environments have natural per-step actions; ours does not), simpler data
+loader contract (no phi field in the batch), no normaliser choice to lock down.
+The architectural spec ablation 13 (with vs without phi_t) remains relevant; the
+default now becomes "without", and "with" becomes the variant ablation if
+forecast horizon comes in soft.
+
+Alternative considered: include phi_t as the kinematic centroid-to-LE distance
+in normalised convective time. Deferred. If H1's forecast-horizon target
+(factor of 2 over Fukami AE at epsilon = 0.1) is not met at the end of the
+first full training run, this is the first mitigation to try, before deeper
+predictor / more dropout / more weight decay.
+
+Effect on the batch contract: the planned batch dictionary is
+`{'omega': (B, T, 1, H, W), 'c': (B, 3)}`. No `phi: (B, T)` field.
+
+### D17: Encoder projection uses BatchNorm per LeWM, with documented LeJEPA caveat (2026-05-16)
+
+The encoder's [CLS] -> latent projection head uses `nn.BatchNorm1d(d)` as the
+final layer, NOT `nn.LayerNorm(d)`. This follows LeWM Section 3.1
+(arXiv:2603.19312):
+
+"The projection step maps the [CLS] token embedding into a new representation
+space using a 1-layer MLP with Batch Normalization. This step is necessary
+because the final ViT layer applies a Layer Normalization, which prevents
+our anti-collapse objective from being optimized effectively."
+
+Caveat: the LeJEPA official reference implementation
+(github.com/galilai-group/lejepa, by Balestriero) reports that across 10+
+datasets and 60+ architectures at ImageNet scale, "no clear difference observed
+between LayerNorm and BatchNorm, so we used LayerNorm consistently." So
+"SIGReg requires BatchNorm" overclaims; the more accurate statement is that
+LeWM specifically observed the LayerNorm-vs-anti-collapse interaction in its
+small-environment, low-intrinsic-dim regime, and that our setting (small
+dataset, intrinsic dim ~5 to 10, single GPU) is closer to LeWM's than to
+LeJEPA's.
+
+Decision: follow LeWM in the default. Document the caveat so that if
+participation-ratio diagnostics show partial SIGReg collapse (pre-registered
+hypothesis H4), the FIRST diagnostic intervention is to retry with LayerNorm at
+the projection, BEFORE invoking the VICReg auto-fallback at iteration 20k.
+This adds one cheap contingency between the default and the fallback.
+
+Rationale: LeWM is the direct architectural template (CLAUDE.md "What we are
+building"). The LeWM ablations were performed at our regime; LeJEPA's were
+performed at a much larger scale. Where the two disagree, LeWM is the more
+relevant precedent for this project.
+
+Alternative considered: follow LeJEPA's reference (LayerNorm at the
+projection). Rejected because the LeJEPA finding is at a scale that does not
+match our setting, and because keeping the BatchNorm path makes the LeWM
+precedent reproduction cleaner.
+
+Effect on the encoder spec: `src/models/encoder.py` final layer of the
+projection is `nn.BatchNorm1d(latent_dim)`, asserted by a unit test
+(`test_encoder_projection_is_batchnorm`).
 
 ### D13: SIGReg follows LeWM Appendix A, no N multiplier (2026-05-16)
 
