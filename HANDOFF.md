@@ -301,6 +301,54 @@ plan). Rejected as premature partition-versioning at the current pre-training
 stage. The four-check loader smoke test was re-run with the updated counts and
 still passes (114 / 48 / 28 / 24, overlap fraction 0.804, seed=42 reproducible).
 
+### D15: Absorb one more run3 case into v1 (2026-05-16, late)
+
+Carlos's collaborator dropped a third run3 file in
+`$PREVENT_ROOT/data/raw/periodic/run3/` later the same day as D14
+(`Gust_028_x-1.989_y-0.290_s-0.5_d0.5.h5`, timestamped 2026-05-16 21:17;
+Gust_027 was skipped by the collaborator's numbering, the same pattern
+as the earlier missing Gust_018). Decoded with the locked alpha=14 degree
+rotation:
+
+- `G-0.50_D0.50_Y+0.20`  (run3, defaults to `train`)
+
+The new case_id does not collide with the existing inventory; |G|=0.5 stays
+inside the training envelope (|G| <= 3, only |G|=4 is held out in Test C).
+
+Same precedent as D12 and D14: v1 still has no paper-reportable training
+checkpoint, so this absorption stays in v1. The next absorption after the
+first reportable v1 run MUST go to v2.
+
+Effect on counts (cumulative since D14):
+- Train cases: 35 -> 36 (+1 run3 train case).
+- Train encounters: 120 -> 123 (+3 = 1 case x 3 train-encounter slots).
+- Test A encounters: 50 -> 51 (+1 = 1 case x 1 held-out encounter).
+- Total cases: 45 -> 46.
+- Total encounters: 222 -> 226.
+
+Cache:
+- 4 new encounter files written at
+  `${VORTEX_JEPA_CACHE}/v1/G-0.50_D0.50_Y+0.20/encounter_*.h5`.
+- The 222 pre-existing encounter files are untouched (preprocess.py skipped them).
+
+`data_manifest/raw_cases_inventory.yaml` regenerated via
+`scripts/100c_raw_cases_inventory.py`; summary now reports
+`n_cases_total: 46`, `n_cases_periodic: 21`, `n_cases_run3: 25`,
+`n_parse_errors: 0`, `n_duplicate_case_ids: 0`. New inventory SHA256:
+`2b7d7a240c92b191684c29d7b6c721c8dff23543216620b4c02cdfcb00641611`
+(pinned in the split manifest at `source_inventory.sha256`).
+
+`configs/splits/split_v1.json` regenerated via `python build_split_manifest.py`.
+New SHA256:
+`9df7b733b9bc0161aed205571f3a0273416e829fda9d7a6660f9bb7aa040a81a`
+(D14's hash `f21abb5d48008031d628042bd46743a82e3dd28c194e8a66dc22e7dee8b8bf8c`
+is preserved in git history at commit 77b71fc). When logging W&B
+`split_sha256` for runs that touch the absorbed v1, use the new hash.
+
+Alternative considered: build v2 with this case alongside D14's two cases.
+Rejected for the same reason as D12/D14 -- premature partition-versioning
+while the project still has no v1 training checkpoint.
+
 ### D14: Absorb two more run3 cases into v1 (2026-05-16)
 
 Carlos's collaborator dropped two more run3 files in
