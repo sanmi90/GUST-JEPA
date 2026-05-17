@@ -1,10 +1,10 @@
 {
   "manifest_version": "split_v1",
-  "created_iso": "2026-05-16T20:16:23.060306+00:00",
+  "created_iso": "2026-05-17T09:56:31.847728+00:00",
   "source_inventory": {
     "version": "raw_cases_inventory_v1",
-    "created_iso": "2026-05-16T19:56:20.981549+00:00",
-    "sha256": "2b7d7a240c92b191684c29d7b6c721c8dff23543216620b4c02cdfcb00641611"
+    "created_iso": "2026-05-17T09:56:06.160532+00:00",
+    "sha256": "8c7202e1c8b6d8055f5e320733cf639746999504f631a4e2551c9eaecd419282"
   },
   "physical_constants": {
     "airfoil": "NACA0012",
@@ -58,16 +58,16 @@
     "G+4.00_D1.00_Y-0.10"
   ],
   "summary": {
-    "n_cases_total": 46,
-    "n_cases_train": 36,
+    "n_cases_total": 47,
+    "n_cases_train": 37,
     "n_cases_test_b": 6,
     "n_cases_test_c": 4,
     "n_cases_calibration_reference": 1,
-    "n_encounters_train": 123,
-    "n_encounters_test_a": 51,
+    "n_encounters_train": 126,
+    "n_encounters_test_a": 52,
     "n_encounters_test_b": 28,
     "n_encounters_test_c": 24,
-    "n_encounters_total_in_splits": 226
+    "n_encounters_total_in_splits": 230
   },
   "cases": {
     "Baseline": {
@@ -1145,6 +1145,29 @@
       "source_group": "run3",
       "filename": "Gust_028_x-1.989_y-0.290_s-0.5_d0.5.h5",
       "relative_path": "data/raw/periodic/run3/Gust_028_x-1.989_y-0.290_s-0.5_d0.5.h5",
+      "n_frames": 480,
+      "n_encounters_full": 4,
+      "trailing_partial_frames": 0,
+      "discarded_trailing_partial": false,
+      "split": "train",
+      "train_encounter_indices": [
+        0,
+        1,
+        2
+      ],
+      "test_a_encounter_indices": [
+        3
+      ],
+      "is_calibration_reference": false
+    },
+    "G+1.00_D1.00_Y-0.20": {
+      "case_id": "G+1.00_D1.00_Y-0.20",
+      "G": 1.0,
+      "D": 1.0,
+      "Y": -0.2,
+      "source_group": "run3",
+      "filename": "Gust_030_x-1.892_y-0.678_s1.0_d1.0.h5",
+      "relative_path": "data/raw/periodic/run3/Gust_030_x-1.892_y-0.678_s1.0_d1.0.h5",
       "n_frames": 480,
       "n_encounters_full": 4,
       "trailing_partial_frames": 0,

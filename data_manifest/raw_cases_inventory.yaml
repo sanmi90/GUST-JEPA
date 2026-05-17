@@ -4,7 +4,7 @@
 # Edit-by-hand discouraged; rerun the script to refresh.
 
 manifest_version: raw_cases_inventory_v1
-created_iso: '2026-05-16T19:56:20.981549+00:00'
+created_iso: '2026-05-17T09:56:06.160532+00:00'
 source: scripts/periodic_v2/100c_raw_cases_inventory.py
 
 # -------------------------------------------------------------
@@ -48,9 +48,9 @@ parser:
 # Summary.
 # -------------------------------------------------------------
 summary:
-  n_cases_total: 46
+  n_cases_total: 47
   n_cases_periodic: 21
-  n_cases_run3: 25
+  n_cases_run3: 26
   n_parse_errors: 0
   n_duplicate_case_ids: 0
 
@@ -654,4 +654,17 @@ cases:
     Y: +0.20
     Y_from_y_file: +0.199939
     Y_from_x_file: +0.198411
+
+  - filename: Gust_030_x-1.892_y-0.678_s1.0_d1.0.h5
+    relative_path: data/raw/periodic/run3/Gust_030_x-1.892_y-0.678_s1.0_d1.0.h5
+    source_group: run3
+    n_frames: 480
+    n_encounters_full: 4
+    trailing_partial_frames: 0
+    case_id: G+1.00_D1.00_Y-0.20
+    G: +1.00
+    D: 1.00
+    Y: -0.20
+    Y_from_y_file: -0.199939
+    Y_from_x_file: -0.202545
 

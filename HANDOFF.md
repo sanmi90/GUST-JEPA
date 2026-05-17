@@ -41,7 +41,7 @@ with vortex-jepa by reference, not by copy.
   `source_inventory.sha256` so a stale inventory will be visible at load time.
 - The preprocessed per-encounter cache lives at `${VORTEX_JEPA_CACHE}/{partition}/`
   (default `${PREVENT_ROOT}/data/processed/vortex-jepa/`). Partition v1 currently
-  holds 214 encounters (~1.35 GB) across 43 cases (extended once by D12). See
+  holds 230 encounters across 47 cases (extended by D12, D14, D15, D20). See
   `configs/preprocessing.yaml` for the cache parameters.
 
 ## Decision history
@@ -555,6 +555,57 @@ accelerator classes inside a single paper would confuse the reproducibility
 section, and the smaller L40S memory (48 GB vs 96 GB) constrains batch
 size / sub-trajectory length in ways the Blackwell run does not. The L40S
 cards remain available for unrelated work on the same workstation.
+
+### D20: Absorb one more run3 case into v1 (2026-05-17)
+
+Carlos's collaborator dropped a fourth run3 file in
+`$PREVENT_ROOT/data/raw/periodic/run3/` overnight relative to D15
+(`Gust_030_x-1.892_y-0.678_s1.0_d1.0.h5`, timestamped 2026-05-17 09:17;
+Gust_029 was skipped by the collaborator's numbering, the same pattern
+as the earlier missing Gust_018 and Gust_027). Decoded with the locked
+alpha=14 degree rotation:
+
+- `G+1.00_D1.00_Y-0.20`  (run3, defaults to `train`)
+
+The new case_id does not collide with the existing inventory; |G|=1.0
+stays well inside the training envelope (|G| <= 3, only |G|=4 is held out
+in Test C).
+
+Same precedent as D12, D14, D15: v1 still has no paper-reportable training
+checkpoint, so this absorption stays in v1. The next absorption after the
+first reportable v1 run MUST go to v2.
+
+Effect on counts (cumulative since D15):
+- Train cases: 36 -> 37 (+1 run3 train case).
+- Train encounters: 123 -> 126 (+3 = 1 case x 3 train-encounter slots).
+- Test A encounters: 51 -> 52 (+1 = 1 case x 1 held-out encounter).
+- Total cases: 46 -> 47.
+- Total encounters: 226 -> 230.
+
+Cache:
+- 4 new encounter files written at
+  `${VORTEX_JEPA_CACHE}/v1/G+1.00_D1.00_Y-0.20/encounter_*.h5`.
+- The 226 pre-existing encounter files are untouched (preprocess.py
+  reported `written=4, skipped=226`).
+
+`data_manifest/raw_cases_inventory.yaml` regenerated via
+`scripts/100c_raw_cases_inventory.py`; summary now reports
+`n_cases_total: 47`, `n_cases_periodic: 21`, `n_cases_run3: 26`,
+`n_parse_errors: 0`, `n_duplicate_case_ids: 0`. New inventory SHA256:
+`8c7202e1c8b6d8055f5e320733cf639746999504f631a4e2551c9eaecd419282`
+(D15's hash `2b7d7a240c92b191684c29d7b6c721c8dff23543216620b4c02cdfcb00641611`
+is preserved in git history).
+
+`configs/splits/split_v1.json` regenerated via `python build_split_manifest.py`.
+New SHA256:
+`6fa9fd149da1a0d37bb80af0a4381bf7004665bcfce3402d558a04446fe76ae0`
+(D15's hash `9df7b733b9bc0161aed205571f3a0273416e829fda9d7a6660f9bb7aa040a81a`
+is preserved in git history). When logging W&B `split_sha256` for runs
+that touch the absorbed v1, use the new hash.
+
+Alternative considered: build v2 with this case. Rejected for the same
+reason as D12/D14/D15 -- premature partition-versioning while the project
+still has no v1 training checkpoint to compare against.
 
 ## Open questions
 
