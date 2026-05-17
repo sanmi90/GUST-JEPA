@@ -514,6 +514,48 @@ code uses `[-5, 5]`. The half-axis choice is harmless: the integrand is
 symmetric in `t` and the integrand at `t in [0, 0.2)` is negligible (both
 phi_N and phi_0 equal 1 at `t = 0`).
 
+### D19: RTX 6000 Blackwell is the only supported training GPU (2026-05-17)
+
+All training, smoke-test, and benchmark runs MUST use the RTX 6000 Blackwell
+(sm_120) GPU. The workstation also exposes two NVIDIA L40S (sm_89) cards;
+those must NOT be used for vortex-jepa runs so paper compute is on a single,
+named accelerator class. Silent CPU fallback is also forbidden.
+
+Enforcement:
+- `src/utils/device.py:require_rtx6000()` is the canonical accessor. It
+  walks `torch.cuda.device_count()`, picks the first device whose name
+  contains both `RTX` and `6000`, runs a tiny probe kernel
+  (`torch.zeros(4, device=d) + 1`) to confirm the installed PyTorch wheel
+  actually ships kernels for sm_120, and returns a `torch.device` or
+  raises `NoRTX6000Error` with a message that lists what torch DID see
+  and the suggested reinstall command.
+- Training entrypoints call this at startup; tests that genuinely exercise
+  CUDA paths (currently only `test_encoder_bf16_autocast_roundtrip`) call
+  it and `pytest.skip` if it raises, rather than silently falling back to
+  CPU.
+- W&B runs log `gpu_name` and the run is considered untraceable for the
+  paper if that field does not contain `RTX` and `6000`.
+
+Driver/wheel state at the time of the rule:
+- nvidia-smi: 580.95.05, CUDA 12.0, four GPUs visible (two RTX 6000
+  Blackwell, two L40S). The Blackwell cards show as devices 2 and 3 in
+  torch's default ordering (`FASTEST_FIRST`); helper indexes the right one
+  regardless.
+- PyTorch was upgraded from `2.1.2+cu121` (sm_50..sm_90 only, silently fell
+  back to L40S / CPU on Blackwell) to `2.12.0+cu130` on 2026-05-17. The
+  cu130 wheels on the default PyPI index ship kernels for sm_120 and pass
+  the probe.
+- `requirements.txt` was re-pinned to `torch==2.12.0`, `torchvision==0.27.0`,
+  `torchaudio==2.11.0`. The cu128 install via `pytorch.org` was attempted
+  first but the CDN was unreachable from the workstation; the default
+  PyPI index works and ships an equivalent build.
+
+Alternative considered: allow L40S as a fallback. Rejected because mixing
+accelerator classes inside a single paper would confuse the reproducibility
+section, and the smaller L40S memory (48 GB vs 96 GB) constrains batch
+size / sub-trajectory length in ways the Blackwell run does not. The L40S
+cards remain available for unrelated work on the same workstation.
+
 ## Open questions
 
 1. Empirical impact frame. The estimate of 40 was validated in the bootstrap session

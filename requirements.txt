@@ -16,12 +16,19 @@ ipywidgets>=8.0.0
 ipython>=8.0.0
 ipdb>=0.13.0
 
-# PyTorch (CPU for local development)
-# For GPU on HPC, replace with: 
-# torch==2.1.2 --index-url https://download.pytorch.org/whl/cu121
-torch==2.1.2
-torchvision==0.16.2
-torchaudio==2.1.2
+# PyTorch
+# vortex-jepa training, smoke, and benchmark runs MUST use the RTX 6000
+# Blackwell (sm_120) GPU (CLAUDE.md "Hardware", HANDOFF.md D19). These
+# pins ship cu130 wheels that include sm_120 kernels. Install with the
+# default PyPI index (download.pytorch.org/whl/cu128 also works but its
+# CDN was unreachable from the workstation at the time of the upgrade).
+#     pip install --upgrade torch torchvision torchaudio
+# The src/utils/device.py require_rtx6000() helper probes a tiny kernel
+# at startup and raises NoRTX6000Error with a clear remediation message
+# if the wheel does not actually run on the Blackwell card.
+torch==2.12.0
+torchvision==0.27.0
+torchaudio==2.11.0
 
 # Machine learning & signal processing
 scikit-learn>=1.3.0

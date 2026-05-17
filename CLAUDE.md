@@ -194,6 +194,35 @@ The repo intentionally contains NO `data/` directory. Raw DNS data lives at
 `${PREVENT_ROOT}/data/raw/periodic/` and `${PREVENT_ROOT}/data/raw/periodic/run3/`
 outside this repo. See "Dataset layout" above.
 
+## Hardware
+
+All training, smoke-test, and benchmark runs MUST use the RTX 6000 Blackwell
+(sm_120) GPU. The workstation also exposes two NVIDIA L40S cards (sm_89);
+those must NOT be used for vortex-jepa runs so paper compute is on a single,
+named accelerator class. Silent CPU fallback is also forbidden: a script
+that should be on GPU but ends up on CPU has lost most of its meaning.
+
+How to enforce it:
+- Call `from src.utils.device import require_rtx6000` at the top of every
+  training, smoke-test, or benchmark entrypoint. The helper returns a
+  `torch.device("cuda:<idx>")` for the first device whose name contains
+  both `RTX` and `6000`, or raises `NoRTX6000Error` with a clear message
+  that lists what torch actually saw. Move model and inputs to that
+  device; do not call `torch.cuda.current_device()` or hardcode `cuda:0`.
+- Unit tests stay CPU-friendly so the suite runs anywhere in ~50 s. Any
+  test that genuinely exercises a CUDA path (e.g. `bf16` autocast) must
+  call `require_rtx6000()` and skip if it raises, rather than silently
+  falling back to CPU.
+- The PyTorch wheel must include `sm_120` (Blackwell) compute capability.
+  The `cu128` index ships a build that supports both `sm_89` (L40S) and
+  `sm_120` (RTX 6000). If you reinstall, use
+  `pip install --index-url https://download.pytorch.org/whl/cu128 torch`.
+
+W&B requirements that follow from this: every training-run summary logs
+`gpu_name` (from `torch.cuda.get_device_name(device.index)`) and asserts it
+contains `RTX` and `6000`. A run whose `gpu_name` does not match this is
+considered untraceable for the paper.
+
 ## Coding conventions
 
 - Python 3.10+, PyTorch 2.x, Hydra for configs, W&B for logging
@@ -233,6 +262,8 @@ outside this repo. See "Dataset layout" above.
   - `code_sha256` (or `git_commit`)  (hash of the source tree at run start)
   - `auto_fallback_triggered`   (bool; true if SIGReg -> VICReg auto-fallback fired)
   - `wandb_run_id`              (echoed back to stdout and to the W&B summary)
+  - `gpu_name`                  (`torch.cuda.get_device_name(device.index)`; must
+                                contain `RTX` and `6000` per "Hardware" rule above)
 - W&B run group: `partition_v1` (one group per partition; v2 becomes `partition_v2`).
 - W&B tags: `[architecture_name, regularizer_name]` (e.g. `[hybrid_cnn_vit, sigreg]`,
   `[pldm, vicreg_7term]`, `[fukami_ae, none]`). Baseline runs use the baseline name as
@@ -329,6 +360,9 @@ Auto-fallback rule (hard-coded in `src/training/train_jepa.py`):
 - Do not use em-dashes in any output document.
 - Do not use LayerNorm at the encoder latent boundary. SIGReg requires BatchNorm
   (LeWM appendix, see Section 3.1 of the architecture spec in HANDOFF.md).
+- Do not run training, smoke-test, or benchmark scripts on the L40S cards, on
+  CPU, or on any device other than the RTX 6000 Blackwell (see "Hardware" above).
+  Call `require_rtx6000()` from `src.utils.device` to enforce this at startup.
 
 ## Where to find more detail
 

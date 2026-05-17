@@ -45,6 +45,9 @@ runs/
 .idea/
 *.swp
 
+# Claude Code local state (settings overrides, schedule locks)
+.claude/
+
 # OS
 .DS_Store
 Thumbs.db
