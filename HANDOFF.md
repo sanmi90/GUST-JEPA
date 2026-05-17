@@ -2,7 +2,7 @@
 
 Session handoff document for the vortex-jepa project.
 
-Last updated: 2026-05-16.
+Last updated: 2026-05-17.
 
 If you are picking up this project mid-stream (new collaborator, new Claude session, or
 returning after a break), read this document first. CLAUDE.md is the operational guide.
@@ -607,6 +607,114 @@ Alternative considered: build v2 with this case. Rejected for the same
 reason as D12/D14/D15 -- premature partition-versioning while the project
 still has no v1 training checkpoint to compare against.
 
+### D21: Scheduled sampling is V-JEPA 2-AC-faithful with H_roll = 8 (2026-05-17)
+
+Session 4 implements scheduled sampling as a two-loss sum with fixed
+coefficients,
+
+```
+L_total = L_pred + 0.5 * L_roll + lambda * L_anticollapse
+```
+
+where `L_pred` is teacher-forced one-step MSE over the full `T - 1`
+positions of the sub-trajectory and `L_roll` is open-loop rollout MSE
+over `H_roll = 8` steps from one random start position per forward pass.
+This is the V-JEPA 2-AC recipe (Assran et al., arXiv:2506.09985, 2025,
+Section 6 and appendices) transposed to our setting; it is NOT Bengio
+probabilistic teacher-student mixing.
+
+Two transpositions from the V-JEPA 2-AC original:
+
+- Teacher-forced loss covers `T - 1 = 31` positions (V-JEPA 2-AC uses 15
+  because its architecture exposes 16 frame slots at a time; we have
+  access to the full sub-trajectory).
+- Rollout horizon is `H_roll = 8` (CLAUDE.md "Locked decisions,
+  Training"). V-JEPA 2-AC uses `H_roll = 2`, which is too short for
+  vortex impact dynamics that last 5 to 20 t/c (40 to 160 effective
+  frames at `dt_eff = 0.1`).
+
+Rationale: the two-loss sum is the simplest faithful translation of the
+LeWM `L_pred + lambda * L_sigreg` objective extended with rollout from
+V-JEPA 2. Bengio probabilistic mixing was rejected because it adds a
+hyperparameter axis (the teacher-forcing probability schedule) with no
+published precedent for JEPA-style models, and the two-loss sum is
+simpler to ablate against (just turn off `rollout_weight`).
+
+Implementation: `src/training/scheduled_sampling.py` defines two free
+functions, `teacher_forced_prediction_loss(z_target, z_hat)` and
+`open_loop_rollout_loss(predictor, z_target, cond, start_t, horizon)`.
+The JEPA wrapper composes them with `rollout_start_strategy` chosen at
+construction time (`fixed_zero` for unit tests; `uniform_random` for
+training; `impact_aware` reserved for Session 5+ ablation).
+
+Alternative considered: Bengio scheduled sampling with `p_tf` annealed
+from 1.0 to 0.5 over 30 percent of training. Rejected per the reasoning
+above.
+
+### D22: VICReg coefficients are mu = 25, lambda = 25, nu = 1, gamma = 1, invariance term dropped (2026-05-17)
+
+The auto-fallback VICReg (HANDOFF.md D5) uses the Bardes ICLR 2022 default
+coefficients `mu = 25, lambda = 25, nu = 1, gamma = 1` (arXiv:2105.04906,
+Section 3). The invariance term parameterised by `lambda` requires a
+second view of each sample (`z_a, z_b` pair), which JEPA without paired
+augmentations does not have (HANDOFF.md D6). Per the H-JEPA reference
+implementation (Wiggins, 2026) and the PLDM precedent (Sobal et al.,
+arXiv:2211.10831, 2022), the standard solution is to drop the invariance
+term and keep `mu * L_var + nu * L_cov` only.
+
+Effect on the public API: `src/models/vicreg.py` constructor takes all
+four arguments (`mu, lambda_, nu, gamma`) for forward-compatibility with
+future ablations that introduce a second view (for example, the
+symmetry-augmentation pair listed as open question 6). The default
+forward pass ignores `lambda_` and computes only the variance hinge plus
+the off-diagonal covariance Frobenius norm. A unit test
+(`test_vicreg_lambda_argument_is_inert_without_second_view`) asserts that
+varying `lambda_` does not change the loss output.
+
+Numerical note: the variance hinge target is the per-dimension standard
+deviation (`sqrt(var + eps)`), not the variance itself, per Bardes et al.
+equation (1). The `eps = 1e-4` default prevents infinite gradients when
+a latent dimension approaches zero variance; an all-zero batch produces
+a loss of approximately `mu * (gamma - sqrt(eps)) = 25 * 0.99 = 24.75`,
+not the dimensionally-suggestive `mu * gamma = 25`.
+
+Supersedes CLAUDE.md "Risk-management" which previously listed
+`mu = 25.0, nu = 1.0` without specifying `lambda` or `gamma`. The new
+canonical reference is this entry.
+
+Alternative considered: replicate the full Bardes three-term loss with a
+synthetic second view (e.g., temporally jittered `z_{t+1}` for `z_t`).
+Rejected because (a) it conflates the invariance objective with the
+prediction objective the JEPA already optimises, and (b) it forces an
+augmentation choice the project does not have a basis to make at this
+stage.
+
+### D23: Slow integration tests are opt-in via pytest --runslow (2026-05-17)
+
+The full integration test for the training entrypoint
+(`tests/test_train_jepa_smoke.py`) runs a 20-iteration end-to-end JEPA
+training loop on the Baseline case. This takes roughly 30 seconds on the
+RTX 6000 Blackwell and instantiates the full data loader, optimizer,
+scheduler, autocast, diagnostics, and checkpoint paths. It is the most
+valuable single test in the suite because it exercises the wiring no
+unit test can reach, but at 30 seconds it would slow the default
+`pytest tests/` run to over a minute.
+
+Solution (`conftest.py`): register a `slow` marker plus a `--runslow`
+CLI option. By default the marker is skipped; passing `--runslow` runs
+the slow tests too. This is the canonical pytest opt-in pattern.
+
+Usage:
+
+```
+pytest tests/            # fast suite, 71 passing in ~95 seconds, 1 skipped
+pytest tests/ --runslow  # full suite, 72 passing in ~125 seconds
+```
+
+CI runs the fast form. Local pre-PR runs should include `--runslow`
+when touching `src/training/train_jepa.py`, `src/models/jepa.py`,
+`src/data/`, or any module that participates in the training loop.
+
 ## Open questions
 
 1. Empirical impact frame. The estimate of 40 was validated in the bootstrap session
@@ -645,34 +753,49 @@ still has no v1 training checkpoint to compare against.
    all four splits; impact-aware fraction 0.814 vs predicted 0.811; reproducible with
    seed. See SESSION_REPORT_2026-05-15.md.
 
-2. Build the encoder (`src/models/encoder.py`) and predictor (`src/models/predictor.py`)
-   with unit tests for shape contracts, AdaLN-Zero identity initialization, and causal
-   masking.
+2. (Done, 2026-05-16, Session 2) Model primitives: SIGReg, AdaLN-Zero, RoPE under
+   `src/models/`. 15 unit tests green (six SIGReg distribution/gradient/dtype,
+   four AdaLN-Zero identity/broadcast/gradient, five RoPE identity/offset/cache).
+   See SESSION_REPORT_2026-05-16.md and D13 (SIGReg LeWM-faithful, no `*N` multiplier).
 
-3. Build SIGReg (`src/models/sigreg.py`) and the participation-ratio diagnostic
-   (`src/training/diagnostics.py`). Unit-test SIGReg against scipy.stats.normaltest on
-   Gaussian samples.
+3. (Done, 2026-05-16, Session 3) Encoder and predictor under `src/models/`. Hybrid
+   CNN stem (3M params) + 6-layer ViT (7M params) -> d=32 latent via BatchNorm-projected
+   [CLS] head (D17). AdaLN-Zero-conditioned 6-layer autoregressive predictor with RoPE
+   on Q and K only, causal mask, BatchNorm output projection. Encoder + predictor unit
+   tests bring the suite to 31 green.
 
-4. Smoke-test training run: 5k iterations on a tiny subset (5 training cases) to verify
-   the loss converges, the latent does not collapse, and the visualization decoder
-   produces recognizable fields. Pass criteria: SIGReg loss below 5.0 at iter 5000,
-   participation ratio above 0.5 * d, probe R^2 for c above 0.5 on Test B.
+4. (Done, 2026-05-17, Session 4) JEPA wrapper, VICReg fallback, scheduled-sampling
+   utility, diagnostics, auto-fallback controller, RTX 6000 device helper, and a
+   minimal argparse training entrypoint (`src/training/train_jepa.py`). 200-iter smoke
+   on three cases (Baseline, G+1.00_D0.50_Y+0.10, G-1.00_D1.00_Y-0.20) ran end-to-end
+   on the RTX 6000 Blackwell in roughly 30 seconds, with all four required and seven
+   paper-grade W&B keys logged and one checkpoint written. New tests bring the suite
+   to 71 green plus 1 slow integration test that runs under `pytest --runslow`. See
+   D21 (V-JEPA 2-AC-faithful scheduled sampling), D22 (VICReg coefficients with the
+   invariance term dropped), and D23 (slow-test opt-in pattern).
 
-5. Lambda bisection at full data: six evaluations of 24k iterations each. Pick the
+5. Meaningful 5k-iter smoke run on 5 cases (Session 5). Pass criteria from the
+   original next-steps entry, now repeated here for clarity: SIGReg loss below 5.0 at
+   iter 5000, participation ratio above 0.5 * d, probe R^2 for c above 0.5 on Test B.
+   This is the run that tests whether the JEPA *learns anything useful*; Session 4
+   only verified that the training loop runs cleanly. Session 5 also introduces Hydra
+   configs and enables `torch.compile()` on the JEPA wrapper.
+
+6. Lambda bisection at full data: six evaluations of 24k iterations each. Pick the
    lambda maximizing Test A probe R^2.
 
-6. Full training of the chosen lambda for 80k iterations. Train the visualization
+7. Full training of the chosen lambda for 80k iterations. Train the visualization
    decoder on the frozen encoder. Run the full Section-7 evaluation suite.
 
-7. Baselines in parallel: PLDM, Fukami AE, Solera-Rico beta-VAE, POD on the same split
+8. Baselines in parallel: PLDM, Fukami AE, Solera-Rico beta-VAE, POD on the same split
    with the same evaluation metrics.
 
-8. Ablation matrix (the 15 ablations from the architecture spec). Mandatory: ablations
+9. Ablation matrix (the 15 ablations from the architecture spec). Mandatory: ablations
    1 (d sweep), 2 (SIGReg vs VICReg vs none), 7 (teacher forcing vs scheduled sampling
    vs full rollout), 10 (Solera-Rico baseline), 11 (Fukami AE baseline), plus the new
    PLDM baseline.
 
-9. Paper writing.
+10. Paper writing.
 
 ## Key references
 
