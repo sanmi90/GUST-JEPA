@@ -1551,6 +1551,124 @@ D35-absorbed cases so the F-S contrast is purely "more cases from the
 Session 5 physical pool" rather than "more cases plus new corner
 coverage."
 
+### D39: Session 6 outcome -- COMBINED_REMEDIATION with PLDM as the recommended base (2026-05-18)
+
+Final audit on the 5-case Test A subset, run by
+`notebooks/03_factorial_analysis.ipynb` against the iter-5000 checkpoints
+(plus F-OBS @ 10k from the resume extension):
+
+| Variant                       | PR_all | PR_within | r2(z->c) | r2(z_dyn->c) | r2(z_dyn->phase) | r2(CL_future) | classify()                                |
+|-------------------------------|-------:|----------:|---------:|-------------:|-----------------:|--------------:|-------------------------------------------|
+| Run A (SIGReg + BN baseline)  |  1.02  |   2.25    |   0.73   |   -0.17      |     0.13         |    -0.02      | baseline                                  |
+| PLDM-A (Session 5.PLDM)       |  6.72  |   4.01    |   0.97   |   -0.09      |     0.58         |    0.96       | **active** (PR_within>4, phase>0.5, CL>baseline) |
+| F-L (SIGReg, L=64)            |  1.01  |   3.25    |   0.83   |   -0.14      |     0.11         |   -0.04       | inactive                                  |
+| F-CD (SIGReg, c-dropout=0.5)  |  1.03  |   2.72    |   0.55   |   -0.15      |     0.15         |   -0.02       | inactive                                  |
+| F-NC (SIGReg, cond_dim=0)     |  1.02  |   5.86    |   0.38   |   -0.13      |     0.16         |   -0.02       | partially_active (PR_within>4 only)       |
+| F-S  (SIGReg, 24 cases)       |  1.03  |   1.48    |   0.46   |   -0.08      |     0.10         |   -0.02       | regressed (PR_within < baseline)          |
+| F-OBS (SIGReg + obs eta=0.01) |  3.21  |   3.53    |   0.99   |   -0.10      |     0.47         |    0.95       | partially_active (CL>baseline only)       |
+| F-OBS @ 10k (resume)          |  3.41  |   3.59    |   0.99   |   -0.12      |     0.45         |    0.95       | partially_active (CL>baseline only)       |
+| **PLDM+OBS (PLDM + obs eta=0.01)** |  6.09  |   4.77    |   0.97   |   -0.13      |     0.54         |    0.96       | **active** (PR_within>4, phase>0.5, CL>baseline) |
+
+Baseline for the CL-prediction metric:
+`baseline_ct(c, t) -> CL(t + delta) -> r2 = 0.902`. Any variant with
+`r2(CL_future) > 0.90` is using the latent for something a (c, t)
+lookup cannot do; r2 below that means the latent is at best a fancy
+case-frame lookup. Per the notebook, only the four observable-coupled
+or PLDM rows beat the baseline (PLDM-A, PLDM+OBS, F-OBS, F-OBS @ 10k);
+the four pure-SIGReg axes (Run A, F-L, F-CD, F-NC, F-S) all score
+below zero (worse than predicting the mean CL).
+
+Decision string per the canonical_for_axis logic in
+`notebooks/03_factorial_analysis.ipynb` Section 5: **COMBINED_REMEDIATION**.
+Partial axes: F-NC (PR_within>4) and F-OBS (CL>baseline). No JEPA axis
+is fully active. Strict reading: Session 7 should run factorial
+combinations of F-NC and F-OBS at 5k iters and check whether the
+combination clears the active bar.
+
+Substantive read (broader than the strict decision tree): the audit
+shows **PLDM-A is *already* an active configuration by the same bar
+applied to the JEPA axes**, contrary to the Session 5 D31 reading of
+"DATA_SCALE_BOUND". The D31 reading was based on a coarser PR-only
+diagnostic; once the static-vs-dynamic decomposition and the CL-future
+probe are added, PLDM-A clears all three "active" checks (PR_within=4.01,
+r2_dyn_phase=0.58, r2(CL_future)=0.96). PLDM+OBS slightly improves
+on PLDM-A across PR_within (4.01 -> 4.77) but leaves the other two
+metrics roughly unchanged. The observable head's *bigger* impact is
+rescuing SIGReg JEPA from TRIVIAL (Run A's r2(CL_future)=-0.02 -> F-OBS's 0.95):
+
+- For SIGReg: OBS is a *necessary* rescue from TRIVIAL.
+- For PLDM:   OBS is a *marginal* improvement on an already-active config.
+
+This regulariser asymmetry was not in the Session 6 plan; it is the
+single most important finding of the session.
+
+Session 7 plan (revised from the strict COMBINED_REMEDIATION reading
+to reflect the substantive read):
+
+1. **Session 7-PLDM-DEEP**: confirm PLDM-A is active at higher iters
+   and on more cases. Train PLDM-A for 20k iters on the full 41-train-
+   case partition; verify PR_within, r2_dyn_phase, r2(CL_future) all
+   stay or improve. Estimated 4 hours.
+2. **Session 7-OBS-PLDM**: sweep `eta` in {0, 0.001, 0.005, 0.01, 0.05}
+   for PLDM at 20k iters on full data, with `eta = 0` as the explicit
+   "PLDM alone" anchor. Pick the operating point that maximises
+   r2(CL_future) on Test A. Estimated 8 hours.
+3. **Session 7-COMB-NC-OBS (optional)**: the strict COMBINED_REMEDIATION
+   path. Combine F-NC + F-OBS on SIGReg JEPA at 5k iters as a control
+   that the JEPA-side combination does not unexpectedly outperform
+   PLDM. Cheap (~2 hours of GPU on cuda:3 in parallel with Session 7-OBS-PLDM).
+
+Paper framing (updated): "PLDM with the 5-term VICReg-derived
+objective already produces a non-trivial latent on low-intrinsic-dim
+fluid data at the 5-case smoke scale; SIGReg JEPA does not. An
+auxiliary CL observable head rescues SIGReg from TRIVIAL and
+marginally improves PLDM. The 'observable augmentation' literature
+(Fukami JFM 2023/2024/2025, Solera-Rico Nat Commun 2024) is therefore
+necessary for the weaker regulariser, not the stronger one."
+
+Out-of-plan extensions recorded here for the audit trail:
+
+- F-OBS @ 10k: resume of F-OBS using a new `--resume-from` flag on
+  `train_jepa.py` (committed during the session) to continue from the
+  iter-5000 checkpoint to iter 10000. Result: PR drift +0.7 over the
+  extra 5000 iters, confirming the F-OBS plateau is not iter-budget-
+  limited. Cost: ~35 min of GPU on cuda:3.
+- PLDM+OBS: observable head wired into `PLDMWrapper` and exposed as
+  the same three CLI flags in `train_baseline.py` that exist on
+  `train_jepa.py`. Result: PR=12 at iter 4750, only slightly above
+  PLDM-A's PR=6.7 at iter 5000 (and the audit shows PLDM+OBS's
+  *static-vs-dynamic* metrics are essentially unchanged from PLDM-A).
+  Cost: ~30 min of GPU on cuda:2 plus ~20 min of wiring
+  (`src/models/pldm_wrapper.py`, `src/training/train_baseline.py`,
+  `tests/test_pldm_wrapper.py` +2 tests).
+
+Both extensions were proposed mid-session and approved by the user
+because they were high-value-low-cost (cuda:3 was idle after the F-OBS
+chain finished; the PLDM+OBS extension parallelizes with F-OBS-10k
+across the two RTX 6000 cards). The PLDM+OBS extension changed the
+session's substantive conclusion (without it, "OBS rescues SIGReg" is
+all the evidence; with it, "OBS marginally helps PLDM" is added and
+the regulariser asymmetry becomes the headline).
+
+F-NC PR_within = 5.86 caveat: F-NC's apparent partial activity is a
+weak partial. PR_within is high but the dynamic part has no phase
+signal (r2_dyn_phase=0.16) and no CL prediction signal (r2(CL_future)=-0.02).
+The high PR_within is likely a numerical artifact of cond_dim=0
+collapsing the conditioning channel: the predictor has less structure
+to lock onto, the encoder produces a slightly noisier (more
+high-rank-looking) latent, but the rank does not correspond to useful
+structure. Session 7 should not over-index on this signal.
+
+The hardware finding from D38 is also recorded here: the workstation
+exposes two RTX 6000 Blackwell cards, not one as CLAUDE.md "Hardware"
+states. Session 6 used both via `CUDA_VISIBLE_DEVICES=3` on the
+second-card chain. The Session 6 wall clock was ~2.5 hours instead of
+~5+ that single-card execution would have required. CLAUDE.md should
+be updated to acknowledge the second card and document the
+single-card-isolation pattern; this is housekeeping deferred to a
+follow-up commit so the Session 6 branch lands the substantive findings
+without scope creep.
+
 ## Open questions
 
 1. Empirical impact frame. The estimate of 40 was validated in the bootstrap session

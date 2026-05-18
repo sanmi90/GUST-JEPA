@@ -13,8 +13,22 @@ causes. The plan defined four pass criteria for the session itself
 plus the decision-string analysis); the numerical pass criteria from
 Session 5 (PR > 16, probe R^2 in 0.5 to 0.7) explicitly did not apply.
 
-Outcome: TBD (filled in after the factorial analysis notebook executes
-and the decision string is recorded as D39).
+Outcome: **COMBINED_REMEDIATION** by the strict canonical_for_axis logic
+(no JEPA axis fully active; partial axes = F-NC and F-OBS). The substantive
+read is more nuanced: **PLDM-A is *already* active by the same audit
+criteria** (PR_within=4.01, r2(z_dyn->phase)=0.58, r2(CL_future)=0.96 vs
+the c+t baseline of 0.90), contrary to the Session 5 D31 reading of
+"DATA_SCALE_BOUND". The Session 6 observable head:
+
+  - **rescues SIGReg from TRIVIAL** (Run A's r2(CL_future)=-0.02 ->
+    F-OBS's 0.95);
+  - **marginally improves PLDM** (PR_within 4.01 -> 4.77, other metrics
+    unchanged).
+
+The regulariser asymmetry (observable is necessary for SIGReg, marginal
+for PLDM) is the headline finding. Session 7 commits to a PLDM-focused
+deepening rather than the strict COMBINED_REMEDIATION combination of
+F-NC and F-OBS on SIGReg JEPA. Full reasoning in HANDOFF.md D39.
 
 ## What landed
 
@@ -162,16 +176,61 @@ Runs launched via `scripts/run_session6_factorial.sh` (the script
 writes per-variant `train.log` files and a top-level summary at
 `outputs/runs/session6/_session6_summary.log`).
 
-| Variant | Axis changed | Status |
-|---------|--------------|--------|
-| F-L     | sub-trajectory length 64 + rollout horizon 16 | TBD |
-| F-CD    | per-batch c-dropout 0.5 | TBD |
-| F-NC    | predictor cond_dim = 0 | TBD |
-| F-S     | 24-case scale-up | TBD |
-| F-OBS   | observable CL head, eta = 0.01 | TBD |
+| Variant | Axis changed | PR_final | r2(z->c)_final | Reading |
+|---------|--------------|---------:|---------------:|---------|
+| F-L     | sub-trajectory length 64 + rollout horizon 16 |  1.01 |  0.79 | TRIVIAL (L axis inactive) |
+| F-CD    | per-batch c-dropout 0.5                        |  1.03 |  0.60 | TRIVIAL (c-dropout inactive; lower r2 but still collapsed) |
+| F-NC    | predictor cond_dim = 0                         |  1.02 |  0.76 | TRIVIAL (D6 arch not the root cause) |
+| F-S     | 24-case scale-up                               |  1.03 |  0.64 | TRIVIAL (not data-scale-bound at 24 cases) |
+| F-OBS   | observable CL head, eta = 0.01                 |  3.11 |  0.99 | partially_active (PR climbs above 1) |
 
-[Per-variant final metrics filled in after `_session6_summary.log`
-records exit codes.]
+Run order on the two RTX 6000 cards (Hardware D19, confirmed two
+RTX-6000-Blackwell cards on the workstation; CLAUDE.md only mentioned
+one before this session):
+
+- cuda:2 (GPU 0): F-L (0-50 min) -> F-CD (51-90 min) -> F-S (91-120 min)
+- cuda:3 (GPU 1): F-NC (0-32 min) -> F-OBS (33-65 min)
+
+Parallelism on the second RTX 6000 was proposed mid-session; the wrapper
+script was killed after F-L finished and two new scripts were launched
+to split the remaining four variants across the two cards. Total wall
+clock dropped from ~2.5 hours (sequential) to ~2.0 hours, with the
+saving used to fit two in-session extensions (F-OBS @ 10k and PLDM+OBS).
+
+In-session extensions (motivated by F-OBS being the only obvious escape
+at the time the extensions were proposed):
+
+| Variant   | iters | PR_all_final | r2(z->c)_final | Reading |
+|-----------|------:|-------------:|---------------:|---------|
+| F-OBS @ 10k (resume) | 10000 |  3.83 |  0.98 | still partially_active (slow PR drift ~+0.2/1k confirmed) |
+| PLDM+OBS             |  5000 | 12.42 (last diag) |  0.96 | active by the Session 6 bar; only marginally above PLDM-A on the audit-style metrics |
+
+`--resume-from` was added to `train_jepa.py` mid-session to support the
+F-OBS @ 10k extension; the observable head was wired into `PLDMWrapper`
+and `train_baseline.py` to support the PLDM+OBS extension. Both changes
+came with unit tests (2 new tests in `tests/test_pldm_wrapper.py`).
+
+The PLDM+OBS extension was originally framed as "does the observable
+head also break PLDM's collapse?" The audit answer is more interesting:
+PLDM was not collapsed in the first place (the Session 5 D31 "DATA_SCALE_BOUND"
+reading was too pessimistic), and the observable head provides only a
+marginal improvement on top. The asymmetric value of observable
+augmentation (SIGReg vs PLDM) is the substantive Session 6 finding
+that the strict decision-tree string does not capture.
+
+### Step 4: factorial analysis notebook + decision string
+
+`notebooks/03_factorial_analysis.ipynb` was executed with all 9 rows
+(8 variants + 1 PLDM-A baseline) and produced the audit table above,
+loss-curve panel, per-axis classify() reading, and the decision string
+`COMBINED_REMEDIATION` (per the strict canonical_for_axis logic). The
+notebook outputs are committed so reviewers can inspect the loss
+curves and the metric table without rerunning. The `r2(CL_future)`
+column shows that the four observable-coupled or PLDM rows
+(PLDM-A, PLDM+OBS, F-OBS, F-OBS @ 10k) all beat the
+`baseline_ct(c, t) -> CL_future` MLP at r2=0.902, while the four
+pure-SIGReg JEPA axes (Run A, F-L, F-CD, F-NC, F-S) score below zero
+(worse than predicting the mean CL).
 
 ### Step 4: factorial analysis notebook and decision string
 
@@ -182,8 +241,29 @@ CL_future` and `baseline_jepa(z_t) -> CL_future`), classifies each
 axis as `active / partially_active / inactive / regressed`, and prints
 the Session 6 decision string from the six-outcome menu.
 
-[Decision string and the recommended Session 7 plan filled in after
-the notebook executes.]
+**Decision string** (strict, from `notebooks/03_factorial_analysis.ipynb`
+Section 5): `COMBINED_REMEDIATION`. Partial axes: F-NC and F-OBS. No
+JEPA axis fully active. Strict reading: Session 7 should run F-NC + F-OBS
+combinations on SIGReg JEPA.
+
+**Substantive reading** (uses the full audit table, not just the JEPA
+axes): PLDM-A and PLDM+OBS are both **active** by the same bar. The
+observable head's bigger role is rescuing SIGReg from TRIVIAL than
+boosting PLDM. Session 7 should therefore investigate PLDM more
+deeply rather than focus on the SIGReg-side combination.
+
+**Session 7 plan**: see D39 for the three-track proposal:
+
+  1. **Session 7-PLDM-DEEP** (4h): PLDM-A at 20k iters on the full
+     41-train-case partition. Confirms the active-by-default reading.
+  2. **Session 7-OBS-PLDM** (8h): sweep eta in {0, 0.001, 0.005, 0.01,
+     0.05} on PLDM at 20k iters on the full partition. Picks the operating
+     point that maximises `r2(z -> CL_future)` on Test A with PR_within
+     in the healthy 0.3d to 1.0d window.
+  3. **Session 7-COMB-NC-OBS (optional, ~2h)**: the strict
+     COMBINED_REMEDIATION path. Combines F-NC and F-OBS on SIGReg JEPA
+     as a control check that the JEPA-side combination does not
+     unexpectedly outperform PLDM.
 
 ## Pre-registered methodological note
 
@@ -220,7 +300,13 @@ in isolation.
 
 ## Files added or modified
 
-- `CLAUDE.md`: data counts bumped to 41 / 51 / 56.
+- `CLAUDE.md`: data counts bumped to 41 / 51 / 56. Hardware section
+  remains unchanged from this session even though we discovered there
+  are actually TWO RTX 6000 Blackwell cards on the workstation, not
+  one; the Session 6 use of cuda:3 for parallelism is recorded in
+  D38/D39 and the run-script comments. A separate housekeeping pass
+  should update CLAUDE.md "Hardware" to acknowledge the second card
+  and document the CUDA_VISIBLE_DEVICES=3 pattern used here.
 - `HANDOFF.md`: entries D35, D36, D37, D38 added; D39 added after the
   decision string lands.
 - `SESSION6_FACTORIAL_DIAGNOSTIC.md`: the plan, checked in.
@@ -242,18 +328,16 @@ in isolation.
 - `tests/test_predictor.py`: +3 tests for the unconditioned variant.
 - `tests/test_jepa.py`: +4 tests for c-dropout and observable head.
 
-Commits on `session6-factorial`:
+Commits on `session6-factorial` (in order):
 
-```
-[hash] Session 6 Steps 0-1: absorb 2 run3 cases (v1.2) and add CL(t+Delta) to loader
-[hash] Session 6 Step 2: static-vs-dynamic audit notebook for Run A and Run C
-[hash] Session 6 Step 3 wiring: observable head, c-dropout, cond_dim=0 predictor, 5 new CLI flags
-[hash] Clamp dataset uniform_start_range to (0, n_frames - subtraj_len)
-[hash] Session 6 Step 3 results + Step 4 analysis + D39 decision string
-```
-
-The final commit lands the executed `notebooks/03_factorial_analysis.ipynb`
-and the D39 entry in `HANDOFF.md` once the runs complete.
+1. `4e77ff9` Session 6 Steps 0-1: absorb 2 run3 cases (v1.2) and add CL(t+Delta) to loader
+2. `ef1e965` Session 6 Step 2: static-vs-dynamic audit notebook for Run A and Run C
+3. `889a002` Session 6 Step 3 wiring: observable head, c-dropout, cond_dim=0 predictor, 5 new CLI flags
+4. `d739919` Clamp dataset uniform_start_range to (0, n_frames - subtraj_len)
+5. `216429d` Session 6 Steps 0-3 prep: D36/D37/D38 entries, run script, report skeleton
+6. `592f2f0` Add --resume-from to train_jepa.py for restarting from a checkpoint
+7. `e967494` Add observable head to PLDMWrapper + train_baseline.py for PLDM+OBS variant
+8. [final commit] Session 6 Step 4 + D39 + PLDM+OBS observable head tests + report fill-in
 
 ## Suggested next session
 

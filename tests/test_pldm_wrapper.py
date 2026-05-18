@@ -50,15 +50,17 @@ def _tiny_batch(B: int = 2, T: int = 8, H: int = 192, W: int = 96) -> dict[str, 
 
 def test_pldm_wrapper_shape_contract() -> None:
     """Batch with omega (2, 8, 1, 192, 96) and c (2, 3) returns a dict with
-    all five loss terms plus L_total plus z (the cached encoder output)."""
+    all five loss terms plus L_total plus L_obs (zero when no observable
+    head is configured) plus z (the cached encoder output)."""
     torch.manual_seed(0)
     wrapper = _tiny_pldm()
     out = wrapper(_tiny_batch(B=2, T=8))
-    expected = {"L_total", "L_sim", "L_var", "L_cov", "L_time_sim", "L_idm", "z"}
+    expected = {"L_total", "L_sim", "L_var", "L_cov", "L_time_sim", "L_idm", "L_obs", "z"}
     assert expected.issubset(set(out.keys()))
-    for k in ("L_total", "L_sim", "L_var", "L_cov", "L_time_sim", "L_idm"):
+    for k in ("L_total", "L_sim", "L_var", "L_cov", "L_time_sim", "L_idm", "L_obs"):
         assert out[k].dim() == 0
         assert torch.isfinite(out[k]), f"{k} not finite"
+    assert out["L_obs"].item() == 0.0, "L_obs should be 0 when no observable head"
     assert out["z"].shape == (2, 8, 32)
 
 
@@ -116,6 +118,62 @@ def test_pldm_wrapper_rollout_is_full_horizon() -> None:
     # The wrapper internally uses z[:, :H+1, :] as the comparison window.
     # We don't expose z_hat as a top-level key, so smoke-test L_sim is finite.
     assert torch.isfinite(out["L_sim"])
+
+
+def test_pldm_wrapper_observable_head_adds_loss_and_grad() -> None:
+    """With an ObservableHead and a cl_future tensor in the batch, L_obs is
+    nonzero, L_total includes observable_weight * L_obs, and the encoder
+    receives a gradient component from L_obs."""
+    from src.models.observable_head import ObservableHead
+
+    torch.manual_seed(0)
+    encoder = HybridCNNViTEncoder(latent_dim=32)
+    predictor = AutoregressivePredictor(
+        latent_dim=32, cond_dim=3, hidden_dim=384, depth=2, heads=8,
+        dropout=0.0, max_seq_len=32,
+    )
+    loss = PLDMLoss(d=32, c_dim=3)
+    head = ObservableHead(latent_dim=32, hidden_dim=64, n_deltas=3)
+    wrapper = PLDMWrapper(
+        encoder=encoder, predictor=predictor, loss=loss,
+        prediction_horizon=4, observable_head=head, observable_weight=0.01,
+    )
+    batch = _tiny_batch(B=2, T=8)
+    batch["cl_future"] = torch.randn(2, 8, 3)
+    out = wrapper(batch)
+    assert out["L_obs"].item() > 0.0
+    # L_total = (5 PLDM terms with default lambdas all 1.0) + 0.01 * L_obs
+    pldm_only = (
+        out["L_sim"].item() + out["L_var"].item() + out["L_cov"].item()
+        + out["L_time_sim"].item() + out["L_idm"].item()
+    )
+    assert math.isclose(out["L_total"].item(), pldm_only + 0.01 * out["L_obs"].item(),
+                        rel_tol=1e-5, abs_tol=1e-5)
+
+    enc_first = next(wrapper.encoder.parameters())
+    wrapper.zero_grad()
+    out["L_obs"].backward()
+    assert enc_first.grad is not None and enc_first.grad.detach().abs().sum().item() > 0.0
+
+
+def test_pldm_wrapper_observable_head_missing_batch_key_errors() -> None:
+    """observable_head set but batch lacks 'cl_future' -> clear KeyError."""
+    from src.models.observable_head import ObservableHead
+
+    torch.manual_seed(0)
+    encoder = HybridCNNViTEncoder(latent_dim=32)
+    predictor = AutoregressivePredictor(
+        latent_dim=32, cond_dim=3, hidden_dim=384, depth=2, heads=8,
+        dropout=0.0, max_seq_len=32,
+    )
+    loss = PLDMLoss(d=32, c_dim=3)
+    head = ObservableHead(latent_dim=32, hidden_dim=64, n_deltas=3)
+    wrapper = PLDMWrapper(
+        encoder=encoder, predictor=predictor, loss=loss,
+        prediction_horizon=4, observable_head=head, observable_weight=0.01,
+    )
+    with pytest.raises(KeyError, match="cl_future"):
+        wrapper(_tiny_batch(B=2, T=8))
 
 
 def test_pldm_wrapper_bf16_autocast_smoke() -> None:
