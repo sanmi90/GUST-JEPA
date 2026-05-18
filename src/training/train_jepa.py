@@ -188,6 +188,18 @@ def parse_args() -> argparse.Namespace:
             "At dt_eff = 0.05 these are 0.4 / 0.8 / 1.2 convective times into the future."
         ),
     )
+    p.add_argument(
+        "--resume-from",
+        type=str,
+        default=None,
+        help=(
+            "Path to a previous checkpoint_iter*.pt. The model, optimizer, and "
+            "scheduler state are restored; the iter loop continues from the "
+            "checkpoint's iteration counter to --max-iters. The architecture-"
+            "affecting flags (--d, --T, --projection-norm, --anticollapse, "
+            "--predictor-cond-dim, --observable-head) must match the checkpoint."
+        ),
+    )
     return p.parse_args()
 
 
@@ -501,6 +513,29 @@ def main() -> None:
     scheduler = LambdaLR(optimizer, lr_lambda=build_lr_lambda(args))
     controller = AutoFallbackController(d=args.d)
 
+    start_iter = 0
+    if args.resume_from is not None:
+        ckpt_path = Path(args.resume_from)
+        if not ckpt_path.exists():
+            raise FileNotFoundError(f"--resume-from path does not exist: {ckpt_path}")
+        blob = torch.load(ckpt_path, map_location=device, weights_only=False)
+        jepa.load_state_dict(blob["jepa_state_dict"])
+        optimizer.load_state_dict(blob["optimizer_state_dict"])
+        scheduler.load_state_dict(blob["scheduler_state_dict"])
+        start_iter = int(blob["iteration"])
+        if start_iter >= args.max_iters:
+            raise ValueError(
+                f"checkpoint iteration {start_iter} >= --max-iters {args.max_iters}; "
+                "nothing to do (raise --max-iters or pick an earlier checkpoint)"
+            )
+        run_config["resume_from"] = str(ckpt_path)
+        run_config["resume_from_iter"] = start_iter
+        print(
+            f"[train_jepa] resumed from {ckpt_path} at iter {start_iter}; "
+            f"continuing to {args.max_iters}",
+            flush=True,
+        )
+
     jepa.train()
     print(
         f"[train_jepa] device={device} gpu={gpu_name} "
@@ -510,7 +545,7 @@ def main() -> None:
     )
 
     last_loss_total = float("nan")
-    for iteration in range(args.max_iters):
+    for iteration in range(start_iter, args.max_iters):
         batch = move_batch(next(train_iter), device)
 
         with torch.autocast(device_type="cuda", dtype=torch.bfloat16):
