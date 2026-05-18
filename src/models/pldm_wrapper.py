@@ -25,6 +25,7 @@ import torch
 from torch import Tensor, nn
 
 from src.baselines.pldm import PLDMLoss
+from src.models.observable_head import observable_loss
 
 
 class PLDMWrapper(nn.Module):
@@ -37,7 +38,10 @@ class PLDMWrapper(nn.Module):
        steps to produce ``z_hat`` of shape ``(B, prediction_horizon + 1, d)``.
     3. Calls :class:`PLDMLoss` on ``z[:, :prediction_horizon + 1, :]`` and
        ``z_hat`` plus the static descriptor ``c``.
-    4. Returns the five PLDM terms, ``L_total``, and the cached ``z``.
+    4. (Optional, Session 6 PLDM+OBS) If ``observable_head`` is set, also
+       predicts ``CL(t + delta)`` from ``z`` and adds
+       ``observable_weight * L_obs`` to ``L_total``.
+    5. Returns the five PLDM terms, ``L_obs``, ``L_total``, and the cached ``z``.
 
     Args:
         encoder: ``HybridCNNViTEncoder`` or equivalent
@@ -49,6 +53,9 @@ class PLDMWrapper(nn.Module):
         prediction_horizon: Number of rollout steps from the seed frame.
             The L_sim window covers ``prediction_horizon + 1`` frames
             (the seed plus ``prediction_horizon`` rolled-out steps).
+        observable_head: Optional ``ObservableHead`` that maps z_t to
+            CL(t + delta). When None (default) PLDM runs unchanged.
+        observable_weight: Weight ``eta`` on ``L_obs``. Default 0.0.
     """
 
     def __init__(
@@ -57,6 +64,8 @@ class PLDMWrapper(nn.Module):
         predictor: nn.Module,
         loss: PLDMLoss,
         prediction_horizon: int = 8,
+        observable_head: nn.Module | None = None,
+        observable_weight: float = 0.0,
     ) -> None:
         super().__init__()
         if prediction_horizon < 1:
@@ -65,18 +74,21 @@ class PLDMWrapper(nn.Module):
         self.predictor = predictor
         self.loss = loss
         self.prediction_horizon = int(prediction_horizon)
+        self.observable_head = observable_head
+        self.observable_weight = float(observable_weight)
 
     def forward(self, batch: dict[str, Tensor]) -> dict[str, Tensor]:
-        """Computes the five-term PLDM loss for one training batch.
+        """Computes the (5 or 6)-term PLDM loss for one training batch.
 
         Args:
             batch: ``{'omega': (B, T, 1, H, W), 'c': (B, c_dim)}`` with
-                ``T >= prediction_horizon + 1``.
+                ``T >= prediction_horizon + 1``, plus ``'cl_future':
+                (B, T, n_deltas)`` if an observable head is configured.
 
         Returns:
             Dict with keys ``L_total``, ``L_sim``, ``L_var``, ``L_cov``,
-            ``L_time_sim``, ``L_idm`` (zero-dim fp32 scalars) and ``z``
-            (the encoder output ``(B, T, d)`` with autograd attached).
+            ``L_time_sim``, ``L_idm``, ``L_obs`` (zero-dim fp32 scalars)
+            and ``z`` (the encoder output ``(B, T, d)`` with autograd attached).
         """
         if "omega" not in batch or "c" not in batch:
             raise KeyError(f"batch must have keys 'omega' and 'c'; got {list(batch.keys())}")
@@ -95,5 +107,18 @@ class PLDMWrapper(nn.Module):
         z = self.encoder(omega)
         z_hat = self.predictor.rollout(z[:, :1, :], cond, steps=H)
         loss_out = self.loss(z[:, : H + 1, :], z_hat, cond)
+
+        if self.observable_head is not None and self.observable_weight > 0.0:
+            if "cl_future" not in batch:
+                raise KeyError(
+                    "observable head configured but batch has no 'cl_future' tensor"
+                )
+            cl_pred = self.observable_head(z)
+            L_obs = observable_loss(cl_pred, batch["cl_future"])
+            loss_out["L_obs"] = L_obs
+            loss_out["L_total"] = loss_out["L_total"] + self.observable_weight * L_obs
+        else:
+            loss_out["L_obs"] = torch.zeros((), device=z.device, dtype=torch.float32)
+
         loss_out["z"] = z
         return loss_out

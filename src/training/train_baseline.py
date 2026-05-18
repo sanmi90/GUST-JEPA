@@ -28,6 +28,7 @@ from typing import Any
 
 import torch
 import yaml
+from torch import nn
 from torch.optim import AdamW
 from torch.optim.lr_scheduler import LambdaLR
 from torch.utils.data import DataLoader
@@ -35,6 +36,7 @@ from torch.utils.data import DataLoader
 from src.baselines.pldm import PLDMLoss
 from src.data.episode_dataset import EpisodeDataset
 from src.models.encoder import HybridCNNViTEncoder
+from src.models.observable_head import ObservableHead
 from src.models.pldm_wrapper import PLDMWrapper
 from src.models.predictor import AutoregressivePredictor
 from src.training.diagnostics import (
@@ -93,11 +95,24 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--lambda-time-sim", type=float, default=1.0)
     p.add_argument("--lambda-idm", type=float, default=1.0)
     p.add_argument("--pldm-gamma", type=float, default=1.0)
+    # Session 6 observable-head extension (mirrors train_jepa.py).
+    p.add_argument("--observable-head", type=str, choices=["none", "cl_future"], default="none",
+                   help="Optional auxiliary CL head (Session 6 F-OBS-style augmentation for PLDM).")
+    p.add_argument("--observable-head-weight", type=float, default=0.01)
+    p.add_argument("--observable-head-deltas", type=int, nargs="+", default=[8, 16, 24])
     return p.parse_args()
 
 
+def _emit_cl(args: argparse.Namespace) -> bool:
+    return args.observable_head == "cl_future" and args.observable_head_weight > 0.0
+
+
 def make_train_loader(args: argparse.Namespace) -> DataLoader:
-    ds = EpisodeDataset(partition=args.partition, split="train", subtraj_len=args.T)
+    ds = EpisodeDataset(
+        partition=args.partition, split="train", subtraj_len=args.T,
+        emit_cl_future=_emit_cl(args),
+        cl_future_deltas=tuple(args.observable_head_deltas),
+    )
     if args.cases is not None:
         wanted = set(args.cases)
         ds.samples = [s for s in ds.samples if s[0] in wanted]
@@ -115,7 +130,11 @@ def make_train_loader(args: argparse.Namespace) -> DataLoader:
 
 
 def make_test_b_loader(args: argparse.Namespace) -> DataLoader:
-    ds = EpisodeDataset(partition=args.partition, split="test_b", subtraj_len=args.T)
+    ds = EpisodeDataset(
+        partition=args.partition, split="test_b", subtraj_len=args.T,
+        emit_cl_future=_emit_cl(args),
+        cl_future_deltas=tuple(args.observable_head_deltas),
+    )
     return DataLoader(
         ds, batch_size=args.B, shuffle=False, num_workers=0,
         collate_fn=jepa_collate, drop_last=False,
@@ -179,9 +198,16 @@ def build_pldm(args: argparse.Namespace, device: torch.device) -> PLDMWrapper:
         lambda_idm=args.lambda_idm,
         gamma=args.pldm_gamma,
     )
+    observable_head: nn.Module | None = None
+    if args.observable_head == "cl_future":
+        observable_head = ObservableHead(
+            latent_dim=args.d, n_deltas=len(args.observable_head_deltas),
+        )
     return PLDMWrapper(
         encoder=encoder, predictor=predictor, loss=loss,
         prediction_horizon=args.H_roll,
+        observable_head=observable_head,
+        observable_weight=args.observable_head_weight if observable_head is not None else 0.0,
     ).to(device)
 
 
@@ -238,6 +264,9 @@ def main() -> None:
         "weight_decay": args.weight_decay, "warmup_frac": args.warmup_frac,
         "cases": args.cases, "projection_norm": args.projection_norm,
         "tag_suffix": args.tag_suffix,
+        "observable_head": args.observable_head,
+        "observable_head_weight": args.observable_head_weight,
+        "observable_head_deltas": list(args.observable_head_deltas),
     }
 
     import wandb
@@ -271,11 +300,14 @@ def main() -> None:
 
     # IDM-MLP parameters go in the predictor group (closest semantically; both
     # are part of the latent-dynamics machinery). Encoder keeps its own group.
+    # If an observable head is configured, its parameters share the predictor LR.
+    predictor_group = list(wrapper.predictor.parameters()) + list(wrapper.loss.idm.parameters())
+    if wrapper.observable_head is not None:
+        predictor_group += list(wrapper.observable_head.parameters())
     optimizer = AdamW(
         [
             {"params": list(wrapper.encoder.parameters()), "lr": args.lr_encoder},
-            {"params": list(wrapper.predictor.parameters()) + list(wrapper.loss.idm.parameters()),
-             "lr": args.lr_predictor},
+            {"params": predictor_group, "lr": args.lr_predictor},
         ],
         betas=(0.9, 0.95), weight_decay=args.weight_decay,
     )
@@ -303,7 +335,7 @@ def main() -> None:
                 f"non-finite loss at iter {iteration}: L_total={last_loss_total} "
                 f"(sim={out['L_sim'].item()}, var={out['L_var'].item()}, "
                 f"cov={out['L_cov'].item()}, time={out['L_time_sim'].item()}, "
-                f"idm={out['L_idm'].item()})"
+                f"idm={out['L_idm'].item()}, obs={out['L_obs'].item()})"
             )
 
         optimizer.zero_grad(set_to_none=True)
@@ -322,6 +354,7 @@ def main() -> None:
                     "L_cov": out["L_cov"].item(),
                     "L_time_sim": out["L_time_sim"].item(),
                     "L_idm": out["L_idm"].item(),
+                    "L_obs": out["L_obs"].item(),
                     "lr_encoder": optimizer.param_groups[0]["lr"],
                     "lr_predictor": optimizer.param_groups[1]["lr"],
                 },
@@ -331,7 +364,7 @@ def main() -> None:
                 f"[iter {iteration}/{args.max_iters}] L={last_loss_total:.4f} "
                 f"(sim={out['L_sim'].item():.4f}, var={out['L_var'].item():.4f}, "
                 f"cov={out['L_cov'].item():.4f}, time={out['L_time_sim'].item():.4f}, "
-                f"idm={out['L_idm'].item():.4f})",
+                f"idm={out['L_idm'].item():.4f}, obs={out['L_obs'].item():.4f})",
                 flush=True,
             )
 
