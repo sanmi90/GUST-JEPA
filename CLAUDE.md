@@ -138,10 +138,16 @@ For paper-grade comparison at matched d:
    "Stress-testing offline reward-free RL"). See HANDOFF.md D32 for the citation
    history (the original D8 cited 2211.10831 as PLDM; 2502.14819 is the actual paper).
 
-PLDM is the direct end-to-end JEPA-from-pixels precursor to LeWM, with a 7-term
-VICReg-derived objective (six tunable weights). The central methodological contrast
-the paper owns is "SIGReg + 2-term (proposed)" vs "VICReg + 7-term (PLDM)": simpler
-anti-collapse and O(log n) bisection vs PLDM's O(n^6) grid search.
+PLDM is the direct end-to-end JEPA-from-pixels precursor to LeWM, with a 5-term
+VICReg-derived objective (four tunable weights alpha, beta, delta, omega plus the
+prediction loss L_sim with implicit weight 1; verified against arXiv:2502.14819
+Appendix D.1.1 in HANDOFF.md D30). The central methodological contrast the paper
+owns is "SIGReg + 2-term (proposed)" vs "VICReg + 5-term (PLDM)": simpler
+anti-collapse and O(log n) bisection vs PLDM's larger hyperparameter search space.
+The Session 5.PLDM smoke (D31) confirmed both regularisers collapse at the 5-case
+data scale on physics data, so the contrast itself is regime-dependent and the
+paper claim is now "the regime-dependent SIGReg-PR diagnostic, with PLDM as the
+recommended fallback for low-intrinsic-dim domains" (per D29).
 
 ## Repository structure
 

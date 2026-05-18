@@ -1069,6 +1069,162 @@ verifies the 7-term loss against arXiv:2502.14819 directly before
 implementation; the D8 description (corrected in D32) is approximate
 and was not re-verified against the paper at project bootstrap.
 
+### D30: Session 5.PLDM executed; PLDM has 5 loss terms, not 7 (2026-05-18)
+
+Session 5.PLDM was triggered by D27's TRIVIAL-dominant Session 5 outcome
+and the conditional-priority rule in D29. The session executed in full:
+TDD on a new `src/baselines/pldm.py`, a `src/models/pldm_wrapper.py`
+that composes the existing encoder + predictor with the PLDM loss,
+a `src/training/train_baseline.py` argparse entrypoint, the 5k-iter
+PLDM-A run on the 5-case smoke subset, and an extension of
+`notebooks/01_smoke_5k_analysis.ipynb` adding Section 7 with the
+PLDM trajectories, the 5-variant quadrant table, and a PLDM-specific
+decision string.
+
+**Critical correction to D8.** D8 originally read the PLDM loss as a
+"7-term VICReg-derived objective" with terms 1-7 enumerated as:
+prediction, var(z), cov(z), temporal smoothness, var(dz), cov(dz),
+inverse-dynamics. Direct verification of arXiv:2502.14819 (paper text
+downloaded via the arxiv MCP plugin; LaTeX equations grepped from the
+saved file at chars 18700-19800 and 75130-77100) shows that the paper
+actually has **FIVE** terms:
+
+```
+L_JEPA = L_sim + alpha * L_var + beta * L_cov + delta * L_time_sim + omega * L_IDM
+```
+
+verbatim from Appendix D.1.1. **There are no var(dz) or cov(dz) terms
+on the temporal-difference signal.** D8's "term 5" and "term 6" were
+spurious. The actual loss has 4 tunable weights (alpha, beta, delta,
+omega) plus L_sim with implicit weight 1; D8's "six tunable + one
+fixed = 7" overcounted by two terms.
+
+Paper-side hyperparameter values (Appendix J.2, Tables 13-17):
+
+| Environment | alpha | beta | delta | omega |
+|-------------|-------|------|-------|-------|
+| Two-Rooms   |  4.0  |  6.9 |  0.75 | 0.0   |
+| Diverse PointMaze | 35.0 | 12.0 | 0.1 | 5.4 |
+| Ant-U-Maze  | 26.2  |  0.5 |  8.1  | 0.58  |
+
+Default in `src/baselines/pldm.py` is all 1.0 (placeholder) with the
+expectation that train_baseline.py CLI overrides set environment-
+specific values. The Session 5.PLDM smoke run used all 1.0 because
+none of the paper's three environments matches our regime (5-case
+small-data physics) cleanly enough to justify picking a row.
+
+**Implementation contract:** the loss takes `(z, z_hat, c)` where
+`z = encoder(omega)` is the full encoded sequence ``(B, T, d)``,
+`z_hat = predictor.rollout(z[:, :1, :], cond, steps=H)` is the
+autoregressive rollout ``(B, H+1, d)``, and `c = (B, c_dim)` is the
+static episode descriptor. The five regularisation terms are
+computed on `z` (the encoder output); only `L_sim` uses `z_hat`.
+
+**IDM adaptation:** the paper's IDM predicts a per-step action
+``a_t`` from ``(z_t, z_{t+1})``. Our setting has no per-step action,
+so the IDM head predicts the static episode descriptor
+``c = (G, D, Y)`` from each consecutive pair, broadcast across all
+(T-1) pairs per batch sample. This is the D8 adaptation, retained
+unchanged through Session 5.PLDM.
+
+**Predictor architectural note (deferred, not blocking):** the
+PLDM paper uses a single-step predictor ``f(z_{t-1}, a_{t-1}) -> z_t``
+(GRU for Two-Rooms, Conv for Diverse PointMaze, MLP for Ant). Our
+predictor is a causal transformer with AdaLN-Zero conditioning on a
+static c, used via `rollout(z[:, :1, :], cond, steps=H)`. Per the
+Session 5.PLDM plan, we KEEP our transformer so the SIGReg-vs-PLDM
+comparison isolates the loss; the architectural difference is the
+SECOND-order ablation if Session 6 needs it.
+
+Files landed:
+- `src/baselines/__init__.py`, `src/baselines/pldm.py`,
+  `src/models/pldm_wrapper.py`, `src/training/train_baseline.py`
+- `tests/test_pldm_loss.py` (13 tests),
+  `tests/test_pldm_wrapper.py` (5 tests). Suite now 97 passing, 1 skipped.
+- `outputs/runs/smoke5k/run_pldm_a/{metrics.jsonl, checkpoint_iter005000.pt}`.
+- `notebooks/01_smoke_5k_analysis.ipynb` extended with Section 7
+  (PLDM loss trajectories, 5-variant 2x2, PLDM decision string).
+
+The "7-term VICReg + 6 hyperparameter" framing in CLAUDE.md
+"Baselines to implement" and in `SESSION5_PLDM_BASELINE.md`
+("PLDM uses 7 terms with six loss hyperparameters") is incorrect
+post-D30. CLAUDE.md is updated in this same commit; the
+`SESSION5_PLDM_BASELINE.md` plan stays as a historical record (it
+was written under the D8 misreading; this entry supersedes).
+
+### D31: Session 5.PLDM outcome -- DATA_SCALE_BOUND (2026-05-18)
+
+PLDM-A final state at iter 5000:
+- PR = 5.97 (below the 16 healthy threshold; below the 9.6 fallback
+  floor as well)
+- r2_overall = 0.970 (highest of any variant; near-perfect c leakage)
+- r2_G = 0.986, r2_D = 0.970, r2_Y = 0.953
+- L_sim = 0.014, L_var = 0.510, L_cov = 0.102,
+  L_time_sim = 0.002, L_idm = 0.0005
+
+The PLDM-specific signature: **L_time_sim ~ 0 AND L_idm ~ 0
+simultaneously**. The encoder produces almost-constant latents over
+time (so consecutive frames differ by ~0 in L2 norm) AND the IDM head
+decodes c from any (z_t, z_{t+1}) pair with negligible error. Together
+these mean the encoder collapses each episode to a (case-specific
+near-constant) point in latent space, and the IDM regularisation
+PRESSURES this rather than preventing it -- because the IDM rewards
+"c is easy to recover from any z-pair" and the easiest way to satisfy
+that is precisely to make z = f(c) constant in time.
+
+Per the Session 5.PLDM decision tree:
+- REGIME_CONFIRMED would require PR > 16 AND 0.5 < r2 < 0.7. Neither holds.
+- PLDM_PARTIAL would require PR > 16. Does not hold.
+- DATA_SCALE_BOUND requires PR <= 16. Holds.
+
+Final outcome: **DATA_SCALE_BOUND.** Both regularisers (2-term SIGReg,
+2-term VICReg, 5-term PLDM) collapse on 5 cases / 16 train
+sub-trajectories. The failure is not regulariser-specific. The IDM
+term in PLDM, contrary to the LeWM Section 5 expectation that it
+might break the collapse-to-c failure on low-intrinsic-dim data,
+actually INTENSIFIES the leakage at this data scale (r2 = 0.970 is
+the highest of any variant in the session).
+
+Five-variant comparison (all on the same 5-case subset, seed 0,
+5000 iterations, hybrid CNN+ViT encoder, AdaLN-Zero predictor):
+
+| Variant            | Anti-collapse    | Proj | PR    | r2    | Quadrant      |
+|--------------------|------------------|------|-------|-------|---------------|
+| A: SIGReg + BN     | 2-term LeWM      | BN   |  1.025| 0.779 | TRIVIAL       |
+| B: SIGReg + LN     | 2-term LeWM      | LN   |  1.135| 0.452 | DEAD          |
+| C: VICReg + BN     | 2-term VICReg    | BN   | 17.463| 0.887 | TRIVIAL_LITE  |
+| D: VICReg + LN     | 2-term VICReg    | LN   |  7.588| 0.803 | TRIVIAL       |
+| PLDM-A             | 5-term VICReg+IDM| BN   |  5.966| 0.970 | TRIVIAL       |
+
+Methodological reading: at the 5-case data scale, the encoder has 16
+train sub-trajectories and 5 distinct (G, D, Y) values. The
+self-supervised objective's only consistent local minimum is
+``z = f(c)`` plus noise. Different regularisers produce different
+*forms* of that minimum (rank-1 vs spread-but-correlated vs
+spread-and-time-static) but none escape it. The hypothesis H4 (the
+LeWM Two-Room failure mode replicates on physics data) is now
+confirmed not just on the 2-term variants but on the 5-term PLDM
+variant as well, which closes off the "maybe a multi-term loss is
+enough" possibility at this data scale.
+
+**Next session: Session 5.5.** Expand the case subset to 10-12 cases
+and re-run the smoke. The PR / r2 curves vs case count will either
+show a transition (small at 5, healthy at 10) or a plateau (still
+trivial). The transition case suggests the encoder needs ~2x more
+cases to learn anything beyond c; the plateau case suggests the
+failure is more structural and motivates a different intervention
+(symmetry augmentation per Open Q6, phi_t conditioning per D16
+alternative, frame-skip sweep per Open Q2, or auxiliary observable
+head per Open Q4 -- each is a one-knob ablation that the small-scale
+smoke can answer cheaply).
+
+PLDM-B (PLDM + LayerNorm) was deferred. Optional per the plan; given
+the Session 5 Run B result (LayerNorm degraded SIGReg's probe r2
+rather than recovering PR), running PLDM-B was unlikely to change the
+DATA_SCALE_BOUND conclusion. The decision can be revisited in
+Session 5.5 if the case-count expansion produces ambiguous PLDM
+behaviour.
+
 ### D32: Correction to PLDM citation in D8 (2026-05-17, housekeeping)
 
 D8 in HANDOFF.md cited PLDM as "Sobal, Jyothir, Jalagam, Carion, Cho,
