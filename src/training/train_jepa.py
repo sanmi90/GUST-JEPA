@@ -200,6 +200,16 @@ def parse_args() -> argparse.Namespace:
             "--predictor-cond-dim, --observable-head) must match the checkpoint."
         ),
     )
+    p.add_argument(
+        "--gpu",
+        type=int,
+        default=None,
+        help=(
+            "0-indexed selector into the RTX 6000 subset (D40). With two RTX "
+            "6000s visible, --gpu 0 picks the first card and --gpu 1 picks the "
+            "second one. Default None picks the first one (single-card behaviour)."
+        ),
+    )
     return p.parse_args()
 
 
@@ -386,7 +396,7 @@ def run_diagnostics(
 def main() -> None:
     args = parse_args()
     args.cases = resolve_cases(args)
-    device = require_rtx6000()
+    device = require_rtx6000(gpu_index=args.gpu)
     set_all_seeds(args.seed)
 
     output_dir = Path(args.output_dir)

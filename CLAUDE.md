@@ -213,19 +213,39 @@ outside this repo. See "Dataset layout" above.
 
 ## Hardware
 
-All training, smoke-test, and benchmark runs MUST use the RTX 6000 Blackwell
-(sm_120) GPU. The workstation also exposes two NVIDIA L40S cards (sm_89);
-those must NOT be used for vortex-jepa runs so paper compute is on a single,
-named accelerator class. Silent CPU fallback is also forbidden: a script
-that should be on GPU but ends up on CPU has lost most of its meaning.
+All training, smoke-test, and benchmark runs MUST use an RTX 6000 Blackwell
+(sm_120) GPU. The workstation exposes **two** RTX 6000 Blackwell cards and
+two NVIDIA L40S cards (sm_89); the L40S cards must NOT be used for vortex-jepa
+runs so paper compute is on a single, named accelerator class. Silent CPU
+fallback is also forbidden: a script that should be on GPU but ends up on
+CPU has lost most of its meaning.
+
+Two-card usage (D40): the two RTX 6000s are addressable by 0-indexed `--gpu`
+on every training entrypoint:
+
+```
+# First card (default; same as omitting --gpu)
+python -m src.training.train_jepa     --gpu 0 ...
+python -m src.training.train_baseline --gpu 0 --baseline pldm ...
+
+# Second card (parallel run)
+python -m src.training.train_jepa     --gpu 1 ...
+python -m src.training.train_baseline --gpu 1 --baseline pldm ...
+```
+
+This is the canonical two-card pattern. Do NOT use shell-level
+`CUDA_VISIBLE_DEVICES` to select between the two RTX 6000s; the helper
+in `src.utils.device.require_rtx6000(gpu_index=...)` handles the
+selection correctly and the W&B logging picks up the right device.
 
 How to enforce it:
 - Call `from src.utils.device import require_rtx6000` at the top of every
   training, smoke-test, or benchmark entrypoint. The helper returns a
-  `torch.device("cuda:<idx>")` for the first device whose name contains
-  both `RTX` and `6000`, or raises `NoRTX6000Error` with a clear message
-  that lists what torch actually saw. Move model and inputs to that
-  device; do not call `torch.cuda.current_device()` or hardcode `cuda:0`.
+  `torch.device("cuda:<idx>")` for the requested RTX 6000 (default first;
+  pass `gpu_index=N` to pick the Nth RTX 6000), or raises `NoRTX6000Error`
+  with a clear message that lists what torch actually saw. Move model and
+  inputs to that device; do not call `torch.cuda.current_device()` or
+  hardcode `cuda:0`.
 - Unit tests stay CPU-friendly so the suite runs anywhere in ~50 s. Any
   test that genuinely exercises a CUDA path (e.g. `bf16` autocast) must
   call `require_rtx6000()` and skip if it raises, rather than silently
@@ -238,7 +258,10 @@ How to enforce it:
 W&B requirements that follow from this: every training-run summary logs
 `gpu_name` (from `torch.cuda.get_device_name(device.index)`) and asserts it
 contains `RTX` and `6000`. A run whose `gpu_name` does not match this is
-considered untraceable for the paper.
+considered untraceable for the paper. When two runs use both cards in
+parallel, the per-run `gpu_name` is identical (both are RTX 6000 Blackwell);
+distinguish them by the `--tag-suffix` and the `device.index` recorded in
+the W&B config.
 
 ## Coding conventions
 

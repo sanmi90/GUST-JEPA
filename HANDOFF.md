@@ -1669,7 +1669,52 @@ single-card-isolation pattern; this is housekeeping deferred to a
 follow-up commit so the Session 6 branch lands the substantive findings
 without scope creep.
 
-## Open questions
+### D40: Two RTX 6000 cards are canonical hardware; `--gpu {0,1}` flag (2026-05-18, post-Session-6 housekeeping)
+
+Promotes the Session 6 D39-audit-trail finding ("the workstation has
+two RTX 6000s, not one") to a standalone decision and lands the code
+support so future sessions don't have to use shell-level
+`CUDA_VISIBLE_DEVICES` tricks to pick between the two cards.
+
+Concrete changes (this commit):
+
+- `src/utils/device.py` gains `find_rtx6000_indices() -> list[int]` (all
+  visible RTX 6000 torch indices) and `require_rtx6000(gpu_index=None)`
+  where `gpu_index` is a 0-indexed selector into the RTX 6000 subset
+  (not into torch's full CUDA enumeration; the two L40S cards do not
+  consume `gpu_index` slots). Default `gpu_index=None` picks the first
+  RTX 6000, preserving pre-D40 single-card behaviour.
+- `src/training/train_jepa.py` and `src/training/train_baseline.py` both
+  accept `--gpu N`. Threaded into `require_rtx6000(gpu_index=args.gpu)`.
+  W&B `run_config["gpu_name"]` still records the device name; runs
+  distinguish themselves by `--tag-suffix` and the device index in the
+  config.
+- `tests/test_device.py` +3 tests: `find_rtx6000_indices()` returns
+  multiple indices on a 4-GPU mock, `gpu_index` out-of-range raises
+  `NoRTX6000Error` with a clear message, negative `gpu_index` is
+  rejected, and a workstation-only test that confirms `gpu_index=0` and
+  `gpu_index=1` resolve to distinct torch indices when two RTX 6000s
+  are visible.
+- `CLAUDE.md` "Hardware" section: rewritten to acknowledge two RTX
+  6000s, document the `--gpu {0,1}` pattern, and explicitly deprecate
+  shell-level `CUDA_VISIBLE_DEVICES` selection between the two cards.
+
+Backwards compatibility: every existing training command that omits
+`--gpu` still picks the first RTX 6000. The Session 6
+`scripts/run_session6_cuda3_parallel.sh` (which uses
+`CUDA_VISIBLE_DEVICES=3`) is preserved as a historical artifact; new
+scripts (Session 7 onward) should use `--gpu` instead.
+
+Numbering note: this entry was originally referenced as "D38" in early
+SESSION7 plan drafts. Since D38 was already assigned to "five factorial
+single-axis variants", the hardware finding landed here as D40 instead.
+The Session 7 plan's three "D38" references should be updated to
+"D40" (done in the same commit). D39's last paragraph (the audit-trail
+mention of the hardware finding) is preserved for the in-context
+Session 6 history; this D40 entry adds the code-level changes.
+
+Test coverage: 119/119 pass on the fast suite (116 prior + 3 new
+device tests).
 
 1. Empirical impact frame. The estimate of 40 was validated in the bootstrap session
    on the cached partition v1: vorticity-domain argmax mean = 40.8, force-domain

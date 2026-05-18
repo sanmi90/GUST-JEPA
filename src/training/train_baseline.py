@@ -100,6 +100,9 @@ def parse_args() -> argparse.Namespace:
                    help="Optional auxiliary CL head (Session 6 F-OBS-style augmentation for PLDM).")
     p.add_argument("--observable-head-weight", type=float, default=0.01)
     p.add_argument("--observable-head-deltas", type=int, nargs="+", default=[8, 16, 24])
+    # Session 6 D40 two-card extension (mirrors train_jepa.py).
+    p.add_argument("--gpu", type=int, default=None,
+                   help="0-indexed selector into the RTX 6000 subset (D40). None picks the first.")
     return p.parse_args()
 
 
@@ -214,7 +217,7 @@ def build_pldm(args: argparse.Namespace, device: torch.device) -> PLDMWrapper:
 def main() -> None:
     args = parse_args()
     args.cases = resolve_cases(args)
-    device = require_rtx6000()
+    device = require_rtx6000(gpu_index=args.gpu)
     set_all_seeds(args.seed)
 
     output_dir = Path(args.output_dir)
