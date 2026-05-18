@@ -634,8 +634,11 @@ Two transpositions from the V-JEPA 2-AC original:
   access to the full sub-trajectory).
 - Rollout horizon is `H_roll = 8` (CLAUDE.md "Locked decisions,
   Training"). V-JEPA 2-AC uses `H_roll = 2`, which is too short for
-  vortex impact dynamics that last 5 to 20 t/c (40 to 160 effective
-  frames at `dt_eff = 0.1`).
+  vortex impact dynamics that last 5 to 20 t/c (100 to 400 effective
+  frames at `dt_eff = 0.05`; see D34 for the frame-skip correction).
+  At `H_roll = 8` and `dt_eff = 0.05` the rollout horizon covers
+  ~0.4 t/c, still well below the impact dynamics span, but four times
+  longer than V-JEPA 2-AC's `H_roll = 2`.
 
 Rationale: the two-loss sum is the simplest faithful translation of the
 LeWM `L_pred + lambda * L_sigreg` objective extended with rollout from
@@ -1214,9 +1217,10 @@ trivial). The transition case suggests the encoder needs ~2x more
 cases to learn anything beyond c; the plateau case suggests the
 failure is more structural and motivates a different intervention
 (symmetry augmentation per Open Q6, phi_t conditioning per D16
-alternative, frame-skip sweep per Open Q2, or auxiliary observable
-head per Open Q4 -- each is a one-knob ablation that the small-scale
-smoke can answer cheaply).
+alternative, longer sub-trajectory L per the L=32-at-dt=0.05 = 1.6
+t/c observation in D34, or auxiliary observable head per Open Q4 --
+each is a one-knob ablation that the small-scale smoke can answer
+cheaply).
 
 PLDM-B (PLDM + LayerNorm) was deferred. Optional per the plan; given
 the Session 5 Run B result (LayerNorm degraded SIGReg's probe r2
@@ -1266,6 +1270,78 @@ propagated into CLAUDE.md and into the SESSION5_*.md plans; surgically
 fixing all three at once is the lowest-risk way to keep the project's
 references coherent before Session 5's variant runs land.
 
+### D34: Frame-skip "default 2" was never implemented; pipeline is at skip 1 (2026-05-18, housekeeping)
+
+The earlier "Open questions" item 2 read "Frame-skip. Default is 2,
+giving 60 effective frames per encounter at `dt_eff = 0.1`. Verify
+against impact dynamics resolution. Frame-skip 1 (no skipping) is
+also viable on the 96 GB GPU." Carlos asked on 2026-05-18 to verify
+the smoke results under frame-skip 1 before deciding on next steps;
+direct inspection of the pipeline shows the project has ALWAYS been
+at frame-skip 1 in practice. The "default is 2" wording was an
+unimplemented intention that propagated through CLAUDE.md, HANDOFF
+D21, and the collaborator report without ever matching the code.
+
+Evidence chain (all verified 2026-05-18):
+
+- Raw DNS: `/forces/time` for `Baseline.h5` reports time stride
+  `dt = 0.05000` (first 5 entries
+  `[0.00025, 0.05025, 0.10025, 0.15025, 0.20025]`). `/u` shape is
+  `(800, 192, 96, 32, 3)` for periodic and `(480, ...)` for run3.
+- Preprocessing config (`configs/preprocessing.yaml`):
+  `encounter.frames_per_encounter = 120`, `encounter.dt_tc = 0.05`.
+- Preprocessing code (`scripts/preprocess.py:extract_encounter`):
+  reads `raw[curl_path][f0:f1, :, :, mid, omega_z_idx]` with
+  `f0 = k * 120, f1 = (k + 1) * 120`. Python slice with default
+  stride 1; no decimation.
+- Dataset loader (`src/data/episode_dataset.py:__getitem__`):
+  reads `g["omega_z"][start:end]` with `end - start = subtraj_len`.
+  Python slice with default stride 1; no decimation.
+- Encoder forward (`src/models/encoder.py:HybridCNNViTEncoder.forward`):
+  flattens `(B, T, ...)` into `B*T` per-frame inputs through the CNN
+  and ViT; no temporal subsampling.
+
+So `dt_eff = dt_tc = 0.05`, every encounter contributes 120 frames to
+the cache, and every sub-trajectory has L = 32 frames spanning 1.6 t/c.
+
+Implication for the existing smoke results: **all five Session 5 and
+Session 5.PLDM smoke runs (A, B, C, D, PLDM-A) were already under
+frame-skip 1 conditions.** The TRIVIAL-dominant outcome (D27) and the
+DATA_SCALE_BOUND outcome (D31) are not amenable to a "what if we used
+all the frames" intervention because we already use all the frames.
+
+Effect on the docs (this commit):
+
+- HANDOFF "Open questions" item 2 rewritten as "Resolved (D34)",
+  reframed around the actual remaining question on the temporal axis
+  (sub-trajectory length L rather than skip stride).
+- HANDOFF D21 paragraph on the `H_roll = 8` vs `H_roll = 2` rationale
+  updated from "40 to 160 effective frames at `dt_eff = 0.1`" to
+  "100 to 400 effective frames at `dt_eff = 0.05`". The decision
+  itself stands; the numerical context is fixed.
+- HANDOFF D27 "frame-skip sweep" intervention removed from the list
+  of structural-failure mitigations (it is the default already);
+  replaced by "longer sub-trajectory L per D34".
+- `COLLABORATOR_REPORT_2026-05-18.md`: same three corrections.
+
+CLAUDE.md was checked and contains no frame-skip wording in either
+the locked-decisions or operational-guide sections, so no edit there.
+
+Alternative considered: keep the "default is 2" wording and implement
+frame-skip 2 retroactively to match. Rejected because (a) the existing
+smoke results are valuable data that should not be invalidated by a
+post-hoc convention change; (b) frame-skip 1 is the correct default
+for impact-dynamics resolution at this Re; the "default is 2" wording
+appears to have been a typo or carry-over from an earlier project
+sketch and was never anchored to a design decision.
+
+The actually-open lever on the temporal axis is sub-trajectory length
+L. Currently L = 32 = 1.6 t/c, capturing roughly 8 to 32 percent of
+the 5 to 20 t/c impact-dynamics span. Raising L (e.g., to 64 = 3.2 t/c
+or 120 = 6 t/c = full encounter) is a one-knob ablation that Session
+5.5 or Session 6 may run if the data-scale-bound diagnosis from D31
+turns out to need additional levers.
+
 ## Open questions
 
 1. Empirical impact frame. The estimate of 40 was validated in the bootstrap session
@@ -1275,9 +1351,15 @@ references coherent before Session 5's variant runs land.
    tighter in the force domain. The configs/splits/split_v1.json estimate of 40 is retained.
    Resolved.
 
-2. Frame-skip. Default is 2, giving 60 effective frames per encounter at dt_eff = 0.1.
-   Verify against impact dynamics resolution. Frame-skip 1 (no skipping) is also viable
-   on the 96 GB GPU.
+2. Frame-skip. Resolved (D34, 2026-05-18). The default in the pipeline as actually
+   implemented is frame-skip 1 (no skipping): raw DNS dt = 0.05 t/c, cache stores
+   120 consecutive raw frames per encounter, dataset loads 32 consecutive cache
+   frames per sub-trajectory. `dt_eff = 0.05`, sub-trajectory length = 1.6 t/c.
+   The earlier wording ("default is 2, giving 60 effective frames at dt_eff = 0.1")
+   described an unimplemented intention that was never coded. All Session 4 / 5 /
+   5.PLDM smoke results are at frame-skip 1. The actual remaining question is the
+   sub-trajectory LENGTH `L` (currently 32 = 1.6 t/c) vs the impact-dynamics span
+   (5 to 20 t/c); raising `L` would capture more of impact at the same dt_eff.
 
 3. Lambda bisection budget. Six evaluations over [0.001, 1.0]. If the optimum is near
    LeWM's default 0.1, stop the bisection early and log this as a robustness result.

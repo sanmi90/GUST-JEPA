@@ -425,7 +425,8 @@ arXiv:2506.09985, Section 6):
   the full sub-trajectory. V-JEPA 2-AC uses 15 because its architecture
   exposes 16 frame slots at a time.
 - We use H_roll = 8 because the vortex impact dynamics last 5 to 20
-  t/c (40 to 160 effective frames at dt_eff = 0.1). V-JEPA 2-AC uses
+  t/c (100 to 400 effective frames at dt_eff = 0.05 since the pipeline
+  is at frame-skip 1, per D34). V-JEPA 2-AC uses
   H_roll = 2 which is too short for this domain.
 
 The two-loss sum is the simplest faithful translation of the LeWM
@@ -742,10 +743,17 @@ norms should be matched.
 
 Inherited from earlier sessions and refreshed for the collaborator:
 
-1. **Frame-skip resolution.** Default frame-skip 2 (dt_eff = 0.1).
-   Frame-skip 1 (no skipping) is viable on the 96 GB GPU and provides
-   2x more frames per sub-trajectory. Verify against impact dynamics
-   resolution as part of Session 6.
+1. **Sub-trajectory length L (frame-skip is resolved, D34).** The
+   pipeline is and has always been at frame-skip 1: raw DNS dt = 0.05,
+   cache stride 1 (120 consecutive frames per encounter), dataset
+   stride 1 (32 consecutive cache frames per sub-trajectory). The
+   earlier "default frame-skip 2" framing in CLAUDE.md and HANDOFF
+   was an unimplemented intention; D34 records the correction. The
+   real open lever on the temporal axis is the sub-trajectory length
+   L (currently 32 = 1.6 t/c). Impact dynamics span 5 to 20 t/c, so
+   L = 32 captures roughly 8 to 32 percent of impact; raising L to
+   64 or 120 (full-encounter) would let the predictor see the full
+   pre- and post-impact transient.
 2. **Lambda bisection budget.** Six evaluations over [0.001, 1.0] for
    SIGReg-JEPA. If the optimum is near LeWM's default 0.1, stop early
    and log this as a robustness result.
@@ -795,9 +803,10 @@ In order:
 3. If Session 5.5 plateaus: the failure is structural, not
    data-scale-bound. Possible interventions in order of cost:
    symmetry augmentation (Open Q5), phi_t conditioning (D16
-   alternative), stricter IDM (Open Q6, new), frame-skip 1 (Open Q1),
-   auxiliary observable head (Open Q3). The first to recover a healthy
-   variant becomes the canonical recipe.
+   alternative), stricter IDM (Open Q6, new), longer sub-trajectory
+   L (per the L=32-at-dt=0.05=1.6-t/c observation in D34), auxiliary
+   observable head (Open Q3). The first to recover a healthy variant
+   becomes the canonical recipe.
 
 4. **Full 80k training** of the chosen lambda. Train the visualization
    decoder on the frozen encoder. Run the full Section-7 evaluation
