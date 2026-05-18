@@ -18,11 +18,20 @@ Sample dict (returned from __getitem__):
     omega_z         torch.float32 (L, nx, ny)
     p_wall          torch.float32 (L, n_surface_points)    if return_pressure
     C_L, C_D        torch.float32 (L,)                     if return_forces
+    cl_future       torch.float32 (L, len(cl_future_deltas))  if emit_cl_future
     case_id         str
     encounter_index int
     frame_start     int
     G, D, Y         float
     source_group    str
+
+The cl_future tensor is the lift coefficient at frame
+`frame_start + i + delta` for each delta in `cl_future_deltas` and each
+i in [0, L). When `frame_start + i + delta` exceeds the encounter's
+last valid frame index (`n_frames - 1`), the value is clamped to the
+last valid C_L. This is the Session 6 design call recorded in D36:
+the post-impact relaxation regime is approximately stationary, so
+clamping introduces small bias rather than spurious signal.
 """
 from __future__ import annotations
 
@@ -54,6 +63,8 @@ class EpisodeDataset(torch.utils.data.Dataset):
         uniform_start_range: tuple[int, int] | None = None,
         return_pressure: bool = True,
         return_forces: bool = True,
+        emit_cl_future: bool = False,
+        cl_future_deltas: tuple[int, ...] = (8, 16, 24),
         seed: int | None = None,
     ) -> None:
         if split not in _VALID_SPLITS:
@@ -85,6 +96,12 @@ class EpisodeDataset(torch.utils.data.Dataset):
         self.subtraj_len = int(subtraj_len)
         self.return_pressure = bool(return_pressure)
         self.return_forces = bool(return_forces)
+        self.emit_cl_future = bool(emit_cl_future)
+        self.cl_future_deltas = tuple(int(d) for d in cl_future_deltas)
+        if any(d <= 0 for d in self.cl_future_deltas):
+            raise ValueError(
+                f"cl_future_deltas must be positive ints; got {self.cl_future_deltas}"
+            )
         self.impact_aware_fraction = float(impact_aware_fraction)
         self.impact_overlap_start_range = (int(impact_overlap_start_range[0]), int(impact_overlap_start_range[1]))
         self.uniform_start_range = (int(uniform_start_range[0]), int(uniform_start_range[1]))
@@ -144,4 +161,17 @@ class EpisodeDataset(torch.utils.data.Dataset):
             if self.return_forces:
                 sample["C_L"] = torch.from_numpy(g["C_L"][start:end].astype(np.float32))
                 sample["C_D"] = torch.from_numpy(g["C_D"][start:end].astype(np.float32))
+            if self.emit_cl_future:
+                max_delta = max(self.cl_future_deltas)
+                cl_end = min(end + max_delta, self.n_frames)
+                cl_full = g["C_L"][start:cl_end].astype(np.float32)
+                last_valid = cl_full[-1]
+                T = self.subtraj_len
+                n_deltas = len(self.cl_future_deltas)
+                cl_future = np.empty((T, n_deltas), dtype=np.float32)
+                for j, d in enumerate(self.cl_future_deltas):
+                    for i in range(T):
+                        src = i + d
+                        cl_future[i, j] = cl_full[src] if src < cl_full.shape[0] else last_valid
+                sample["cl_future"] = torch.from_numpy(cl_future)
         return sample

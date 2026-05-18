@@ -1342,6 +1342,83 @@ or 120 = 6 t/c = full encounter) is a one-knob ablation that Session
 5.5 or Session 6 may run if the data-scale-bound diagnosis from D31
 turns out to need additional levers.
 
+### D35: Absorbed two more run3 cases into v1.2 (2026-05-18, Session 6 Step 0)
+
+Carlos's collaborator dropped two further run3 files into
+`$PREVENT_ROOT/data/raw/periodic/run3/` in the interval between the
+Session 5.PLDM report and the Session 6 launch
+(`Gust_032_x-1.844_y-0.872_s-1.5_d1.5.h5` and
+`Gust_033_x-1.844_y-0.872_s3.0_d0.5.h5`). Decoded with the locked
+alpha=14 degree rotation:
+
+- `G-1.50_D1.50_Y-0.40` (run3, defaults to `train`)
+- `G+3.00_D0.50_Y-0.40` (run3, defaults to `train`)
+
+Both case_ids do not collide with the existing inventory; both stay
+inside the training envelope (|G| <= 3, only |G|=4 is held out in
+Test C). `G-1.50_D1.50_Y-0.40` is a new run3 case at the largest D
+with moderate negative G; `G+3.00_D0.50_Y-0.40` is the first run3
+case at the largest |G|=3 with the most-negative Y on the DoE-2 grid.
+Together they add corner coverage to the train envelope at the highest
+G and Y extremes.
+
+Same precedent as D12, D14, D15, D20, D33: v1 still has no paper-
+reportable training checkpoint, so this absorption stays in v1. Called
+"v1.2" in session reports to distinguish from the D33 absorption ("v1.1")
+and the original ("v1.0"); the on-disk cache directory remains
+`${VORTEX_JEPA_CACHE}/v1/` because the binary format is unchanged. The
+next absorption after the first reportable v1 run MUST go to v2.
+
+Effect on counts (cumulative since D33):
+- Train cases: 39 -> 41 (+2 new run3 train cases).
+- Train encounters: 132 -> 138 (+6 = 2 cases x 3 train-encounter slots).
+- Test A encounters: 54 -> 56 (+2 = 2 cases x 1 held-out encounter).
+- Total cases: 49 -> 51.
+- Total encounters in splits: 238 -> 246.
+
+Cache:
+- 8 new encounter files written at
+  `${VORTEX_JEPA_CACHE}/v1/{G-1.50_D1.50_Y-0.40, G+3.00_D0.50_Y-0.40}/encounter_*.h5`.
+- The 238 pre-existing encounter files are untouched (preprocess.py
+  reported `written=8, skipped=0` because the new case_ids did not
+  exist in the cache, but the existing files were not re-run; total
+  cache after = 246 encounter files across 51 case directories).
+
+`data_manifest/raw_cases_inventory.yaml` regenerated via
+`scripts/100c_raw_cases_inventory.py`; summary now reports
+`n_cases_total: 51`, `n_cases_periodic: 21`, `n_cases_run3: 30`,
+`n_parse_errors: 0`, `n_duplicate_case_ids: 0`. New inventory SHA256:
+`ce817e1e0df54309...` (full hash in
+`configs/splits/split_v1.json` -> `source_inventory.sha256`; D33's hash
+`dd984588be553a28...` is preserved in git history).
+
+`configs/splits/split_v1.json` regenerated via
+`python build_split_manifest.py`. New manifest SHA256:
+`a721dc92f6e278ee054bb952933c14ba20a58137f79f3a19fc6ad71b70a007dd`
+(D33's hash `7f8f60428e13b7c2fe4063e15bd99ea9e08e5e6cecf0e8883f8fb6a4875e2331`
+is preserved in git history). When logging W&B `split_sha256` for runs
+that touch the absorbed v1.2 partition, use the new hash.
+
+Effect on Session 6: the 5-case smoke subset (D24) is a fixed list and
+is unaffected. The F-S (24-case) scale-up run is built from the train
+split and may include or exclude the new cases at the agent's discretion
+when authoring `configs/cases/smoke_24cases.yaml`; the default for this
+session is to exclude them so F-S exactly tests the data-scale axis
+against the same physical pool that Session 5 sampled from.
+
+Alternative considered: build v2 with these two cases. Rejected for the
+same reason as D12/D14/D15/D20/D33 -- premature partition-versioning
+while the project still has no v1 training checkpoint to compare
+against.
+
+Renumbering note: SESSION6_FACTORIAL_DIAGNOSTIC.md drafted this entry
+as "D33" because the plan was written before D33 and D34 were assigned
+(D33 = first run3 absorption, 2026-05-17; D34 = frame-skip housekeeping,
+2026-05-18). The session's other planned decisions therefore become
+D36 (CL is the canonical observable), D37 (eta = 0.01 observable head
+weight), D38 (five factorial axes), D39 (decision string, conditional
+on outcome).
+
 ## Open questions
 
 1. Empirical impact frame. The estimate of 40 was validated in the bootstrap session

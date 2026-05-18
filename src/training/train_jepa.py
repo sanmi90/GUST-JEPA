@@ -182,7 +182,10 @@ def jepa_collate(samples: list[dict[str, Any]]) -> dict[str, Tensor]:
         [[s["G"], s["D"], s["Y"]] for s in samples],
         dtype=torch.float32,
     )
-    return {"omega": omega, "c": c}
+    batch: dict[str, Tensor] = {"omega": omega, "c": c}
+    if "cl_future" in samples[0]:
+        batch["cl_future"] = torch.stack([s["cl_future"] for s in samples])
+    return batch
 
 
 def make_train_loader(args: argparse.Namespace) -> DataLoader:

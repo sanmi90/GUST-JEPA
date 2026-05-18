@@ -52,12 +52,13 @@ Training
 
 Data
 - Split is locked at `configs/splits/split_v1.json` (sha256-anchored to inventory).
-- 37 train cases (126 encounters), 6 Test B cases (28 enc), 4 Test C cases (24 enc).
+- 41 train cases (138 encounters), 6 Test B cases (28 enc), 4 Test C cases (24 enc).
+  51 cases total in v1.2 (post-Session 6 absorption of 2 new run3 cases; see D33).
   Baseline (no gust) is in `train` (encounters 0-3) and Test A (encounters 4-5) like
   any other periodic case; it is also flagged `is_calibration_reference: true` so
   calibration tooling can still identify the no-gust reference. Within training cases,
   Test A holds last 2 of 6 (periodic) or last 1 of 4 (run3) encounters:
-  52 encounters total.
+  56 encounters total.
 - |G| = 3 stays in training. Test C is G = +4 only. Periodic trailing partials discarded.
 - Impact frame ~ 40 (vortex centroid crosses LE at t ~ 1.965 t/c). QC across the cached
   partition v1: vorticity argmax mean = 40.8, force argmax mean = 38.8 over [25, 55].
@@ -95,8 +96,9 @@ Cache layout
 - Partition layout is frozen at creation; bump `preprocessing_version` or
   `partition_version` to introduce changes. See `configs/preprocessing.yaml`.
 - omega_z magnitude scale at Re=5000: typical max |omega| per case is 400 to 4000.
-  Survey across the 49 v1 cases gives median 1482, peak 4377 (G+4.00_D0.50_Y-0.10
-  encounter 00 frame 52). Strong gusts in vortex cores reach O(1000-4000); the
+  Survey across the 49 v1 cases (pre-D33 snapshot; +2 run3 cases since) gives
+  median 1482, peak 4377 (G+4.00_D0.50_Y-0.10 encounter 00 frame 52). Strong gusts
+  in vortex cores reach O(1000-4000); the
   earlier "O(50)" estimate was off by 1 to 2 orders of magnitude. Use 10000 as a
   cache-integrity upper bound, NOT 200.
 

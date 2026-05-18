@@ -1,10 +1,10 @@
 {
   "manifest_version": "split_v1",
-  "created_iso": "2026-05-17T20:20:30.942686+00:00",
+  "created_iso": "2026-05-18T10:04:47.689419+00:00",
   "source_inventory": {
     "version": "raw_cases_inventory_v1",
-    "created_iso": "2026-05-17T19:57:42.669633+00:00",
-    "sha256": "dd984588be553a28285a35fed7328cfcf9b482329e6f346b4f1e9a0574f764bc"
+    "created_iso": "2026-05-18T09:59:16.463736+00:00",
+    "sha256": "ce817e1e0df54309c2559ab2cf7a4b77e770b5978b3a7eb19b59718a28dd97e5"
   },
   "physical_constants": {
     "airfoil": "NACA0012",
@@ -58,16 +58,16 @@
     "G+4.00_D1.00_Y-0.10"
   ],
   "summary": {
-    "n_cases_total": 49,
-    "n_cases_train": 39,
+    "n_cases_total": 51,
+    "n_cases_train": 41,
     "n_cases_test_b": 6,
     "n_cases_test_c": 4,
     "n_cases_calibration_reference": 1,
-    "n_encounters_train": 132,
-    "n_encounters_test_a": 54,
+    "n_encounters_train": 138,
+    "n_encounters_test_a": 56,
     "n_encounters_test_b": 28,
     "n_encounters_test_c": 24,
-    "n_encounters_total_in_splits": 238
+    "n_encounters_total_in_splits": 246
   },
   "cases": {
     "Baseline": {
@@ -1214,6 +1214,52 @@
       "source_group": "run3",
       "filename": "Gust_031_x-1.844_y-0.872_s-3.0_d0.5.h5",
       "relative_path": "data/raw/periodic/run3/Gust_031_x-1.844_y-0.872_s-3.0_d0.5.h5",
+      "n_frames": 480,
+      "n_encounters_full": 4,
+      "trailing_partial_frames": 0,
+      "discarded_trailing_partial": false,
+      "split": "train",
+      "train_encounter_indices": [
+        0,
+        1,
+        2
+      ],
+      "test_a_encounter_indices": [
+        3
+      ],
+      "is_calibration_reference": false
+    },
+    "G-1.50_D1.50_Y-0.40": {
+      "case_id": "G-1.50_D1.50_Y-0.40",
+      "G": -1.5,
+      "D": 1.5,
+      "Y": -0.4,
+      "source_group": "run3",
+      "filename": "Gust_032_x-1.844_y-0.872_s-1.5_d1.5.h5",
+      "relative_path": "data/raw/periodic/run3/Gust_032_x-1.844_y-0.872_s-1.5_d1.5.h5",
+      "n_frames": 480,
+      "n_encounters_full": 4,
+      "trailing_partial_frames": 0,
+      "discarded_trailing_partial": false,
+      "split": "train",
+      "train_encounter_indices": [
+        0,
+        1,
+        2
+      ],
+      "test_a_encounter_indices": [
+        3
+      ],
+      "is_calibration_reference": false
+    },
+    "G+3.00_D0.50_Y-0.40": {
+      "case_id": "G+3.00_D0.50_Y-0.40",
+      "G": 3.0,
+      "D": 0.5,
+      "Y": -0.4,
+      "source_group": "run3",
+      "filename": "Gust_033_x-1.844_y-0.872_s3.0_d0.5.h5",
+      "relative_path": "data/raw/periodic/run3/Gust_033_x-1.844_y-0.872_s3.0_d0.5.h5",
       "n_frames": 480,
       "n_encounters_full": 4,
       "trailing_partial_frames": 0,
