@@ -60,9 +60,13 @@ launch_bg() {
     shift
     log "BEGIN $name: $*"
     log "    log -> $logfile"
-    nohup python -m "$@" >"$logfile" 2>&1 &
+    # NOTE (post-mortem): an earlier version of this script used `nohup ... & ; disown`,
+    # which removes the child from the shell's job table and makes `wait $pid` return
+    # immediately. We now use plain `&` (the child is still a child of this launcher
+    # bash, so `wait $pid` blocks correctly) and let the launcher's own backgrounding
+    # via nohup (from the caller) protect everything from SIGHUP.
+    python -m "$@" >"$logfile" 2>&1 &
     R_PID[$name]=$!
-    disown
     log "    pid=${R_PID[$name]}"
 }
 
