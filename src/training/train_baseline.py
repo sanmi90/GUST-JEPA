@@ -65,6 +65,15 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--partition", type=str, default="v1")
     p.add_argument("--cases", nargs="+", default=None)
     p.add_argument("--cases-from", type=str, default=None)
+    p.add_argument(
+        "--all-train",
+        action="store_true",
+        help=(
+            "Train on the full v1 train split. Mutually exclusive with --cases / "
+            "--cases-from. Intended for production runs so the W&B run_config records "
+            "the deliberate 'full partition' choice (Session 7 onward)."
+        ),
+    )
     p.add_argument("--max-iters", type=int, default=80_000)
     p.add_argument("--seed", type=int, default=0)
     p.add_argument("--d", type=int, default=32)
@@ -265,7 +274,8 @@ def main() -> None:
         "B": args.B, "T": args.T, "d": args.d, "H_roll": args.H_roll,
         "lr_encoder": args.lr_encoder, "lr_predictor": args.lr_predictor,
         "weight_decay": args.weight_decay, "warmup_frac": args.warmup_frac,
-        "cases": args.cases, "projection_norm": args.projection_norm,
+        "cases": args.cases, "all_train": bool(getattr(args, "all_train", False)),
+        "projection_norm": args.projection_norm,
         "tag_suffix": args.tag_suffix,
         "observable_head": args.observable_head,
         "observable_head_weight": args.observable_head_weight,

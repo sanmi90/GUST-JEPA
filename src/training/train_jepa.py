@@ -112,6 +112,16 @@ def parse_args() -> argparse.Namespace:
         ),
     )
     p.add_argument(
+        "--all-train",
+        action="store_true",
+        help=(
+            "Train on the full v1 train split (every case with split == 'train' in the "
+            "manifest). Mutually exclusive with --cases / --cases-from. Same effect as "
+            "omitting all three flags, but explicit -- intended for production runs so the "
+            "W&B run_config records the deliberate 'full partition' choice."
+        ),
+    )
+    p.add_argument(
         "--projection-norm",
         type=str,
         choices=["batchnorm", "layernorm"],
@@ -240,12 +250,21 @@ def set_all_seeds(seed: int) -> None:
 
 
 def resolve_cases(args: argparse.Namespace) -> list[str] | None:
-    """Pick the case-id list from ``--cases`` or ``--cases-from`` (mutually exclusive).
+    """Pick the case-id list from ``--cases`` / ``--cases-from`` / ``--all-train``.
 
-    Returns ``None`` when neither is supplied (i.e. use the full train split).
+    The three flags are mutually exclusive. ``--all-train`` (Session 7) and
+    the no-flag default both return ``None``, which downstream means "use
+    every case the manifest tags as 'train'". The downstream loader does
+    the filtering; this helper only resolves the choice and validates it.
     """
-    if args.cases is not None and args.cases_from is not None:
-        raise SystemExit("error: pass only one of --cases or --cases-from")
+    all_train = bool(getattr(args, "all_train", False))
+    n_set = (args.cases is not None) + (args.cases_from is not None) + all_train
+    if n_set > 1:
+        raise SystemExit(
+            "error: pass at most one of --cases, --cases-from, --all-train"
+        )
+    if all_train:
+        return None
     if args.cases_from is not None:
         cases_path = Path(args.cases_from)
         if not cases_path.is_absolute():
@@ -439,6 +458,7 @@ def main() -> None:
         "weight_decay": args.weight_decay,
         "warmup_frac": args.warmup_frac,
         "cases": args.cases,
+        "all_train": bool(getattr(args, "all_train", False)),
         "projection_norm": args.projection_norm,
         "anticollapse": args.anticollapse,
         "tag_suffix": args.tag_suffix,

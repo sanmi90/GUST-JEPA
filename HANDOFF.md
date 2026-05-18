@@ -1716,6 +1716,71 @@ Session 6 history; this D40 entry adds the code-level changes.
 Test coverage: 119/119 pass on the fast suite (116 prior + 3 new
 device tests).
 
+### D44: Session 7 launched three production-scale runs on full v1.2 (2026-05-18, Session 7 Step 1)
+
+Three 20k-iter runs on the full v1 train partition (41 cases / 138 train
+encounters per D35), seed 0, frame-skip 1 per D34, L = 32, eta = 0.01
+where applicable, BatchNorm projection on the encoder per D17, dual-card
+launch via D40's `--gpu {0,1}`. The launcher is
+`scripts/launch_session7.sh`; per-run output under
+`outputs/runs/session7/run_r{1,2,3}_*/`.
+
+|Run                                 |Card                |Configuration            |Hypothesis tested                                                                                                                                |
+|------------------------------------|--------------------|-------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------|
+|R1 PLDM + OBS + BN                  |`--gpu 0` (cuda:2)  |observable head eta=0.01 |D39 smoke winner scaled to 41 cases. The headline configuration.                                                                                  |
+|R2 PLDM only (eta=0) + BN           |`--gpu 1` (cuda:3)  |no observable head       |Is the observable head doing the work, or does PLDM alone generalise? Disambiguates D39's "OBS marginally helps PLDM" reading at full scale.       |
+|R3 SIGReg + OBS + BN                |`--gpu 1` (cuda:3)  |observable head eta=0.01 |Does OBS rescue SIGReg at scale? D39 found this rescue at 5 cases; R3 tests whether it persists at 41 cases.                                       |
+
+R1 and R2 launch concurrently on the two RTX 6000 cards; R3 follows
+sequentially on cuda:3 after R2 completes. Estimated wall clock ~10 hours
+(R1 ~5h || R2 ~5h then R3 ~5h).
+
+Pre-flight checks landed and passed before launch:
+
+- Check A (data loader on full 41 cases): 138 train encounters load
+  cleanly, all 320 sampled sub-trajectories finite, omega range
+  [-3658, +3701] across the sample (consistent with the D27/CLAUDE.md
+  survey peak of 4377; the plan's `(-100, 100)` bound was conservative
+  and is corrected here for the audit trail), CL_future range [-6, +12].
+- Check B (`--all-train` end-to-end smoke on both entrypoints at 10
+  iters, B=4): train_jepa with `--gpu 0` resolved to cuda:2, train_baseline
+  with `--gpu 1` resolved to cuda:3, n_train_samples=138 confirmed on both,
+  no errors.
+- Check C (GPU enumeration): two RTX 6000 Blackwell cards visible at
+  cuda:2 and cuda:3 (D40-aligned).
+- Check D (split manifest): manifest SHA256
+  `a721dc92f6e278ee054bb952933c14ba20a58137f79f3a19fc6ad71b70a007dd`
+  matches D35; inventory SHA256 prefix `ce817e1e0df54309...` matches D35;
+  6 Test B cases / 28 encounters; 4 Test C cases / 24 encounters.
+
+Housekeeping landed in the same commit before launch:
+
+- `--all-train` flag added to both `src/training/train_jepa.py` and
+  `src/training/train_baseline.py`. Mutually exclusive with `--cases`
+  and `--cases-from`. Same effect as omitting all three (resolve_cases
+  returns None -> downstream uses every case the manifest tags as
+  'train') but makes the production-launch intent explicit in W&B
+  `run_config["all_train"]`.
+- 6 new tests in `tests/test_resolve_cases.py` cover the three flag-mutex
+  paths and the legacy-namespace fallback. Fast suite now 126/126 green
+  (120 prior + 6 new).
+- CLAUDE.md "Hardware" was already updated in D40 (the brief listed it
+  as housekeeping but D40 had already landed); no further edits needed.
+- D40's earlier commit accidentally dropped the "## Open questions"
+  section heading from HANDOFF.md (the heading went into the old_string
+  of the Edit that appended D40 but not into the new_string). The
+  Session 7 D44 commit restores the "## Open questions" heading at the
+  right place; the open-questions content itself was unchanged
+  throughout. Recorded here as a self-audit so future readers see the
+  reconstruction.
+
+W&B mode: `offline` (matches Session 5 + Session 6 convention; auth was
+not configured at session start and `wandb sync` can post-hoc upload the
+offline runs). The `metrics.jsonl` side-log per run is the canonical
+in-session source.
+
+## Open questions
+
 1. Empirical impact frame. The estimate of 40 was validated in the bootstrap session
    on the cached partition v1: vorticity-domain argmax mean = 40.8, force-domain
    argmax mean = 38.8 (both over the [25, 55] window). The distribution is bimodal in
