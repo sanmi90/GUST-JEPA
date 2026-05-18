@@ -1779,6 +1779,181 @@ not configured at session start and `wandb sync` can post-hoc upload the
 offline runs). The `metrics.jsonl` side-log per run is the canonical
 in-session source.
 
+### D45: Session 7 evaluation suite landed; Test B is the primary metric (2026-05-19)
+
+`notebooks/05_session7_full_evaluation.ipynb` loads all three iter-20000
+checkpoints, encodes every Test A (56 enc) / Test B (28 enc) / Test C
+(24 enc) encounter, and reports the per-split metric table plus the
+8-branch decision string. The notebook applies a CL-validity mask: two
+Test A encounters (`G+2.00_D1.50_Y+0.00` enc 3 and `G-2.00_D1.50_Y+0.10`
+enc 3) have non-finite C_L values across 69 and 103 frames respectively
+(DNS instability near the end of the last run3 encounter at D=1.5); they
+are dropped from the CL-prediction MLP fit but kept for the PR/probe
+metrics on z. The 56 -> 54 Test A drop is documented in the per-cell
+stdout and in the session report; future cache regenerations should
+revisit those two encounters.
+
+The OOS evaluation method for Test B / Test C: a tiny 64-hidden MLP is
+fit on Test A (CL-valid) latents -> CL(t + delta), then evaluated on
+the held-out split's latents. The (c, t) baseline uses the same MLP
+architecture with `(case_descriptor, frame_index) -> CL(t + delta)`
+fit on Test A and evaluated on the split. The `delta` column is
+`r2(z -> CL_future) - r2((c, t) -> CL_future)` per split; positive
+delta means the latent does something the parametric (c, t) lookup
+cannot.
+
+### D46: Session 7 outcome -- TEST_B_TEST_A_DISCREPANCY with substantive R3_WINS reading (2026-05-19)
+
+Final per-split metric table (notebooks/05_session7_full_evaluation.ipynb
+Section 4):
+
+| Run                | Split  | PR_all | PR_within | r2(z->c) | r2_dyn_phase | r2(CL_future) | (c,t) baseline | delta   |
+|--------------------|--------|-------:|----------:|---------:|-------------:|--------------:|---------------:|--------:|
+| R1 PLDM+OBS+BN     | test_a | 27.84  |   6.87    |   0.90   |    0.78      |    0.97       |     0.74       |  +0.23  |
+| R1 PLDM+OBS+BN     | test_b | 18.31  |  10.06    |   0.96   |    0.91      |    0.71       |     0.72       |  -0.008 |
+| R1 PLDM+OBS+BN     | test_c | 14.50  |  11.77    |   0.90   |    0.86      |    0.76       |     0.35       |  +0.42  |
+| R2 PLDM only BN    | test_a | 27.16  |   6.01    |   0.88   |    0.77      |    0.93       |     0.74       |  +0.19  |
+| R2 PLDM only BN    | test_b | 17.35  |   9.41    |   0.95   |    0.92      |   -0.13       |     0.72       |  -0.85  |
+| R2 PLDM only BN    | test_c | 13.92  |  11.14    |   0.91   |    0.87      |    0.32       |     0.35       |  -0.03  |
+| R3 SIGReg+OBS+BN   | test_a |  3.69  |   4.18    |   0.62   |    0.44      |    0.97       |     0.74       |  +0.24  |
+| R3 SIGReg+OBS+BN   | test_b |  3.51  |   3.85    |   0.93   |    0.63      |    0.86       |     0.72       |  +0.14  |
+| R3 SIGReg+OBS+BN   | test_c |  2.91  |   4.67    |   0.76   |    0.73      |    0.83       |     0.35       |  +0.48  |
+
+The decision tree (SESSION7_FULL_SCALE_HONEST.md Step 2 Section 6)
+checks TEST_B_TEST_A_DISCREPANCY first and returns immediately when it
+matches: R1 has test_a delta 0.23 > 0.10 AND test_b delta -0.01 < 0.03,
+so the tree's strict output is `TEST_B_TEST_A_DISCREPANCY`. R2 also
+matches the discrepancy rule even more dramatically (test_a +0.19 vs
+test_b -0.85). The same data also satisfies R3_WINS strictly
+(R3 test_b delta +0.14 > R1 test_b delta -0.01), but the tree picks
+the first matching branch.
+
+Substantive read (the one that matters for the paper):
+
+- **R3 SIGReg+OBS+BN is the only run that generalises to Test B**
+  (delta +0.14) and the BEST run on Test C (delta +0.48).
+- R1 PLDM+OBS overfit: it has the highest PR (27.84 on Test A), the
+  cleanest r2_dyn_phase (0.78 on Test A, 0.91 on Test B), but its
+  out-of-sample CL prediction on Test B is no better than (c, t) and
+  worse on Test B than R3.
+- R2 PLDM-only is the worst: Test B delta -0.85 means the 5-term
+  PLDM latent at full scale is *worse* than a tiny (c, t) MLP at
+  predicting CL on unseen cases. This is overfitting to the 41 train
+  cases in a way that hurts generalisation.
+- The smoke-scale (5 cases) "PLDM+OBS wins" finding from Session 6 D39
+  was a small-data artifact. The PR=10 numbers PLDM+OBS achieves at
+  smoke and full scale look like the same healthy reading, but the
+  Test B generalisation signal shows the PR is encoding case-specific
+  memorisation, not transferable flow physics.
+
+This is the most important finding of the project so far. It INVERTS
+Session 6's recommendation that PLDM should be the base architecture
+for the observable-augmented path. At full scale on the metric the
+paper actually cares about (Test B parametric interpolation), the
+simpler SIGReg + OBS configuration is the right answer.
+
+### D47: R1-vs-R2 OBS-vs-no-OBS delta at scale -- OBS is necessary for PLDM, but only on Test A (2026-05-19)
+
+The R1 vs R2 difference isolates the observable head's contribution
+on top of PLDM:
+
+| Split | R1 delta | R2 delta | R1 - R2 |
+|-------|---------:|---------:|--------:|
+| test_a |  +0.23  |  +0.19   |  +0.04  |
+| test_b |  -0.01  |  -0.85   |  +0.84  |
+| test_c |  +0.42  |  -0.03   |  +0.45  |
+
+The observable head dramatically rescues PLDM out-of-sample (R1 - R2
+on test_b is +0.84) but the rescued state is still only at the (c, t)
+baseline level on test_b (delta -0.01). Without OBS, PLDM at full
+scale produces a latent that is *worse* than a (c, t) lookup at
+predicting CL on unseen cases (R2 test_b delta -0.85). So:
+
+- The observable head is necessary for PLDM to be even competitive
+  on out-of-sample CL prediction at full scale.
+- Even with OBS, PLDM does not BEAT the (c, t) baseline on Test B.
+- The same OBS, applied to SIGReg JEPA, *does* beat the baseline on
+  Test B (R3 delta +0.14).
+
+The OBS-vs-no-OBS axis at full scale therefore matters very much for
+PLDM (rescues it from active overfitting) and slightly less for the
+final winner (R3 also has OBS, but the comparison without OBS at full
+scale is the deferred R0 task which Session 8 should run).
+
+### D48: R1-vs-R3 regulariser-asymmetry delta at scale -- inverts D39 (2026-05-19)
+
+The R1 vs R3 difference isolates the regulariser (PLDM vs SIGReg)
+with the observable head held constant at eta=0.01:
+
+| Split  | R1 delta | R3 delta | R3 - R1 |
+|--------|---------:|---------:|--------:|
+| test_a |  +0.23  |  +0.24   |  +0.01  |
+| test_b |  -0.01  |  +0.14   |  +0.15  |
+| test_c |  +0.42  |  +0.48   |  +0.07  |
+
+On Test A both regularisers produce equivalent CL prediction. On
+Test B (the partition's parametric-interpolation question) the SIGReg
+regulariser materially outperforms PLDM (+0.15 absolute, the
+difference between "fails to beat baseline" and "+14 percentage
+points over baseline"). On Test C (extrapolation), R3 is also slightly
+ahead.
+
+This INVERTS the D39 regulariser-asymmetry reading. D39 was based on
+5-case smoke evidence and concluded "PLDM is the recommended base
+because PLDM+OBS reaches PR=10+ while SIGReg+OBS plateaus at PR=3".
+The Session 7 full-scale evaluation shows PR=10 was masking the
+overfitting that happens when PLDM has 41 cases to memorise, while
+the low-PR SIGReg+OBS latent retains its generalisation capability.
+
+Paper claim 3 is therefore reworded: instead of "observable
+augmentation rescues SIGReg, marginally helps PLDM" (D39, smoke-scale)
+the claim becomes "the observable-augmented SIGReg latent generalises
+to unseen (G, D, Y) values better than the observable-augmented PLDM
+latent at full scale, despite a 3x lower participation ratio".
+
+The deeper finding: PR alone is not a reliable proxy for the
+generalisation quality of a JEPA latent on low-intrinsic-dim physics
+data. The (c, t) baseline + Test B delta is the right diagnostic.
+
+### D49: Session 7 housekeeping notes (2026-05-19)
+
+- No new data pipeline issues at full scale, except the 2 NaN-CL Test
+  A encounters documented in D45.
+- CLAUDE.md "Hardware" was already updated in D40; Session 7 used
+  both RTX 6000 cards via `--gpu {0,1}` per D40's pattern.
+- The launcher script bug (described in the audit-trail paragraph of
+  D44) was fixed in `scripts/launch_session7.sh` and documented inline
+  with the `disown` regression note. Recovery launcher
+  `scripts/launch_session7_r3_after_r2.sh` is kept as the reusable
+  template for "start cuda:1 job after cuda:0 job finishes".
+- Session 7 wall clock was ~3.6 h (R1 ~1.5 h || R2 ~2 h then R3 ~1.5 h),
+  much shorter than the plan's 12-13 h estimate. The per-iter compute
+  on the RTX 6000 Blackwell was ~220 iter/min vs the plan's 100 iter/min
+  back-of-envelope; Session 8 planning should use the higher rate.
+- The "## Open questions" section heading in HANDOFF.md was dropped
+  by D40's commit and restored in the D44 commit. Self-audit in D44.
+- 126/126 fast tests green at session start and after the --all-train
+  housekeeping. No new tests required for the evaluation notebook (it
+  is pure analysis code).
+
+Session 8 implied by the substantive R3_WINS + TEST_B_TEST_A_DISCREPANCY
+reading: reframe around R3 (SIGReg + OBS). Specific Session 8 tasks
+in order of priority:
+
+1. **eta sweep on SIGReg + OBS** (Session 8-OBS-SIGReg). Sweep eta in
+   {0.001, 0.005, 0.01, 0.05, 0.1} on the full partition at 20k iters
+   each, R3-style configuration. Pick the eta with the highest test_b
+   delta. ~8 hours.
+2. **R0 contingent** (Session 8-R0): pure SIGReg + BN at full scale,
+   no OBS. The deferred control. Confirms whether the OBS rescue is
+   load-bearing for SIGReg at scale or whether SIGReg alone also
+   generalises on Test B. ~5 hours.
+3. **Lambda bisection on the SIGReg + OBS winner** from task 1. ~6h.
+4. **Decoder training + Section 7 evaluation suite** per the
+   architecture spec.
+
+Together: ~25-30 hours of work spread across 2-3 sessions.
+
 ## Open questions
 
 1. Empirical impact frame. The estimate of 40 was validated in the bootstrap session
