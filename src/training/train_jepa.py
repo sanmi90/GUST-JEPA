@@ -40,6 +40,7 @@ from torch.utils.data import DataLoader
 from src.data.episode_dataset import EpisodeDataset
 from src.models.encoder import HybridCNNViTEncoder
 from src.models.jepa import JEPA
+from src.models.observable_head import ObservableHead
 from src.models.predictor import AutoregressivePredictor
 from src.models.sigreg import SIGReg
 from src.models.vicreg import VICReg
@@ -68,8 +69,22 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--seed", type=int, default=0)
     p.add_argument("--d", type=int, default=32)
     p.add_argument("--B", type=int, default=16)
-    p.add_argument("--T", type=int, default=32)
-    p.add_argument("--H-roll", type=int, default=8)
+    p.add_argument(
+        "--T",
+        "--sub-trajectory-length",
+        dest="T",
+        type=int,
+        default=32,
+        help="Sub-trajectory length L (frames). Plan-aligned alias --sub-trajectory-length.",
+    )
+    p.add_argument(
+        "--H-roll",
+        "--rollout-horizon",
+        dest="H_roll",
+        type=int,
+        default=8,
+        help="Open-loop rollout horizon. Plan-aligned alias --rollout-horizon.",
+    )
     p.add_argument("--lambda-sigreg", type=float, default=0.1)
     p.add_argument("--lr-encoder", type=float, default=1.5e-4)
     p.add_argument("--lr-predictor", type=float, default=5e-4)
@@ -124,6 +139,53 @@ def parse_args() -> argparse.Namespace:
         help=(
             "Extra string appended to the W&B tag list as 'run:<suffix>'. Empty "
             "(default) leaves the standard ['hybrid_cnn_vit', '<regularizer>'] tags."
+        ),
+    )
+    p.add_argument(
+        "--c-dropout-prob",
+        type=float,
+        default=0.0,
+        help=(
+            "Per-batch probability of zeroing the conditioning c before it reaches "
+            "the predictor (Session 6 F-CD variant). Default 0.0 keeps c always active."
+        ),
+    )
+    p.add_argument(
+        "--predictor-cond-dim",
+        type=int,
+        default=3,
+        help=(
+            "Predictor conditioning dimension. Default 3 (G, D, Y) per D6. "
+            "Use 0 for the Session 6 F-NC variant (no c at predictor)."
+        ),
+    )
+    p.add_argument(
+        "--observable-head",
+        type=str,
+        choices=["none", "cl_future"],
+        default="none",
+        help=(
+            "Optional auxiliary head. 'cl_future' enables the Session 6 F-OBS "
+            "variant: z_t -> CL(t + delta) for delta in --observable-head-deltas."
+        ),
+    )
+    p.add_argument(
+        "--observable-head-weight",
+        type=float,
+        default=0.01,
+        help=(
+            "Weight eta on the observable loss (default 0.01, D37). Set to 0 to "
+            "disable the observable contribution even if --observable-head=cl_future."
+        ),
+    )
+    p.add_argument(
+        "--observable-head-deltas",
+        type=int,
+        nargs="+",
+        default=[8, 16, 24],
+        help=(
+            "Frame offsets (positive ints) for the future-CL prediction targets. "
+            "At dt_eff = 0.05 these are 0.4 / 0.8 / 1.2 convective times into the future."
         ),
     )
     return p.parse_args()
@@ -188,8 +250,18 @@ def jepa_collate(samples: list[dict[str, Any]]) -> dict[str, Tensor]:
     return batch
 
 
+def _emit_cl(args: argparse.Namespace) -> bool:
+    return args.observable_head == "cl_future" and args.observable_head_weight > 0.0
+
+
 def make_train_loader(args: argparse.Namespace) -> DataLoader:
-    ds = EpisodeDataset(partition=args.partition, split="train", subtraj_len=args.T)
+    ds = EpisodeDataset(
+        partition=args.partition,
+        split="train",
+        subtraj_len=args.T,
+        emit_cl_future=_emit_cl(args),
+        cl_future_deltas=tuple(args.observable_head_deltas),
+    )
     if args.cases is not None:
         wanted = set(args.cases)
         ds.samples = [s for s in ds.samples if s[0] in wanted]
@@ -224,7 +296,13 @@ def infinite_iter(loader: DataLoader) -> Iterator[dict[str, Tensor]]:
 
 
 def make_test_b_loader(args: argparse.Namespace) -> DataLoader:
-    ds = EpisodeDataset(partition=args.partition, split="test_b", subtraj_len=args.T)
+    ds = EpisodeDataset(
+        partition=args.partition,
+        split="test_b",
+        subtraj_len=args.T,
+        emit_cl_future=_emit_cl(args),
+        cl_future_deltas=tuple(args.observable_head_deltas),
+    )
     return DataLoader(
         ds,
         batch_size=args.B,
@@ -342,6 +420,11 @@ def main() -> None:
         "projection_norm": args.projection_norm,
         "anticollapse": args.anticollapse,
         "tag_suffix": args.tag_suffix,
+        "c_dropout_prob": args.c_dropout_prob,
+        "predictor_cond_dim": args.predictor_cond_dim,
+        "observable_head": args.observable_head,
+        "observable_head_weight": args.observable_head_weight,
+        "observable_head_deltas": list(args.observable_head_deltas),
     }
 
     import wandb
@@ -379,12 +462,18 @@ def main() -> None:
     encoder = HybridCNNViTEncoder(latent_dim=args.d, projection_norm=args.projection_norm)
     predictor = AutoregressivePredictor(
         latent_dim=args.d,
-        cond_dim=3,
+        cond_dim=args.predictor_cond_dim,
         max_seq_len=args.T,
     )
     anticollapse: nn.Module = (
         SIGReg(dim=args.d) if args.anticollapse == "sigreg" else VICReg(d=args.d)
     )
+    observable_head: nn.Module | None = None
+    if args.observable_head == "cl_future":
+        observable_head = ObservableHead(
+            latent_dim=args.d,
+            n_deltas=len(args.observable_head_deltas),
+        )
     jepa = JEPA(
         encoder=encoder,
         predictor=predictor,
@@ -393,12 +482,18 @@ def main() -> None:
         rollout_weight=0.5,
         H_roll=args.H_roll,
         rollout_start_strategy="uniform_random",
+        c_dropout_prob=args.c_dropout_prob,
+        observable_head=observable_head,
+        observable_weight=args.observable_head_weight if observable_head is not None else 0.0,
     ).to(device)
 
+    predictor_param_group = list(jepa.predictor.parameters())
+    if observable_head is not None:
+        predictor_param_group += list(jepa.observable_head.parameters())
     optimizer = AdamW(
         [
             {"params": list(jepa.encoder.parameters()), "lr": args.lr_encoder},
-            {"params": list(jepa.predictor.parameters()), "lr": args.lr_predictor},
+            {"params": predictor_param_group, "lr": args.lr_predictor},
         ],
         betas=(0.9, 0.95),
         weight_decay=args.weight_decay,
@@ -427,7 +522,8 @@ def main() -> None:
             raise RuntimeError(
                 f"non-finite loss at iter {iteration}: loss_total={last_loss_total} "
                 f"(pred={out['loss_pred'].item()}, roll={out['loss_roll'].item()}, "
-                f"anti={out['loss_anticollapse'].item()})"
+                f"anti={out['loss_anticollapse'].item()}, "
+                f"obs={out['loss_obs'].item()})"
             )
 
         optimizer.zero_grad(set_to_none=True)
@@ -444,6 +540,7 @@ def main() -> None:
                     "loss_pred": out["loss_pred"].item(),
                     "loss_roll": out["loss_roll"].item(),
                     "loss_anticollapse": out["loss_anticollapse"].item(),
+                    "loss_obs": out["loss_obs"].item(),
                     "lr_encoder": optimizer.param_groups[0]["lr"],
                     "lr_predictor": optimizer.param_groups[1]["lr"],
                 },
@@ -453,7 +550,8 @@ def main() -> None:
                 f"[iter {iteration}/{args.max_iters}] loss={last_loss_total:.4f} "
                 f"(pred={out['loss_pred'].item():.4f}, "
                 f"roll={out['loss_roll'].item():.4f}, "
-                f"anti={out['loss_anticollapse'].item():.4f})",
+                f"anti={out['loss_anticollapse'].item():.4f}, "
+                f"obs={out['loss_obs'].item():.4f})",
                 flush=True,
             )
 

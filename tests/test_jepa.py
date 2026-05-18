@@ -67,10 +67,13 @@ def test_jepa_shape_contract() -> None:
     jepa = _tiny_jepa()
     batch = _tiny_batch()
     out = jepa(batch)
-    assert set(out.keys()) == {"loss_total", "loss_pred", "loss_roll", "loss_anticollapse", "z"}
-    for k in ("loss_total", "loss_pred", "loss_roll", "loss_anticollapse"):
+    assert set(out.keys()) == {
+        "loss_total", "loss_pred", "loss_roll", "loss_anticollapse", "loss_obs", "z"
+    }
+    for k in ("loss_total", "loss_pred", "loss_roll", "loss_anticollapse", "loss_obs"):
         assert out[k].dim() == 0
         assert torch.isfinite(out[k])
+    assert out["loss_obs"].item() == 0.0, "loss_obs should be 0 when no observable head"
     assert out["z"].shape == (2, 8, 32)
 
 
@@ -192,6 +195,132 @@ def test_jepa_rollout_loss_matches_hand_computation() -> None:
     z_full = jepa.predictor.rollout(z[:, :1, :], c, steps=2)
     expected = F.mse_loss(z_full[:, 1:3, :].float(), z[:, 1:3, :].float()).item()
     assert math.isclose(L_roll_wrapper, expected, rel_tol=1e-5, abs_tol=1e-5)
+
+
+def test_jepa_c_dropout_zeros_cond_in_train_mode() -> None:
+    """With c_dropout_prob=1.0 in train mode, cond is replaced with zeros
+    before the predictor sees it. The predictor outputs are therefore the
+    same as if the caller had passed cond=0 directly.
+    """
+    from src.models.encoder import HybridCNNViTEncoder
+    from src.models.predictor import AutoregressivePredictor
+    from src.models.sigreg import SIGReg
+
+    torch.manual_seed(0)
+    encoder = HybridCNNViTEncoder(latent_dim=32)
+    predictor = AutoregressivePredictor(
+        latent_dim=32, cond_dim=3, hidden_dim=384, depth=2, heads=8,
+        dropout=0.0, max_seq_len=32,
+    )
+    sigreg = SIGReg(dim=32, num_projections=64, num_knots=9)
+    jepa = JEPA(
+        encoder=encoder, predictor=predictor, anticollapse=sigreg,
+        H_roll=2, rollout_weight=0.0, c_dropout_prob=1.0,
+    )
+    jepa.train()
+    batch = _tiny_batch()
+    torch.manual_seed(0)
+    out_drop = jepa(batch)
+    # reference: same batch with c manually zeroed and c_dropout_prob=0
+    jepa.c_dropout_prob = 0.0
+    batch_zero = {"omega": batch["omega"], "c": torch.zeros_like(batch["c"])}
+    torch.manual_seed(0)
+    out_zero = jepa(batch_zero)
+    assert torch.allclose(
+        out_drop["loss_pred"], out_zero["loss_pred"], atol=1e-5
+    ), "c_dropout_prob=1.0 should match cond=0 reference (train mode)"
+
+
+def test_jepa_c_dropout_eval_mode_preserves_cond() -> None:
+    """In eval mode, c_dropout never fires regardless of c_dropout_prob."""
+    from src.models.encoder import HybridCNNViTEncoder
+    from src.models.predictor import AutoregressivePredictor
+    from src.models.sigreg import SIGReg
+
+    torch.manual_seed(0)
+    encoder = HybridCNNViTEncoder(latent_dim=32)
+    predictor = AutoregressivePredictor(
+        latent_dim=32, cond_dim=3, hidden_dim=384, depth=2, heads=8,
+        dropout=0.0, max_seq_len=32,
+    )
+    jepa = JEPA(
+        encoder=encoder, predictor=predictor,
+        anticollapse=SIGReg(dim=32, num_projections=64, num_knots=9),
+        H_roll=2, rollout_weight=0.0, c_dropout_prob=1.0,
+    )
+    jepa.eval()
+    batch = _tiny_batch()
+    torch.manual_seed(0)
+    out_dropout_on = jepa(batch)
+    # reference: c_dropout_prob=0 in eval mode (no zeroing either way)
+    jepa.c_dropout_prob = 0.0
+    torch.manual_seed(0)
+    out_no_dropout = jepa(batch)
+    assert torch.allclose(
+        out_dropout_on["loss_pred"], out_no_dropout["loss_pred"], atol=1e-5
+    ), "c_dropout should be a no-op in eval mode"
+
+
+def test_jepa_observable_head_adds_loss_and_grad() -> None:
+    """With an ObservableHead and a 'cl_future' batch tensor, loss_obs is
+    nonzero, loss_total includes the eta * loss_obs term, and the encoder
+    receives a gradient component from L_obs.
+    """
+    from src.models.encoder import HybridCNNViTEncoder
+    from src.models.observable_head import ObservableHead
+    from src.models.predictor import AutoregressivePredictor
+    from src.models.sigreg import SIGReg
+
+    torch.manual_seed(0)
+    encoder = HybridCNNViTEncoder(latent_dim=32)
+    predictor = AutoregressivePredictor(
+        latent_dim=32, cond_dim=3, hidden_dim=384, depth=2, heads=8,
+        dropout=0.0, max_seq_len=32,
+    )
+    head = ObservableHead(latent_dim=32, hidden_dim=64, n_deltas=3)
+    jepa = JEPA(
+        encoder=encoder, predictor=predictor,
+        anticollapse=SIGReg(dim=32, num_projections=64, num_knots=9),
+        H_roll=2, rollout_weight=0.0, lambda_anticollapse=0.0,
+        observable_head=head, observable_weight=0.01,
+    )
+    batch = _tiny_batch()
+    batch["cl_future"] = torch.randn(2, 8, 3)
+    out = jepa(batch)
+    assert out["loss_obs"].item() > 0.0, "loss_obs should be > 0 with random head + targets"
+    # loss_total = loss_pred + 0 * loss_roll + 0 * loss_anti + 0.01 * loss_obs
+    expected = out["loss_pred"].item() + 0.01 * out["loss_obs"].item()
+    assert math.isclose(out["loss_total"].item(), expected, rel_tol=1e-5, abs_tol=1e-5)
+
+    # gradient flow from loss_obs alone reaches the encoder
+    enc_first = next(jepa.encoder.parameters())
+    jepa.zero_grad()
+    out["loss_obs"].backward()
+    assert enc_first.grad is not None and enc_first.grad.detach().abs().sum().item() > 0.0
+
+
+def test_jepa_observable_head_missing_batch_key_errors() -> None:
+    """When the head is configured but the batch lacks 'cl_future', the
+    wrapper raises a KeyError early."""
+    from src.models.encoder import HybridCNNViTEncoder
+    from src.models.observable_head import ObservableHead
+    from src.models.predictor import AutoregressivePredictor
+    from src.models.sigreg import SIGReg
+
+    torch.manual_seed(0)
+    encoder = HybridCNNViTEncoder(latent_dim=32)
+    predictor = AutoregressivePredictor(
+        latent_dim=32, cond_dim=3, hidden_dim=384, depth=2, heads=8,
+        dropout=0.0, max_seq_len=32,
+    )
+    head = ObservableHead(latent_dim=32, hidden_dim=64, n_deltas=3)
+    jepa = JEPA(
+        encoder=encoder, predictor=predictor,
+        anticollapse=SIGReg(dim=32, num_projections=64, num_knots=9),
+        H_roll=2, observable_head=head, observable_weight=0.01,
+    )
+    with pytest.raises(KeyError, match="cl_future"):
+        jepa(_tiny_batch())
 
 
 def test_jepa_bf16_autocast_smoke() -> None:

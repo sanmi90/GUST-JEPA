@@ -1,0 +1,71 @@
+# Session 6 F-S (scale-up) factorial run case subset.
+#
+# 24 cases drawn from the train split of partition v1.2 to test the
+# data-scale hypothesis: more c values -> case-memorization shortcut
+# becomes less attractive than learning physics. The 5-case smoke
+# subset (smoke_5cases.yaml) is a strict subset of this list so
+# Run A and F-S share their first 5 cases.
+#
+# Coverage:
+#   G levels:  -3, -2, -1.5, -1, -0.5, 0 (Baseline), +0.25, +0.5,
+#              +1, +1.5, +2, +3   (12 distinct levels)
+#   D levels:  0.5, 1.0, 1.5 covered at multiple G values
+#   Y values:  -0.4, -0.2, -0.1, 0.0, +0.1, +0.2, +0.4 spanned
+#   Sources:   6 periodic + 18 run3 = 24
+#
+# Excluded by design (D35): the two new cases absorbed by Session 6
+# Step 0 (G-1.50_D1.50_Y-0.40 and G+3.00_D0.50_Y-0.40). Keeping them
+# out lets F-S test scale against the same physical pool that Session
+# 5 sampled from, so the contrast is purely "more cases" rather than
+# "more cases + new corner coverage".
+#
+# Train encounter count on this subset (at 3 train-encounter slots
+# per run3 case and 4 per periodic case):
+#   6 periodic * 4 + 18 run3 * 3 = 24 + 54 = 78 sub-trajectories.
+
+cases:
+  # The Session 5 smoke 5 (kept first so they line up with Run A's cases list)
+  - Baseline
+  - G+3.00_D0.50_Y+0.40
+  - G-3.00_D1.00_Y-0.20
+  - G+1.00_D1.50_Y+0.20
+  - G+1.00_D1.00_Y-0.20
+
+  # G = -3 corner coverage
+  - G-3.00_D0.50_Y+0.00
+  - G-3.00_D1.50_Y-0.10
+
+  # G = -2
+  - G-2.00_D0.50_Y+0.20
+  - G-2.00_D1.00_Y+0.40
+  - G-2.00_D1.50_Y+0.10
+
+  # G = -1.5 (skipping the new G-1.50_D1.50_Y-0.40 per D35)
+  - G-1.50_D1.00_Y+0.20
+  - G-1.50_D1.50_Y+0.40
+
+  # G = -1
+  - G-1.00_D0.50_Y+0.40
+  - G-1.00_D1.00_Y-0.20
+
+  # G = -0.5
+  - G-0.50_D0.50_Y+0.20
+
+  # G = +0.25 (periodic)
+  - G+0.25_D0.50_Y+0.10
+  - G+0.25_D1.00_Y-0.10
+
+  # G = +0.5 (mixed periodic and run3, includes D=1.5)
+  - G+0.50_D0.50_Y+0.10
+  - G+0.50_D1.00_Y-0.10
+  - G+0.50_D1.50_Y-0.40
+
+  # G = +1 (one more, the smoke 5 has two G=+1 already)
+  - G+1.00_D0.50_Y-0.40
+
+  # G = +1.5
+  - G+1.50_D0.50_Y-0.10
+
+  # G = +2 (one periodic, one run3 to bracket D extremes)
+  - G+2.00_D0.50_Y+0.10
+  - G+2.00_D1.50_Y+0.00

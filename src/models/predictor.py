@@ -82,6 +82,51 @@ class CausalSelfAttentionWithRoPE(nn.Module):
         return self.proj(out)
 
 
+class UnconditionedPredictorBlock(nn.Module):
+    """Standard pre-norm transformer block (LayerNorm + attention + MLP).
+
+    Used when ``cond_dim = 0``: there is no conditioning vector, so the
+    AdaLN-Zero path collapses to the identity (gate stays 0 forever),
+    which would freeze the predictor. This block uses learnable affine
+    LayerNorms instead. Same residual structure as ``PredictorBlock``.
+
+    Inherits the F-NC factorial variant motivation from
+    SESSION6_FACTORIAL_DIAGNOSTIC.md Step 3, F-NC.
+    """
+
+    def __init__(
+        self,
+        hidden_dim: int,
+        heads: int,
+        mlp_ratio: float,
+        dropout: float,
+        max_seq_len: int,
+    ) -> None:
+        super().__init__()
+        self.norm1 = nn.LayerNorm(hidden_dim, elementwise_affine=True)
+        self.attn = CausalSelfAttentionWithRoPE(
+            hidden_dim=hidden_dim,
+            heads=heads,
+            dropout=dropout,
+            max_seq_len=max_seq_len,
+        )
+        self.norm2 = nn.LayerNorm(hidden_dim, elementwise_affine=True)
+        mlp_hidden = int(hidden_dim * mlp_ratio)
+        self.mlp = nn.Sequential(
+            nn.Linear(hidden_dim, mlp_hidden),
+            nn.GELU(),
+            nn.Dropout(dropout),
+            nn.Linear(mlp_hidden, hidden_dim),
+            nn.Dropout(dropout),
+        )
+
+    def forward(self, x: Tensor, c_seq: Tensor | None = None) -> Tensor:
+        """``c_seq`` is accepted for API symmetry with ``PredictorBlock`` and ignored."""
+        x = x + self.attn(self.norm1(x))
+        x = x + self.mlp(self.norm2(x))
+        return x
+
+
 class PredictorBlock(nn.Module):
     """DiT-style AdaLN-Zero block with causal RoPE attention.
 
@@ -170,19 +215,27 @@ class AutoregressivePredictor(nn.Module):
         max_seq_len: int = 32,
     ) -> None:
         super().__init__()
+        if cond_dim < 0:
+            raise ValueError(f"cond_dim must be >= 0; got {cond_dim}")
         self.latent_dim = latent_dim
+        self.cond_dim = int(cond_dim)
         self.hidden_dim = hidden_dim
         self.max_seq_len = max_seq_len
 
         self.embed = nn.Linear(latent_dim, hidden_dim)
-        self.cond_mlp = nn.Sequential(
-            nn.Linear(cond_dim, hidden_dim),
-            nn.SiLU(),
-            nn.Linear(hidden_dim, hidden_dim),
-        )
+        if self.cond_dim > 0:
+            self.cond_mlp: nn.Module = nn.Sequential(
+                nn.Linear(cond_dim, hidden_dim),
+                nn.SiLU(),
+                nn.Linear(hidden_dim, hidden_dim),
+            )
+            block_cls = PredictorBlock
+        else:
+            self.cond_mlp = nn.Identity()
+            block_cls = UnconditionedPredictorBlock
         self.blocks = nn.ModuleList(
             [
-                PredictorBlock(
+                block_cls(
                     hidden_dim=hidden_dim,
                     heads=heads,
                     mlp_ratio=mlp_ratio,
@@ -197,13 +250,15 @@ class AutoregressivePredictor(nn.Module):
             nn.BatchNorm1d(latent_dim),
         )
 
-    def forward(self, z: Tensor, cond: Tensor) -> Tensor:
+    def forward(self, z: Tensor, cond: Tensor | None = None) -> Tensor:
         """Teacher-forced next-step prediction over a latent sub-trajectory.
 
         Args:
             z: ``(B, T, latent_dim)`` encoder latents.
             cond: ``(B, cond_dim)`` static episode descriptor; broadcast
-                internally to ``(B, T, hidden_dim)``.
+                internally to ``(B, T, hidden_dim)``. Ignored entirely when
+                the predictor was constructed with ``cond_dim = 0`` (F-NC
+                variant); pass ``None`` or any tensor in that case.
 
         Returns:
             ``z_hat`` of shape ``(B, T, latent_dim)``. ``z_hat[:, t, :]`` is
@@ -215,7 +270,12 @@ class AutoregressivePredictor(nn.Module):
         if T > self.max_seq_len:
             raise ValueError(f"sequence length {T} exceeds max_seq_len={self.max_seq_len}")
         x = self.embed(z)
-        c_seq = self.cond_mlp(cond).unsqueeze(1).expand(-1, T, -1)
+        if self.cond_dim > 0:
+            if cond is None:
+                raise ValueError("cond is required when predictor cond_dim > 0")
+            c_seq = self.cond_mlp(cond).unsqueeze(1).expand(-1, T, -1)
+        else:
+            c_seq = None
         for block in self.blocks:
             x = block(x, c_seq)
         out = self.out_proj(x.flatten(0, 1))

@@ -200,3 +200,48 @@ def test_predictor_gradient_flows() -> None:
     for name, p in predictor.named_parameters():
         assert p.grad is not None, f"{name}: no gradient"
         assert torch.any(p.grad != 0), f"{name}: zero gradient"
+
+
+def test_predictor_unconditioned_shape_and_no_adaln() -> None:
+    """cond_dim=0 builds the F-NC variant: no AdaLN modules, no cond_mlp
+    parameters, output shape unchanged.
+    """
+    from src.models.predictor import UnconditionedPredictorBlock
+
+    torch.manual_seed(0)
+    predictor = AutoregressivePredictor(
+        latent_dim=32, cond_dim=0, hidden_dim=384, depth=2, heads=8,
+        dropout=0.0, max_seq_len=32,
+    )
+    z = torch.randn(2, 8, 32)
+    # cond is ignored when cond_dim=0; passing None is fine
+    z_hat = predictor(z, None)
+    assert z_hat.shape == (2, 8, 32)
+    assert all(isinstance(b, UnconditionedPredictorBlock) for b in predictor.blocks)
+    adalns = [m for m in predictor.modules() if isinstance(m, AdaLN)]
+    assert adalns == [], f"expected no AdaLN under cond_dim=0; got {len(adalns)}"
+    # cond_mlp is Identity (no parameters)
+    assert not list(predictor.cond_mlp.parameters()), \
+        "cond_mlp should be parameterless when cond_dim=0"
+
+
+def test_predictor_unconditioned_gradient_flows_one_step() -> None:
+    """Standard (non-AdaLN) transformer blocks give nonzero gradients on the
+    very first backward (no warm-up needed)."""
+    torch.manual_seed(0)
+    predictor = AutoregressivePredictor(
+        latent_dim=32, cond_dim=0, hidden_dim=384, depth=2, heads=8,
+        dropout=0.0, max_seq_len=32,
+    )
+    z = torch.randn(2, 8, 32)
+    z_hat = predictor(z, None)
+    z_hat.pow(2).sum().backward()
+    for name, p in predictor.named_parameters():
+        assert p.grad is not None, f"{name}: no gradient"
+        assert torch.any(p.grad != 0), f"{name}: zero gradient"
+
+
+def test_predictor_unconditioned_rejects_negative_cond_dim() -> None:
+    import pytest as _pt
+    with _pt.raises(ValueError, match="cond_dim must be >= 0"):
+        AutoregressivePredictor(cond_dim=-1)
