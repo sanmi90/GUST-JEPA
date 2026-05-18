@@ -1419,6 +1419,138 @@ D36 (CL is the canonical observable), D37 (eta = 0.01 observable head
 weight), D38 (five factorial axes), D39 (decision string, conditional
 on outcome).
 
+### D36: CL(t+Delta) is the canonical dynamic observable target (2026-05-18, Session 6)
+
+Replaces "time-to-impact" and "vortex centroid" (the collaborator
+report's two stand-in candidates) with the lift coefficient CL evaluated
+at future frames as the single dynamic observable used by Session 6
+(F-OBS variant) and by any future observable-augmented design.
+
+Rationale
+- CL is the aerodynamically meaningful quantity that ultimately
+  controls the digital-twin objective of the project. Time-to-impact
+  is a per-encounter scalar (no dynamics signal once the impact frame
+  is past), and the vortex centroid is a geometric proxy that does not
+  see the airfoil's actual response.
+- Aligns with Fukami and Taira's lift-augmented autoencoder
+  (Nat Commun 14, 6480, 2023; arXiv:2305.18394), where the encoder
+  produces both a low-dimensional embedding and a predicted CL
+  trajectory, and the auxiliary CL loss demonstrably reduces the
+  intrinsic dimension of the discovered manifold.
+- Aligns with Solera-Rico, Sanmiguel Vila, et al. (Nat. Commun. 15,
+  1361, 2024; arXiv:2304.03571) where the transformer head conditions
+  on aerodynamic observables and the latent is evaluated against
+  surface-pressure-derived quantities.
+- Aligns with Fukami et al. transonic-buffet extension (J. Fluid Mech.
+  1021, A39, 2025; arXiv:2509.17306) which showed that observable
+  augmentation reduces the intrinsic dim from about 10 to 3 on a
+  structured fluid problem.
+
+Implementation (Session 6 Step 1)
+- The data loader (`EpisodeDataset`) emits a per-sample `cl_future`
+  tensor of shape `(L, len(deltas))`. The default deltas are `(8, 16, 24)`
+  frames; at `dt_eff = 0.05` these correspond to convective times
+  `0.4 / 0.8 / 1.2 t/c` into the future, covering short, medium, and
+  long observable horizons relative to the 5 to 20 t/c impact-dynamics
+  span.
+- End-of-encounter clamping: when `frame_start + i + delta` exceeds
+  the encounter's last valid frame index, the value is clamped to the
+  last valid `C_L`. The clamped post-impact relaxation regime is
+  approximately stationary, so the bias is small and the alternative
+  (dropping frames near the end) is harder to plumb through the rest
+  of the training loop. Documented in
+  `tests/test_episode_dataset.py::test_cl_future_clamps_at_encounter_end`.
+- Backwards compatible: existing training scripts that did not request
+  CL continue to work because the dataset's `emit_cl_future` flag
+  defaults to `False`.
+
+This decision does not commit us to dropping any other observable in
+the future. If wall pressure or vortex circulation turns out to be a
+stronger anti-shortcut signal in Session 7, those can be added as
+additional outputs of an extended head. CL is the canonical first
+target because of the direct lineage to the Fukami / Solera-Rico
+literature and because it is the project's eventual digital-twin
+quantity of interest.
+
+### D37: Observable head added as auxiliary loss with weight eta = 0.01 (2026-05-18, Session 6)
+
+The F-OBS variant pairs the encoder with a small MLP head that maps
+each per-frame latent `z_t` to a vector of future CL values, and adds
+`eta * L_obs` to the JEPA loss where `eta = 0.01`.
+
+Rationale
+- The JEPA self-supervised objective is preserved as the primary
+  signal. With `eta = 0.01` and Run A's pre-tested loss magnitudes
+  (L_pred near 0.05, L_anticollapse near 0.1), the observable term
+  contributes about a percent of the total loss at convergence -- the
+  head is a weak guidance signal, not a primary supervision target.
+- Inherits the lineage from Fukami and Taira (JFM 2023, "Compact
+  Representation of Transonic Airfoil Buffet Flows with Observable-
+  Augmented Machine Learning") where the equivalent auxiliary weight
+  on the CL prediction loss is a small positive constant.
+- Implementation (`src/models/observable_head.py` and the
+  `observable_head=` argument to `JEPA`): a two-layer MLP
+  `Linear(d=32, hidden=64) -> GELU -> Linear(hidden, n_deltas=3)`.
+
+The plan reserves this number for Session 7 sweeping if F-OBS lands as
+the active axis. The Session 6 F-OBS run is therefore a single
+operating point on a future eta curve, not a tuning result.
+
+The observable head's parameters share the predictor learning rate
+group in the optimizer; the encoder LR group is unchanged. The head is
+included in the checkpointed `jepa_state_dict` so it can be re-loaded
+in the Session 7 sweep without retraining.
+
+### D38: Five factorial single-axis variants for Session 6 (2026-05-18)
+
+Each of the five Session 6 F-* variants changes exactly one axis from
+the Session 5 Run A baseline (SIGReg + BatchNorm + L=32 + c-at-
+predictor + no observable). Sessions are constrained to a single axis
+per variant so the diagnostic notebook can attribute the recovery (or
+non-recovery) of the within-case dynamic latent signal to a specific
+mechanism. Combinations of axes are deferred to Session 7 to keep
+Session 6's budget at five 5k-iter runs (about 2.5 to 3 hours of GPU).
+
+Variants and their published precedents:
+
+- F-L (sub-trajectory length 64): V-JEPA 2 trains on 64-frame windows
+  at 4 fps (Assran et al. arXiv:2506.09985); the hypothesis is that
+  L = 32 = 1.6 t/c is too short relative to the 5 to 20 t/c impact-
+  dynamics span and that the encoder can use a static case-axis
+  shortcut when the temporal window does not span enough of impact.
+- F-CD (per-batch c-dropout 0.5): inspired by classifier-free guidance
+  in diffusion (Ho and Salimans, arXiv:2207.12598). The hypothesis is
+  that, when the predictor can rely on c being present, the encoder
+  is incentivised to encode less information than it could.
+- F-NC (predictor cond_dim=0): the most diagnostic single change. If
+  c never reaches the predictor, the encoder MUST encode whatever
+  c-dependent dynamics the predictor needs in z itself. Matches the
+  Brain-JEPA / Echo-JEPA pattern where the encoder is fully
+  responsible for encoding subject-level information.
+- F-S (24 cases): standard data-scale ablation. With 24 distinct c
+  values to memorise, the case-axis shortcut becomes less attractive
+  than learning physics.
+- F-OBS (observable head, eta = 0.01): Fukami / Solera-Rico precedent.
+  Weak observable guidance breaks the case-memorization shortcut
+  without overwhelming the self-supervised objective.
+
+All five share Session 5 Run A's defaults for everything except the
+single axis being tested: SIGReg with M = 256 projections; BatchNorm
+projection at the encoder latent boundary (D17); seed 0; B = 16; 5000
+iterations; diagnostic cadence every 250 iters; checkpoint cadence
+every 1000 iters; W&B group `partition_v1` (no separate group per
+session, to keep all v1 runs co-located in the W&B project for cross-
+session comparison).
+
+The four 5-case variants share the smoke 5-case subset from
+`configs/cases/smoke_5cases.yaml` (D24). F-S uses the new 24-case
+subset from `configs/cases/smoke_24cases.yaml`, which is a superset of
+the smoke 5 plus 19 additional cases spanning 12 G levels, all 3 D
+levels, and 7 Y values. The 24-case set deliberately excludes the two
+D35-absorbed cases so the F-S contrast is purely "more cases from the
+Session 5 physical pool" rather than "more cases plus new corner
+coverage."
+
 ## Open questions
 
 1. Empirical impact frame. The estimate of 40 was validated in the bootstrap session
