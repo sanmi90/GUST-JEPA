@@ -84,11 +84,20 @@ class EpisodeDataset(torch.utils.data.Dataset):
         cache_root = Path(cache_root)
 
         n_frames = int(config["encounter"]["frames_per_encounter"])
+        max_valid_start = n_frames - int(subtraj_len)
+        if max_valid_start < 0:
+            raise ValueError(
+                f"subtraj_len={subtraj_len} exceeds frames_per_encounter={n_frames}"
+            )
         if impact_overlap_start_range is None:
-            impact_overlap_start_range = tuple(split_manifest["subtrajectory_sampling"]["impact_overlap_start_range"])
+            ior = tuple(split_manifest["subtrajectory_sampling"]["impact_overlap_start_range"])
+            impact_overlap_start_range = (ior[0], min(int(ior[1]), max_valid_start))
         if uniform_start_range is None:
             ur = split_manifest["subtrajectory_sampling"].get("uniform_start_range")
-            uniform_start_range = tuple(ur) if ur else (0, n_frames - subtraj_len)
+            if ur:
+                uniform_start_range = (int(ur[0]), min(int(ur[1]), max_valid_start))
+            else:
+                uniform_start_range = (0, max_valid_start)
 
         self.partition = partition
         self.split = split
