@@ -131,8 +131,12 @@ For paper-grade comparison at matched d:
 1. POD with d modes (linear floor)
 2. Fukami observable-augmented AE (PRF 2025 / JFM 2025 recipe) with C_L augmentation
 3. Solera-Rico beta-VAE + transformer (Nat. Commun. 2024 recipe)
-4. PLDM (Sobal, Jyothir, Jalagam, Carion, Cho, LeCun, arXiv:2211.10831, 2022;
-   stress-tested in Sobal et al. 2025, "Stress-testing offline reward-free RL")
+4. PLDM (Sobal, Zhang, Cho, Balestriero, Rudner, LeCun, "Learning from Reward-Free
+   Offline Data: A Case for Planning with Latent Dynamics Models", arXiv:2502.14819,
+   February 2025; workshop precursor: Sobal, Jyothir, Jalagam, Carion, Cho, LeCun,
+   arXiv:2211.10831, NeurIPS SSL workshop 2022; stress-tested in Sobal et al. 2025,
+   "Stress-testing offline reward-free RL"). See HANDOFF.md D32 for the citation
+   history (the original D8 cited 2211.10831 as PLDM; 2502.14819 is the actual paper).
 
 PLDM is the direct end-to-end JEPA-from-pixels precursor to LeWM, with a 7-term
 VICReg-derived objective (six tunable weights). The central methodological contrast

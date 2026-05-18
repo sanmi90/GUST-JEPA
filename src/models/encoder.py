@@ -131,8 +131,14 @@ class HybridCNNViTEncoder(nn.Module):
         vit_mlp_ratio: float = 4.0,
         latent_dim: int = 32,
         dropout: float = 0.0,
+        projection_norm: str = "batchnorm",
     ) -> None:
         super().__init__()
+        if projection_norm not in ("batchnorm", "layernorm"):
+            raise ValueError(
+                f"projection_norm must be 'batchnorm' or 'layernorm', got {projection_norm!r}"
+            )
+        self.projection_norm = projection_norm
         c1, c2, c3 = cnn_channels
 
         # CNN stem (192x96 -> 96x48 -> 48x24 -> 24x12).
@@ -176,11 +182,18 @@ class HybridCNNViTEncoder(nn.Module):
         )
         self.norm = nn.LayerNorm(vit_hidden)
 
-        # Projection head. The BatchNorm is the LeWM-specific layer; do not
-        # replace with LayerNorm in the default run (HANDOFF.md D17).
+        # Projection head. BatchNorm is the LeWM-specific default (HANDOFF.md D17).
+        # The Session 5 ``--projection-norm layernorm`` switch wires LayerNorm here
+        # as the first diagnostic intervention if SIGReg collapses on physics data
+        # (Session 5 Run B). See HANDOFF.md D25.
+        proj_norm: nn.Module = (
+            nn.BatchNorm1d(latent_dim)
+            if projection_norm == "batchnorm"
+            else nn.LayerNorm(latent_dim)
+        )
         self.proj = nn.Sequential(
             nn.Linear(vit_hidden, latent_dim),
-            nn.BatchNorm1d(latent_dim),
+            proj_norm,
         )
 
     @property

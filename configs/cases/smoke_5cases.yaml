@@ -1,0 +1,32 @@
+# Session 5 5k-iter smoke run case subset (HANDOFF.md D24).
+#
+# Selected to span the G axis (-3 to +3), all four D values (0, 0.5, 1.0, 1.5),
+# both signs of Y/c, and to include the no-gust Baseline as calibration reference.
+#
+# The Session 5 plan named four periodic cases plus one run3 case. Two of the
+# planned periodic ids (G+3.00_D0.50_Y+0.20 and G+1.00_D1.50_Y+0.10) do not
+# exist in configs/splits/split_v1.json: periodic has no |G|=3 cases and no
+# D=1.5 cases. The closest available cases in the manifest were substituted
+# (both happen to be run3), accepting a 1 periodic + 4 run3 split instead of
+# the planned 4 + 1. The coverage of G, D, Y is preserved; the source-group
+# balance is the unavoidable cost of staying inside the actual partition.
+#
+# Per-case rationale:
+#   Baseline                    -- periodic G=0, calibration reference (D9).
+#   G+3.00_D0.50_Y+0.40 (run3)  -- strong positive gust, D=0.5; substitute
+#                                  for the planned periodic G+3.00_D0.50_Y+0.20.
+#   G-3.00_D1.00_Y-0.20 (run3)  -- strong negative gust, D=1.0, Y negative.
+#   G+1.00_D1.50_Y+0.20 (run3)  -- moderate gust, D=1.5 (only run3 has D=1.5);
+#                                  substitute for the planned G+1.00_D1.50_Y+0.10.
+#   G+1.00_D1.00_Y-0.20 (run3)  -- moderate gust, D=1.0, Y negative; second
+#                                  G=+1 case to give the predictor seed-condition
+#                                  variation at constant G.
+#
+# Train encounter count on this subset: 4 + 3 + 3 + 3 + 3 = 16 sub-trajectories.
+
+cases:
+  - Baseline
+  - G+3.00_D0.50_Y+0.40
+  - G-3.00_D1.00_Y-0.20
+  - G+1.00_D1.50_Y+0.20
+  - G+1.00_D1.00_Y-0.20

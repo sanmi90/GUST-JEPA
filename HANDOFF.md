@@ -157,11 +157,15 @@ Periodic trailing partials are discarded.
 Impact frame estimate is 40 (vortex centroid crosses LE at t ~ 1.965 t/c).
 Sub-trajectory L = 32 with 70 percent impact-aware sampling, 30 percent uniform.
 
-### D8: PLDM added as the fourth matched-capacity baseline
+### D8: PLDM added as the fourth matched-capacity baseline (citation corrected 2026-05-17, see D32)
 
 Final baseline list: POD, Fukami observable-augmented AE, Solera-Rico beta-VAE +
-transformer, and PLDM (Position-based Latent Dynamics Model, Sobal, Jyothir, Jalagam,
-Carion, Cho, LeCun, arXiv:2211.10831, 2022; stress-tested in Sobal et al. 2025).
+transformer, and PLDM (Sobal, Zhang, Cho, Balestriero, Rudner, LeCun, "Learning from
+Reward-Free Offline Data: A Case for Planning with Latent Dynamics Models",
+arXiv:2502.14819, February 2025; workshop precursor: Sobal et al., arXiv:2211.10831,
+NeurIPS SSL workshop 2022; stress-tested in Sobal et al. 2025). The original D8 cited
+arXiv:2211.10831 as the primary PLDM reference; this was incorrect. See D32 for the
+correction.
 
 Rationale: PLDM is the direct end-to-end JEPA-from-pixels precursor to LeWM, with a
 7-term VICReg-derived objective and six tunable weights. LeWM cites PLDM as the previous
@@ -715,6 +719,397 @@ CI runs the fast form. Local pre-PR runs should include `--runslow`
 when touching `src/training/train_jepa.py`, `src/models/jepa.py`,
 `src/data/`, or any module that participates in the training loop.
 
+### D24: Session 5 5-case smoke subset (2026-05-17)
+
+The Session 5 5k-iter smoke run uses a deliberately chosen 5-case
+subset stored at `configs/cases/smoke_5cases.yaml`:
+
+- `Baseline`                    (periodic, G=0, D=0, Y=0; calibration reference per D9)
+- `G+3.00_D0.50_Y+0.40`         (run3,    G=+3, D=0.5, Y=+0.4)
+- `G-3.00_D1.00_Y-0.20`         (run3,    G=-3, D=1.0, Y=-0.2)
+- `G+1.00_D1.50_Y+0.20`         (run3,    G=+1, D=1.5, Y=+0.2)
+- `G+1.00_D1.00_Y-0.20`         (run3,    G=+1, D=1.0, Y=-0.2)
+
+Total: 16 train encounters + 5 test_a held-out encounters.
+
+Rationale: random selection across sessions would make Session 5/6/7
+results incomparable. Pinning the subset means the methodological
+finding (decision string from `notebooks/01_smoke_5k_analysis.ipynb`)
+is reproducible across reruns. The subset spans the G axis from -3 to
++3 (the full training G envelope; |G|=4 is reserved for Test C), all
+four D values (0, 0.5, 1.0, 1.5), both signs of Y/c, and exercises both
+source groups.
+
+Substitutions from the Session 5 plan: the plan named four periodic
+cases plus one run3 case. Two of the planned periodic ids
+(`G+3.00_D0.50_Y+0.20` and `G+1.00_D1.50_Y+0.10`) do not exist in
+`configs/splits/split_v1.json` because periodic has no |G|=3 cases and
+no D=1.5 cases (only run3 covers those parameter combinations). The
+closest available manifest cases were substituted (`G+3.00_D0.50_Y+0.40`
+and `G+1.00_D1.50_Y+0.20`, both run3), preserving the G/D/Y coverage
+intent at the cost of a 1-periodic + 4-run3 split instead of the
+planned 4 + 1. The third planned id (`G-3.00_D1.00_Y-0.20`) was
+labelled periodic in the plan but is actually a run3 case in the
+manifest; this was a plan-side misreading, not a substitution.
+
+The subset is NOT a split (it is not part of `configs/splits/split_v1.json`).
+It is a runtime case selector consumed by
+`train_jepa.py --cases-from configs/cases/smoke_5cases.yaml`.
+
+Alternative considered: bootstrap a smaller dedicated split file
+(e.g., `split_smoke5.json`) for the same case list. Rejected because
+the partition manifest is the data-versioning surface (D11, D12, D14,
+D15, D20) and adding a sub-split there would dilute the meaning of a
+"partition". The runtime selector lives in `configs/cases/`, separate
+from `configs/splits/`, so the two concerns stay clean.
+
+### D25: --projection-norm flag on the encoder and train_jepa entrypoint (2026-05-17)
+
+`HybridCNNViTEncoder` gains a `projection_norm: str = "batchnorm"`
+constructor argument. The default keeps the LeWM-faithful BatchNorm
+projection (HANDOFF.md D17); `projection_norm="layernorm"` swaps in
+`nn.LayerNorm(latent_dim)` at `proj[-1]`. The Linear in front of the
+norm is unchanged.
+
+`scripts/.../train_jepa.py` gains `--projection-norm {batchnorm,layernorm}`,
+passed through to the encoder constructor and logged under the
+W&B `projection_norm` config key.
+
+Rationale: D17 names BatchNorm as the canonical projection but also
+records the LeJEPA caveat (no observed difference at ImageNet scale)
+and prescribes the LayerNorm swap as "the FIRST diagnostic intervention
+if participation-ratio diagnostics show partial SIGReg collapse". The
+Session 5 plan operationalises that intervention as Run B; the flag is
+the supported code path that makes Run B a one-flag change instead of
+a code edit.
+
+Test coverage: `tests/test_encoder.py` adds
+`test_encoder_projection_can_be_layernorm` (verifies the LayerNorm path
+constructs and runs forward) and
+`test_encoder_projection_norm_rejects_unknown` (verifies the ValueError
+for unknown values). The existing
+`test_encoder_projection_is_batchnorm` was renamed to
+`test_encoder_projection_is_batchnorm_by_default` and the assertion is
+unchanged (the default stays BatchNorm).
+
+Alternative considered: pipe `projection_norm` through the predictor
+as well so the encoder/predictor norm types stay matched. Rejected at
+this step because the Session 5 plan is explicit: "pass this through to
+the encoder constructor" (only). The predictor's `out_proj` BatchNorm
+is left in place; if Run B reveals a downstream distributional mismatch
+between LayerNorm-encoded targets and BatchNorm-projected predictions,
+that becomes a methodological observation, not a wiring bug.
+
+### D26: --anticollapse flag on train_jepa entrypoint (2026-05-17)
+
+`scripts/.../train_jepa.py` gains
+`--anticollapse {sigreg,vicreg}`. Default `sigreg` per D5. With
+`vicreg`, the JEPA wrapper is constructed with the Bardes ICLR 2022
+module directly; the auto-fallback controller is still instantiated
+but should never fire (PR/probe diagnostics that would have triggered
+the SIGReg -> VICReg swap are silenced via the conditional that gates
+the swap on the active regulariser being SIGReg). The W&B tag list
+becomes `['hybrid_cnn_vit', 'vicreg']` in that case, matching the
+"regularizer_name" axis defined in CLAUDE.md "Logging".
+
+Rationale: D5 places VICReg behind the auto-fallback rule, which fires
+at iter 20k AND only if PR < 0.3 * d AND probe R^2 < 0.7. The Session 5
+plan needs to test VICReg as a direct configuration (Run C and Run D)
+without waiting for the conjunctive condition to fire. Hard-coding the
+swap into the auto-fallback controller would also work but would
+conflate "intentional comparison" with "automatic intervention" in the
+W&B record. A dedicated flag keeps the run intent visible.
+
+`--tag-suffix <str>` was added in the same change. It appends
+`run:<suffix>` to the W&B tag list (Session 5 uses `run_a_sigreg_bn_seed0`,
+`run_b_sigreg_ln_seed0`, etc., so the analysis notebook can disaggregate
+runs by tag).
+
+Test coverage: the existing `test_train_jepa_smoke` integration test
+runs with default flags and exercises the SIGReg path; no Session 5
+test is added because the flag is a simple constructor switch and the
+underlying VICReg module already has its own unit-test coverage from
+Session 4.
+
+Alternative considered: silently override the wrapper's anti-collapse
+module post-hoc via `set_anticollapse`. Rejected because it would
+require running through one iteration before the swap, and would also
+leave the SIGReg state-dict keys in the run's first checkpoint, which
+is a foot-gun for downstream restart logic. Direct construction-time
+selection is cleaner.
+
+### D33: Absorb two more run3 cases into v1 (2026-05-17, late)
+
+Carlos's collaborator dropped two more run3 files in
+`$PREVENT_ROOT/data/raw/periodic/run3/` later the same day as D20
+(`Gust_027_x-1.965_y-0.387_s-2.0_d1.5.h5` and
+`Gust_031_x-1.844_y-0.872_s-3.0_d0.5.h5`, both timestamped
+2026-05-17 21:17; Gust_027 was the one skipped in D15 and now
+arrives, while Gust_031 is new at the |G|=3, |Y|=0.4 corner).
+Decoded with the locked alpha=14 degree rotation:
+
+- `G-2.00_D1.50_Y+0.10` (run3, defaults to `train`)
+- `G-3.00_D0.50_Y-0.40` (run3, defaults to `train`)
+
+Both new case_ids do not collide with the existing inventory; both
+stay inside the training envelope (|G| <= 3, only |G|=4 is held out in
+Test C). `G-3.00_D0.50_Y-0.40` is the first run3 case at the
+|Y|=0.4 corner with negative Y; together with the existing
+`G-1.00_D0.50_Y+0.40` and `G+1.00_D0.50_Y-0.40` it gives the predictor
+better coverage of the extreme-offset corners of the training envelope.
+
+Same precedent as D12, D14, D15, D20: v1 still has no paper-reportable
+training checkpoint, so this absorption stays in v1. The next
+absorption after the first reportable v1 run MUST go to v2.
+
+Effect on counts (cumulative since D20):
+- Train cases: 37 -> 39 (+2 new run3 train cases).
+- Train encounters: 126 -> 132 (+6 = 2 cases x 3 train-encounter slots).
+- Test A encounters: 52 -> 54 (+2 = 2 cases x 1 held-out encounter).
+- Total cases: 47 -> 49.
+- Total encounters: 230 -> 238.
+
+Cache:
+- 8 new encounter files written at
+  `${VORTEX_JEPA_CACHE}/v1/{G-2.00_D1.50_Y+0.10, G-3.00_D0.50_Y-0.40}/encounter_*.h5`.
+- The 230 pre-existing encounter files are untouched (preprocess.py
+  reported `written=8, skipped=230`).
+
+`data_manifest/raw_cases_inventory.yaml` regenerated via
+`scripts/100c_raw_cases_inventory.py`; summary now reports
+`n_cases_total: 49`, `n_cases_periodic: 21`, `n_cases_run3: 28`,
+`n_parse_errors: 0`, `n_duplicate_case_ids: 0`. New inventory SHA256:
+`dd984588be553a28285a35fed7328cfcf9b482329e6f346b4f1e9a0574f764bc`
+(D20's hash `8c7202e1c8b6d8055f5e320733cf639746999504f631a4e2551c9eaecd419282`
+is preserved in git history).
+
+`configs/splits/split_v1.json` regenerated via `python build_split_manifest.py`.
+New SHA256:
+`7f8f60428e13b7c2fe4063e15bd99ea9e08e5e6cecf0e8883f8fb6a4875e2331`
+(D20's hash `6fa9fd149da1a0d37bb80af0a4381bf7004665bcfce3402d558a04446fe76ae0`
+is preserved in git history). When logging W&B `split_sha256` for runs
+that touch the absorbed v1, use the new hash.
+
+Effect on Session 5: the 5-case smoke subset (D24) is a fixed list of
+case ids and is unaffected by this absorption. The new cases will be
+available for Session 6 lambda bisection and any subsequent training
+run that uses the full train split.
+
+Alternative considered: build v2 with these two cases. Rejected for the
+same reason as D12/D14/D15/D20 -- premature partition-versioning while
+the project still has no v1 training checkpoint to compare against.
+
+### D27: Session 5 5k smoke outcome -- TRIVIAL-dominant with grid variation (2026-05-18)
+
+The Session 5 5k-iter smoke produced four variants on the 5-case subset
+(D24). Final state at iter 5000:
+
+| Variant            | Anti-collapse | Proj  | PR    | r2_overall | r2_G  | r2_D  | r2_Y  | L_anti |
+|--------------------|---------------|-------|-------|------------|-------|-------|-------|--------|
+| A: SIGReg + BN     | SIGReg        | BN    |  1.025|  0.779     | 0.923 | 0.775 | 0.637 | 0.081  |
+| B: SIGReg + LN     | SIGReg        | LN    |  1.135|  0.452     | 0.645 | 0.419 | 0.293 | 0.124  |
+| C: VICReg + BN     | VICReg        | BN    | 17.463|  0.887     | 0.914 | 0.889 | 0.858 | 0.083  |
+| D: VICReg + LN     | VICReg        | LN    |  7.588|  0.803     | 0.929 | 0.784 | 0.696 | 4.007  |
+
+Classification per the Session 5 decision tree:
+
+- A in PR <= 16 AND r2 > 0.7 -> TRIVIAL (collapse to c)
+- B in PR <= 16 AND r2 <= 0.5 -> DEAD (collapsed AND uninformative)
+- C in PR >  16 AND r2 > 0.7 -> a new quadrant not strictly named by
+  the plan, called "TRIVIAL_LITE" in the analysis notebook (the latent
+  is anti-collapsed but the encoder still leaks c into many dims so the
+  probe R^2 stays in the memorisation range)
+- D in PR <= 16 AND r2 > 0.7 -> TRIVIAL
+
+Strict reading: no single one of the plan's five named outcomes
+(HEALTHY / PARTIAL / TRIVIAL / WEAK / DEAD) applies cleanly because
+the variants spread across three different quadrants. The notebook's
+decision_string therefore prints `MIXED: quadrants [...] manual
+inspection required.`
+
+Methodological reading: **the smoke is TRIVIAL-dominant.** Three of
+four variants (A, C, D) land with r2_overall > 0.7, which is the
+"encoder leaks c" failure mode the plan's TRIVIAL outcome predicts.
+The form of the leak varies across the grid:
+
+- under SIGReg + BN (default), the latent collapses to rank ~1
+  (PR=1.025) and z = f(c) is essentially a 1-D function of the case
+  descriptor;
+- under VICReg + BN, the variance hinge forces dim spread (PR=17.5)
+  but the encoder fills the extra dims with c-correlated noise; the
+  per-component probe (G=0.91, D=0.89, Y=0.86) is uniformly high;
+- under VICReg + LN, the per-sample LayerNorm partially fights the
+  per-dim variance hinge so dim spread is partial (PR=7.6) and r2
+  drops modestly to 0.80;
+- under SIGReg + LN, the Gaussian regulariser plus per-sample
+  normalisation produces the most violent failure: the latent stays
+  rank ~1 AND the probe oscillates from -0.86 to +0.86 across
+  iterations, with final r2 = 0.45.
+
+The single common feature across all four: **L_pred reaches near zero
+by iter 100** (overfitting on 16 train sub-trajectories is trivial for
+the predictor regardless of regularizer). With only 5 distinct c
+values in the training subset, the easy thing for the encoder to learn
+is c itself; nothing else is required for L_pred to reach zero.
+
+This is H4 confirmed at the 5-case scale: the LeWM Two-Room failure
+mode (arXiv:2603.19312 Section 5) replicates on physics data. The
+contribution claim 3 (the regime-dependent SIGReg-PR diagnostic)
+gains a concrete datapoint and a refinement: at low-intrinsic-dim
+physics data scale, VICReg recovers PR but not probe-quality, and
+SIGReg does neither.
+
+What variant C tells us beyond the plan: prevention of rank-1
+collapse is necessary but not sufficient. A variance-floor anti-
+collapse mechanism (VICReg's per-dim hinge) achieves dim spread
+without delivering a useful latent at this data scale. Confirms the
+LeWM Section 5 expectation that PLDM's multi-term anti-collapse
+(arXiv:2502.14819) might do better at low-intrinsic-dim regimes
+because its inverse-dynamics term explicitly forces the latent to
+capture *dynamics*, not just *case label*.
+
+Decision string for the session: **TRIVIAL-DOMINANT** (TRIVIAL with
+the C-quadrant variation). Triggers the same next-step as the plan's
+strict TRIVIAL branch.
+
+Next session: **Session 5.PLDM** per D29. The full PLDM 7-term loss
+(arXiv:2502.14819) introduces an inverse-dynamics term that is
+exactly the additional constraint the four 2-term variants here
+lack. If PLDM also lands in any of {TRIVIAL, TRIVIAL_LITE, DEAD},
+the failure mode is data-scale-bound and Session 5.5 (expand to
+10-12 cases) follows. If PLDM lands in HEALTHY, the regime-dependent
+SIGReg-vs-PLDM contrast is confirmed and Session 6 proceeds with
+PLDM as the primary trained model.
+
+Files generated this session:
+- `outputs/runs/smoke5k/run_a_sigreg_bn/{metrics.jsonl, checkpoint_iter005000.pt}`
+- `outputs/runs/smoke5k/run_b_sigreg_ln/{metrics.jsonl, checkpoint_iter005000.pt}`
+- `outputs/runs/smoke5k/run_c_vicreg_bn/{metrics.jsonl, checkpoint_iter005000.pt}`
+- `outputs/runs/smoke5k/run_d_vicreg_ln/{metrics.jsonl, checkpoint_iter005000.pt}`
+- `notebooks/01_smoke_5k_analysis.ipynb` (executed; ~819 kB with embedded figures)
+
+W&B offline runs in each variant's `wandb/offline-run-*/` subdir;
+sync with `wandb sync` after `wandb login`.
+
+### D28: Auto-fallback rule revision proposal (2026-05-18, deferred)
+
+The Session 4 auto-fallback rule (D5) is `iter >= 20000 AND
+PR < 0.3 * d AND probe_R^2 < 0.7`. The conjunctive design catches the
+worst case (latent both collapsed AND uninformative). Session 5 Run A
+demonstrates the alternative trivial-solution failure mode:
+**PR collapsed (1.025) AND probe R^2 ABOVE 0.7 (0.779)**. The current
+rule does NOT fire because r2 is above the conjunct, even though the
+latent is at rank ~1.
+
+Three rule revisions to consider before Session 6:
+
+(a) Drop the probe_R^2 conjunct entirely:
+    fire on `PR < 0.3 * d` alone, regardless of probe behaviour.
+    Pros: catches the trivial-solution mode.
+    Cons: false-fires on healthy runs that briefly dip in PR during
+    early training (Run C had PR=4.7 at iter 250 and recovered to 17
+    by iter 5000; under (a) the fallback would have fired at iter 20k
+    on a similar healthy trajectory if the recovery were slower).
+
+(b) Switch the probe to a CASE-conditional split:
+    fit on K Test B cases, evaluate on the other 6-K Test B cases,
+    rather than fitting and evaluating on disjoint sub-batches of all
+    Test B cases. The trivial-solution mode should drop r2 sharply on
+    held-out cases (because the encoder has only memorised the seen c
+    values).
+    Pros: directly tests the "memorisation vs generalisation"
+    question that motivated the conjunct.
+    Cons: more expensive (need a full forward over enough Test B
+    cases to fit and evaluate); higher variance on the small Test B
+    set (6 cases total).
+
+(c) Add an "overfitting indicator" to the conjunct:
+    fire on `PR < 0.3 * d AND L_pred_running < 1e-3`, where
+    L_pred_running is a 1k-iter moving average. Run A's L_pred is
+    below 1e-3 by iter 100; this signature is unambiguous. Pros:
+    explicitly conjoint with the symptom (overfitting on small train
+    set produces near-zero L_pred). Cons: tunes another threshold;
+    requires running-average bookkeeping.
+
+Decision deferred to the start of Session 6. Recommend (b) as the
+most principled because it operationalises the original
+"memorisation" intent of the rule; (c) as the most pragmatic if (b)
+proves too costly at full training scale. (a) is the simplest but
+the false-fire risk is real on slow-spreading variants like Run C.
+
+Cite this entry from CLAUDE.md "Risk-management" when the rule is
+revised.
+
+### D29: PLDM baseline is conditional priority (2026-05-17, always-record)
+
+The LeWM paper (Maes et al., arXiv:2603.19312, Section 5) reports:
+"In the simpler Two-Room environment, PLDM and DINO-WM outperform
+LeWM, which may be explained by the SIGReg regularization
+encouraging a Gaussian distribution in a high-dimensional latent
+space, while the intrinsic dimensionality of the environment is
+much lower." Our estimated intrinsic dimension (D4: ~5 to 10) is
+closer to Two-Room than to Push-T.
+
+**Rule:** if Session 5 lands TRIVIAL (or, by the present interpretation,
+TRIVIAL-dominant per D27), **PLDM becomes the priority comparator
+immediately after Session 5**, before either Session 5.5 (expand
+cases) or Session 6 (Hydra + lambda bisection). This is recorded
+ahead of time because it changes the implicit ordering of
+"baselines are parallel work" (D8) into "PLDM is conditional
+priority" when the trivial-solution mode appears.
+
+Effect on the paper: contribution claim 3 sharpens from
+"SIGReg as a JEPA-for-science methodology" to "the regime-dependent
+SIGReg-PR diagnostic, with PLDM as the recommended fallback for
+low-intrinsic-dim domains."
+
+Session 5 outcome triggers this rule. Next session is
+**Session 5.PLDM** per `SESSION5_PLDM_BASELINE.md`. The PLDM plan
+verifies the 7-term loss against arXiv:2502.14819 directly before
+implementation; the D8 description (corrected in D32) is approximate
+and was not re-verified against the paper at project bootstrap.
+
+### D32: Correction to PLDM citation in D8 (2026-05-17, housekeeping)
+
+D8 in HANDOFF.md cited PLDM as "Sobal, Jyothir, Jalagam, Carion, Cho,
+LeCun (2022), arXiv:2211.10831" with the title "Joint Embedding
+Predictive Architectures Focus on Slow Features". This citation is
+INCORRECT. The 2022 paper is a 4-page NeurIPS SSL workshop precursor by
+a partially overlapping author group; it is useful as theoretical
+background but is NOT the source of the PLDM name or the multi-term
+loss formulation. The actual PLDM paper is:
+
+Sobal, Zhang, Cho, Balestriero, Rudner, LeCun, "Learning from
+Reward-Free Offline Data: A Case for Planning with Latent Dynamics
+Models", arXiv:2502.14819, February 2025. Project page:
+latent-planning.github.io. Code: github.com/vladisai/PLDM.
+
+Effect on the repo:
+- D8 in HANDOFF.md updated to cite arXiv:2502.14819 as the primary
+  reference, with arXiv:2211.10831 listed separately as the workshop
+  precursor for theoretical background. Header marked
+  "(citation corrected 2026-05-17, see D32)" so a reader of D8 sees the
+  forward pointer immediately.
+- HANDOFF.md "Key references" / "Direct baselines" section updated to
+  list arXiv:2502.14819 as PLDM, with arXiv:2211.10831 as the workshop
+  precursor.
+- CLAUDE.md "Baselines to implement" item 4 updated to cite
+  arXiv:2502.14819 as the primary reference, with arXiv:2211.10831 as
+  workshop precursor and the Robot Learning Workshop 2025 paper as the
+  stress-testing follow-up.
+
+The "7-term loss" language in D8 is approximate; the actual term count
+and weight set are to be read directly from arXiv:2502.14819 Appendix
+C.1.1 and the official code at github.com/vladisai/PLDM, and the D8
+description updated to match once verified. That verification is part
+of Session 5.PLDM (if triggered), not this housekeeping pass.
+
+Alternative considered: leave D8 unchanged and merely add a note that
+the citation is wrong. Rejected because the wrong citation has already
+propagated into CLAUDE.md and into the SESSION5_*.md plans; surgically
+fixing all three at once is the lowest-risk way to keep the project's
+references coherent before Session 5's variant runs land.
+
 ## Open questions
 
 1. Empirical impact frame. The estimate of 40 was validated in the bootstrap session
@@ -809,8 +1204,12 @@ Anti-collapse theory
 - VICReg: Bardes, Ponce, LeCun. ICLR 2022.
 
 Direct baselines
-- PLDM: Sobal, Jyothir, Jalagam, Carion, Cho, LeCun. "Joint Embedding Predictive
-  Architectures Focus on Slow Features." arXiv:2211.10831, 2022.
+- PLDM: Sobal, Zhang, Cho, Balestriero, Rudner, LeCun. "Learning from Reward-Free
+  Offline Data: A Case for Planning with Latent Dynamics Models." arXiv:2502.14819,
+  February 2025. Project page: latent-planning.github.io. Code: github.com/vladisai/PLDM.
+- PLDM workshop precursor: Sobal, Jyothir, Jalagam, Carion, Cho, LeCun. "Joint Embedding
+  Predictive Architectures Focus on Slow Features." arXiv:2211.10831, NeurIPS SSL
+  workshop 2022. (D8 originally cited this as PLDM; corrected in D32.)
 - PLDM (stress-tested): Sobal, Zhang, Cho, Balestriero, Rudner, LeCun. "Stress-testing
   Offline Reward-Free Reinforcement Learning." Robot Learning Workshop 2025.
 - Solera-Rico, Sanmiguel Vila, Gomez-Lopez, Wang, Almashjary, Dawson, Vinuesa.

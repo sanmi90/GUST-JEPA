@@ -31,19 +31,46 @@ def test_encoder_num_spatial_tokens() -> None:
     assert encoder.num_spatial_tokens == 288
 
 
-def test_encoder_projection_is_batchnorm() -> None:
-    """The final layer of encoder.proj is nn.BatchNorm1d, NOT LayerNorm.
+def test_encoder_projection_is_batchnorm_by_default() -> None:
+    """The default ``projection_norm`` selects ``nn.BatchNorm1d`` at ``proj[-1]``.
 
-    LeWM-specific constraint (HANDOFF.md D17): SIGReg requires BatchNorm at
-    the encoder bottleneck because the final ViT LayerNorm would otherwise
-    prevent the anti-collapse objective from being optimized.
+    LeWM-specific constraint (HANDOFF.md D17): SIGReg requires BatchNorm at the
+    encoder bottleneck because the final ViT LayerNorm would otherwise prevent
+    the anti-collapse objective from being optimized. The default stays
+    BatchNorm; ``projection_norm='layernorm'`` is the Session 5 Run B
+    diagnostic intervention switch (HANDOFF.md D25).
     """
     torch.manual_seed(0)
     encoder = HybridCNNViTEncoder()
     final = encoder.proj[-1]
     assert isinstance(
         final, nn.BatchNorm1d
-    ), f"expected nn.BatchNorm1d at proj[-1], got {type(final).__name__}"
+    ), f"expected nn.BatchNorm1d at proj[-1] by default, got {type(final).__name__}"
+
+
+def test_encoder_projection_can_be_layernorm() -> None:
+    """``projection_norm='layernorm'`` swaps in ``nn.LayerNorm`` at ``proj[-1]``.
+
+    Session 5 Run B (HANDOFF.md D25) needs this code path to test whether the
+    LeWM BatchNorm-at-projection choice is responsible for SIGReg collapse
+    on low-intrinsic-dim physics data.
+    """
+    torch.manual_seed(0)
+    encoder = HybridCNNViTEncoder(projection_norm="layernorm")
+    final = encoder.proj[-1]
+    assert isinstance(
+        final, nn.LayerNorm
+    ), f"expected nn.LayerNorm at proj[-1] with projection_norm='layernorm', got {type(final).__name__}"
+
+    x = torch.randn(2, 4, 1, 192, 96)
+    z = encoder(x)
+    assert z.shape == (2, 4, 32)
+
+
+def test_encoder_projection_norm_rejects_unknown() -> None:
+    """Unknown ``projection_norm`` values raise a clear ``ValueError``."""
+    with pytest.raises(ValueError, match="projection_norm"):
+        HybridCNNViTEncoder(projection_norm="instancenorm")
 
 
 def test_encoder_parameter_count_in_range() -> None:

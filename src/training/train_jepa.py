@@ -32,7 +32,7 @@ from typing import Any, Iterator
 import numpy as np
 import torch
 import yaml
-from torch import Tensor
+from torch import Tensor, nn
 from torch.optim import AdamW
 from torch.optim.lr_scheduler import LambdaLR
 from torch.utils.data import DataLoader
@@ -87,6 +87,45 @@ def parse_args() -> argparse.Namespace:
         choices=["online", "offline", "disabled"],
         default="online",
     )
+    p.add_argument(
+        "--cases-from",
+        type=str,
+        default=None,
+        help=(
+            "Path to a YAML file with a 'cases' list. Mutually exclusive with --cases. "
+            "Resolved relative to the repository root if not absolute."
+        ),
+    )
+    p.add_argument(
+        "--projection-norm",
+        type=str,
+        choices=["batchnorm", "layernorm"],
+        default="batchnorm",
+        help=(
+            "Encoder projection norm. Default 'batchnorm' per HANDOFF.md D17; "
+            "'layernorm' is the Session 5 Run B diagnostic intervention."
+        ),
+    )
+    p.add_argument(
+        "--anticollapse",
+        type=str,
+        choices=["sigreg", "vicreg"],
+        default="sigreg",
+        help=(
+            "Anti-collapse module. Default 'sigreg' per HANDOFF.md D5; 'vicreg' "
+            "selects the Bardes et al. ICLR 2022 module directly (auto-fallback "
+            "remains installed but should never fire)."
+        ),
+    )
+    p.add_argument(
+        "--tag-suffix",
+        type=str,
+        default="",
+        help=(
+            "Extra string appended to the W&B tag list as 'run:<suffix>'. Empty "
+            "(default) leaves the standard ['hybrid_cnn_vit', '<regularizer>'] tags."
+        ),
+    )
     return p.parse_args()
 
 
@@ -114,6 +153,27 @@ def set_all_seeds(seed: int) -> None:
     torch.manual_seed(seed)
     if torch.cuda.is_available():
         torch.cuda.manual_seed_all(seed)
+
+
+def resolve_cases(args: argparse.Namespace) -> list[str] | None:
+    """Pick the case-id list from ``--cases`` or ``--cases-from`` (mutually exclusive).
+
+    Returns ``None`` when neither is supplied (i.e. use the full train split).
+    """
+    if args.cases is not None and args.cases_from is not None:
+        raise SystemExit("error: pass only one of --cases or --cases-from")
+    if args.cases_from is not None:
+        cases_path = Path(args.cases_from)
+        if not cases_path.is_absolute():
+            cases_path = REPO_ROOT / cases_path
+        with open(cases_path) as f:
+            payload = yaml.safe_load(f)
+        if "cases" not in payload:
+            raise SystemExit(
+                f"error: --cases-from YAML at {cases_path} has no top-level 'cases' key"
+            )
+        return list(payload["cases"])
+    return args.cases
 
 
 def jepa_collate(samples: list[dict[str, Any]]) -> dict[str, Tensor]:
@@ -232,6 +292,7 @@ def run_diagnostics(
 
 def main() -> None:
     args = parse_args()
+    args.cases = resolve_cases(args)
     device = require_rtx6000()
     set_all_seeds(args.seed)
 
@@ -251,6 +312,10 @@ def main() -> None:
             "contain both 'RTX' and '6000'. Run aborted."
         )
 
+    regularizer_tag = "sigreg" if args.anticollapse == "sigreg" else "vicreg"
+    # ``lambda_sigreg`` is the W&B key per CLAUDE.md "Logging" even when the
+    # active regulariser is VICReg; the field is the anti-collapse weight, not
+    # the SIGReg-specific lambda. Reusing the key keeps the contract stable.
     run_config = {
         "preprocessing_version": preprocessing_cfg["preprocessing_version"],
         "partition_version": args.partition,
@@ -271,36 +336,56 @@ def main() -> None:
         "weight_decay": args.weight_decay,
         "warmup_frac": args.warmup_frac,
         "cases": args.cases,
+        "projection_norm": args.projection_norm,
+        "anticollapse": args.anticollapse,
+        "tag_suffix": args.tag_suffix,
     }
 
     import wandb
 
+    wandb_tags = ["hybrid_cnn_vit", regularizer_tag]
+    if args.tag_suffix:
+        wandb_tags.append(f"run:{args.tag_suffix}")
+
     wandb.init(
         project=os.environ.get("WANDB_PROJECT", "vortex-jepa"),
         group=f"partition_{args.partition}",
-        tags=["hybrid_cnn_vit", "sigreg"],
+        tags=wandb_tags,
         mode=args.wandb_mode,
         config=run_config,
         dir=str(output_dir),
     )
     wandb.run.summary["wandb_run_id"] = wandb.run.id
 
+    # Side JSONL log so offline runs are readable without a `wandb sync`.
+    # One line per wandb.log() call, plus a small header carrying run_config.
+    metrics_jsonl = output_dir / "metrics.jsonl"
+    with open(metrics_jsonl, "w") as f:
+        f.write(json.dumps({"event": "config", "wandb_run_id": wandb.run.id, **run_config}) + "\n")
+
+    def _log_metrics(payload: dict[str, Any], step: int) -> None:
+        wandb.log(payload, step=step)
+        with open(metrics_jsonl, "a") as fh:
+            fh.write(json.dumps({"event": "log", "step": int(step), **payload}) + "\n")
+
     train_loader = make_train_loader(args)
     test_b_loader = make_test_b_loader(args)
     train_iter = infinite_iter(train_loader)
     test_b_iter = infinite_iter(test_b_loader)
 
-    encoder = HybridCNNViTEncoder(latent_dim=args.d)
+    encoder = HybridCNNViTEncoder(latent_dim=args.d, projection_norm=args.projection_norm)
     predictor = AutoregressivePredictor(
         latent_dim=args.d,
         cond_dim=3,
         max_seq_len=args.T,
     )
-    sigreg = SIGReg(dim=args.d)
+    anticollapse: nn.Module = (
+        SIGReg(dim=args.d) if args.anticollapse == "sigreg" else VICReg(d=args.d)
+    )
     jepa = JEPA(
         encoder=encoder,
         predictor=predictor,
-        anticollapse=sigreg,
+        anticollapse=anticollapse,
         lambda_anticollapse=args.lambda_sigreg,
         rollout_weight=0.5,
         H_roll=args.H_roll,
@@ -349,7 +434,7 @@ def main() -> None:
         scheduler.step()
 
         if iteration % args.log_every == 0:
-            wandb.log(
+            _log_metrics(
                 {
                     "iter": iteration,
                     "loss_total": last_loss_total,
@@ -371,7 +456,7 @@ def main() -> None:
 
         if iteration % args.diagnostic_every == 0:
             diag = run_diagnostics(jepa, test_b_iter, device, args.seed)
-            wandb.log({f"diag/{k}": v for k, v in diag.items()}, step=iteration)
+            _log_metrics({f"diag/{k}": v for k, v in diag.items()}, step=iteration)
             print(
                 f"[diag iter {iteration}] PR={diag['pr']:.2f} "
                 f"r2_overall={diag['r2_overall']:.3f}",
