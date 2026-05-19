@@ -66,7 +66,13 @@ Session 10. The three landed ablations:
   scheduled sampling, OBS head as production; the SIGReg term is
   swapped for the VICReg variance-covariance objective at the
   Bardes et al. canonical weights (mu=25, lambda\_var=25, nu=1; D22).
-  Test B delta = `{A2_DELTA}`.
+  Test A delta = +0.226, **Test B delta = +0.107**, Test C delta
+  = +0.501; `PR_all = 26.4` on Test B vs the JEPA's PR_all = 2.6 at
+  E4. VICReg + OBS produces a high-PR latent like PLDM + OBS does
+  (PR_all = 18-23), in contrast to SIGReg + OBS's controlled-
+  collapse PR_all = 2-3. SIGReg + OBS still wins on Test B by
+  +0.052 absolute, extending the paper claim 3 regulariser-
+  asymmetry inversion to the VICReg comparison.
 - **A7 no scheduled sampling (H\_roll=T=32) at d=32, eta=0.01,
   lambda=lambda\*.** Production configuration but with the full-
   rollout exposure. Test B delta = `{A7_DELTA}`.
@@ -82,11 +88,16 @@ Session 10. The three landed ablations:
   than the JEPA's 10M, reflecting Fukami's intentionally lightweight
   architecture). Trained jointly on
   `lambda_recon * MSE(omega, omega_hat) + lambda_lift * MSE(CL, CL_hat)`
-  with `lambda_recon = lambda_lift = 1` per the paper. Test B delta
-  = `{A11_DELTA}`. SSIM (Eq. 1 of Fukami's supplementary,
-  `C_1 = 0.16`, `C_2 = 1.44`) is reported alongside MSE on Test A / B / C
-  for direct comparability with the JEPA's decoder reconstruction
-  (Section 6).
+  with `lambda_recon = lambda_lift = 1` per the paper. Test A delta
+  = +0.191, **Test B delta = +0.073**, Test C delta = +0.431; SSIM
+  on Test A = 0.748, Test B = 0.722, Test C = 0.558 using the
+  Fukami SSIM definition (Eq. 1 of the supplementary,
+  `C_1 = 0.16`, `C_2 = 1.44`). The Fukami latent generalises to the
+  parametric Test B stratum (positive delta) but the JEPA's
+  SIGReg + OBS production point wins by +0.086 absolute on the same
+  metric, confirming that JEPA-style predictive-only training
+  produces a more transferable latent than reconstruction-based
+  joint training at matched latent dimension.
 - **A10 Solera-Rico beta-VAE + transformer ROM at d=32.** The
   Nat. Commun. 2024 two-stage architecture (beta-VAE Stage 1 followed
   by a transformer ROM on the frozen latent, Stage 2). Deferred to
