@@ -76,7 +76,14 @@ def parse_args() -> argparse.Namespace:
     )
     p.add_argument("--max-iters", type=int, default=80_000)
     p.add_argument("--seed", type=int, default=0)
-    p.add_argument("--d", type=int, default=32)
+    p.add_argument(
+        "--d",
+        "--latent-dim",
+        dest="d",
+        type=int,
+        default=32,
+        help="Latent dimension d (default 32, D2). --latent-dim is the plan-aligned alias.",
+    )
     p.add_argument("--B", type=int, default=16)
     p.add_argument("--T", type=int, default=32)
     p.add_argument("--H-roll", type=int, default=8,
