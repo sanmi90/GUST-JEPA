@@ -30,15 +30,18 @@ then refined). Pre-launch housekeeping commit `2be1f9e` lands the Session 9
 launchers + orchestrators + analysis script before the first GPU
 command, matching the D40/D44 precedent.
 
-Wall-clock implication of the external load: each training run takes
-~3.5 to 4 hours instead of the Session 8 D49 budget of 1.5 hours. The
-session-wide compute schedule slides from the planned 14-16 hours to
-roughly 18-22 hours. The Session 9 plan's risk-register entry
-"Compute budget overrun (some runs > 1.5h each)" -> "Drop one of the
-four ablations to make room" applies; the Step 3 thin cut is scoped
-to A2 + A7 (the JEPA-internal ablations) with A10 + A11 (Solera-Rico,
-Fukami) deferred to Session 10 along with their pending baseline
-modules.
+Wall-clock implication of the external load: per-run iteration rate
+settled at roughly 200 iters/min once both RTX 6000 cards spun up
+together, giving each 20k-iter run a wall-clock budget of ~1.7
+hours (vs the Session 8 single-card 1.5h baseline; the ~10 percent
+slowdown reflects the parallel two-card data-loader contention plus
+the external `asolera` SOD2D and `isaac` CPU jobs on the
+workstation). The full Session 9 schedule fits within the planned
+14-16 hour window. The Step 3 thin cut is still scoped to A2 + A7
+(the JEPA-internal ablations) with A10 + A11 (Solera-Rico, Fukami)
+deferred to Session 10 along with their pending baseline modules,
+because writing those modules safely in-session would itself add
+1 to 2 hours of scope on top of the ~1.7-hour training runs.
 
 ## Step 1: lambda bisection (D58)
 
