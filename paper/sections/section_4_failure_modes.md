@@ -88,13 +88,23 @@ J. Fluid Mech. 2025) generalised the observable-augmentation idea
 across multi-source turbulent flow data.
 
 The contribution this paper makes on top of that lineage is the
-regulariser-asymmetry observation: an observable CL head **rescues**
-a two-term SIGReg JEPA from TRIVIAL collapse (Section 4.2, F-OBS) but
-only **marginally improves** a 5-term PLDM JEPA that was already in
-the HEALTHY quadrant (Section 4.2, PLDM + OBS). The observable head is
-not a generic fix; it interacts with the choice of anti-collapse
-regulariser, and the interaction is asymmetric. Section 5 tests
-whether this asymmetry persists at scale.
+regulariser-asymmetry observation. At the 5-case smoke scale the
+observable CL head **rescues** a two-term SIGReg JEPA from TRIVIAL
+collapse (Section 4.2, F-OBS) but only **marginally improves** a
+5-term PLDM JEPA that is already in the HEALTHY quadrant (Section 4.2,
+PLDM + OBS) -- the asymmetry that D39 read as "PLDM is the recommended
+base." Section 5 (Sessions 7 and 8) **inverts this reading at scale.**
+On the full 41-case partition, the simpler SIGReg + OBS generalises to
+Test B with delta = +0.14 over the parametric (c, t) baseline, while
+the 5-term PLDM + OBS is no better than that baseline on Test B
+(delta = -0.01). The smoke-scale PR diagnostic alone is therefore not
+a reliable proxy for generalisation; PR = 10+ on the PLDM trajectory
+turns out to encode case-specific memorisation when 41 cases are
+available to memorise. The Test B delta over the (c, t) baseline is
+the diagnostic that survives the smoke-to-full-scale inversion. The
+observable head still interacts asymmetrically with the regulariser
+choice, but the direction of the asymmetry at scale is opposite the
+smoke-scale reading: at scale, SIGReg + OBS wins.
 
 ## 4.4 The diagnostic-suite contribution
 

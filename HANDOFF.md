@@ -1954,6 +1954,377 @@ in order of priority:
 
 Together: ~25-30 hours of work spread across 2-3 sessions.
 
+### D50: Session 8 Step 1 trajectory audit -- R3 converged; R2 actively anti-generalises in late training (2026-05-19, Session 8 Step 1)
+
+`scripts/session8_trajectory_audit.py` encoded every Test A (56 enc) and
+Test B (28 enc) encounter at each of 10 saved Session 7 checkpoints
+(iter 2000, 4000, ..., 20000) for R1, R2, R3 (30 evaluations total).
+Per-checkpoint metrics in `outputs/runs/session8/trajectory_audit.csv`;
+plots in `notebooks/06_session7_trajectory_audit.ipynb`. Three diagnostic
+concerns resolved:
+
+**Concern 1: convergence.** All three runs settle their Test A delta by
+iter ~6000-8000. R3's Test B delta climbs from +0.05 at iter 4000 to
++0.11 at iter 6000 and reaches the +0.14 plateau by iter 12000; the
+iter-20000 endpoint is the trained equilibrium, not a transient. R1's
+Test A delta plateaus at +0.22 by iter 6000; its Test B delta oscillates
+around zero with no upward trend. Both are converged.
+
+**Concern 2: R2 anomaly.** Three readings, all publishable:
+
+- Cross-split (Test A -> Test B) delta_b progressively DEGRADES across
+  training: -0.18 at iter 4000, -0.45 at iter 8000, -0.73 at iter 10000,
+  -1.21 at iter 20000. The PLDM 5-term loss is actively destroying
+  Test A -> Test B transferability over the second half of training.
+  This is a publishable failure mode of the PLDM 5-term loss at full
+  scale, independent of the R3_WINS finding.
+- R2's PR_all rises in lockstep with the cross-split degradation:
+  PR_all on Test A grows from 1.63 (iter 2000) to 27.14 (iter 20000),
+  meanwhile PR_within on Test A *shrinks* from 15.14 to 6.02. R2 is
+  moving variance OUT of within-case dynamics INTO the case-mean axis
+  -- the SPREAD_TRIVIAL signature of Section 4.2 at full scale. The
+  growing case-mean variance is precisely what hurts Test A -> Test B
+  transfer (Test B has different case identities, so a case-mean-
+  dominated latent geometry does not align between the two splits). PR
+  RISES while generalisation FALLS; in this regime PR is not just an
+  imperfect proxy but is *anti-correlated* with the metric the paper
+  cares about. Test-B-delta-over-(c, t) is the right diagnostic.
+- Within-Test-B (fit MLP on 75% of Test B, evaluate on 25%) delta_b is
+  steadily POSITIVE (~+0.10) throughout R2's training. R2's latent
+  encodes information about Test B's CL signal when fit on Test B
+  itself; it just produces a representation incompatible with a Test A
+  MLP. The -0.85 Session 7 number is therefore largely a
+  distribution-shift artifact between Test A and Test B, not a globally
+  uninformative latent.
+
+R2's within-Test-B (+0.10) is *higher than* R3's within-Test-B (+0.07).
+R3's advantage on the Session 7 cross-split metric is the alignment of
+its Test A and Test B latent geometries, not the per-split informativity.
+This is consistent with the SIGReg-induced low-PR controlled-collapse
+regime producing a more compact, transferable latent. R3's PR_all and
+PR_within are also of similar magnitude (3.69 and 4.18 at iter 20000),
+in contrast to R2's case-mean-dominated 27.14 vs 6.02 split: SIGReg+OBS
+produces a latent where case-axis and within-case-dynamics variance are
+balanced, while PLDM-only produces a latent where the case-axis variance
+dominates the within-case-dynamics variance by ~4x.
+
+**Concern 3: R3 plateau.** R3's L_anti rises in early training (Session 7
+plot) and reaches the +0.14 cross-split Test B delta plateau by iter
+12000 (this audit). The +0.14 is the trained equilibrium; the d-sweep
+(Step 5) and grid (Step 4) can proceed at 20k iters.
+
+### D51: Session 8 Step 2 head ablation -- R3 latent encodes general flow state, not just CL (2026-05-19, Session 8 Step 2)
+
+`scripts/session8_head_ablation.py` evaluates three CL_future prediction
+methods on R3 iter-20000's latents plus the same three methods applied
+to alternative observables. Results in
+`outputs/runs/session8/head_ablation.csv`, plots in
+`notebooks/07_session8_head_ablation.ipynb`.
+
+|Target |Fresh probe on z (Test B) |Trained R3 head (Test B) |Gap fresh - trained |
+|-------|-------------------------:|------------------------:|-------------------:|
+|C_L    |               +0.138     |               +0.137    |          +0.001    |
+|C_D    |               +0.106     |              n/a        |          n/a       |
+|p_LE   |               +0.123     |              n/a        |          n/a       |
+
+- Method 1 (fresh probe on z for C_L, the Session 7 method) reproduces
+  the +0.14 Test B delta from D46 to within 0.002.
+- Method 2 (trained R3 observable head applied directly to Test B
+  latents) is essentially identical to Method 1 (+0.137 vs +0.138). The
+  trained head does NOT extract non-linear structure beyond what a
+  fresh linear probe recovers; it adds no measurable value at inference.
+- Method 3 (fresh probe on z for C_D and p_LE) gives Test B deltas of
+  +0.106 (drag) and +0.123 (leading-edge pressure). Both are clearly
+  positive and within 0.04 of the trained-for target CL.
+
+This matches Row 1 of the plan's interpretation matrix: **the latent
+encodes general flow state; the observable head shaped z toward CL but
+the shaping does not over-specialise z to CL specifically.** R3's
++0.14 win on Test B is not a CL-specific artifact; the latent is
+informative about non-CL observables on unseen (G, D, Y) cases at
+roughly the same delta.
+
+Implications for the paper: paper claim 3 is robust to the
+"R3 just learned CL" objection. The latent has the breadth of
+aerodynamic information needed for visualisation decoder training
+(Session 9). Section 5.4 of the paper now cites this result as evidence
+that the head is a *weak* guidance signal at eta = 0.01 (D37) rather
+than a hard CL-supervision constraint.
+
+### D52: Session 8 Step 3 R3 seed=42 -- PASSES (delta_test_b = +0.121) (2026-05-19, Session 8 Step 3)
+
+R3 SIGReg+OBS+BN retrained from scratch with seed = 42, identical
+configuration otherwise to Session 7 R3 (full v1.2 partition, 20k
+iterations, lambda=0.1, eta=0.01, BatchNorm projection). Pass criterion
+per `SESSION8_R3_VALIDATION_GRID_SWEEP.md`: Test B delta in
+[+0.05, +0.25].
+
+Result: **delta_test_b = +0.121** (PASS).
+
+Comparison:
+
+| Run                | seed | Test B delta |
+|--------------------|-----:|-------------:|
+| Session 7 R3       |    0 |       +0.138 |
+| Session 8 R3-seed42|   42 |       +0.121 |
+| Seed variance       |      |        0.017 |
+
+Trajectory preview at iters 8000 and 12000 (`r3_seed42_eval_iter*.json`):
+- iter 8000: delta_test_b = +0.081 (Session 7 R3 at same iter: +0.119)
+- iter 12000: delta_test_b = +0.117 (Session 7 R3 at same iter: +0.139)
+- iter 20000: delta_test_b = +0.121 (Session 7 R3 at same iter: +0.138)
+
+R3-seed42 tracks the seed=0 trajectory consistently ~0.02 lower at
+matching iterations; the +0.14 headline finding from D46 is robust to
+seed (~12% relative variance). Step 4 grid proceeds.
+
+The cuda:0 orchestrator (`scripts/orchestrate_session8_step4.sh`)
+verified pass at 08:20:24 and launched E1 immediately afterwards. The
+cuda:1 orchestrator started E6 (eta=0.01, lambda=1.0) at 06:59 in
+parallel with R3-seed42 to save 1.5h wall-clock.
+
+### D53: Session 8 Step 4 (eta x lambda) grid -- peak at (eta=0.01, lambda=0.01), E4 = +0.159 (2026-05-19, Session 8 Step 4)
+
+Nine SIGReg + OBS runs at three etas in {0.001, 0.01, 0.1} times three
+lambdas in {0.01, 0.1, 1.0}, plus E10 PLDM + OBS with paper-tuned
+weights and the Session 7 R3 anchor as the centre cell. cuda:0 sequence
+E1, E2, E3, E4 (~6h). cuda:1 sequence E6, E7, E8, E9, E10 (~7.5h).
+
+Per-cell Test B delta over (c, t) baseline at iter 20000 (from
+`outputs/runs/session8/grid_analysis.csv`):
+
+|                | lambda=0.01 | lambda=0.1   | lambda=1.0 |
+|----------------|------------:|-------------:|-----------:|
+| **eta=0.001**  |      -0.200 |       +0.007 |     -0.620 |
+| **eta=0.01**   |  **+0.159** |       +0.138 |     +0.093 |
+| **eta=0.1**    |      +0.148 |       +0.146 |     +0.152 |
+
+Peak at **(eta=0.01, lambda=0.01) = E4 with delta_test_b = +0.159**.
+
+Three pattern observations:
+
+- **eta is the dominant axis.** At eta = 0.001 (the head almost off) the
+  encoder fails or barely matches baseline regardless of lambda. At
+  eta in {0.01, 0.1} the encoder generalises across all lambdas tested.
+  The observable head is the central regulariser at full scale.
+- **lower lambda is better at eta = 0.01.** At eta = 0.01: lam=0.01
+  (+0.159) > lam=0.1 (+0.138) > lam=1.0 (+0.093). The Session 7 default
+  of lam=0.1 was not the optimum; lam=0.01 (SIGReg essentially off)
+  generalises ~2 points higher.
+- **the eta=0.1 row is flat in lambda.** +0.148 / +0.146 / +0.152 across
+  lambda. When the OBS pressure is strong enough, SIGReg's contribution
+  is negligible; the encoder is regularised by the head alone.
+
+The Session 7 default (eta=0.01, lam=0.1, the E5 anchor) was not the
+optimum but came within +0.02 of it. The production operating point
+moves to (eta*=0.01, lambda*=0.01) for Step 5 d-sweep and Session 9.
+
+Surprise-outcome reading per the plan: this matches **Surprise outcome A**
+("the peak is at the eta=0.1 or lambda=0.01 corner... R3's success is
+more about the observable head than about SIGReg"). The grid confirms
+that SIGReg at the eta in {0.01, 0.1} rows is a directional pressure
+(preventing rank-1 collapse) but does NOT need to maintain high PR.
+At lambda=0.01 the SIGReg gradient is small enough that the encoder
+satisfies it with the OBS-induced latent structure, yielding the best
+generalisation.
+
+### D53b: Session 8 Step 4 E10 PLDM paper-tuned reference -- delta_test_b = -0.095 (worse than R1 defaults) (2026-05-19, Session 8 Step 4)
+
+Run E10: PLDM + OBS + BN trained with the paper-tuned Two-Rooms weights
+from arXiv:2502.14819 Appendix J.2 (alpha=4.0, beta=6.9, delta=0.75,
+omega=0.0; eta=0.01 for OBS). 20k iterations, seed 0, full v1.2 partition.
+
+Result: **E10 delta_test_b = -0.095** (FAILS to beat the (c, t) baseline).
+
+Champion table from `outputs/runs/session8/champion_table.csv`:
+
+| Run             | eta | lambda | PR_all (Test B) | r2(z->c) | r2(CL_future) | (c,t) baseline | delta   |
+|-----------------|----:|-------:|----------------:|---------:|--------------:|---------------:|--------:|
+| E4 (best SIGReg)|0.01 |  0.01  |           2.61  |   0.87   |     0.88      |     0.72       | +0.159  |
+| E5 (S7 R3)      |0.01 |  0.10  |           3.51  |   0.93   |     0.86      |     0.72       | +0.138  |
+| E10 PLDM tuned  |0.01 |   --   |          23.02  |   0.65   |     0.62      |     0.72       | -0.095  |
+| R1 PLDM defaults|0.01 |   --   |          18.33  |   0.96   |     0.72      |     0.72       | -0.003  |
+
+E10 is WORSE than R1 defaults on Test B (-0.095 vs -0.003) -- paper-tuned
+PLDM does not rescue PLDM at full scale on this data. Three readings:
+
+- The "PLDM was just badly tuned" objection from Session 7 R1 is
+  decisively ruled out: with paper-tuned weights, PLDM is even worse
+  on Test B than with default unit weights.
+- The Two-Rooms hyperparameters are tuned for the LeWM gridworld
+  data, not for low-intrinsic-dim physics data. Domain transfer of
+  hyperparameters across data distributions is not guaranteed.
+- Per the plan, this is **E10 delta_test_b < best SIGReg grid point
+  - 0.05** by ~0.25 absolute (-0.095 vs +0.159). The D46 R3_WINS
+  finding is robust to PLDM hyperparameter choice. **Session 9 does NOT
+  need a full PLDM hyperparameter sweep**; paper claim 3 stands strongly.
+
+The PR profile remains the SPREAD_TRIVIAL signature for both PLDM
+configurations: PR_all = 23 (E10) and 18 (R1 default), much larger than
+PR_within (not shown but the trajectory_audit pattern continues). The
+PLDM 5-term loss at full scale produces high-PR latents whose variance
+is dominated by case-mean rather than within-case dynamics, regardless
+of hyperparameter weights.
+
+### D54: Session 8 Step 5 latent-dimension sweep -- d=32 wins; LeWM intrinsic-dim prediction NOT confirmed on this data (2026-05-19, Session 8 Step 5)
+
+Three SIGReg + OBS + BN runs at (eta*, lambda*) = (0.01, 0.01) (the
+Step 4 D53 best grid point), each with a different latent dimension d.
+20k iterations, seed 0, full v1.2 partition. d=32 reuses the E4 grid
+run; d=8 and d=16 are new runs.
+
+Results from `outputs/runs/session8/d_sweep.csv`:
+
+| d  | PR_all (Test B) | PR_within (Test B) | r2(z->c) Test B | delta Test A | delta Test B | delta Test C |
+|---:|----------------:|-------------------:|----------------:|-------------:|-------------:|-------------:|
+|  8 |        2.22     |        3.36        |       0.70      |    +0.224    |  **+0.092**  |    +0.451    |
+| 16 |        2.37     |        3.68        |       0.69      |    +0.214    |  **+0.103**  |    +0.474    |
+| 32 |        2.61     |        3.88        |       0.87      |    +0.227    |  **+0.159**  |    +0.470    |
+
+**Production d* = 32.** This is the **"d large wins" outcome** from the
+plan: contrary to the LeWM Two-Room intrinsic-dimension prediction
+(d close to intrinsic dim should win), on this data d=32 generalises
+better than d=8 by +0.07 absolute on Test B.
+
+The PR profile is informative: PR_all is essentially flat in d (2.2 /
+2.4 / 2.6 for d in {8, 16, 32}). The encoder uses the same effective
+~2 dimensions regardless of available d. PR_within is also flat (3.4 /
+3.7 / 3.9). Yet the extra "unused" dimensions help generalisation on
+Test B. The mechanism is not "the encoder uses more capacity at d=32"
+but more likely "the encoder has more dimensions for the linear probe
+to interpolate across when fitting on Test A and evaluating on Test B."
+The latent's intrinsic structure is the same; what changes is the
+downstream MLP's freedom.
+
+Implication for paper claim 1: D2's d=32 default is empirically correct
+on this data. The LeWM prediction does not extend to the SIGReg+OBS+BN
+operating point identified in D53. Session 9 lambda bisection runs at
+d = 32, not d = 8.
+
+The L_anti controlled-collapse mechanism still holds: at lambda=0.01
+SIGReg is essentially off but provides directional pressure. d=32
+allows enough latent space for that pressure to act without forcing
+the encoder into the rank-1 collapse seen at eta=0.001 (D53 E1, E3).
+
+### D55: Session 8 Step 6 R0 control -- pure SIGReg fails at scale; OBS is essential (2026-05-19, Session 8 Step 6)
+
+Two pure SIGReg + BN runs at full scale (no observable head, no PLDM),
+seed = 0, 20k iterations, full v1.2 partition. Both lambdas tested:
+
+| Run                           | lambda | r2(CL_future) Test B | (c, t) baseline | delta_test_b |
+|-------------------------------|-------:|---------------------:|----------------:|-------------:|
+| R0 SIGReg-only lambda=0.1     |  0.1   |        -0.023        |     0.718       |   **-0.742** |
+| R0 SIGReg-only lambda=0.01    | 0.01   |        -0.029        |     0.718       |   **-0.748** |
+
+Both R0 runs fail catastrophically on Test B. r2(z -> CL_future) is
+near zero (-0.02 to -0.03), meaning the latent is essentially
+uninformative about CL on Test B; the (c, t) parametric baseline
+predicts CL at r2 = 0.72 by lookup. Result reading per the plan: this
+is the **"R0 delta_test_b < 0"** outcome -- "pure SIGReg fails at
+scale; OBS is essential. Paper claim 3 robust."
+
+The two-lambda confirmation matters: R0 at lambda = 0.1 (Session 7
+default) and at lambda = 0.01 (Step 4 D53 best) both fail by ~0.74
+absolute. SIGReg alone, regardless of weight, does not produce a
+generalising latent on this data. The OBS head is load-bearing for
+the SIGReg + OBS path at full scale.
+
+Implications for paper claim 2: "Observable augmentation is necessary
+for either regulariser at scale" holds robustly. Without OBS:
+- PLDM-only (Session 7 R2 in D47): Test B delta = -0.85
+- SIGReg-only (Session 8 R0): Test B delta = -0.74 (lambda = 0.1) /
+  -0.75 (lambda = 0.01)
+
+Both unregularised-by-OBS configurations fail by ~0.75 absolute on
+Test B. The observable head, at modest weight (eta = 0.01 to 0.1),
+provides the latent structure that enables Test B generalisation.
+
+Paper claim 3 (regulariser asymmetry) is reinforced: SIGReg + OBS at
+the best operating point (eta = 0.01, lambda = 0.01, D53) generalises
+to Test B at +0.16; SIGReg without OBS does the opposite at -0.74.
+The +0.16 - (-0.74) = +0.90 absolute gap is the OBS head's
+contribution to the SIGReg path, comparable to the +0.84 gap between
+R1 PLDM + OBS and R2 PLDM-only (D47). The two regulariser bases are
+similar in their dependence on OBS, but diverge in what the OBS-
+augmented latent does at full scale: SIGReg + OBS generalises (+0.16)
+while PLDM + OBS does not (-0.003).
+
+### D56: Session 8 paper section rewrite committed (2026-05-19, Session 8 Step 7)
+
+`paper/sections/section_5_full_scale_results.md` rewritten with eight
+subsections (5.1 setup, 5.2 Session 7 Table 1 with R3_WINS reading, 5.3
+regulariser-asymmetry inversion and controlled-collapse mechanism, 5.4
+Session 8 validation diagnostics D50/D51/D52, 5.5 (eta x lambda) grid
+results D53/D53b, 5.6 d-sweep results D54, 5.7 R0 control D55, 5.8
+recommendation summary, plus 5.9 Limitations). Section 4.3 also edited:
+the "regulariser-asymmetry lineage" paragraph now records the smoke-
+to-full-scale inversion (D48) inline.
+
+Figures generated in this session, all in
+`outputs/runs/session8/`:
+
+- `fig_trajectory_audit.png`: 3x3 per-run trajectory panels (PR_within,
+  r2(CL_future) Test A, delta Test B) for R1, R2, R3 across iters
+  2000-20000.
+- `fig_r2_anomaly.png`: cross-split vs within-Test-B delta over training
+  for all three runs.
+- `fig_session7_delta_summary.png`: per-run Test A / Test B / Test B
+  within-split bar chart (the paper's Figure 2).
+- `fig_head_ablation.png`: Step 2 head ablation comparison.
+- `fig_grid_delta_b.png`, `fig_grid_pr_all.png`, `fig_grid_r2_z_c.png`:
+  Step 4 (eta x lambda) heatmaps.
+- `fig_d_sweep.png`: Step 5 delta vs d.
+
+Notebooks committed:
+- `notebooks/06_session7_trajectory_audit.ipynb` (Step 1)
+- `notebooks/07_session8_head_ablation.ipynb` (Step 2)
+- `notebooks/08_eta_lambda_grid.ipynb` (Step 4)
+- `notebooks/09_latent_dim_sweep.ipynb` (Step 5)
+
+Scripts committed: `session8_trajectory_audit.py`,
+`session8_head_ablation.py`, `session8_eval_r3_seed42.py`,
+`session8_grid_analysis.py`, `session8_d_sweep_analysis.py`, plus the
+launcher and orchestrator shell scripts.
+
+### D57: Session 8 outcome -- VALIDATED (2026-05-19, Session 8)
+
+All four pass-criteria from `SESSION8_R3_VALIDATION_GRID_SWEEP.md` met:
+
+| Pass criterion | Result |
+|-----------------|--------|
+| Step 1 trajectory analysis completes for all three Session 7 runs.| Done (D50). |
+| Step 2 auxiliary-head ablation produces a definitive read on whether R3's latent contains CL-relevant flow state independent of the trained head.| Row 1: latent encodes general flow state (D51). |
+| Step 3 R3-seed=42 lands Test B delta in [+0.05, +0.25].| +0.121 (D52). |
+| Step 4 grid completes; (eta*, lambda*) maximising Test B delta is identified.| (0.01, 0.01) with delta = +0.159 (D53). |
+| Step 5 d sweep completes; d* maximising Test B delta is identified.| d* = 32 with delta = +0.159 (D54). |
+| Step 6 R0 control produces a Test B delta number.| -0.742 and -0.748 (D55). |
+| Step 7 paper section 5 rewrite committed.| Done (D56). |
+
+Session 8 outcome category: **VALIDATED.**
+
+Three predictions from the launch message tracked against the data:
+
+1. d=8 will give a higher Test B delta than d=32 at the same (eta, lambda);
+   credence 60%. **FALSE** (d=32 wins by +0.07). LeWM Two-Room mechanism
+   does not apply to the SIGReg + OBS + BN regime where OBS dominates.
+2. The (eta, lambda) grid peak will not be at the Session 7 default
+   (0.01, 0.1); credence 70%. **TRUE** (peak at (0.01, 0.01), +0.02
+   absolute above the default).
+3. R0 will have Test B delta below 0.05; credence 85%. **TRUE** (R0 at
+   -0.742 / -0.748, far below the 0.05 threshold).
+
+Two of three predictions held; prediction 1's miss is the most
+informative outcome of the session: the LeWM Two-Room intrinsic-
+dimension mechanism does not transfer to the SIGReg + OBS + BN
+configuration where the observable head is the dominant regulariser.
+
+**Session 9 path:** lambda bisection at the production (eta=0.01,
+d=32, OBS=cl_future at eta=0.01) configuration over a fine lambda
+interval centered on 0.01. 6-8 evaluations between lambda=0.001 and
+lambda=0.1. Plus the visualisation decoder training on the SIGReg +
+OBS + BN d=32 encoder, and the start of the full Section 7 evaluation
+suite per the architecture spec.
+
 ## Open questions
 
 1. Empirical impact frame. The estimate of 40 was validated in the bootstrap session
