@@ -1,4 +1,4 @@
-# Section 4 — Failure modes of pure self-supervised JEPA on low-intrinsic-dim physics
+# Section 4: Failure modes of pure self-supervised JEPA on low-intrinsic-dim physics
 
 LaTeX-friendly markdown. Approximate target length: 3 pages. Figure 1
 of this section is the 2x2 outcome table from Session 6. The text walks
@@ -22,9 +22,9 @@ Axis 2: case-vs-dynamics encoding. Decompose `z = z_mean + z_dyn`
 where `z_mean` is the per-case mean over time and encounters, and
 `z_dyn` is the within-case residual. A linear probe r^2(z_dyn -> c)
 near zero means the dynamic part of the latent does NOT encode the
-case descriptor c=(G, D, Y) — the c information lives in the case
+case descriptor c=(G, D, Y); the c information lives in the case
 mean. Conversely, r^2(z_dyn -> c) materially above zero indicates
-the within-case latent still leaks case identity — what we call the
+the within-case latent still leaks case identity, which we call the
 SPREAD_TRIVIAL signature.
 
 The 2x2 of these two axes generates four named failure regions plus
@@ -46,7 +46,7 @@ in any meaningful sense.
 
 Session 5.PLDM (D31) landed in the SPREAD_TRIVIAL quadrant: PR=5.97,
 r^2(z -> c)=0.97, but r^2(z_dyn -> c)=-0.09 with r^2(z_dyn -> phase)
-=0.58 and r^2(z -> CL_future) on Test A = 0.96 — the dynamic part
+=0.58 and r^2(z -> CL_future) on Test A = 0.96; the dynamic part
 carries meaningful phase information and CL prediction works, but
 the case-mean dominates the latent norm (D39 self-correction of the
 D31 reading; the "DATA_SCALE_BOUND" label was too pessimistic for what
@@ -66,10 +66,10 @@ The PLDM + observable head extension (Session 6, mid-session) landed
 in the HEALTHY quadrant by the smoke metric: PR=6.09, r^2(z_dyn -> c)
 =-0.13, r^2(z_dyn -> phase)=0.54, r^2(z -> CL_future)=0.96. But this
 healthy reading is on the same 5 cases the smoke F-OBS run trained on,
-and the (c, t) baseline at 5 cases is also 0.90 — high enough that
+and the (c, t) baseline at 5 cases is also 0.90, high enough that
 the latent only beats it by 0.06. Whether the same configuration
-"holds up at scale" — meaning Test B at 41 cases, where the (c, t)
-baseline drops because there are more cases to interpolate between —
+"holds up at scale", meaning Test B at 41 cases (where the (c, t)
+baseline drops because there are more cases to interpolate between),
 is the central question Section 5 (full-scale results) answers.
 
 ## 4.3 The observable-augmentation lineage

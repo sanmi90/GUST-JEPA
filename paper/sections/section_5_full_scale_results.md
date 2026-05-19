@@ -1,4 +1,4 @@
-# Section 5 — Full-scale results
+# Section 5: Full-scale results
 
 LaTeX-friendly markdown. This section reports the full-scale Session 7
 production runs (R1, R2, R3) on the v1.2 partition (41 train cases, 138

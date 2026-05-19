@@ -1,4 +1,4 @@
-# Section 3 — Methods
+# Section 3: Methods
 
 LaTeX-friendly markdown. Approximate target length: 4 pages. Citations
 are placeholder `\cite{key}` tokens whose `key` matches HANDOFF.md
@@ -41,7 +41,7 @@ produce a 24x12x256 feature map (288 spatial tokens). A 6-layer ViT
 (7M params, hidden 256, 8 heads) processes the tokens; the [CLS]
 token output is projected via a one-layer MLP with BatchNorm to z
 (D17; LeWM Appendix A; \cite{lewm}). The encoder is unconditional by
-design — it does NOT see c (D6).
+design (it does NOT see c, per D6).
 
 Predictor. A 6-layer autoregressive transformer (~14M params, hidden
 384, 16 heads, dropout 0.1) with rotary position embeddings on
