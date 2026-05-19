@@ -58,8 +58,9 @@ production configuration anchoring at delta\_test\_b = `{DELTA_PROD}`.
 
 ## 7.2 Session 9 thin-cut results
 
-Four ablations were run in Session 9 at the production configuration
-plus the bisection winner lambda\*:
+Three ablations landed in Session 9 at the production configuration
+plus the bisection winner lambda\*; A10 (Solera-Rico) is deferred to
+Session 10. The three landed ablations:
 
 - **A2 VICReg + OBS at d=32, eta=0.01.** Same encoder, predictor,
   scheduled sampling, OBS head as production; the SIGReg term is
