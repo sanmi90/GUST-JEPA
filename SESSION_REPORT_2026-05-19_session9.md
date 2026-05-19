@@ -1,0 +1,165 @@
+# Session 9 Report -- lambda bisection + visualisation decoder + Section 7 thin cut
+
+Date: 2026-05-19.
+
+## Goal
+
+Refine the Session 8 production point (eta=0.01, lambda=0.01, d=32,
+OBS=cl_future at eta=0.01) with a LeWM-style lambda bisection over
+[0.001, 0.1], train the visualisation decoder on the frozen winner, and
+land a thin slice of the Section 7 ablation matrix. Draft Abstract,
+Sections 1, 2, 6, and 7-outline during the compute windows.
+
+Plan: `SESSION9_LAMBDA_BISECTION.md`. Six pass criteria, five step
+deliverables, six D-entries to record.
+
+## Pre-flight
+
+Tests at session start: **123 passed, 4 skipped in 582.10s on CPU only**.
+The slowdown (~10 min vs the 50s baseline) is explained by external
+concurrent compute on the workstation: `asolera` is running SOD2D
+simulations on the two L40S cards (`/home/asolera/CasosSOD2D/Naca_BSC_gusts_generator/sod2d`),
+and `isaac` has ~30 processes saturating CPU at 97-99% each. The two
+RTX 6000 Blackwell cards remain available for Session 9 work; D40's
+two-card pattern (`--gpu 0`, `--gpu 1` resolving to torch indices 2 and
+3) is honoured. nvidia-smi confirms both RTX 6000s reach ~19.5 GiB
+memory and 65-100% utilisation under load.
+
+Git HEAD at session start: `753ed2c` (Session 9 plan committed in d708fa8
+then refined). Pre-launch housekeeping commit `2be1f9e` lands the Session 9
+launchers + orchestrators + analysis script before the first GPU
+command, matching the D40/D44 precedent.
+
+Wall-clock implication of the external load: each training run takes
+~3.5 to 4 hours instead of the Session 8 D49 budget of 1.5 hours. The
+session-wide compute schedule slides from the planned 14-16 hours to
+roughly 18-22 hours. The Session 9 plan's risk-register entry
+"Compute budget overrun (some runs > 1.5h each)" -> "Drop one of the
+four ablations to make room" applies; the Step 3 thin cut is scoped
+to A2 + A7 (the JEPA-internal ablations) with A10 + A11 (Solera-Rico,
+Fukami) deferred to Session 10 along with their pending baseline
+modules.
+
+## Step 1: lambda bisection (D58)
+
+Five-point bisection over lambda in {0.001, 0.003, 0.01, 0.03, 0.1} at
+the production (d=32, eta=0.01, OBS=cl_future at eta=0.01, BN, SIGReg)
+configuration. F1 (lam=0.001 seed=0), F2 (lam=0.003 seed=0), and F3
+(lam=0.03 seed=0) are new; E4 (lam=0.01 seed=0) and E5 (lam=0.1
+seed=0; = Session 7 R3 anchor) are reused from disk.
+
+cuda:0 chain: F1 -> F2 -> F3 -> `session9_bisection_analysis.py` ->
+F4 (seed=42 at lambda*) -> F5 (seed=123 at lambda*).
+
+`{TO_FILL: bisection table, lambda*, seed variance bound, outcome category}`
+
+## Step 2: visualisation decoder (D59)
+
+Trained the `HybridViTConvDecoder` (8.72M params) on the frozen Step 1
+winner encoder for 10000 iterations at lr=1e-4, bf16, AdamW. Per-frame
+MSE loss on `omega_z` summed over `(T, H, W)`.
+
+`{TO_FILL: Test A / B / C MSE table, ratio against per-case-mean
+noise floor, pass criterion outcome, Figure 3 description}`
+
+## Step 3: Section 7 ablation thin cut (D60)
+
+cuda:1 chain (interleaved with Step 1's compute on cuda:0): A2
+VICReg-only (canonical Bardes et al. weights mu=25, lambda_var=25,
+nu=1) -> wait for lambda* -> A7 no-scheduled-sampling (H_roll=T=32 at
+lambda*). A10 Solera-Rico beta-VAE + transformer and A11 Fukami
+observable-augmented AE are deferred to Session 10 (their baseline
+modules require new infrastructure that does not fit the Session 9
+wall-clock budget under the observed external compute load).
+
+`{TO_FILL: A2 + A7 Test B delta numbers, implications for paper claims}`
+
+## Step 4: R0 at lambda* (D61, conditional)
+
+`{TO_FILL: only if Step 1 finds lambda* != 0.01 AND lambda* < 0.01;
+in that case re-run R0 SIGReg-only at lambda* to confirm OBS necessity
+holds at the refined operating point. Skip otherwise.}`
+
+## Step 5: paper writing (D62)
+
+During the Session 9 compute windows:
+
+- **Abstract** (`paper/sections/abstract.md`): ~240 words, three
+  contribution claims with their headline numbers. Lambda value in
+  the abstract will be updated once Step 1 lands lambda\*.
+- **Section 1 (Introduction)** (`paper/sections/section_1_introduction.md`):
+  ~1600 words, four subsections. ROM motivation, JEPA framing,
+  contribution claims, roadmap. Cross-references to Section 2
+  (related work), Section 6 (decoder), and Section 7 (ablations) noted
+  for revision once the cited subsections finalise.
+- **Section 2 (Related work)** (`paper/sections/section_2_related_work.md`):
+  ~3245 words, four subsections. JEPA lineage, observable-augmented
+  autoencoders, classical/learned ROM, the gap closed by this paper.
+- **Section 6 (Visualisation decoder results)**
+  (`paper/sections/section_6_decoder.md`): ~975 words, five
+  subsections, placeholder tokens for the Step 2 numerical results.
+- **Section 7 outline + Table 2 skeleton**
+  (`paper/sections/section_7_ablations.md`): four-subsection skeleton
+  with the 15-ablation matrix structure (A1-A15 across four families:
+  anti-collapse regulariser, conditioning, training procedure,
+  comparator architecture). A10 + A11 explicitly noted as Session 10
+  deferrals.
+- Em-dash cleanup pass: removed em-dashes from the titles of Sections
+  3, 4, 5 and from six body locations in Section 4 + one in
+  Section 3. All paper section files now em-dash-free per CLAUDE.md.
+
+## Session 9 outcome (D63)
+
+`{TO_FILL: PRODUCTION_LOCKED, PRODUCTION_REFINED, or PRODUCTION_PIVOT
+based on Step 1 bisection result. Plus prediction tracking against
+the launch message's three credences (lambda* = 0.01 at 55%; seed
+variance within +/- 0.03 at 70%; VICReg + OBS Test B delta within
++/- 0.05 of SIGReg + OBS at 50%).}`
+
+## Predictions tracking (from launch message)
+
+1. lambda* = 0.01 (no change from Session 8). Credence 55%.
+   Result: `{TO_FILL}`.
+2. Seed variance at lambda* within +/- 0.03 of seed=0. Credence 70%.
+   Result: `{TO_FILL}`.
+3. VICReg + OBS Test B delta within +/- 0.05 of SIGReg + OBS.
+   Credence 50%. Result: `{TO_FILL}`.
+
+## What is next
+
+Session 10:
+
+- A10 Solera-Rico beta-VAE + transformer baseline (new
+  `src/baselines/solera_rico.py`).
+- A11 Fukami observable-augmented AE baseline (new
+  `src/baselines/fukami_ae.py`).
+- Remaining Section 7 ablations (A4-A6 conditioning family; A8, A9
+  training-procedure family; A12 POD linear floor).
+- Multi-seed averages on the production configuration (seed in
+  {0, 42, 123, 2026, 31415}) for the paper-grade variance bound.
+- Final paper figures (Figure 1 architecture diagram, Figure 2 grid
+  heatmap, Figure 3 decoder reconstruction, Figure 4 ablation matrix).
+- JFM / PRF manuscript draft pass through Sections 1 to 8.
+
+Session 11 (if needed): revision after internal review, additional
+runs for reviewer-anticipated questions.
+
+## Files committed in this session
+
+- `scripts/launch_session9_step1_bisection.sh` (Step 1 launcher)
+- `scripts/launch_session9_step3_ablations.sh` (Step 3 launcher)
+- `scripts/orchestrate_session9_step1.sh` (cuda:0 chain)
+- `scripts/orchestrate_session9_step3.sh` (cuda:1 chain)
+- `scripts/session9_bisection_analysis.py` (Step 1 analysis)
+- `scripts/session9_train_decoder.py` (Step 2 entrypoint)
+- `src/models/decoder.py` (HybridViTConvDecoder)
+- `paper/sections/abstract.md`
+- `paper/sections/section_1_introduction.md`
+- `paper/sections/section_2_related_work.md`
+- `paper/sections/section_6_decoder.md`
+- `paper/sections/section_7_ablations.md`
+- `paper/sections/section_3_methods.md` (em-dash cleanup)
+- `paper/sections/section_4_failure_modes.md` (em-dash cleanup)
+- `paper/sections/section_5_full_scale_results.md` (em-dash cleanup)
+- `notebooks/10_session9_lambda_bisection.ipynb` (skeleton)
+- `HANDOFF.md` (D58-D63 added)
