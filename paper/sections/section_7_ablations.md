@@ -69,20 +69,38 @@ plus the bisection winner lambda\*:
 - **A7 no scheduled sampling (H\_roll=T=32) at d=32, eta=0.01,
   lambda=lambda\*.** Production configuration but with the full-
   rollout exposure. Test B delta = `{A7_DELTA}`.
-- **A10 Solera-Rico beta-VAE + transformer ROM at d=32.** The
-  Nat. Commun. 2024 architecture trained on the gust-airfoil dataset
-  family. Deferred to Session 10 pending the
-  `src/baselines/solera_rico.py` implementation.
 - **A11 Fukami observable-augmented autoencoder at d=32.** The
-  J. Fluid Mech. 2023 lift-augmented autoencoder adapted to the
-  gust-airfoil setting. Deferred to Session 10 pending the
-  `src/baselines/fukami_ae.py` implementation.
+  Fukami and Taira J. Fluid Mech. 2023 lift-augmented autoencoder
+  (`\cite{fukami2023}`) adapted from the published 240x120 input to
+  our 192x96 mid-plane vorticity cache, with the four 2x maxpool
+  stages chosen to reach the same (12, 6, 4) bottleneck as Fukami's
+  three 2-2-5 maxpools; the FC chain 256-64-32-16-d matches Table S.1
+  of the supplementary, with d=32 replacing Fukami's d=3 to match
+  the matched-capacity comparison. Implementation at
+  `src/baselines/fukami_ae.py` (240K params at d=32; ~40x smaller
+  than the JEPA's 10M, reflecting Fukami's intentionally lightweight
+  architecture). Trained jointly on
+  `lambda_recon * MSE(omega, omega_hat) + lambda_lift * MSE(CL, CL_hat)`
+  with `lambda_recon = lambda_lift = 1` per the paper. Test B delta
+  = `{A11_DELTA}`. SSIM (Eq. 1 of Fukami's supplementary,
+  `C_1 = 0.16`, `C_2 = 1.44`) is reported alongside MSE on Test A / B / C
+  for direct comparability with the JEPA's decoder reconstruction
+  (Section 6).
+- **A10 Solera-Rico beta-VAE + transformer ROM at d=32.** The
+  Nat. Commun. 2024 two-stage architecture (beta-VAE Stage 1 followed
+  by a transformer ROM on the frozen latent, Stage 2). Deferred to
+  Session 10: a faithful reproduction requires both stages, and
+  the two-stage training fitting cleanly inside the cuda:1 idle
+  window between A11 and A7 is too tight a safety margin at the
+  observed external-load compute rate. The
+  `src/baselines/solera_rico.py` module is the first Session 10
+  deliverable.
 
 The Session 9 thin-cut deliverable was scoped to keep the
-wall-clock budget honest. A10 and A11 require new baseline modules
-that share infrastructure with the JEPA encoder and decoder; their
-implementation is non-trivial and is deferred to Session 10 along
-with the remaining ablations from Section 7.1.
+wall-clock budget honest. A10 remains deferred to Session 10 along
+with the remaining ablations from Section 7.1; A11 lands in Session 9
+per a mid-session scope addition triggered by the explicit user
+request to compare against the Fukami SSIM-based methodology.
 
 ## 7.3 Latent dimension sweep (recapitulated from Section 5.6)
 
