@@ -96,6 +96,16 @@ def gather_encounters(split: str) -> list[dict]:
     return out
 
 
+def _ssim(x: np.ndarray, y: np.ndarray, c1: float = 0.16, c2: float = 1.44) -> float:
+    """Fukami's SSIM (arXiv:2305.18394 Eq. 1) on a (H, W) array pair."""
+    mu_x, mu_y = x.mean(), y.mean()
+    var_x, var_y = x.var(), y.var()
+    cov_xy = ((x - mu_x) * (y - mu_y)).mean()
+    num = (2 * mu_x * mu_y + c1) * (2 * cov_xy + c2)
+    den = (mu_x ** 2 + mu_y ** 2 + c1) * (var_x + var_y + c2)
+    return float(num / max(den, 1e-12))
+
+
 def per_encounter_mse(enc, dec, encs, device) -> pd.DataFrame:
     rows = []
     case_arr = {}
@@ -117,9 +127,11 @@ def per_encounter_mse(enc, dec, encs, device) -> pd.DataFrame:
             x_hat = x_hat.float().squeeze(0).squeeze(1).cpu().numpy()
             mse = float(((omega - x_hat) ** 2).mean())
             floor = float(((omega - case_mean[e["case_id"]]) ** 2).mean())
+            ssim_t = float(np.mean([_ssim(omega[t], x_hat[t]) for t in range(omega.shape[0])]))
             rows.append({"case_id": e["case_id"], "k": e["k"],
                          "mse": mse, "floor": floor,
-                         "ratio": mse / max(floor, 1e-12)})
+                         "ratio": mse / max(floor, 1e-12),
+                         "ssim": ssim_t})
     return pd.DataFrame(rows)
 
 

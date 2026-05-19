@@ -175,13 +175,23 @@ def build_lr_lambda(max_iters: int, warmup_frac: float):
     return fn
 
 
+def _ssim(x: np.ndarray, y: np.ndarray, c1: float = 0.16, c2: float = 1.44) -> float:
+    """Fukami's SSIM definition (arXiv:2305.18394 Eq. 1) on a (H, W) pair."""
+    mu_x, mu_y = x.mean(), y.mean()
+    var_x, var_y = x.var(), y.var()
+    cov_xy = ((x - mu_x) * (y - mu_y)).mean()
+    num = (2 * mu_x * mu_y + c1) * (2 * cov_xy + c2)
+    den = (mu_x ** 2 + mu_y ** 2 + c1) * (var_x + var_y + c2)
+    return float(num / max(den, 1e-12))
+
+
 def evaluate_split(
     enc: HybridCNNViTEncoder,
     dec: HybridViTConvDecoder,
     encs: list[dict],
     device: torch.device,
 ) -> dict:
-    """Per-encounter reconstruction MSE on a split + case-mean noise floor."""
+    """Per-encounter reconstruction MSE + SSIM on a split + case-mean noise floor."""
     case_to_arr: dict[str, list[np.ndarray]] = {}
     for e in encs:
         with h5py.File(e["path"], "r") as f:
@@ -191,6 +201,7 @@ def evaluate_split(
 
     mses = []
     floors = []
+    ssims = []
     dec.eval()
     with torch.no_grad():
         for e in encs:
@@ -205,11 +216,15 @@ def evaluate_split(
             x_hat = x_hat.float().squeeze(0).squeeze(1).cpu().numpy()  # (T, H, W)
             mse = float(((omega - x_hat) ** 2).mean())
             floor = float(((omega - case_mean[e["case_id"]]) ** 2).mean())
+            ssim_t = float(np.mean([_ssim(omega[t], x_hat[t]) for t in range(T)]))
             mses.append(mse)
             floors.append(floor)
+            ssims.append(ssim_t)
     return {
         "mse_mean": float(np.mean(mses)),
         "mse_median": float(np.median(mses)),
+        "ssim_mean": float(np.mean(ssims)),
+        "ssim_median": float(np.median(ssims)),
         "floor_mean": float(np.mean(floors)),
         "ratio_mean": float(np.mean(mses) / max(np.mean(floors), 1e-12)),
         "n_encounters": len(encs),
