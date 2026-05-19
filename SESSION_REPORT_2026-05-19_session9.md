@@ -31,17 +31,18 @@ launchers + orchestrators + analysis script before the first GPU
 command, matching the D40/D44 precedent.
 
 Wall-clock implication of the external load: per-run iteration rate
-settled at roughly 200 iters/min once both RTX 6000 cards spun up
-together, giving each 20k-iter run a wall-clock budget of ~1.7
-hours (vs the Session 8 single-card 1.5h baseline; the ~10 percent
-slowdown reflects the parallel two-card data-loader contention plus
-the external `asolera` SOD2D and `isaac` CPU jobs on the
-workstation). The full Session 9 schedule fits within the planned
-14-16 hour window. The Step 3 thin cut is still scoped to A2 + A7
-(the JEPA-internal ablations) with A10 + A11 (Solera-Rico, Fukami)
-deferred to Session 10 along with their pending baseline modules,
-because writing those modules safely in-session would itself add
-1 to 2 hours of scope on top of the ~1.7-hour training runs.
+settled at roughly 220 iters/min once both RTX 6000 cards spun up
+together, giving each 20k-iter run a wall-clock budget of ~1.5
+hours, in line with the Session 8 D49 single-card baseline. The full
+Session 9 schedule fits within the planned 14-16 hour window. The
+Step 3 thin cut is scoped to A2 + A7 (the JEPA-internal ablations) +
+A11 (Fukami observable-augmented AE, added mid-session at the user's
+request for a faithful comparison via Fukami's CNN architecture and
+SSIM-based methodology). A10 (Solera-Rico beta-VAE + transformer ROM)
+remains deferred to Session 10 because the faithful two-stage
+implementation (variational encoder Stage 1 + transformer ROM on the
+frozen latent Stage 2) cannot fit cleanly inside the cuda:1 idle
+window between A11 and A7 without compute-conflict risk.
 
 ## Step 1: lambda bisection (D58)
 
@@ -69,13 +70,20 @@ noise floor, pass criterion outcome, Figure 3 description}`
 
 cuda:1 chain (interleaved with Step 1's compute on cuda:0): A2
 VICReg-only (canonical Bardes et al. weights mu=25, lambda_var=25,
-nu=1) -> wait for lambda* -> A7 no-scheduled-sampling (H_roll=T=32 at
-lambda*). A10 Solera-Rico beta-VAE + transformer and A11 Fukami
-observable-augmented AE are deferred to Session 10 (their baseline
-modules require new infrastructure that does not fit the Session 9
-wall-clock budget under the observed external compute load).
+nu=1) -> A11 Fukami observable-augmented AE (CNN architecture from
+arXiv:2305.18394 Table S.1 adapted to 192x96 input + d=32 latent,
+trained jointly on reconstruction MSE + lift MSE per Fukami's
+methodology) -> wait for lambda* -> A7 no-scheduled-sampling
+(H_roll=T=32 at lambda*). A10 Solera-Rico beta-VAE + transformer
+deferred to Session 10 (faithful two-stage reproduction does not fit
+the cuda:1 idle window between A11 and A7).
 
-`{TO_FILL: A2 + A7 Test B delta numbers, implications for paper claims}`
+Fukami evaluation reports per-encounter MSE alongside the SSIM
+(Eq. 1 from supplementary, `C_1=0.16`, `C_2=1.44`) for fair
+comparison with the JEPA decoder (Section 6) on Test A / B / C.
+
+`{TO_FILL: A2 + A7 + A11 Test B delta numbers, Fukami SSIM table,
+implications for paper claims}`
 
 ## Step 4: R0 at lambda* (D61, conditional)
 
