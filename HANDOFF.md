@@ -2616,7 +2616,7 @@ Six pass criteria from `SESSION9_LAMBDA_BISECTION.md`:
 |----------------|--------|
 | Step 1 bisection completes; best lambda* identified. | PASS (D58: lambda* = 0.01 with delta_test_b = +0.159). |
 | Step 1 seed-variance bound at lambda*: best Test B delta within +/- 0.03 of seed=0. | PARTIAL FAIL (D58: F4 seed=42 -0.063 FAIL; F5 seed=123 -0.022 PASS). |
-| Step 2 visualisation decoder reconstructs omega_z on Test A with per-frame MSE within 2x of the floor. | `{TBD pending decoder completion}` (D59). |
+| Step 2 visualisation decoder reconstructs omega_z on Test A with per-frame MSE within 2x of the floor. | FAIL (D59: Test A ratio = 9.37, well outside 2x). The JEPA's predictive-only encoder discards reconstruction-relevant info; the head-to-head with Fukami AE (Section 6.6) reframes the result as "JEPA's predictive-only training trades reconstruction fidelity for downstream Test B transferability". |
 | Step 3 thin-cut ablations land Test B delta numbers for each of the four ablations. | PASS (D60: A2, A7, A11 landed; A10 Solera-Rico deferred to Session 10 per plan's risk-register clause). |
 | Step 4 R0 at lambda* completes if needed. | SKIPPED (D61: lambda* = 0.01 already covered in Session 8 D55). |
 | Step 5 commits Section 6 (decoder), Section 7 outline + Table 2 skeleton, Sections 1 + 2 drafts, and an Abstract draft. | PASS (D62). |
