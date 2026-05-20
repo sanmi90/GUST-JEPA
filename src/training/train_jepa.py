@@ -38,6 +38,7 @@ from torch.optim.lr_scheduler import LambdaLR
 from torch.utils.data import DataLoader
 
 from src.data.episode_dataset import EpisodeDataset
+from src.data.omega_pipeline import OmegaPipeline
 from src.models.encoder import HybridCNNViTEncoder
 from src.models.jepa import JEPA
 from src.models.observable_head import ObservableHead
@@ -227,6 +228,17 @@ def parse_args() -> argparse.Namespace:
             "second one. Default None picks the first one (single-card behaviour)."
         ),
     )
+    p.add_argument(
+        "--omega-pipeline-manifest",
+        type=str,
+        default=None,
+        help=(
+            "Path to the OmegaPipeline manifest (e.g. outputs/data_pipeline/v1/"
+            "manifest.json). When set, every batch is preprocessed by the pipeline "
+            "(spatial mask + per-encounter clip + 3-sigma scale) before the encoder. "
+            "Forces num_workers=0 since the custom collate carries non-tensor case_ids."
+        ),
+    )
     return p.parse_args()
 
 
@@ -286,15 +298,20 @@ def resolve_cases(args: argparse.Namespace) -> list[str] | None:
     return args.cases
 
 
-def jepa_collate(samples: list[dict[str, Any]]) -> dict[str, Tensor]:
+def jepa_collate(samples: list[dict[str, Any]]) -> dict[str, Any]:
     omega = torch.stack([s["omega_z"].unsqueeze(1) for s in samples])
     c = torch.tensor(
         [[s["G"], s["D"], s["Y"]] for s in samples],
         dtype=torch.float32,
     )
-    batch: dict[str, Tensor] = {"omega": omega, "c": c}
+    batch: dict[str, Any] = {"omega": omega, "c": c}
     if "cl_future" in samples[0]:
         batch["cl_future"] = torch.stack([s["cl_future"] for s in samples])
+    if "case_id" in samples[0]:
+        batch["case_ids"] = [s["case_id"] for s in samples]
+        batch["encounter_indices"] = torch.tensor(
+            [s["encounter_index"] for s in samples], dtype=torch.long,
+        )
     return batch
 
 
@@ -375,8 +392,43 @@ def build_lr_lambda(args: argparse.Namespace) -> "callable[[int], float]":
     return lr_lambda
 
 
-def move_batch(batch: dict[str, Tensor], device: torch.device) -> dict[str, Tensor]:
-    return {k: v.to(device, non_blocking=True) for k, v in batch.items()}
+def move_batch(batch: dict[str, Any], device: torch.device) -> dict[str, Any]:
+    out: dict[str, Any] = {}
+    for k, v in batch.items():
+        if isinstance(v, torch.Tensor):
+            out[k] = v.to(device, non_blocking=True)
+        else:
+            out[k] = v
+    return out
+
+
+def apply_pipeline_batch(
+    pipe: OmegaPipeline,
+    batch: dict[str, Any],
+) -> dict[str, Any]:
+    """Apply OmegaPipeline (mask + per-encounter clip + 3-sigma scale) to a batch.
+
+    Operates in-place on ``batch['omega']``. Requires ``case_ids`` and
+    ``encounter_indices`` in the batch (added by ``jepa_collate``).
+    """
+    omega = batch["omega"]
+    case_ids = batch["case_ids"]
+    enc_idx = batch["encounter_indices"]
+    mask = pipe.mask.to(omega.device).bool()
+    omega = torch.where(mask, torch.zeros_like(omega), omega)
+    thresholds = torch.tensor(
+        [pipe.get_threshold(cid, int(enc_idx[i].item()))
+         for i, cid in enumerate(case_ids)],
+        dtype=omega.dtype, device=omega.device,
+    )
+    view = [omega.shape[0]] + [1] * (omega.dim() - 1)
+    thresholds = thresholds.view(*view)
+    omega = torch.where(omega.abs() > thresholds,
+                        torch.sign(omega) * thresholds, omega)
+    s = 3.0 * float(pipe.train_stats.std)
+    omega = omega / s
+    batch["omega"] = omega
+    return batch
 
 
 def run_diagnostics(
@@ -384,9 +436,12 @@ def run_diagnostics(
     test_b_iter: "itertools.cycle[dict[str, Tensor]]",
     device: torch.device,
     seed: int,
+    omega_pipeline: OmegaPipeline | None = None,
 ) -> dict[str, float]:
     """Compute PR + linear probe R^2 + variance histogram on a Test B batch."""
     batch = move_batch(next(test_b_iter), device)
+    if omega_pipeline is not None:
+        batch = apply_pipeline_batch(omega_pipeline, batch)
     was_training = jepa.training
     jepa.eval()
     with torch.no_grad():
@@ -503,6 +558,23 @@ def main() -> None:
         with open(metrics_jsonl, "a") as fh:
             fh.write(json.dumps({"event": "log", "step": int(step), **payload}) + "\n")
 
+    omega_pipeline: OmegaPipeline | None = None
+    if args.omega_pipeline_manifest is not None:
+        manifest_path = Path(args.omega_pipeline_manifest)
+        if not manifest_path.is_absolute():
+            manifest_path = REPO_ROOT / manifest_path
+        omega_pipeline = OmegaPipeline.from_manifest(manifest_path)
+        print(
+            f"[train_jepa] loaded omega pipeline from {manifest_path}\n"
+            f"  mask cells: {int(omega_pipeline.mask.sum().item())}\n"
+            f"  thresholds: {sum(len(v) for v in omega_pipeline.thresholds.values())} encs\n"
+            f"  train_stats: mean={omega_pipeline.train_stats.mean:.4f}, "
+            f"std={omega_pipeline.train_stats.std:.4f}",
+            flush=True,
+        )
+        args.num_workers = 0
+        run_config["omega_pipeline_manifest"] = str(manifest_path)
+
     train_loader = make_train_loader(args)
     test_b_loader = make_test_b_loader(args)
     train_iter = infinite_iter(train_loader)
@@ -584,6 +656,8 @@ def main() -> None:
     last_loss_total = float("nan")
     for iteration in range(start_iter, args.max_iters):
         batch = move_batch(next(train_iter), device)
+        if omega_pipeline is not None:
+            batch = apply_pipeline_batch(omega_pipeline, batch)
 
         with torch.autocast(device_type="cuda", dtype=torch.bfloat16):
             out = jepa(batch)
@@ -628,7 +702,8 @@ def main() -> None:
             )
 
         if iteration % args.diagnostic_every == 0:
-            diag = run_diagnostics(jepa, test_b_iter, device, args.seed)
+            diag = run_diagnostics(jepa, test_b_iter, device, args.seed,
+                                   omega_pipeline=omega_pipeline)
             _log_metrics({f"diag/{k}": v for k, v in diag.items()}, step=iteration)
             print(
                 f"[diag iter {iteration}] PR={diag['pr']:.2f} "

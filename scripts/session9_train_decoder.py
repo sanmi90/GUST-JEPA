@@ -130,10 +130,12 @@ def gather_eval_encounters(split: str) -> list[dict]:
 class EncounterFrameDataset(torch.utils.data.Dataset):
     """Yields a random T-frame sub-trajectory of omega_z for one encounter."""
 
-    def __init__(self, encs: list[dict], T: int = 32, seed: int = 0) -> None:
+    def __init__(self, encs: list[dict], T: int = 32, seed: int = 0,
+                 omega_pipeline=None) -> None:
         self.encs = encs
         self.T = T
         self.rng = np.random.default_rng(seed)
+        self.omega_pipeline = omega_pipeline
 
     def __len__(self) -> int:
         return len(self.encs)
@@ -148,7 +150,10 @@ class EncounterFrameDataset(torch.utils.data.Dataset):
         else:
             start = int(self.rng.integers(0, T_full - self.T + 1))
         x = omega[start : start + self.T]
-        return torch.from_numpy(x)  # (T, H, W)
+        if self.omega_pipeline is not None:
+            x = self.omega_pipeline.preprocess_raw(x, e["case_id"], int(e["k"]))
+            x = self.omega_pipeline.normalize(x)
+        return torch.from_numpy(x)  # (T, H, W), normalized if pipeline set
 
 
 def collate(batch: list[torch.Tensor]) -> torch.Tensor:
@@ -202,12 +207,23 @@ def evaluate_split(
     dec: HybridViTConvDecoder,
     encs: list[dict],
     device: torch.device,
+    omega_scale: float = 1.0,
+    omega_pipeline=None,
 ) -> dict:
-    """Per-encounter reconstruction MSE + SSIM on a split + case-mean noise floor."""
+    """Per-encounter reconstruction MSE + SSIM on a split + case-mean noise floor.
+
+    When ``omega_pipeline`` is provided, inputs are pipeline-preprocessed
+    (mask + per-encounter clip + normalize) before the encoder. The
+    decoder output is unnormalized back to raw scale and metrics are
+    computed against the pipeline-preprocessed target (the cleaned omega,
+    NOT the artifact-laden raw — matches the training target).
+    """
     case_to_arr: dict[str, list[np.ndarray]] = {}
     for e in encs:
         with h5py.File(e["path"], "r") as f:
             omega = np.asarray(f["omega_z"], dtype=np.float32)
+        if omega_pipeline is not None:
+            omega = omega_pipeline.preprocess_raw(omega, e["case_id"], int(e["k"]))
         case_to_arr.setdefault(e["case_id"], []).append(omega)
     case_mean = {cid: np.stack(arrs, axis=0).mean(axis=0) for cid, arrs in case_to_arr.items()}
 
@@ -221,12 +237,20 @@ def evaluate_split(
         for e in encs:
             with h5py.File(e["path"], "r") as f:
                 omega = np.asarray(f["omega_z"], dtype=np.float32)
+            if omega_pipeline is not None:
+                omega = omega_pipeline.preprocess_raw(omega, e["case_id"], int(e["k"]))
             T = omega.shape[0]
             x = torch.from_numpy(omega).unsqueeze(0).unsqueeze(2).to(device)  # (1, T, 1, H, W)
+            if omega_pipeline is not None:
+                x = omega_pipeline.normalize(x)
             with torch.autocast(device_type=device.type, dtype=torch.bfloat16,
                                 enabled=device.type == "cuda"):
                 z = enc(x)
                 x_hat = dec(z)
+                if omega_pipeline is not None:
+                    x_hat = omega_pipeline.unnormalize(x_hat)
+                else:
+                    x_hat = x_hat * omega_scale  # de-normalize to raw scale
             x_hat = x_hat.float().squeeze(0).squeeze(1).cpu().numpy()  # (T, H, W)
             mse = float(((omega - x_hat) ** 2).mean())
             floor = float(((omega - case_mean[e["case_id"]]) ** 2).mean())
@@ -263,6 +287,11 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--T", type=int, default=32)
     p.add_argument("--max-iters", type=int, default=10000)
     p.add_argument("--lr", type=float, default=1e-4)
+    p.add_argument("--omega-scale", type=float, default=1.0,
+                   help="Normalize target omega by this scale during training; "
+                        "decoder learns to output omega/omega_scale. At inference "
+                        "the decoder output is multiplied back by omega_scale so "
+                        "eval metrics (MSE, SSIM, eps) are reported on raw scale.")
     p.add_argument("--weight-decay", type=float, default=0.05)
     p.add_argument("--warmup-frac", type=float, default=0.05)
     p.add_argument("--grad-clip", type=float, default=1.0)
@@ -270,6 +299,22 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--log-every", type=int, default=50)
     p.add_argument("--eval-every", type=int, default=2000)
     p.add_argument("--checkpoint-every", type=int, default=2000)
+    p.add_argument("--omega-pipeline-manifest", type=str, default=None,
+                   help="OmegaPipeline manifest path. When set: target = "
+                        "pipeline.normalize(pipeline.preprocess_raw(omega)); "
+                        "decoder learns in normalized space; eval unnormalizes "
+                        "before computing raw-scale MSE/SSIM/eps. Overrides "
+                        "--omega-scale when set.")
+    p.add_argument("--recon-loss-type", type=str, default="mse",
+                   choices=["mse", "charbonnier"],
+                   help="Per-pixel reconstruction loss for the decoder.")
+    p.add_argument("--charbonnier-epsilon", type=float, default=0.05)
+    p.add_argument("--recon-active-threshold", type=float, default=0.0,
+                   help="Active-pixel mask threshold (in normalized space when "
+                        "--omega-pipeline-manifest is set). Default 0 disables.")
+    p.add_argument("--recon-inactive-weight", type=float, default=0.0,
+                   help="Weight applied to inactive pixels; 0 = hard mask, "
+                        "0.05 = soft mask.")
     return p.parse_args()
 
 
@@ -299,6 +344,18 @@ def main() -> None:
     log(f"[decoder-train] encoder loaded, d={d}, params="
         f"{sum(p.numel() for p in enc.parameters()):,} (FROZEN)")
 
+    omega_pipeline = None
+    if args.omega_pipeline_manifest is not None:
+        from src.data.omega_pipeline import OmegaPipeline
+        manifest = Path(args.omega_pipeline_manifest)
+        if not manifest.is_absolute():
+            manifest = REPO / manifest
+        omega_pipeline = OmegaPipeline.from_manifest(manifest)
+        log(f"[decoder-train] loaded omega pipeline from {manifest}")
+        log(f"  mask: {int(omega_pipeline.mask.sum().item())} cells, "
+            f"thresholds: {sum(len(v) for v in omega_pipeline.thresholds.values())} encs, "
+            f"std={omega_pipeline.train_stats.std:.4f}")
+
     dec = HybridViTConvDecoder(latent_dim=d).to(device)
     log(f"[decoder-train] decoder params={sum(p.numel() for p in dec.parameters()):,}")
 
@@ -309,7 +366,8 @@ def main() -> None:
     log(f"[decoder-train] train={len(train_encs)} encs, "
         f"test_a={len(test_a_encs)}, test_b={len(test_b_encs)}, test_c={len(test_c_encs)}")
 
-    ds = EncounterFrameDataset(train_encs, T=args.T, seed=args.seed)
+    ds = EncounterFrameDataset(train_encs, T=args.T, seed=args.seed,
+                                omega_pipeline=omega_pipeline)
     loader = torch.utils.data.DataLoader(
         ds, batch_size=args.B, shuffle=True, num_workers=args.num_workers,
         collate_fn=collate, pin_memory=True, drop_last=True, persistent_workers=True,
@@ -334,11 +392,36 @@ def main() -> None:
             x = next(it)
 
         z = encode_batch(enc, x, device)  # (B, T, d)
-        target = x.to(device).unsqueeze(2)  # (B, T, 1, H, W)
+        # Target. When pipeline is set, x is already normalized; otherwise
+        # divide by --omega-scale. Loss is computed in this normalized space.
+        if omega_pipeline is not None:
+            target = x.to(device).unsqueeze(2)  # (B, T, 1, H, W), normalized
+        else:
+            target = (x.to(device).unsqueeze(2) / args.omega_scale)
         with torch.autocast(device_type=device.type, dtype=torch.bfloat16,
                             enabled=device.type == "cuda"):
             x_hat = dec(z)
-        loss = F.mse_loss(x_hat.float(), target.float())
+        x_hat_f = x_hat.float()
+        target_f = target.float()
+        err = target_f - x_hat_f
+        tau = float(args.recon_active_threshold)
+        if tau > 0.0:
+            active = (target_f.abs() > tau).to(err.dtype)
+            w_in = float(args.recon_inactive_weight)
+            weight = active + (1.0 - active) * w_in
+            denom = weight.sum().clamp_min(1.0)
+            if args.recon_loss_type == "mse":
+                loss = ((err ** 2) * weight).sum() / denom
+            else:  # charbonnier
+                eps = float(args.charbonnier_epsilon)
+                ch = torch.sqrt(err * err + eps * eps) - eps
+                loss = (ch * weight).sum() / denom
+        else:
+            if args.recon_loss_type == "mse":
+                loss = (err ** 2).mean()
+            else:  # charbonnier
+                eps = float(args.charbonnier_epsilon)
+                loss = (torch.sqrt(err * err + eps * eps) - eps).mean()
 
         opt.zero_grad()
         loss.backward()
@@ -351,7 +434,9 @@ def main() -> None:
                 f"lr={sched.get_last_lr()[0]:.2e}")
 
         if step > 0 and step % args.eval_every == 0:
-            ev_a = evaluate_split(enc, dec, test_a_encs[:8], device)  # cheap subset during training
+            ev_a = evaluate_split(enc, dec, test_a_encs[:8], device,
+                                  omega_scale=args.omega_scale,
+                                  omega_pipeline=omega_pipeline)
             log(f"[eval iter {step}] test_a (subset 8): "
                 f"mse_mean={ev_a['mse_mean']:.4f} floor_mean={ev_a['floor_mean']:.4f} "
                 f"ratio={ev_a['ratio_mean']:.3f}")
@@ -373,9 +458,12 @@ def main() -> None:
 
     # Final full evaluation
     log("[decoder-train] final evaluation on Test A / B / C")
-    ev_a = evaluate_split(enc, dec, test_a_encs, device)
-    ev_b = evaluate_split(enc, dec, test_b_encs, device)
-    ev_c = evaluate_split(enc, dec, test_c_encs, device)
+    ev_a = evaluate_split(enc, dec, test_a_encs, device,
+                          omega_scale=args.omega_scale, omega_pipeline=omega_pipeline)
+    ev_b = evaluate_split(enc, dec, test_b_encs, device,
+                          omega_scale=args.omega_scale, omega_pipeline=omega_pipeline)
+    ev_c = evaluate_split(enc, dec, test_c_encs, device,
+                          omega_scale=args.omega_scale, omega_pipeline=omega_pipeline)
 
     summary = {
         "jepa_checkpoint": str(ckpt_path),

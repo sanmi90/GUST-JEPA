@@ -128,16 +128,14 @@ def main() -> None:
     fig, axes = plt.subplots(3, 4, figsize=(14, 11),
                              gridspec_kw={"width_ratios": [1, 1, 1, 0.06]})
 
-    p95_raw = float(np.percentile(np.abs(omega[frames]), 95))
-    p95_dec = float(np.percentile(np.abs(x_hat[frames]), 95))
-    p95_res = float(np.percentile(np.abs(residual[frames]), 95))
+    vlim = 3.0
     max_raw = float(np.abs(omega[frames]).max())
     max_dec = float(np.abs(x_hat[frames]).max())
     max_res = float(np.abs(residual[frames]).max())
     row_specs = [
-        ("raw $\\omega_z$", omega, p95_raw, max_raw),
-        ("Fukami decoded $\\hat\\omega_z$", x_hat, p95_dec, max_dec),
-        ("residual $\\omega_z - \\hat\\omega_z$", residual, p95_res, max_res),
+        ("raw $\\omega_z$", omega, vlim, max_raw),
+        ("Fukami decoded $\\hat\\omega_z$", x_hat, vlim, max_dec),
+        ("residual $\\omega_z - \\hat\\omega_z$", residual, vlim, max_res),
     ]
     for row_idx, (row_label, data, vmax, mx) in enumerate(row_specs):
         im = None
@@ -159,7 +157,7 @@ def main() -> None:
                     f"frame {t} ({'pre-impact' if t < 35 else 'impact' if t < 50 else 'post-impact'})"
                 )
         cbar = fig.colorbar(im, cax=axes[row_idx, 3], extend="both")
-        cbar.set_label(f"{row_label}\np95={vmax:.1f}, max={mx:.1f}", fontsize=9)
+        cbar.set_label(f"{row_label}\nvlim=$\\pm${vmax:.1f}, max={mx:.1f}", fontsize=9)
         axes[row_idx, 0].set_ylabel(row_label, fontsize=11)
 
     fig.suptitle(

@@ -79,7 +79,17 @@ def load_encoder(run_dir: Path, iters: int, device: torch.device) -> HybridCNNVi
         if k.startswith("encoder.")
     }
     enc.load_state_dict(state, strict=False)
-    return enc.eval().to(device)
+    enc = enc.eval().to(device)
+    # Attach OmegaPipeline if the checkpoint was trained with one. Used by
+    # ``encode_split`` to preprocess inputs identically to training.
+    manifest_rel = args.get("omega_pipeline_manifest")
+    if manifest_rel:
+        from src.data.omega_pipeline import OmegaPipeline
+        manifest = Path(manifest_rel)
+        if not manifest.is_absolute():
+            manifest = REPO / manifest
+        enc._omega_pipeline = OmegaPipeline.from_manifest(manifest)
+    return enc
 
 
 def gather_encounters(split_key: str) -> list[dict]:
@@ -113,9 +123,15 @@ def gather_encounters(split_key: str) -> list[dict]:
 def encode_split(enc, encs, device):
     N, T = len(encs), encs[0]["omega_z"].shape[0]
     out = np.empty((N, T, D), dtype=np.float32)
+    pipe = getattr(enc, "_omega_pipeline", None)
     with torch.no_grad():
         for i, e in enumerate(encs):
-            x = torch.from_numpy(e["omega_z"]).unsqueeze(1).to(device)
+            omega = e["omega_z"]
+            if pipe is not None:
+                omega = pipe.preprocess_raw(omega, e["case_id"], int(e["k"]))
+            x = torch.from_numpy(omega).unsqueeze(1).to(device)
+            if pipe is not None:
+                x = pipe.normalize(x)
             with torch.autocast(device_type=device.type, dtype=torch.bfloat16,
                                 enabled=device.type == "cuda"):
                 z = enc(x.unsqueeze(0))

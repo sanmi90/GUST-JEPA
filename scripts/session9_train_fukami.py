@@ -138,10 +138,23 @@ def parse_args() -> argparse.Namespace:
                         "airfoil-mask-path. Build the manifest with "
                         "scripts/build_omega_pipeline.py.")
     p.add_argument("--recon-loss-type", type=str, default="mse",
-                   choices=["mse", "l1", "charbonnier"],
+                   choices=["mse", "l1", "charbonnier", "multiscale"],
                    help="Per-pixel reconstruction loss. Charbonnier (smooth L1) "
                         "recommended for sparse-vortical DNS where MSE collapses "
                         "the decoder to predict zero.")
+    p.add_argument("--recon-active-threshold", type=float, default=0.0,
+                   help="Training-only active-pixel mask: pixels with "
+                        "|target| > threshold contribute to the loss; rest "
+                        "are weighted by --recon-inactive-weight. Inference "
+                        "is unmasked. Threshold is in the same space as the "
+                        "loss (i.e., the normalized 3-sigma space when "
+                        "--omega-pipeline-manifest is set). Default 0 "
+                        "disables the mask.")
+    p.add_argument("--recon-inactive-weight", type=float, default=0.0,
+                   help="Weight applied to inactive (|target| <= threshold) "
+                        "pixels in the loss. 0 = hard mask (no freestream "
+                        "supervision; risk of decoder noise divergence). "
+                        "0.05 = soft mask preserving 1/20th freestream signal.")
     p.add_argument("--charbonnier-epsilon", type=float, default=0.05,
                    help="Charbonnier transition threshold. Default 0.05 in "
                         "normalized space matches the noise floor.")
@@ -421,6 +434,8 @@ def main() -> None:
         omega_pipeline=omega_pipeline,
         recon_loss_type=args.recon_loss_type,
         charbonnier_epsilon=args.charbonnier_epsilon,
+        recon_active_threshold=args.recon_active_threshold,
+        recon_inactive_weight=args.recon_inactive_weight,
     ).to(device)
     n_params = sum(p.numel() for p in wrapper.parameters())
     log(f"[fukami-train] params={n_params:,} ({n_params/1e6:.2f}M)")

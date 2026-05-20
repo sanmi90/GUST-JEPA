@@ -43,6 +43,7 @@ Smoke-tested at d=32 on (B=2, 1, 192, 96) random input.
 from __future__ import annotations
 
 import torch
+import torch.nn.functional as F
 from torch import Tensor, nn
 
 
@@ -227,6 +228,8 @@ class FukamiAEWrapper(nn.Module):
         omega_pipeline=None,
         recon_loss_type: str = "mse",
         charbonnier_epsilon: float = 0.05,
+        recon_active_threshold: float = 0.0,
+        recon_inactive_weight: float = 0.0,
     ) -> None:
         super().__init__()
         self.encoder = FukamiCNNEncoder(latent_dim)
@@ -237,11 +240,30 @@ class FukamiAEWrapper(nn.Module):
         self.lambda_recon = lambda_recon
         self.lambda_lift = lambda_lift
         self.omega_scale = float(omega_scale)
-        if recon_loss_type not in {"mse", "l1", "charbonnier"}:
+        if recon_loss_type not in {"mse", "l1", "charbonnier", "multiscale"}:
             raise ValueError(f"Unknown recon_loss_type {recon_loss_type!r}; "
-                             "choose mse / l1 / charbonnier.")
+                             "choose mse / l1 / charbonnier / multiscale.")
         self.recon_loss_type = recon_loss_type
         self.charbonnier_epsilon = float(charbonnier_epsilon)
+        # Active-pixel mask (training only). When > 0, the per-pixel loss is
+        # weighted by an active-pixel mask: |target| > threshold gets weight 1,
+        # rest gets weight ``recon_inactive_weight`` (default 0 = hard mask).
+        # Inference / metric evaluation does NOT apply this mask; the decoder
+        # is judged on the full field. Hard mask (weight 0) tends to let the
+        # freestream diverge into noise; weight ~0.05 keeps it constrained.
+        self.recon_active_threshold = float(recon_active_threshold)
+        self.recon_inactive_weight = float(recon_inactive_weight)
+        # multiscale: Charbonnier on omega + lambda_grad * Charbonnier on Sobel-grad
+        # Forces wake-band high-frequency content to be encoded (cores have low
+        # gradient magnitude relative to pixel magnitude; wake structure has high
+        # spatial gradients).
+        self.lambda_grad = 1.0
+        sobel_x = torch.tensor([[-1.0, 0.0, 1.0],
+                                [-2.0, 0.0, 2.0],
+                                [-1.0, 0.0, 1.0]]).view(1, 1, 3, 3) / 8.0
+        sobel_y = sobel_x.transpose(-1, -2).clone()
+        self.register_buffer("_sobel_x", sobel_x, persistent=False)
+        self.register_buffer("_sobel_y", sobel_y, persistent=False)
         # omega_pipeline: when not None, supersedes the omega_scale / clip /
         # mask parameters. The pipeline implements the canonical three-stage
         # transform (spatial mask -> per-encounter clip -> z-score normalize)
@@ -341,13 +363,50 @@ class FukamiAEWrapper(nn.Module):
           floor of the normalized data.
         """
         err = target - pred
-        if self.recon_loss_type == "mse":
-            return (err ** 2).mean()
-        if self.recon_loss_type == "l1":
-            return err.abs().mean()
-        # charbonnier
-        eps = self.charbonnier_epsilon
-        return (torch.sqrt(err * err + eps * eps) - eps).mean()
+        tau = self.recon_active_threshold
+        if tau > 0.0:
+            # Active-pixel weighted loss: |target| > tau gets weight 1,
+            # rest gets weight ``recon_inactive_weight`` (0 = hard mask;
+            # 0.05 = soft mask preserving freestream supervision).
+            active = (target.abs() > tau).to(err.dtype)
+            w_in = self.recon_inactive_weight
+            weight = active + (1.0 - active) * w_in
+            denom = weight.sum().clamp_min(1.0)
+            if self.recon_loss_type == "mse":
+                return ((err ** 2) * weight).sum() / denom
+            if self.recon_loss_type == "l1":
+                return (err.abs() * weight).sum() / denom
+            eps = self.charbonnier_epsilon
+            char_pp = torch.sqrt(err * err + eps * eps) - eps
+            char = (char_pp * weight).sum() / denom
+            if self.recon_loss_type == "charbonnier":
+                return char
+        else:
+            if self.recon_loss_type == "mse":
+                return (err ** 2).mean()
+            if self.recon_loss_type == "l1":
+                return err.abs().mean()
+            eps = self.charbonnier_epsilon
+            char = (torch.sqrt(err * err + eps * eps) - eps).mean()
+            if self.recon_loss_type == "charbonnier":
+                return char
+        # multiscale: Charbonnier(omega) + lambda_grad * Charbonnier(grad omega)
+        # Reduce target/pred to (B*T, 1, H, W) for the Sobel convolution.
+        if target.dim() == 5:
+            B, T, C, H, W = target.shape
+            tgt = target.reshape(B * T, C, H, W)
+            prd = pred.reshape(B * T, C, H, W)
+        else:
+            tgt, prd = target, pred
+        # Sobel grad in (x, y) for both target and pred; concatenate channels.
+        sx, sy = self._sobel_x.to(tgt.dtype), self._sobel_y.to(tgt.dtype)
+        tx = F.conv2d(tgt, sx, padding=1)
+        ty = F.conv2d(tgt, sy, padding=1)
+        px = F.conv2d(prd, sx, padding=1)
+        py = F.conv2d(prd, sy, padding=1)
+        grad_err = torch.cat([tx - px, ty - py], dim=1)
+        grad_char = (torch.sqrt(grad_err * grad_err + eps * eps) - eps).mean()
+        return char + self.lambda_grad * grad_char
 
     def _preprocess_with_pipeline(self, omega: Tensor, batch: dict) -> Tensor:
         """Apply OmegaPipeline (mask + per-encounter clip) to the batch.

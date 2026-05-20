@@ -4,7 +4,7 @@
 # Edit-by-hand discouraged; rerun the script to refresh.
 
 manifest_version: raw_cases_inventory_v1
-created_iso: '2026-05-18T09:59:16.463736+00:00'
+created_iso: '2026-05-20T09:40:41.662198+00:00'
 source: scripts/periodic_v2/100c_raw_cases_inventory.py
 
 # -------------------------------------------------------------
@@ -48,9 +48,9 @@ parser:
 # Summary.
 # -------------------------------------------------------------
 summary:
-  n_cases_total: 51
+  n_cases_total: 56
   n_cases_periodic: 21
-  n_cases_run3: 30
+  n_cases_run3: 35
   n_parse_errors: 0
   n_duplicate_case_ids: 0
 
@@ -719,4 +719,69 @@ cases:
     Y: -0.40
     Y_from_y_file: -0.399878
     Y_from_x_file: -0.400956
+
+  - filename: Gust_034_x-2.037_y-0.096_s1.0_d0.5.h5
+    relative_path: data/raw/periodic/run3/Gust_034_x-2.037_y-0.096_s1.0_d0.5.h5
+    source_group: run3
+    n_frames: 480
+    n_encounters_full: 4
+    trailing_partial_frames: 0
+    case_id: G+1.00_D0.50_Y+0.40
+    G: +1.00
+    D: 0.50
+    Y: +0.40
+    Y_from_y_file: +0.399878
+    Y_from_x_file: +0.396822
+
+  - filename: Gust_035_x-1.844_y-0.872_s-2.0_d1.0.h5
+    relative_path: data/raw/periodic/run3/Gust_035_x-1.844_y-0.872_s-2.0_d1.0.h5
+    source_group: run3
+    n_frames: 480
+    n_encounters_full: 4
+    trailing_partial_frames: 0
+    case_id: G-2.00_D1.00_Y-0.40
+    G: -2.00
+    D: 1.00
+    Y: -0.40
+    Y_from_y_file: -0.399878
+    Y_from_x_file: -0.400956
+
+  - filename: Gust_036_x-2.037_y-0.096_s-3.0_d0.5.h5
+    relative_path: data/raw/periodic/run3/Gust_036_x-2.037_y-0.096_s-3.0_d0.5.h5
+    source_group: run3
+    n_frames: 480
+    n_encounters_full: 4
+    trailing_partial_frames: 0
+    case_id: G-3.00_D0.50_Y+0.40
+    G: -3.00
+    D: 0.50
+    Y: +0.40
+    Y_from_y_file: +0.399878
+    Y_from_x_file: +0.396822
+
+  - filename: Gust_037_x-2.037_y-0.096_s1.5_d1.0.h5
+    relative_path: data/raw/periodic/run3/Gust_037_x-2.037_y-0.096_s1.5_d1.0.h5
+    source_group: run3
+    n_frames: 480
+    n_encounters_full: 4
+    trailing_partial_frames: 0
+    case_id: G+1.50_D1.00_Y+0.40
+    G: +1.50
+    D: 1.00
+    Y: +0.40
+    Y_from_y_file: +0.399878
+    Y_from_x_file: +0.396822
+
+  - filename: Gust_039_x-1.965_y-0.387_s-3.0_d1.0.h5
+    relative_path: data/raw/periodic/run3/Gust_039_x-1.965_y-0.387_s-3.0_d1.0.h5
+    source_group: run3
+    n_frames: 480
+    n_encounters_full: 4
+    trailing_partial_frames: 0
+    case_id: G-3.00_D1.00_Y+0.10
+    G: -3.00
+    D: 1.00
+    Y: +0.10
+    Y_from_y_file: +0.099970
+    Y_from_x_file: +0.099206
 
