@@ -73,9 +73,21 @@ Session 10. The three landed ablations:
   collapse PR_all = 2-3. SIGReg + OBS still wins on Test B by
   +0.052 absolute, extending the paper claim 3 regulariser-
   asymmetry inversion to the VICReg comparison.
-- **A7 no scheduled sampling (H\_roll=T=32) at d=32, eta=0.01,
-  lambda=lambda\*.** Production configuration but with the full-
-  rollout exposure. Test B delta = `{A7_DELTA}`.
+- **A7 no scheduled sampling (H\_roll=30) at d=32, eta=0.01,
+  lambda=0.01.** Production configuration but with the rollout
+  horizon raised from 8 to the maximum compatible with T = 32 (the
+  JEPA's `_sample_t0` requires T >= H_roll + 2; H_roll = T = 32
+  triggers a `ValueError`, so the closest practical no-SS H_roll is
+  30). Test A delta = +0.223, **Test B delta = +0.137**, Test C
+  delta = +0.481. PR_all = 2.31 stays in the controlled-collapse band
+  (E4 PR_all = 2.61). The V-JEPA 2-AC scheduled-sampling at H_roll =
+  8 is worth +0.022 absolute on Test B parametric interpolation; on
+  Test C extrapolation the longer rollout marginally helps
+  (+0.011 absolute), consistent with longer rollouts forcing the
+  encoder to encode more of the dynamics relevant to |G| = 4
+  extrapolation. Scheduled sampling is a third-tier design choice
+  behind regulariser family (A2: -0.052 from VICReg swap) and
+  architecture family (A11: -0.086 from Fukami AE swap).
 - **A11 Fukami observable-augmented autoencoder at d=32.** The
   Fukami and Taira J. Fluid Mech. 2023 lift-augmented autoencoder
   (`\cite{fukami2023}`) adapted from the published 240x120 input to
