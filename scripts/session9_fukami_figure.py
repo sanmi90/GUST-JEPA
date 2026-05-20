@@ -63,12 +63,25 @@ def main() -> None:
     with h5py.File(e["path"], "r") as f:
         omega = np.asarray(f["omega_z"], dtype=np.float32)
 
+    # If the wrapper has an OmegaPipeline attached, apply Stages 1 + 2 to
+    # the omega (mask + per-encounter clip) BEFORE encoding. Reconstruction
+    # quality should be evaluated on the cleaned omega (matching the
+    # training loss), not the artifact-laden raw.
+    pipe = getattr(wrapper, "omega_pipeline", None)
+    if pipe is not None:
+        omega = pipe.preprocess_raw(omega, e["case_id"], int(e["k"]))
     x = torch.from_numpy(omega).unsqueeze(0).unsqueeze(2).to(device)  # (1, T, 1, H, W)
     with torch.no_grad():
         with torch.autocast(device_type=device.type, dtype=torch.bfloat16,
                             enabled=device.type == "cuda"):
-            z = wrapper.encode(x)
-            x_hat = wrapper.decode(z)
+            if pipe is not None:
+                x_norm = pipe.normalize(x)
+                z = wrapper.encoder(x_norm)
+                x_hat_norm = wrapper.decoder(z)
+                x_hat = pipe.unnormalize(x_hat_norm)
+            else:
+                z = wrapper.encode(x)
+                x_hat = wrapper.decode(z)
     x_hat = x_hat.float().squeeze(0).squeeze(1).cpu().numpy()  # (T, H, W)
     residual = omega - x_hat
 

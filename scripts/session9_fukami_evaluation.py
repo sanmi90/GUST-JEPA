@@ -61,7 +61,16 @@ def load_fukami(ckpt_path: Path, device: torch.device) -> FukamiAEWrapper:
     blob = torch.load(ckpt_path, map_location="cpu", weights_only=False)
     args = blob["args"]
     n_deltas = len(args.get("observable_head_deltas", [8, 16, 24]))
-    wrapper = FukamiAEWrapper(latent_dim=int(args["d"]), n_deltas=n_deltas)
+    omega_pipeline = None
+    manifest_path = args.get("omega_pipeline_manifest")
+    if manifest_path is not None:
+        from src.data.omega_pipeline import OmegaPipeline
+        omega_pipeline = OmegaPipeline.from_manifest(manifest_path)
+        print(f"[load_fukami] loaded OmegaPipeline from {manifest_path}", flush=True)
+    wrapper = FukamiAEWrapper(
+        latent_dim=int(args["d"]), n_deltas=n_deltas,
+        omega_pipeline=omega_pipeline,
+    )
     wrapper.load_state_dict(blob["wrapper_state_dict"])
     return wrapper.eval().to(device)
 
@@ -93,14 +102,21 @@ def gather_encounters(split: str) -> list[dict]:
 def encode_split(wrapper, encs, device, d: int) -> np.ndarray:
     N, T = len(encs), 120
     out = np.empty((N, T, d), dtype=np.float32)
+    pipe = getattr(wrapper, "omega_pipeline", None)
     with torch.no_grad():
         for i, e in enumerate(encs):
             with h5py.File(e["path"], "r") as f:
                 omega = np.asarray(f["omega_z"], dtype=np.float32)
+            if pipe is not None:
+                omega = pipe.preprocess_raw(omega, e["case_id"], int(e["k"]))
             x = torch.from_numpy(omega).unsqueeze(0).unsqueeze(2).to(device)
             with torch.autocast(device_type=device.type, dtype=torch.bfloat16,
                                 enabled=device.type == "cuda"):
-                z = wrapper.encode(x)
+                if pipe is not None:
+                    x_norm = pipe.normalize(x)
+                    z = wrapper.encoder(x_norm)
+                else:
+                    z = wrapper.encode(x)
             out[i] = z.squeeze(0).float().cpu().numpy()
     return out
 

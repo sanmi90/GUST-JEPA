@@ -225,11 +225,26 @@ def evaluate_split(
     encs: list[dict],
     device: torch.device,
 ) -> dict:
-    """Per-encounter MSE + Fukami L2-relative-error + SSIM + case-mean floor."""
+    """Per-encounter MSE + Fukami L2-relative-error + SSIM + case-mean floor.
+
+    When the wrapper has an attached OmegaPipeline, the evaluation applies
+    Stages 1 + 2 (mask + per-encounter clip) to the raw omega BEFORE
+    encoding, and computes all metrics on that masked-clipped raw scale
+    (matching the training loss). The encoder receives the normalized
+    omega via pipeline.normalize and the decoder output is un-normalized
+    via pipeline.unnormalize, both internal to the wrapper.forward path
+    which we re-use here.
+    """
+    pipe = wrapper.omega_pipeline
     case_to_arr: dict[str, list[np.ndarray]] = {}
     for e in encs:
         with h5py.File(e["path"], "r") as f:
             omega = np.asarray(f["omega_z"], dtype=np.float32)
+        # Pre-apply the pipeline's spatial mask + per-encounter clip to the
+        # case-mean inputs as well; the floor should compare against the
+        # cleaned omega, not the artifact-laden raw.
+        if pipe is not None:
+            omega = pipe.preprocess_raw(omega, e["case_id"], int(e["k"]))
         case_to_arr.setdefault(e["case_id"], []).append(omega)
     case_mean = {cid: np.stack(arrs).mean(axis=0) for cid, arrs in case_to_arr.items()}
 
@@ -239,20 +254,23 @@ def evaluate_split(
         for e in encs:
             with h5py.File(e["path"], "r") as f:
                 omega = np.asarray(f["omega_z"], dtype=np.float32)
+            if pipe is not None:
+                omega = pipe.preprocess_raw(omega, e["case_id"], int(e["k"]))
             x = torch.from_numpy(omega).unsqueeze(0).unsqueeze(2).to(device)  # (1, T, 1, H, W)
             with torch.autocast(device_type=device.type, dtype=torch.bfloat16,
                                 enabled=device.type == "cuda"):
-                z = wrapper.encode(x)
-                x_hat = wrapper.decode(z)
+                if pipe is not None:
+                    x_norm = pipe.normalize(x)
+                    z = wrapper.encoder(x_norm)
+                    x_hat_norm = wrapper.decoder(z)
+                    x_hat = pipe.unnormalize(x_hat_norm)
+                else:
+                    z = wrapper.encode(x)
+                    x_hat = wrapper.decode(z)
             x_hat = x_hat.float().squeeze(0).squeeze(1).cpu().numpy()  # (T, H, W)
             mse = float(((omega - x_hat) ** 2).mean())
             floor = float(((omega - case_mean[e["case_id"]]) ** 2).mean())
-            # SSIM averaged over time frames in the encounter
             ssim_frames = [_ssim(omega[t], x_hat[t]) for t in range(omega.shape[0])]
-            # Fukami L_2 relative error: per-frame, then averaged across the
-            # encounter. We also report the per-encounter (T, H, W) volume L_2
-            # so the user can see both Fukami-style per-frame numbers and a
-            # volume-level number.
             eps_per_frame = [_l2_relative_error(omega[t], x_hat[t])
                              for t in range(omega.shape[0])]
             eps_frames_mean.append(float(np.mean(eps_per_frame)))
