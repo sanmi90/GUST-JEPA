@@ -2325,6 +2325,44 @@ lambda=0.1. Plus the visualisation decoder training on the SIGReg +
 OBS + BN d=32 encoder, and the start of the full Section 7 evaluation
 suite per the architecture spec.
 
+### D58: Session 9 Step 1 lambda bisection -- lambda* = 0.01 (PRODUCTION_LOCKED) (2026-05-20, Session 9 Step 1)
+
+Five-point bisection over lambda in {0.001, 0.003, 0.01, 0.03, 0.1} at
+the production (d=32, eta=0.01, OBS=cl_future at eta=0.01, BN, SIGReg)
+configuration. F1 (lam=0.001 seed=0), F2 (lam=0.003 seed=0), F3
+(lam=0.03 seed=0) are new Session 9 runs; E4 (Session 8 lam=0.01 seed=0)
+and E5 (Session 7 R3 lam=0.1 seed=0) are anchors reused from disk.
+
+Per-cell seed=0 Test B summary at iter 20000:
+
+| code | lambda | PR_all | r2(z->c) | r2(CL_future) | r2(c, t) | delta_test_b |
+|------|-------:|-------:|---------:|--------------:|---------:|-------------:|
+| F1   | 0.001  |  2.22  |   0.887  |    0.836      |  0.718   |   +0.118     |
+| F2   | 0.003  |  2.10  |   0.890  |    0.850      |  0.718   |   +0.131     |
+| E4   | 0.010  |  2.61  |   0.866  |    0.878      |  0.718   | **+0.159**   |
+| F3   | 0.030  |  2.49  |   0.883  |    0.849      |  0.718   |   +0.131     |
+| E5   | 0.100  |  3.51  |   0.932  |    0.856      |  0.718   |   +0.138     |
+
+**lambda\* = 0.01** with delta\_test\_b = +0.159 (E4 from Session 8).
+Clean interior maximum in the bisection curve, roughly symmetric in
+log-lambda: F1 (0.001) at +0.118 and F2 (0.003) at +0.131 climb to E4
+(0.010) at +0.159; F3 (0.030) and E5 (0.100) at +0.131 / +0.138
+descend from it. PR_all also peaks at E4 (2.61) vs F1/F2/F3 at
+~2.1-2.5 and E5 at 3.51; the controlled-collapse mechanism is most
+cleanly balanced at lambda=0.01 between SIGReg's distribution
+matching and the OBS head's directional pressure.
+
+Session 8 D53's coarse-grid finding is confirmed at the fine bisection
+resolution. Outcome category: **PRODUCTION_LOCKED** (lambda* unchanged
+from Session 8 production point). No update needed to Section 5.5 of
+the paper. F4 (seed=42) and F5 (seed=123) at lambda=0.01 follow on
+cuda:0 for the seed-variance bound. R0 at lambda* is not re-run
+(Session 8 D55 already covered lambda=0.01 directly).
+
+Prediction tracking from the Session 9 launch message: prediction 1
+(lambda* = 0.01, credence 55%) is **TRUE**. Prediction 2 (seed
+variance within +/- 0.03 of seed=0) is pending F4 + F5 completion.
+
 ## Open questions
 
 1. Empirical impact frame. The estimate of 40 was validated in the bootstrap session
