@@ -194,22 +194,24 @@ class OmegaPipeline:
         return out
 
     def normalize(self, omega_raw: ArrayLike) -> ArrayLike:
-        """Stage 3: sigma-only normalization (divide by train std).
+        """Stage 3: 3-sigma scaling (divide by 3 * train std).
 
         Pure scale normalization preserves the antisymmetry of vorticity
         (positive omega = clockwise rotation, negative = counterclockwise;
-        symmetric around 0). A mean shift would break this physical symmetry.
-        The train-set mean of |omega| is ~0.05 anyway -- effectively zero
-        relative to the std of 3.58 -- so the mean shift is also numerically
-        negligible. The manifest still carries the mean for diagnostics, but
-        normalize / unnormalize use std only.
+        symmetric around 0). The choice of 3-sigma (rather than 1-sigma)
+        brings the bulk of the field into [-1, +1] (since std after mask
+        and clip is ~3.6 and the bulk has |omega| ~ 3 = 1 sigma; dividing
+        by 3 sigma = 10.8 places bulk at ~0.3 and vortex cores at ~3-4 --
+        matching Fukami's published Figure 4 colorbar range of [-3, +3]).
+        A mean shift would break antisymmetry; the train-set mean is ~0.05
+        anyway, which is numerically negligible.
         """
-        s = self.train_stats.std
+        s = 3.0 * self.train_stats.std
         return omega_raw / s
 
     def unnormalize(self, omega_norm: ArrayLike) -> ArrayLike:
         """Inverse of Stage 3: bring a decoder output back to raw scale."""
-        s = self.train_stats.std
+        s = 3.0 * self.train_stats.std
         return omega_norm * s
 
     def __call__(
