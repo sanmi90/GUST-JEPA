@@ -350,21 +350,9 @@ def main() -> None:
         with open(metrics_path, "a") as fh:
             fh.write(json.dumps({"event": "log", "step": int(step), **payload}) + "\n")
 
-    if omega_pipeline is not None:
-        # Force num_workers=0 to avoid persistent-worker fork issues when we
-        # swap the collate_fn after loader construction.
-        args.num_workers = 0
-    train_loader = make_train_loader(args)
-    test_b_loader = make_test_b_loader(args)
-    # Swap to the Fukami collate (carries case_ids + encounter_indices) when
-    # an OmegaPipeline is attached so the wrapper can look up per-encounter
-    # clip thresholds.
-    if omega_pipeline is not None:
-        train_loader.collate_fn = fukami_collate
-        test_b_loader.collate_fn = fukami_collate
-    train_iter = infinite_iter(train_loader)
-    test_b_iter = infinite_iter(test_b_loader)
-
+    # Load the omega pipeline (if requested) BEFORE constructing data loaders,
+    # so we can set num_workers=0 to avoid persistent-worker fork issues
+    # caused by swapping the collate_fn.
     airfoil_mask = None
     if args.airfoil_mask_path is not None:
         mask_np = np.load(args.airfoil_mask_path)
@@ -381,6 +369,21 @@ def main() -> None:
         log(f"  thresholds: {sum(len(v) for v in omega_pipeline.thresholds.values())} encounters")
         log(f"  train_stats: mean={omega_pipeline.train_stats.mean:.4f}, "
             f"std={omega_pipeline.train_stats.std:.4f}")
+
+    if omega_pipeline is not None:
+        # Force num_workers=0 to avoid persistent-worker fork issues when we
+        # swap the collate_fn after loader construction.
+        args.num_workers = 0
+    train_loader = make_train_loader(args)
+    test_b_loader = make_test_b_loader(args)
+    # Swap to the Fukami collate (carries case_ids + encounter_indices) when
+    # an OmegaPipeline is attached so the wrapper can look up per-encounter
+    # clip thresholds.
+    if omega_pipeline is not None:
+        train_loader.collate_fn = fukami_collate
+        test_b_loader.collate_fn = fukami_collate
+    train_iter = infinite_iter(train_loader)
+    test_b_iter = infinite_iter(test_b_loader)
 
     wrapper = FukamiAEWrapper(
         latent_dim=args.d, n_deltas=len(args.observable_head_deltas),
