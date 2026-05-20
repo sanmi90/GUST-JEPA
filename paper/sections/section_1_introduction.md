@@ -90,16 +90,19 @@ from Sessions 7 and 8 (see Section 5):
 
 Contribution 1 (controlled-collapse SIGReg + OBS at scale). The
 production cell at the (eta x lambda) grid optimum
-(eta*=0.01, lambda*=0.01, d=32) reaches Test B delta = +0.159 over
-the parametric baseline at 20k training iterations (D53 E4). This is
-the simpler of the two anti-collapse bases in the JEPA literature
-(two-term SIGReg, not five-term PLDM) augmented by a small
-CL-prediction head. The encoder converges into a controlled-collapse
-regime: PR(z) stays at approximately 3 (PR_all=2.61 on Test B at E4,
-versus d=32) while the latent retains Test A to Test B alignment
-strong enough to drive a CL prediction r2 of 0.88 on unseen
-parametric cases. The same configuration extrapolates to Test C at
-|G|=4 with delta=+0.45 (Section 5.5, Table 3).
+(eta*=0.01, lambda*=0.01, d=32) reaches mean Test B delta
+= +0.131 +/- 0.032 (1-sigma) across three random seeds over the
+parametric baseline at 20k training iterations (Session 8 D53 E4 +
+Session 9 D58 F4 + F5). This is the simpler of the two anti-collapse
+bases in the JEPA literature (two-term SIGReg, not five-term PLDM)
+augmented by a small CL-prediction head. The encoder converges into a
+controlled-collapse regime: PR(z) stays in the 2 to 3 range
+(PR_all between 2.61 and 3.10 on Test B across the three production
+seeds, versus d = 32) while the latent retains Test A to Test B
+alignment strong enough to drive a CL prediction r2 of approximately
+0.82 to 0.88 on unseen parametric cases. The same configuration
+extrapolates to Test C at |G| = 4 with mean delta = +0.474 across
+seeds (Section 5.6 Table 3).
 
 Contribution 2 (the observable head is load-bearing for both
 anti-collapse bases at full scale). Pure SIGReg + BatchNorm without
@@ -107,11 +110,11 @@ the observable head (R0 control, D55) fails catastrophically on Test
 B at both lambda=0.1 and lambda=0.01: delta_test_b = -0.74 and -0.75
 respectively. Pure five-term PLDM without the observable head (R2,
 D47) fails at delta_test_b = -0.85. Adding the observable head at
-eta=0.01 contributes +0.90 absolute Test B delta to the SIGReg path
-(R0 -0.74 to E4 +0.16) and +0.84 absolute to the PLDM path (R2 -0.85
-to R1 -0.003). The two regulariser bases are similar in their
-dependence on the observable head; neither produces a generalising
-latent without it at this data scale.
+eta = 0.01 contributes +0.87 absolute Test B delta to the SIGReg path
+(R0 -0.74 to the 3-seed-mean E4/F4/F5 +0.131) and +0.84 absolute to
+the PLDM path (R2 -0.85 to R1 -0.003). The two regulariser bases are
+similar in their dependence on the observable head; neither produces
+a generalising latent without it at this data scale.
 
 Contribution 3 (regulariser-asymmetry inversion at scale, with a
 controlled-collapse mechanism). At the 5-case smoke scale the
