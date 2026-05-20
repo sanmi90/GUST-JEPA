@@ -19,9 +19,10 @@ Taylor-vortex gusts spanning 41 training cases (138 encounters) and
 the production operating point of latent dimension d=32, observable-
 head weight eta=0.01, and SIGReg weight lambda=0.01, the JEPA latent
 generalises to the held-out parametric stratum with a downstream
-lift-prediction Test B advantage of +0.16 over the canonical
-(condition, time) parametric baseline at matched probe capacity. We
-report three findings. First, a controlled-collapse regime in which
+lift-prediction Test B advantage of +0.131 +/- 0.032 (1-sigma across
+three random seeds) over the canonical (condition, time) parametric
+baseline at matched probe capacity. We report three findings. First, a
+controlled-collapse regime in which
 SIGReg with small lambda combines with a future-lift auxiliary head
 to produce a low participation-ratio latent that nonetheless
 generalises across the parametric envelope. Second, the observable

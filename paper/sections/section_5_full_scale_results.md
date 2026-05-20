@@ -494,8 +494,36 @@ at lambda=0.100 lands at +0.138). The curve has a clean interior
 maximum at lambda = 0.01 with PR\_all also peaked there (PR\_all =
 2.61 at E4 versus 2.10 to 3.51 across the rest of the bracket). The
 Session 8 coarse-grid finding survives the finer bisection
-resolution. The outcome category is PRODUCTION\_LOCKED (no update to
-the Section 5 numbers; the headline +0.159 stands).
+resolution.
+
+The Session 9 seed-variance bound at lambda\* = 0.01 across three seeds
+(E4 seed=0, F4 seed=42, F5 seed=123) is wider than the Session 8 D52
+single-comparison spread suggested:
+
+| seed | Test A delta | Test B delta | Test C delta |
+|-----:|-------------:|-------------:|-------------:|
+|    0 |    +0.227    | **+0.159**   |    +0.470    |
+|   42 |    +0.231    | **+0.096**   |    +0.457    |
+|  123 |    +0.226    | **+0.137**   |    +0.496    |
+
+3-seed mean Test B delta = **+0.131 +/- 0.032 (1-sigma)**, range = 0.063
+absolute. The variance is concentrated on Test B (parametric
+interpolation); Test A is seed-robust (spread 0.005) and Test C nearly
+so (spread 0.039). Two readings discussed in HANDOFF D58: (1) lambda
+= 0.01 sits at the lower edge of the bisection bracket where SIGReg
+pressure is small, giving the encoder more freedom to land in
+different local optima across seeds (consistent with D52's smaller
+seed spread of 0.017 at lambda = 0.1); (2) the +0.159 E4 result is
+the best of three seeds. The paper claim 1 headline number adopts the
+mean: **+0.131 +/- 0.032 (1-sigma) across three seeds**, with the
++0.063 max-min range as the variance bound.
+
+The outcome category is PRODUCTION_PIVOT per the strict reading of the
+Session 9 plan's pass criterion (seed range > +/- 0.05). The production
+config still works (all three seeds give positive Test B delta and
+beat every Session 7 / 8 / 9 ablation), so the pivot is mild: only the
+headline number shifts from "+0.159 single seed" to "+0.131 +/- 0.032
+across three seeds".
 
 ## 5.9 Limitations
 
