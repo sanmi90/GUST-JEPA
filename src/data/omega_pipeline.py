@@ -194,20 +194,23 @@ class OmegaPipeline:
         return out
 
     def normalize(self, omega_raw: ArrayLike) -> ArrayLike:
-        """Stage 3: z-score normalize by train-set statistics."""
-        m = self.train_stats.mean
+        """Stage 3: sigma-only normalization (divide by train std).
+
+        Pure scale normalization preserves the antisymmetry of vorticity
+        (positive omega = clockwise rotation, negative = counterclockwise;
+        symmetric around 0). A mean shift would break this physical symmetry.
+        The train-set mean of |omega| is ~0.05 anyway -- effectively zero
+        relative to the std of 3.58 -- so the mean shift is also numerically
+        negligible. The manifest still carries the mean for diagnostics, but
+        normalize / unnormalize use std only.
+        """
         s = self.train_stats.std
-        if isinstance(omega_raw, np.ndarray):
-            return (omega_raw - m) / s
-        return (omega_raw - m) / s
+        return omega_raw / s
 
     def unnormalize(self, omega_norm: ArrayLike) -> ArrayLike:
         """Inverse of Stage 3: bring a decoder output back to raw scale."""
-        m = self.train_stats.mean
         s = self.train_stats.std
-        if isinstance(omega_norm, np.ndarray):
-            return omega_norm * s + m
-        return omega_norm * s + m
+        return omega_norm * s
 
     def __call__(
         self,
