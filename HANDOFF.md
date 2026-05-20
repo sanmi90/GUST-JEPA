@@ -2507,7 +2507,8 @@ deferred to Session 10.
 | -   | E4 production (SIGReg + OBS + BN)      |     +0.227  | **+0.159**  |     +0.470  |      2.61      |      0.866      |
 | A2  | VICReg + OBS at d=32                   |     +0.226  | **+0.107**  |     +0.501  |      26.4      |      0.583      |
 | A7  | SIGReg + OBS no-SS (H_roll=30)         |     +0.223  | **+0.137**  |     +0.481  |      2.31      |      0.866      |
-| A11 | Fukami CNN AE + lift head at d=32      |     +0.191  | **+0.073**  |     +0.431  |       n/a      |       n/a       |
+| A11a| Fukami CNN AE at d=3 (faithful S.1)    |     +0.019  | **-0.126**  |     +0.283  |       n/a      |       n/a       |
+| A11b| Fukami CNN AE at d=32 (matched cap)    |     +0.191  | **+0.073**  |     +0.431  |       n/a      |       n/a       |
 
 **A2 VICReg + OBS reading.** PR_all = 26.4 is far above E4's 2.61,
 matching the high-PR profile of PLDM (R2 PR_all = 27 in D50). The
@@ -2536,33 +2537,44 @@ The +0.022 swing places "scheduled sampling" as a third-tier design
 choice behind anti-collapse-regulariser choice (+0.052 for SIGReg vs
 VICReg) and architecture-family choice (+0.086 for JEPA vs Fukami AE).
 
-**A11 Fukami AE reading.** Test B delta = +0.073 vs the JEPA's
-+0.159 at matched d = 32; JEPA wins by +0.086 absolute. SSIM
-reconstruction on Test A = 0.748, Test B = 0.722, Test C = 0.558
-using the Fukami SSIM definition (Eq. 1 of arXiv:2305.18394 supplementary,
-C_1 = 0.16, C_2 = 1.44). The Fukami CNN encoder + decoder + lift
-head (240K total params; ~40x smaller than the JEPA's 10M; matched
-latent dimension d = 32 vs Fukami's published d = 3) generalises to
-the parametric Test B stratum, but the JEPA-style predictive-only
-objective produces a more transferable latent at the same latent
-dimension. Reconstruction MSE on Test A is 7.7x the per-case-mean
-floor (the very low Test A floor of 1.57 is because the held-out
-encounters share their case-mean training-side neighbours; absolute
-SSIM 0.748 indicates the reconstruction itself is reasonable). The
-two-paper-claim comparison stands: at matched d = 32, JEPA + SIGReg +
-OBS produces a more transferable latent than Fukami's reconstruction-
-based AE on both downstream prediction (Test B delta +0.159 vs +0.073)
-and parametric interpolation generally.
+**A11 Fukami AE reading.** Two configurations were run on user
+request as the Session 9 plan iterated. **A11a (faithful d=3)** is
+the canonical baseline: FC chain `288-256-64-32-16-3` exactly matches
+Fukami arXiv:2305.18394 supplementary Table S.1; input vorticity is
+normalized by `omega_scale = 1000` before encoding (Fukami's published
+Figure S.1 shows omega in roughly `[-0.6, +0.6]`). Test A delta =
++0.019, **Test B delta = -0.126**, Test C delta = +0.283; SSIM A =
+0.414, B = 0.374, C = 0.310. The 3-dim bottleneck **fails on Test B
+parametric interpolation** (delta below the `(c, t)` baseline) because
+it cannot encode the case-axis structure that JEPA's d = 32 latent
+recovers. JEPA at d = 32 wins by **+0.257 absolute** vs faithful Fukami.
+
+**A11b (matched-capacity d=32)** is a sensitivity check: same CNN
+architecture but FC chain ending at d = 32 (matching JEPA), no input
+normalization (raw vorticity). Test A delta = +0.191, **Test B delta
+= +0.073**, Test C delta = +0.431; SSIM A = 0.748, B = 0.722, C =
+0.558. At matched d = 32 Fukami beats the JEPA decoder on
+reconstruction (SSIM A 0.748 vs JEPA's 0.726; ratio A 7.70 vs JEPA's
+9.37) but still loses on downstream Test B prediction by +0.058
+absolute. JEPA wins consistently across both Fukami baselines but the
+gap is much wider at the published d = 3 (+0.257) than at matched d
+= 32 (+0.058).
+
+Two-paper-claim reading the comparison supports: (i) the JEPA's
+predictive-only training trades reconstruction fidelity for downstream
+transferability (the explicit JEPA tradeoff per paper Section 2.1);
+(ii) Fukami's d = 3 bottleneck, while sufficient for their published
+single-airfoil setting, is too small for our gust-airfoil dataset where
+the 51-case parametric envelope demands more latent capacity.
 
 The Fukami baseline was originally scheduled in the Session 9 plan as
 deferred to Session 10 (along with A10 Solera-Rico). It was added
 mid-session on user request to bring the SSIM-based comparison
 methodology into the paper. The implementation at
 `src/baselines/fukami_ae.py` (CNN encoder + decoder + lift head
-following arXiv:2305.18394 supplementary Table S.1 adapted to the
-192x96 input resolution) is the Session 10 starting point for the
-Solera-Rico baseline (variational head + transformer ROM extending
-the Fukami pattern).
+following arXiv:2305.18394 supplementary Table S.1) is the Session 10
+starting point for the Solera-Rico baseline (variational head +
+transformer ROM extending the Fukami pattern).
 
 ### D61: Session 9 Step 4 R0 at lambda\* -- skipped (lambda\* = 0.01 already covered) (2026-05-20, Session 9 Step 4)
 
