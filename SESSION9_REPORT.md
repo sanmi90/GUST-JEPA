@@ -97,6 +97,278 @@ loss, destabilising training (iter-0 recon loss = 17.0 vs the corrected
 visualisation — is now standard across Fukami AE / JEPA decoder /
 JEPA encoder paths.
 
+## 1b. Fukami AE training — full configuration
+
+This subsection inventories every training-time decision so the Fukami
+baseline can be reproduced exactly, or audited if a number in the
+comparison tables looks surprising. Source files: `src/baselines/fukami_ae.py`
+(architecture), `scripts/session9_train_fukami.py` (training loop),
+`src/data/episode_dataset.py` (data + sampler), `src/data/omega_pipeline.py`
+(preprocessing).
+
+### 1b.1 Architecture (Fukami J. Fluid Mech. 2023 Table S.1; our adaptation)
+
+**Encoder** `FukamiCNNEncoder` (default `latent_dim = 3`):
+
+Conv blocks use `Conv2d(3x3, padding=1) + GroupNorm(min(4, out_ch)) + ReLU(inplace=True)`.
+Fukami's original is `Conv + ReLU` only; we add a small GroupNorm because the
+RTX 6000 Blackwell training runs in bf16 autocast and the raw Conv+ReLU path
+is numerically less stable in that precision. GroupNorm with 4 groups (or
+2 for the 4-channel stage) costs almost nothing and removed the late-iter
+loss spikes we saw in initial smoke runs.
+
+Spatial stages (input `(B, 1, 192, 96)`):
+
+| Stage | In ch | Out ch | Block layout | Output spatial |
+|------:|------:|------:|---|---|
+| stage1 | 1 | 32 | conv + conv | (192, 96) |
+| pool1 | — | — | MaxPool2d(2) | (96, 48) |
+| stage2 | 32 | 16 | conv + conv | (96, 48) |
+| pool2 | — | — | MaxPool2d(2) | (48, 24) |
+| stage3 | 16 | 8 | conv + conv | (48, 24) |
+| pool3 | — | — | MaxPool2d(2) | (24, 12) |
+| stage4 | 8 | 4 | conv + conv (`n_groups = 2`) | (24, 12) |
+| pool4 | — | — | MaxPool2d(2) | (12, 6) |
+
+Bottleneck spatial volume: `4 * 12 * 6 = 288`. This matches Fukami's published
+`(12, 6, 4)` bottleneck exactly. He used `(2, 2, 5)` pool layout at his
+`(240, 120)` input; we use four `2x` pools at our `(192, 96)` input to land
+at the same bottleneck shape.
+
+FC chain after `Flatten(1)` (Fukami's exact sequence):
+
+`Linear(288, 256) -> ReLU -> Linear(256, 64) -> ReLU -> Linear(64, 32) -> ReLU -> Linear(32, 16) -> ReLU -> Linear(16, d)`
+
+No dropout, no BatchNorm, no normalisation at the latent boundary. The
+encoder accepts both `(B, 1, H, W)` and `(B, T, 1, H, W)` (sub-trajectory
+flatten + reshape inside `forward`).
+
+**Decoder** `FukamiCNNDecoder` is the mirror image:
+
+FC chain `Linear(d, 16) -> ReLU -> Linear(16, 32) -> ReLU -> Linear(32, 64) -> ReLU -> Linear(64, 256) -> ReLU -> Linear(256, 288) -> ReLU`,
+reshape to `(4, 12, 6)`, then four blocks of
+`Upsample(scale=2, bilinear) + conv_block + conv_block` (channels
+`4 -> 4 -> 8 -> 8 -> 8 -> 16 -> 16 -> 16 -> 32 -> 32 -> 32 -> 32`),
+ending in `Conv2d(32, 1, 1x1, bias=True)` to produce the omega map.
+
+**Lift head** `FukamiLiftHead`:
+
+MLP `Linear(d, 32) -> ReLU -> Linear(32, 64) -> ReLU -> Linear(64, 32) -> ReLU -> Linear(32, n_deltas)`.
+Fukami's original outputs a single instantaneous C_L scalar; we generalise
+to multi-horizon C_L at `n_deltas = 3` offsets (`{8, 16, 24}` frames ahead)
+so the lift-prediction quality is directly comparable to the JEPA
+ObservableHead at the same deltas (D37 in HANDOFF.md).
+
+Parameter counts (at default `d = 3`):
+
+- FukamiCNNEncoder: about 116k
+- FukamiCNNDecoder: about 116k
+- FukamiLiftHead: about 5k
+- **Total wrapper**: 237,803 params (0.24 M)
+
+At `d = 8`: 238,128 params (+325). At `d = 32`: 248,803 params (+10,675).
+The latent dimension contributes via the encoder's final `Linear(16, d)`
+and the decoder's initial `Linear(d, 16)`; the per-channel scaling is
+small because both bottleneck FCs hit width 16.
+
+### 1b.2 Loss
+
+`L_total = lambda_recon * L_recon(omega_norm, omega_hat_norm) + lambda_lift * L_lift(C_L, C_L_hat)`
+
+with `lambda_recon = 1.0`, `lambda_lift = 1.0` everywhere. The lift loss
+is `F.mse_loss(C_L_hat, C_L)` (mean squared error over the
+`(B, T, n_deltas)` prediction).
+
+The reconstruction loss is computed **in normalized 3-sigma space**:
+`omega_norm = pipeline.normalize(pipeline.preprocess_raw(omega_raw))`.
+The decoder produces `omega_hat_norm` in the same space; un-normalising
+to raw is reserved for visualisation and metric evaluation.
+
+`L_recon` is configurable via `--recon-loss-type`:
+
+| recon_loss_type | Formula | Variant used in |
+|---|---|---|
+| `mse` | `mean((target - pred)^2)` | variants 1 / 7 / matched-d / Fukami-protocol |
+| `l1` | `mean(abs(target - pred))` | (available, not deployed) |
+| `charbonnier` | `mean(sqrt((target - pred)^2 + eps^2) - eps)` | variants 2 / 3 / 6 |
+| `multiscale` | `charbonnier(omega) + 1.0 * charbonnier(Sobel grad omega)` | variant 4 |
+
+Charbonnier `eps` defaults to 0.05 (variants 2, 6); also tested at 0.5
+(variant 3). The Sobel kernels (`[-1,0,1; -2,0,2; -1,0,1] / 8`) are
+registered as non-persistent buffers and re-cast to the input dtype
+each forward (so the bf16 autocast path stays consistent).
+
+The active-pixel weighting (variants 5, 6) modifies the per-pixel
+reduction:
+
+```
+active = (target.abs() > tau).float()
+weight = active + (1.0 - active) * inactive_weight
+denom = weight.sum().clamp_min(1.0)
+L_recon = (per_pixel_loss * weight).sum() / denom
+```
+
+with `tau` in normalized space (variant 5: `tau = 0.01`, `inactive_weight = 0`;
+variant 6: `tau = 0.1`, `inactive_weight = 0.05`).
+
+### 1b.3 Optimizer + LR schedule
+
+- Optimizer: `AdamW(params, lr=args.lr, betas=(0.9, 0.95), weight_decay=0.0)`
+- `lr = 1e-3` (Fukami used Adam at this LR; we kept it)
+- `weight_decay = 0.0` (Fukami did not regularise; JEPA's 0.05 default is
+  not applied here)
+- Scheduler: `LambdaLR` with 5% linear warmup then cosine decay to zero:
+
+```
+warmup_iters = int(0.05 * max_iters)  # 400 for the 8k-iter runs
+if step < warmup_iters:
+    lr_mult = (step + 1) / warmup_iters
+else:
+    progress = (step - warmup_iters) / (max_iters - warmup_iters)
+    lr_mult = 0.5 * (1 + cos(pi * progress))
+```
+
+- Gradient clipping: `clip_grad_norm_(params, 1.0)` after `.backward()`
+- bf16 autocast wraps the forward pass only; the optimizer step and
+  loss accumulation run in fp32
+
+### 1b.4 Batch + sub-trajectory sampling
+
+- `B = 16` sub-trajectories per step
+- `T = 32` frames per sub-trajectory (out of the 120 per encounter)
+- Sub-trajectory start frame is sampled by `EpisodeDataset` using the
+  **impact-aware** sampler (CLAUDE.md "Locked decisions"):
+  - 70% probability: start in `[24 - T, 24]` (overlap impact at frame 40)
+  - 30% probability: start uniformly in `[0, 120 - T]`
+- DataLoader: `shuffle=True`, `drop_last=True`, `pin_memory=True`,
+  `num_workers = 4` (set to 0 when `--omega-pipeline-manifest` is used,
+  because the custom collate carries non-tensor `case_ids` and
+  fork-based worker init is brittle there)
+
+### 1b.5 Data pipeline
+
+All variants in this report use the v1 omega pipeline manifest
+`outputs/data_pipeline/v1/manifest.json` (mean = 0.0510, std = 3.5853,
+140 mask cells, 266 per-encounter clip thresholds in [52.0, 178.0]).
+Stages are applied in this order inside `FukamiAEWrapper.forward`:
+
+1. `preprocess_raw(omega_raw, case_id, encounter_index)` -> masked + clipped
+2. `normalize(.)` -> divide by `3 * 3.5853 = 10.756`
+3. `encoder(omega_norm)` -> latent `z`
+4. `decoder(z)` -> `omega_hat_norm`
+5. Loss in normalised space; un-normalise for figure / metrics only
+
+### 1b.6 Training schedule per run
+
+- 8000 iterations on the RTX 6000 Blackwell (sm_120; selected via
+  `require_rtx6000(gpu_index=...)`)
+- Diagnostics every 500 iters: PR(z), L_recon on a Test B batch
+- Checkpoints every 2000 iters
+- W&B mode `disabled` for the sensitivity runs (no need to fill the
+  workspace with 7 throwaway runs); `offline` for the JEPA pipeline
+  retrain so the run is reproducible from the local W&B log
+
+### 1b.7 Train / eval split per variant
+
+The "standard v1" split (variants 1-7 except Fukami-protocol):
+
+- Train: 46 v1 train cases, train_encounter_indices = the non-test_a
+  encounters (153 encounters total)
+- Test A: 46 v1 train cases, test_a_encounter_indices = held-out
+  encounters (61 encounters total; in-distribution time holdout)
+- Test B: 6 v1 test_b cases, full encounter range (28 encounters)
+- Test C: 4 v1 test_c cases, full encounter range (24 encounters)
+
+The "Fukami-protocol" split (`v1fuk`, section 7b.2):
+
+- Train: 46 v1 train cases + 4 v1 test_c cases promoted to train (50 cases
+  total); per-case 75% / 25% encounter split -> 188 train encounters,
+  50 test_a-style held-out encounters
+- Test B: 6 v1 test_b cases retained (28 encounters) for diagnostic
+  comparability
+- Test C: empty (test_c cases promoted into train)
+
+Cache files are shared between the two partitions via a symlink
+`${VORTEX_JEPA_CACHE}/v1fuk -> v1`.
+
+### 1b.8 Exact launch commands per Fukami variant
+
+All commands are run from the repository root with `PREVENT_ROOT` set and
+the `.venv` activated. The common prefix is:
+
+```
+python scripts/session9_train_fukami.py \
+    --partition v1 --all-train --max-iters 8000 --seed 0 \
+    --B 16 --T 32 \
+    --observable-head cl_future --observable-head-weight 0.05 \
+    --observable-head-deltas 8 16 24 \
+    --omega-pipeline-manifest outputs/data_pipeline/v1/manifest.json \
+    --wandb-mode disabled \
+    --gpu <0 or 1>
+```
+
+The variant-specific tail flags:
+
+| # | Variant | Tail |
+|---|---|---|
+| 1 | d=3 MSE (`run_a11_fukami_pipeline_v1`) | `--latent-dim 3 --recon-loss-type mse --output-dir outputs/runs/session9/run_a11_fukami_pipeline_v1 --tag-suffix v1_pipeline_mse_d3` |
+| 2 | d=3 Charbonnier eps=0.05 (`...charbonnier`) | `--latent-dim 3 --recon-loss-type charbonnier --charbonnier-epsilon 0.05 --output-dir outputs/runs/session9/run_a11_fukami_pipeline_charbonnier --tag-suffix charbonnier` |
+| 3 | d=3 Charbonnier eps=0.5 (`...char_eps05`) | `--latent-dim 3 --recon-loss-type charbonnier --charbonnier-epsilon 0.5 --output-dir outputs/runs/session9/run_a11_fukami_pipeline_char_eps05 --tag-suffix char_eps05` |
+| 4 | d=3 multiscale (`...multiscale`) | `--latent-dim 3 --recon-loss-type multiscale --charbonnier-epsilon 0.05 --output-dir outputs/runs/session9/run_a11_fukami_pipeline_multiscale --tag-suffix multiscale` |
+| 5 | d=3 hard active mask tau=0.01 (`...active001`) | `--latent-dim 3 --recon-loss-type mse --recon-active-threshold 0.01 --output-dir outputs/runs/session9/run_a11_fukami_pipeline_active001 --tag-suffix active001` |
+| 6 | d=3 Charbonnier + soft mask (`...active010_soft_charb`) | `--latent-dim 3 --recon-loss-type charbonnier --charbonnier-epsilon 0.05 --recon-active-threshold 0.1 --recon-inactive-weight 0.05 --output-dir outputs/runs/session9/run_a11_fukami_pipeline_active010_soft_charb --tag-suffix active010_soft_charb` |
+| 7 | d=8 MSE (`...d8`) | `--latent-dim 8 --recon-loss-type mse --output-dir outputs/runs/session9/run_a11_fukami_pipeline_d8 --tag-suffix d8` |
+| 8 | d=32 matched (`...d32`) | `--latent-dim 32 --recon-loss-type mse --output-dir outputs/runs/session9/run_a11_fukami_pipeline_d32 --tag-suffix d32_matched_jepa` |
+| 9 | d=3 Fukami protocol (`...fukstyle_d3`) | `--partition v1fuk --latent-dim 3 --recon-loss-type mse --output-dir outputs/runs/session9/run_a11_fukami_pipeline_fukstyle_d3 --tag-suffix fukami_protocol_d3` |
+
+Variant 9 swaps `--partition v1` for `--partition v1fuk`; the manifest at
+`configs/splits/split_v1fuk.json` was generated by the snippet in section
+7b.2 of this report.
+
+Total compute cost: roughly 50 min wall on the RTX 6000 Blackwell per
+variant at this `(B = 16, T = 32, max_iters = 8000)` budget. The nine
+variants combined ran in approximately 7.5 hours of effective single-card
+time across the session.
+
+### 1b.9 Reconstruction metrics
+
+Each run writes `final_eval.json` with per-encounter metrics on Test A /
+Test B / Test C (subject to caveats in section 7b.2 about Fukami-protocol):
+
+- `mse_mean` / `mse_median`: per-encounter MSE in **raw** units of
+  `omega_z` (after the pipeline's stages 1 + 2; before stage 3 normalize).
+  The decoder output is `unnormalize(omega_hat_norm)` so the metric
+  is computed on the raw scale comparable to the case-mean noise floor.
+- `floor_mean`: per-case case-mean omega field substituted as a trivial
+  baseline, MSE of `omega - case_mean` averaged over encounters in the
+  split. Defines the "predict the case mean" passive floor.
+- `ratio_mean = mse_mean / floor_mean`: a `< 1` value means the
+  decoder beats the trivial floor; we observed 0.9-2x on Test B / Test C
+  and 7-22x on Test A (Test A floor is tiny because it shares cases
+  with the training pool, so case_mean is nearly free).
+- `ssim_mean`: per-frame SSIM averaged over the 120 frames and then
+  over encounters. SSIM uses `skimage.metrics.structural_similarity`
+  with `data_range = 2 * max(abs(omega))` per frame.
+- `eps_per_frame_mean`: per-frame L2 relative error
+  `||omega - omega_hat|| / max(||omega||, 1.0)` averaged over frames
+  and encounters; floored at 1.0 to avoid divide-by-near-zero on
+  Baseline frames.
+- `eps_volume_mean`: same L2 relative error but computed over the full
+  `(T, H, W)` volume per encounter, then averaged over encounters.
+  This is the metric most comparable to Fukami's published
+  `epsilon = ||q - q_hat||_2 / ||q||_2`.
+
+The probe-delta evaluation (`fukami_test_b_delta.csv`):
+
+- `r2_z`: linear-probe R^2 of `(G, D, Y)` regressed from `z`. We use
+  a single ridge regression with leave-one-encounter-out by case, then
+  average the resulting R^2 over encounters.
+- `r2_ct`: same regression replacing `z` with `(c, t)` raw — defines
+  the baseline R^2 achievable from the parametric coordinates alone.
+- `delta = r2_z - r2_ct`: the value reported as "probe Δ" in the
+  comparison tables. Positive means the encoder learned something
+  beyond the bare `(c, t)` regression.
+
 ## 2. The seven Fukami AE variants (all at d = 3 unless noted)
 
 Every variant uses the same pipeline-preprocessed data, the same
