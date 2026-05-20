@@ -485,6 +485,18 @@ at d=32, eta=0.01 over a finer lambda interval centred on 0.01
 (LeWM-style 6-8 evaluations between 0.001 and 0.1). The visualisation
 decoder also begins on the d=32 SIGReg + OBS encoder.
 
+**Session 9 D58 update:** The lambda bisection over
+`lambda in {0.001, 0.003, 0.01, 0.03, 0.1}` at seed=0 confirms
+**lambda\* = 0.01** as the production point with `delta_test_b = +0.159`
+(E4 from Session 8 wins; F1 at lambda=0.001 lands at +0.118, F2 at
+lambda=0.003 lands at +0.131, F3 at lambda=0.030 lands at +0.131, E5
+at lambda=0.100 lands at +0.138). The curve has a clean interior
+maximum at lambda = 0.01 with PR\_all also peaked there (PR\_all =
+2.61 at E4 versus 2.10 to 3.51 across the rest of the bracket). The
+Session 8 coarse-grid finding survives the finer bisection
+resolution. The outcome category is PRODUCTION\_LOCKED (no update to
+the Section 5 numbers; the headline +0.159 stands).
+
 ## 5.9 Limitations
 
 This paper reports five honest limitations of the Session 7 + Session 8
