@@ -223,6 +223,7 @@ class FukamiAEWrapper(nn.Module):
         omega_scale: float = 1000.0,
         omega_clip: float | None = None,
         omega_clip_pct: float | None = None,
+        airfoil_mask: Tensor | None = None,
     ) -> None:
         super().__init__()
         self.encoder = FukamiCNNEncoder(latent_dim)
@@ -233,6 +234,17 @@ class FukamiAEWrapper(nn.Module):
         self.lambda_recon = lambda_recon
         self.lambda_lift = lambda_lift
         self.omega_scale = float(omega_scale)
+        # airfoil_mask: boolean (H, W) tensor; True where omega should be
+        # zeroed (inside-solid + 1-cell-adjacent). Removes LE artifact
+        # geometrically: 93-100% of |omega| > 500 pixels live in this layer
+        # across our 246 encounters. Built by
+        # scripts/compute_omega_clip_thresholds.py.
+        if airfoil_mask is not None:
+            self.register_buffer(
+                "airfoil_mask", airfoil_mask.bool(), persistent=False,
+            )
+        else:
+            self.airfoil_mask = None
         # Artifact suppression. Two complementary options:
         #   omega_clip (fixed): clamp |omega| <= omega_clip globally.
         #   omega_clip_pct (adaptive): per-sample, clip |omega| above its
@@ -249,6 +261,14 @@ class FukamiAEWrapper(nn.Module):
 
     def _maybe_clip(self, omega: Tensor) -> Tensor:
         """Apply the configured artifact suppression to a raw-scale omega."""
+        # Spatial mask: zero out inside-solid + 1-cell-adjacent. Applied
+        # first so subsequent percentile thresholds reflect the cleaned
+        # distribution (otherwise the artifact spikes dominate the tail).
+        if self.airfoil_mask is not None:
+            # omega: (B, T, 1, H, W) or (B, 1, H, W)
+            mask = self.airfoil_mask  # (H, W) bool
+            # Broadcast to match omega's last two dims
+            omega = torch.where(mask, torch.zeros_like(omega), omega)
         if self.omega_clip is not None:
             omega = omega.clamp(-self.omega_clip, self.omega_clip)
         if self.omega_clip_pct is not None:

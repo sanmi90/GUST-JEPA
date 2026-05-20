@@ -100,6 +100,11 @@ def parse_args() -> argparse.Namespace:
                         "suppression. Suggested 99.99 (clips top 0.01%% which "
                         "removes the leading-edge artifact spikes while keeping "
                         "all dense physical features).")
+    p.add_argument("--airfoil-mask-path", type=str, default=None,
+                   help="If set, load a (192, 96) boolean mask from this .npy "
+                        "file and zero omega at masked cells before the encoder. "
+                        "Use scripts/compute_omega_clip_thresholds.py to build "
+                        "outputs/runs/session9/airfoil_adjacent_mask.npy.")
     p.add_argument("--lr", type=float, default=1.0e-3,
                    help="Fukami used Adam with lr around 1e-3; we keep that.")
     p.add_argument("--weight-decay", type=float, default=0.0,
@@ -318,12 +323,20 @@ def main() -> None:
     train_iter = infinite_iter(train_loader)
     test_b_iter = infinite_iter(test_b_loader)
 
+    airfoil_mask = None
+    if args.airfoil_mask_path is not None:
+        mask_np = np.load(args.airfoil_mask_path)
+        airfoil_mask = torch.from_numpy(mask_np).bool()
+        log(f"[fukami-train] loaded airfoil mask from {args.airfoil_mask_path} "
+            f"({mask_np.sum()} cells masked of {mask_np.size})")
+
     wrapper = FukamiAEWrapper(
         latent_dim=args.d, n_deltas=len(args.observable_head_deltas),
         lambda_recon=args.lambda_recon, lambda_lift=args.lambda_lift,
         omega_scale=args.omega_scale,
         omega_clip=args.omega_clip,
         omega_clip_pct=args.omega_clip_pct,
+        airfoil_mask=airfoil_mask,
     ).to(device)
     n_params = sum(p.numel() for p in wrapper.parameters())
     log(f"[fukami-train] params={n_params:,} ({n_params/1e6:.2f}M)")
