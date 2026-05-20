@@ -2360,8 +2360,58 @@ cuda:0 for the seed-variance bound. R0 at lambda* is not re-run
 (Session 8 D55 already covered lambda=0.01 directly).
 
 Prediction tracking from the Session 9 launch message: prediction 1
-(lambda* = 0.01, credence 55%) is **TRUE**. Prediction 2 (seed
-variance within +/- 0.03 of seed=0) is pending F4 + F5 completion.
+(lambda* = 0.01, credence 55%) is **TRUE**.
+
+**Seed-variance bound at lambda\* = 0.01** (F4 seed=42 and F5 seed=123
+both at the same production config; eval table at
+`outputs/runs/session9/bisection_seed_variance.csv`):
+
+| code | seed | Test A | Test B | Test C | diff vs seed=0 (Test B) |
+|------|-----:|-------:|-------:|-------:|------------------------:|
+| E4   |    0 | +0.227 | **+0.159** | +0.470 |  -                |
+| F4   |   42 | +0.231 | **+0.096** | +0.457 |  -0.063 (FAIL +/- 0.03)|
+| F5   |  123 | +0.226 | **+0.137** | +0.496 |  -0.022 (PASS +/- 0.03)|
+
+3-seed mean Test B delta at lambda\* = 0.01: **+0.131 ± 0.032 (1-sigma)**;
+range across seeds = 0.063 absolute (max E4 +0.159, min F4 +0.096).
+
+The full range across seeds (0.063) exceeds the +/- 0.05 threshold the
+plan attached to PRODUCTION_PIVOT (D58 outcome category). Prediction 2
+(seed variance within +/- 0.03) is FALSE on the F4 seed=42 axis but
+TRUE on the F5 seed=123 axis.
+
+Two readings of the larger-than-expected seed variance:
+
+- The lambda = 0.01 production point sits at the lower edge of the
+  bisection bracket where SIGReg pressure is small (D58 PR_all = 2.10
+  to 2.61 across F1, F2, F4, F5 at lambda <= 0.03; PR rises to 3.5 at
+  lambda = 0.1). With less anti-collapse pressure, the encoder has
+  more freedom to land in different local optima across seeds. This
+  is qualitatively consistent with D52's smaller seed variance at
+  lambda = 0.1 (R3 seed=42 vs seed=0 spread of 0.017 absolute, vs
+  Session 9 lambda = 0.01 spread of 0.063 absolute).
+- The +0.159 E4 result is the best of three seeds. The mean
+  +0.131 is the more honest paper number; the +0.063 max-min range
+  is the variance bound that the paper claim 1 should quote.
+
+Per-split breakdown: Test A delta is seed-robust (E4 +0.227, F4 +0.231,
+F5 +0.226; spread = 0.005 absolute, well within +/- 0.03). Test C
+delta is seed-robust (E4 +0.470, F4 +0.457, F5 +0.496; spread = 0.039
+absolute, just outside +/- 0.03). The seed variance is concentrated
+on the Test B parametric interpolation stratum, suggesting the
+mechanism is specifically about which case-axis representation the
+encoder learns vs which parametric directions transfer.
+
+Outcome category remains **PRODUCTION_PIVOT** per the strict reading of
+the plan's pass criterion (>+/- 0.05 seed range). The production
+config still works (all three seeds give positive Test B delta and
+beat all Session 7 / Session 8 / Session 9 ablations), but the
+paper claim 1 headline number must shift from "+0.159" to "+0.131
+mean +/- 0.032 (1-sigma) across three seeds". Updated paper claim 1
+phrasing: "SIGReg + OBS + BN at d = 32, eta = 0.01, lambda = 0.01
+generalises to the held-out parametric stratum with mean Test B delta
++0.131 across three seeds (max-min range = 0.063), beating the (c, t)
+parametric baseline robustly".
 
 ### D60: Session 9 Step 3 Section 7 thin-cut (A2 + A11 + A7) (2026-05-20, Session 9 Step 3)
 
