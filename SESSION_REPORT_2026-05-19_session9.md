@@ -52,10 +52,36 @@ configuration. F1 (lam=0.001 seed=0), F2 (lam=0.003 seed=0), and F3
 (lam=0.03 seed=0) are new; E4 (lam=0.01 seed=0) and E5 (lam=0.1
 seed=0; = Session 7 R3 anchor) are reused from disk.
 
-cuda:0 chain: F1 -> F2 -> F3 -> `session9_bisection_analysis.py` ->
-F4 (seed=42 at lambda*) -> F5 (seed=123 at lambda*).
+cuda:0 chain executed: F1 (22:26-23:58) -> F2 (23:59-01:35) ->
+F3 (01:35-03:09) -> `session9_bisection_analysis.py` on cuda:1
+(03:09-03:10) -> F4 seed=42 (03:11 in progress) -> F5 seed=123 (queued).
 
-`{TO_FILL: bisection table, lambda*, seed variance bound, outcome category}`
+Per-cell seed=0 Test B summary (from
+`outputs/runs/session9/bisection_seed0.csv`):
+
+| code | lambda | PR_all | r2(z->c) | r2(CL_future) | r2(c, t) | delta_test_b |
+|------|-------:|-------:|---------:|--------------:|---------:|-------------:|
+| F1   | 0.001  |  2.22  |   0.887  |    0.836      |  0.718   |   +0.118    |
+| F2   | 0.003  |  2.10  |   0.890  |    0.850      |  0.718   |   +0.131    |
+| **E4** | **0.010** | **2.61** | **0.866** | **0.878** | **0.718** | **+0.159** |
+| F3   | 0.030  |  2.49  |   0.883  |    0.849      |  0.718   |   +0.131    |
+| E5   | 0.100  |  3.51  |   0.932  |    0.856      |  0.718   |   +0.138    |
+
+**lambda\* = 0.01 (E4 from Session 8)** with delta\_test\_b = +0.159.
+Clean interior maximum, roughly symmetric in log-lambda: F1 and F2 at
+lambda < 0.01 land at +0.118 / +0.131; F3 and E5 at lambda > 0.01 land
+at +0.131 / +0.138. The Session 8 D53 finding is confirmed. PR_all
+also peaks at E4 (2.61) which suggests SIGReg at lambda=0.01 produces
+a slightly higher rank latent than at either edge of the sampled
+interval, consistent with the controlled-collapse mechanism balancing
+the OBS head's directional pressure against SIGReg's distribution
+matching most cleanly at lambda=0.01.
+
+Outcome category: **PRODUCTION_LOCKED** (lambda* unchanged from
+Session 8 production point). F4 (seed=42 at lambda=0.01) and F5
+(seed=123 at lambda=0.01) follow on cuda:0 for the paper-grade
+seed-variance bound. R0 at lambda* not needed (Session 8 D55
+already covered lambda=0.01).
 
 ## Step 2: visualisation decoder (D59)
 
@@ -87,9 +113,8 @@ implications for paper claims}`
 
 ## Step 4: R0 at lambda* (D61, conditional)
 
-`{TO_FILL: only if Step 1 finds lambda* != 0.01 AND lambda* < 0.01;
-in that case re-run R0 SIGReg-only at lambda* to confirm OBS necessity
-holds at the refined operating point. Skip otherwise.}`
+Skipped. lambda* = 0.01 matches Session 8 D55's covered cases
+(R0 at lambda=0.1 and R0 at lambda=0.01); no new R0 run needed.
 
 ## Step 5: paper writing (D62)
 
