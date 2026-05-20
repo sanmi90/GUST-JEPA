@@ -30,7 +30,8 @@ head is load-bearing: removing it collapses the Test B advantage to
 -0.74 absolute regardless of the anti-collapse regulariser, a +0.90
 swing for SIGReg and +0.84 for the PLDM five-term objective. Third,
 the smoke-scale finding that PLDM outperforms SIGReg inverts at full
-scale and full data, with SIGReg+OBS leading PLDM+OBS by +0.16
-absolute on the Test B parametric stratum; we trace the inversion to
-the controlled-collapse mechanism and document that the LeWM Two-Room
-intrinsic-dimension prediction does not transfer to this regime.
+scale and full data, with SIGReg+OBS leading PLDM+OBS by +0.13
+absolute on the Test B parametric stratum (3-seed mean comparison);
+we trace the inversion to the controlled-collapse mechanism and
+document that the LeWM Two-Room intrinsic-dimension prediction does
+not transfer to this regime.

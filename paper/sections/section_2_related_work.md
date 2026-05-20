@@ -160,9 +160,9 @@ smoke at five cases (D31) showed both regularisers can collapse on
 this data when the case count is small, so the methodological contrast
 is regime-dependent. Section 5 of the present paper reports the
 regime-specific outcome at 41 cases: at scale the SIGReg + OBS path
-generalises (Test B delta +0.16 against the parametric baseline) while
-both PLDM + OBS variants do not (default +0.0 to -0.01; paper-tuned
--0.10).
+generalises (Test B delta +0.131 +/- 0.032 (1-sigma) across three
+seeds against the parametric baseline) while both PLDM + OBS variants
+do not (default +0.0 to -0.01; paper-tuned -0.10).
 
 ## 2.2 Observable-augmented autoencoders for fluid ROM
 
@@ -336,9 +336,10 @@ effective dimensionality regardless of the available latent budget
 The present paper closes both gaps. We identify the SIGReg +
 observable-head + BatchNorm configuration at (eta*, lambda*) =
 (0.01, 0.01) and d = 32 as the production operating point, and we
-report a Test B delta of +0.16 against the parametric (c, t) baseline
-on 28 held-out encounters at unseen interior (G, D, Y) values
-(Section 5.5). The reading of the LeWM intrinsic-dimension mechanism
+report a mean Test B delta of +0.131 +/- 0.032 (1-sigma across three
+seeds) against the parametric (c, t) baseline on 28 held-out
+encounters at unseen interior (G, D, Y) values (Section 5.5 and
+Section 5.8). The reading of the LeWM intrinsic-dimension mechanism
 in this regime is that the observable head, not SIGReg, is the
 dominant regulariser at the operating point we identify (Section 5.5);
 SIGReg at lambda = 0.01 provides residual directional pressure but
