@@ -26,6 +26,7 @@ import h5py
 import numpy as np
 import torch
 import matplotlib.pyplot as plt
+from matplotlib.patches import Polygon
 
 REPO = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO))
@@ -45,6 +46,38 @@ def parse_args() -> argparse.Namespace:
     return p.parse_args()
 
 
+def load_airfoil_xy() -> np.ndarray:
+    """Load airfoil surface coordinates (x, y) from the raw Baseline file.
+
+    Returns a closed-polygon (N, 2) array in physical chord-normalized
+    coordinates. The airfoil lives at x in [0, 1], |y| < 0.059 (NACA 0012,
+    chord-normalized).
+    """
+    raw = Path(os.environ.get("PREVENT_ROOT", "/home/carlos/PREVENT")) / "data" / "raw" / "periodic" / "Baseline.h5"
+    with h5py.File(raw, "r") as f:
+        xy = np.asarray(f["airfoil_xy"])
+    # Close the polygon if not already closed
+    if not np.allclose(xy[0], xy[-1]):
+        xy = np.vstack([xy, xy[0:1]])
+    return xy
+
+
+def _omega_to_pixel(xy: np.ndarray, x_grid_extent: tuple = (-1.5, 4.5),
+                    y_grid_extent: tuple = (-1.5, 1.5),
+                    H: int = 192, W: int = 96) -> np.ndarray:
+    """Convert (x, y) physical coordinates to image-pixel coordinates.
+
+    The image is plotted with omega[t].T → shape (W, H) with origin lower-left.
+    Plotting axis: imshow x-axis = H (width), y-axis = W (height).
+    So image-pixel x = (phys_x - x_min) * (H-1) / (x_max - x_min).
+    """
+    x_min, x_max = x_grid_extent
+    y_min, y_max = y_grid_extent
+    px_x = (xy[:, 0] - x_min) * (H - 1) / (x_max - x_min)
+    px_y = (xy[:, 1] - y_min) * (W - 1) / (y_max - y_min)
+    return np.stack([px_x, px_y], axis=-1)
+
+
 def main() -> None:
     args = parse_args()
     device = require_rtx6000(gpu_index=args.gpu)
@@ -53,6 +86,12 @@ def main() -> None:
 
     wrapper = load_fukami(Path(args.fukami_checkpoint), device)
     print(f"[fukami-fig] wrapper loaded ({sum(p.numel() for p in wrapper.parameters()):,} params)",
+          flush=True)
+
+    airfoil_xy = load_airfoil_xy()
+    airfoil_px = _omega_to_pixel(airfoil_xy)
+    print(f"[fukami-fig] airfoil polygon: {len(airfoil_xy)} vertices, "
+          f"x range [{airfoil_xy[:, 0].min():.3f}, {airfoil_xy[:, 0].max():.3f}]",
           flush=True)
 
     encs_b = gather_encounters("test_b")
@@ -103,14 +142,20 @@ def main() -> None:
     for row_idx, (row_label, data, vmax, mx) in enumerate(row_specs):
         im = None
         for col, t in enumerate(frames):
-            im = axes[row_idx, col].imshow(
+            ax = axes[row_idx, col]
+            im = ax.imshow(
                 data[t].T, origin="lower", cmap="RdBu_r",
                 vmin=-vmax, vmax=vmax,
             )
-            axes[row_idx, col].set_xticks([])
-            axes[row_idx, col].set_yticks([])
+            # Overlay airfoil polygon so the geometry is visible regardless
+            # of the masking. Filled black so the airfoil region is clearly
+            # demarcated even if the masked cells are zeroed.
+            ax.add_patch(Polygon(airfoil_px, closed=True, facecolor="black",
+                                 edgecolor="black", linewidth=0.7, zorder=10))
+            ax.set_xticks([])
+            ax.set_yticks([])
             if row_idx == 0:
-                axes[row_idx, col].set_title(
+                ax.set_title(
                     f"frame {t} ({'pre-impact' if t < 35 else 'impact' if t < 50 else 'post-impact'})"
                 )
         cbar = fig.colorbar(im, cax=axes[row_idx, 3], extend="both")
