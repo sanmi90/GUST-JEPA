@@ -88,6 +88,18 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--observable-head-deltas", type=int, nargs="+", default=[8, 16, 24])
     p.add_argument("--lambda-recon", type=float, default=1.0)
     p.add_argument("--lambda-lift", type=float, default=1.0)
+    p.add_argument("--omega-scale", type=float, default=1000.0,
+                   help="Divide omega by this before CNN encoder; matches Fukami's "
+                        "normalized [-0.6, 0.6] input range when set to ~1000.")
+    p.add_argument("--omega-clip", type=float, default=None,
+                   help="If set, clip |omega| to this value before encoder. "
+                        "Default None (no clipping).")
+    p.add_argument("--omega-clip-pct", type=float, default=None,
+                   help="If set, per-sample percentile clipping: clip |omega| "
+                        "above its own p_X percentile. Data-driven artifact "
+                        "suppression. Suggested 99.99 (clips top 0.01%% which "
+                        "removes the leading-edge artifact spikes while keeping "
+                        "all dense physical features).")
     p.add_argument("--lr", type=float, default=1.0e-3,
                    help="Fukami used Adam with lr around 1e-3; we keep that.")
     p.add_argument("--weight-decay", type=float, default=0.0,
@@ -309,6 +321,9 @@ def main() -> None:
     wrapper = FukamiAEWrapper(
         latent_dim=args.d, n_deltas=len(args.observable_head_deltas),
         lambda_recon=args.lambda_recon, lambda_lift=args.lambda_lift,
+        omega_scale=args.omega_scale,
+        omega_clip=args.omega_clip,
+        omega_clip_pct=args.omega_clip_pct,
     ).to(device)
     n_params = sum(p.numel() for p in wrapper.parameters())
     log(f"[fukami-train] params={n_params:,} ({n_params/1e6:.2f}M)")

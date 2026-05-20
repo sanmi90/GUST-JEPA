@@ -221,6 +221,8 @@ class FukamiAEWrapper(nn.Module):
         lambda_recon: float = 1.0,
         lambda_lift: float = 1.0,
         omega_scale: float = 1000.0,
+        omega_clip: float | None = None,
+        omega_clip_pct: float | None = None,
     ) -> None:
         super().__init__()
         self.encoder = FukamiCNNEncoder(latent_dim)
@@ -231,15 +233,44 @@ class FukamiAEWrapper(nn.Module):
         self.lambda_recon = lambda_recon
         self.lambda_lift = lambda_lift
         self.omega_scale = float(omega_scale)
+        # Artifact suppression. Two complementary options:
+        #   omega_clip (fixed): clamp |omega| <= omega_clip globally.
+        #   omega_clip_pct (adaptive): per-sample, clip |omega| above its
+        #     own p_X percentile. p99.99 is the natural cutoff for our DNS
+        #     because the physical tail grows smoothly p99 -> p99.9 -> p99.99
+        #     by ~3-4x, then jumps 3-30x from p99.99 to max -- the
+        #     leading-edge finite-difference artifact lives in that final
+        #     jump. Density-aware: if 5% of pixels have |omega| = 100, they
+        #     sit below p99.99 and are kept; if 0.01% of pixels at the LE
+        #     have |omega| = 1000, they get clipped to the per-sample p99.99
+        #     value.
+        self.omega_clip = float(omega_clip) if omega_clip is not None else None
+        self.omega_clip_pct = float(omega_clip_pct) if omega_clip_pct is not None else None
+
+    def _maybe_clip(self, omega: Tensor) -> Tensor:
+        """Apply the configured artifact suppression to a raw-scale omega."""
+        if self.omega_clip is not None:
+            omega = omega.clamp(-self.omega_clip, self.omega_clip)
+        if self.omega_clip_pct is not None:
+            # Per-sample (batch element) adaptive clipping at the chosen
+            # percentile of |omega|. The "sample" is the leading dimension;
+            # for (B, T, 1, H, W) we threshold each B-element independently.
+            B = omega.shape[0]
+            flat_abs = omega.reshape(B, -1).abs()
+            q = torch.quantile(flat_abs, self.omega_clip_pct / 100.0, dim=1)
+            view = [B] + [1] * (omega.dim() - 1)
+            q = q.view(*view)
+            omega = torch.where(omega.abs() > q, torch.sign(omega) * q, omega)
+        return omega
 
     def encode(self, omega: Tensor) -> Tensor:
         """omega: (B, T, 1, H, W) or (B, 1, H, W) in RAW units.
 
-        The wrapper normalises by ``omega_scale`` before passing through
-        the CNN encoder, matching Fukami's normalized-input setup.
-        Returns ``z`` in matching leading-batch shape.
+        The wrapper optionally clips ``|omega|`` (LE artifact suppression),
+        then normalises by ``omega_scale`` before passing through the CNN
+        encoder. Returns ``z`` in matching leading-batch shape.
         """
-        return self.encoder(omega / self.omega_scale)
+        return self.encoder(self._maybe_clip(omega) / self.omega_scale)
 
     def decode(self, z: Tensor) -> Tensor:
         """Decode ``z`` and de-normalise back to the raw omega frame."""
@@ -263,7 +294,11 @@ class FukamiAEWrapper(nn.Module):
         omega = batch.get("omega", batch.get("omega_z"))
         if omega is None:
             raise KeyError("batch must contain 'omega' (JEPA) or 'omega_z' (cache)")
-        z = self.encode(omega)
+        # Apply artifact suppression to the target as well so the
+        # reconstruction loss does not penalize the model for failing to
+        # reproduce the LE artifact spikes.
+        omega = self._maybe_clip(omega)
+        z = self.encoder(omega / self.omega_scale)  # bypass encode() to avoid double clip
         omega_hat = self.decode(z)
         L_recon = ((omega - omega_hat) ** 2).mean()
 
