@@ -2419,6 +2419,18 @@ following arXiv:2305.18394 supplementary Table S.1 adapted to the
 Solera-Rico baseline (variational head + transformer ROM extending
 the Fukami pattern).
 
+### D61: Session 9 Step 4 R0 at lambda\* -- skipped (lambda\* = 0.01 already covered) (2026-05-20, Session 9 Step 4)
+
+The Session 9 plan made Step 4 conditional on Step 1 finding
+lambda* != 0.01 with lambda* < 0.01, in which case R0 would re-run
+at the refined lambda* to confirm OBS necessity. Step 1 (D58) found
+lambda* = 0.01, identical to Session 8's production lambda. Session 8
+D55 already ran R0 SIGReg-only at lambda = 0.01 (delta_test_b =
+-0.748) and at lambda = 0.1 (-0.742), both well below the +0.05
+threshold for "OBS is load-bearing". The OBS necessity claim is
+robust to lambda* = 0.01 directly. No new R0 run was needed; Step 4
+skipped per the plan's conditional rule.
+
 ### D62: Session 9 paper drafts committed (2026-05-20, Session 9 Step 5)
 
 Four paper deliverables landed during the Session 9 compute windows:
