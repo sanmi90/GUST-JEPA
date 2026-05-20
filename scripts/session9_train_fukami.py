@@ -154,12 +154,26 @@ def gather_eval_encounters(split: str) -> list[dict]:
     return out
 
 
+def _l2_relative_error(q: np.ndarray, q_hat: np.ndarray, eps: float = 1e-12) -> float:
+    """Fukami's L_2 relative reconstruction error.
+
+    eps = || q - q_hat ||_2 / || q ||_2
+
+    Where || . ||_2 is the L_2 norm over a single (H, W) frame. Used in
+    Fukami arXiv:2305.18394 / J. Fluid Mech. 1018, A22 (2023) Figure 15-18
+    to report per-snapshot reconstruction quality.
+    """
+    num = float(np.sqrt(((q - q_hat) ** 2).sum()))
+    den = float(np.sqrt((q ** 2).sum()))
+    return num / max(den, eps)
+
+
 def evaluate_split(
     wrapper: FukamiAEWrapper,
     encs: list[dict],
     device: torch.device,
 ) -> dict:
-    """Per-encounter MSE + SSIM + case-mean floor on a split."""
+    """Per-encounter MSE + Fukami L2-relative-error + SSIM + case-mean floor."""
     case_to_arr: dict[str, list[np.ndarray]] = {}
     for e in encs:
         with h5py.File(e["path"], "r") as f:
@@ -167,7 +181,7 @@ def evaluate_split(
         case_to_arr.setdefault(e["case_id"], []).append(omega)
     case_mean = {cid: np.stack(arrs).mean(axis=0) for cid, arrs in case_to_arr.items()}
 
-    mses, floors, ssims = [], [], []
+    mses, floors, ssims, eps_frames_mean, eps_volume = [], [], [], [], []
     wrapper.eval()
     with torch.no_grad():
         for e in encs:
@@ -183,6 +197,14 @@ def evaluate_split(
             floor = float(((omega - case_mean[e["case_id"]]) ** 2).mean())
             # SSIM averaged over time frames in the encounter
             ssim_frames = [_ssim(omega[t], x_hat[t]) for t in range(omega.shape[0])]
+            # Fukami L_2 relative error: per-frame, then averaged across the
+            # encounter. We also report the per-encounter (T, H, W) volume L_2
+            # so the user can see both Fukami-style per-frame numbers and a
+            # volume-level number.
+            eps_per_frame = [_l2_relative_error(omega[t], x_hat[t])
+                             for t in range(omega.shape[0])]
+            eps_frames_mean.append(float(np.mean(eps_per_frame)))
+            eps_volume.append(_l2_relative_error(omega, x_hat))
             mses.append(mse)
             floors.append(floor)
             ssims.append(float(np.mean(ssim_frames)))
@@ -193,6 +215,10 @@ def evaluate_split(
         "ratio_mean": float(np.mean(mses) / max(np.mean(floors), 1e-12)),
         "ssim_mean": float(np.mean(ssims)),
         "ssim_median": float(np.median(ssims)),
+        "eps_per_frame_mean": float(np.mean(eps_frames_mean)),
+        "eps_per_frame_median": float(np.median(eps_frames_mean)),
+        "eps_volume_mean": float(np.mean(eps_volume)),
+        "eps_volume_median": float(np.median(eps_volume)),
         "n_encounters": len(encs),
     }
 
@@ -373,7 +399,9 @@ def main() -> None:
     for split, ev in (("test_a", ev_a), ("test_b", ev_b), ("test_c", ev_c)):
         log(f"  {split}: MSE_mean={ev['mse_mean']:.4f} "
             f"floor={ev['floor_mean']:.4f} ratio={ev['ratio_mean']:.3f} "
-            f"SSIM_mean={ev['ssim_mean']:.4f}")
+            f"SSIM_mean={ev['ssim_mean']:.4f} "
+            f"eps_per_frame_mean={ev['eps_per_frame_mean']:.4f} "
+            f"eps_volume_mean={ev['eps_volume_mean']:.4f}")
 
 
 if __name__ == "__main__":

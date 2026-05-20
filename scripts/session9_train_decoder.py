@@ -185,6 +185,17 @@ def _ssim(x: np.ndarray, y: np.ndarray, c1: float = 0.16, c2: float = 1.44) -> f
     return float(num / max(den, 1e-12))
 
 
+def _l2_relative_error(q: np.ndarray, q_hat: np.ndarray, eps: float = 1e-12) -> float:
+    """Fukami's L_2 relative reconstruction error: || q - q_hat ||_2 / || q ||_2.
+
+    Used in Fukami arXiv:2305.18394 / J. Fluid Mech. 1018, A22 (2023)
+    Figures 15-18 to report per-snapshot reconstruction quality.
+    """
+    num = float(np.sqrt(((q - q_hat) ** 2).sum()))
+    den = float(np.sqrt((q ** 2).sum()))
+    return num / max(den, eps)
+
+
 def evaluate_split(
     enc: HybridCNNViTEncoder,
     dec: HybridViTConvDecoder,
@@ -202,6 +213,8 @@ def evaluate_split(
     mses = []
     floors = []
     ssims = []
+    eps_frames = []
+    eps_volume = []
     dec.eval()
     with torch.no_grad():
         for e in encs:
@@ -217,14 +230,22 @@ def evaluate_split(
             mse = float(((omega - x_hat) ** 2).mean())
             floor = float(((omega - case_mean[e["case_id"]]) ** 2).mean())
             ssim_t = float(np.mean([_ssim(omega[t], x_hat[t]) for t in range(T)]))
+            eps_t = float(np.mean([_l2_relative_error(omega[t], x_hat[t]) for t in range(T)]))
+            eps_v = _l2_relative_error(omega, x_hat)
             mses.append(mse)
             floors.append(floor)
             ssims.append(ssim_t)
+            eps_frames.append(eps_t)
+            eps_volume.append(eps_v)
     return {
         "mse_mean": float(np.mean(mses)),
         "mse_median": float(np.median(mses)),
         "ssim_mean": float(np.mean(ssims)),
         "ssim_median": float(np.median(ssims)),
+        "eps_per_frame_mean": float(np.mean(eps_frames)),
+        "eps_per_frame_median": float(np.median(eps_frames)),
+        "eps_volume_mean": float(np.mean(eps_volume)),
+        "eps_volume_median": float(np.median(eps_volume)),
         "floor_mean": float(np.mean(floors)),
         "ratio_mean": float(np.mean(mses) / max(np.mean(floors), 1e-12)),
         "n_encounters": len(encs),
