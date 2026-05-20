@@ -185,11 +185,12 @@ def _ssim(x: np.ndarray, y: np.ndarray, c1: float = 0.16, c2: float = 1.44) -> f
     return float(num / max(den, 1e-12))
 
 
-def _l2_relative_error(q: np.ndarray, q_hat: np.ndarray, eps: float = 1e-12) -> float:
+def _l2_relative_error(q: np.ndarray, q_hat: np.ndarray, eps: float = 1.0) -> float:
     """Fukami's L_2 relative reconstruction error: || q - q_hat ||_2 / || q ||_2.
 
-    Used in Fukami arXiv:2305.18394 / J. Fluid Mech. 1018, A22 (2023)
-    Figures 15-18 to report per-snapshot reconstruction quality.
+    eps floor of 1.0 (raw vorticity units) prevents the metric from
+    exploding on near-zero baseline frames. Used in Fukami
+    arXiv:2305.18394 / J. Fluid Mech. 1018, A22 (2023) Figures 15-18.
     """
     num = float(np.sqrt(((q - q_hat) ** 2).sum()))
     den = float(np.sqrt((q ** 2).sum()))

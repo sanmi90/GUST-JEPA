@@ -154,14 +154,17 @@ def gather_eval_encounters(split: str) -> list[dict]:
     return out
 
 
-def _l2_relative_error(q: np.ndarray, q_hat: np.ndarray, eps: float = 1e-12) -> float:
+def _l2_relative_error(q: np.ndarray, q_hat: np.ndarray, eps: float = 1.0) -> float:
     """Fukami's L_2 relative reconstruction error.
 
-    eps = || q - q_hat ||_2 / || q ||_2
+    eps = || q - q_hat ||_2 / max(|| q ||_2, eps)
 
-    Where || . ||_2 is the L_2 norm over a single (H, W) frame. Used in
-    Fukami arXiv:2305.18394 / J. Fluid Mech. 1018, A22 (2023) Figure 15-18
-    to report per-snapshot reconstruction quality.
+    Where || . ||_2 is the L_2 norm. eps floor of 1.0 (raw vorticity units)
+    prevents the metric from exploding on near-zero baseline frames where
+    || q ||_2 is essentially noise-level. Used in Fukami arXiv:2305.18394 /
+    J. Fluid Mech. 1018, A22 (2023) Figures 15-18 to report per-snapshot
+    reconstruction quality; we report it at both per-frame and per-volume
+    granularity.
     """
     num = float(np.sqrt(((q - q_hat) ** 2).sum()))
     den = float(np.sqrt((q ** 2).sum()))
