@@ -135,17 +135,22 @@ MSE + lift MSE. The head-to-head on the same Test A / B / C splits:
 | Method                                     | Test A ratio | Test A SSIM | Test B ratio | Test B SSIM | Test C ratio | Test C SSIM | Test B delta (downstream) |
 |--------------------------------------------|-------------:|------------:|-------------:|------------:|-------------:|------------:|--------------------------:|
 | JEPA encoder (frozen E4) + decoder (this section) |  9.37  |   0.726     |     3.33     |   0.572     |     2.40     |   0.414     |  +0.131 +/- 0.032 (3 seeds) |
-| Fukami CNN AE (matched d = 32)             |     7.70     |   0.748     |     1.60     |   0.722     |     1.44     |   0.558     |  +0.073                   |
+| Fukami CNN AE (d = 3, faithful Table S.1)  |     9.30     |   0.414     |     1.91     |   0.374     |     1.67     |   0.310     |  -0.126                   |
+| Fukami CNN AE (d = 32 matched, sensitivity)|     7.70     |   0.748     |     1.60     |   0.722     |     1.44     |   0.558     |  +0.073                   |
 
-Fukami AE wins on per-pixel reconstruction (ratio 1.5x to 2x lower on
-every split; SSIM 0.02 to 0.15 higher). JEPA + frozen-encoder decoder
-wins on downstream Test B prediction by +0.058 absolute (the
-matched-d head-to-head from Section 7.2). The Fukami AE encoder + decoder
-joint training preserves reconstruction-relevant information that the
-JEPA predictive-only training discards; the JEPA's discarding strategy
-produces a more transferable latent for downstream prediction at the
-cost of fidelity in reconstruction. This is the explicit JEPA
-tradeoff (paper Section 2.1).
+The faithful Fukami `d = 3` baseline loses to the JEPA on every
+downstream metric and is in the same reconstruction ratio band as
+the JEPA on Test A (9.30 vs 9.37, both far above the 2x floor) but
+its SSIM is much lower (0.414 vs 0.726): the 3-dim latent does not
+have enough capacity to preserve the local structure that drives
+SSIM. The matched-capacity `d = 32` Fukami sensitivity check
+inverts the reconstruction-quality ranking (Fukami wins MSE-ratio
+and SSIM on every split) but still loses on downstream Test B
+prediction by +0.058 absolute. The two readings together support
+the explicit JEPA tradeoff (paper Section 2.1): JEPA-style
+predictive-only training trades reconstruction fidelity for
+downstream transferability, and the transferability gain holds
+across both the faithful and matched-capacity Fukami baselines.
 
 The Section 9 pass criterion ("Test A within 2x the floor") was set
 under the assumption that the JEPA decoder would behave like a

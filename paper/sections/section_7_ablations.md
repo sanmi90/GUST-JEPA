@@ -88,28 +88,44 @@ Session 10. The three landed ablations:
   extrapolation. Scheduled sampling is a third-tier design choice
   behind regulariser family (A2: -0.052 from VICReg swap) and
   architecture family (A11: -0.086 from Fukami AE swap).
-- **A11 Fukami observable-augmented autoencoder at d=32.** The
-  Fukami and Taira J. Fluid Mech. 2023 lift-augmented autoencoder
-  (`\cite{fukami2023}`) adapted from the published 240x120 input to
-  our 192x96 mid-plane vorticity cache, with the four 2x maxpool
-  stages chosen to reach the same (12, 6, 4) bottleneck as Fukami's
-  three 2-2-5 maxpools; the FC chain 256-64-32-16-d matches Table S.1
-  of the supplementary, with d=32 replacing Fukami's d=3 to match
-  the matched-capacity comparison. Implementation at
-  `src/baselines/fukami_ae.py` (240K params at d=32; ~40x smaller
+- **A11 Fukami observable-augmented autoencoder at d=3 (faithful to
+  published Table S.1).** The Fukami and Taira J. Fluid Mech. 2023
+  lift-augmented autoencoder (`\cite{fukami2023}`) reproduced as
+  closely as possible: FC chain `288-256-64-32-16-3` matches the
+  supplementary Table S.1 exactly at the published `d = 3`; input
+  vorticity is divided by `omega_scale = 1000` before encoding (and
+  the decoder output multiplied back) so the CNN sees normalized
+  inputs in roughly `[-1, +1]` matching Fukami's published Figure S.1
+  range. Spatial pooling is adapted from Fukami's three 2-2-5 pools
+  at `(240, 120)` to four 2x pools at our `(192, 96)` while preserving
+  the same `(12, 6, 4) = 288` bottleneck. Implementation at
+  `src/baselines/fukami_ae.py` (237K params at `d = 3`; ~40x smaller
   than the JEPA's 10M, reflecting Fukami's intentionally lightweight
   architecture). Trained jointly on
   `lambda_recon * MSE(omega, omega_hat) + lambda_lift * MSE(CL, CL_hat)`
-  with `lambda_recon = lambda_lift = 1` per the paper. Test A delta
-  = +0.191, **Test B delta = +0.073**, Test C delta = +0.431; SSIM
-  on Test A = 0.748, Test B = 0.722, Test C = 0.558 using the
-  Fukami SSIM definition (Eq. 1 of the supplementary,
-  `C_1 = 0.16`, `C_2 = 1.44`). The Fukami latent generalises to the
-  parametric Test B stratum (positive delta) but the JEPA's
-  SIGReg + OBS production point wins by +0.086 absolute on the same
-  metric, confirming that JEPA-style predictive-only training
-  produces a more transferable latent than reconstruction-based
-  joint training at matched latent dimension.
+  with `lambda_recon = lambda_lift = 1`. Test A delta = +0.019,
+  **Test B delta = -0.126**, Test C delta = +0.283; SSIM on Test A
+  = 0.414, Test B = 0.374, Test C = 0.310 (Fukami's SSIM definition
+  Eq. 1 of the supplementary, `C_1 = 0.16`, `C_2 = 1.44`). The
+  faithful Fukami latent at `d = 3` **fails on Test B parametric
+  interpolation** (negative delta = -0.126 below the `(c, t)`
+  baseline) because the 3-dim bottleneck does not have enough
+  capacity to encode the case-axis structure that the JEPA's `d = 32`
+  latent recovers. The JEPA's SIGReg + OBS production point at
+  `d = 32` wins by **+0.257 absolute** on Test B against Fukami at
+  `d = 3`.
+
+  A matched-capacity Fukami at `d = 32` (FC chain ending at 32
+  instead of 3, raw input without normalization) was also run as a
+  sensitivity check and lands at Test A = +0.191, Test B = +0.073,
+  Test C = +0.431; SSIM Test A = 0.748, Test B = 0.722, Test C = 0.558.
+  The matched-`d = 32` Fukami still loses to JEPA on Test B by +0.058
+  absolute. The two readings together motivate the central
+  architectural claim of Section 5.5: the JEPA's predictive-only
+  training produces a more transferable downstream latent than
+  Fukami's reconstruction-augmented training, both at Fukami's
+  published `d = 3` (large gap +0.257) and at a matched-capacity
+  `d = 32` (small but consistent gap +0.058).
 - **A10 Solera-Rico beta-VAE + transformer ROM at d=32.** The
   Nat. Commun. 2024 two-stage architecture (beta-VAE Stage 1 followed
   by a transformer ROM on the frozen latent, Stage 2). Deferred to
