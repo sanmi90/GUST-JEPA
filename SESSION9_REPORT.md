@@ -373,11 +373,103 @@ The combined empirical surface gives us several claim-worthy results:
    section of the paper, as a clean demonstration of why
    "ignore-where-target-is-zero" naively fails.
 
-## 8. What is still owed
+## 7b. Matched-d Fukami (d = 32) and Fukami-protocol replication
 
-- **Matched-d Fukami baseline (d = 32)** with MSE + pipeline. Should be
-  ~50 min training. Resolves the "AE at matched JEPA latent" comparison
-  cleanly.
+Two additional runs landed after the initial close, addressing two
+high-priority follow-ups:
+
+### 7b.1 Matched-d Fukami d = 32
+
+Same recipe as variant 1 (MSE + pipeline, standard v1 split), but at
+latent dimension d = 32 — the matched JEPA budget.
+
+| | Test A SSIM | Test B SSIM | Test C SSIM | Test A Δ | **Test B Δ** | Test C Δ |
+|---|---:|---:|---:|---:|---:|---:|
+| d = 3 (variant 1) | 0.411 | 0.337 | 0.227 | +0.259 | +0.114 | +0.443 |
+| d = 8 (variant 7) | 0.401 | 0.327 | 0.241 | +0.279 | +0.126 | +0.439 |
+| **d = 32 matched** | **0.404** | **0.331** | **0.209** | +0.275 | **+0.148** | +0.433 |
+
+Participation ratio at d=32: 13-16 out of 32 (~50% utilization). The
+encoder *uses* the extra capacity, and the probe-delta on Test B climbs
+to +0.148 — the best Fukami probe on Test B that does not break
+reconstruction. Reconstruction metrics are essentially identical to
+d=3 (SSIM 0.33 vs 0.34 on Test B). **Confirms reconstruction is
+decoder-limited**, not encoder-limited.
+
+Direct matched-d comparison (both d = 32, same pipeline, same data):
+
+| | Test A Δ | **Test B Δ** | Test C Δ | Test B r²(z, c) |
+|---|---:|---:|---:|---:|
+| Fukami AE d = 32 | +0.275 | +0.148 | +0.433 | 0.845 |
+| **JEPA d = 32 (pipeline, λ\* = 0.01)** | **+0.280** | **+0.166** | +0.449 | **0.884** |
+
+**JEPA's predictive-only latent beats Fukami's reconstruction-jointly-trained
+latent on every split at matched d**, with the gap on Test B at +0.018.
+Test B r²(z, c) is also higher (0.884 vs 0.845). This is the cleanest
+single-comparison-point argument for JEPA in the paper.
+
+### 7b.2 Fukami-protocol d = 3
+
+To check whether Fukami's published ε ≈ 0.2 on Re=5000 is recovered by
+mimicking his train/test protocol (pool cases, hold out encounters), a
+new partition `v1fuk` was generated:
+
+- The 46 v1 train cases + the 4 v1 test_c cases were pooled (50 cases
+  total) and split 75% / 25% per case on encounter index (last 25% as
+  test_a-style holdout).
+- The 6 v1 test_b cases were retained as `split = "test_b"` for
+  diagnostic comparability against the other Fukami runs.
+- Training: 188 in-pool encounters; eval was on v1's original test_a /
+  test_b / test_c splits to keep numbers comparable.
+
+| | Test A SSIM | Test B SSIM | Test C SSIM | Test A Δ | **Test B Δ** | Test C Δ |
+|---|---:|---:|---:|---:|---:|---:|
+| d = 3 standard split | 0.411 | 0.337 | 0.227 | +0.259 | +0.114 | +0.443 |
+| **d = 3 Fukami-protocol** | 0.344 | 0.288 | 0.330\* | +0.269 | **+0.175** | +0.609\* |
+
+\*Test C is **partially data-leaked**: the 4 v1 test_c cases were
+promoted into the fukstyle training pool with 75% of their encounters
+seen. Test A and Test B remain fair (no leakage).
+
+Two readings:
+
+- **Best Fukami probe Δ on Test B is +0.175** (Fukami-protocol d=3) —
+  beats matched-d d=32 (+0.148) and JEPA d=32 (+0.166). Pooling more
+  cases in training improves parametric generalisation, even at d = 3.
+  This is the Pareto trade-off: more training data and less reconstruction
+  commitment.
+
+- **Reconstruction metrics get *worse*** (SSIM 0.41 -> 0.34 on Test A;
+  0.34 -> 0.29 on Test B). The d=3 latent has to spread its budget
+  across more cases, with less per-case fidelity. This means **the
+  Fukami protocol on our data does not recover his published ε ≈ 0.2**.
+  The "narrow slice" explanation for his low published epsilon is not
+  the whole story — the parametric envelope breadth of *our* DNS data
+  is the dominant factor, even when we mimic his train/test split design.
+
+### 7b.3 Updated Pareto picture
+
+The seven variants from Section 2 plus these two new runs trace a clean
+Pareto frontier in (SSIM, probe Δ) space:
+
+| Variant | Test B SSIM | Test B Δ |
+|---|---:|---:|
+| d=3 MSE standard split | 0.337 | +0.114 |
+| d=8 MSE | 0.327 | +0.126 |
+| d=3 Charbonnier | 0.253 | +0.129 |
+| d=3 Soft active-mask | 0.255 | +0.129 |
+| d=3 Hard active-mask | 0.108 | +0.133 |
+| **d=32 matched** | 0.331 | +0.148 |
+| **d=3 Fukami-protocol** | 0.288 | +0.175 |
+| JEPA d=32 (encoder probe) | (n/a) | **+0.166** |
+| JEPA d=32 + decoder (MSE) | **0.358** | (decoder uses encoder latent) |
+
+The frontier:
+- High-SSIM corner: MSE + standard split + d≥3 — flat SSIM ~0.33-0.36 across d
+- High-probe-Δ corner: Fukami-protocol + d=3 (+0.175) ≈ JEPA d=32 (+0.166)
+- JEPA + decoder MSE sits at the upper-right (SSIM 0.36 + access to a +0.166 latent)
+
+## 8. What is still owed
 - **3-seed JEPA pipeline mean** (seeds 0 and 123 alongside the seed=42
   retrain done here). Tests whether the +0.166 single-seed result is
   representative.
