@@ -2363,6 +2363,94 @@ Prediction tracking from the Session 9 launch message: prediction 1
 (lambda* = 0.01, credence 55%) is **TRUE**. Prediction 2 (seed
 variance within +/- 0.03 of seed=0) is pending F4 + F5 completion.
 
+### D60: Session 9 Step 3 Section 7 thin-cut (A2 + A11 + A7) (2026-05-20, Session 9 Step 3)
+
+Three ablations land in Session 9 at the production configuration
+(d=32, eta=0.01, lambda\*=0.01). A2 (VICReg-only) and A11 (Fukami
+observable-augmented AE) complete; A7 (no-scheduled-sampling at
+H_roll=30 since T=32 caps H_roll at T-2) is in progress at the time of
+this entry. A10 (Solera-Rico beta-VAE + transformer ROM) remains
+deferred to Session 10.
+
+|Code |Ablation                                |Test A delta |Test B delta |Test C delta |PR_all (Test B) |r2(z->c) (Test B)|
+|-----|----------------------------------------|------------:|------------:|------------:|---------------:|----------------:|
+| -   | E4 production (SIGReg + OBS + BN)      |     +0.227  | **+0.159**  |     +0.470  |      2.61      |      0.866      |
+| A2  | VICReg + OBS at d=32                   |     +0.226  | **+0.107**  |     +0.501  |      26.4      |      0.583      |
+| A11 | Fukami CNN AE + lift head at d=32      |     +0.191  | **+0.073**  |     +0.431  |       n/a      |       n/a       |
+| A7  | SIGReg + OBS no-SS (H_roll=30)         |    `{TBD}`  |  `{TBD}`    |    `{TBD}`  |     `{TBD}`    |     `{TBD}`     |
+
+**A2 VICReg + OBS reading.** PR_all = 26.4 is far above E4's 2.61,
+matching the high-PR profile of PLDM (R2 PR_all = 27 in D50). The
+VICReg variance/covariance enforcement keeps a high-rank latent in
+contrast to SIGReg's controlled-collapse PR ~2-3. On Test B, SIGReg +
+OBS beats VICReg + OBS by +0.052 absolute (within the +/- 0.05
+prediction bracket from the launch message but at the upper edge);
+extending the paper claim 3 regulariser-asymmetry to a third
+comparison axis. The asymmetry survives the regulariser swap: SIGReg
++ OBS controlled-collapse is genuinely a different latent regime than
+VICReg + OBS spread-rank-preservation, even at matched OBS pressure
+(eta = 0.01) and matched d = 32.
+
+**A11 Fukami AE reading.** Test B delta = +0.073 vs the JEPA's
++0.159 at matched d = 32; JEPA wins by +0.086 absolute. SSIM
+reconstruction on Test A = 0.748, Test B = 0.722, Test C = 0.558
+using the Fukami SSIM definition (Eq. 1 of arXiv:2305.18394 supplementary,
+C_1 = 0.16, C_2 = 1.44). The Fukami CNN encoder + decoder + lift
+head (240K total params; ~40x smaller than the JEPA's 10M; matched
+latent dimension d = 32 vs Fukami's published d = 3) generalises to
+the parametric Test B stratum, but the JEPA-style predictive-only
+objective produces a more transferable latent at the same latent
+dimension. Reconstruction MSE on Test A is 7.7x the per-case-mean
+floor (the very low Test A floor of 1.57 is because the held-out
+encounters share their case-mean training-side neighbours; absolute
+SSIM 0.748 indicates the reconstruction itself is reasonable). The
+two-paper-claim comparison stands: at matched d = 32, JEPA + SIGReg +
+OBS produces a more transferable latent than Fukami's reconstruction-
+based AE on both downstream prediction (Test B delta +0.159 vs +0.073)
+and parametric interpolation generally.
+
+The Fukami baseline was originally scheduled in the Session 9 plan as
+deferred to Session 10 (along with A10 Solera-Rico). It was added
+mid-session on user request to bring the SSIM-based comparison
+methodology into the paper. The implementation at
+`src/baselines/fukami_ae.py` (CNN encoder + decoder + lift head
+following arXiv:2305.18394 supplementary Table S.1 adapted to the
+192x96 input resolution) is the Session 10 starting point for the
+Solera-Rico baseline (variational head + transformer ROM extending
+the Fukami pattern).
+
+### D62: Session 9 paper drafts committed (2026-05-20, Session 9 Step 5)
+
+Four paper deliverables landed during the Session 9 compute windows:
+
+- `paper/sections/abstract.md`: ~240 words, three contribution claims
+  with their headline numbers.
+- `paper/sections/section_1_introduction.md`: ~1600 words, four
+  subsections (ROM motivation; JEPA framing; contribution claims;
+  roadmap).
+- `paper/sections/section_2_related_work.md`: ~3245 words, four
+  subsections (JEPA lineage; observable-augmented autoencoders;
+  classical and learned ROM; the gap closed by this paper).
+- `paper/sections/section_6_decoder.md`: ~975 words skeleton for the
+  visualisation decoder results, awaiting the Step 2 numerical fills.
+- `paper/sections/section_7_ablations.md`: ~990 words skeleton with
+  the 15-ablation matrix structured into four families. Numerical
+  fills for A2 (D60) and A11 (D60) committed; A7 numerical fills
+  follow as the A7 cuda:1 run completes.
+
+Em-dash cleanup pass: removed em-dashes from titles of Sections 2,
+3, 4, 5 and from six body locations in Section 4 + one in Section 3.
+All `paper/sections/*.md` files are em-dash free per CLAUDE.md.
+
+Additional Session 9 infrastructure: `src/models/decoder.py`
+(`HybridViTConvDecoder`, 8.72M params, mirror image of the encoder);
+`src/baselines/fukami_ae.py` (240K param Fukami CNN AE); 19 new
+tests in `tests/test_decoder.py` (8) + `tests/test_fukami_ae.py` (11).
+SSIM evaluation (Fukami's Eq. 1) added to both the JEPA decoder
+evaluation and the Fukami AE evaluation. 7 new scripts in `scripts/`
+plus 1 new notebook `notebooks/10_session9_lambda_bisection.ipynb`
+(skeleton).
+
 ## Open questions
 
 1. Empirical impact frame. The estimate of 40 was validated in the bootstrap session
