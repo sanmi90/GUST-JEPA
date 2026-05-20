@@ -2376,8 +2376,8 @@ deferred to Session 10.
 |-----|----------------------------------------|------------:|------------:|------------:|---------------:|----------------:|
 | -   | E4 production (SIGReg + OBS + BN)      |     +0.227  | **+0.159**  |     +0.470  |      2.61      |      0.866      |
 | A2  | VICReg + OBS at d=32                   |     +0.226  | **+0.107**  |     +0.501  |      26.4      |      0.583      |
+| A7  | SIGReg + OBS no-SS (H_roll=30)         |     +0.223  | **+0.137**  |     +0.481  |      2.31      |      0.866      |
 | A11 | Fukami CNN AE + lift head at d=32      |     +0.191  | **+0.073**  |     +0.431  |       n/a      |       n/a       |
-| A7  | SIGReg + OBS no-SS (H_roll=30)         |    `{TBD}`  |  `{TBD}`    |    `{TBD}`  |     `{TBD}`    |     `{TBD}`     |
 
 **A2 VICReg + OBS reading.** PR_all = 26.4 is far above E4's 2.61,
 matching the high-PR profile of PLDM (R2 PR_all = 27 in D50). The
@@ -2390,6 +2390,21 @@ comparison axis. The asymmetry survives the regulariser swap: SIGReg
 + OBS controlled-collapse is genuinely a different latent regime than
 VICReg + OBS spread-rank-preservation, even at matched OBS pressure
 (eta = 0.01) and matched d = 32.
+
+**A7 no-scheduled-sampling reading.** Same SIGReg + OBS + BN config
+as E4 but with H_roll = 30 (the maximum no-SS rollout horizon at
+T = 32) instead of H_roll = 8 (the production V-JEPA 2-AC default).
+PR_all = 2.31 is close to E4's 2.61 -- the latent regime stays in
+the controlled-collapse band. Test B delta drops by 0.022 absolute
+(+0.137 vs +0.159 at E4); Test C delta actually rises slightly
+(+0.481 vs +0.470 at E4). The V-JEPA 2-AC scheduled-sampling at
+H_roll = 8 is a small but real win on Test B parametric interpolation;
+on Test C extrapolation the longer rollout horizon helps marginally
+(consistent with longer rollouts forcing the encoder to encode more
+of the dynamics that matter for the |G| = 4 extrapolation regime).
+The +0.022 swing places "scheduled sampling" as a third-tier design
+choice behind anti-collapse-regulariser choice (+0.052 for SIGReg vs
+VICReg) and architecture-family choice (+0.086 for JEPA vs Fukami AE).
 
 **A11 Fukami AE reading.** Test B delta = +0.073 vs the JEPA's
 +0.159 at matched d = 32; JEPA wins by +0.086 absolute. SSIM
