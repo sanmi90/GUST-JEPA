@@ -89,17 +89,20 @@ launch_a2_vicreg() {
 }
 
 launch_a7_no_ss() {
-    # A7: no scheduled sampling (H_roll = T = 32). Same SIGReg+OBS+BN
-    # config at lambda*; just H_roll is bumped from 8 to 32 so the
-    # rollout runs to the end of the sub-trajectory.
+    # A7: no scheduled sampling. The JEPA's _sample_t0 requires
+    # T >= H_roll + 2, so the maximum "no-scheduled-sampling" H_roll
+    # at T=32 is 30 (rollout starts at t0=0 and reaches frame 30 of 32).
+    # This is the closest practical realisation of "H_roll = T" with
+    # the existing sub-trajectory length; it captures the no-SS intent
+    # while satisfying the bookkeeping constraint.
     local outdir="$OUTROOT/$NAME_A7"
     mkdir -p "$outdir"
     local logfile="$outdir/train.log"
-    log "BEGIN A7 SIGReg+OBS+BN no-SS (H_roll=32) lambda=$LAMBDA_STAR -> $outdir"
+    log "BEGIN A7 SIGReg+OBS+BN no-SS (H_roll=30, T=32) lambda=$LAMBDA_STAR -> $outdir"
     python -m src.training.train_jepa \
         --gpu "$CARD" \
         --partition v1 --all-train --max-iters 20000 --seed 0 \
-        --latent-dim 32 --H-roll 32 \
+        --latent-dim 32 --H-roll 30 \
         --observable-head cl_future --observable-head-weight 0.01 \
         --observable-head-deltas 8 16 24 \
         --projection-norm batchnorm --anticollapse sigreg \
