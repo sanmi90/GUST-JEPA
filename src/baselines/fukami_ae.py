@@ -363,13 +363,17 @@ class FukamiAEWrapper(nn.Module):
         # reproduce the LE artifact spikes.
         if self.omega_pipeline is not None:
             omega = self._preprocess_with_pipeline(omega, batch)
-            # Z-score normalize for the encoder; the decoder output is
-            # de-normalized inside ``decode``.
+            # Standard AE training: loss computed in NORMALIZED space. The
+            # decoder learns to predict the normalized target directly;
+            # un-normalization happens only at evaluation / visualization
+            # time. This is what Fukami and every standard AE paper do.
+            # Computing the loss on the unnormalized (raw) scale would
+            # inflate gradients by (3*sigma)^2 ~ 116x at sigma=3.585 and
+            # destabilize training at the usual lr=1e-3.
             omega_norm = self.omega_pipeline.normalize(omega)
             z = self.encoder(omega_norm)
             omega_hat_norm = self.decoder(z)
-            omega_hat = self.omega_pipeline.unnormalize(omega_hat_norm)
-            L_recon = ((omega - omega_hat) ** 2).mean()
+            L_recon = ((omega_norm - omega_hat_norm) ** 2).mean()
         else:
             omega = self._maybe_clip(omega)
             z = self.encoder(omega / self.omega_scale)
