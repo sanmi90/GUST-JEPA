@@ -224,6 +224,7 @@ class FukamiAEWrapper(nn.Module):
         omega_clip: float | None = None,
         omega_clip_pct: float | None = None,
         airfoil_mask: Tensor | None = None,
+        omega_pipeline=None,
     ) -> None:
         super().__init__()
         self.encoder = FukamiCNNEncoder(latent_dim)
@@ -234,6 +235,19 @@ class FukamiAEWrapper(nn.Module):
         self.lambda_recon = lambda_recon
         self.lambda_lift = lambda_lift
         self.omega_scale = float(omega_scale)
+        # omega_pipeline: when not None, supersedes the omega_scale / clip /
+        # mask parameters. The pipeline implements the canonical three-stage
+        # transform (spatial mask -> per-encounter clip -> z-score normalize)
+        # documented in src/data/omega_pipeline.py. The batch must carry
+        # ``case_ids`` (list[str]) and ``encounter_indices`` (Tensor[int])
+        # so the per-encounter clip thresholds can be looked up.
+        self.omega_pipeline = omega_pipeline
+        if omega_pipeline is not None:
+            self.register_buffer(
+                "_pipeline_mask",
+                omega_pipeline.mask.clone().bool(),
+                persistent=False,
+            )
         # airfoil_mask: boolean (H, W) tensor; True where omega should be
         # zeroed (inside-solid + 1-cell-adjacent). Removes LE artifact
         # geometrically: 93-100% of |omega| > 500 pixels live in this layer
@@ -299,6 +313,33 @@ class FukamiAEWrapper(nn.Module):
     def predict_lift(self, z: Tensor) -> Tensor:
         return self.lift_head(z)
 
+    def _preprocess_with_pipeline(self, omega: Tensor, batch: dict) -> Tensor:
+        """Apply OmegaPipeline (mask + per-encounter clip) to the batch.
+
+        Returns omega on the raw scale with artifacts removed. Caller
+        decides whether to z-score normalize before the encoder.
+        """
+        pipe = self.omega_pipeline
+        case_ids = batch.get("case_ids")
+        enc_idx = batch.get("encounter_indices")
+        if case_ids is None or enc_idx is None:
+            raise KeyError("omega_pipeline requires batch to carry 'case_ids' "
+                           "(list[str]) and 'encounter_indices' (Tensor[int])")
+        # Stage 1: spatial mask. Buffer is pre-loaded on the right device.
+        mask = self._pipeline_mask
+        omega = torch.where(mask, torch.zeros_like(omega), omega)
+        # Stage 2: per-encounter clip threshold lookup.
+        thresholds = torch.tensor(
+            [pipe.get_threshold(cid, int(enc_idx[i].item()))
+             for i, cid in enumerate(case_ids)],
+            dtype=omega.dtype, device=omega.device,
+        )
+        view = [omega.shape[0]] + [1] * (omega.dim() - 1)
+        thresholds = thresholds.view(*view)
+        omega = torch.where(omega.abs() > thresholds,
+                            torch.sign(omega) * thresholds, omega)
+        return omega
+
     def forward(self, batch: dict) -> dict:
         """Compute the joint loss on a batch from the JEPA pipeline.
 
@@ -307,6 +348,9 @@ class FukamiAEWrapper(nn.Module):
                 where ``cl_future`` is the multi-horizon CL target (built by
                 ``jepa_collate`` when the observable head is enabled in JEPA).
                 Accepts ``"omega_z"`` as an alias of ``"omega"``.
+                When ``omega_pipeline`` is set, the batch must also include
+                ``case_ids`` and ``encounter_indices`` for per-encounter
+                clip-threshold lookup.
 
         Returns:
             Dict with the loss components.
@@ -317,10 +361,20 @@ class FukamiAEWrapper(nn.Module):
         # Apply artifact suppression to the target as well so the
         # reconstruction loss does not penalize the model for failing to
         # reproduce the LE artifact spikes.
-        omega = self._maybe_clip(omega)
-        z = self.encoder(omega / self.omega_scale)  # bypass encode() to avoid double clip
-        omega_hat = self.decode(z)
-        L_recon = ((omega - omega_hat) ** 2).mean()
+        if self.omega_pipeline is not None:
+            omega = self._preprocess_with_pipeline(omega, batch)
+            # Z-score normalize for the encoder; the decoder output is
+            # de-normalized inside ``decode``.
+            omega_norm = self.omega_pipeline.normalize(omega)
+            z = self.encoder(omega_norm)
+            omega_hat_norm = self.decoder(z)
+            omega_hat = self.omega_pipeline.unnormalize(omega_hat_norm)
+            L_recon = ((omega - omega_hat) ** 2).mean()
+        else:
+            omega = self._maybe_clip(omega)
+            z = self.encoder(omega / self.omega_scale)
+            omega_hat = self.decode(z)
+            L_recon = ((omega - omega_hat) ** 2).mean()
 
         if "cl_future" in batch and self.lambda_lift > 0:
             cl_target = batch["cl_future"]

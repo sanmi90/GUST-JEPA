@@ -57,12 +57,38 @@ from src.training.train_jepa import (  # noqa: E402
     file_sha256,
     git_commit_hash,
     infinite_iter,
+    jepa_collate,
     make_test_b_loader,
     make_train_loader,
     move_batch,
     resolve_cases,
     set_all_seeds,
 )
+
+
+def fukami_collate(samples):
+    """Like jepa_collate, but also carry case_ids + encounter_indices.
+
+    Needed by FukamiAEWrapper when an OmegaPipeline is attached, since the
+    wrapper looks up per-encounter clip thresholds at forward time.
+    """
+    batch = jepa_collate(samples)
+    batch["case_ids"] = [s["case_id"] for s in samples]
+    batch["encounter_indices"] = torch.tensor(
+        [int(s["encounter_index"]) for s in samples], dtype=torch.long,
+    )
+    return batch
+
+
+def move_batch_mixed(batch, device):
+    """Like move_batch but tolerates non-tensor values (e.g., case_ids list)."""
+    out = {}
+    for k, v in batch.items():
+        if isinstance(v, torch.Tensor):
+            out[k] = v.to(device, non_blocking=True)
+        else:
+            out[k] = v
+    return out
 from src.utils.device import require_rtx6000  # noqa: E402
 
 
@@ -105,6 +131,12 @@ def parse_args() -> argparse.Namespace:
                         "file and zero omega at masked cells before the encoder. "
                         "Use scripts/compute_omega_clip_thresholds.py to build "
                         "outputs/runs/session9/airfoil_adjacent_mask.npy.")
+    p.add_argument("--omega-pipeline-manifest", type=str, default=None,
+                   help="If set, load OmegaPipeline (mask + per-encounter clip + "
+                        "train-stats z-score) from this JSON manifest. Overrides "
+                        "omega-scale / omega-clip / omega-clip-pct / "
+                        "airfoil-mask-path. Build the manifest with "
+                        "scripts/build_omega_pipeline.py.")
     p.add_argument("--lr", type=float, default=1.0e-3,
                    help="Fukami used Adam with lr around 1e-3; we keep that.")
     p.add_argument("--weight-decay", type=float, default=0.0,
@@ -318,8 +350,18 @@ def main() -> None:
         with open(metrics_path, "a") as fh:
             fh.write(json.dumps({"event": "log", "step": int(step), **payload}) + "\n")
 
+    if omega_pipeline is not None:
+        # Force num_workers=0 to avoid persistent-worker fork issues when we
+        # swap the collate_fn after loader construction.
+        args.num_workers = 0
     train_loader = make_train_loader(args)
     test_b_loader = make_test_b_loader(args)
+    # Swap to the Fukami collate (carries case_ids + encounter_indices) when
+    # an OmegaPipeline is attached so the wrapper can look up per-encounter
+    # clip thresholds.
+    if omega_pipeline is not None:
+        train_loader.collate_fn = fukami_collate
+        test_b_loader.collate_fn = fukami_collate
     train_iter = infinite_iter(train_loader)
     test_b_iter = infinite_iter(test_b_loader)
 
@@ -330,6 +372,16 @@ def main() -> None:
         log(f"[fukami-train] loaded airfoil mask from {args.airfoil_mask_path} "
             f"({mask_np.sum()} cells masked of {mask_np.size})")
 
+    omega_pipeline = None
+    if args.omega_pipeline_manifest is not None:
+        from src.data.omega_pipeline import OmegaPipeline
+        omega_pipeline = OmegaPipeline.from_manifest(args.omega_pipeline_manifest)
+        log(f"[fukami-train] loaded omega pipeline from {args.omega_pipeline_manifest}")
+        log(f"  mask: {int(omega_pipeline.mask.sum().item())} cells")
+        log(f"  thresholds: {sum(len(v) for v in omega_pipeline.thresholds.values())} encounters")
+        log(f"  train_stats: mean={omega_pipeline.train_stats.mean:.4f}, "
+            f"std={omega_pipeline.train_stats.std:.4f}")
+
     wrapper = FukamiAEWrapper(
         latent_dim=args.d, n_deltas=len(args.observable_head_deltas),
         lambda_recon=args.lambda_recon, lambda_lift=args.lambda_lift,
@@ -337,6 +389,7 @@ def main() -> None:
         omega_clip=args.omega_clip,
         omega_clip_pct=args.omega_clip_pct,
         airfoil_mask=airfoil_mask,
+        omega_pipeline=omega_pipeline,
     ).to(device)
     n_params = sum(p.numel() for p in wrapper.parameters())
     log(f"[fukami-train] params={n_params:,} ({n_params/1e6:.2f}M)")
@@ -350,7 +403,7 @@ def main() -> None:
         f"n_test_b_samples={len(test_b_loader.dataset)}")
 
     for iteration in range(args.max_iters):
-        batch = move_batch(next(train_iter), device)
+        batch = move_batch_mixed(next(train_iter), device)
         with torch.autocast(device_type="cuda", dtype=torch.bfloat16):
             out = wrapper(batch)
         L_total = out["L_total"]
@@ -380,7 +433,7 @@ def main() -> None:
         if iteration % args.diagnostic_every == 0 and iteration > 0:
             wrapper.eval()
             with torch.no_grad():
-                tb = move_batch(next(test_b_iter), device)
+                tb = move_batch_mixed(next(test_b_iter), device)
                 with torch.autocast(device_type="cuda", dtype=torch.bfloat16):
                     tb_out = wrapper(tb)
                 z_b = tb_out["z"].float()
