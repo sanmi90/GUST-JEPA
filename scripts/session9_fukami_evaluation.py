@@ -55,7 +55,6 @@ PREVENT = Path(os.environ.get("PREVENT_ROOT", "/home/carlos/PREVENT"))
 CACHE = Path(os.environ.get("VORTEX_JEPA_CACHE", PREVENT / "data" / "processed" / "vortex-jepa"))
 
 DELTAS = (8, 16, 24)
-D = 32
 
 
 def load_fukami(ckpt_path: Path, device: torch.device) -> FukamiAEWrapper:
@@ -91,9 +90,9 @@ def gather_encounters(split: str) -> list[dict]:
     return out
 
 
-def encode_split(wrapper, encs, device) -> np.ndarray:
+def encode_split(wrapper, encs, device, d: int) -> np.ndarray:
     N, T = len(encs), 120
-    out = np.empty((N, T, D), dtype=np.float32)
+    out = np.empty((N, T, d), dtype=np.float32)
     with torch.no_grad():
         for i, e in enumerate(encs):
             with h5py.File(e["path"], "r") as f:
@@ -178,7 +177,9 @@ def main() -> None:
     for s, encs in SPLITS.items():
         print(f"  {s}: {len(encs)} encs", flush=True)
 
-    Z = {s: encode_split(wrapper, SPLITS[s], device) for s in SPLITS}
+    d = int(wrapper.latent_dim)
+    print(f"[fukami-eval] latent_dim from checkpoint: {d}", flush=True)
+    Z = {s: encode_split(wrapper, SPLITS[s], device, d=d) for s in SPLITS}
     CL_RAW = {s: build_cl_future(SPLITS[s]) for s in SPLITS}
     MASK = {s: np.isfinite(CL_RAW[s]).reshape(CL_RAW[s].shape[0], -1).all(axis=1) for s in SPLITS}
     C = {s: c_of(SPLITS[s]) for s in SPLITS}
@@ -188,7 +189,7 @@ def main() -> None:
     z_a = Z["test_a"][MASK["test_a"]]
     cl_a = CL_RAW["test_a"][MASK["test_a"]].reshape(-1, 3)
     c_a = C["test_a"][MASK["test_a"]]
-    z_a_flat = z_a.reshape(-1, D)
+    z_a_flat = z_a.reshape(-1, d)
     ct_a_flat = np.hstack([
         np.repeat(c_a, T, axis=0),
         np.tile(np.arange(T)[:, None], (z_a.shape[0], 1)).astype(np.float32),
@@ -207,7 +208,7 @@ def main() -> None:
         cl_s = CL_RAW[split][MASK[split]].reshape(-1, 3)
         c_s = C[split][MASK[split]]
         T_s = z_s.shape[1]
-        z_s_flat = z_s.reshape(-1, D)
+        z_s_flat = z_s.reshape(-1, d)
         ct_s_flat = np.hstack([
             np.repeat(c_s, T_s, axis=0),
             np.tile(np.arange(T_s)[:, None], (z_s.shape[0], 1)).astype(np.float32),
