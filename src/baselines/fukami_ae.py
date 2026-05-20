@@ -62,9 +62,18 @@ def _conv_block(in_ch: int, out_ch: int, n_groups: int = 4) -> nn.Sequential:
 
 
 class FukamiCNNEncoder(nn.Module):
-    """Fukami Table S.1 encoder, adapted to (192, 96) input."""
+    """Fukami Table S.1 encoder.
 
-    def __init__(self, latent_dim: int = 32) -> None:
+    Channel progression matches Fukami exactly: 1 -> 32 -> 16 -> 8 -> 4.
+    FC chain after the (12, 6, 4) bottleneck is Fukami's exact
+    `288 -> 256 -> 64 -> 32 -> 16 -> latent_dim`. The default
+    `latent_dim = 3` reproduces Fukami's published configuration. The
+    spatial pooling layout is adapted for our (192, 96) input via four
+    2x maxpools instead of Fukami's (2, 2, 5) at (240, 120); same final
+    bottleneck shape (12, 6, 4).
+    """
+
+    def __init__(self, latent_dim: int = 3) -> None:
         super().__init__()
         # Channel progression follows Fukami: 1 -> 32 -> 16 -> 8 -> 4.
         self.stage1 = nn.Sequential(_conv_block(1, 32), _conv_block(32, 32))
@@ -77,7 +86,7 @@ class FukamiCNNEncoder(nn.Module):
                                     _conv_block(4, 4, n_groups=2))
         self.pool4 = nn.MaxPool2d(2)  # (24, 12) -> (12, 6)
 
-        # Flatten (12 * 6 * 4 = 288), then Fukami's FC chain to the latent.
+        # Fukami's exact FC chain: 288 -> 256 -> 64 -> 32 -> 16 -> latent_dim.
         self.fc = nn.Sequential(
             nn.Linear(288, 256), nn.ReLU(inplace=True),
             nn.Linear(256, 64), nn.ReLU(inplace=True),
@@ -106,9 +115,15 @@ class FukamiCNNEncoder(nn.Module):
 
 
 class FukamiCNNDecoder(nn.Module):
-    """Mirror-image decoder of FukamiCNNEncoder, with bilinear upsample."""
+    """Mirror-image decoder of FukamiCNNEncoder.
 
-    def __init__(self, latent_dim: int = 32) -> None:
+    FC chain reverses Fukami's encoder chain: latent_dim -> 16 -> 32 ->
+    64 -> 256 -> 288, then reshape to (12, 6, 4) and four upsample stages
+    back to (192, 96, 1). Default latent_dim = 3 to reproduce Fukami's
+    published configuration.
+    """
+
+    def __init__(self, latent_dim: int = 3) -> None:
         super().__init__()
         self.fc = nn.Sequential(
             nn.Linear(latent_dim, 16), nn.ReLU(inplace=True),
@@ -152,15 +167,15 @@ class FukamiCNNDecoder(nn.Module):
 class FukamiLiftHead(nn.Module):
     """MLP head from latent to predicted C_L (multi-horizon).
 
-    Fukami's original lift decoder was a 3-layer MLP from the d=3
-    latent to a single instantaneous CL scalar (Table S.1 right
-    column: 32 -> 64 -> 32 -> 1). We generalise to multi-horizon
-    CL_future by changing the output dimension to ``n_deltas``, so
-    the same model can be compared to the JEPA's ObservableHead at
-    the matched delta in {8, 16, 24} frames offset (D37).
+    Follows Fukami's Table S.1 lift-decoder column: a 3-hidden-layer
+    MLP (32 -> 64 -> 32 -> output). Fukami's original output was a
+    single instantaneous CL scalar; we generalise to multi-horizon
+    CL_future by setting the output dimension to ``n_deltas``, so the
+    same model can be compared to the JEPA's ObservableHead at the
+    matched delta in {8, 16, 24} frames offset (D37).
     """
 
-    def __init__(self, latent_dim: int = 32, n_deltas: int = 3) -> None:
+    def __init__(self, latent_dim: int = 3, n_deltas: int = 3) -> None:
         super().__init__()
         self.fc = nn.Sequential(
             nn.Linear(latent_dim, 32), nn.ReLU(inplace=True),
@@ -188,14 +203,24 @@ class FukamiAEWrapper(nn.Module):
 
     Forward signature is designed to slot into the JEPA training data
     pipeline: ``batch`` is the dict produced by ``jepa_collate``.
+
+    Input normalization. Fukami's supplementary Figure S.1 shows
+    vorticity in roughly [-0.6, +0.6]; the dataset is normalized before
+    training. Our raw omega_z lives in roughly [-1000, +1000]. The
+    ``omega_scale`` argument (default 1000) divides the input by that
+    scalar before encoding and multiplies the output by the same scalar
+    after decoding, so the reconstruction loss is computed in the same
+    raw-omega frame as the per-case-mean noise floor used by the
+    evaluation pipeline.
     """
 
     def __init__(
         self,
-        latent_dim: int = 32,
+        latent_dim: int = 3,
         n_deltas: int = 3,
         lambda_recon: float = 1.0,
         lambda_lift: float = 1.0,
+        omega_scale: float = 1000.0,
     ) -> None:
         super().__init__()
         self.encoder = FukamiCNNEncoder(latent_dim)
@@ -205,13 +230,20 @@ class FukamiAEWrapper(nn.Module):
         self.n_deltas = n_deltas
         self.lambda_recon = lambda_recon
         self.lambda_lift = lambda_lift
+        self.omega_scale = float(omega_scale)
 
     def encode(self, omega: Tensor) -> Tensor:
-        """omega: (B, T, 1, H, W) or (B, 1, H, W) -> z: matching shape (B[, T], d)."""
-        return self.encoder(omega)
+        """omega: (B, T, 1, H, W) or (B, 1, H, W) in RAW units.
+
+        The wrapper normalises by ``omega_scale`` before passing through
+        the CNN encoder, matching Fukami's normalized-input setup.
+        Returns ``z`` in matching leading-batch shape.
+        """
+        return self.encoder(omega / self.omega_scale)
 
     def decode(self, z: Tensor) -> Tensor:
-        return self.decoder(z)
+        """Decode ``z`` and de-normalise back to the raw omega frame."""
+        return self.decoder(z) * self.omega_scale
 
     def predict_lift(self, z: Tensor) -> Tensor:
         return self.lift_head(z)
