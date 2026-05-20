@@ -129,6 +129,38 @@ def test_fukami_wrapper_param_count() -> None:
     assert 100_000 <= n <= 500_000, f"unexpected param count {n}"
 
 
+def test_fukami_d3_default_published_configuration() -> None:
+    """Default latent_dim = 3 matches Fukami's published Table S.1."""
+    wrapper = FukamiAEWrapper()
+    assert wrapper.latent_dim == 3
+    assert wrapper.omega_scale == 1000.0
+    omega = torch.randn(2, 4, 1, 192, 96) * 500
+    cl = torch.randn(2, 4, 3)
+    out = wrapper({"omega": omega, "cl_future": cl})
+    assert out["z"].shape == (2, 4, 3)
+    assert torch.isfinite(out["L_total"])
+
+
+def test_fukami_normalization_roundtrip() -> None:
+    """omega_scale normalizes input before encoding and de-normalizes after decoding.
+
+    Sanity check: encode -> decode of a raw-scale input produces an output in the
+    same raw scale (not the normalized scale).
+    """
+    torch.manual_seed(0)
+    wrapper = FukamiAEWrapper(latent_dim=3, omega_scale=1000.0)
+    omega = torch.randn(1, 1, 192, 96) * 500
+    with torch.no_grad():
+        z = wrapper.encode(omega)
+        omega_hat = wrapper.decode(z)
+    # z lives in O(1) range (encoder output is unbounded but should be reasonable)
+    # omega_hat lives in the raw scale (multiplied by omega_scale)
+    assert torch.isfinite(omega_hat).all()
+    # The de-normalization brings the output to similar order of magnitude as input
+    # (not exactly equal because the model is untrained, but same scale).
+    assert omega_hat.abs().mean() > 1.0, "de-normalization should produce raw-scale output"
+
+
 def test_fukami_lift_loss_masking() -> None:
     """Non-finite CL targets are masked out of the lift loss."""
     torch.manual_seed(0)
