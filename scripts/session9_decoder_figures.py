@@ -149,24 +149,52 @@ def make_figure_3(enc, dec, encs_b, device, out_path: Path, pick_idx: int = 0):
     residual = omega - x_hat
 
     frames = [25, 40, 55]
-    fig, axes = plt.subplots(3, 3, figsize=(12, 11))
-    vmax = max(np.abs(omega[frames]).max(), np.abs(x_hat[frames]).max())
-    for col, t in enumerate(frames):
-        axes[0, col].imshow(omega[t].T, origin="lower", cmap="RdBu_r",
-                            vmin=-vmax, vmax=vmax)
-        axes[0, col].set_title(f"raw, frame {t}")
-        axes[1, col].imshow(x_hat[t].T, origin="lower", cmap="RdBu_r",
-                            vmin=-vmax, vmax=vmax)
-        axes[1, col].set_title(f"decoded, frame {t}")
-        res_v = np.abs(residual[t]).max()
-        axes[2, col].imshow(residual[t].T, origin="lower", cmap="RdBu_r",
-                            vmin=-res_v, vmax=res_v)
-        axes[2, col].set_title(f"residual, frame {t}")
-    for ax in axes.flat:
-        ax.set_xticks([]); ax.set_yticks([])
+    fig, axes = plt.subplots(3, 4, figsize=(14, 11),
+                             gridspec_kw={"width_ratios": [1, 1, 1, 0.06]})
+    # Per-row vmax based on the 95th-percentile of |.|, not the max. The
+    # raw omega field is highly localized (vortex cores hit |omega| ~ 1000+
+    # while the bulk of the field is near zero), so using max would saturate
+    # only the extreme pixels and wash out the wake. The 95th-percentile
+    # saturation lets the vortex core clip but keeps the wake structure
+    # legible. The per-row labels show both p95 (the colorbar limit) and
+    # max|.| (the actual extreme value, which clips).
+    p95_raw = float(np.percentile(np.abs(omega[frames]), 95))
+    p95_dec = float(np.percentile(np.abs(x_hat[frames]), 95))
+    p95_res = float(np.percentile(np.abs(residual[frames]), 95))
+    vmax_raw = p95_raw
+    vmax_dec = p95_dec
+    vmax_res = p95_res
+    max_raw = float(np.abs(omega[frames]).max())
+    max_dec = float(np.abs(x_hat[frames]).max())
+    max_res = float(np.abs(residual[frames]).max())
+    row_specs = [
+        ("raw $\\omega_z$", omega, vmax_raw, max_raw),
+        ("decoded $\\hat\\omega_z$", x_hat, vmax_dec, max_dec),
+        ("residual $\\omega_z - \\hat\\omega_z$", residual, vmax_res, max_res),
+    ]
+    for row_idx, (row_label, data, vmax, mx) in enumerate(row_specs):
+        im = None
+        for col, t in enumerate(frames):
+            im = axes[row_idx, col].imshow(
+                data[t].T, origin="lower", cmap="RdBu_r",
+                vmin=-vmax, vmax=vmax,
+            )
+            axes[row_idx, col].set_xticks([])
+            axes[row_idx, col].set_yticks([])
+            if row_idx == 0:
+                axes[row_idx, col].set_title(
+                    f"frame {t} ({'pre-impact' if t < 35 else 'impact' if t < 50 else 'post-impact'})"
+                )
+        cbar = fig.colorbar(im, cax=axes[row_idx, 3], extend="both")
+        cbar.set_label(f"{row_label}\np95={vmax:.1f}, max={mx:.1f}", fontsize=9)
+        axes[row_idx, 0].set_ylabel(row_label, fontsize=11)
+
     fig.suptitle(
-        f"Decoder reconstruction on Test B case {e['case_id']} encounter {e['k']:02d}\n"
-        f"G={e['G']:.2f}, D={e['D']:.2f}, Y={e['Y']:.2f}"
+        f"Figure 3. Decoder reconstruction on Test B case {e['case_id']} "
+        f"encounter {e['k']:02d}\n"
+        f"G={e['G']:.2f}, D={e['D']:.2f}, Y={e['Y']:.2f}; JEPA + frozen E4 "
+        f"encoder + 10k-iter decoder",
+        y=1.02, fontsize=11,
     )
     fig.tight_layout()
     fig.savefig(out_path, dpi=130, bbox_inches="tight")
