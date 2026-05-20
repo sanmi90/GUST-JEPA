@@ -225,6 +225,8 @@ class FukamiAEWrapper(nn.Module):
         omega_clip_pct: float | None = None,
         airfoil_mask: Tensor | None = None,
         omega_pipeline=None,
+        recon_loss_type: str = "mse",
+        charbonnier_epsilon: float = 0.05,
     ) -> None:
         super().__init__()
         self.encoder = FukamiCNNEncoder(latent_dim)
@@ -235,6 +237,11 @@ class FukamiAEWrapper(nn.Module):
         self.lambda_recon = lambda_recon
         self.lambda_lift = lambda_lift
         self.omega_scale = float(omega_scale)
+        if recon_loss_type not in {"mse", "l1", "charbonnier"}:
+            raise ValueError(f"Unknown recon_loss_type {recon_loss_type!r}; "
+                             "choose mse / l1 / charbonnier.")
+        self.recon_loss_type = recon_loss_type
+        self.charbonnier_epsilon = float(charbonnier_epsilon)
         # omega_pipeline: when not None, supersedes the omega_scale / clip /
         # mask parameters. The pipeline implements the canonical three-stage
         # transform (spatial mask -> per-encounter clip -> z-score normalize)
@@ -313,6 +320,35 @@ class FukamiAEWrapper(nn.Module):
     def predict_lift(self, z: Tensor) -> Tensor:
         return self.lift_head(z)
 
+    def _recon_loss(self, target: Tensor, pred: Tensor) -> Tensor:
+        """Per-pixel reconstruction loss according to ``recon_loss_type``.
+
+        - ``mse``: standard mean squared error. Strong gradient on
+          high-magnitude errors but bulk-zero pixels can dominate via
+          their sheer count (the failure mode that pushed our d=3 decoder
+          toward "predict zero" with our sparse-vortical DNS).
+
+        - ``l1``: mean absolute error. Unit-magnitude gradient per pixel
+          regardless of error size; rare high-magnitude pixels carry the
+          same per-pixel gradient as bulk-zero pixels, but their sign is
+          consistent (vs symmetric noise from bulk-zero) so they dominate
+          the optimizer's direction. Robust to sparse signals.
+
+        - ``charbonnier``: ``sqrt((target - pred)^2 + eps^2) - eps``.
+          Smooth L1: quadratic below eps (well-conditioned near optimum),
+          linear above eps (L1-like robustness for sparse high-magnitude
+          features). Single eps hyperparameter, set to roughly the noise
+          floor of the normalized data.
+        """
+        err = target - pred
+        if self.recon_loss_type == "mse":
+            return (err ** 2).mean()
+        if self.recon_loss_type == "l1":
+            return err.abs().mean()
+        # charbonnier
+        eps = self.charbonnier_epsilon
+        return (torch.sqrt(err * err + eps * eps) - eps).mean()
+
     def _preprocess_with_pipeline(self, omega: Tensor, batch: dict) -> Tensor:
         """Apply OmegaPipeline (mask + per-encounter clip) to the batch.
 
@@ -363,22 +399,15 @@ class FukamiAEWrapper(nn.Module):
         # reproduce the LE artifact spikes.
         if self.omega_pipeline is not None:
             omega = self._preprocess_with_pipeline(omega, batch)
-            # Standard AE training: loss computed in NORMALIZED space. The
-            # decoder learns to predict the normalized target directly;
-            # un-normalization happens only at evaluation / visualization
-            # time. This is what Fukami and every standard AE paper do.
-            # Computing the loss on the unnormalized (raw) scale would
-            # inflate gradients by (3*sigma)^2 ~ 116x at sigma=3.585 and
-            # destabilize training at the usual lr=1e-3.
             omega_norm = self.omega_pipeline.normalize(omega)
             z = self.encoder(omega_norm)
             omega_hat_norm = self.decoder(z)
-            L_recon = ((omega_norm - omega_hat_norm) ** 2).mean()
+            L_recon = self._recon_loss(omega_norm, omega_hat_norm)
         else:
             omega = self._maybe_clip(omega)
             z = self.encoder(omega / self.omega_scale)
             omega_hat = self.decode(z)
-            L_recon = ((omega - omega_hat) ** 2).mean()
+            L_recon = self._recon_loss(omega, omega_hat)
 
         if "cl_future" in batch and self.lambda_lift > 0:
             cl_target = batch["cl_future"]

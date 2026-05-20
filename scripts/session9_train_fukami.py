@@ -137,6 +137,14 @@ def parse_args() -> argparse.Namespace:
                         "omega-scale / omega-clip / omega-clip-pct / "
                         "airfoil-mask-path. Build the manifest with "
                         "scripts/build_omega_pipeline.py.")
+    p.add_argument("--recon-loss-type", type=str, default="mse",
+                   choices=["mse", "l1", "charbonnier"],
+                   help="Per-pixel reconstruction loss. Charbonnier (smooth L1) "
+                        "recommended for sparse-vortical DNS where MSE collapses "
+                        "the decoder to predict zero.")
+    p.add_argument("--charbonnier-epsilon", type=float, default=0.05,
+                   help="Charbonnier transition threshold. Default 0.05 in "
+                        "normalized space matches the noise floor.")
     p.add_argument("--lr", type=float, default=1.0e-3,
                    help="Fukami used Adam with lr around 1e-3; we keep that.")
     p.add_argument("--weight-decay", type=float, default=0.0,
@@ -411,6 +419,8 @@ def main() -> None:
         omega_clip_pct=args.omega_clip_pct,
         airfoil_mask=airfoil_mask,
         omega_pipeline=omega_pipeline,
+        recon_loss_type=args.recon_loss_type,
+        charbonnier_epsilon=args.charbonnier_epsilon,
     ).to(device)
     n_params = sum(p.numel() for p in wrapper.parameters())
     log(f"[fukami-train] params={n_params:,} ({n_params/1e6:.2f}M)")
