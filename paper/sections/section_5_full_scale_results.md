@@ -440,21 +440,26 @@ robustly after R0.
 
 ## 5.8 Recommendation summary and Session 9 path
 
-The production configuration going into Session 9 (lambda bisection):
+The production configuration after Session 9 (lambda bisection +
+seed-variance bound at the production point):
 
 - **Anti-collapse:** SIGReg with batched-normalised projection
-- **Lambda_SIGReg:** 0.01 (Step 4 D53 best)
+- **Lambda_SIGReg:** 0.01 (Session 8 Step 4 D53 best; confirmed by
+  Session 9 D58 bisection over `lambda in {0.001, 0.003, 0.01, 0.03,
+  0.1}` with a clean interior maximum at lambda = 0.01)
 - **Auxiliary observable head:** cl_future at eta = 0.01 (D37 default
   also Step 4 D53 best, see Section 5.5)
 - **Latent dimension d:** 32 (D2 default also Step 5 D54 best, see
   Section 5.6)
 - **Predictor:** 6-layer AdaLN-Zero transformer with c = (G, D, Y)
 
-The headline Session 8 production cell (eta=0.01, lambda=0.01, d=32)
-reaches **Test B delta = +0.159**, +0.02 absolute above the Session 7
-R3 default (eta=0.01, lambda=0.1, d=32) and +0.16 absolute above the
-2-term-SIGReg-only baseline at any lambda. Test C delta at the same
-cell is +0.45 (extrapolation to |G|=4 also works).
+The production cell (eta=0.01, lambda=0.01, d=32) reaches mean
+**Test B delta = +0.131 +/- 0.032 (1-sigma) across three random seeds**
+(E4 seed=0 = +0.159, F4 seed=42 = +0.096, F5 seed=123 = +0.137; max-min
+range = 0.063 absolute). This is +0.93 absolute above the 2-term-
+SIGReg-only baseline at any lambda (R0 -0.74 to mean +0.131) and beats
+every Session 7 / 8 / 9 ablation. Test C delta at the same cell is
++0.474 mean (extrapolation to |G|=4 also works).
 
 Paper contribution claims as validated by Session 8 work:
 
