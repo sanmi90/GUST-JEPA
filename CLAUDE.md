@@ -131,6 +131,28 @@ Sanity check on first run
   exists and is readable before any training run starts. Fail fast with a clear
   message if `PREVENT_ROOT` is unset or the path is missing.
 
+## Omega preprocessing pipeline (v1)
+
+The canonical omega_z preprocessor lives at `src/data/omega_pipeline.py` with a
+frozen manifest at `outputs/data_pipeline/v1/manifest.json`. Three stages:
+(1) spatial mask of 140 cells (inside-solid + 1-cell-adjacent; removes the LE
+finite-difference artifact); (2) per-encounter p99.99 clip (266 thresholds in
+[52, 178]); (3) 3-sigma scale by `train_std = 3.5853` (divisor 10.756). Train
+mean = 0.0510, but we sigma-only-scale (no mean shift) to preserve vorticity
+antisymmetry.
+
+Every training entrypoint (Fukami AE `session9_train_fukami.py`, JEPA encoder
+`train_jepa.py`, JEPA decoder `session9_train_decoder.py`) takes
+`--omega-pipeline-manifest outputs/data_pipeline/v1/manifest.json`. When the
+flag is set, the loader sets `num_workers = 0` because the custom collate
+carries non-tensor `case_ids` and fork-based DataLoader workers fail on it.
+
+Loss is computed in NORMALISED space; un-normalise only at metric / figure
+time. The Fukami-protocol partition `v1fuk` (50 cases pooled, 25% per-case
+encounter holdout; 6 v1 test_b cases retained for diagnostic) lives at
+`configs/splits/split_v1fuk.json`; cache directory symlinked
+`${VORTEX_JEPA_CACHE}/v1fuk -> v1`.
+
 ## Baselines to implement (matched latent dimension)
 
 For paper-grade comparison at matched d:
@@ -285,6 +307,13 @@ the W&B config.
 - All random sources seeded (torch, numpy, random, torch.cuda); seed logged in every run
 - bf16 mixed precision on the user's RTX 6000 96 GB (single GPU is sufficient)
 - Type hints everywhere in `src/`; Google-style docstrings
+- Figure 3-style reconstruction panels use a fixed colorbar `vmin = -3,
+  vmax = +3` (matches Fukami's published range, which is also our 3-sigma
+  normalised scale unnormalised back to raw), with the NACA 0012 airfoil
+  overlaid as a filled-black polygon (vertices from `/airfoil_xy` in
+  `Baseline.h5`, converted to pixel coords via the (-1.5, 4.5) x (-1.5, 1.5)
+  physical extent). See `scripts/session9_fukami_figure.py` and
+  `scripts/session9_decoder_fig3_pipeline.py` for the reference implementations.
 
 ## Logging (W&B)
 
@@ -422,6 +451,22 @@ Auto-fallback rule (hard-coded in `src/training/train_jepa.py`):
 - Do not run training, smoke-test, or benchmark scripts on the L40S cards, on
   CPU, or on any device other than the RTX 6000 Blackwell (see "Hardware" above).
   Call `require_rtx6000()` from `src.utils.device` to enforce this at startup.
+- Do not compute reconstruction loss on RAW omega scale when the pipeline is
+  active. The loss must be in 3-sigma normalised space; un-normalise only at
+  metric / figure time. Computing loss on raw scale inflates gradients by
+  (3-sigma)^2 ~= 116x and destabilises training.
+- Do not use a hard active-pixel mask (`recon_inactive_weight = 0`) on the
+  reconstruction loss. The freestream diverges into noise (`eps_volume > 1.0`).
+  Use soft weight ~= 0.05 if a mask is needed at all.
+- Do not run Fukami with the strict-paper configuration (`tanh` + no GroupNorm
+  + current-C_L head at `delta = 0`) and expect a useful latent. Our default
+  (ReLU + GroupNorm + future-C_L at deltas `{8, 16, 24}`) is load-bearing for
+  parametric probing; the strict variant gives Test B probe delta ~= -0.45
+  (worse than the `(c, t)` regression baseline).
+- The Fukami eval helpers (`scripts/session9_fukami_evaluation.py`,
+  `gather_eval_encounters` in `session9_train_fukami.py`) hardcode
+  `split_v1.json`. Training on v1fuk still evaluates against v1's splits;
+  Test C can be leaky if a v1 test_c case was promoted into v1fuk training.
 
 ## Where to find more detail
 
