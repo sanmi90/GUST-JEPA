@@ -52,13 +52,14 @@ Training
 
 Data
 - Split is locked at `configs/splits/split_v1.json` (sha256-anchored to inventory).
-- 41 train cases (138 encounters), 6 Test B cases (28 enc), 4 Test C cases (24 enc).
-  51 cases total in v1.2 (post-Session 6 absorption of 2 new run3 cases; see D33).
+- 50 train cases (165 encounters), 6 Test B cases (28 enc), 4 Test C cases (24 enc).
+  60 cases total in v1 (post-Session 9 absorption of 4 new run3 cases on top of
+  the v1.2 51-case snapshot; see Section 7c of SESSION9_REPORT.md).
   Baseline (no gust) is in `train` (encounters 0-3) and Test A (encounters 4-5) like
   any other periodic case; it is also flagged `is_calibration_reference: true` so
   calibration tooling can still identify the no-gust reference. Within training cases,
   Test A holds last 2 of 6 (periodic) or last 1 of 4 (run3) encounters:
-  56 encounters total.
+  65 encounters total.
 - |G| = 3 stays in training. Test C is G = +4 only. Periodic trailing partials discarded.
 - Impact frame ~ 40 (vortex centroid crosses LE at t ~ 1.965 t/c). QC across the cached
   partition v1: vorticity argmax mean = 40.8, force argmax mean = 38.8 over [25, 55].
@@ -136,10 +137,12 @@ Sanity check on first run
 The canonical omega_z preprocessor lives at `src/data/omega_pipeline.py` with a
 frozen manifest at `outputs/data_pipeline/v1/manifest.json`. Three stages:
 (1) spatial mask of 140 cells (inside-solid + 1-cell-adjacent; removes the LE
-finite-difference artifact); (2) per-encounter p99.99 clip (266 thresholds in
-[52, 178]); (3) 3-sigma scale by `train_std = 3.5853` (divisor 10.756). Train
-mean = 0.0510, but we sigma-only-scale (no mean shift) to preserve vorticity
-antisymmetry.
+finite-difference artifact); (2) per-encounter p99.99 clip (282 thresholds in
+[52, 178] over 60 cases); (3) 3-sigma scale by `train_std = 3.5526` (divisor
+10.658). Train mean = 0.0538, but we sigma-only-scale (no mean shift) to
+preserve vorticity antisymmetry. Earlier manifest versions (Session 9 main
+runs) used the 56-case pool stats `std = 3.5853, divisor = 10.756`; the shift
+is ~1% and existing checkpoints remain valid to within that tolerance.
 
 Every training entrypoint (Fukami AE `session9_train_fukami.py`, JEPA encoder
 `train_jepa.py`, JEPA decoder `session9_train_decoder.py`) takes

@@ -1031,7 +1031,58 @@ Reporting both rows in the paper gives the reviewer a clean answer
 to "did you reproduce Fukami?": yes, and his exact recipe produces
 a latent that does not generalise on our envelope.
 
-### 7b.4 Updated Pareto picture
+### 7b.4 Four additional run3 cases absorbed (60 cases total)
+
+After the comparative sweep completed, the PREVENT side regenerated its
+raw_cases_inventory.yaml and surfaced four additional run3 cases that
+were not in the v1.2 snapshot:
+
+```
+G+2.00_D1.50_Y+0.40 (run3, 4 encs)
+G-1.00_D0.50_Y-0.40 (run3, 4 encs)
+G-1.00_D0.50_Y+0.00 (run3, 4 encs)
+G-0.50_D1.00_Y-0.40 (run3, 4 encs)
+```
+
+All four sit in the training envelope (|G| <= 2; D in {0.5, 1.0, 1.5};
+Y in {-0.4, 0.0, +0.4}) and were assigned to the train pool by
+`build_split_manifest.py`. The v1 split totals updated:
+
+| Split | Cases (was) | Cases (now) | Encs (was) | Encs (now) |
+|-------|---:|---:|---:|---:|
+| train | 46 | **50** | 153 | **165** |
+| test_a | (subset of train) | (subset) | 61 | **65** |
+| test_b | 6 | 6 | 28 | 28 |
+| test_c | 4 | 4 | 24 | 24 |
+| **total** | 56 | **60** | 266 | **282** |
+
+The 16 new per-encounter cache files were generated via
+`python scripts/preprocess.py --partition v1 --cases <four ids>`
+(36 s wall on the RTX 6000). The omega pipeline manifest was rebuilt
+via `python scripts/build_omega_pipeline.py --partition v1` to include
+the 16 new per-encounter p99.99 thresholds. Train stats shifted
+slightly with the larger pool:
+
+| Statistic | Old (56 cases / 266 encs) | New (60 cases / 282 encs) | Delta |
+|---|---:|---:|---:|
+| `train_mean` | 0.0510 | 0.0538 | +5% |
+| `train_std` | 3.5853 | 3.5526 | -1% |
+| 3-sigma divisor | 10.756 | 10.658 | -0.9% |
+| n_pixels (post-mask) | 335,841,120 | 362,181,600 | +8% |
+
+The 1% std shift is well within run-to-run noise, so the Session 9
+checkpoints trained against the 56-case manifest remain valid for
+qualitative cross-method comparison. Any single-seed paper-final
+number should be regenerated against the 60-case manifest for
+reproducibility.
+
+The `v1fuk` Fukami-protocol partition is now stale relative to v1;
+it would need to be rebuilt with the 4 additional cases pooled in
+if the Fukami-protocol comparison is to be regenerated under v1
+(60 cases). The Session 9 fukstyle result reported in Section 7b.2
+remains the v1.2-snapshot (50-case-pool) Fukami-protocol number.
+
+### 7b.5 Updated Pareto picture
 
 The seven variants from Section 2 plus these two new runs trace a clean
 Pareto frontier in (SSIM, probe Δ) space:
