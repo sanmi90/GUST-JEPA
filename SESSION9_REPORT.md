@@ -4,6 +4,258 @@ Date: 2026-05-20
 Branch: main
 Author: Carlos Sanmiguel Vila + Claude (Opus 4.7, 1M context)
 
+## 0. Project context
+
+This work is part of the **vortex-jepa** project (INTA / UC3M, lead
+researcher Carlos Sanmiguel Vila), an end-to-end Joint-Embedding
+Predictive Architecture (JEPA) for parametric vortex-gust interactions
+on an airfoil at moderate Reynolds number. The scientific target is a
+data-driven model that forecasts the latent state of a NACA 0012
+airfoil in stall (alpha = 14 deg, Re = 5000) when perturbed by a
+parametric family of Taylor-vortex gusts, and that generalises across
+the gust's three parametric coordinates: strength G, core diameter D
+(in chord units), and impact offset Y / c.
+
+The architecture follows the LeWM recipe (Maes et al., arXiv:2603.19312,
+2026) and the LeJEPA loss design (Balestriero and LeCun,
+arXiv:2511.08544, 2025): a hybrid CNN-ViT encoder lifts spanwise
+vorticity snapshots into a 32-dimensional latent, an autoregressive
+transformer predictor with AdaLN-Zero conditioning on (G, D, Y, phi_t)
+forecasts the latent forward, and a Shannon-Indicator-Gradient
+regulariser (SIGReg) prevents collapse without an EMA target encoder.
+A separate visualisation decoder is trained on the frozen JEPA
+encoder for figures and reconstruction-style metrics; the decoder is
+never part of the JEPA training objective.
+
+The baseline contrast set is fixed at four reference methods, all at
+matched latent dimension where possible: a POD floor; the Fukami
+observable-augmented autoencoder (Fukami and Taira, PRF 10, 084703,
+2025 and JFM 1018, A22, 2023, with C_L augmentation); the
+Solera-Rico beta-VAE plus transformer (Solera-Rico et al.,
+Nat. Commun. 15, 1361, 2024); and PLDM (Sobal et al.,
+arXiv:2502.14819, 2025; precursor at arXiv:2211.10831, NeurIPS SSL
+workshop 2022) as the methodological foil for SIGReg's two-term loss
+against PLDM's five-term VICReg-derived objective. The paper-grade
+deliverable targets these competitors on forecasting horizon and
+probing R^2 at matched latent dimension.
+
+Session 9 lands the foundational data pipeline that all of these
+comparisons need, retrains the best JEPA configuration on the cleaned
+inputs, retrains the visualisation decoder on the new encoder, and
+inventories nine Fukami AE variants across the loss-design and
+latent-capacity axes. The rest of this report documents what we built,
+what we measured, and what survives as a paper claim.
+
+## 0b. Dataset and case inventory
+
+Raw DNS data is owned by the **PREVENT** project (Carlos's ML turbulence
+detection effort that produced these runs); the vortex-jepa repository
+contains only code, configuration, and the split manifest. Files live
+at `${PREVENT_ROOT}/data/raw/periodic/*.h5` and
+`${PREVENT_ROOT}/data/raw/periodic/run3/*.h5`; the v1 preprocessing
+pipeline produces per-encounter caches at
+`${VORTEX_JEPA_CACHE}/v1/{case_id}/encounter_{k:02d}.h5`. The Session 9
+omega pipeline (Section 1) sits on top of this cache and is applied
+identically to every model trained in this session.
+
+### 0b.1 Flow configuration
+
+- Geometry: NACA 0012 airfoil, chord c = 1.
+- Angle of attack: 14 degrees (deep stall, post-static-stall).
+- Reynolds number: Re = 5000, defined on the chord and the inflow.
+- Flow domain: x in [-1.5, +4.5], y in [-1.5, +1.5] (chord-normalised
+  pre-rotation), spanwise extent z in [0, 0.4].
+- DNS state on the mid-span plane: vorticity omega_z = du/dy - dv/dx,
+  cached at native resolution (H, W) = (192, 96).
+- Frame cadence: dt_tc = 0.05 (convective times); each encounter
+  contains 120 frames spanning t/c in [0, 6].
+- Wall pressure also cached (`p_wall (T, 192)`) and force coefficients
+  C_L and C_D (`(T,)`). C_M is not stored at cache time.
+
+### 0b.2 Gust parametrisation
+
+Each non-baseline case adds a Taylor vortex released upstream of the
+airfoil and convected downstream by the base flow. The vortex is
+parametrised by three coordinates:
+
+- G (gust strength, dimensionless): peak circulation normalised by
+  the chord and inflow. Sign convention follows the inverse-rotation
+  parser in `data_manifest/raw_cases_inventory.yaml`: positive G
+  rotates clockwise when viewed from the suction side, negative G
+  counter-clockwise. Values in v1.2: G in {-3, -2, -1.5, -1, -0.5,
+  0 (Baseline), +0.25, +0.5, +1, +1.5, +2, +3, +4}.
+- D (vortex core diameter, in chord units): the characteristic spatial
+  scale of the Taylor vortex profile. Values in v1.2: D in {0.5, 1.0,
+  1.5} (plus D = 0.0 for Baseline, which is the no-gust limit).
+- Y / c (impact offset, chord-normalised): vertical position of the
+  vortex centre at impact relative to the airfoil mid-chord. Values
+  in v1.2: Y in {-0.4, -0.2, -0.1, 0.0, +0.1, +0.2, +0.4}.
+
+The impact frame is approximately k = 40 (vortex centroid crosses the
+leading edge at t/c ~ 1.965). The QC across the v1 cached partition
+gives a mean vorticity-argmax frame of 40.8 and a mean force-argmax
+frame of 38.8 within the [25, 55] window. The impact-aware
+sub-trajectory sampler (Section 1b.4) uses this fact to bias 70% of
+training samples to overlap the impact window.
+
+### 0b.3 Source groups and encounter layout
+
+DNS data comes in two batches:
+
+- **periodic**: long-time runs at the rotor analogue, with the gust
+  released periodically every 120 frames. Each periodic file contains
+  approximately 800 frames; the loader discards trailing partials and
+  retains the first 6 complete 120-frame episodes ("encounters") per
+  file. 21 periodic cases in v1.2.
+- **run3**: shorter runs at the more aggressive parametric corners,
+  with the gust released every 120 frames over 480 frames per file =
+  4 encounters per case. 35 run3 cases in v1.2.
+
+This gives 21 * 6 + 35 * 4 = 126 + 140 = **266 encounters** across
+21 + 35 = **56 cases** in the v1.2 partition. The Baseline (G = 0)
+case is treated like any other periodic case in the splits (it has
+6 encounters, 4 used in training and 2 held out as test_a); it is
+additionally flagged `is_calibration_reference: true` so calibration
+tooling can identify it as the no-gust reference.
+
+### 0b.4 Parametric envelope (the (G, D, Y) volume)
+
+The 56 cases cover a heterogeneous grid in (G, D, Y) space. Counts by
+parameter:
+
+| Axis | Values | Cases per value (totals) |
+|------|---|---|
+| G | -3, -2, -1.5, -1, -0.5, 0 (Baseline), +0.25, +0.5, +1, +1.5, +2, +3, +4 | 13 distinct strengths |
+| D | 0 (Baseline), 0.5, 1.0, 1.5 | 4 distinct diameters |
+| Y / c | -0.4, -0.2, -0.1, 0, +0.1, +0.2, +0.4 | 7 distinct offsets |
+
+The envelope is **not a full Cartesian product**: not every (G, D, Y)
+triplet has a corresponding DNS run, because the run3 batch added
+parametric corners (large \|G\|, off-axis Y) that were missing from
+the original periodic sweep. The split (Section 0b.5) is constructed
+to make Test B a representative interior holdout and Test C a clean
+extrapolation in G.
+
+### 0b.5 Split design (v1)
+
+The locked split at `configs/splits/split_v1.json` is anchored to the
+SHA-256 of `data_manifest/raw_cases_inventory.yaml`. The three
+evaluation surfaces probe different generalisation axes:
+
+- **train + test_a**: 46 cases (153 train encounters + 61 test_a
+  encounters). Test A holds out the last 2 (periodic) or last 1
+  (run3) encounters from each training case. This is the
+  in-distribution time-holdout: parametric coordinates have been
+  seen, only the shedding phase differs.
+- **test_b**: 6 cases (28 encounters) entirely held out from
+  training. All parametric coordinates are within the training
+  envelope's convex hull. This is the **in-envelope parametric
+  generalisation** test and is the primary single number we report
+  (Test B probe Δ, Test B SSIM, Test B epsilon).
+- **test_c**: 4 cases (24 encounters) at G = +4 only, with
+  (D, Y) values that overlap the training set. This is the
+  **G-extrapolation** test: gust strength exceeds the training
+  maximum (|G_train| <= 3). Test C numbers are reported only at
+  paper-final time, not during model selection.
+
+#### Train cases (46)
+
+Periodic batch (21 cases, 6 encounters each, 4 train + 2 test_a):
+
+```
+Baseline (G=+0.00, D=0.00, Y=+0.00)
+G+0.25_D0.50_Y-0.10        G+0.25_D0.50_Y+0.10
+G+0.25_D1.00_Y-0.10        G+0.25_D1.00_Y+0.10
+G+0.50_D0.50_Y-0.10        G+0.50_D0.50_Y+0.10
+G+0.50_D1.00_Y-0.10        G+0.50_D1.00_Y+0.10
+G+1.00_D0.50_Y-0.10        G+1.00_D0.50_Y+0.10
+G+1.00_D1.00_Y-0.10
+G+2.00_D0.50_Y-0.10        G+2.00_D0.50_Y+0.10
+G+2.00_D1.00_Y+0.10
+```
+
+run3 batch (25 cases, 4 encounters each, 3 train + 1 test_a):
+
+```
+G-3.00_D0.50_Y-0.40   G-3.00_D0.50_Y+0.00   G-3.00_D0.50_Y+0.40
+G-3.00_D1.00_Y-0.20   G-3.00_D1.00_Y+0.10   G-3.00_D1.50_Y-0.10
+G-2.00_D0.50_Y+0.20   G-2.00_D1.00_Y-0.40   G-2.00_D1.00_Y+0.40
+G-2.00_D1.50_Y+0.10
+G-1.50_D1.00_Y+0.20   G-1.50_D1.50_Y-0.40   G-1.50_D1.50_Y+0.40
+G-1.00_D0.50_Y+0.40   G-1.00_D1.00_Y-0.20   G-1.00_D1.50_Y-0.10
+G-0.50_D0.50_Y+0.20   G-0.50_D1.50_Y+0.10
+G+0.50_D1.50_Y-0.40
+G+1.00_D0.50_Y-0.40   G+1.00_D0.50_Y+0.40   G+1.00_D1.00_Y-0.20
+G+1.00_D1.50_Y+0.20
+G+1.50_D0.50_Y-0.10   G+1.50_D1.00_Y-0.40   G+1.50_D1.00_Y+0.40
+G+2.00_D1.50_Y+0.00
+G+3.00_D0.50_Y-0.40   G+3.00_D0.50_Y+0.40   G+3.00_D1.00_Y+0.10
+G+3.00_D1.50_Y+0.20
+```
+
+#### Test B cases (6)
+
+In-envelope held-out parametric points. Two periodic and four run3:
+
+```
+G-1.50_D0.50_Y-0.20   [run3]
+G-0.50_D1.00_Y+0.00   [run3]
+G+0.50_D1.00_Y+0.20   [run3]
+G+1.00_D1.00_Y+0.10   [periodic]
+G+1.50_D1.50_Y-0.20   [run3]
+G+2.00_D1.00_Y-0.10   [periodic]
+```
+
+The Test B set was constructed to cover a representative cross-section
+of the envelope: both signs of G, all three D values, three Y values,
+and a mix of run3 and periodic source groups. No stratification by
+source group at evaluation time.
+
+#### Test C cases (4)
+
+G = +4 only (the G-extrapolation slice). All periodic:
+
+```
+G+4.00_D0.50_Y-0.10
+G+4.00_D0.50_Y+0.10
+G+4.00_D1.00_Y-0.10
+G+4.00_D1.00_Y+0.10
+```
+
+The maximum training |G| is 3.0 (run3 batch), so Test C asks the model
+to extrapolate gust strength by one full unit beyond the training
+envelope. The (D, Y) coordinates of these four cases all overlap with
+training points, so the only out-of-distribution axis is G.
+
+### 0b.6 Per-encounter HDF5 schema
+
+Each `encounter_{k:02d}.h5` in the v1 cache carries:
+
+- `omega_z (120, 192, 96) float32`: mid-plane spanwise vorticity
+- `p_wall (120, 192) float32`: surface pressure on the airfoil
+  (spanwise-averaged from the raw `(192, 8, T)` sensor array)
+- `C_L (120,) float32`: instantaneous lift coefficient
+- `C_D (120,) float32`: instantaneous drag coefficient
+
+Plus 17 attributes documenting case_id, (G, D, Y), source_group,
+encounter_index, frame_start / frame_end, dt_tc, impact_frame_estimate,
+mid_span_index, omega_z_sign_convention (`du/dy - dv/dx`), the
+preprocessing version (v1.0.0), the partition version (v1), the raw
+relative path, and n_frames.
+
+The raw `/u` (velocity) and `/curlU` (vorticity) carry NaN in the
+2624 cells where `/inside_solid > 0`; the v1 cache replaces those
+with 0. The omega pipeline then masks an additional 1-cell-adjacent
+ring (140 cells total) to remove the leading-edge finite-difference
+artifact discussed in Section 1.
+
+Magnitude scale of omega_z at this Re: typical max |omega| per case
+is 400 to 4000 (median 1482 across the v1.2 partition; peak 4377 for
+`G+4.00_D0.50_Y-0.10` encounter 00 frame 52). The strong-gust cores
+sit at 1000-4000; the bulk freestream sits below 0.5 in magnitude.
+The omega pipeline (Section 1) brings these into a unit-scale
+normalised range using a 3-sigma divisor of 10.756.
+
 ## Executive summary
 
 Session 9 began as a lambda-bisection refinement and grew into a foundational
