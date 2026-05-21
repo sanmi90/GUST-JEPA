@@ -2696,6 +2696,284 @@ tighten the variance bound (~1.5h on RTX 6000 Blackwell). Plus:
 
 Session 11 (if needed): revision after internal review.
 
+### D70: Session 10 scope (2026-05-21, Session 10)
+
+Session 10 attacks the JEPA visualisation-decoder reconstruction quality
+via a multiscale Laplacian-pyramid decoder architecture (LapFiLMDecoder),
+with a coordinate neural field decoder (CoordMLPDecoder) as a
+latent-information-content audit. The headline question is whether
+the wake-erasure failure mode visible in Session 9's Figure 3 is
+decoder-architecture-limited or latent-information-limited.
+
+The GPT-collaborator's proposal listed six experiments (E0-E5) plus
+three decoder architectures plus a 5-term loss with five lambdas.
+Session 10 narrows this:
+
+- E0 (Fukami decoder MSE reproduction) dropped. Session 9's
+  ``outputs/runs/session9/decoder_pipeline_mse/`` checkpoint already
+  produced the baseline (Test A SSIM 0.503, Test B SSIM 0.358,
+  Test C SSIM 0.243); re-running adds 1.5h GPU to reproduce a known
+  number.
+- E3 (params_phase conditioning) deferred to Session 11. The
+  conditioning question bundles two design choices: (a) is FiLM the
+  right mechanism for latent conditioning, and (b) does adding
+  external (G, D, Y, phase) on top of z help. Session 10 isolates (a)
+  with the no_film ablation; (b) is Session 11.
+- E5 (LapFiLM on frozen Fukami d=32 latent) deferred to Session 11.
+- Matched-d=32 end-to-end Fukami AE baseline deferred to Session 11.
+- bilinear_conv upsampling kept as a parameterisable alternative
+  (``--decoder-upsample bilinear_conv``) but the production runs use
+  PixelShuffle by default; Session 11 may revisit if PixelShuffle
+  shows checkerboard artifacts in Figure 3.
+
+Three production runs land in Session 10:
+
+- E1 LapFiLM + region + pyramid + enstrophy + circulation (no FFL)
+  on cuda:2. Isolates the multiscale architecture contribution from
+  the FFL contribution.
+- E2 LapFiLM + region + pyramid + FFL + enstrophy + circulation
+  on cuda:3 concurrent with E1. The full combination.
+- E4 CoordMLPDecoder audit on cuda:2 sequentially after E1. The
+  latent-information diagnostic: does a coordinate neural field
+  decoder, given unlimited spatial resolution and Fourier features,
+  recover wake-scale structure from the frozen JEPA latent?
+- E_noFiLM (conditional) LapFiLM with ``use_film=False`` on cuda:3
+  sequentially after E2, if E2 substantially beats the Session 9
+  baseline. Tests whether FiLM specifically contributes vs simpler
+  concat-and-conv conditioning.
+
+The Session 10 outcome decision (D73) maps the runs to one of five
+Session 11 priority strings (see SESSION10_MULTISCALE_DECODER.md
+"Decision outcomes after Step 7").
+
+### D71: Enstrophy and circulation losses are spatial fields (2026-05-21, Session 10 Step 2)
+
+The GPT-collaborator's original enstrophy and circulation losses
+compared the SCALAR-MEAN enstrophy ``pred.pow(2).mean()`` to
+``target.pow(2).mean()`` (and analogously for circulation). A model can
+satisfy this constraint with uniform noise of the right total energy:
+spread the same total enstrophy uniformly across the freestream and
+the mean-comparison loss is exactly zero.
+
+Session 10 implements the SPATIAL-FIELD comparison instead:
+
+```python
+def enstrophy_field_loss(pred, target, weight=None):
+    diff = pred.pow(2) - target.pow(2)
+    return (weight * diff.pow(2)).mean() if weight is not None else diff.pow(2).mean()
+
+def circulation_density_loss(pred, target, weight=None):
+    diff = pred - target
+    return (weight * diff.abs()).mean() if weight is not None else diff.abs().mean()
+```
+
+Both losses optionally take the ``region_weight`` mask so the wake-ROI
+gets the full constraint and the freestream gets only the inactive-
+pixel floor (0.05). The L1 form for circulation is sign-sensitive
+(positive vs negative vorticity cores would cancel under L2 but not
+under L1, which matters for matching the alternating Karman wake
+shedding).
+
+``tests/test_decoder_losses.py::test_enstrophy_field_loss_nonzero_on_uniform_noise``
+is the explicit regression check: construct two fields with matched
+scalar-mean enstrophy (uniform noise vs structured wake), assert that
+the scalar-mean form gives zero and the spatial-field form gives a
+strictly positive loss. Passes.
+
+### D72: FiLM ``use_film=False`` ablation flag (2026-05-21, Session 10 Step 1)
+
+``LapFiLMDecoder(use_film=False)`` removes the FiLM linears from every
+``FiLMResBlock`` and instead broadcasts the latent ``z`` as constant
+channels at every pyramid level (concatenated with the coord +
+Fourier + airfoil-mask channels and projected back to the level's
+channel count). This is the no_film ablation pathway. Parameter
+count differs from the FiLM variant by the four FiLM linears per
+``FiLMResBlock`` (10 blocks at the production defaults = 10 * 4 *
+ch * latent_dim parameters).
+
+The ablation supports the paper's claim that FiLM is the right
+conditioning mechanism for this dataset rather than the simpler
+concat-and-conv pathway. If the no_film variant performs comparably,
+the paper description simplifies; if FiLM substantially helps, the
+paper makes the architectural claim explicitly.
+
+Recorded so future-me knows the flag exists. Whether the ablation
+RUNS depends on E2 meeting the success criteria (the ablation is
+only informative if the FiLM variant clearly beats the baseline).
+
+### D73: Session 10 outcome -- ALL_THREE_PARTIAL with split-by-metric pattern (2026-05-21, Session 10)
+
+**Outcome: ALL_THREE_PARTIAL.** All three decoder families (CNN-LapFiLM,
+CNN-LapFiLM+FFL, CoordMLP) show partial improvements on some metrics
+but no single decoder clears all the success criteria on Test B. The
+notable nuance is that the three families improve on DIFFERENT
+metrics:
+
+- **CNN decoders (E1, E2)** improve **wake shape**: Test B SSIM
+  median +6 to +10 percent (0.357 -> 0.379 / 0.391), local FFT error
+  median -4 percent, radial spectrum +3 to +8 percent regression but
+  the spatial coherence is right.
+- **CoordMLP (E4)** improves **wake magnitude**: Test B wake
+  enstrophy relative error median 0.687 -> 0.568 (-17 percent, the
+  best of the four), but SSIM median collapses to 0.285 (-20 percent
+  vs Session 9 baseline).
+
+The two improvements are anti-correlated: CNN decoders give the
+right shape but too-low magnitude; the CoordMLP gives the right
+magnitude but wrong shape. No decoder gets both right on the same
+latent. This is the diagnostic signature of partial latent
+information: the latent encodes wake intensity (recovered by E4)
+and spatial pattern (recovered by E1 / E2), but the conditioning
+strength d=32 is too narrow for either family alone to extract
+both simultaneously.
+
+Per the plan's success criteria on Test B (mean-based):
+
+| criterion                     | S9 baseline | E1     | E2     | E4     |
+|-------------------------------|-------------|--------|--------|--------|
+| Test B SSIM mean >= 0.39      | 0.357       | 0.356 (FAIL) | 0.356 (FAIL) | 0.286 (FAIL) |
+| Test B eps_vol mean <= 0.94   | 0.978       | 1.005 (FAIL) | 1.006 (FAIL) | 1.070 (FAIL) |
+| Wake enstrophy >= 20% red.    | --          | -11.6% (close)| -11.4% (close)| -16.5% (close)|
+| Wake MSE >= 20% reduction     | --          | +4.8% (FAIL)  | +4.6% (FAIL)  | +21.4% (FAIL)|
+
+No decoder meets the 0.94 epsilon target. Wake enstrophy improves
+across all three but falls short of the 20 percent bar. CNN decoders
+slightly worsen wake MSE; CoordMLP worsens it badly. The plan's
+success criteria were aspirational and not met by any decoder.
+
+E_noFiLM ablation was NOT triggered (E2 did not substantially beat
+the Session 9 baseline on the headline metrics).
+
+**Session 11 priorities (from D73):**
+
+1. Retrain the JEPA encoder with a **wake-region observable head** in
+   addition to C_L (which is the existing observable). Two candidates:
+   (a) ``omega_wake_enstrophy(t)`` scalar, or (b)
+   ``omega_wake_radial_spectrum(t)`` 32-vector. Either adds a
+   constraint that forces z to encode wake state explicitly. Without
+   this, no further decoder work moves the needle.
+2. With the wake-aware encoder, re-run E1 / E2 / E4 to confirm both
+   wake shape and magnitude improve simultaneously.
+3. Then run E3 (params_phase conditioning), E5 (Fukami-d=32 latent
+   comparison), and the matched-d=32 Fukami AE baseline -- these are
+   the three deferred items from D70.
+
+The current ``ALL_THREE_PARTIAL`` outcome means the LapFiLM
+architecture is NOT obsolete -- it correctly improves wake shape
+on the existing latent. Session 11 keeps LapFiLM as the
+decoder-of-record and modifies the encoder.
+
+### D74: E1 results -- LapFiLM, no FFL (2026-05-21, Session 10)
+
+Run: ``outputs/runs/session10/E1_jepa_lapfilm_pyr_noffl``.
+Wall-clock: 13:42 to 15:42 (2.0 hours) on cuda:2 RTX 6000 Blackwell.
+20000 iters; final iter ratio Test A = 8.51, Test B = 2.10, Test C = 1.85.
+
+Test A/B/C (full eval, raw scale):
+
+| metric                  | Test A    | Test B    | Test C    |
+|-------------------------|-----------|-----------|-----------|
+| SSIM mean               | 0.508     | 0.356     | 0.230     |
+| SSIM median             | 0.519     | 0.379     | 0.213     |
+| eps_volume median       | 0.865     | 0.994     | 1.031     |
+| wake enstrophy median   | 0.606     | 0.607     | 0.694     |
+| wake MSE median (raw)   | 10.03     | 12.04     | 41.58     |
+| circulation abs-err wake| 1057      | 908       | 2118      |
+
+Relative to S9 baseline:
+- Test B SSIM median +6.2 percent; mean -0.1 percent.
+- Test B eps_vol median -1.2 percent; mean +2.8 percent.
+- Test B wake enstrophy -11.6 percent.
+- Test B wake MSE +4.8 percent.
+
+Decoder params: 707085. Loss = region (1.0) + Charbonnier pyramid
+(0.4) + enstrophy field (0.02) + circulation (0.01) + FFL (0.0).
+
+### D75: E2 results -- LapFiLM + FFL (2026-05-21, Session 10)
+
+Run: ``outputs/runs/session10/E2_jepa_lapfilm_pyr_ffl``.
+Wall-clock: 13:42 to 14:48 (1.1 hours, slightly faster than E1) on
+cuda:3 RTX 6000 Blackwell. 20000 iters. FFL warmup ramped from 0 at
+iter 2000 to 1.0 at iter 3000.
+
+Test A/B/C (full eval, raw scale):
+
+| metric                  | Test A    | Test B    | Test C    |
+|-------------------------|-----------|-----------|-----------|
+| SSIM mean               | 0.510     | 0.356     | 0.232     |
+| SSIM median             | 0.518     | 0.391     | 0.219     |
+| eps_volume median       | 0.861     | 0.987     | 1.039     |
+| wake enstrophy median   | 0.606     | 0.617     | 0.702     |
+| wake MSE median (raw)   | 9.86      | 12.02     | 41.46     |
+
+Relative to S9 baseline:
+- Test B SSIM median +9.6 percent; mean -0.1 percent.
+- Test B eps_vol median -1.8 percent; mean +2.9 percent.
+- Test B wake enstrophy -11.4 percent.
+- Test B wake MSE +4.6 percent.
+
+E2 is the best CNN-decoder configuration on Test B SSIM median.
+The FFL component contributes a small additional gain over E1 on
+the median but slightly worsens the wake physics metrics (radial
+spectrum, circulation). The CharbonnierPyramid + enstrophy +
+circulation combination (E1) is the better recipe for wake physics;
+the +FFL combination (E2) is the better recipe for full-field
+SSIM.
+
+### D76: E4 results -- CoordMLP audit (2026-05-21, Session 10)
+
+Run: ``outputs/runs/session10/E4_jepa_coordmlp_audit``.
+Wall-clock: 15:30 to ~16:55 (~1.5 hours) on cuda:3 RTX 6000
+Blackwell (sequential after E2; deviation from plan's "E4 on cuda:2
+after E1" to use the freed-up card immediately). 20000 iters.
+Architecture: SIREN sinusoidal activations, hidden 128, 5 layers,
+chunk_pixels=4096. Decoder params: 54145 (much smaller than
+LapFiLM's 707085).
+
+Test A/B/C (full eval, raw scale):
+
+| metric                  | Test A    | Test B    | Test C    |
+|-------------------------|-----------|-----------|-----------|
+| SSIM mean               | 0.410     | 0.286     | 0.136     |
+| SSIM median             | 0.430     | 0.285     | 0.122     |
+| eps_volume median       | 0.951     | 1.075     | 1.077     |
+| wake enstrophy median   | 0.592     | 0.568     | 0.741     |
+| wake MSE median (raw)   | 12.15     | 13.94     | 43.13     |
+| circulation abs-err wake| 1240      | 1247      | 2245      |
+
+**The diagnostic finding:** despite worse SSIM / eps / wake-MSE,
+CoordMLP gives the **lowest** wake enstrophy relative error on
+Test A and Test B (0.59 and 0.57 vs LapFiLM's 0.61-0.62 and S9's
+0.67-0.69). Per-pixel independent MLP output captures wake
+intensity well but loses the spatial coherence that CNN decoders
+preserve.
+
+This is the **latent-information-content diagnostic**: a CoordMLP
+with unlimited spatial resolution and Fourier features should
+outperform any CNN on high-frequency signal recovery IF the latent
+has the information. It does for the SCALAR enstrophy (matches
+total magnitude better than the CNN family) but fails on the
+SPATIAL distribution (SSIM, radial spectrum). The bottleneck is
+NOT the decoder's high-frequency capacity -- it is that the
+latent encodes wake-summary information (enstrophy) more than
+wake-spatial-pattern information.
+
+### D77: E_noFiLM ablation NOT run (2026-05-21, Session 10)
+
+Per the plan's conditional rule "If E2 substantially beats the
+Session 9 baseline, run a no_film ablation", E_noFiLM was NOT
+launched. E2's Test B SSIM mean = 0.356 vs Session 9 baseline =
+0.358 (flat); Test B eps_vol mean = 1.006 vs baseline 0.978
+(slight regression on the mean). The headline SSIM/eps gap is
+within noise. Until the encoder is wake-aware (Session 11 D73
+priority 1), distinguishing FiLM vs concat-only conditioning is
+not actionable for the paper.
+
+The ablation flag remains in ``LapFiLMDecoder(use_film=False)``
+and is exercised by the unit test
+``test_lap_film_decoder_no_film_ablation``. When Session 11
+retrains the encoder and re-runs E2, E_noFiLM can be added then.
+
 ## Open questions
 
 1. Empirical impact frame. The estimate of 40 was validated in the bootstrap session

@@ -38,6 +38,7 @@ import math
 import os
 import sys
 from pathlib import Path
+from typing import Optional
 
 import h5py
 import numpy as np
@@ -48,8 +49,11 @@ import torch.nn.functional as F
 REPO = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO))
 
+from src.models.coord_mlp_decoder import CoordMLPDecoder  # noqa: E402
 from src.models.decoder import HybridViTConvDecoder  # noqa: E402
+from src.models.decoder_losses import region_pyr_ffl_loss  # noqa: E402
 from src.models.encoder import HybridCNNViTEncoder  # noqa: E402
+from src.models.lap_film_decoder import LapFiLMDecoder  # noqa: E402
 from src.utils.device import require_rtx6000  # noqa: E402
 
 
@@ -246,7 +250,11 @@ def evaluate_split(
             with torch.autocast(device_type=device.type, dtype=torch.bfloat16,
                                 enabled=device.type == "cuda"):
                 z = enc(x)
-                x_hat = dec(z)
+                dec_out = dec(z)
+                if isinstance(dec_out, dict):
+                    x_hat = dec_out["pred"]
+                else:
+                    x_hat = dec_out
                 if omega_pipeline is not None:
                     x_hat = omega_pipeline.unnormalize(x_hat)
                 else:
@@ -277,9 +285,28 @@ def evaluate_split(
     }
 
 
+def _str2bool(v: str) -> bool:
+    if isinstance(v, bool):
+        return v
+    if v.lower() in ("true", "1", "yes", "y", "t"):
+        return True
+    if v.lower() in ("false", "0", "no", "n", "f"):
+        return False
+    raise argparse.ArgumentTypeError(f"boolean value expected, got {v!r}")
+
+
 def parse_args() -> argparse.Namespace:
-    p = argparse.ArgumentParser(description="Session 9 Step 2: train visualisation decoder")
-    p.add_argument("--jepa-checkpoint", required=True, type=str)
+    p = argparse.ArgumentParser(description="Session 9 / 10 visualisation decoder")
+
+    enc_group = p.add_mutually_exclusive_group(required=True)
+    enc_group.add_argument(
+        "--jepa-checkpoint", type=str,
+        help="Path to a single JEPA encoder checkpoint .pt file.")
+    enc_group.add_argument(
+        "--encoder-run", type=str,
+        help="Path to a JEPA run directory; the script picks the largest-iter "
+             "checkpoint inside (matches the Session 10 plan launch commands).")
+
     p.add_argument("--output-dir", required=True, type=str)
     p.add_argument("--gpu", type=int, default=0)
     p.add_argument("--seed", type=int, default=0)
@@ -305,17 +332,205 @@ def parse_args() -> argparse.Namespace:
                         "decoder learns in normalized space; eval unnormalizes "
                         "before computing raw-scale MSE/SSIM/eps. Overrides "
                         "--omega-scale when set.")
-    p.add_argument("--recon-loss-type", type=str, default="mse",
+
+    # Decoder architecture
+    p.add_argument("--decoder-type", type=str, default="fukami",
+                   choices=["fukami", "lapfilm", "coord_mlp"],
+                   help="Visualisation decoder architecture. "
+                        "fukami = HybridViTConvDecoder (Session 9 baseline). "
+                        "lapfilm = 5-level Laplacian-pyramid + FiLM (Session 10). "
+                        "coord_mlp = coordinate neural field audit (Session 10 E4).")
+    p.add_argument("--decoder-upsample", type=str, default="pixelshuffle",
+                   choices=["pixelshuffle", "bilinear_conv"])
+    p.add_argument("--decoder-fourier-bands", type=int, default=None,
+                   help="Fourier bands per coord. Defaults: 4 for lapfilm, 8 for coord_mlp.")
+    p.add_argument("--decoder-base-ch", type=int, default=64,
+                   help="Coarsest-level channel count for lapfilm.")
+    p.add_argument("--decoder-resblocks-per-level", type=int, default=2,
+                   help="Residual blocks per pyramid level for lapfilm.")
+    p.add_argument("--decoder-use-film", type=_str2bool, default=True,
+                   help="lapfilm only: enable FiLM modulation. False = concat-only "
+                        "(the no_film ablation E_noFiLM).")
+    p.add_argument("--decoder-mlp-hidden", type=int, default=128,
+                   help="coord_mlp hidden width.")
+    p.add_argument("--decoder-mlp-layers", type=int, default=5,
+                   help="coord_mlp depth.")
+    p.add_argument("--decoder-mlp-activation", type=str, default="sine",
+                   choices=["sine", "gelu_fourier"],
+                   help="coord_mlp activation (SIREN or GELU+Fourier).")
+    p.add_argument("--decoder-mlp-chunk", type=int, default=4096,
+                   help="coord_mlp pixels per chunk.")
+    p.add_argument("--decoder-cond", type=str, default="none",
+                   choices=["none", "params", "params_phase"],
+                   help="Conditioning mode beyond z. Session 10 only supports "
+                        "'none' (the conditioning ablation is deferred to Session 11).")
+
+    # Loss selection
+    p.add_argument("--decoder-loss", type=str, default="mse",
+                   choices=["mse", "charbonnier", "region_pyr_ffl"],
+                   help="Reconstruction loss family. region_pyr_ffl uses the "
+                        "Session 10 combined region-weighted + pyramid + focal-"
+                        "frequency + enstrophy + circulation objective.")
+    p.add_argument("--recon-loss-type", type=str, default=None,
                    choices=["mse", "charbonnier"],
-                   help="Per-pixel reconstruction loss for the decoder.")
+                   help="Session 9 deprecated alias for --decoder-loss; if "
+                        "provided, overrides --decoder-loss for backward "
+                        "compatibility with Session 9 launch commands.")
     p.add_argument("--charbonnier-epsilon", type=float, default=0.05)
     p.add_argument("--recon-active-threshold", type=float, default=0.0,
-                   help="Active-pixel mask threshold (in normalized space when "
-                        "--omega-pipeline-manifest is set). Default 0 disables.")
+                   help="Active-pixel mask threshold (legacy mse/charbonnier loss). "
+                        "0 disables. region_pyr_ffl uses --active-tau / "
+                        "--inactive-weight instead.")
     p.add_argument("--recon-inactive-weight", type=float, default=0.0,
-                   help="Weight applied to inactive pixels; 0 = hard mask, "
-                        "0.05 = soft mask.")
+                   help="Weight on inactive pixels (legacy mse/charbonnier loss).")
+
+    # region_pyr_ffl loss hyperparameters
+    p.add_argument("--lambda-region", type=float, default=1.0)
+    p.add_argument("--lambda-pyramid", type=float, default=0.4)
+    p.add_argument("--lambda-ffl", type=float, default=0.05)
+    p.add_argument("--lambda-enstrophy", type=float, default=0.02)
+    p.add_argument("--lambda-circulation", type=float, default=0.01)
+    p.add_argument("--ffl-warmup-iters", type=int, default=2000,
+                   help="Iterations before FFL ramps up from 0.")
+    p.add_argument("--ffl-ramp-iters", type=int, default=1000,
+                   help="Iterations over which FFL ramps from 0 to 1 (linear).")
+    p.add_argument("--ffl-alpha", type=float, default=1.0)
+    p.add_argument("--ffl-patch", type=int, default=32)
+    p.add_argument("--active-tau", type=float, default=0.10)
+    p.add_argument("--active-softness", type=float, default=0.03)
+    p.add_argument("--inactive-weight", type=float, default=0.05)
+    p.add_argument("--wake-weight", type=float, default=0.50)
+    p.add_argument("--airfoil-mask-path", type=str, default=None,
+                   help="Path to the airfoil-adjacent mask .npy. Defaults to "
+                        "outputs/data_pipeline/v1/airfoil_adjacent_mask.npy.")
+
     return p.parse_args()
+
+
+def resolve_encoder_checkpoint(args: argparse.Namespace, log) -> Path:
+    """Return the .pt encoder checkpoint path from --jepa-checkpoint or --encoder-run."""
+    if args.jepa_checkpoint is not None:
+        return Path(args.jepa_checkpoint).resolve()
+    run_dir = Path(args.encoder_run).resolve()
+    if not run_dir.is_dir():
+        raise FileNotFoundError(f"--encoder-run {run_dir} is not a directory")
+    candidates = sorted(run_dir.glob("checkpoint_iter*.pt"))
+    if not candidates:
+        raise FileNotFoundError(f"no checkpoint_iter*.pt under {run_dir}")
+    chosen = candidates[-1]
+    log(f"[decoder-train] resolved --encoder-run {run_dir} -> {chosen.name}")
+    return chosen
+
+
+def build_decoder(args: argparse.Namespace, latent_dim: int, device: torch.device) -> nn.Module:
+    """Construct the visualisation decoder per --decoder-type."""
+    if args.decoder_type == "fukami":
+        return HybridViTConvDecoder(latent_dim=latent_dim).to(device)
+    if args.decoder_type == "lapfilm":
+        fb = args.decoder_fourier_bands if args.decoder_fourier_bands is not None else 4
+        # The base-ch flag sets the first-level channel count; the rest follow
+        # the canonical taper [base, base, base*0.75, base*0.5, base*0.375].
+        bc = args.decoder_base_ch
+        channels = (bc, bc, int(bc * 0.75), int(bc * 0.5), int(bc * 0.375))
+        return LapFiLMDecoder(
+            latent_dim=latent_dim,
+            channels=channels,
+            resblocks_per_level=args.decoder_resblocks_per_level,
+            upsample=args.decoder_upsample,
+            fourier_bands=fb,
+            use_film=args.decoder_use_film,
+            airfoil_mask_path=args.airfoil_mask_path,
+        ).to(device)
+    if args.decoder_type == "coord_mlp":
+        fb = args.decoder_fourier_bands if args.decoder_fourier_bands is not None else 8
+        return CoordMLPDecoder(
+            latent_dim=latent_dim,
+            hidden=args.decoder_mlp_hidden,
+            layers=args.decoder_mlp_layers,
+            fourier_bands=fb,
+            activation=args.decoder_mlp_activation,
+            chunk_pixels=args.decoder_mlp_chunk,
+        ).to(device)
+    raise ValueError(f"unknown decoder-type {args.decoder_type!r}")
+
+
+def extract_pred(dec_out) -> tuple[torch.Tensor, Optional[list[torch.Tensor]]]:
+    """Return (final_pred, pyramid_or_None) from a decoder forward output."""
+    if isinstance(dec_out, dict):
+        return dec_out["pred"], dec_out.get("pyramid")
+    return dec_out, None
+
+
+def ffl_warmup_factor(step: int, warmup_iters: int, ramp_iters: int) -> float:
+    if step < warmup_iters:
+        return 0.0
+    if ramp_iters <= 0:
+        return 1.0
+    f = (step - warmup_iters) / ramp_iters
+    return max(0.0, min(1.0, f))
+
+
+def compute_decoder_loss(
+    args: argparse.Namespace,
+    pred: torch.Tensor,
+    pyramid: Optional[list[torch.Tensor]],
+    target: torch.Tensor,
+    step: int,
+    airfoil_mask: Optional[torch.Tensor],
+) -> tuple[torch.Tensor, dict]:
+    """Dispatch on --decoder-loss and return (loss_scalar, components_dict)."""
+    err = target - pred
+    if args.decoder_loss == "mse":
+        tau = float(args.recon_active_threshold)
+        if tau > 0.0:
+            active = (target.abs() > tau).to(err.dtype)
+            w_in = float(args.recon_inactive_weight)
+            weight = active + (1.0 - active) * w_in
+            denom = weight.sum().clamp_min(1.0)
+            loss = ((err ** 2) * weight).sum() / denom
+        else:
+            loss = (err ** 2).mean()
+        return loss, {"L_total": loss.detach()}
+    if args.decoder_loss == "charbonnier":
+        eps = float(args.charbonnier_epsilon)
+        ch = torch.sqrt(err * err + eps * eps) - eps
+        tau = float(args.recon_active_threshold)
+        if tau > 0.0:
+            active = (target.abs() > tau).to(err.dtype)
+            w_in = float(args.recon_inactive_weight)
+            weight = active + (1.0 - active) * w_in
+            denom = weight.sum().clamp_min(1.0)
+            loss = (ch * weight).sum() / denom
+        else:
+            loss = ch.mean()
+        return loss, {"L_total": loss.detach()}
+    if args.decoder_loss == "region_pyr_ffl":
+        warmup_f = ffl_warmup_factor(step, args.ffl_warmup_iters, args.ffl_ramp_iters)
+        pred_pyr = pyramid if pyramid is not None else [pred]
+        region_kwargs = dict(
+            inactive_weight=args.inactive_weight,
+            wake_weight=args.wake_weight,
+            active_tau=args.active_tau,
+            active_softness=args.active_softness,
+        )
+        out = region_pyr_ffl_loss(
+            pred_pyr, target,
+            solid_or_airfoil_mask=airfoil_mask,
+            lambda_region=args.lambda_region,
+            lambda_pyramid=args.lambda_pyramid,
+            lambda_ffl=args.lambda_ffl,
+            lambda_enstrophy=args.lambda_enstrophy,
+            lambda_circulation=args.lambda_circulation,
+            ffl_alpha=args.ffl_alpha,
+            ffl_patch=args.ffl_patch,
+            ffl_warmup_factor=warmup_f,
+            charbonnier_eps=args.charbonnier_epsilon,
+            region_kwargs=region_kwargs,
+        )
+        components = {k: v.detach() for k, v in out.items()}
+        components["ffl_warmup_factor"] = torch.tensor(warmup_f)
+        return out["L_total"], components
+    raise ValueError(f"unknown decoder-loss {args.decoder_loss!r}")
 
 
 def main() -> None:
@@ -333,9 +548,23 @@ def main() -> None:
         print(msg, flush=True)
 
     log(f"[decoder-train] device={device} gpu={torch.cuda.get_device_name(device.index)}")
-    ckpt_path = Path(args.jepa_checkpoint).resolve()
+    ckpt_path = resolve_encoder_checkpoint(args, log)
     log(f"[decoder-train] jepa_checkpoint={ckpt_path}")
     log(f"[decoder-train] jepa_checkpoint sha256={file_sha256(ckpt_path)}")
+    log(f"[decoder-train] decoder_type={args.decoder_type} "
+        f"decoder_loss={args.decoder_loss}")
+
+    if args.decoder_cond != "none":
+        raise NotImplementedError(
+            f"--decoder-cond {args.decoder_cond!r} is Session-11 work (E3 deferred). "
+            "Session 10 only supports 'none'."
+        )
+
+    if args.recon_loss_type is not None:
+        # Session 9 backwards-compatible alias for --decoder-loss.
+        args.decoder_loss = args.recon_loss_type
+        log(f"[decoder-train] --recon-loss-type {args.recon_loss_type!r} "
+            f"mapped to --decoder-loss {args.decoder_loss!r}")
 
     torch.manual_seed(args.seed)
     np.random.seed(args.seed)
@@ -356,8 +585,21 @@ def main() -> None:
             f"thresholds: {sum(len(v) for v in omega_pipeline.thresholds.values())} encs, "
             f"std={omega_pipeline.train_stats.std:.4f}")
 
-    dec = HybridViTConvDecoder(latent_dim=d).to(device)
+    dec = build_decoder(args, latent_dim=d, device=device)
     log(f"[decoder-train] decoder params={sum(p.numel() for p in dec.parameters()):,}")
+
+    # Optional airfoil mask for region_pyr_ffl loss (the mask is also
+    # consumed inside LapFiLMDecoder; here we expose it to the loss).
+    airfoil_mask = None
+    if args.decoder_loss == "region_pyr_ffl":
+        mask_path = args.airfoil_mask_path or str(
+            REPO / "outputs" / "data_pipeline" / "v1" / "airfoil_adjacent_mask.npy"
+        )
+        if Path(mask_path).exists():
+            mask_np = np.load(mask_path).astype(np.float32)
+            airfoil_mask = torch.from_numpy(mask_np).to(device)
+            log(f"[decoder-train] loaded airfoil mask from {mask_path}, "
+                f"{int(airfoil_mask.sum().item())} cells")
 
     train_encs = gather_train_encounters()
     test_a_encs = gather_eval_encounters("test_a")
@@ -400,28 +642,15 @@ def main() -> None:
             target = (x.to(device).unsqueeze(2) / args.omega_scale)
         with torch.autocast(device_type=device.type, dtype=torch.bfloat16,
                             enabled=device.type == "cuda"):
-            x_hat = dec(z)
-        x_hat_f = x_hat.float()
+            dec_out = dec(z)
+            pred, pyramid = extract_pred(dec_out)
+        pred_f = pred.float()
         target_f = target.float()
-        err = target_f - x_hat_f
-        tau = float(args.recon_active_threshold)
-        if tau > 0.0:
-            active = (target_f.abs() > tau).to(err.dtype)
-            w_in = float(args.recon_inactive_weight)
-            weight = active + (1.0 - active) * w_in
-            denom = weight.sum().clamp_min(1.0)
-            if args.recon_loss_type == "mse":
-                loss = ((err ** 2) * weight).sum() / denom
-            else:  # charbonnier
-                eps = float(args.charbonnier_epsilon)
-                ch = torch.sqrt(err * err + eps * eps) - eps
-                loss = (ch * weight).sum() / denom
-        else:
-            if args.recon_loss_type == "mse":
-                loss = (err ** 2).mean()
-            else:  # charbonnier
-                eps = float(args.charbonnier_epsilon)
-                loss = (torch.sqrt(err * err + eps * eps) - eps).mean()
+        if pyramid is not None:
+            pyramid = [p.float() for p in pyramid]
+        loss, comps = compute_decoder_loss(
+            args, pred_f, pyramid, target_f, step, airfoil_mask,
+        )
 
         opt.zero_grad()
         loss.backward()
@@ -430,8 +659,13 @@ def main() -> None:
         sched.step()
 
         if step % args.log_every == 0:
-            log(f"[iter {step}/{args.max_iters}] loss={loss.item():.4f} "
-                f"lr={sched.get_last_lr()[0]:.2e}")
+            parts = [f"L_total={float(comps.get('L_total', loss)):.4f}"]
+            for k in ("L_region", "L_pyramid", "L_ffl",
+                      "L_enstrophy", "L_circulation", "ffl_warmup_factor"):
+                if k in comps:
+                    parts.append(f"{k}={float(comps[k]):.4f}")
+            log(f"[iter {step}/{args.max_iters}] " + " ".join(parts)
+                + f" lr={sched.get_last_lr()[0]:.2e}")
 
         if step > 0 and step % args.eval_every == 0:
             ev_a = evaluate_split(enc, dec, test_a_encs[:8], device,
@@ -441,11 +675,15 @@ def main() -> None:
                 f"mse_mean={ev_a['mse_mean']:.4f} floor_mean={ev_a['floor_mean']:.4f} "
                 f"ratio={ev_a['ratio_mean']:.3f}")
             dec.train()
+            record = {
+                "iter": step,
+                "train_loss": float(loss.item()),
+                "test_a_subset8": ev_a,
+            }
+            for k, v in comps.items():
+                record[f"train_{k}"] = float(v) if hasattr(v, "item") else float(v)
             with open(metrics_path, "a") as f:
-                f.write(json.dumps({
-                    "iter": step, "train_loss": float(loss.item()),
-                    "test_a_subset8": ev_a,
-                }) + "\n")
+                f.write(json.dumps(record) + "\n")
 
         if step > 0 and step % args.checkpoint_every == 0:
             ckpt_out = out_dir / f"decoder_iter{step:06d}.pt"
