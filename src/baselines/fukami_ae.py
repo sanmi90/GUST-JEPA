@@ -47,19 +47,32 @@ import torch.nn.functional as F
 from torch import Tensor, nn
 
 
-def _conv_block(in_ch: int, out_ch: int, n_groups: int = 4) -> nn.Sequential:
-    """Conv2D 3x3 + ReLU. Fukami used plain conv + ReLU; we keep that.
+def _act(activation: str) -> nn.Module:
+    """Activation factory. 'relu' (default; our bf16 default) or 'tanh'
+    (strict-Fukami: matches the original 2023 JFM paper)."""
+    if activation == "tanh":
+        return nn.Tanh()
+    return nn.ReLU(inplace=True)
 
-    For numerical stability at bf16 we use GroupNorm with a small
-    number of groups (the original Fukami model was trained at fp32
-    on CPU/single-GPU; we run bf16 on the RTX 6000 Blackwell, and
-    GroupNorm makes that path more stable than vanilla Conv-ReLU).
+
+def _conv_block(in_ch: int, out_ch: int, n_groups: int = 4,
+                activation: str = "relu", use_norm: bool = True) -> nn.Sequential:
+    """Conv2D 3x3 (+ optional GroupNorm) + activation.
+
+    Defaults: ReLU + GroupNorm with a small number of groups. Fukami's
+    original is plain Conv + tanh in fp32 on CPU/single-GPU; we add
+    GroupNorm because the RTX 6000 Blackwell training runs in bf16
+    autocast and the vanilla path is less stable in that precision.
+    Pass ``activation='tanh'`` and ``use_norm=False`` for the strict
+    Fukami match (then run in fp32).
     """
-    return nn.Sequential(
+    layers: list[nn.Module] = [
         nn.Conv2d(in_ch, out_ch, kernel_size=3, padding=1, bias=True),
-        nn.GroupNorm(min(n_groups, out_ch), out_ch),
-        nn.ReLU(inplace=True),
-    )
+    ]
+    if use_norm:
+        layers.append(nn.GroupNorm(min(n_groups, out_ch), out_ch))
+    layers.append(_act(activation))
+    return nn.Sequential(*layers)
 
 
 class FukamiCNNEncoder(nn.Module):
@@ -74,25 +87,27 @@ class FukamiCNNEncoder(nn.Module):
     bottleneck shape (12, 6, 4).
     """
 
-    def __init__(self, latent_dim: int = 3) -> None:
+    def __init__(self, latent_dim: int = 3, activation: str = "relu",
+                 use_norm: bool = True) -> None:
         super().__init__()
-        # Channel progression follows Fukami: 1 -> 32 -> 16 -> 8 -> 4.
-        self.stage1 = nn.Sequential(_conv_block(1, 32), _conv_block(32, 32))
+        cb = lambda i, o, g=4: _conv_block(i, o, n_groups=g,
+                                           activation=activation,
+                                           use_norm=use_norm)
+        self.stage1 = nn.Sequential(cb(1, 32), cb(32, 32))
         self.pool1 = nn.MaxPool2d(2)  # (192, 96) -> (96, 48)
-        self.stage2 = nn.Sequential(_conv_block(32, 16), _conv_block(16, 16))
+        self.stage2 = nn.Sequential(cb(32, 16), cb(16, 16))
         self.pool2 = nn.MaxPool2d(2)  # (96, 48) -> (48, 24)
-        self.stage3 = nn.Sequential(_conv_block(16, 8), _conv_block(8, 8))
+        self.stage3 = nn.Sequential(cb(16, 8), cb(8, 8))
         self.pool3 = nn.MaxPool2d(2)  # (48, 24) -> (24, 12)
-        self.stage4 = nn.Sequential(_conv_block(8, 4, n_groups=2),
-                                    _conv_block(4, 4, n_groups=2))
+        self.stage4 = nn.Sequential(cb(8, 4, g=2), cb(4, 4, g=2))
         self.pool4 = nn.MaxPool2d(2)  # (24, 12) -> (12, 6)
 
         # Fukami's exact FC chain: 288 -> 256 -> 64 -> 32 -> 16 -> latent_dim.
         self.fc = nn.Sequential(
-            nn.Linear(288, 256), nn.ReLU(inplace=True),
-            nn.Linear(256, 64), nn.ReLU(inplace=True),
-            nn.Linear(64, 32), nn.ReLU(inplace=True),
-            nn.Linear(32, 16), nn.ReLU(inplace=True),
+            nn.Linear(288, 256), _act(activation),
+            nn.Linear(256, 64), _act(activation),
+            nn.Linear(64, 32), _act(activation),
+            nn.Linear(32, 16), _act(activation),
             nn.Linear(16, latent_dim),
         )
 
@@ -124,25 +139,28 @@ class FukamiCNNDecoder(nn.Module):
     published configuration.
     """
 
-    def __init__(self, latent_dim: int = 3) -> None:
+    def __init__(self, latent_dim: int = 3, activation: str = "relu",
+                 use_norm: bool = True) -> None:
         super().__init__()
         self.fc = nn.Sequential(
-            nn.Linear(latent_dim, 16), nn.ReLU(inplace=True),
-            nn.Linear(16, 32), nn.ReLU(inplace=True),
-            nn.Linear(32, 64), nn.ReLU(inplace=True),
-            nn.Linear(64, 256), nn.ReLU(inplace=True),
-            nn.Linear(256, 288), nn.ReLU(inplace=True),
+            nn.Linear(latent_dim, 16), _act(activation),
+            nn.Linear(16, 32), _act(activation),
+            nn.Linear(32, 64), _act(activation),
+            nn.Linear(64, 256), _act(activation),
+            nn.Linear(256, 288), _act(activation),
         )
 
+        cb = lambda i, o, g=4: _conv_block(i, o, n_groups=g,
+                                           activation=activation,
+                                           use_norm=use_norm)
         self.up1 = nn.Upsample(scale_factor=2, mode="bilinear", align_corners=False)
-        self.dec1 = nn.Sequential(_conv_block(4, 4, n_groups=2),
-                                  _conv_block(4, 8))
+        self.dec1 = nn.Sequential(cb(4, 4, g=2), cb(4, 8))
         self.up2 = nn.Upsample(scale_factor=2, mode="bilinear", align_corners=False)
-        self.dec2 = nn.Sequential(_conv_block(8, 8), _conv_block(8, 16))
+        self.dec2 = nn.Sequential(cb(8, 8), cb(8, 16))
         self.up3 = nn.Upsample(scale_factor=2, mode="bilinear", align_corners=False)
-        self.dec3 = nn.Sequential(_conv_block(16, 16), _conv_block(16, 32))
+        self.dec3 = nn.Sequential(cb(16, 16), cb(16, 32))
         self.up4 = nn.Upsample(scale_factor=2, mode="bilinear", align_corners=False)
-        self.dec4 = nn.Sequential(_conv_block(32, 32), _conv_block(32, 32))
+        self.dec4 = nn.Sequential(cb(32, 32), cb(32, 32))
         self.to_omega = nn.Conv2d(32, 1, kernel_size=1, bias=True)
 
     def forward(self, z: Tensor) -> Tensor:
@@ -176,12 +194,13 @@ class FukamiLiftHead(nn.Module):
     matched delta in {8, 16, 24} frames offset (D37).
     """
 
-    def __init__(self, latent_dim: int = 3, n_deltas: int = 3) -> None:
+    def __init__(self, latent_dim: int = 3, n_deltas: int = 3,
+                 activation: str = "relu") -> None:
         super().__init__()
         self.fc = nn.Sequential(
-            nn.Linear(latent_dim, 32), nn.ReLU(inplace=True),
-            nn.Linear(32, 64), nn.ReLU(inplace=True),
-            nn.Linear(64, 32), nn.ReLU(inplace=True),
+            nn.Linear(latent_dim, 32), _act(activation),
+            nn.Linear(32, 64), _act(activation),
+            nn.Linear(64, 32), _act(activation),
             nn.Linear(32, n_deltas),
         )
 
@@ -230,11 +249,15 @@ class FukamiAEWrapper(nn.Module):
         charbonnier_epsilon: float = 0.05,
         recon_active_threshold: float = 0.0,
         recon_inactive_weight: float = 0.0,
+        activation: str = "relu",
+        use_conv_norm: bool = True,
     ) -> None:
         super().__init__()
-        self.encoder = FukamiCNNEncoder(latent_dim)
-        self.decoder = FukamiCNNDecoder(latent_dim)
-        self.lift_head = FukamiLiftHead(latent_dim, n_deltas)
+        self.encoder = FukamiCNNEncoder(latent_dim, activation=activation,
+                                        use_norm=use_conv_norm)
+        self.decoder = FukamiCNNDecoder(latent_dim, activation=activation,
+                                        use_norm=use_conv_norm)
+        self.lift_head = FukamiLiftHead(latent_dim, n_deltas, activation=activation)
         self.latent_dim = latent_dim
         self.n_deltas = n_deltas
         self.lambda_recon = lambda_recon

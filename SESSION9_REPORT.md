@@ -971,7 +971,67 @@ Two readings:
   the whole story — the parametric envelope breadth of *our* DNS data
   is the dominant factor, even when we mimic his train/test split design.
 
-### 7b.3 Updated Pareto picture
+### 7b.3 Strict-Fukami d = 3 (closest paper-faithful configuration)
+
+A tenth Fukami variant adds the closest possible architectural match
+to Fukami's published JFM 2023 paper, with three deliberate changes
+relative to our standard runs:
+
+- **Activation**: `tanh` everywhere (replacing all ReLUs in both
+  conv blocks and FC chains). 28 nn.Tanh modules in the wrapper.
+- **No GroupNorm**: the conv blocks use plain `Conv2d -> Tanh`, removing
+  the bf16-stability GroupNorm we add by default.
+- **fp32 throughout**: bf16 autocast disabled at every callsite
+  (training step, diagnostic forward, eval forward). Roughly 2x slower
+  per iteration; we early-stopped at iter 6000 once the loss curve
+  flattened.
+- **Current C_L head** (`--observable-head-deltas 0`): the lift head
+  predicts `C_L(t)` from `z(t)`, matching Fukami's original
+  instantaneous-lift augmentation, rather than our future deltas
+  `{8, 16, 24}`.
+
+Implementation: `FukamiAEWrapper(..., activation="tanh",
+use_conv_norm=False)` and `--fp32` on the training script. The change
+to delta = 0 required relaxing the `EpisodeDataset` validation from
+"positive ints" to "non-negative ints" for `cl_future_deltas`.
+
+| | Test A SSIM | Test A ε | Test A Δ | Test B SSIM | Test B ε | **Test B Δ** | Test C SSIM | Test C ε | Test C Δ |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| d=3 ReLU+GN+bf16 (variant 1) | 0.411 | 0.892 | +0.259 | 0.337 | 0.946 | +0.114 | 0.227 | 0.948 | +0.443 |
+| **d=3 strict Fukami** | **0.311** | **0.938** | **-0.423** | **0.266** | **0.966** | **-0.451** | **0.163** | **0.967** | **-0.121** |
+
+**Reading**: reconstruction stays in the same regime as our other d = 3
+variants (SSIM 0.27 vs 0.34, eps 0.97 vs 0.95 on Test B), but the
+**latent collapses for parametric probing**: Test B Δ swings to
+-0.451 — meaning the encoder's z provides **less** parametric
+information than the raw (c, t) regression baseline does. Test A and
+Test C both negative too. r2(z) on Test B drops from 0.81 (baseline)
+to 0.25 (strict).
+
+Two compounding causes:
+
+- **Tanh saturates the latent**: three tanh-bounded channels in [-1, +1]
+  cannot spread parametric variation as readily as three unbounded
+  ReLU channels. The optimizer can still reach the SSIM-optimal
+  reconstruction point, but the bottleneck saturation limits how
+  much (G, D, Y) information squeezes through.
+- **Current-C_L head does not force parametric encoding**: predicting
+  C_L(t) from z(t) is solvable by extracting just the instantaneous
+  lift, leaving (G, D, Y) un-encoded. Future-C_L at deltas
+  `{8, 16, 24}` requires the encoder to identify the incoming gust
+  parametrically — that aux supervision is what was driving our
+  baseline latent quality.
+
+This is a useful negative result for the paper: **a closer-to-paper
+Fukami configuration is strictly worse on parametric generalisation**
+on a broad (G, D, Y) envelope. Our deliberate deviations (ReLU +
+GroupNorm + future-C_L deltas) were not just bf16-stability
+conveniences — they were load-bearing for downstream task quality.
+Reporting both rows in the paper gives the reviewer a clean answer
+to "did you reproduce Fukami?": yes, and his exact recipe produces
+a latent that does not generalise on our envelope.
+
+### 7b.4 Updated Pareto picture
 
 The seven variants from Section 2 plus these two new runs trace a clean
 Pareto frontier in (SSIM, probe Δ) space:

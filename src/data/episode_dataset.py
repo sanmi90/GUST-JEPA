@@ -107,9 +107,9 @@ class EpisodeDataset(torch.utils.data.Dataset):
         self.return_forces = bool(return_forces)
         self.emit_cl_future = bool(emit_cl_future)
         self.cl_future_deltas = tuple(int(d) for d in cl_future_deltas)
-        if any(d <= 0 for d in self.cl_future_deltas):
+        if any(d < 0 for d in self.cl_future_deltas):
             raise ValueError(
-                f"cl_future_deltas must be positive ints; got {self.cl_future_deltas}"
+                f"cl_future_deltas must be non-negative ints; got {self.cl_future_deltas}"
             )
         self.impact_aware_fraction = float(impact_aware_fraction)
         self.impact_overlap_start_range = (int(impact_overlap_start_range[0]), int(impact_overlap_start_range[1]))

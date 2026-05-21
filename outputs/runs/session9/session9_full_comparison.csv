@@ -35,3 +35,6 @@ Fukami_AE,32,MSE,none,test_c,0.2093,0.9639,32.008,19.8090,1.616,0.4332
 Fukami_AE_fukami_protocol,3,MSE,none,test_a,0.3435,0.9263,11.181,1.2014,9.306,0.2693
 Fukami_AE_fukami_protocol,3,MSE,none,test_b,0.2877,0.9734,11.668,6.2571,1.865,0.1751
 Fukami_AE_fukami_protocol,3,MSE,none,test_c_LEAKY,0.3301,0.8747,26.517,19.8090,1.339,0.6086
+Fukami_AE_strict,3,MSE_tanh_noGN_fp32_currentCL,none,test_a,0.3113,0.9377,11.472,1.2014,9.548,-0.4232
+Fukami_AE_strict,3,MSE_tanh_noGN_fp32_currentCL,none,test_b,0.2658,0.9661,11.515,6.2571,1.840,-0.4513
+Fukami_AE_strict,3,MSE_tanh_noGN_fp32_currentCL,none,test_c,0.1631,0.9669,32.044,19.8090,1.618,-0.1213

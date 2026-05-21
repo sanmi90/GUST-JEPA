@@ -155,6 +155,18 @@ def parse_args() -> argparse.Namespace:
                         "pixels in the loss. 0 = hard mask (no freestream "
                         "supervision; risk of decoder noise divergence). "
                         "0.05 = soft mask preserving 1/20th freestream signal.")
+    p.add_argument("--activation", type=str, default="relu",
+                   choices=["relu", "tanh"],
+                   help="Activation used in conv blocks and FC chains. "
+                        "Default ReLU (our bf16 baseline). tanh matches "
+                        "Fukami's JFM 2023 published architecture exactly.")
+    p.add_argument("--no-conv-norm", action="store_true",
+                   help="Remove GroupNorm from conv blocks. Pair with "
+                        "--activation tanh and --fp32 for the strict-Fukami "
+                        "configuration.")
+    p.add_argument("--fp32", action="store_true",
+                   help="Disable bf16 autocast; train + diagnose + eval in "
+                        "fp32. Required for the strict-Fukami match.")
     p.add_argument("--charbonnier-epsilon", type=float, default=0.05,
                    help="Charbonnier transition threshold. Default 0.05 in "
                         "normalized space matches the noise floor.")
@@ -245,6 +257,7 @@ def evaluate_split(
     wrapper: FukamiAEWrapper,
     encs: list[dict],
     device: torch.device,
+    fp32: bool = False,
 ) -> dict:
     """Per-encounter MSE + Fukami L2-relative-error + SSIM + case-mean floor.
 
@@ -279,7 +292,7 @@ def evaluate_split(
                 omega = pipe.preprocess_raw(omega, e["case_id"], int(e["k"]))
             x = torch.from_numpy(omega).unsqueeze(0).unsqueeze(2).to(device)  # (1, T, 1, H, W)
             with torch.autocast(device_type=device.type, dtype=torch.bfloat16,
-                                enabled=device.type == "cuda"):
+                                enabled=(device.type == "cuda" and not fp32)):
                 if pipe is not None:
                     x_norm = pipe.normalize(x)
                     z = wrapper.encoder(x_norm)
@@ -436,6 +449,8 @@ def main() -> None:
         charbonnier_epsilon=args.charbonnier_epsilon,
         recon_active_threshold=args.recon_active_threshold,
         recon_inactive_weight=args.recon_inactive_weight,
+        activation=args.activation,
+        use_conv_norm=not args.no_conv_norm,
     ).to(device)
     n_params = sum(p.numel() for p in wrapper.parameters())
     log(f"[fukami-train] params={n_params:,} ({n_params/1e6:.2f}M)")
@@ -450,7 +465,7 @@ def main() -> None:
 
     for iteration in range(args.max_iters):
         batch = move_batch_mixed(next(train_iter), device)
-        with torch.autocast(device_type="cuda", dtype=torch.bfloat16):
+        with torch.autocast(device_type="cuda", dtype=torch.bfloat16, enabled=not args.fp32):
             out = wrapper(batch)
         L_total = out["L_total"]
         if not math.isfinite(L_total.item()):
@@ -480,7 +495,7 @@ def main() -> None:
             wrapper.eval()
             with torch.no_grad():
                 tb = move_batch_mixed(next(test_b_iter), device)
-                with torch.autocast(device_type="cuda", dtype=torch.bfloat16):
+                with torch.autocast(device_type="cuda", dtype=torch.bfloat16, enabled=not args.fp32):
                     tb_out = wrapper(tb)
                 z_b = tb_out["z"].float()
                 pr = float((z_b.var(dim=(0, 1)).sum() ** 2) /
@@ -516,9 +531,9 @@ def main() -> None:
     encs_a = gather_eval_encounters("test_a")
     encs_b = gather_eval_encounters("test_b")
     encs_c = gather_eval_encounters("test_c")
-    ev_a = evaluate_split(wrapper, encs_a, device)
-    ev_b = evaluate_split(wrapper, encs_b, device)
-    ev_c = evaluate_split(wrapper, encs_c, device)
+    ev_a = evaluate_split(wrapper, encs_a, device, fp32=args.fp32)
+    ev_b = evaluate_split(wrapper, encs_b, device, fp32=args.fp32)
+    ev_c = evaluate_split(wrapper, encs_c, device, fp32=args.fp32)
     summary = {
         "test_a": ev_a, "test_b": ev_b, "test_c": ev_c,
         "ratio_a_within_2x": ev_a["ratio_mean"] < 2.0,

@@ -70,6 +70,8 @@ def load_fukami(ckpt_path: Path, device: torch.device) -> FukamiAEWrapper:
     wrapper = FukamiAEWrapper(
         latent_dim=int(args["d"]), n_deltas=n_deltas,
         omega_pipeline=omega_pipeline,
+        activation=args.get("activation", "relu"),
+        use_conv_norm=not args.get("no_conv_norm", False),
     )
     wrapper.load_state_dict(blob["wrapper_state_dict"])
     return wrapper.eval().to(device)
