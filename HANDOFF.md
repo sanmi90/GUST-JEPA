@@ -3433,6 +3433,32 @@ should follow LapFiLM up toward the 0.55 ceiling.
 
 10. Paper writing.
 
+11. **(Active 2026-05-22, Session 12)** Push wake reconstruction from
+    "passes SSIM threshold" to "publication-grade crisp Figure 3". See
+    `SESSION12_CRISP_WAKE.md` for the full plan. Six attack directions
+    (A-F):
+    - A. Balasubramanian PRF 2026 spectral-amplitude + gradient-
+      consistency loss on the W0_C_lam100 decoder.
+    - B. GAN refinement of the LapFiLM output (pix2pix-style
+      patch-discriminator on the wake ROI).
+    - C. Extended lambda_wake ladder (2.0, 3.0, 5.0) past Session 11's
+      monotonic 1.0 endpoint.
+    - D. Higher-D wake observable targets (288D wake_coarse_pool, 512D
+      coarse_32x16).
+    - E. Breaking the LeWM d=32 lock: retrain at d=64.
+    - F. Total-correlation penalty on the encoder output
+      (Wang/Tirelli/Discetti/Ianiro PRF/arXiv 2026-motivated, JEPA-
+      native formulation -- not the VAE port).
+
+    Critical reference for Direction A is now in the repo:
+    `26js-tpg4.pdf` -- Balasubramanian, Cremades, Vinuesa, Tammisola,
+    "Sharper Predictions: The role of loss functions for enhanced
+    turbulent-flow sensing," Physical Review Fluids 11, 044907 (2026),
+    DOI 10.1103/26js-tpg4. Their SL loss formulation (Eqs 6-8) is the
+    direct ancestor of Direction A. Session 12 will record results as
+    D89-D95 (renumbered from the original draft's D85-D91, since
+    Session 11 already used D85-D88).
+
 ## Key references
 
 Direct architectural template
@@ -3474,6 +3500,22 @@ Latent dynamics on manifolds
 - Constante-Amores and Graham. "Data-Driven State-Space and Koopman Operator Models of
   Coherent State Dynamics on Invariant Manifolds." J. Fluid Mech. 984, R9, 2024
   (arXiv:2312.03875).
+
+Loss functions for turbulent-flow sensing (Session 12 Direction A)
+- Balasubramanian, Cremades, Vinuesa, Tammisola. "Sharper Predictions: The role of
+  loss functions for enhanced turbulent-flow sensing." Phys. Rev. Fluids 11, 044907
+  (2026), DOI 10.1103/26js-tpg4. Equations 6-8 define the SL (spectral) loss family:
+  MSE + amplitude matching + correlation + gradient consistency + 2D Fourier
+  amplitude difference. Local copy in the repo root as ``26js-tpg4.pdf``.
+
+Disentanglement and manifold-learning baselines (Session 11 Section 7c, Session 12
+Direction F)
+- Wang, Tirelli, Discetti, Ianiro. "Information decomposition for disentangled and
+  interpretable manifold learning of fluid flows via variational autoencoders."
+  arXiv:2604.18059 (April 2026). Same NACA 0012 + parametric vortex gust setting
+  from a UC3M group. Decomposes the VAE KL into index-code MI + total correlation
+  + dimension-wise KL. We do not port the VAE objective; the total-correlation
+  CONCEPT motivates our JEPA-native L_TC term in Session 12 Direction F.
 
 ## Warnings and pitfalls
 

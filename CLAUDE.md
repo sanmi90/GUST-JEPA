@@ -482,6 +482,11 @@ Auto-fallback rule (hard-coded in `src/training/train_jepa.py`):
 - `SESSION_REPORT_2026-05-15.md`: bootstrap-session report (what landed, what was verified)
 - `SESSION2_MODEL_PRIMITIVES.md`: Session 2 plan (the spec the model primitives implement)
 - `SESSION_REPORT_2026-05-16.md`: Session 2 report (primitives, D13 SIGReg scaling, D14 absorption)
+- `SESSION9_REPORT.md`: Session 9 report (Fukami strict-paper variant, pipeline learnings)
+- `SESSION10_MULTISCALE_DECODER.md` / `SESSION10_REPORT.md`: Session 10 plan and outcomes (LapFiLM + CoordMLP decoder family)
+- `SESSION11_REPORT.md`: Session 11 wake-head success (W0_C_lam100, PCA k=12, Isomap, CV-honest probe)
+- `SESSION12_CRISP_WAKE.md`: Session 12 plan -- six directions to push wake from blurry to crisp (PRF 2026 SL loss, GAN refinement, extended lambda_wake, 288/512-D wake targets, d=64 latent, total-correlation penalty)
+- `26js-tpg4.pdf`: Balasubramanian, Cremades, Vinuesa, Tammisola, "Sharper Predictions: The role of loss functions for enhanced turbulent-flow sensing," PRF 11, 044907 (2026). Critical reference for Session 12 Direction A; SL loss formulation in Equations (6)-(8).
 - `configs/splits/split_v1.json`: locked data split with rationales as inline keys
 - `data_manifest/raw_cases_inventory.yaml`: data parser manifest
 - `configs/preprocessing.yaml`: schema-baked preprocessing params (v1.0.0)

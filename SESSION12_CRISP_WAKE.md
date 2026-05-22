@@ -543,23 +543,28 @@ The expected paper section structure after Session 12:
 
 ## D-entries to record
 
-**D85**: Direction A spectral loss results (3 runs: default, low, high).
-The PRF 2026 SL formulation applied to JEPA + wake observable
-decoder.
+(Renumbered from the original draft D85-D91. Session 11 close-out
+already used D85-D88 for the pipeline move, Fukami+wake broken,
+PCA k=12 retrain, and the CV-honest probe correction. Session 12
+starts at D89.)
 
-**D86**: Direction B GAN refinement results.
+**D89**: Direction A spectral loss results (3 runs: default, low, high).
+The Balasubramanian PRF 2026 SL formulation applied to the
+JEPA + wake observable decoder.
 
-**D87**: Direction C extended lambda_wake ladder (lam=2, 3, 5).
+**D90**: Direction B GAN refinement results.
+
+**D91**: Direction C extended lambda_wake ladder (lam=2, 3, 5).
 Saturation point identified.
 
-**D88**: Direction D higher-D wake target results (288D, 512D).
+**D92**: Direction D higher-D wake target results (288D, 512D).
 
-**D89**: Direction E d=64 latent results.
+**D93**: Direction E d=64 latent results.
 
-**D90**: Direction F total-correlation penalty results (3 lambda
+**D94**: Direction F total-correlation penalty results (3 lambda
 values).
 
-**D91**: Session 12 outcome decision. Which direction(s) won, what
+**D95**: Session 12 outcome decision. Which direction(s) won, what
 paper Section 5 looks like after Session 12, what Session 13 does.
 
 ## Implementation order
@@ -633,9 +638,9 @@ encoder-training change moves the needle past the current 0.52 SSIM
 ## Decision references
 
 Carry forward: D34, D35, D38, D40, D44-D49, D50-D57, D60-D69,
-D70-D77, D78-D84.
+D70-D77, D78-D88.
 
-This session: D85-D91.
+This session: D89-D95.
 
 External: Balasubramanian et al. PRF 11 044907 (2026). Isola et al.
 CVPR 2017 (pix2pix). Wang et al. arXiv:2604.18059 (motivation for
