@@ -11,7 +11,7 @@ import pytest
 import torch
 from torch import nn
 
-from src.models.encoder import HybridCNNViTEncoder
+from src.models.encoder import HybridCNNViTEncoder, PatchPoolEncoder
 from src.utils.device import NoRTX6000Error, require_rtx6000
 
 
@@ -134,3 +134,39 @@ def test_encoder_deterministic_with_fixed_seed() -> None:
     z_a = enc_a(x)
     z_b = enc_b(x)
     assert torch.allclose(z_a, z_b, atol=1e-6)
+
+
+def test_patch_pool_encoder_shape_5d() -> None:
+    """(B, T, 1, 192, 96) -> (B, T, 64*12*6 = 4608) at default config."""
+    torch.manual_seed(0)
+    enc = PatchPoolEncoder(in_channels=1, out_channels=64, patch_h=16, patch_w=16)
+    x = torch.randn(2, 4, 1, 192, 96)
+    h = enc(x)
+    assert h.shape == (2, 4, 64 * 12 * 6)
+
+
+def test_patch_pool_encoder_shape_4d() -> None:
+    """(B, 1, 192, 96) -> (B, 4608) on 4D input."""
+    torch.manual_seed(0)
+    enc = PatchPoolEncoder()
+    x = torch.randn(3, 1, 192, 96)
+    h = enc(x)
+    assert h.shape == (3, 64 * 12 * 6)
+
+
+def test_patch_pool_encoder_gradient_flows() -> None:
+    """Backward through PatchPoolEncoder reaches both proj and input."""
+    enc = PatchPoolEncoder()
+    x = torch.randn(2, 1, 192, 96, requires_grad=True)
+    h = enc(x).sum()
+    h.backward()
+    assert x.grad is not None and x.grad.abs().sum().item() > 0.0
+    for name, p in enc.named_parameters():
+        assert p.grad is not None, f"missing grad for {name}"
+        assert p.grad.abs().sum().item() > 0.0, f"zero grad for {name}"
+
+
+def test_patch_pool_encoder_rejects_bad_input_shape() -> None:
+    enc = PatchPoolEncoder()
+    with pytest.raises(ValueError, match="4D"):
+        enc(torch.randn(2, 192, 96))

@@ -108,10 +108,27 @@ def test_e4_coordmlp_args_parse() -> None:
     assert args.lambda_pyramid == 0.0
 
 
-def test_jepa_checkpoint_or_encoder_run_required() -> None:
-    """One of --jepa-checkpoint or --encoder-run must be provided."""
-    with pytest.raises(SystemExit):
-        _parse(["--output-dir", "/tmp/out"])
+def test_jepa_checkpoint_or_encoder_run_optional_at_argparse_level() -> None:
+    """Session 11 Track 0.1 relaxed the mutex group from required=True to
+    required=False so omega_direct can run without an encoder checkpoint.
+    The latent-mode requirement is now enforced inside main() with a
+    clear message; argparse itself no longer rejects."""
+    args = _parse(["--output-dir", "/tmp/out"])
+    assert args.jepa_checkpoint is None
+    assert args.encoder_run is None
+    assert args.input_mode == "latent"
+
+
+def test_input_mode_omega_direct_defaults() -> None:
+    """--input-mode omega_direct parses with no encoder source flags."""
+    args = _parse([
+        "--input-mode", "omega_direct",
+        "--decoder-type", "lapfilm",
+        "--output-dir", "/tmp/out",
+    ])
+    assert args.input_mode == "omega_direct"
+    assert args.jepa_checkpoint is None
+    assert args.encoder_run is None
 
 
 def test_jepa_checkpoint_and_encoder_run_mutex() -> None:

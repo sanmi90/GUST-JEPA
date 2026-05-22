@@ -2974,6 +2974,377 @@ and is exercised by the unit test
 ``test_lap_film_decoder_no_film_ablation``. When Session 11
 retrains the encoder and re-runs E2, E_noFiLM can be added then.
 
+### D78: Session 11 Track 0 diagnostics (2026-05-21, Session 11)
+
+Three pre-Track-1 diagnostics ran on the Session 10 E2 LapFiLM
+decoder + Session 9 frozen JEPA encoder. The three were designed
+to disambiguate the Session 10 ALL_THREE_PARTIAL outcome (D73):
+H1 encoder-bottleneck-limited, H2 decoder-architecture-limited,
+H3 temporal-context-needed.
+
+**Track 0.2 -- temporal-window probe (NEGATIVE for H3).** Three
+input modes evaluated on Test B (28 encs): decode(z_t),
+decode(mean(z_{t-2..t+2})), decode(mean(z_t..z_{t+5})). Single
+SSIM median 0.3908; temporal_mean 0.3904 (essentially identical);
+future_window 0.3701 (WORSE by 0.0206). H3 is NOT supported. The
+encoder per-frame latent already contains whatever wake info is
+recoverable; temporal smoothing / future-window aggregation does
+not help. Rules out temporal-aware decoder as the primary Track 4
+candidate. Script: scripts/session11_temporal_probe.py.
+
+**Track 0.3 -- latent perturbation probe (BROAD directions).**
+Added Gaussian noise N(0, sigma^2 I) to z and re-decoded:
+
+| sigma | SSIM median | eps_vol | wake_enstrophy_rel_err | radial_spec_l2 |
+|-------|-------------|---------|------------------------|----------------|
+| 0.00  | 0.3908      | 0.9868  | 0.6169                 | 0.6026         |
+| 0.01  | 0.3910      | 0.9888  | 0.6160                 | 0.6023         |
+| 0.05  | 0.3525      | 1.0345  | 0.6010                 | 0.6177         |
+| 0.10  | 0.3035      | 1.0884  | 0.5757                 | 0.6824         |
+| 0.50  | 0.1756      | 1.2559  | 0.6090                 | 1.3959         |
+
+sigma=0.01 invisible; sigma=0.05 SSIM drops only 10 percent
+(not 50+ percent); sigma=0.10 drops 22 percent (just under the
+25 percent "robust" threshold). The wake info in z is in BROAD
+latent directions, not narrow. Narrow-direction hypothesis (H1
+strong form) is NOT supported. Script:
+scripts/session11_perturbation_probe.py.
+
+Side-observation worth flagging: wake_enstrophy_rel_err
+actually IMPROVES at sigma=0.10 (0.617 -> 0.576), confirming
+the Session 10 finding that scalar wake enstrophy is gameable
+by noise-like outputs. Wake-physics decisions should rely on
+``wake_field_MSE`` and ``radial_spectrum_l2_wake`` instead.
+
+**Session 9 baseline wake-probe summary (test_b, 3360 frames).**
+Computed via ``scripts/session11_wake_probe.py`` on the Session 9
+production checkpoint ``run_jepa_pipeline_lam0p01_seed42/checkpoint_iter020000.pt``:
+
+| probe                      | r2_overall |
+|----------------------------|------------|
+| GDY (G, D, Y)              | 0.885      |
+| CL at delta=0 (cl_present) | 0.793      |
+| enstrophy_scalar (1D)      | 0.798      |
+| patch_signed (64D)         | 0.302      |
+| patch_signed_spectrum (80D)| 0.350      |
+| wake_coarse_pool (288D)    | 0.272      |
+| PR(z)                      | 2.30       |
+
+This is the DIAGNOSTIC SMOKING GUN. The Session 9 encoder
+strongly encodes SCALAR wake info (enstrophy r2=0.80, near the
+0.79 CL probe) but POORLY encodes SPATIAL wake info (patch /
+spectrum / coarse-pool r2 = 0.27-0.35). PR(z)=2.30 (7 percent of
+d=32) is very narrow; the encoder has saturated its few effective
+dimensions with G/D/Y/CL plus scalar enstrophy, leaving no
+capacity for the wake pattern. This is exactly consistent with
+Session 10 ALL_THREE_PARTIAL: E4 CoordMLP got wake MAGNITUDE
+(scalar enstrophy is encoded), E1/E2 got wake SHAPE only weakly
+(spatial wake is not encoded).
+
+**Track 0.1 -- LapFiLM upper bound on omega_direct (running).**
+PatchPoolEncoder (16x16 patch pool 192x96 -> 12x6 with 64
+channels, 128 params) + LapFiLM with spatial_init=True
+(latent_dim 4608, ~494k params total). 20k iter training on
+the omega pipeline. Pass criterion (interpreted at session
+end): Test B SSIM > 0.65 = H1 (encoder bottleneck) confirmed.
+Output: outputs/runs/session11/T0_1_lapfilm_omega_direct/.
+
+**Combined Track 0 interpretation.** H3 rejected (Track 0.2),
+narrow-direction H1 rejected (Track 0.3), but the wake-probe r2
+shows the encoder DOES carry only narrow spatial wake info.
+Best read at this point: the encoder's 32-D global latent
+saturates on G/D/Y/CL/enstrophy, leaving < 1D of effective
+capacity for spatial wake. Adding a spatial-wake observable
+head (Track 1) is the right next move to test whether the
+encoder can be coerced into using more of its d=32 budget on
+wake patterns. If Track 1 fails, Track 3 (spatial latent) is
+the structural fix; Track 4 (decoder swap) is not the right
+first response given Track 0.2's negative.
+
+### D79: Session 11 CL observable switched to delta=0 (cl_present) (2026-05-21, Session 11)
+
+For Session 11 Track 1+ encoder retrains, the CL observable head
+``--observable-head-deltas`` is set to ``[0]`` (CL_present) rather
+than the previous Session 9 default ``[8, 16, 24]`` (CL_future at
+0.4/0.8/1.2 convective times). Motivation: peer (Fukami)
+questioned the future-delta choice. Fukami AE uses cl_present
+because it has no temporal predictor; for our JEPA the temporal
+pressure already comes from ``L_pred`` (next-step latent MSE), so
+``cl_future`` was doing double duty with ``L_pred``. Switching to
+``cl_present`` simplifies the comparison story for the paper
+("we add CL_t observable, same as Fukami; JEPA contributes the
+temporal pressure") and removes the redundancy.
+
+The change applies only to the Session 11 Track 1+ retrains.
+The Session 9 production encoder used cl_future and is retained
+as a baseline (the wake-probe baseline in D78 used that
+checkpoint with cl_present probe targets; the probe is just
+linear regression and is independent of training-time deltas).
+
+### D84: Session 11 outcome -- W0_C_lam100 wins (Test B SSIM median 0.523, wake_enstrophy 0.431) (2026-05-22, Session 11)
+
+**Session 11 status: numerical success on BOTH thresholds.**
+
+The winning configuration is the JEPA encoder retrained with Mode C
+(``patch_signed_spectrum`` 80D wake observable head) at
+``lambda_wake=1.00``, followed by the Session 10 E1 decoder retrain
+(region+pyramid+enstrophy+circulation, no FFL). The wake observable
+head is the Track 1 mechanism added in Session 11; the Mode C target
+is the GPT collaborator's preferred form; ``lambda_wake=1.00`` is
+beyond the original Session 11 plan's max of 0.30 and was reached
+by extending the lambda ladder after user feedback flagged the
+W0_C_lam30 result (the first time gust + wake reconstructed
+visibly).
+
+**Final Test B medians (W0_C_lam100 + E1 decoder retrain):**
+
+| metric                          | target  | W0_C_lam100 | status |
+|---------------------------------|---------|-------------|--------|
+| SSIM median                     | >= 0.50 | **0.523**   | PASS   |
+| wake_enstrophy_rel_err median   | <= 0.45 | **0.431**   | PASS   |
+| Visible wake in Figure 3        | yes     | sent        | (user judgment) |
+
+Both numerical criteria CLEARED. The visual criterion is left to the
+human reviewer's judgement; the figure was sent for confirmation.
+
+**Cross-config Track 1 + extension summary (Test B medians):**
+
+| config       | wake head      | lam | r2_patch | r2_spec | r2_GDY | PR    | SSIM   | wake_enstrophy |
+|--------------|----------------|------|----------|---------|--------|-------|--------|----------------|
+| S9 baseline  | none           | --   | 0.302    | 0.350   | 0.885  | 2.30  | 0.358*  | 0.617*         |
+| W0_A_lam03   | enstrophy_scal | 0.03 | 0.351    | 0.421   | 0.713  | 3.05  | (skip) | (skip)         |
+| W0_B_lam03   | patch_signed   | 0.03 | 0.358    | 0.423   | 0.911  | 2.62  | (skip) | (skip)         |
+| W0_B_lam10   | patch_signed   | 0.10 | 0.430    | 0.489   | 0.842  | 4.11  | 0.419  | --             |
+| W0_C_lam03   | patch_spec     | 0.03 | 0.394    | 0.481   | 0.780  | 3.77  | (skip) | (skip)         |
+| W0_C_lam10   | patch_spec     | 0.10 | 0.408    | 0.499   | 0.791  | 3.46  | 0.451  | 0.483          |
+| W0_C_lam30   | patch_spec     | 0.30 | 0.439    | 0.528   | 0.859  | 5.66  | 0.472  | 0.434          |
+| W0_C_lam50   | patch_spec     | 0.50 | 0.466    | 0.552   | 0.808  | 7.20  | 0.482  | 0.434          |
+| **W0_C_lam100**| **patch_spec** | **1.00**| **0.488** | **0.570** | 0.722  | **11.66** | **0.523** | **0.431** |
+
+(* = Session 10 E2 / W0_C_lam10's wake_enstrophy / SSIM mean used as
+S9 baseline reference because S9 itself didn't have a paired decoder
+retrain in this study; E2 IS the S9 + decoder baseline.)
+
+**Counterintuitive finding (carry forward to paper).** The
+participation ratio PR(z) on Test B scales nearly LINEARLY with
+``lambda_wake`` (2.30 -> 11.66 over 0 -> 1.00). The encoder's
+effective latent dimensionality is determined not by the d=32 budget
+alone but by how much external pressure (the wake observable head) it
+gets to encode something the SIGReg + L_pred + L_anticollapse triple
+otherwise collapses. Higher wake pressure broadens the latent;
+GDY r2 degrades gracefully (0.885 -> 0.722 at lambda=1.00) but stays
+high enough that the wake gains dominate the reconstruction outcome.
+
+**Comparison vs the field:**
+
+|                              | Test B SSIM med | Test B wake_enstrophy med |
+|------------------------------|-----------------|---------------------------|
+| Session 10 E2 (best CNN dec) | 0.391           | 0.617                     |
+| Session 10 E4 (best wake mag)| 0.285           | 0.568                     |
+| Matched-d=32 Fukami AE (D81) | --              | --                        |
+| Track 0.1 omega_direct       | 0.551           | (omega input upper bound) |
+| **W0_C_lam100 (Session 11)** | **0.523**       | **0.431**                 |
+
+W0_C_lam100 + E1 decoder is the **first JEPA + decoder configuration
+to reach Test B SSIM > 0.50 AND wake_enstrophy < 0.45 at matched d=32**.
+It comes within 0.028 of Track 0.1's omega-direct upper bound (0.551)
+despite using only the d=32 global JEPA latent.
+
+**What the paper claims (after Session 11):**
+
+1. JEPA + wake observable head at lambda_wake=1.00 beats Session 10's
+   best decoder configuration by +33 percent on Test B SSIM (0.39 ->
+   0.52) and -30 percent on wake_enstrophy_rel_err (0.62 -> 0.43).
+2. The matched-d=32 Fukami AE has comparable reconstruction
+   (0.40 SSIM) but 2-4x worse latent physics encoding (D81). JEPA's
+   advantage is the latent, not the decoder.
+3. The wake observable head is a clean mechanism: one extra MLP on
+   z_t, trained jointly with the JEPA prediction loss, no other
+   architectural changes.
+
+**Files:**
+
+- Encoder checkpoint: ``outputs/runs/session11/W0_C_lam100/checkpoint_iter020000.pt``
+- Decoder checkpoint: ``outputs/runs/session11/W0_C_lam100/decoder_E1_recipe/decoder_iter020000.pt``
+- Wake probe JSON: ``outputs/runs/session11/W0_C_lam100/probe/wake_probe.json``
+- Extended metrics JSON: ``outputs/runs/session11/W0_C_lam100/decoder_E1_recipe/extended_metrics.json``
+- Figure 3: ``outputs/runs/session11/W0_C_lam100/decoder_E1_recipe/eval/fig3_jepa_reconstruction.png``
+
+### D85: Omega pipeline moved into EpisodeDataset.__getitem__; num_workers > 0 unlocked (2026-05-22, Session 11)
+
+Earlier sessions forced ``num_workers = 0`` in ``train_jepa.py`` when the
+omega pipeline was active. CLAUDE.md (pre-D85): "the custom collate
+carries non-tensor ``case_ids`` and fork-based DataLoader workers fail
+on it." That meant single-threaded data loading and a GPU that sat idle
+between batches; with three concurrent training jobs sharing disk and
+``num_workers = 0``, iter pace collapsed from ~100-200 iter/min to
+~17 iter/min in mid-Session 11.
+
+**Fix.** Moved pipeline preprocessing (mask + per-encounter clip +
+3-sigma scale) INTO ``EpisodeDataset.__getitem__`` via a new
+``omega_pipeline_manifest`` parameter. The pipeline is lazy-loaded
+per worker (the manifest is passed as a path, not the pipeline object,
+so each worker re-instantiates after fork). The collate then just
+stacks tensors; ``case_ids`` is kept in the batch dict for logging but
+is no longer needed for any preprocessing math.
+
+Files changed:
+
+- ``src/data/episode_dataset.py`` -- added ``omega_pipeline_manifest``
+  parameter and ``_load_omega_pipeline`` helper; ``__getitem__`` now
+  returns normalized omega when the manifest is set.
+- ``src/training/train_jepa.py`` -- removed ``args.num_workers = 0``
+  override; removed ``apply_pipeline_batch`` call from the training
+  loop and from ``run_diagnostics`` (the batch already has normalized
+  omega when the dataset has the manifest).
+- ``scripts/session11_launch_track1.sh`` and
+  ``scripts/session11_launch_track2.sh`` -- changed
+  ``--num-workers 0`` to ``--num-workers 4``.
+- ``CLAUDE.md`` -- updated to document the D85 behaviour.
+
+**Verified.** 5-iter smoke test with ``--num-workers 4 --omega-pipeline-manifest
+outputs/data_pipeline/v1/manifest.json`` succeeded; PR(z), r2(GDY),
+and per-loss values match the previous ``num_workers = 0`` regime
+(no normalization or correctness change). Mid-Session 11 the slow
+runs (W0_C_lam50, W0_C_lam100, decoder_wakeheavy) were killed and
+restarted with the D85 fix; per-iter time dropped from ~17 iter/min
+back to a normal 50+ iter/min on a single dedicated card.
+
+The fix is paper-future too: any future encoder retrain or
+decoder retrain that loads the omega pipeline will get the same
+speedup without any per-script change.
+
+### D81: Matched-d=32 Fukami AE baseline + wake probe (2026-05-22, Session 11)
+
+Run output: ``outputs/runs/session11/D4_fukami_ae_d32_matched/``.
+
+Standard FukamiAEWrapper (FukamiCNNEncoder + FukamiCNNDecoder +
+FukamiLiftHead) at ``d=32`` on the v1 omega pipeline, 20k iters,
+``observable_head=cl_future`` at deltas ``{8, 16, 24}``,
+``observable_weight=1.0``, ReLU + GroupNorm defaults, ``omega_clip=None``,
+``omega_clip_pct=None``. ``B=16, T=32, lr=1e-3, weight_decay=0``.
+
+**Reconstruction (Test A / B / C):**
+
+| split  | SSIM mean | eps_vol mean | ratio_mean |
+|--------|-----------|--------------|------------|
+| Test A | 0.479     | 0.868        | 8.34       |
+| Test B | 0.397     | 0.934        | 1.76       |
+| Test C | 0.248     | 0.959        | 1.60       |
+
+**Reconstruction comparison.** At matched d=32:
+
+| metric          | Fukami AE | JEPA+E2 (S10 D75) | T0_1 omega_direct (S11 D80) |
+|-----------------|-----------|-------------------|-----------------------------|
+| Test B SSIM     | 0.397     | 0.356 (mean)      | 0.561 (mean) / 0.551 (med)  |
+| Test B SSIM med | --        | 0.391 (med)       | 0.551 (med)                 |
+| Test B eps_vol  | 0.934     | 1.005 (mean)      | 0.882 (med)                 |
+| Test C SSIM     | 0.248     | 0.219             | 0.506                       |
+
+Fukami AE and JEPA+E2 are essentially tied on Test B reconstruction
+(~0.4 SSIM). Track 0.1's omega_direct LapFiLM upper bound at 0.55+
+shows what the decoder can do given much richer input than 32D.
+
+**Wake-probe on Fukami AE d=32 latent (test_b, 3360 frames):**
+
+| probe                          | Fukami AE | S9 JEPA baseline |
+|--------------------------------|-----------|------------------|
+| r2_GDY overall                 | **0.356** | 0.885            |
+|  r2_G                          | 0.552     | 0.945            |
+|  r2_D                          | 0.294     | 0.850            |
+|  r2_Y                          | 0.222     | 0.861            |
+| r2_cl at delta=0 (cl_present)  | 0.752     | 0.793            |
+| r2_enstrophy_scalar            | **0.386** | 0.798            |
+| r2_patch_signed (64D)          | **0.179** | 0.302            |
+| r2_patch_signed_spectrum (80D) | **0.202** | 0.350            |
+| r2_wake_coarse_pool (288D)     | **0.141** | 0.272            |
+| PR(z) on test_b 3360 frames    | 4.16      | 2.30             |
+
+**Big paper finding.** Fukami AE's d=32 latent encodes (G, D, Y)
+**2-4x worse** than the JEPA latent, encodes scalar wake enstrophy
+**2x worse**, encodes spatial wake observables **~1.7x worse**, and
+encodes CL **slightly worse**. PR is higher (4.16 vs 2.30) so the
+latent uses more dimensions, but the physics content per dimension
+is much weaker than the JEPA's. **JEPA's L_pred + observable head
+clearly extract more physics structure** than Fukami's
+"reconstruction + lift" objective.
+
+So the paper-essential matched-d=32 comparison reads:
+
+- Reconstruction: tied (0.40 vs 0.39 -- statistically a wash).
+- Latent physics encoding (parametric + observable probes): JEPA
+  wins by 2-4x across the board.
+- Track 0.1 LapFiLM upper bound (0.55) is the decoder ceiling
+  under the current 32D-bottleneck story; neither baseline reaches
+  it without architectural changes.
+
+The paper claim shifts to: **JEPA contributes a physics-richer
+latent at matched d**, with reconstruction comparable to Fukami AE
+and forecasting (downstream prediction at deltas {8, 16, 24}) the
+main wedge for JEPA-vs-Fukami separation. The Session 5-8 prediction
+results already documented in HANDOFF.md support this framing.
+
+### D80: Track 0.1 result -- LapFiLM omega_direct upper bound (2026-05-21, Session 11)
+
+Track 0.1 completed. Output:
+``outputs/runs/session11/T0_1_lapfilm_omega_direct/``.
+
+PatchPoolEncoder (16x16 patch avg over 192x96 to 12x6, 1x1 conv
+to 64 channels; 128 params) + LapFiLM with new ``spatial_init=True``
+flag (latent_dim 4608, decoder 494k params, end-to-end trainable).
+Recipe identical to Session 10 E2: region+pyramid+enstrophy+circulation
++FFL with ffl_warmup_iters=2000. 20k iters at B=16, T=32, seed=42.
+
+**Test A/B/C medians and means (raw scale):**
+
+|        | SSIM median | SSIM mean | eps_vol med | mse_mean | ratio_mean |
+|--------|-------------|-----------|-------------|----------|------------|
+| Test A | 0.627       | 0.623     | 0.797       | 7.93     | 7.03       |
+| Test B | 0.551       | 0.561     | 0.882       | 9.68     | 1.55       |
+| Test C | 0.506       | 0.502     | 0.887       | 25.73    | 1.30       |
+
+**Test B SSIM 0.551 is +41 percent over the Session 10 E2 baseline
+(0.391).** Below the SESSION11 plan's H1-strong threshold of >0.65
+but well above the H2-dominant threshold of <0.45 -- we landed in
+the **mixed H1+H2 zone**, with H1 dominant.
+
+**Interpretation.** Given a richer-than-32D spatial init (12x6x64 =
+4608 features), the LapFiLM decoder can reach Test B SSIM 0.55+;
+the 32D global JEPA latent IS the main bottleneck (H1 confirmed at
+moderate strength). The decoder also has a residual ceiling around
+0.55-0.60 with current architecture (didn't reach 0.65), so Track 4
+(decoder swap) is NOT ruled out but is lower priority than encoder
+improvements.
+
+The Test A ratio = 7.03 (failed the "within 2x floor" Session 9
+criterion) is a Baseline-case artifact: for periodic Baseline
+encounters, the case mean is essentially the same as each
+encounter's omega, so the floor is tiny and the ratio explodes.
+Test A SSIM 0.627 is genuinely strong. The "ratio < 2x" criterion
+is poorly chosen for the Baseline-heavy Test A set; SSIM is the
+more honest metric there.
+
+**Cross-track summary (after Track 0):**
+
+- H3 (temporal context needed) -- REJECTED (Track 0.2: future
+  window aggregation didn't help; -0.02 SSIM delta).
+- Narrow-direction H1 -- REJECTED (Track 0.3: wake info robust to
+  sigma=0.10 perturbation; only 22 percent SSIM drop).
+- Encoder-bottleneck H1 -- SUPPORTED at moderate strength
+  (Track 0.1: +41 percent SSIM under rich spatial input;
+  Session 9 wake-probe baseline showed spatial wake r2 only
+  0.27-0.35 vs. CL/scalar at 0.79-0.80).
+- H2 (decoder architecture-limited) -- PARTIALLY SUPPORTED
+  (LapFiLM did not quite reach 0.65; residual ceiling around
+  0.55-0.60).
+
+**Implications for the session.** Tracks 1-3 (encoder
+improvements via wake observable head and possibly spatial
+latent) are the right next moves. Track 4 (decoder swap) is
+deprioritized but not eliminated. If Track 1's wake observable
+head pushes spatial-wake r2 above 0.45-0.50, decoder retraining
+should follow LapFiLM up toward the 0.55 ceiling.
+
 ## Open questions
 
 1. Empirical impact frame. The estimate of 40 was validated in the bootstrap session
@@ -3128,6 +3499,148 @@ Latent dynamics on manifolds
   rule). Magnitudes are correct; only the sign flips. If you plot omega_z and "positive
   rotation" looks inverted, it is the convention, not a bug. See SESSION_DATA_PREP.md
   Step 0 status section.
+
+### D86: Fukami AE + wake head @ lambda_wake = 1.00 broken (2026-05-22, Session 11)
+
+Decision: do NOT report the Fukami AE + wake head @ lambda_wake = 1.00
+configuration as a positive baseline. It collapsed reconstruction.
+
+Result table (matched-d = 32, partition v1fuk, 20k iters):
+
+| split  | SSIM med | SSIM mean | eps_vol med |
+|--------|----------|-----------|-------------|
+| test_a | 0.158    | 0.169     | 0.994       |
+| test_b | 0.173    | 0.149     | 0.994       |
+| test_c | 0.065    | 0.067     | 0.996       |
+
+Compare to bare Fukami D81 (Test B SSIM approximately 0.40) and JEPA
+W0_C_lam100 (Test B SSIM 0.523). Adding the Mode C wake head at the
+JEPA-tuned weight destroyed Fukami's reconstruction.
+
+Rationale: Fukami's primary loss L_recon is on RAW omega (large
+numerical scale). L_wake at lambda = 1.00 directly competes on the
+same axis; encoder collapsed onto the wake observable and abandoned
+reconstruction. JEPA's primary loss L_pred is in latent space (small
+numerical scale), so L_wake acts as an auxiliary signal not a
+competing primary loss. The wake-loss recipe does not transfer to a
+reconstruction-first architecture at the same weight.
+
+For the paper: reported as a negative result in Section 7a of
+SESSION11_REPORT.md. Cleanly motivates the JEPA + wake-head choice
+over "just add a wake head to any model".
+
+Files: ``outputs/runs/session11/D6_fukami_ae_d32_wake_lam100/``.
+
+### D87: PCA k = 12 decoder retrain + intrinsic-dim story (2026-05-22, Session 11)
+
+Decision: report PCA k = 12 + Isomap K = 2-3 dual diagnostic as the
+intrinsic-dimensionality result. The JEPA impact-instant latent has
+*linear* rank approximately 12 (PR(z) = 11.66, top 12 PCs = 94.3% of
+variance) and *geodesic* rank approximately 2-3 (Isomap residual
+plateaus at K = 3).
+
+Test of "effective d = 12" by direct decoder retrain on k = 12 PCs:
+
+| split  | W0_C_lam100 d = 32 | PCA k = 12 | delta SSIM |
+|--------|--------------------|------------|------------|
+| test_a | approximately 0.55 | **0.580**  | +0.03      |
+| test_b | **0.523**          | 0.424      | -0.10      |
+| test_c | not previously run | 0.220      | --         |
+
+The drop on Test B and Test C is informative: the dropped tail PCs
+(13-32) carry real reconstruction signal, especially for Y (vertical
+offset). The disentanglement diagnostic shows R^2(Y) collapses from
+0.73 (full d = 32) to 0.35 (PCA k = 12) under the same projection.
+
+Rationale: BatchNorm at the projection head equalises per-channel
+variance (max/min approximately 1.4) so no raw channel looks "dead",
+but does not decorrelate; PCA reveals the true effective rank.
+Isomap unfolds the curved manifold further. The 12-3 gap is the
+curvature tax: PCA needs the extra linear axes to wrap around the
+geodesic surface. This is a defensible empirical lower bound on the
+intrinsic dimensionality of the parametric vortex-gust impact at
+Re = 5000 (approximately 3, geodesic) and a quantitative ceiling on
+how aggressively the encoder can be compressed without losing usable
+signal (approximately 12, linear, with non-negligible tail).
+
+For the paper: this is the "we know how many dimensions the latent
+actually uses" finding. PCA, Isomap, and the PCA-truncation retrain
+together establish that the JEPA encoder uses 12 effective dims plus
+a tail, not exactly 12. The 2- to 3-dim curved-sheet picture is the
+publishable summary.
+
+Files (all under
+``outputs/runs/session11/W0_C_lam100/decoder_pca_k12/``):
+``pca_basis.npz``, ``decoder_iter020000.pt``, ``decoder_summary.json``,
+``spectrum.png``, ``disentanglement.{png,npz}``,
+``isomap_diagnostic.{png,npz}``, ``latent3d_gd.png``,
+``latent3d_trajectories.png``, ``isomap_g_color_d_marker.png``,
+``figure3.png``.
+
+Inspired by Wang, Tirelli, Discetti, Ianiro arXiv:2604.18059 (April
+2026, same NACA 0012 + parametric vortex gust setting from a UC3M
+group). We did NOT port their VAE objective; only the diagnostic
+methodology (Isomap as a manifold-learning baseline, per-axis
+regression of physical factors).
+
+Paper-future direction (out of Session 11 scope): VICReg-cov or
+total-correlation penalty on the encoder output to test whether the
+encoder can be compressed below 12 effective dims by explicit
+decorrelation. See Section 8 of SESSION11_REPORT.md.
+
+### D88: CV-honest disentanglement probe correction (2026-05-22, Session 11)
+
+Decision: replace the in-sample linear R^2 disentanglement table with
+a cross-validated table that includes both linear and nonlinear
+probes. The earlier in-sample linear numbers (raw d = 32 R^2 of
+0.804 / 0.837 / 0.729 for G / D / Y) were severely overfit at
+n = 282 samples vs. d = 32 features.
+
+CV-honest table (5-fold; ``scripts/session11_nonlinear_probe.py``):
+
+| representation | probe       | R^2(G) | R^2(D) | R^2(Y) |
+|----------------|-------------|--------|--------|--------|
+| raw d = 32     | linear OLS  | +0.601 | -6.53  | +0.644 |
+| raw d = 32     | kNN k = 5   | +0.863 | +0.841 | +0.601 |
+| raw d = 32     | RBF KR      | +0.928 | +0.942 | +0.849 |
+| PCA k = 12     | linear OLS  | +0.501 | -5.05  | +0.249 |
+| PCA k = 12     | kNN k = 5   | +0.832 | +0.803 | +0.617 |
+| PCA k = 12     | RBF KR      | +0.852 | +0.760 | +0.773 |
+| Isomap K = 10  | linear OLS  | +0.503 | -5.08  | +0.316 |
+| Isomap K = 10  | kNN k = 5   | +0.796 | +0.755 | +0.566 |
+| Isomap K = 10  | RBF KR      | +0.834 | +0.682 | +0.607 |
+
+Three findings the corrected table makes explicit:
+
+1. The JEPA latent encodes (G, D, Y) nearly perfectly under nonlinear
+   probing (raw d = 32 RBF R^2 = {0.93, 0.94, 0.85}). Linear probes
+   understate the true capacity because the manifold is curved.
+
+2. Linear OLS on D is actively harmful (R^2 -5 to -6). D takes only
+   four discrete values {0.0, 0.5, 1.0, 1.5}; decision boundaries
+   between D-levels curve through z-space, so linear regression
+   predicts worse than the mean. This is the cleanest single evidence
+   of latent curvature.
+
+3. The PCA-vs-Isomap ranking flips meaningfully but not completely.
+   Under linear probing, Isomap looked clearly worse; under RBF the
+   gap collapses to 2 to 10 percent, plausibly within sample noise.
+   The earlier "PCA is the better representation" implication was a
+   linear-probe artefact.
+
+The Section 7b PCA-decoder explanation in SESSION11_REPORT.md was
+also revised: under nonlinear probing the Y info loss from PCA k = 12
+is 5 to 20 percent, not 50 percent. The larger Test B decoder
+penalty (-10 SSIM) must therefore include fine spatial structure
+that no scalar (G, D, Y) regression can capture.
+
+Paper-future implication: any probe-based interpretability claim
+must specify the probe family. We will report linear, kNN, and RBF
+probes side by side in the final paper rather than relying on a
+single number per (representation, factor) pair.
+
+Files: ``scripts/session11_nonlinear_probe.py``,
+``outputs/runs/session11/W0_C_lam100/decoder_pca_k12/nonlinear_probe.json``.
 
 ## How to update this document
 

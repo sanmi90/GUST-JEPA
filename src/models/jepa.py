@@ -26,7 +26,7 @@ from __future__ import annotations
 import torch
 from torch import Tensor, nn
 
-from src.models.observable_head import observable_loss
+from src.models.observable_head import observable_loss, smooth_l1_observable_loss
 from src.training.scheduled_sampling import (
     open_loop_rollout_loss,
     teacher_forced_prediction_loss,
@@ -72,6 +72,10 @@ class JEPA(nn.Module):
         c_dropout_prob: float = 0.0,
         observable_head: nn.Module | None = None,
         observable_weight: float = 0.0,
+        wake_observable_head: nn.Module | None = None,
+        wake_observable_weight: float = 0.0,
+        wake_loss_kind: str = "smooth_l1",
+        wake_loss_beta: float = 0.5,
     ) -> None:
         super().__init__()
         if rollout_start_strategy not in _VALID_ROLLOUT_STRATEGIES:
@@ -83,6 +87,10 @@ class JEPA(nn.Module):
             raise ValueError(f"H_roll must be >= 1, got {H_roll}")
         if not 0.0 <= c_dropout_prob <= 1.0:
             raise ValueError(f"c_dropout_prob must be in [0, 1]; got {c_dropout_prob}")
+        if wake_loss_kind not in ("smooth_l1", "mse"):
+            raise ValueError(
+                f"wake_loss_kind must be 'smooth_l1' or 'mse'; got {wake_loss_kind!r}"
+            )
 
         self.encoder = encoder
         self.predictor = predictor
@@ -94,6 +102,10 @@ class JEPA(nn.Module):
         self.c_dropout_prob = float(c_dropout_prob)
         self.observable_head = observable_head
         self.observable_weight = float(observable_weight)
+        self.wake_observable_head = wake_observable_head
+        self.wake_observable_weight = float(wake_observable_weight)
+        self.wake_loss_kind = wake_loss_kind
+        self.wake_loss_beta = float(wake_loss_beta)
 
     def _sample_t0(self, T: int) -> int:
         """Pick the rollout start position according to the configured strategy."""
@@ -166,11 +178,27 @@ class JEPA(nn.Module):
         else:
             loss_obs = torch.zeros((), device=z.device, dtype=torch.float32)
 
+        if self.wake_observable_head is not None and self.wake_observable_weight > 0.0:
+            if "wake_target" not in batch:
+                raise KeyError(
+                    "wake_observable_head configured but batch has no 'wake_target' tensor"
+                )
+            wake_pred = self.wake_observable_head(z)
+            if self.wake_loss_kind == "mse":
+                loss_wake = observable_loss(wake_pred, batch["wake_target"])
+            else:
+                loss_wake = smooth_l1_observable_loss(
+                    wake_pred, batch["wake_target"], beta=self.wake_loss_beta
+                )
+        else:
+            loss_wake = torch.zeros((), device=z.device, dtype=torch.float32)
+
         loss_total = (
             loss_pred
             + self.rollout_weight * loss_roll
             + self.lambda_anticollapse * loss_anticollapse
             + self.observable_weight * loss_obs
+            + self.wake_observable_weight * loss_wake
         )
 
         return {
@@ -179,6 +207,7 @@ class JEPA(nn.Module):
             "loss_roll": loss_roll,
             "loss_anticollapse": loss_anticollapse,
             "loss_obs": loss_obs,
+            "loss_wake": loss_wake,
             "z": z,
         }
 

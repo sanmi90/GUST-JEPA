@@ -5,7 +5,12 @@ from __future__ import annotations
 import pytest
 import torch
 
-from src.models.observable_head import ObservableHead, observable_loss
+from src.models.observable_head import (
+    ObservableHead,
+    WakeObservableHead,
+    observable_loss,
+    smooth_l1_observable_loss,
+)
 
 
 def test_observable_head_shape_contract() -> None:
@@ -61,5 +66,59 @@ def test_observable_loss_bf16_input_returns_finite() -> None:
     pred = torch.randn(2, 8, 3, dtype=torch.bfloat16)
     target = torch.randn(2, 8, 3, dtype=torch.bfloat16)
     loss = observable_loss(pred, target)
+    assert torch.isfinite(loss)
+    assert loss.dtype == torch.float32
+
+
+def test_wake_observable_head_shape_contract() -> None:
+    """``(B, T, d) -> (B, T, out_dim)`` and ``(N, d) -> (N, out_dim)``."""
+    head = WakeObservableHead(latent_dim=32, out_dim=80, hidden_dim=128)
+    z3 = torch.randn(4, 10, 32)
+    assert head(z3).shape == (4, 10, 80)
+    z2 = torch.randn(7, 32)
+    assert head(z2).shape == (7, 80)
+
+
+def test_wake_observable_head_rejects_wrong_last_dim() -> None:
+    head = WakeObservableHead(latent_dim=32, out_dim=80)
+    with pytest.raises(ValueError, match="latent_dim=32"):
+        head(torch.randn(2, 16))
+
+
+def test_wake_observable_head_init_validation() -> None:
+    with pytest.raises(ValueError, match="latent_dim must be positive"):
+        WakeObservableHead(latent_dim=0)
+    with pytest.raises(ValueError, match="out_dim must be positive"):
+        WakeObservableHead(latent_dim=32, out_dim=0)
+    with pytest.raises(ValueError, match="hidden_dim must be positive"):
+        WakeObservableHead(latent_dim=32, hidden_dim=0)
+
+
+def test_wake_observable_head_gradient_flows() -> None:
+    head = WakeObservableHead(latent_dim=32, out_dim=64)
+    z = torch.randn(4, 10, 32, requires_grad=True)
+    pred = head(z)
+    target = torch.randn_like(pred)
+    loss = smooth_l1_observable_loss(pred, target)
+    loss.backward()
+    for name, p in head.named_parameters():
+        assert p.grad is not None and p.grad.abs().sum().item() > 0.0, f"no grad on {name}"
+    assert z.grad is not None and z.grad.abs().sum().item() > 0.0
+
+
+def test_smooth_l1_observable_loss_zero_when_perfect() -> None:
+    pred = torch.randn(2, 8, 16)
+    assert smooth_l1_observable_loss(pred, pred).item() == pytest.approx(0.0, abs=1e-7)
+
+
+def test_smooth_l1_observable_loss_shape_mismatch_errors() -> None:
+    with pytest.raises(ValueError, match="shapes must match"):
+        smooth_l1_observable_loss(torch.zeros(2, 8, 3), torch.zeros(2, 8, 4))
+
+
+def test_smooth_l1_observable_loss_bf16_promotes_to_fp32() -> None:
+    pred = torch.randn(2, 8, 16, dtype=torch.bfloat16)
+    target = torch.randn(2, 8, 16, dtype=torch.bfloat16)
+    loss = smooth_l1_observable_loss(pred, target, beta=0.5)
     assert torch.isfinite(loss)
     assert loss.dtype == torch.float32

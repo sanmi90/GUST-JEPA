@@ -146,9 +146,13 @@ is ~1% and existing checkpoints remain valid to within that tolerance.
 
 Every training entrypoint (Fukami AE `session9_train_fukami.py`, JEPA encoder
 `train_jepa.py`, JEPA decoder `session9_train_decoder.py`) takes
-`--omega-pipeline-manifest outputs/data_pipeline/v1/manifest.json`. When the
-flag is set, the loader sets `num_workers = 0` because the custom collate
-carries non-tensor `case_ids` and fork-based DataLoader workers fail on it.
+`--omega-pipeline-manifest outputs/data_pipeline/v1/manifest.json`. The
+pipeline is applied INSIDE `EpisodeDataset.__getitem__` per worker (D85,
+Session 11), so `num_workers > 0` is safe and recommended. Earlier sessions
+forced `num_workers = 0` due to a non-tensor `case_ids` issue in the collate;
+the D85 fix moves pipeline preprocessing into the dataset itself, eliminating
+the lock and giving ~3-10x training throughput when the data loader was the
+GPU bottleneck.
 
 Loss is computed in NORMALISED space; un-normalise only at metric / figure
 time. The Fukami-protocol partition `v1fuk` (50 cases pooled, 25% per-case

@@ -41,7 +41,8 @@ from src.data.episode_dataset import EpisodeDataset
 from src.data.omega_pipeline import OmegaPipeline
 from src.models.encoder import HybridCNNViTEncoder
 from src.models.jepa import JEPA
-from src.models.observable_head import ObservableHead
+from src.models.observable_head import ObservableHead, WakeObservableHead
+from src.data.wake_observables import mode_output_dim
 from src.models.predictor import AutoregressivePredictor
 from src.models.sigreg import SIGReg
 from src.models.vicreg import VICReg
@@ -234,9 +235,60 @@ def parse_args() -> argparse.Namespace:
         default=None,
         help=(
             "Path to the OmegaPipeline manifest (e.g. outputs/data_pipeline/v1/"
-            "manifest.json). When set, every batch is preprocessed by the pipeline "
-            "(spatial mask + per-encounter clip + 3-sigma scale) before the encoder. "
-            "Forces num_workers=0 since the custom collate carries non-tensor case_ids."
+            "manifest.json). When set, preprocessing (spatial mask + per-encounter "
+            "clip + 3-sigma scale) is applied inside the worker (D85); num_workers "
+            "> 0 is now safe (was forced to 0 in earlier sessions)."
+        ),
+    )
+    p.add_argument(
+        "--wake-observable-type",
+        type=str,
+        default="none",
+        choices=["none", "enstrophy_scalar", "patch_signed",
+                 "patch_signed_spectrum", "wake_coarse_pool"],
+        help=(
+            "Session 11 Track 1/2 wake observable head. 'none' disables (default). "
+            "Other choices read targets from "
+            "${VORTEX_JEPA_CACHE}/<partition>/wake_observables/. Run "
+            "scripts/session11_precompute_wake_observables.py first."
+        ),
+    )
+    p.add_argument(
+        "--lambda-wake",
+        type=float,
+        default=0.0,
+        help=(
+            "Weight on the wake observable loss. 0 disables even when "
+            "--wake-observable-type != none. Session 11 plan sweeps "
+            "0.03 / 0.10 / 0.30."
+        ),
+    )
+    p.add_argument(
+        "--wake-loss",
+        type=str,
+        default="smooth_l1",
+        choices=["smooth_l1", "mse"],
+        help="Loss family for the wake observable head; default smooth L1 (Huber).",
+    )
+    p.add_argument(
+        "--wake-loss-beta",
+        type=float,
+        default=0.5,
+        help="Huber beta. Only used when --wake-loss smooth_l1.",
+    )
+    p.add_argument(
+        "--wake-head-hidden",
+        type=int,
+        default=128,
+        help="Hidden width of the WakeObservableHead MLP.",
+    )
+    p.add_argument(
+        "--wake-observables-root",
+        type=str,
+        default=None,
+        help=(
+            "Override the wake observable cache directory. Default: "
+            "${VORTEX_JEPA_CACHE}/<partition>/wake_observables."
         ),
     )
     return p.parse_args()
@@ -307,6 +359,8 @@ def jepa_collate(samples: list[dict[str, Any]]) -> dict[str, Any]:
     batch: dict[str, Any] = {"omega": omega, "c": c}
     if "cl_future" in samples[0]:
         batch["cl_future"] = torch.stack([s["cl_future"] for s in samples])
+    if "wake_target" in samples[0]:
+        batch["wake_target"] = torch.stack([s["wake_target"] for s in samples])
     if "case_id" in samples[0]:
         batch["case_ids"] = [s["case_id"] for s in samples]
         batch["encounter_indices"] = torch.tensor(
@@ -319,6 +373,13 @@ def _emit_cl(args: argparse.Namespace) -> bool:
     return args.observable_head == "cl_future" and args.observable_head_weight > 0.0
 
 
+def _emit_wake(args: argparse.Namespace) -> bool:
+    return (
+        getattr(args, "wake_observable_type", "none") != "none"
+        and getattr(args, "lambda_wake", 0.0) > 0.0
+    )
+
+
 def make_train_loader(args: argparse.Namespace) -> DataLoader:
     ds = EpisodeDataset(
         partition=args.partition,
@@ -326,6 +387,11 @@ def make_train_loader(args: argparse.Namespace) -> DataLoader:
         subtraj_len=args.T,
         emit_cl_future=_emit_cl(args),
         cl_future_deltas=tuple(args.observable_head_deltas),
+        emit_wake_observable=_emit_wake(args),
+        wake_observable_type=args.wake_observable_type if _emit_wake(args)
+            else "patch_signed_spectrum",
+        wake_observables_root=args.wake_observables_root,
+        omega_pipeline_manifest=args.omega_pipeline_manifest,
     )
     if args.cases is not None:
         wanted = set(args.cases)
@@ -367,6 +433,11 @@ def make_test_b_loader(args: argparse.Namespace) -> DataLoader:
         subtraj_len=args.T,
         emit_cl_future=_emit_cl(args),
         cl_future_deltas=tuple(args.observable_head_deltas),
+        emit_wake_observable=_emit_wake(args),
+        wake_observable_type=args.wake_observable_type if _emit_wake(args)
+            else "patch_signed_spectrum",
+        wake_observables_root=args.wake_observables_root,
+        omega_pipeline_manifest=args.omega_pipeline_manifest,
     )
     return DataLoader(
         ds,
@@ -440,8 +511,9 @@ def run_diagnostics(
 ) -> dict[str, float]:
     """Compute PR + linear probe R^2 + variance histogram on a Test B batch."""
     batch = move_batch(next(test_b_iter), device)
-    if omega_pipeline is not None:
-        batch = apply_pipeline_batch(omega_pipeline, batch)
+    # D85: pipeline applied per-sample inside Dataset.__getitem__; the
+    # test_b iter already yields normalized omega. The omega_pipeline
+    # argument is kept for backward compat / informational logging only.
     was_training = jepa.training
     jepa.eval()
     with torch.no_grad():
@@ -529,6 +601,11 @@ def main() -> None:
         "observable_head": args.observable_head,
         "observable_head_weight": args.observable_head_weight,
         "observable_head_deltas": list(args.observable_head_deltas),
+        "wake_observable_type": getattr(args, "wake_observable_type", "none"),
+        "lambda_wake": float(getattr(args, "lambda_wake", 0.0)),
+        "wake_loss": getattr(args, "wake_loss", "smooth_l1"),
+        "wake_loss_beta": float(getattr(args, "wake_loss_beta", 0.5)),
+        "wake_head_hidden": int(getattr(args, "wake_head_hidden", 128)),
     }
 
     import wandb
@@ -572,7 +649,9 @@ def main() -> None:
             f"std={omega_pipeline.train_stats.std:.4f}",
             flush=True,
         )
-        args.num_workers = 0
+        # D85: pipeline is now applied INSIDE EpisodeDataset.__getitem__ per
+        # worker. No longer forces num_workers=0; preprocessing scales with
+        # workers and the GPU is no longer data-load bound.
         run_config["omega_pipeline_manifest"] = str(manifest_path)
 
     train_loader = make_train_loader(args)
@@ -595,6 +674,13 @@ def main() -> None:
             latent_dim=args.d,
             n_deltas=len(args.observable_head_deltas),
         )
+    wake_observable_head: nn.Module | None = None
+    if _emit_wake(args):
+        wake_observable_head = WakeObservableHead(
+            latent_dim=args.d,
+            out_dim=mode_output_dim(args.wake_observable_type),
+            hidden_dim=args.wake_head_hidden,
+        )
     jepa = JEPA(
         encoder=encoder,
         predictor=predictor,
@@ -606,11 +692,17 @@ def main() -> None:
         c_dropout_prob=args.c_dropout_prob,
         observable_head=observable_head,
         observable_weight=args.observable_head_weight if observable_head is not None else 0.0,
+        wake_observable_head=wake_observable_head,
+        wake_observable_weight=args.lambda_wake if wake_observable_head is not None else 0.0,
+        wake_loss_kind=args.wake_loss,
+        wake_loss_beta=args.wake_loss_beta,
     ).to(device)
 
     predictor_param_group = list(jepa.predictor.parameters())
     if observable_head is not None:
         predictor_param_group += list(jepa.observable_head.parameters())
+    if wake_observable_head is not None:
+        predictor_param_group += list(jepa.wake_observable_head.parameters())
     optimizer = AdamW(
         [
             {"params": list(jepa.encoder.parameters()), "lr": args.lr_encoder},
@@ -656,20 +748,23 @@ def main() -> None:
     last_loss_total = float("nan")
     for iteration in range(start_iter, args.max_iters):
         batch = move_batch(next(train_iter), device)
-        if omega_pipeline is not None:
-            batch = apply_pipeline_batch(omega_pipeline, batch)
+        # D85: omega pipeline preprocessing is now applied inside
+        # EpisodeDataset.__getitem__ (per worker), so the batch's omega is
+        # already in 3-sigma normalized space. No post-collate pipeline call
+        # needed here, and num_workers > 0 is safe.
 
         with torch.autocast(device_type="cuda", dtype=torch.bfloat16):
             out = jepa(batch)
 
         loss_total = out["loss_total"]
         last_loss_total = float(loss_total.item())
+        loss_wake_val = float(out.get("loss_wake", torch.zeros(())).item())
         if not math.isfinite(last_loss_total):
             raise RuntimeError(
                 f"non-finite loss at iter {iteration}: loss_total={last_loss_total} "
                 f"(pred={out['loss_pred'].item()}, roll={out['loss_roll'].item()}, "
                 f"anti={out['loss_anticollapse'].item()}, "
-                f"obs={out['loss_obs'].item()})"
+                f"obs={out['loss_obs'].item()}, wake={loss_wake_val})"
             )
 
         optimizer.zero_grad(set_to_none=True)
@@ -687,6 +782,7 @@ def main() -> None:
                     "loss_roll": out["loss_roll"].item(),
                     "loss_anticollapse": out["loss_anticollapse"].item(),
                     "loss_obs": out["loss_obs"].item(),
+                    "loss_wake": loss_wake_val,
                     "lr_encoder": optimizer.param_groups[0]["lr"],
                     "lr_predictor": optimizer.param_groups[1]["lr"],
                 },
@@ -697,7 +793,8 @@ def main() -> None:
                 f"(pred={out['loss_pred'].item():.4f}, "
                 f"roll={out['loss_roll'].item():.4f}, "
                 f"anti={out['loss_anticollapse'].item():.4f}, "
-                f"obs={out['loss_obs'].item():.4f})",
+                f"obs={out['loss_obs'].item():.4f}, "
+                f"wake={loss_wake_val:.4f})",
                 flush=True,
             )
 

@@ -210,6 +210,7 @@ class LapFiLMDecoder(nn.Module):
         out_h: int = 192,
         out_w: int = 96,
         final_activation: Optional[str] = None,
+        spatial_init: bool = False,
     ) -> None:
         super().__init__()
 
@@ -230,6 +231,14 @@ class LapFiLMDecoder(nn.Module):
                 f"base_hw {base_hw} * 2^{n_levels - 1} = ({expected_h}, {expected_w})"
                 f" != out ({out_h}, {out_w})"
             )
+
+        if spatial_init and use_film:
+            use_film = False
+        if spatial_init and not use_film:
+            broadcast_z_channels = False
+        else:
+            broadcast_z_channels = not use_film
+        self.broadcast_z_channels = bool(broadcast_z_channels)
 
         self.latent_dim = latent_dim
         self.base_hw = base_hw
@@ -252,12 +261,22 @@ class LapFiLMDecoder(nn.Module):
             coord_extra += 4 * fourier_bands
         if use_airfoil_mask_channel:
             coord_extra += 1
-        if not use_film:
+        if self.broadcast_z_channels:
             coord_extra += latent_dim
         self.coord_extra = coord_extra
 
         base_ch = channels[0]
-        self.init_proj = nn.Linear(latent_dim, base_ch * base_h * base_w)
+        self.spatial_init = bool(spatial_init)
+        if self.spatial_init:
+            expected = base_ch * base_h * base_w
+            if latent_dim != expected:
+                raise ValueError(
+                    f"spatial_init=True requires latent_dim == base_ch*base_h*base_w "
+                    f"({base_ch}*{base_h}*{base_w} = {expected}); got latent_dim={latent_dim}"
+                )
+            self.init_proj = nn.Identity()
+        else:
+            self.init_proj = nn.Linear(latent_dim, base_ch * base_h * base_w)
 
         self.input_projs = nn.ModuleList()
         self.blocks = nn.ModuleList()
@@ -326,7 +345,10 @@ class LapFiLMDecoder(nn.Module):
         base_h, base_w = self.base_hw
         base_ch = self.channels[0]
 
-        feat = self.init_proj(z).view(N, base_ch, base_h, base_w)
+        if self.spatial_init:
+            feat = z.view(N, base_ch, base_h, base_w)
+        else:
+            feat = self.init_proj(z).view(N, base_ch, base_h, base_w)
 
         pyramid: list[Tensor] = []
         prev_pred_up: Optional[Tensor] = None
@@ -342,7 +364,7 @@ class LapFiLMDecoder(nn.Module):
             if self.use_airfoil_mask_channel:
                 mask = getattr(self, f"airfoil_mask_l{k}").to(dtype=feat.dtype)
                 extras.append(mask.expand(N, -1, -1, -1))
-            if not self.use_film:
+            if self.broadcast_z_channels:
                 z_chan = z[:, :, None, None].expand(-1, -1, h_k, w_k).to(dtype=feat.dtype)
                 extras.append(z_chan)
 

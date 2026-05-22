@@ -251,6 +251,10 @@ class FukamiAEWrapper(nn.Module):
         recon_inactive_weight: float = 0.0,
         activation: str = "relu",
         use_conv_norm: bool = True,
+        wake_observable_head: "nn.Module | None" = None,
+        wake_observable_weight: float = 0.0,
+        wake_loss_kind: str = "smooth_l1",
+        wake_loss_beta: float = 0.5,
     ) -> None:
         super().__init__()
         self.encoder = FukamiCNNEncoder(latent_dim, activation=activation,
@@ -258,6 +262,18 @@ class FukamiAEWrapper(nn.Module):
         self.decoder = FukamiCNNDecoder(latent_dim, activation=activation,
                                         use_norm=use_conv_norm)
         self.lift_head = FukamiLiftHead(latent_dim, n_deltas, activation=activation)
+        # Session 11 ablation: Fukami AE + wake observable head, applied
+        # at the latent z just like in the JEPA pipeline. Lets us test
+        # whether the wake loss alone explains the wake reconstruction
+        # win (D84) or whether the JEPA encoder architecture also matters.
+        self.wake_observable_head = wake_observable_head
+        self.wake_observable_weight = float(wake_observable_weight)
+        if wake_loss_kind not in ("smooth_l1", "mse"):
+            raise ValueError(
+                f"wake_loss_kind must be 'smooth_l1' or 'mse'; got {wake_loss_kind!r}"
+            )
+        self.wake_loss_kind = wake_loss_kind
+        self.wake_loss_beta = float(wake_loss_beta)
         self.latent_dim = latent_dim
         self.n_deltas = n_deltas
         self.lambda_recon = lambda_recon
@@ -502,10 +518,34 @@ class FukamiAEWrapper(nn.Module):
         else:
             L_lift = torch.zeros((), device=omega.device, dtype=omega.dtype)
 
-        L_total = self.lambda_recon * L_recon + self.lambda_lift * L_lift
+        if (
+            self.wake_observable_head is not None
+            and self.wake_observable_weight > 0.0
+        ):
+            if "wake_target" not in batch:
+                raise KeyError(
+                    "wake_observable_head configured but batch has no 'wake_target' tensor"
+                )
+            wake_pred = self.wake_observable_head(z)
+            wake_target = batch["wake_target"]
+            if self.wake_loss_kind == "mse":
+                L_wake = ((wake_pred.float() - wake_target.float()) ** 2).mean()
+            else:
+                L_wake = torch.nn.functional.smooth_l1_loss(
+                    wake_pred.float(), wake_target.float(), beta=self.wake_loss_beta
+                )
+        else:
+            L_wake = torch.zeros((), device=omega.device, dtype=omega.dtype)
+
+        L_total = (
+            self.lambda_recon * L_recon
+            + self.lambda_lift * L_lift
+            + self.wake_observable_weight * L_wake
+        )
         return {
             "L_total": L_total,
             "L_recon": L_recon.detach(),
             "L_lift": L_lift.detach(),
+            "L_wake": L_wake.detach(),
             "z": z.detach(),
         }

@@ -52,7 +52,7 @@ sys.path.insert(0, str(REPO))
 from src.models.coord_mlp_decoder import CoordMLPDecoder  # noqa: E402
 from src.models.decoder import HybridViTConvDecoder  # noqa: E402
 from src.models.decoder_losses import region_pyr_ffl_loss  # noqa: E402
-from src.models.encoder import HybridCNNViTEncoder  # noqa: E402
+from src.models.encoder import HybridCNNViTEncoder, PatchPoolEncoder  # noqa: E402
 from src.models.lap_film_decoder import LapFiLMDecoder  # noqa: E402
 from src.utils.device import require_rtx6000  # noqa: E402
 
@@ -164,13 +164,29 @@ def collate(batch: list[torch.Tensor]) -> torch.Tensor:
     return torch.stack(batch, dim=0)  # (B, T, H, W)
 
 
-def encode_batch(enc: HybridCNNViTEncoder, x: torch.Tensor, device: torch.device) -> torch.Tensor:
-    """Run frozen encoder. x: (B, T, H, W). Returns z: (B, T, d)."""
-    with torch.no_grad():
-        x = x.to(device).unsqueeze(2)  # (B, T, 1, H, W)
+def encode_batch(
+    enc: nn.Module,
+    x: torch.Tensor,
+    device: torch.device,
+    train_encoder: bool = False,
+) -> torch.Tensor:
+    """Run encoder. x: (B, T, H, W). Returns z: (B, T, d).
+
+    When ``train_encoder=False`` (default) the encoder runs under
+    ``torch.no_grad()`` -- matches the Session 9 / 10 behaviour with a
+    frozen JEPA encoder. ``train_encoder=True`` keeps the autograd graph
+    so backprop reaches the encoder (Session 11 Track 0.1 omega_direct).
+    """
+    x = x.to(device).unsqueeze(2)  # (B, T, 1, H, W)
+    if train_encoder:
         with torch.autocast(device_type=device.type, dtype=torch.bfloat16,
                             enabled=device.type == "cuda"):
             z = enc(x)
+    else:
+        with torch.no_grad():
+            with torch.autocast(device_type=device.type, dtype=torch.bfloat16,
+                                enabled=device.type == "cuda"):
+                z = enc(x)
     return z.float()
 
 
@@ -298,7 +314,7 @@ def _str2bool(v: str) -> bool:
 def parse_args() -> argparse.Namespace:
     p = argparse.ArgumentParser(description="Session 9 / 10 visualisation decoder")
 
-    enc_group = p.add_mutually_exclusive_group(required=True)
+    enc_group = p.add_mutually_exclusive_group(required=False)
     enc_group.add_argument(
         "--jepa-checkpoint", type=str,
         help="Path to a single JEPA encoder checkpoint .pt file.")
@@ -306,6 +322,19 @@ def parse_args() -> argparse.Namespace:
         "--encoder-run", type=str,
         help="Path to a JEPA run directory; the script picks the largest-iter "
              "checkpoint inside (matches the Session 10 plan launch commands).")
+    p.add_argument(
+        "--input-mode", type=str, default="latent",
+        choices=["latent", "omega_direct"],
+        help=(
+            "latent (default): load a frozen JEPA encoder from --jepa-checkpoint "
+            "or --encoder-run and train the decoder only. "
+            "omega_direct (Session 11 Track 0.1): bypass the JEPA encoder and "
+            "feed omega through a small trainable PatchPoolEncoder (16x16 patch "
+            "pool to 12x6, 1x1 conv to base_ch channels). This is the LapFiLM "
+            "upper-bound diagnostic: how well does the decoder reconstruct given "
+            "richer-than-32D input? Both encoder and decoder are trained."
+        ),
+    )
 
     p.add_argument("--output-dir", required=True, type=str)
     p.add_argument("--gpu", type=int, default=0)
@@ -422,9 +451,16 @@ def resolve_encoder_checkpoint(args: argparse.Namespace, log) -> Path:
     return chosen
 
 
-def build_decoder(args: argparse.Namespace, latent_dim: int, device: torch.device) -> nn.Module:
+def build_decoder(
+    args: argparse.Namespace,
+    latent_dim: int,
+    device: torch.device,
+    spatial_init: bool = False,
+) -> nn.Module:
     """Construct the visualisation decoder per --decoder-type."""
     if args.decoder_type == "fukami":
+        if spatial_init:
+            raise ValueError("spatial_init is only supported for --decoder-type lapfilm")
         return HybridViTConvDecoder(latent_dim=latent_dim).to(device)
     if args.decoder_type == "lapfilm":
         fb = args.decoder_fourier_bands if args.decoder_fourier_bands is not None else 4
@@ -440,6 +476,7 @@ def build_decoder(args: argparse.Namespace, latent_dim: int, device: torch.devic
             fourier_bands=fb,
             use_film=args.decoder_use_film,
             airfoil_mask_path=args.airfoil_mask_path,
+            spatial_init=spatial_init,
         ).to(device)
     if args.decoder_type == "coord_mlp":
         fb = args.decoder_fourier_bands if args.decoder_fourier_bands is not None else 8
@@ -548,9 +585,29 @@ def main() -> None:
         print(msg, flush=True)
 
     log(f"[decoder-train] device={device} gpu={torch.cuda.get_device_name(device.index)}")
-    ckpt_path = resolve_encoder_checkpoint(args, log)
-    log(f"[decoder-train] jepa_checkpoint={ckpt_path}")
-    log(f"[decoder-train] jepa_checkpoint sha256={file_sha256(ckpt_path)}")
+    log(f"[decoder-train] input_mode={args.input_mode}")
+    if args.input_mode == "latent":
+        if args.jepa_checkpoint is None and args.encoder_run is None:
+            raise SystemExit(
+                "error: --input-mode latent requires --jepa-checkpoint or --encoder-run"
+            )
+        ckpt_path: Optional[Path] = resolve_encoder_checkpoint(args, log)
+        log(f"[decoder-train] jepa_checkpoint={ckpt_path}")
+        log(f"[decoder-train] jepa_checkpoint sha256={file_sha256(ckpt_path)}")
+    else:
+        if args.jepa_checkpoint is not None or args.encoder_run is not None:
+            raise SystemExit(
+                "error: --input-mode omega_direct must not be combined with "
+                "--jepa-checkpoint or --encoder-run (the encoder is built fresh)"
+            )
+        if args.decoder_type != "lapfilm":
+            raise SystemExit(
+                "error: --input-mode omega_direct currently only supports "
+                "--decoder-type lapfilm (Session 11 Track 0.1)"
+            )
+        ckpt_path = None
+        log("[decoder-train] omega_direct: building PatchPoolEncoder + LapFiLM "
+            "with spatial_init")
     log(f"[decoder-train] decoder_type={args.decoder_type} "
         f"decoder_loss={args.decoder_loss}")
 
@@ -569,9 +626,17 @@ def main() -> None:
     torch.manual_seed(args.seed)
     np.random.seed(args.seed)
 
-    enc, d = load_encoder(ckpt_path, device)
-    log(f"[decoder-train] encoder loaded, d={d}, params="
-        f"{sum(p.numel() for p in enc.parameters()):,} (FROZEN)")
+    if args.input_mode == "omega_direct":
+        bc = args.decoder_base_ch
+        enc = PatchPoolEncoder(in_channels=1, out_channels=bc).to(device)
+        d = bc * 12 * 6
+        enc.train()
+        log(f"[decoder-train] PatchPoolEncoder built: out_channels={bc}, d={d}, "
+            f"params={sum(p.numel() for p in enc.parameters()):,} (TRAINABLE)")
+    else:
+        enc, d = load_encoder(ckpt_path, device)
+        log(f"[decoder-train] encoder loaded, d={d}, params="
+            f"{sum(p.numel() for p in enc.parameters()):,} (FROZEN)")
 
     omega_pipeline = None
     if args.omega_pipeline_manifest is not None:
@@ -585,7 +650,12 @@ def main() -> None:
             f"thresholds: {sum(len(v) for v in omega_pipeline.thresholds.values())} encs, "
             f"std={omega_pipeline.train_stats.std:.4f}")
 
-    dec = build_decoder(args, latent_dim=d, device=device)
+    dec = build_decoder(
+        args,
+        latent_dim=d,
+        device=device,
+        spatial_init=(args.input_mode == "omega_direct"),
+    )
     log(f"[decoder-train] decoder params={sum(p.numel() for p in dec.parameters()):,}")
 
     # Optional airfoil mask for region_pyr_ffl loss (the mask is also
@@ -612,11 +682,15 @@ def main() -> None:
                                 omega_pipeline=omega_pipeline)
     loader = torch.utils.data.DataLoader(
         ds, batch_size=args.B, shuffle=True, num_workers=args.num_workers,
-        collate_fn=collate, pin_memory=True, drop_last=True, persistent_workers=True,
+        collate_fn=collate, pin_memory=True, drop_last=True,
+        persistent_workers=args.num_workers > 0,
     )
     it = iter(loader)
 
-    opt = torch.optim.AdamW(dec.parameters(), lr=args.lr, betas=(0.9, 0.95),
+    trainable_params = list(dec.parameters())
+    if args.input_mode == "omega_direct":
+        trainable_params += list(enc.parameters())
+    opt = torch.optim.AdamW(trainable_params, lr=args.lr, betas=(0.9, 0.95),
                             weight_decay=args.weight_decay)
     sched = torch.optim.lr_scheduler.LambdaLR(
         opt, lr_lambda=build_lr_lambda(args.max_iters, args.warmup_frac),
@@ -633,7 +707,8 @@ def main() -> None:
             it = iter(loader)
             x = next(it)
 
-        z = encode_batch(enc, x, device)  # (B, T, d)
+        train_encoder = args.input_mode == "omega_direct"
+        z = encode_batch(enc, x, device, train_encoder=train_encoder)  # (B, T, d)
         # Target. When pipeline is set, x is already normalized; otherwise
         # divide by --omega-scale. Loss is computed in this normalized space.
         if omega_pipeline is not None:
@@ -654,7 +729,7 @@ def main() -> None:
 
         opt.zero_grad()
         loss.backward()
-        nn.utils.clip_grad_norm_(dec.parameters(), args.grad_clip)
+        nn.utils.clip_grad_norm_(trainable_params, args.grad_clip)
         opt.step()
         sched.step()
 
@@ -668,6 +743,8 @@ def main() -> None:
                 + f" lr={sched.get_last_lr()[0]:.2e}")
 
         if step > 0 and step % args.eval_every == 0:
+            if args.input_mode == "omega_direct":
+                enc.eval()
             ev_a = evaluate_split(enc, dec, test_a_encs[:8], device,
                                   omega_scale=args.omega_scale,
                                   omega_pipeline=omega_pipeline)
@@ -675,6 +752,8 @@ def main() -> None:
                 f"mse_mean={ev_a['mse_mean']:.4f} floor_mean={ev_a['floor_mean']:.4f} "
                 f"ratio={ev_a['ratio_mean']:.3f}")
             dec.train()
+            if args.input_mode == "omega_direct":
+                enc.train()
             record = {
                 "iter": step,
                 "train_loss": float(loss.item()),
@@ -687,15 +766,20 @@ def main() -> None:
 
         if step > 0 and step % args.checkpoint_every == 0:
             ckpt_out = out_dir / f"decoder_iter{step:06d}.pt"
-            torch.save({
+            ckpt_blob = {
                 "decoder_state_dict": dec.state_dict(),
                 "iter": step,
                 "args": vars(args),
-            }, ckpt_out)
+            }
+            if args.input_mode == "omega_direct":
+                ckpt_blob["encoder_state_dict"] = enc.state_dict()
+            torch.save(ckpt_blob, ckpt_out)
             log(f"[checkpoint] saved {ckpt_out}")
 
     # Final full evaluation
     log("[decoder-train] final evaluation on Test A / B / C")
+    if args.input_mode == "omega_direct":
+        enc.eval()
     ev_a = evaluate_split(enc, dec, test_a_encs, device,
                           omega_scale=args.omega_scale, omega_pipeline=omega_pipeline)
     ev_b = evaluate_split(enc, dec, test_b_encs, device,
@@ -704,8 +788,9 @@ def main() -> None:
                           omega_scale=args.omega_scale, omega_pipeline=omega_pipeline)
 
     summary = {
-        "jepa_checkpoint": str(ckpt_path),
-        "jepa_checkpoint_sha256": file_sha256(ckpt_path),
+        "input_mode": args.input_mode,
+        "jepa_checkpoint": str(ckpt_path) if ckpt_path is not None else None,
+        "jepa_checkpoint_sha256": file_sha256(ckpt_path) if ckpt_path is not None else None,
         "latent_dim": d,
         "iters": args.max_iters,
         "test_a": ev_a,

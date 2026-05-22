@@ -82,3 +82,65 @@ def observable_loss(pred: Tensor, target: Tensor) -> Tensor:
         )
     diff = pred.float() - target.float()
     return diff.pow(2).mean()
+
+
+class WakeObservableHead(nn.Module):
+    """Session 11 Track 1 wake observable head.
+
+    Predicts a wake observable target (Mode A 1D / B 64D / C 80D / D 288D
+    per :mod:`src.data.wake_observables`) from each per-frame latent ``z_t``.
+    Pre-LayerNorm + 3-layer MLP with SiLU per the SESSION11 plan spec.
+
+    The same head is applied to both encoder latents (z_t, delta=0
+    supervision: the encoder learns wake-relevant features) and predictor
+    outputs at horizon ``delta`` (z_hat_{t+delta}, delta>0: the predictor
+    learns wake-consistent future-frame latents). Losses are computed in
+    train-standardized observable space.
+    """
+
+    def __init__(
+        self,
+        latent_dim: int = 32,
+        out_dim: int = 80,
+        hidden_dim: int = 128,
+    ) -> None:
+        super().__init__()
+        if latent_dim <= 0:
+            raise ValueError(f"latent_dim must be positive; got {latent_dim}")
+        if out_dim <= 0:
+            raise ValueError(f"out_dim must be positive; got {out_dim}")
+        if hidden_dim <= 0:
+            raise ValueError(f"hidden_dim must be positive; got {hidden_dim}")
+        self.latent_dim = int(latent_dim)
+        self.out_dim = int(out_dim)
+        self.hidden_dim = int(hidden_dim)
+        self.net = nn.Sequential(
+            nn.LayerNorm(latent_dim),
+            nn.Linear(latent_dim, hidden_dim),
+            nn.SiLU(),
+            nn.Linear(hidden_dim, hidden_dim),
+            nn.SiLU(),
+            nn.Linear(hidden_dim, out_dim),
+        )
+
+    def forward(self, z: Tensor) -> Tensor:
+        """``(..., latent_dim) -> (..., out_dim)``. Leading dims preserved."""
+        if z.shape[-1] != self.latent_dim:
+            raise ValueError(
+                f"last dim must be latent_dim={self.latent_dim}; got {tuple(z.shape)}"
+            )
+        return self.net(z)
+
+
+def smooth_l1_observable_loss(pred: Tensor, target: Tensor, beta: float = 0.5) -> Tensor:
+    """Huber / Smooth-L1 loss for the wake observable head.
+
+    Smoother than MSE near zero (less sensitive to outliers in standardized
+    space; SESSION11 plan recommends ``beta=0.5``). Inputs may be bf16 from
+    autocast -- the loss is promoted to fp32 before reduction.
+    """
+    if pred.shape != target.shape:
+        raise ValueError(
+            f"pred and target shapes must match; got {tuple(pred.shape)} vs {tuple(target.shape)}"
+        )
+    return torch.nn.functional.smooth_l1_loss(pred.float(), target.float(), beta=beta)

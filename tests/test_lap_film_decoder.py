@@ -239,3 +239,62 @@ def test_lap_film_decoder_bf16_autocast() -> None:
     loss.backward()
     assert out["pred"].dtype in (torch.bfloat16, torch.float32)
     assert out["pred"].device.type == "cuda"
+
+
+def test_lap_film_decoder_spatial_init_shape() -> None:
+    """spatial_init=True: latent (B, 4608) reshapes to (B, 64, 12, 6) and decodes."""
+    base_ch, base_h, base_w = 64, 12, 6
+    latent = base_ch * base_h * base_w
+    dec = LapFiLMDecoder(
+        latent_dim=latent,
+        base_hw=(base_h, base_w),
+        channels=(base_ch, 64, 48, 32, 24),
+        spatial_init=True,
+        use_film=True,  # silently overridden to False (z is spatial init)
+        use_airfoil_mask_channel=False,
+    )
+    assert dec.spatial_init is True
+    assert dec.use_film is False
+    assert dec.broadcast_z_channels is False
+    assert isinstance(dec.init_proj, torch.nn.Identity)
+    z = torch.randn(2, latent)
+    out = dec(z)
+    assert out["pred"].shape == (2, 1, 192, 96)
+
+
+def test_lap_film_decoder_spatial_init_rejects_wrong_latent_dim() -> None:
+    with pytest.raises(ValueError, match="spatial_init=True requires"):
+        LapFiLMDecoder(
+            latent_dim=32,
+            spatial_init=True,
+            use_airfoil_mask_channel=False,
+        )
+
+
+def test_lap_film_decoder_spatial_init_gradient_flows() -> None:
+    """spatial_init=True still propagates gradients through input z and conv weights.
+
+    Heads are zero-initialised by LapSRN convention, so we break that on the
+    finest head before the backward pass (mirrors test_lap_film_decoder_gradient_flows).
+    """
+    base_ch, base_h, base_w = 64, 12, 6
+    latent = base_ch * base_h * base_w
+    dec = LapFiLMDecoder(
+        latent_dim=latent,
+        spatial_init=True,
+        use_airfoil_mask_channel=False,
+    )
+    for head in dec.heads:
+        torch.nn.init.normal_(head.weight, std=0.02)
+        torch.nn.init.normal_(head.bias, std=0.02)
+    z = torch.randn(2, latent, requires_grad=True)
+    target = torch.randn(2, 1, 192, 96)
+    out = dec(z)
+    loss = (out["pred"] - target).pow(2).mean()
+    loss.backward()
+    assert z.grad is not None and z.grad.abs().sum().item() > 0.0
+    # Conv weights inside FiLM blocks must see gradient too.
+    for level_blocks in dec.blocks:
+        for block in level_blocks:
+            assert block.conv1.weight.grad is not None
+            assert (block.conv1.weight.grad != 0).any()

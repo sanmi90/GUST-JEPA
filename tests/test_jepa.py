@@ -68,12 +68,17 @@ def test_jepa_shape_contract() -> None:
     batch = _tiny_batch()
     out = jepa(batch)
     assert set(out.keys()) == {
-        "loss_total", "loss_pred", "loss_roll", "loss_anticollapse", "loss_obs", "z"
+        "loss_total", "loss_pred", "loss_roll", "loss_anticollapse",
+        "loss_obs", "loss_wake", "z"
     }
-    for k in ("loss_total", "loss_pred", "loss_roll", "loss_anticollapse", "loss_obs"):
+    for k in ("loss_total", "loss_pred", "loss_roll", "loss_anticollapse",
+              "loss_obs", "loss_wake"):
         assert out[k].dim() == 0
         assert torch.isfinite(out[k])
     assert out["loss_obs"].item() == 0.0, "loss_obs should be 0 when no observable head"
+    assert out["loss_wake"].item() == 0.0, (
+        "loss_wake should be 0 when no wake observable head"
+    )
     assert out["z"].shape == (2, 8, 32)
 
 
@@ -321,6 +326,81 @@ def test_jepa_observable_head_missing_batch_key_errors() -> None:
     )
     with pytest.raises(KeyError, match="cl_future"):
         jepa(_tiny_batch())
+
+
+def test_jepa_wake_observable_head_adds_loss_and_grad() -> None:
+    """WakeObservableHead + ``wake_target`` -> loss_wake > 0, encoder feels grad,
+    loss_total includes lambda_wake * loss_wake.
+    """
+    from src.models.observable_head import WakeObservableHead
+
+    torch.manual_seed(0)
+    encoder = HybridCNNViTEncoder(latent_dim=32)
+    predictor = AutoregressivePredictor(
+        latent_dim=32, cond_dim=3, hidden_dim=384, depth=2, heads=8,
+        dropout=0.0, max_seq_len=32,
+    )
+    wake_head = WakeObservableHead(latent_dim=32, out_dim=80, hidden_dim=64)
+    jepa = JEPA(
+        encoder=encoder, predictor=predictor,
+        anticollapse=SIGReg(dim=32, num_projections=64, num_knots=9),
+        H_roll=2, rollout_weight=0.0, lambda_anticollapse=0.0,
+        wake_observable_head=wake_head, wake_observable_weight=0.1,
+    )
+    batch = _tiny_batch()
+    batch["wake_target"] = torch.randn(2, 8, 80)
+    out = jepa(batch)
+    assert out["loss_wake"].item() > 0.0
+    expected = out["loss_pred"].item() + 0.1 * out["loss_wake"].item()
+    assert math.isclose(out["loss_total"].item(), expected, rel_tol=1e-5, abs_tol=1e-5)
+    enc_first = next(jepa.encoder.parameters())
+    jepa.zero_grad()
+    out["loss_wake"].backward()
+    assert enc_first.grad is not None and enc_first.grad.detach().abs().sum().item() > 0.0
+
+
+def test_jepa_wake_observable_head_missing_batch_key_errors() -> None:
+    from src.models.observable_head import WakeObservableHead
+
+    torch.manual_seed(0)
+    encoder = HybridCNNViTEncoder(latent_dim=32)
+    predictor = AutoregressivePredictor(
+        latent_dim=32, cond_dim=3, hidden_dim=384, depth=2, heads=8,
+        dropout=0.0, max_seq_len=32,
+    )
+    wake_head = WakeObservableHead(latent_dim=32, out_dim=80, hidden_dim=64)
+    jepa = JEPA(
+        encoder=encoder, predictor=predictor,
+        anticollapse=SIGReg(dim=32, num_projections=64, num_knots=9),
+        H_roll=2, wake_observable_head=wake_head, wake_observable_weight=0.1,
+    )
+    with pytest.raises(KeyError, match="wake_target"):
+        jepa(_tiny_batch())
+
+
+def test_jepa_wake_loss_kind_mse_vs_smooth_l1() -> None:
+    """Both loss kinds yield finite, non-negative loss_wake."""
+    from src.models.observable_head import WakeObservableHead
+
+    torch.manual_seed(0)
+    encoder = HybridCNNViTEncoder(latent_dim=32)
+    predictor = AutoregressivePredictor(
+        latent_dim=32, cond_dim=3, hidden_dim=384, depth=2, heads=8,
+        dropout=0.0, max_seq_len=32,
+    )
+    head = WakeObservableHead(latent_dim=32, out_dim=64, hidden_dim=64)
+    batch = _tiny_batch()
+    batch["wake_target"] = torch.randn(2, 8, 64)
+    for kind in ("smooth_l1", "mse"):
+        jepa = JEPA(
+            encoder=encoder, predictor=predictor,
+            anticollapse=SIGReg(dim=32, num_projections=64, num_knots=9),
+            H_roll=2, wake_observable_head=head, wake_observable_weight=0.1,
+            wake_loss_kind=kind,
+        )
+        out = jepa(batch)
+        assert out["loss_wake"].item() >= 0.0
+        assert torch.isfinite(out["loss_wake"])
 
 
 def test_jepa_bf16_autocast_smoke() -> None:

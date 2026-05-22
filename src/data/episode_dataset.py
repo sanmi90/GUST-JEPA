@@ -65,6 +65,11 @@ class EpisodeDataset(torch.utils.data.Dataset):
         return_forces: bool = True,
         emit_cl_future: bool = False,
         cl_future_deltas: tuple[int, ...] = (8, 16, 24),
+        emit_wake_observable: bool = False,
+        wake_observable_type: str = "patch_signed_spectrum",
+        wake_observables_root: str | Path | None = None,
+        wake_observable_standardize: bool = True,
+        omega_pipeline_manifest: str | Path | None = None,
         seed: int | None = None,
     ) -> None:
         if split not in _VALID_SPLITS:
@@ -111,6 +116,34 @@ class EpisodeDataset(torch.utils.data.Dataset):
             raise ValueError(
                 f"cl_future_deltas must be non-negative ints; got {self.cl_future_deltas}"
             )
+
+        self.emit_wake_observable = bool(emit_wake_observable)
+        self.wake_observable_type = str(wake_observable_type)
+        self.wake_observable_standardize = bool(wake_observable_standardize)
+        self._wake_stats = None  # lazily loaded on first __getitem__
+        if self.emit_wake_observable:
+            if wake_observables_root is None:
+                wake_observables_root = cache_root / partition / "wake_observables"
+            self.wake_observables_root = Path(wake_observables_root)
+            if not self.wake_observables_root.exists():
+                raise FileNotFoundError(
+                    f"wake_observables_root not found: {self.wake_observables_root}. "
+                    f"Run scripts/session11_precompute_wake_observables.py first."
+                )
+        else:
+            self.wake_observables_root = None
+        # Omega pipeline (mask + per-encounter clip + 3-sigma scale). Applying
+        # it inside ``__getitem__`` instead of in the training collate keeps
+        # the batch dict trivially worker-picklable, so ``num_workers > 0``
+        # works (D85 fix; removes the historical num_workers=0 lock).
+        self.omega_pipeline_manifest_path: Path | None = None
+        if omega_pipeline_manifest is not None:
+            p = Path(omega_pipeline_manifest)
+            if not p.is_absolute():
+                p = repo / p
+            self.omega_pipeline_manifest_path = p
+        self._omega_pipeline = None  # lazily loaded on first __getitem__
+
         self.impact_aware_fraction = float(impact_aware_fraction)
         self.impact_overlap_start_range = (int(impact_overlap_start_range[0]), int(impact_overlap_start_range[1]))
         self.uniform_start_range = (int(uniform_start_range[0]), int(uniform_start_range[1]))
@@ -147,6 +180,16 @@ class EpisodeDataset(torch.utils.data.Dataset):
             lo, hi = self.uniform_start_range
         return int(rng.integers(lo, hi + 1))
 
+    def _load_omega_pipeline(self):
+        """Lazy-load the OmegaPipeline (per worker, so fork is fine)."""
+        if self._omega_pipeline is not None:
+            return self._omega_pipeline
+        if self.omega_pipeline_manifest_path is None:
+            return None
+        from src.data.omega_pipeline import OmegaPipeline
+        self._omega_pipeline = OmegaPipeline.from_manifest(self.omega_pipeline_manifest_path)
+        return self._omega_pipeline
+
     def __getitem__(self, idx: int) -> dict:
         case_id, k = self.samples[idx]
         rng = self._make_rng(idx)
@@ -160,7 +203,17 @@ class EpisodeDataset(torch.utils.data.Dataset):
         }
         enc_path = self.cache_dir / case_id / f"encounter_{k:02d}.h5"
         with h5py.File(enc_path, "r") as g:
-            sample["omega_z"] = torch.from_numpy(g["omega_z"][start:end].astype(np.float32))
+            omega_arr = g["omega_z"][start:end].astype(np.float32)
+            pipe = self._load_omega_pipeline()
+            if pipe is not None:
+                # Preprocess (mask + per-encounter clip) and normalize entirely
+                # inside the worker -- output omega is in 3-sigma normalized
+                # space, ready for the encoder directly.
+                omega_arr = pipe.preprocess_raw(omega_arr, case_id, int(k))
+                omega_t = torch.from_numpy(omega_arr)
+                sample["omega_z"] = pipe.normalize(omega_t)
+            else:
+                sample["omega_z"] = torch.from_numpy(omega_arr)
             sample["G"] = float(g.attrs["G"])
             sample["D"] = float(g.attrs["D"])
             sample["Y"] = float(g.attrs["Y"])
@@ -183,4 +236,51 @@ class EpisodeDataset(torch.utils.data.Dataset):
                         src = i + d
                         cl_future[i, j] = cl_full[src] if src < cl_full.shape[0] else last_valid
                 sample["cl_future"] = torch.from_numpy(cl_future)
+        if self.emit_wake_observable:
+            sample["wake_target"] = self._load_wake_target(case_id, k, start, end)
         return sample
+
+    def _load_wake_stats(self):
+        """Lazily load and cache the train-pool wake observable stats."""
+        if self._wake_stats is not None:
+            return self._wake_stats
+        if self.wake_observables_root is None:
+            return None
+        from src.data.wake_observables import WakeObservableStats
+        stats_path = self.wake_observables_root / "_train_stats.json"
+        if not stats_path.exists():
+            raise FileNotFoundError(
+                f"wake observable stats not found at {stats_path}; "
+                f"run the precompute script first."
+            )
+        with open(stats_path) as f:
+            payload = json.load(f)
+        if self.wake_observable_type not in payload:
+            raise KeyError(
+                f"wake_observable_type {self.wake_observable_type!r} not in stats "
+                f"({list(payload)})"
+            )
+        self._wake_stats = WakeObservableStats.from_dict(payload[self.wake_observable_type])
+        return self._wake_stats
+
+    def _load_wake_target(self, case_id: str, k: int, start: int, end: int) -> torch.Tensor:
+        """Read precomputed wake target ``(T, out_dim)`` and optionally standardize."""
+        path = self.wake_observables_root / case_id / f"encounter_{k:02d}.h5"
+        if not path.exists():
+            raise FileNotFoundError(
+                f"wake observable cache file missing: {path}. "
+                f"Re-run the precompute script."
+            )
+        with h5py.File(path, "r") as g:
+            if self.wake_observable_type not in g:
+                raise KeyError(
+                    f"wake_observable_type {self.wake_observable_type!r} not in "
+                    f"{path}; precompute included {list(g.keys())}"
+                )
+            arr = g[self.wake_observable_type][start:end].astype(np.float32)
+        t = torch.from_numpy(arr)
+        if self.wake_observable_standardize:
+            stats = self._load_wake_stats()
+            if stats is not None:
+                t = stats.standardize(t)
+        return t

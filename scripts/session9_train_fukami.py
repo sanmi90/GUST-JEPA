@@ -185,6 +185,22 @@ def parse_args() -> argparse.Namespace:
                    default="offline")
     p.add_argument("--tag-suffix", type=str, default="")
     p.add_argument("--gpu", type=int, default=None)
+    # Session 11 ablation: Fukami AE + wake observable head (matches the
+    # JEPA pipeline's --wake-* flags so the AE can be trained with the
+    # same Mode C wake supervision and tested for whether the wake
+    # observable head explains the W0_C_lam100 SSIM win without JEPA's
+    # encoder architecture.
+    p.add_argument(
+        "--wake-observable-type", type=str, default="none",
+        choices=["none", "enstrophy_scalar", "patch_signed",
+                 "patch_signed_spectrum", "wake_coarse_pool"],
+    )
+    p.add_argument("--lambda-wake", type=float, default=0.0)
+    p.add_argument("--wake-loss", type=str, default="smooth_l1",
+                   choices=["smooth_l1", "mse"])
+    p.add_argument("--wake-loss-beta", type=float, default=0.5)
+    p.add_argument("--wake-head-hidden", type=int, default=128)
+    p.add_argument("--wake-observables-root", type=str, default=None)
     return p.parse_args()
 
 
@@ -437,6 +453,20 @@ def main() -> None:
     train_iter = infinite_iter(train_loader)
     test_b_iter = infinite_iter(test_b_loader)
 
+    wake_head = None
+    wake_dim = 0
+    if args.wake_observable_type != "none" and args.lambda_wake > 0.0:
+        from src.models.observable_head import WakeObservableHead
+        from src.data.wake_observables import mode_output_dim
+        wake_dim = mode_output_dim(args.wake_observable_type)
+        wake_head = WakeObservableHead(
+            latent_dim=args.d,
+            out_dim=wake_dim,
+            hidden_dim=args.wake_head_hidden,
+        )
+        log(f"[fukami-train] wake observable head: type={args.wake_observable_type} "
+            f"out_dim={wake_dim} lambda_wake={args.lambda_wake}")
+
     wrapper = FukamiAEWrapper(
         latent_dim=args.d, n_deltas=len(args.observable_head_deltas),
         lambda_recon=args.lambda_recon, lambda_lift=args.lambda_lift,
@@ -451,6 +481,10 @@ def main() -> None:
         recon_inactive_weight=args.recon_inactive_weight,
         activation=args.activation,
         use_conv_norm=not args.no_conv_norm,
+        wake_observable_head=wake_head,
+        wake_observable_weight=args.lambda_wake if wake_head is not None else 0.0,
+        wake_loss_kind=args.wake_loss,
+        wake_loss_beta=args.wake_loss_beta,
     ).to(device)
     n_params = sum(p.numel() for p in wrapper.parameters())
     log(f"[fukami-train] params={n_params:,} ({n_params/1e6:.2f}M)")
@@ -481,15 +515,18 @@ def main() -> None:
         scheduler.step()
 
         if iteration % args.log_every == 0:
+            l_wake_val = float(out.get("L_wake", torch.zeros(())).item())
             _log_metrics({
                 "iter": iteration,
                 "loss_total": float(L_total.item()),
                 "L_recon": float(out["L_recon"].item()),
                 "L_lift": float(out["L_lift"].item()),
+                "L_wake": l_wake_val,
                 "lr": optimizer.param_groups[0]["lr"],
             }, step=iteration)
             log(f"[iter {iteration}/{args.max_iters}] L={L_total.item():.4f} "
-                f"(recon={out['L_recon'].item():.4f}, lift={out['L_lift'].item():.4f})")
+                f"(recon={out['L_recon'].item():.4f}, lift={out['L_lift'].item():.4f}, "
+                f"wake={l_wake_val:.4f})")
 
         if iteration % args.diagnostic_every == 0 and iteration > 0:
             wrapper.eval()

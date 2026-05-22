@@ -233,3 +233,61 @@ class HybridCNNViTEncoder(nn.Module):
 
         z = self.proj(h[:, 0, :])
         return z.view(B, T, -1)
+
+
+class PatchPoolEncoder(nn.Module):
+    """Tiny baseline encoder used for the Track 0.1 LapFiLM upper-bound test.
+
+    Mean-pools the input omega field over fixed 16x16 patches (192x96 -> 12x6),
+    then mixes the single input channel into ``out_channels`` channels via a 1x1
+    convolution. Output is flattened to a 4608-dim vector per frame so it
+    drops in to LapFiLMDecoder with ``spatial_init=True`` (which reshapes
+    flat ``base_ch*base_h*base_w = 64*12*6`` to the level-0 feature map).
+
+    Purpose: bypass the JEPA encoder to test what the visualisation decoder
+    can reconstruct given near-raw spatial information. If LapFiLM's Test B
+    SSIM stays low here, H2 (decoder-architecture-limited) is supported; if
+    it improves substantially, H1 (encoder-bottleneck-limited) is supported.
+
+    SESSION11_WAKE_RESULTS_FIRST.md Track 0.1.
+    """
+
+    def __init__(
+        self,
+        in_channels: int = 1,
+        out_channels: int = 64,
+        patch_h: int = 16,
+        patch_w: int = 16,
+    ) -> None:
+        super().__init__()
+        self.in_channels = int(in_channels)
+        self.out_channels = int(out_channels)
+        self.patch_h = int(patch_h)
+        self.patch_w = int(patch_w)
+        self.pool = nn.AvgPool2d(kernel_size=(patch_h, patch_w), stride=(patch_h, patch_w))
+        self.proj = nn.Conv2d(in_channels, out_channels, kernel_size=1)
+
+    def forward(self, x: Tensor) -> Tensor:
+        """Encode ``(B, T, C, H, W)`` -> flat ``(B, T, out_channels * H/ph * W/pw)``.
+
+        Also accepts ``(B, C, H, W)`` and returns ``(B, out_channels * H/ph * W/pw)``.
+        """
+        squeeze_T = False
+        if x.dim() == 5:
+            B, T = x.shape[0], x.shape[1]
+            x = x.flatten(0, 1)
+            squeeze_T = True
+        elif x.dim() == 4:
+            B = x.shape[0]
+            T = 1
+        else:
+            raise ValueError(
+                f"PatchPoolEncoder expects 4D (B, C, H, W) or 5D (B, T, C, H, W); "
+                f"got {tuple(x.shape)}"
+            )
+        h = self.pool(x)
+        h = self.proj(h)
+        h = h.flatten(1)
+        if squeeze_T:
+            h = h.view(B, T, -1)
+        return h
