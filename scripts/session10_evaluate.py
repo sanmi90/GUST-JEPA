@@ -34,6 +34,7 @@ from src.data.omega_pipeline import OmegaPipeline  # noqa: E402
 from src.evaluation.decoder_metrics import (  # noqa: E402
     aggregate_split_metrics,
     compute_encounter_metrics,
+    wake_2d_premult_spectrum_series,
 )
 from src.utils.device import require_rtx6000  # noqa: E402
 from scripts.session9_decoder_fig3_pipeline import (  # noqa: E402
@@ -108,6 +109,7 @@ def evaluate_split_extended(
     enc, dec, encs, device, pipe, active_tau_raw, n_radial_bins, log,
 ) -> dict:
     per_enc = []
+    per_enc_2d_spec = []  # Session 12 D90: per-encounter 2D premult spectrum agreement
     for i, e in enumerate(encs):
         with h5py.File(e["path"], "r") as f:
             omega = np.asarray(f["omega_z"], dtype=np.float32)
@@ -133,9 +135,41 @@ def evaluate_split_extended(
             radial_n_bins=n_radial_bins,
         )
         per_enc.append(metrics)
+        spec_out = wake_2d_premult_spectrum_series(pred=x_hat, target=omega)
+        per_enc_2d_spec.append({
+            "max_wavelength_ratio": float(spec_out["max_wavelength_ratio"]),
+            "mean_contour_iou": float(spec_out["mean_contour_iou"]),
+            "contour_iou": [float(v) for v in spec_out["contour_iou"]],
+            "median_wavelength_ratio": [
+                float(v) for v in spec_out["median_wavelength_ratio"]
+            ],
+        })
         if (i + 1) % 8 == 0 or i + 1 == len(encs):
             log(f"  ... {i + 1}/{len(encs)} encounters")
-    return aggregate_split_metrics(per_enc)
+    agg = aggregate_split_metrics(per_enc)
+    # Aggregate 2D spectrum metrics (mean / median across encounters).
+    if per_enc_2d_spec:
+        mwr = np.array([
+            p["max_wavelength_ratio"] for p in per_enc_2d_spec
+            if np.isfinite(p["max_wavelength_ratio"])
+        ])
+        iou = np.array([p["mean_contour_iou"] for p in per_enc_2d_spec])
+        agg["spectrum2d_max_wavelength_ratio_mean"] = (
+            float(mwr.mean()) if mwr.size else float("nan")
+        )
+        agg["spectrum2d_max_wavelength_ratio_median"] = (
+            float(np.median(mwr)) if mwr.size else float("nan")
+        )
+        agg["spectrum2d_mean_contour_iou_mean"] = float(iou.mean())
+        agg["spectrum2d_mean_contour_iou_median"] = float(np.median(iou))
+        # Per-level contour IoU (10%, 50%, 90%) median across encounters
+        contour_levels = (0.10, 0.50, 0.90)
+        per_level = np.array([p["contour_iou"] for p in per_enc_2d_spec])
+        for li, lvl in enumerate(contour_levels):
+            agg[f"spectrum2d_contour_iou_level_{int(lvl*100):02d}_median"] = (
+                float(np.median(per_level[:, li]))
+            )
+    return agg
 
 
 def main() -> None:
@@ -189,7 +223,9 @@ def main() -> None:
         log(f"  {split}: SSIM={s['ssim_mean_mean']:.3f}  eps_vol={s['eps_volume_mean']:.3f}  "
             f"mse_wake={s['mse_wake_mean']:.2f}  "
             f"enstrophy_wake_rel={s['enstrophy_rel_err_wake_mean']:.3f}  "
-            f"radial_L2={s['radial_spectrum_l2_wake_mean']:.3f}")
+            f"radial_L2={s['radial_spectrum_l2_wake_mean']:.3f}  "
+            f"spec2d_iou={s.get('spectrum2d_mean_contour_iou_median', float('nan')):.3f}  "
+            f"spec2d_lam_ratio={s.get('spectrum2d_max_wavelength_ratio_median', float('nan')):.3f}")
 
 
 if __name__ == "__main__":

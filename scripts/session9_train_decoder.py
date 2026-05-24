@@ -51,7 +51,10 @@ sys.path.insert(0, str(REPO))
 
 from src.models.coord_mlp_decoder import CoordMLPDecoder  # noqa: E402
 from src.models.decoder import HybridViTConvDecoder  # noqa: E402
-from src.models.decoder_losses import region_pyr_ffl_loss  # noqa: E402
+from src.models.decoder_losses import (  # noqa: E402
+    region_pyr_ffl_loss,
+    region_pyr_specloss_loss,
+)
 from src.models.encoder import HybridCNNViTEncoder, PatchPoolEncoder  # noqa: E402
 from src.models.lap_film_decoder import LapFiLMDecoder  # noqa: E402
 from src.utils.device import require_rtx6000  # noqa: E402
@@ -396,10 +399,16 @@ def parse_args() -> argparse.Namespace:
 
     # Loss selection
     p.add_argument("--decoder-loss", type=str, default="mse",
-                   choices=["mse", "charbonnier", "region_pyr_ffl"],
+                   choices=["mse", "charbonnier", "region_pyr_ffl",
+                            "region_pyr_specloss"],
                    help="Reconstruction loss family. region_pyr_ffl uses the "
                         "Session 10 combined region-weighted + pyramid + focal-"
-                        "frequency + enstrophy + circulation objective.")
+                        "frequency + enstrophy + circulation objective. "
+                        "region_pyr_specloss is the Session 12 Direction A "
+                        "composite: region + pyramid + enstrophy + circulation + "
+                        "PRF 2026 gradient consistency + PRF 2026 spectral "
+                        "amplitude (Balasubramanian et al. Phys. Rev. Fluids "
+                        "11, 044907, 2026, Eqs. 6-8).")
     p.add_argument("--recon-loss-type", type=str, default=None,
                    choices=["mse", "charbonnier"],
                    help="Session 9 deprecated alias for --decoder-loss; if "
@@ -432,6 +441,30 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--airfoil-mask-path", type=str, default=None,
                    help="Path to the airfoil-adjacent mask .npy. Defaults to "
                         "outputs/data_pipeline/v1/airfoil_adjacent_mask.npy.")
+
+    # PRF 2026 SL loss hyperparameters (Session 12 Direction A).
+    p.add_argument("--lambda-gradient", type=float, default=1.0,
+                   help="Weight on the PRF 2026 gradient consistency term "
+                        "(Eq. 7). Only used with --decoder-loss "
+                        "region_pyr_specloss.")
+    p.add_argument("--lambda-spectral-amp", type=float, default=1.0,
+                   help="Weight on the PRF 2026 spectral amplitude term "
+                        "(Eq. 8). Only used with --decoder-loss "
+                        "region_pyr_specloss.")
+    p.add_argument("--spectral-window", type=str, default="hann",
+                   choices=["hann", "tukey", "none"],
+                   help="Window applied before the 2D FFT in the spectral "
+                        "amplitude term. Required for our non-periodic, "
+                        "airfoil-masked domain (PRF 2026 used periodic BCs).")
+    p.add_argument("--spectral-tukey-alpha", type=float, default=0.5,
+                   help="Tukey taper fraction; only used when "
+                        "--spectral-window tukey.")
+    p.add_argument("--spectral-wake-only", action="store_true", default=True,
+                   help="Restrict the spectral amplitude FFT to the wake ROI "
+                        "(default). When set --no-spectral-wake-only the FFT "
+                        "is taken on the full field.")
+    p.add_argument("--no-spectral-wake-only", action="store_false",
+                   dest="spectral_wake_only")
 
     return p.parse_args()
 
@@ -566,6 +599,34 @@ def compute_decoder_loss(
         )
         components = {k: v.detach() for k, v in out.items()}
         components["ffl_warmup_factor"] = torch.tensor(warmup_f)
+        return out["L_total"], components
+    if args.decoder_loss == "region_pyr_specloss":
+        pred_pyr = pyramid if pyramid is not None else [pred]
+        region_kwargs = dict(
+            inactive_weight=args.inactive_weight,
+            wake_weight=args.wake_weight,
+            active_tau=args.active_tau,
+            active_softness=args.active_softness,
+        )
+        win = args.spectral_window
+        if win == "none":
+            win = None
+        out = region_pyr_specloss_loss(
+            pred_pyr, target,
+            solid_or_airfoil_mask=airfoil_mask,
+            lambda_region=args.lambda_region,
+            lambda_pyramid=args.lambda_pyramid,
+            lambda_gradient=args.lambda_gradient,
+            lambda_spectral_amp=args.lambda_spectral_amp,
+            lambda_enstrophy=args.lambda_enstrophy,
+            lambda_circulation=args.lambda_circulation,
+            spectral_wake_only=args.spectral_wake_only,
+            spectral_window=win,
+            spectral_tukey_alpha=args.spectral_tukey_alpha,
+            charbonnier_eps=args.charbonnier_epsilon,
+            region_kwargs=region_kwargs,
+        )
+        components = {k: v.detach() for k, v in out.items()}
         return out["L_total"], components
     raise ValueError(f"unknown decoder-loss {args.decoder_loss!r}")
 

@@ -45,6 +45,7 @@ from src.models.observable_head import ObservableHead, WakeObservableHead
 from src.data.wake_observables import mode_output_dim
 from src.models.predictor import AutoregressivePredictor
 from src.models.sigreg import SIGReg
+from src.models.total_correlation import off_diagonal_covariance_loss
 from src.models.vicreg import VICReg
 from src.training.auto_fallback import AutoFallbackController
 from src.training.diagnostics import (
@@ -95,6 +96,19 @@ def parse_args() -> argparse.Namespace:
         help="Open-loop rollout horizon. Plan-aligned alias --rollout-horizon.",
     )
     p.add_argument("--lambda-sigreg", type=float, default=0.1)
+    p.add_argument(
+        "--total-correlation-weight",
+        type=float,
+        default=0.0,
+        help=(
+            "Session 12 Direction F: weight on the off-diagonal covariance penalty "
+            "L_TC = || off_diag(Cov(z)) ||_F^2 / d, applied to the SIGReg-projected "
+            "latent z. 0.0 (default) disables the penalty; sweep values in [0.01, 1.0]. "
+            "Decorrelates latent coordinates beyond what SIGReg's marginal constraint "
+            "provides; the hypothesis is that broadening PR(z) toward d improves wake "
+            "reconstruction (W0_C_lam100 had PR(z) = 11.66 on d=32)."
+        ),
+    )
     p.add_argument("--lr-encoder", type=float, default=1.5e-4)
     p.add_argument("--lr-predictor", type=float, default=5e-4)
     p.add_argument("--weight-decay", type=float, default=0.05)
@@ -245,7 +259,8 @@ def parse_args() -> argparse.Namespace:
         type=str,
         default="none",
         choices=["none", "enstrophy_scalar", "patch_signed",
-                 "patch_signed_spectrum", "wake_coarse_pool"],
+                 "patch_signed_spectrum", "wake_coarse_pool",
+                 "wake_coarse_pool_32x16"],
         help=(
             "Session 11 Track 1/2 wake observable head. 'none' disables (default). "
             "Other choices read targets from "
@@ -576,6 +591,7 @@ def main() -> None:
         "preprocessing_version": preprocessing_cfg["preprocessing_version"],
         "partition_version": args.partition,
         "lambda_sigreg": args.lambda_sigreg,
+        "total_correlation_weight": float(args.total_correlation_weight),
         "seed": args.seed,
         "split_sha256": file_sha256(split_path),
         "inventory_sha256": split_manifest["source_inventory"]["sha256"],
@@ -756,7 +772,12 @@ def main() -> None:
         with torch.autocast(device_type="cuda", dtype=torch.bfloat16):
             out = jepa(batch)
 
-        loss_total = out["loss_total"]
+        # Session 12 Direction F: off-diagonal covariance penalty on the
+        # SIGReg-projected latent z. The JEPA forward returns z as (B, T, d);
+        # flatten the (B, T) axes to match the SIGReg / VICReg (N, d) contract.
+        loss_tc = off_diagonal_covariance_loss(out["z"].flatten(0, 1))
+        loss_tc_val = float(loss_tc.item())
+        loss_total = out["loss_total"] + args.total_correlation_weight * loss_tc
         last_loss_total = float(loss_total.item())
         loss_wake_val = float(out.get("loss_wake", torch.zeros(())).item())
         if not math.isfinite(last_loss_total):
@@ -764,7 +785,8 @@ def main() -> None:
                 f"non-finite loss at iter {iteration}: loss_total={last_loss_total} "
                 f"(pred={out['loss_pred'].item()}, roll={out['loss_roll'].item()}, "
                 f"anti={out['loss_anticollapse'].item()}, "
-                f"obs={out['loss_obs'].item()}, wake={loss_wake_val})"
+                f"obs={out['loss_obs'].item()}, wake={loss_wake_val}, "
+                f"tc={loss_tc_val})"
             )
 
         optimizer.zero_grad(set_to_none=True)
@@ -783,6 +805,7 @@ def main() -> None:
                     "loss_anticollapse": out["loss_anticollapse"].item(),
                     "loss_obs": out["loss_obs"].item(),
                     "loss_wake": loss_wake_val,
+                    "loss_tc": loss_tc_val,
                     "lr_encoder": optimizer.param_groups[0]["lr"],
                     "lr_predictor": optimizer.param_groups[1]["lr"],
                 },
@@ -794,7 +817,8 @@ def main() -> None:
                 f"roll={out['loss_roll'].item():.4f}, "
                 f"anti={out['loss_anticollapse'].item():.4f}, "
                 f"obs={out['loss_obs'].item():.4f}, "
-                f"wake={loss_wake_val:.4f})",
+                f"wake={loss_wake_val:.4f}, "
+                f"tc={loss_tc_val:.4f})",
                 flush=True,
             )
 

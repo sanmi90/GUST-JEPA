@@ -22,6 +22,13 @@ Building blocks
   (signed) for circulation density.
 - :func:`region_pyr_ffl_loss` -- combined loss used by the production
   runs E1, E2, and the optional E_noFiLM ablation.
+- :func:`gradient_consistency_loss` -- Frobenius norm of finite-
+  difference gradient difference (Balasubramanian PRF 2026 Eq. 7).
+- :func:`spectral_amplitude_loss` -- L1 norm of |F(pred)| - |F(target)|
+  (Balasubramanian PRF 2026 Eq. 8); windowed for our non-periodic
+  airfoil-masked domain.
+- :func:`region_pyr_specloss_loss` -- Session 12 Direction A composite
+  (E1 + gradient + spectral amplitude).
 
 Physics-correct enstrophy and circulation (D71)
 -----------------------------------------------
@@ -33,10 +40,23 @@ enstrophy and circulation FIELDS, point by point. This module
 implements the field-wise form; the unit test
 ``tests/test_decoder_losses.py::test_enstrophy_field_loss_nonzero_on_uniform_noise``
 is the explicit regression check.
+
+Balasubramanian PRF 2026 SL (Session 12 Direction A)
+----------------------------------------------------
+The PRF paper (Balasubramanian, Cremades, Vinuesa, Tammisola; Phys.
+Rev. Fluids 11, 044907, 2026; DOI 10.1103/26js-tpg4) augments MSE
+with two additional terms that target the small-scale spectral
+content MSE smooths out: a gradient consistency term (their Eq. 7)
+and a spectral amplitude term (their Eq. 8). The PRF dataset is
+periodic open-channel turbulence; ours is non-periodic with an
+airfoil mask, so the spectral amplitude is computed on the wake
+ROI with a Hann window to prevent boundary-induced Gibbs ringing
+from dominating the FFT.
 """
 
 from __future__ import annotations
 
+import math
 from typing import Optional
 
 import torch
@@ -371,6 +391,317 @@ def region_pyr_ffl_loss(
         "L_region": L_region,
         "L_pyramid": L_pyramid,
         "L_ffl": L_ffl,
+        "L_enstrophy": L_enstrophy,
+        "L_circulation": L_circulation,
+    }
+
+
+def hann_window_2d(
+    H: int, W: int, device: torch.device, dtype: torch.dtype = torch.float32
+) -> Tensor:
+    """Separable 2D Hann window of shape ``(H, W)``.
+
+    A Hann window is ``0.5 * (1 - cos(2 pi n / (N-1)))`` for ``n in [0, N-1]``;
+    it is 0 at the boundaries and 1 at the center, with a smooth taper.
+    Used to suppress edge artifacts when taking FFTs of non-periodic
+    subdomains (the wake ROI here).
+    """
+    if H == 1:
+        wy = torch.ones(1, device=device, dtype=dtype)
+    else:
+        n = torch.arange(H, device=device, dtype=dtype)
+        wy = 0.5 - 0.5 * torch.cos(2 * math.pi * n / (H - 1))
+    if W == 1:
+        wx = torch.ones(1, device=device, dtype=dtype)
+    else:
+        n = torch.arange(W, device=device, dtype=dtype)
+        wx = 0.5 - 0.5 * torch.cos(2 * math.pi * n / (W - 1))
+    return wy[:, None] * wx[None, :]
+
+
+def tukey_window_2d(
+    H: int,
+    W: int,
+    alpha: float = 0.5,
+    device: Optional[torch.device] = None,
+    dtype: torch.dtype = torch.float32,
+) -> Tensor:
+    """Separable 2D Tukey (tapered-cosine) window of shape ``(H, W)``.
+
+    ``alpha`` is the fraction of the window inside the cosine taper
+    (alpha=0 is rectangular, alpha=1 is Hann). The default 0.5 means
+    half the window is flat at 1.0 and the outer quarters taper to 0.
+    Preserves more of the signal energy than Hann while still
+    suppressing boundary discontinuities.
+    """
+
+    def _1d(N: int) -> Tensor:
+        if N <= 1:
+            return torch.ones(N, device=device, dtype=dtype)
+        if alpha <= 0:
+            return torch.ones(N, device=device, dtype=dtype)
+        if alpha >= 1:
+            return 0.5 - 0.5 * torch.cos(
+                2 * math.pi * torch.arange(N, device=device, dtype=dtype) / (N - 1)
+            )
+        n = torch.arange(N, device=device, dtype=dtype)
+        w = torch.ones(N, device=device, dtype=dtype)
+        edge = int(alpha * (N - 1) / 2)
+        # Left taper
+        n_left = n[: edge + 1]
+        w[: edge + 1] = 0.5 * (
+            1 + torch.cos(math.pi * (2 * n_left / (alpha * (N - 1)) - 1))
+        )
+        # Right taper
+        n_right = n[N - 1 - edge :]
+        w[N - 1 - edge :] = 0.5 * (
+            1
+            + torch.cos(
+                math.pi * (2 * n_right / (alpha * (N - 1)) - 2 / alpha + 1)
+            )
+        )
+        return w
+
+    wy = _1d(H)
+    wx = _1d(W)
+    return wy[:, None] * wx[None, :]
+
+
+def gradient_consistency_loss(
+    pred: Tensor,
+    target: Tensor,
+    weight: Optional[Tensor] = None,
+) -> Tensor:
+    """Frobenius norm of finite-difference gradient difference.
+
+    Balasubramanian et al. PRF 2026 Eq. 7:
+
+        G(pred, target) = (1/N_b) * sum_b ||grad(pred_b) - grad(target_b)||_F^2
+
+    where ``grad`` is a finite-difference operator applied in the two
+    homogeneous directions and ``||.||_F`` is the Frobenius norm
+    summed over derivative directions and pixels.
+
+    Implementation uses forward differences in both spatial dimensions
+    (one pixel shift). For the non-periodic, airfoil-masked domain
+    here, boundary cells contribute one-sided differences only, which
+    matches the PRF paper's behaviour in their non-homogeneous
+    wall-normal direction.
+
+    Args:
+        pred, target: ``(B, 1, H, W)`` or ``(B, T, 1, H, W)`` or
+            ``(B, H, W)`` tensors in normalised omega space.
+        weight: Optional same-shape weight (typically from
+            :func:`region_weight`) to restrict the constraint to the
+            active wake region. Applied multiplicatively on each
+            difference plane after appropriate cropping to match the
+            forward-difference shapes.
+
+    Returns:
+        Scalar loss tensor (mean of squared finite-difference
+        differences, summed over the two derivative directions).
+    """
+    pred_4d, _ = _ensure_image_shape(pred)
+    target_4d, _ = _ensure_image_shape(target)
+
+    dpred_dx = pred_4d[..., :, 1:] - pred_4d[..., :, :-1]
+    dpred_dy = pred_4d[..., 1:, :] - pred_4d[..., :-1, :]
+    dtgt_dx = target_4d[..., :, 1:] - target_4d[..., :, :-1]
+    dtgt_dy = target_4d[..., 1:, :] - target_4d[..., :-1, :]
+
+    diff_dx = (dpred_dx - dtgt_dx).pow(2)
+    diff_dy = (dpred_dy - dtgt_dy).pow(2)
+
+    if weight is None:
+        return diff_dx.mean() + diff_dy.mean()
+
+    weight_4d, _ = _ensure_image_shape(weight)
+    w_dx = 0.5 * (weight_4d[..., :, 1:] + weight_4d[..., :, :-1])
+    w_dy = 0.5 * (weight_4d[..., 1:, :] + weight_4d[..., :-1, :])
+    return (w_dx * diff_dx).mean() + (w_dy * diff_dy).mean()
+
+
+def spectral_amplitude_loss(
+    pred: Tensor,
+    target: Tensor,
+    wake_only: bool = True,
+    physical_extent: tuple[float, float, float, float] = (-1.5, 4.5, -1.5, 1.5),
+    wake_x_min: float = 0.0,
+    wake_x_max: float = 4.5,
+    wake_y_max: float = 1.25,
+    window: Optional[str] = "hann",
+    tukey_alpha: float = 0.5,
+) -> Tensor:
+    """L1 norm of FFT amplitude difference.
+
+    Balasubramanian et al. PRF 2026 Eq. 8:
+
+        H(pred, target) = (1/N_b) * sum_b || |F(pred_b)| - |F(target_b)| ||_1
+
+    where ``F`` is the 2D Fourier transform in the homogeneous spatial
+    directions and ``|.|`` is the elementwise magnitude.
+
+    The PRF paper applies F to the full periodic streamwise-spanwise
+    domain. Our domain is non-periodic (airfoil mask + finite x-extent),
+    so:
+
+    1. When ``wake_only`` (default), crop to the wake ROI in
+       ``physical_extent`` coordinates -- the only region where small-
+       scale spectral fidelity is physically meaningful for the wake
+       reconstruction problem (rows ``(-wake_y_max, wake_y_max)``,
+       cols ``(wake_x_min, wake_x_max)``).
+    2. Apply a 2D window (Hann by default, Tukey optional) before
+       FFT to suppress Gibbs ringing from the abrupt ROI boundaries.
+       Without windowing, the spectral amplitude difference is
+       dominated by edge artifacts rather than wake-content
+       differences.
+    3. Take FFT (orthonormal norm), elementwise magnitude, L1.
+
+    Args:
+        pred, target: ``(B, 1, H, W)`` or ``(B, T, 1, H, W)``
+            normalised omega.
+        wake_only: When True (default), restrict the FFT to the wake
+            ROI. When False, take the FFT of the full field
+            (matching the PRF paper's full-domain application; only
+            appropriate when the domain is effectively periodic).
+        physical_extent: ``(x_min, x_max, y_min, y_max)`` of the
+            full field in convective-time units. Defaults match the
+            partition v1 cache.
+        wake_x_min, wake_x_max, wake_y_max: Wake ROI in physical
+            units. Defaults match :func:`region_weight`.
+        window: ``"hann"`` (default), ``"tukey"``, or ``None``.
+        tukey_alpha: Taper fraction when ``window="tukey"``.
+
+    Returns:
+        Scalar L1 of FFT magnitude difference.
+    """
+    pred_4d, _ = _ensure_image_shape(pred)
+    target_4d, _ = _ensure_image_shape(target)
+    H, W = pred_4d.shape[-2:]
+
+    if wake_only:
+        # Canonical convention (see ``src.evaluation.decoder_metrics``): the
+        # H axis is streamwise x with physical range ``(x_min, x_max)``;
+        # the W axis is cross-stream y with physical range ``(y_min, y_max)``.
+        # This matches the wake-observable head and the metrics module.
+        # NOTE: this differs from :func:`region_weight` in this same file,
+        # which has historically used the inverted convention; the orientation
+        # mismatch is benign for the active-pixel weight (it is a soft mask
+        # on |target|) but it does shift the wake-bonus region. Session 11
+        # numerics keep the historical region_weight unchanged for
+        # reproducibility; new losses (this one, and the 2D power spectrum
+        # metric) use the canonical convention.
+        x_min, x_max, y_min, y_max = physical_extent
+        row_lo = int(round((wake_x_min - x_min) / max(x_max - x_min, 1e-8) * H))
+        row_hi = int(round((wake_x_max - x_min) / max(x_max - x_min, 1e-8) * H))
+        col_lo = int(round((-wake_y_max - y_min) / max(y_max - y_min, 1e-8) * W))
+        col_hi = int(round((wake_y_max - y_min) / max(y_max - y_min, 1e-8) * W))
+        col_lo = max(0, min(col_lo, W))
+        col_hi = max(col_lo + 1, min(col_hi, W))
+        row_lo = max(0, min(row_lo, H))
+        row_hi = max(row_lo + 1, min(row_hi, H))
+        pred_p = pred_4d[..., row_lo:row_hi, col_lo:col_hi]
+        target_p = target_4d[..., row_lo:row_hi, col_lo:col_hi]
+    else:
+        pred_p = pred_4d
+        target_p = target_4d
+
+    h, w = pred_p.shape[-2:]
+    if window == "hann":
+        win = hann_window_2d(h, w, device=pred_p.device, dtype=pred_p.dtype)
+        pred_p = pred_p * win
+        target_p = target_p * win
+    elif window == "tukey":
+        win = tukey_window_2d(
+            h, w, alpha=tukey_alpha, device=pred_p.device, dtype=pred_p.dtype
+        )
+        pred_p = pred_p * win
+        target_p = target_p * win
+    elif window is None:
+        pass
+    else:
+        raise ValueError(f"unknown window {window!r}; use 'hann', 'tukey', or None")
+
+    # FFT in bf16 is unstable; promote to float32 for the spectral op.
+    f_pred = torch.fft.fft2(pred_p.float(), norm="ortho")
+    f_target = torch.fft.fft2(target_p.float(), norm="ortho")
+    return (f_pred.abs() - f_target.abs()).abs().mean().to(pred.dtype)
+
+
+def region_pyr_specloss_loss(
+    pred_pyr: list[Tensor],
+    target: Tensor,
+    coord: Optional[dict[str, Tensor]] = None,
+    solid_or_airfoil_mask: Optional[Tensor] = None,
+    lambda_region: float = 1.0,
+    lambda_pyramid: float = 0.4,
+    lambda_gradient: float = 1.0,
+    lambda_spectral_amp: float = 1.0,
+    lambda_enstrophy: float = 0.02,
+    lambda_circulation: float = 0.01,
+    spectral_wake_only: bool = True,
+    spectral_window: Optional[str] = "hann",
+    spectral_tukey_alpha: float = 0.5,
+    charbonnier_eps: float = 0.05,
+    region_kwargs: Optional[dict] = None,
+) -> dict[str, Tensor]:
+    """Session 12 Direction A composite: E1 + PRF 2026 SL terms.
+
+    Adds the Balasubramanian PRF 2026 gradient consistency (Eq. 7)
+    and spectral amplitude (Eq. 8) terms on top of the Session 10 E1
+    recipe (region + Charbonnier pyramid + enstrophy + circulation).
+    Replaces the local FFL term from the E2 recipe; FFL is patch-FFT
+    focal frequency loss (Jiang et al. arXiv:2012.12821) which is a
+    DIFFERENT mechanism (per-patch FFT with detached focal weight)
+    than the global FFT amplitude that the SL paper recommends.
+
+    The defaults match the Direction A "specloss_default" config:
+    lambda_gradient = lambda_spectral_amp = 1.0 with the existing
+    E1 lambdas (region=1.0, pyramid=0.4, enstrophy=0.02,
+    circulation=0.01).
+
+    Args mirror :func:`region_pyr_ffl_loss` with ``lambda_ffl``
+    replaced by ``lambda_gradient`` and ``lambda_spectral_amp``.
+
+    Returns:
+        dict with keys ``L_total``, ``L_region``, ``L_pyramid``,
+        ``L_gradient``, ``L_spectral_amp``, ``L_enstrophy``,
+        ``L_circulation``.
+    """
+    final_pred = pred_pyr[-1]
+    rk = region_kwargs or {}
+    weight = region_weight(
+        target, coord=coord, solid_or_airfoil_mask=solid_or_airfoil_mask, **rk
+    )
+
+    L_region = weighted_mse(final_pred, target, weight)
+    L_pyramid = pyramid_residual_loss(pred_pyr, target, eps=charbonnier_eps)
+    L_gradient = gradient_consistency_loss(final_pred, target, weight=weight)
+    L_spectral = spectral_amplitude_loss(
+        final_pred,
+        target,
+        wake_only=spectral_wake_only,
+        window=spectral_window,
+        tukey_alpha=spectral_tukey_alpha,
+    )
+    L_enstrophy = enstrophy_field_loss(final_pred, target, weight=weight)
+    L_circulation = circulation_density_loss(final_pred, target, weight=weight)
+
+    L_total = (
+        lambda_region * L_region
+        + lambda_pyramid * L_pyramid
+        + lambda_gradient * L_gradient
+        + lambda_spectral_amp * L_spectral
+        + lambda_enstrophy * L_enstrophy
+        + lambda_circulation * L_circulation
+    )
+
+    return {
+        "L_total": L_total,
+        "L_region": L_region,
+        "L_pyramid": L_pyramid,
+        "L_gradient": L_gradient,
+        "L_spectral_amp": L_spectral,
         "L_enstrophy": L_enstrophy,
         "L_circulation": L_circulation,
     }

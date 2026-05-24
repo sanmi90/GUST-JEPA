@@ -21,6 +21,7 @@ from src.data.wake_observables import (
     patch_signed_spectrum_target,
     patch_signed_target,
     radial_wake_spectrum_target,
+    wake_coarse_pool_32x16_target,
     wake_coarse_pool_target,
 )
 
@@ -30,6 +31,7 @@ def test_mode_output_dim_table() -> None:
     assert mode_output_dim("patch_signed") == 64
     assert mode_output_dim("patch_signed_spectrum") == 80
     assert mode_output_dim("wake_coarse_pool") == 288
+    assert mode_output_dim("wake_coarse_pool_32x16") == 512
     with pytest.raises(ValueError, match="unknown wake mode"):
         mode_output_dim("nonsense")
 
@@ -119,8 +121,31 @@ def test_compute_wake_observable_dispatches() -> None:
     assert compute_wake_observable(x, "patch_signed").shape == (2, 4, 64)
     assert compute_wake_observable(x, "patch_signed_spectrum").shape == (2, 4, 80)
     assert compute_wake_observable(x, "wake_coarse_pool").shape == (2, 4, 288)
+    assert compute_wake_observable(x, "wake_coarse_pool_32x16").shape == (2, 4, 512)
     with pytest.raises(ValueError, match="unknown wake mode"):
         compute_wake_observable(x, "bogus")
+
+
+def test_wake_coarse_pool_32x16_output_shape() -> None:
+    """Mode E: ``(T=4, 192, 96)`` input yields ``(4, 512)`` output."""
+    x = torch.randn(4, 192, 96)
+    y = wake_coarse_pool_32x16_target(x)
+    assert y.shape == (4, 512)
+    # 5D variant: ``(B=2, T=3, 192, 96)`` -> ``(2, 3, 512)``.
+    x5 = torch.randn(2, 3, 192, 96)
+    y5 = wake_coarse_pool_32x16_target(x5)
+    assert y5.shape == (2, 3, 512)
+
+
+def test_wake_coarse_pool_32x16_in_mode_dim_dispatch() -> None:
+    """Mode E is registered in ``mode_output_dim`` and ``compute_wake_observable``."""
+    assert mode_output_dim("wake_coarse_pool_32x16") == 512
+    x = torch.randn(3, 192, 96)
+    y = compute_wake_observable(x, "wake_coarse_pool_32x16")
+    assert y.shape == (3, 512)
+    # Matches the direct-call target function exactly.
+    y_direct = wake_coarse_pool_32x16_target(x)
+    assert torch.allclose(y, y_direct, atol=1e-6)
 
 
 def test_standardization_roundtrip() -> None:

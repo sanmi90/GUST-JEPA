@@ -307,3 +307,272 @@ def aggregate_split_metrics(per_encounter: list[EncounterMetrics]) -> dict:
             out[f"{k}_median"] = float(np.median(vals))
     out["n_encounters"] = len(per_encounter)
     return out
+
+
+# -----------------------------------------------------------------------------
+# 2D premultiplied wake power spectrum (Session 12, PRF 2026 Figs 5-6 style)
+# -----------------------------------------------------------------------------
+
+
+def _hann_window_2d_np(h: int, w: int) -> np.ndarray:
+    """Separable 2D Hann window of shape (h, w)."""
+    wx = np.hanning(h)[:, None]
+    wy = np.hanning(w)[None, :]
+    return wx * wy
+
+
+def wake_2d_premult_spectrum(
+    pred: np.ndarray,
+    target: np.ndarray,
+    physical_extent: tuple[float, float, float, float] = (-1.5, 4.5, -1.5, 1.5),
+    wake_x_min: float = 0.0,
+    wake_x_max: float = 4.5,
+    wake_y_max: float = 1.25,
+    window: Optional[str] = "hann",
+    contour_levels: tuple[float, ...] = (0.10, 0.50, 0.90),
+) -> dict:
+    """2D premultiplied wake power spectrum agreement (PRF 2026 style).
+
+    Following Balasubramanian, Cremades, Vinuesa, Tammisola (Phys. Rev.
+    Fluids 11, 044907, 2026; their Figs. 5-6) the premultiplied power
+    spectral density is computed as
+
+        E_premult(k_x, k_y) = |k_x| * |k_y| * phi_omega(k_x, k_y),
+
+    where ``phi_omega`` is the 2D PSD of the (wake-cropped, windowed)
+    omega field. The premultiplication emphasises the energy-bearing
+    intermediate wavenumbers; contours of normalised E_premult trace
+    out which (lambda_x, lambda_y) wavelengths carry the small-scale
+    wake content the MSL-trained decoders smooth out.
+
+    For our non-periodic, airfoil-masked domain the spectrum is
+    restricted to the wake ROI (rows [row_lo, row_hi) span
+    ``(wake_x_min, wake_x_max)`` along the streamwise H axis; columns
+    [col_lo, col_hi) span ``(-wake_y_max, wake_y_max)`` along the
+    cross-stream W axis -- canonical convention from :func:`wake_mask`).
+    A 2D Hann window is applied before FFT to suppress edge artifacts.
+
+    Agreement metrics returned:
+
+    - ``contour_iou``: per-level intersection-over-union of the
+      ``E_premult / E_premult.max() >= level`` masks for pred and
+      target. 1.0 means the contour regions coincide perfectly.
+    - ``median_wavelength_ratio``: per-level ``max(med_pred / med_target,
+      med_target / med_pred)`` where ``med_X`` is the median wavelength
+      ``2*pi/|k|`` inside the contour mask of X. 1.0 means perfect
+      wavelength agreement; the PRF paper's "within factor 2" rule
+      corresponds to <= 2.0.
+    - ``max_wavelength_ratio``: ``max`` of ``median_wavelength_ratio``
+      across the requested contour levels. The Session 12 success
+      criterion uses this scalar.
+    - ``premult_pred`` / ``premult_target``: the 2D premultiplied PSD
+      fields (shifted so kx=0, ky=0 is at the centre).
+    - ``kx_grid`` / ``ky_grid``: physical-unit wavenumber grids.
+
+    Args:
+        pred, target: ``(H, W)`` raw-scale omega fields (single frame).
+            For multiple frames, average :func:`wake_2d_premult_spectrum`
+            outputs across frames before reporting the headline ratio.
+        physical_extent: ``(x_min, x_max, y_min, y_max)`` of the full
+            field; defaults match partition v1.
+        wake_x_min, wake_x_max, wake_y_max: Wake ROI in physical units.
+        window: ``"hann"`` (default) or ``None``.
+        contour_levels: Fractional levels of the normalised E_premult.
+
+    Returns:
+        Dict with the keys described above.
+    """
+    if pred.shape != target.shape:
+        raise ValueError(
+            f"shape mismatch: pred {pred.shape} vs target {target.shape}"
+        )
+    if pred.ndim != 2:
+        raise ValueError(
+            f"expected 2D (H, W) inputs; got pred shape {pred.shape}"
+        )
+    H, W = pred.shape
+
+    x_min, x_max, y_min, y_max = physical_extent
+    row_lo = int(round((wake_x_min - x_min) / max(x_max - x_min, 1e-12) * H))
+    row_hi = int(round((wake_x_max - x_min) / max(x_max - x_min, 1e-12) * H))
+    col_lo = int(round((-wake_y_max - y_min) / max(y_max - y_min, 1e-12) * W))
+    col_hi = int(round((wake_y_max - y_min) / max(y_max - y_min, 1e-12) * W))
+    row_lo = max(0, min(row_lo, H))
+    row_hi = max(row_lo + 1, min(row_hi, H))
+    col_lo = max(0, min(col_lo, W))
+    col_hi = max(col_lo + 1, min(col_hi, W))
+    pred_w = pred[row_lo:row_hi, col_lo:col_hi].astype(np.float64)
+    tgt_w = target[row_lo:row_hi, col_lo:col_hi].astype(np.float64)
+
+    h, w = pred_w.shape
+
+    if window == "hann":
+        win = _hann_window_2d_np(h, w)
+        pred_w = pred_w * win
+        tgt_w = tgt_w * win
+    elif window is None:
+        pass
+    else:
+        raise ValueError(f"unknown window {window!r}; use 'hann' or None")
+
+    f_pred = np.fft.fftshift(np.fft.fft2(pred_w))
+    f_target = np.fft.fftshift(np.fft.fft2(tgt_w))
+    psd_pred = (np.abs(f_pred) ** 2) / (h * w)
+    psd_target = (np.abs(f_target) ** 2) / (h * w)
+
+    dx = (x_max - x_min) / max(H - 1, 1)
+    dy = (y_max - y_min) / max(W - 1, 1)
+    kx = np.fft.fftshift(np.fft.fftfreq(h, d=dx)) * 2 * math.pi
+    ky = np.fft.fftshift(np.fft.fftfreq(w, d=dy)) * 2 * math.pi
+    kx_grid, ky_grid = np.meshgrid(kx, ky, indexing="ij")
+    abs_kx = np.abs(kx_grid)
+    abs_ky = np.abs(ky_grid)
+
+    premult_pred = abs_kx * abs_ky * psd_pred
+    premult_target = abs_kx * abs_ky * psd_target
+
+    pp_norm = premult_pred / max(premult_pred.max(), 1e-30)
+    pt_norm = premult_target / max(premult_target.max(), 1e-30)
+
+    contour_iou = np.zeros(len(contour_levels), dtype=np.float64)
+    wavelength_ratio = np.full(len(contour_levels), np.nan, dtype=np.float64)
+    k_mag = np.sqrt(kx_grid ** 2 + ky_grid ** 2)
+    valid_k = k_mag > 1e-12
+
+    for i, level in enumerate(contour_levels):
+        pred_region = pp_norm >= level
+        tgt_region = pt_norm >= level
+        if pred_region.any() or tgt_region.any():
+            inter = float((pred_region & tgt_region).sum())
+            union = float((pred_region | tgt_region).sum())
+            contour_iou[i] = inter / max(union, 1.0)
+        else:
+            contour_iou[i] = 1.0  # both empty -> trivially aligned
+
+        pred_mask_k = pred_region & valid_k
+        tgt_mask_k = tgt_region & valid_k
+        if pred_mask_k.any() and tgt_mask_k.any():
+            lam_pred = 2 * math.pi / k_mag[pred_mask_k]
+            lam_target = 2 * math.pi / k_mag[tgt_mask_k]
+            med_p = float(np.median(lam_pred))
+            med_t = float(np.median(lam_target))
+            if med_t > 0 and med_p > 0:
+                ratio = med_p / med_t
+                wavelength_ratio[i] = max(ratio, 1.0 / ratio)
+
+    finite_ratio = wavelength_ratio[np.isfinite(wavelength_ratio)]
+    max_ratio = float(np.max(finite_ratio)) if finite_ratio.size else float("nan")
+    mean_iou = float(np.mean(contour_iou)) if contour_iou.size else float("nan")
+
+    return {
+        "premult_pred": premult_pred,
+        "premult_target": premult_target,
+        "kx_grid": kx_grid,
+        "ky_grid": ky_grid,
+        "contour_levels": np.asarray(contour_levels, dtype=np.float64),
+        "contour_iou": contour_iou,
+        "median_wavelength_ratio": wavelength_ratio,
+        "max_wavelength_ratio": max_ratio,
+        "mean_contour_iou": mean_iou,
+        "wake_patch_shape": (h, w),
+    }
+
+
+def wake_2d_premult_spectrum_series(
+    pred: np.ndarray,
+    target: np.ndarray,
+    physical_extent: tuple[float, float, float, float] = (-1.5, 4.5, -1.5, 1.5),
+    wake_x_min: float = 0.0,
+    wake_x_max: float = 4.5,
+    wake_y_max: float = 1.25,
+    window: Optional[str] = "hann",
+    contour_levels: tuple[float, ...] = (0.10, 0.50, 0.90),
+) -> dict:
+    """Wake 2D premultiplied power spectrum averaged across frames.
+
+    Args:
+        pred, target: ``(T, H, W)`` arrays of single-channel omega over
+            a time series (per-encounter or per-batch).
+
+    Computes :func:`wake_2d_premult_spectrum` per frame and averages
+    the premultiplied PSD fields, then re-derives the agreement
+    metrics on the time-averaged spectra. This is the PRF 2026
+    methodology (their Figs. 5-6 are computed on test-set time-averaged
+    spectra) and the headline number for the paper.
+    """
+    if pred.shape != target.shape:
+        raise ValueError(
+            f"shape mismatch: pred {pred.shape} vs target {target.shape}"
+        )
+    if pred.ndim != 3:
+        raise ValueError(
+            f"expected (T, H, W) inputs; got pred shape {pred.shape}"
+        )
+    T = pred.shape[0]
+    psd_pred_avg = None
+    psd_target_avg = None
+    kx_grid = None
+    ky_grid = None
+    for t in range(T):
+        out = wake_2d_premult_spectrum(
+            pred[t], target[t],
+            physical_extent=physical_extent,
+            wake_x_min=wake_x_min, wake_x_max=wake_x_max,
+            wake_y_max=wake_y_max,
+            window=window, contour_levels=contour_levels,
+        )
+        if psd_pred_avg is None:
+            psd_pred_avg = out["premult_pred"].copy()
+            psd_target_avg = out["premult_target"].copy()
+            kx_grid = out["kx_grid"]
+            ky_grid = out["ky_grid"]
+        else:
+            psd_pred_avg += out["premult_pred"]
+            psd_target_avg += out["premult_target"]
+    psd_pred_avg /= T
+    psd_target_avg /= T
+
+    pp_norm = psd_pred_avg / max(psd_pred_avg.max(), 1e-30)
+    pt_norm = psd_target_avg / max(psd_target_avg.max(), 1e-30)
+
+    k_mag = np.sqrt(kx_grid ** 2 + ky_grid ** 2)
+    valid_k = k_mag > 1e-12
+
+    contour_iou = np.zeros(len(contour_levels), dtype=np.float64)
+    wavelength_ratio = np.full(len(contour_levels), np.nan, dtype=np.float64)
+    for i, level in enumerate(contour_levels):
+        pred_region = pp_norm >= level
+        tgt_region = pt_norm >= level
+        if pred_region.any() or tgt_region.any():
+            inter = float((pred_region & tgt_region).sum())
+            union = float((pred_region | tgt_region).sum())
+            contour_iou[i] = inter / max(union, 1.0)
+        else:
+            contour_iou[i] = 1.0
+        pred_mask_k = pred_region & valid_k
+        tgt_mask_k = tgt_region & valid_k
+        if pred_mask_k.any() and tgt_mask_k.any():
+            lam_pred = 2 * math.pi / k_mag[pred_mask_k]
+            lam_target = 2 * math.pi / k_mag[tgt_mask_k]
+            med_p = float(np.median(lam_pred))
+            med_t = float(np.median(lam_target))
+            if med_t > 0 and med_p > 0:
+                ratio = med_p / med_t
+                wavelength_ratio[i] = max(ratio, 1.0 / ratio)
+
+    finite_ratio = wavelength_ratio[np.isfinite(wavelength_ratio)]
+    max_ratio = float(np.max(finite_ratio)) if finite_ratio.size else float("nan")
+    mean_iou = float(np.mean(contour_iou)) if contour_iou.size else float("nan")
+
+    return {
+        "premult_pred": psd_pred_avg,
+        "premult_target": psd_target_avg,
+        "kx_grid": kx_grid,
+        "ky_grid": ky_grid,
+        "contour_levels": np.asarray(contour_levels, dtype=np.float64),
+        "contour_iou": contour_iou,
+        "median_wavelength_ratio": wavelength_ratio,
+        "max_wavelength_ratio": max_ratio,
+        "mean_contour_iou": mean_iou,
+        "n_frames": T,
+    }

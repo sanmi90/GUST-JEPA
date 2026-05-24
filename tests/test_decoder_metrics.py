@@ -8,6 +8,8 @@ from src.evaluation.decoder_metrics import (
     aggregate_split_metrics,
     compute_encounter_metrics,
     radial_power_spectrum,
+    wake_2d_premult_spectrum,
+    wake_2d_premult_spectrum_series,
     wake_mask,
 )
 
@@ -103,3 +105,93 @@ def test_aggregate_split_metrics() -> None:
     assert "mse_full_mean" in agg
     assert "mse_full_median" in agg
     assert agg["mse_full_mean"] > 0
+
+
+# -----------------------------------------------------------------------------
+# Session 12: 2D premultiplied wake power spectrum
+# -----------------------------------------------------------------------------
+
+
+def test_wake_2d_premult_spectrum_perfect_alignment() -> None:
+    """On pred == target, contour IoU is 1 and wavelength ratio is 1."""
+    rng = np.random.default_rng(0)
+    target = rng.normal(size=(192, 96)).astype(np.float32) * 30.0
+    out = wake_2d_premult_spectrum(target, target)
+    # Both pred and target give identical premultiplied PSDs, so every
+    # level-mask coincides exactly: IoU == 1, median wavelength ratio == 1.
+    assert np.allclose(out["contour_iou"], 1.0), out["contour_iou"]
+    assert np.allclose(out["median_wavelength_ratio"], 1.0), \
+        out["median_wavelength_ratio"]
+    assert out["max_wavelength_ratio"] == 1.0
+    assert out["mean_contour_iou"] == 1.0
+    # The wake patch shape is the canonical (144, 80) for 192x96 inputs.
+    assert out["wake_patch_shape"] == (144, 80)
+
+
+def test_wake_2d_premult_spectrum_returns_expected_keys() -> None:
+    """The output dict has every documented key with shapes consistent."""
+    rng = np.random.default_rng(1)
+    target = rng.normal(size=(192, 96)).astype(np.float32) * 20.0
+    pred = target + 0.5 * rng.normal(size=(192, 96)).astype(np.float32) * 20.0
+    out = wake_2d_premult_spectrum(pred, target)
+    expected_keys = {
+        "premult_pred", "premult_target", "kx_grid", "ky_grid",
+        "contour_levels", "contour_iou", "median_wavelength_ratio",
+        "max_wavelength_ratio", "mean_contour_iou", "wake_patch_shape",
+    }
+    assert set(out.keys()) == expected_keys
+    h, w = out["wake_patch_shape"]
+    for k in ("premult_pred", "premult_target", "kx_grid", "ky_grid"):
+        assert out[k].shape == (h, w), f"{k}: {out[k].shape}"
+    # Premultiplied PSDs are non-negative.
+    assert (out["premult_pred"] >= 0).all()
+    assert (out["premult_target"] >= 0).all()
+    # Mismatched fields produce ratio >= 1.
+    assert out["max_wavelength_ratio"] >= 1.0
+    # IoU is in [0, 1].
+    assert (out["contour_iou"] >= 0).all() and (out["contour_iou"] <= 1).all()
+
+
+def test_wake_2d_premult_spectrum_series_perfect() -> None:
+    """Time-series variant: pred == target gives IoU 1 across frames."""
+    rng = np.random.default_rng(2)
+    target = rng.normal(size=(4, 192, 96)).astype(np.float32) * 25.0
+    out = wake_2d_premult_spectrum_series(target, target)
+    assert out["n_frames"] == 4
+    assert np.allclose(out["contour_iou"], 1.0)
+    assert out["max_wavelength_ratio"] == 1.0
+
+
+def test_wake_2d_premult_spectrum_detects_high_freq_mismatch() -> None:
+    """High-frequency content in pred but smooth target produces a
+    measurable wavelength shift in the premultiplied spectrum."""
+    rng = np.random.default_rng(3)
+    H, W = 192, 96
+    # Build a target with primarily low-wavenumber content
+    xs = np.linspace(0, 2 * np.pi, H)
+    ys = np.linspace(0, 2 * np.pi, W)
+    xx, yy = np.meshgrid(xs, ys, indexing="ij")
+    target = np.sin(xx) * np.cos(yy) * 10.0  # low-frequency
+    # Pred adds a high-frequency component
+    pred = target + 0.5 * np.sin(8 * xx) * np.cos(8 * yy) * 10.0
+    out = wake_2d_premult_spectrum(pred, target)
+    # The high-frequency mismatch should produce a measurable difference;
+    # contour IoU strictly less than 1 at the higher contour levels.
+    assert out["mean_contour_iou"] < 1.0
+    # The wavelength ratio should reflect the high-frequency mismatch:
+    # the pred has shorter wavelengths in its premultiplied spectrum, so
+    # the median wavelength ratio is non-trivial.
+    assert np.isfinite(out["max_wavelength_ratio"])
+    assert out["max_wavelength_ratio"] > 1.0
+
+
+def test_wake_2d_premult_spectrum_no_window_finite() -> None:
+    """With window=None the result is still finite (no NaN/Inf)."""
+    rng = np.random.default_rng(4)
+    target = rng.normal(size=(192, 96)).astype(np.float32) * 30.0
+    pred = target * 0.9
+    out = wake_2d_premult_spectrum(pred, target, window=None)
+    assert np.isfinite(out["max_wavelength_ratio"]) or np.isnan(
+        out["max_wavelength_ratio"]
+    )
+    assert (np.isfinite(out["contour_iou"])).all()

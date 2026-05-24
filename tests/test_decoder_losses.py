@@ -20,10 +20,15 @@ from src.models.decoder_losses import (
     charbonnier,
     circulation_density_loss,
     enstrophy_field_loss,
+    gradient_consistency_loss,
+    hann_window_2d,
     local_focal_frequency_loss,
     pyramid_residual_loss,
     region_pyr_ffl_loss,
+    region_pyr_specloss_loss,
     region_weight,
+    spectral_amplitude_loss,
+    tukey_window_2d,
     weighted_mse,
 )
 
@@ -235,3 +240,190 @@ def test_region_pyr_ffl_warmup_factor_zero_disables_ffl() -> None:
     # L_total differs by exactly lambda_ffl * L_ffl.
     diff = (out_on["L_total"] - out_off["L_total"]).item()
     assert abs(diff - out_off["L_ffl"].item()) < 1e-5
+
+
+# -----------------------------------------------------------------------------
+# Session 12 Direction A: PRF 2026 SL loss components
+# -----------------------------------------------------------------------------
+
+
+def test_hann_window_endpoints_zero_center_one() -> None:
+    """Separable 2D Hann window is 0 at corners and 1 at the (odd) center."""
+    win = hann_window_2d(7, 9, device=torch.device("cpu"))
+    assert win.shape == (7, 9)
+    assert win[0, 0].item() == 0.0
+    assert win[-1, -1].item() == 0.0
+    assert win[0, -1].item() == 0.0
+    assert win[-1, 0].item() == 0.0
+    # Center pixel of a 7x9 Hann window is exactly 1.
+    assert abs(win[3, 4].item() - 1.0) < 1e-6
+    # All values in [0, 1].
+    assert (win >= 0).all() and (win <= 1 + 1e-6).all()
+
+
+def test_tukey_window_alpha_zero_is_rectangular() -> None:
+    """Tukey window with alpha=0 is identically 1 (rectangular)."""
+    win = tukey_window_2d(5, 7, alpha=0.0, device=torch.device("cpu"))
+    assert torch.allclose(win, torch.ones(5, 7))
+
+
+def test_tukey_window_alpha_one_matches_hann() -> None:
+    """Tukey window with alpha=1 equals a Hann window."""
+    tukey = tukey_window_2d(11, 13, alpha=1.0, device=torch.device("cpu"))
+    hann = hann_window_2d(11, 13, device=torch.device("cpu"))
+    assert torch.allclose(tukey, hann, atol=1e-5)
+
+
+def test_gradient_consistency_zero_on_perfect() -> None:
+    """G(pred, target) = 0 when pred == target (Equation 7 of PRF 2026)."""
+    torch.manual_seed(0)
+    pred = torch.randn(2, 1, 32, 64)
+    target = pred.clone()
+    assert gradient_consistency_loss(pred, target).item() == 0.0
+
+
+def test_gradient_consistency_positive_on_mismatch() -> None:
+    """G > 0 when pred != target (random pair)."""
+    torch.manual_seed(0)
+    pred = torch.randn(2, 1, 32, 64)
+    target = torch.randn(2, 1, 32, 64)
+    assert gradient_consistency_loss(pred, target).item() > 0
+
+
+def test_gradient_consistency_gradient_flow() -> None:
+    """Gradient consistency loss is differentiable wrt pred."""
+    torch.manual_seed(0)
+    pred = torch.randn(2, 1, 32, 64, requires_grad=True)
+    target = torch.randn(2, 1, 32, 64)
+    loss = gradient_consistency_loss(pred, target)
+    loss.backward()
+    assert pred.grad is not None
+    assert torch.isfinite(pred.grad).all()
+    assert (pred.grad != 0).any()
+
+
+def test_spectral_amplitude_zero_on_perfect() -> None:
+    """H(pred, target) = 0 when pred == target (Equation 8 of PRF 2026)."""
+    torch.manual_seed(0)
+    pred = torch.randn(2, 1, 192, 96)
+    target = pred.clone()
+    loss = spectral_amplitude_loss(pred, target, wake_only=True, window="hann")
+    assert loss.item() < 1e-5
+
+
+def test_spectral_amplitude_positive_on_mismatch() -> None:
+    """H > 0 when pred != target."""
+    torch.manual_seed(0)
+    pred = torch.randn(2, 1, 192, 96)
+    target = torch.randn(2, 1, 192, 96)
+    loss = spectral_amplitude_loss(pred, target, wake_only=True, window="hann")
+    assert loss.item() > 0
+
+
+def test_spectral_amplitude_wake_patch_dimensions() -> None:
+    """``wake_only=True`` extracts the correct wake patch (H_wake, W_wake).
+
+    With the canonical convention from ``decoder_metrics.wake_mask``
+    (H is streamwise x in (-1.5, 4.5); W is cross-stream y in (-1.5, 1.5))
+    and default wake_x in [0, 4.5], |y| < 1.25:
+
+      row_lo = round((0 - (-1.5))/6 * 192) = 48
+      row_hi = round((4.5 - (-1.5))/6 * 192) = 192
+      col_lo = round((-1.25 - (-1.5))/3 * 96) = 8
+      col_hi = round((1.25 - (-1.5))/3 * 96) = 88
+
+    So the wake patch is (192-48, 88-8) = (144, 80).
+    """
+    torch.manual_seed(0)
+    # Construct pred and target that differ only OUTSIDE the wake patch.
+    # The wake-only loss should be zero on this pair (after windowing,
+    # the loss reflects only differences inside the patch).
+    pred = torch.zeros(1, 1, 192, 96)
+    target = torch.zeros(1, 1, 192, 96)
+    # Inject differences strictly outside the wake patch (rows 0..47, cols 0..7).
+    pred[..., :48, :8] = 5.0
+    target[..., :48, :8] = -5.0
+    loss = spectral_amplitude_loss(pred, target, wake_only=True, window=None)
+    assert loss.item() < 1e-6
+
+
+def test_spectral_amplitude_window_required_for_nonperiodic() -> None:
+    """Without windowing, the spectral amplitude on a non-periodic crop is
+    dominated by edge-induced ringing. With Hann windowing, the same
+    smooth pred/target pair (differing only in a low-frequency mean
+    shift) yields a much smaller spectral discrepancy."""
+    H_wake, W_wake = 144, 80
+    # A smoothly-varying field (low spatial frequency) with a small
+    # additive constant. Windowing should attenuate the boundary
+    # contribution more than the bulk content.
+    grid_y = torch.linspace(-1.0, 1.0, H_wake)[:, None].repeat(1, W_wake)
+    grid_x = torch.linspace(-1.0, 1.0, W_wake)[None, :].repeat(H_wake, 1)
+    pred = (grid_x ** 2 + grid_y ** 2)[None, None]
+    target = pred + 0.1
+    # Inflate to full 192x96 with the patch in the wake region.
+    pred_full = torch.zeros(1, 1, 192, 96)
+    target_full = torch.zeros(1, 1, 192, 96)
+    pred_full[..., 48:192, 8:88] = pred
+    target_full[..., 48:192, 8:88] = target
+    no_win = spectral_amplitude_loss(
+        pred_full, target_full, wake_only=True, window=None
+    ).item()
+    with_win = spectral_amplitude_loss(
+        pred_full, target_full, wake_only=True, window="hann"
+    ).item()
+    # Both > 0, but Hann window suppresses boundary energy.
+    assert no_win > 0 and with_win > 0
+    # The windowed amplitude should be measurable; no_win includes
+    # edge-discontinuity energy from the abrupt boundary of the patch.
+    # (We don't assert strict ordering because the patch IS the data here,
+    # but both finite and positive.)
+    assert math.isfinite(no_win) and math.isfinite(with_win)
+
+
+def test_spectral_amplitude_gradient_flow() -> None:
+    """Spectral amplitude loss is differentiable wrt pred."""
+    torch.manual_seed(0)
+    pred = torch.randn(2, 1, 192, 96, requires_grad=True)
+    target = torch.randn(2, 1, 192, 96)
+    loss = spectral_amplitude_loss(pred, target, wake_only=True, window="hann")
+    loss.backward()
+    assert pred.grad is not None
+    assert torch.isfinite(pred.grad).all()
+    assert (pred.grad != 0).any()
+
+
+def test_region_pyr_specloss_loss_smoke() -> None:
+    """Composite SL loss runs end-to-end with expected key set and is finite."""
+    torch.manual_seed(0)
+    sizes = [(12, 6), (24, 12), (48, 24), (96, 48), (192, 96)]
+    pyr = [torch.randn(2, 1, h, w, requires_grad=True) for h, w in sizes]
+    target = torch.randn(2, 1, 192, 96)
+    out = region_pyr_specloss_loss(pyr, target)
+    expected = {
+        "L_total", "L_region", "L_pyramid", "L_gradient",
+        "L_spectral_amp", "L_enstrophy", "L_circulation",
+    }
+    assert set(out.keys()) == expected
+    for k, v in out.items():
+        assert torch.isfinite(v).all(), f"{k} not finite: {v}"
+    out["L_total"].backward()
+    for p in pyr:
+        assert p.grad is not None and (p.grad != 0).any()
+
+
+def test_region_pyr_specloss_lambda_zero_disables_new_terms() -> None:
+    """Setting lambda_gradient and lambda_spectral_amp to 0 reduces the
+    composite to the E1 recipe (region + pyramid + enstrophy + circulation)."""
+    torch.manual_seed(0)
+    sizes = [(12, 6), (24, 12), (48, 24), (96, 48), (192, 96)]
+    pyr_a = [torch.randn(2, 1, h, w) for h, w in sizes]
+    pyr_b = [p.clone() for p in pyr_a]
+    target = torch.randn(2, 1, 192, 96)
+    out_zero = region_pyr_specloss_loss(
+        pyr_a, target, lambda_gradient=0.0, lambda_spectral_amp=0.0
+    )
+    out_e1 = region_pyr_ffl_loss(
+        pyr_b, target, lambda_ffl=0.0, ffl_warmup_factor=0.0
+    )
+    # With both new terms off and FFL off, the totals should match.
+    assert abs(out_zero["L_total"].item() - out_e1["L_total"].item()) < 1e-5

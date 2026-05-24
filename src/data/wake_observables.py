@@ -3,7 +3,7 @@
 Produces per-frame wake observable targets from pipeline-normalized
 ``omega_z`` (shape ``(T, H, W)`` or ``(B, T, H, W)`` with ``H=192, W=96``).
 
-Four target modes (Session 11 plan, "Track 1" / "Track 2"):
+Five target modes (Session 11 plan, "Track 1" / "Track 2"; Session 12 Dir D):
 
 - Mode A ``enstrophy_scalar``     (1 dim) -- ``log1p(mean(omega^2))`` over the wake ROI.
 - Mode B ``patch_signed``        (64 dim) -- 8x4 = 32 patches over the wake ROI;
@@ -13,8 +13,11 @@ Four target modes (Session 11 plan, "Track 1" / "Track 2"):
                                               of the wake-masked field, Hann-windowed.
 - Mode D ``wake_coarse_pool``    (288 dim) -- 24x12 adaptive average-pooled wake-ROI
                                               field, flattened.
+- Mode E ``wake_coarse_pool_32x16`` (512 dim) -- 32x16 adaptive average-pooled wake-ROI
+                                              field, flattened (Session 12 Direction D
+                                              higher-resolution sibling of Mode D).
 
-All four modes:
+All five modes:
 1. Restrict to the wake ROI defined in ``src.evaluation.decoder_metrics``
    (x in [0, 4.5], |y| < 1.25); other pixels are zeroed.
 2. Operate on NORMALIZED omega (the omega-pipeline output space) so the
@@ -45,6 +48,7 @@ _MODE_DIM = {
     "patch_signed": 64,
     "patch_signed_spectrum": 80,
     "wake_coarse_pool": 288,
+    "wake_coarse_pool_32x16": 512,
 }
 
 
@@ -224,11 +228,34 @@ def wake_coarse_pool_target(omega_norm: Tensor, out_h: int = 24, out_w: int = 12
     return _restore_leading(out, was_5d, leading)
 
 
+def wake_coarse_pool_32x16_target(
+    omega_norm: Tensor, out_h: int = 32, out_w: int = 16
+) -> Tensor:
+    """Mode E: wake-ROI omega downsampled to ``(32, 16) = 512`` via mean pooling.
+
+    Higher-resolution sibling of :func:`wake_coarse_pool_target` introduced by
+    Session 12 Direction D to test whether a 512-D pool target lets the
+    encoder encode more spatial wake detail. Mirrors Mode D exactly: wake
+    mask applied first, then ``adaptive_avg_pool2d`` over the ROI bounding
+    box; signed (no relu) and no log1p to preserve dynamic range.
+    """
+    leading = omega_norm.shape[:-2]
+    x, was_5d = _ensure_4d(omega_norm)
+    H, W = x.shape[-2], x.shape[-1]
+    mask = get_wake_mask_tensor(H, W, device=x.device, dtype=x.dtype)
+    field = x * mask
+    field_roi = _roi_crop(field)
+    pooled = F.adaptive_avg_pool2d(field_roi.unsqueeze(1), output_size=(out_h, out_w)).squeeze(1)
+    out = pooled.reshape(pooled.shape[0], -1)
+    return _restore_leading(out, was_5d, leading)
+
+
 _TARGET_FNS = {
     "enstrophy_scalar": enstrophy_scalar_target,
     "patch_signed": patch_signed_target,
     "patch_signed_spectrum": patch_signed_spectrum_target,
     "wake_coarse_pool": wake_coarse_pool_target,
+    "wake_coarse_pool_32x16": wake_coarse_pool_32x16_target,
 }
 
 

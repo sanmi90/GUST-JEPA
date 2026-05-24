@@ -1,12 +1,13 @@
 """Precompute per-encounter wake observable targets for Session 11.
 
 Reads pipeline-normalized omega for every encounter in the v1 cache and writes
-per-encounter HDF5 files holding the four target modes:
+per-encounter HDF5 files holding the five target modes:
 
-- ``enstrophy_scalar``     (T, 1)
-- ``patch_signed``        (T, 64)
-- ``patch_signed_spectrum`` (T, 80)
-- ``wake_coarse_pool``    (T, 288)
+- ``enstrophy_scalar``        (T, 1)
+- ``patch_signed``            (T, 64)
+- ``patch_signed_spectrum``   (T, 80)
+- ``wake_coarse_pool``        (T, 288)
+- ``wake_coarse_pool_32x16``  (T, 512)  (Session 12 Direction D)
 
 Output layout::
 
@@ -57,7 +58,13 @@ from src.data.wake_observables import (  # noqa: E402
 PREVENT = Path(os.environ.get("PREVENT_ROOT", "/home/carlos/PREVENT"))
 CACHE = Path(os.environ.get("VORTEX_JEPA_CACHE", PREVENT / "data" / "processed" / "vortex-jepa"))
 
-_MODES = ("enstrophy_scalar", "patch_signed", "patch_signed_spectrum", "wake_coarse_pool")
+_MODES = (
+    "enstrophy_scalar",
+    "patch_signed",
+    "patch_signed_spectrum",
+    "wake_coarse_pool",
+    "wake_coarse_pool_32x16",
+)
 
 
 def parse_args() -> argparse.Namespace:

@@ -52,14 +52,24 @@ Training
 
 Data
 - Split is locked at `configs/splits/split_v1.json` (sha256-anchored to inventory).
-- 50 train cases (165 encounters), 6 Test B cases (28 enc), 4 Test C cases (24 enc).
-  60 cases total in v1 (post-Session 9 absorption of 4 new run3 cases on top of
-  the v1.2 51-case snapshot; see Section 7c of SESSION9_REPORT.md).
+- 55 train cases (180 encounters), 6 Test B cases (28 enc), 4 Test C cases (24 enc).
+  65 cases total in v1 (post-Session 12 absorption of 5 new run3 cases:
+  Gust_043-047, case_ids G-0.50_D1.00_Y+0.40, G+0.50_D1.50_Y+0.40,
+  G+2.00_D1.50_Y-0.40, G-3.00_D1.50_Y+0.20, G-2.00_D1.50_Y-0.20; on top of
+  the Session-9-era 60-case snapshot; see HANDOFF.md D89).
   Baseline (no gust) is in `train` (encounters 0-3) and Test A (encounters 4-5) like
   any other periodic case; it is also flagged `is_calibration_reference: true` so
   calibration tooling can still identify the no-gust reference. Within training cases,
   Test A holds last 2 of 6 (periodic) or last 1 of 4 (run3) encounters:
-  65 encounters total.
+  70 encounters total.
+- Wake observable cache train_stats (`_train_stats.json` under
+  `${VORTEX_JEPA_CACHE}/v1/wake_observables/`) was recomputed when the 5 new
+  cases landed in Session 12. The shift vs the Session 11 stats is non-trivial:
+  enstrophy_scalar std +17%, patch_signed/patch_signed_spectrum std +7.9%,
+  wake_coarse_pool std +7.7%. The Session 11 backup is kept at
+  `_train_stats_v1.3_backup.json` for reproducing the W0_C_lam100 wake
+  observable head numerics; new encoder retrains (Session 12 Directions C/D/E/F)
+  use the new stats.
 - |G| = 3 stays in training. Test C is G = +4 only. Periodic trailing partials discarded.
 - Impact frame ~ 40 (vortex centroid crosses LE at t ~ 1.965 t/c). QC across the cached
   partition v1: vorticity argmax mean = 40.8, force argmax mean = 38.8 over [25, 55].
@@ -486,6 +496,8 @@ Auto-fallback rule (hard-coded in `src/training/train_jepa.py`):
 - `SESSION10_MULTISCALE_DECODER.md` / `SESSION10_REPORT.md`: Session 10 plan and outcomes (LapFiLM + CoordMLP decoder family)
 - `SESSION11_REPORT.md`: Session 11 wake-head success (W0_C_lam100, PCA k=12, Isomap, CV-honest probe)
 - `SESSION12_CRISP_WAKE.md`: Session 12 plan -- six directions to push wake from blurry to crisp (PRF 2026 SL loss, GAN refinement, extended lambda_wake, 288/512-D wake targets, d=64 latent, total-correlation penalty)
+- `SESSION12_REPORT.md`: Session 12 report (Directions A-F results, AeroJEPA prior work, recalibration finding D98)
+- `SESSION13_REPORT.md`: Session 13 report (SL re-evaluation of every Session 12 encoder; E d=64 + SL is the headline; 6/9 Test B and 9/9 Test C SL retrains meet PRF "λ-ratio ≤ 2" criterion)
 - `26js-tpg4.pdf`: Balasubramanian, Cremades, Vinuesa, Tammisola, "Sharper Predictions: The role of loss functions for enhanced turbulent-flow sensing," PRF 11, 044907 (2026). Critical reference for Session 12 Direction A; SL loss formulation in Equations (6)-(8).
 - `configs/splits/split_v1.json`: locked data split with rationales as inline keys
 - `data_manifest/raw_cases_inventory.yaml`: data parser manifest
