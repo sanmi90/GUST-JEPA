@@ -301,3 +301,121 @@ class AutoregressivePredictor(nn.Module):
             z_hat = self.forward(z_full, cond)
             z_full = torch.cat([z_full, z_hat[:, -1:, :]], dim=1)
         return z_full
+
+
+class ReversePredictor(nn.Module):
+    """Reverse-factorisation transformer: forces -> encoder latents.
+
+    Maps a time series of per-frame force coefficients ``(C_L(t), C_D(t))``
+    plus the static episode descriptor ``c = (G, D, Y)`` to the corresponding
+    frozen-encoder latent ``z_t in R^latent_dim``. The encoder ``E`` is held
+    frozen during training; the target is ``z_t = E(omega_t)`` (Session 14
+    Thrust 5).
+
+    Architecturally identical to :class:`AutoregressivePredictor` (DiT-style
+    AdaLN-Zero blocks, RoPE on Q/K, causal mask) except:
+
+    - the input embedding is ``Linear(input_dim=2, hidden_dim)`` so the
+      transformer ingests force time-series instead of latent time-series, and
+    - the BatchNorm on the output head is OPTIONAL via ``output_norm``. The
+      reverse predictor regresses against a (BatchNorm-projected) target
+      latent so passing the prediction through another BatchNorm is
+      unnecessary; keep the default ``output_norm="none"``.
+
+    The causal mask remains: prediction of ``z_t`` only sees
+    ``(C_L, C_D)[<=t]`` (and the static ``c``), matching the JEPA
+    encoder-as-causal-observer semantics used in the forward predictor.
+    """
+
+    def __init__(
+        self,
+        latent_dim: int = 64,
+        input_dim: int = 2,
+        cond_dim: int = 3,
+        hidden_dim: int = 384,
+        depth: int = 6,
+        heads: int = 16,
+        mlp_ratio: float = 4.0,
+        dropout: float = 0.1,
+        max_seq_len: int = 32,
+        output_norm: str = "none",
+    ) -> None:
+        super().__init__()
+        if cond_dim < 0:
+            raise ValueError(f"cond_dim must be >= 0; got {cond_dim}")
+        if input_dim <= 0:
+            raise ValueError(f"input_dim must be > 0; got {input_dim}")
+        if output_norm not in ("none", "batchnorm"):
+            raise ValueError(
+                f"output_norm must be 'none' or 'batchnorm'; got {output_norm!r}"
+            )
+        self.latent_dim = int(latent_dim)
+        self.input_dim = int(input_dim)
+        self.cond_dim = int(cond_dim)
+        self.hidden_dim = int(hidden_dim)
+        self.max_seq_len = int(max_seq_len)
+        self.output_norm = output_norm
+
+        self.embed = nn.Linear(input_dim, hidden_dim)
+        if self.cond_dim > 0:
+            self.cond_mlp: nn.Module = nn.Sequential(
+                nn.Linear(cond_dim, hidden_dim),
+                nn.SiLU(),
+                nn.Linear(hidden_dim, hidden_dim),
+            )
+            block_cls = PredictorBlock
+        else:
+            self.cond_mlp = nn.Identity()
+            block_cls = UnconditionedPredictorBlock
+        self.blocks = nn.ModuleList(
+            [
+                block_cls(
+                    hidden_dim=hidden_dim,
+                    heads=heads,
+                    mlp_ratio=mlp_ratio,
+                    dropout=dropout,
+                    max_seq_len=max_seq_len,
+                )
+                for _ in range(depth)
+            ]
+        )
+        layers: list[nn.Module] = [nn.Linear(hidden_dim, latent_dim)]
+        if output_norm == "batchnorm":
+            layers.append(nn.BatchNorm1d(latent_dim))
+        self.out_proj = nn.Sequential(*layers)
+
+    def forward(self, forces: Tensor, cond: Tensor | None = None) -> Tensor:
+        """Predicts the latent trajectory from the force trajectory.
+
+        Args:
+            forces: ``(B, T, input_dim)`` per-frame (C_L, C_D) (default
+                ``input_dim = 2``). Already standardised by the dataset.
+            cond: ``(B, cond_dim)`` static episode descriptor; broadcast
+                internally to ``(B, T, hidden_dim)``. Required when
+                ``cond_dim > 0``.
+
+        Returns:
+            ``z_hat`` of shape ``(B, T, latent_dim)``. ``z_hat[:, t, :]`` is
+            the predicted encoder latent at frame ``t``, depending causally
+            on ``forces[:, :t + 1, :]`` and the static ``cond``.
+        """
+        B, T, F = forces.shape
+        if F != self.input_dim:
+            raise ValueError(
+                f"forces.shape[-1]={F} does not match input_dim={self.input_dim}"
+            )
+        if T > self.max_seq_len:
+            raise ValueError(
+                f"sequence length {T} exceeds max_seq_len={self.max_seq_len}"
+            )
+        x = self.embed(forces)
+        if self.cond_dim > 0:
+            if cond is None:
+                raise ValueError("cond is required when ReversePredictor cond_dim > 0")
+            c_seq = self.cond_mlp(cond).unsqueeze(1).expand(-1, T, -1)
+        else:
+            c_seq = None
+        for block in self.blocks:
+            x = block(x, c_seq)
+        out = self.out_proj(x.flatten(0, 1))
+        return out.view(B, T, -1)

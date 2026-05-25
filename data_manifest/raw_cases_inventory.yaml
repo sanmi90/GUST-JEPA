@@ -48,9 +48,9 @@ parser:
 # Summary.
 # -------------------------------------------------------------
 summary:
-  n_cases_total: 65
+  n_cases_total: 72
   n_cases_periodic: 21
-  n_cases_run3: 44
+  n_cases_run3: 51
   n_parse_errors: 0
   n_duplicate_case_ids: 0
 
@@ -901,4 +901,95 @@ cases:
     Y: -0.20
     Y_from_y_file: -0.199939
     Y_from_x_file: -0.202545
+
+  - filename: Gust_048_x-1.989_y-0.290_s2.0_d1.0.h5
+    relative_path: data/raw/periodic/run3/Gust_048_x-1.989_y-0.290_s2.0_d1.0.h5
+    source_group: run3
+    n_frames: 480
+    n_encounters_full: 4
+    trailing_partial_frames: 0
+    case_id: G+2.00_D1.00_Y+0.20
+    G: +2.00
+    D: 1.00
+    Y: +0.20
+    Y_from_y_file: +0.199939
+    Y_from_x_file: +0.198411
+
+  - filename: Gust_049_x-1.941_y-0.484_s-2.0_d1.0.h5
+    relative_path: data/raw/periodic/run3/Gust_049_x-1.941_y-0.484_s-2.0_d1.0.h5
+    source_group: run3
+    n_frames: 480
+    n_encounters_full: 4
+    trailing_partial_frames: 0
+    case_id: G-2.00_D1.00_Y+0.00
+    G: -2.00
+    D: 1.00
+    Y: +0.00
+    Y_from_y_file: +0.000000
+    Y_from_x_file: -0.000000
+
+  - filename: Gust_050_x-1.892_y-0.678_s0.5_d0.5.h5
+    relative_path: data/raw/periodic/run3/Gust_050_x-1.892_y-0.678_s0.5_d0.5.h5
+    source_group: run3
+    n_frames: 480
+    n_encounters_full: 4
+    trailing_partial_frames: 0
+    case_id: G+0.50_D0.50_Y-0.20
+    G: +0.50
+    D: 0.50
+    Y: -0.20
+    Y_from_y_file: -0.199939
+    Y_from_x_file: -0.202545
+
+  - filename: Gust_051_x-1.941_y-0.484_s0.5_d1.5.h5
+    relative_path: data/raw/periodic/run3/Gust_051_x-1.941_y-0.484_s0.5_d1.5.h5
+    source_group: run3
+    n_frames: 480
+    n_encounters_full: 4
+    trailing_partial_frames: 0
+    case_id: G+0.50_D1.50_Y+0.00
+    G: +0.50
+    D: 1.50
+    Y: +0.00
+    Y_from_y_file: +0.000000
+    Y_from_x_file: -0.000000
+
+  - filename: Gust_052_x-1.892_y-0.678_s3.0_d1.0.h5
+    relative_path: data/raw/periodic/run3/Gust_052_x-1.892_y-0.678_s3.0_d1.0.h5
+    source_group: run3
+    n_frames: 480
+    n_encounters_full: 4
+    trailing_partial_frames: 0
+    case_id: G+3.00_D1.00_Y-0.20
+    G: +3.00
+    D: 1.00
+    Y: -0.20
+    Y_from_y_file: -0.199939
+    Y_from_x_file: -0.202545
+
+  - filename: Gust_053_x-1.941_y-0.484_s3.0_d0.5.h5
+    relative_path: data/raw/periodic/run3/Gust_053_x-1.941_y-0.484_s3.0_d0.5.h5
+    source_group: run3
+    n_frames: 480
+    n_encounters_full: 4
+    trailing_partial_frames: 0
+    case_id: G+3.00_D0.50_Y+0.00
+    G: +3.00
+    D: 0.50
+    Y: +0.00
+    Y_from_y_file: +0.000000
+    Y_from_x_file: -0.000000
+
+  - filename: Gust_054_x-1.916_y-0.581_s3.0_d1.5.h5
+    relative_path: data/raw/periodic/run3/Gust_054_x-1.916_y-0.581_s3.0_d1.5.h5
+    source_group: run3
+    n_frames: 480
+    n_encounters_full: 4
+    trailing_partial_frames: 0
+    case_id: G+3.00_D1.50_Y-0.10
+    G: +3.00
+    D: 1.50
+    Y: -0.10
+    Y_from_y_file: -0.099970
+    Y_from_x_file: -0.103339
 
