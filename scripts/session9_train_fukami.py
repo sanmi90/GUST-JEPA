@@ -442,8 +442,22 @@ def main() -> None:
         # Force num_workers=0 to avoid persistent-worker fork issues when we
         # swap the collate_fn after loader construction.
         args.num_workers = 0
+        # FIX (Session 18): bypass the dataset's pipeline application so the
+        # wrapper is the only one normalising. The dataset's
+        # `omega_pipeline_manifest` was added in D85 (Session 11) AFTER the
+        # FukamiAEWrapper was originally written; the two layers now stack
+        # and double-normalise the omega field. Concretely: dataset divides
+        # by 3-sigma once (std 0.245), wrapper divides again (std 0.023), so
+        # the model trains at 1/10 scale and eval is OOD by 10x → predicted
+        # field is amplitude-compressed by ~10x → SSIM ~0.16, eps_vol ~0.99.
+        # Disabling the dataset's pipeline (manifest=None) and keeping the
+        # wrapper's restores single normalisation.
+        _saved_manifest_for_wrapper = args.omega_pipeline_manifest
+        args.omega_pipeline_manifest = None
     train_loader = make_train_loader(args)
     test_b_loader = make_test_b_loader(args)
+    if omega_pipeline is not None:
+        args.omega_pipeline_manifest = _saved_manifest_for_wrapper
     # Swap to the Fukami collate (carries case_ids + encounter_indices) when
     # an OmegaPipeline is attached so the wrapper can look up per-encounter
     # clip thresholds.
