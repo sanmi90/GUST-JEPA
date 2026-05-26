@@ -5529,3 +5529,158 @@ Submission plan: draft as a Nat. Commun. article (~6500 words); if peer
 review pushes back on the breadth of the four findings, fall back to JFM
 where the Markov-closure and structure-discovery findings can be split
 into two adjacent papers.
+
+
+### D118-bis: Exp 1 (a-bis) -- (G, D, Y) IS recoverable from z, just NONLINEARLY (2026-05-26, Session 16, post-Day-1 user-prompted follow-up)
+
+Triggered by user question after D118: "Instead of PLS can not be used a
+isomap or MDS? or even with a KNN or RBF?". Ran six methods on the same
+production E d=64 impact-frame latents:
+
+| Method | Test B G | Test B D | Test B Y | Test B mean |
+|---|---|---|---|---|
+| PLS-3 (recipe-locked, D118) | 0.71 | 0.16 | -0.12 | 0.25 |
+| Ridge CV (linear, 64-D) | 0.90 | 0.79 | 0.52 | 0.74 |
+| Isomap-3 + Ridge (best k=10) | 0.66 | 0.30 | -0.08 | 0.29 |
+| KernelPCA(RBF, d=3) + Ridge (best gamma=0.01) | 0.68 | 0.35 | -0.21 | 0.27 |
+| KNN CV (best k_per_param 5/3/3, distance) | 0.91 | 0.62 | -0.17 | 0.45 |
+| **KernelRidge(RBF) CV (best alpha=0.1, gamma 0.05/0.01/0.05)** | **0.96** | **0.74** | **0.73** | **0.81** |
+
+Hyperparameters chosen by 5-fold CV on train only -- no test-set selection.
+
+**Headline**: the encoder DOES encode (G, D, Y). Specifically Y, which
+was -0.12 under PLS-3 and 0.52 under linear Ridge, jumps to 0.73 under
+RBF kernel regression. The encoded Y information is real but lives in a
+nonlinear subspace of z.
+
+**Three corrections to the D118 framing**:
+
+1. **PLS-3 fails because of the LINEAR-subspace assumption, not because the
+   encoder lacks parameter information.** Linear methods on the full 64-D z
+   (Ridge mean 0.74) already substantially beat PLS-3 (0.25). Nonlinear
+   methods on the full z (KRR mean 0.81) close most of the remaining gap.
+
+2. **Reducing to 3-D BEFORE regression LOSES information** -- Isomap-3 and
+   KernelPCA-3 both underperform Ridge on the full 64-D z. The encoder does
+   not concentrate (G, D, Y) into a 3-D subspace (linear OR nonlinear); it
+   spreads them across all 64 dimensions, with Y in the highest-curvature
+   parts of the manifold.
+
+3. **D120 framing needs softening**: "state encoder, not parameter encoder"
+   should become "state encoder + nonlinearly-accessible parameter
+   information". Exp 2's MLP probe failed on Y (test_b R^2 -0.21, train 0.91)
+   because the 3-hidden-layer MLP overfit the 180-sample train pool;
+   KernelRidge's RBF-smoothness regularization generalizes where the MLP
+   does not. The CV-honest comparison should report both probes.
+
+**OOD (Test C, G=+4)** is uniformly hard: every method gives Y R^2 < 0
+and G R^2 = 0. The encoder's nonlinear parameter map does NOT extrapolate
+beyond the training envelope. This is a separate finding from the
+in-distribution structure.
+
+**Implications for the paper:**
+- Section 5.10 (D118): keep the PLS-3-fail headline AND the canonical-
+  manifold + seed-arbitrary-basis claim. Add a paragraph: "PLS-3 fails
+  not because the encoder lacks (G, D, Y) information but because that
+  information lives in a nonlinear subspace; CV-honest KernelRidge(RBF)
+  reaches Test B Y R^2 = 0.73."
+- Section 5.12 (D120): soften the dichotomy to "state encoder with
+  nonlinearly-accessible parameter information".
+- The seed-arbitrary linear basis claim survives unchanged; we did not
+  re-test it on the 3 seed retrains here but the LINEAR-coordinate
+  argument is unaffected by nonlinear recovery from the full latent.
+
+Files: outputs/session16/exp1/{exp1a_bis_nonlinear.json,
+exp1a_bis_cv.json, exp1a_bis_finding.json}; scripts/session16/
+{exp1a_bis_nonlinear.py, exp1a_bis_cv.py}.
+
+
+### D118-ter: Exp 1 (a-ter) -- nonlinear (G, D, Y) recovery is SEED-STABLE; regularized MLP confirms Exp 2 finding was overfitting; Isomap does not climb with d (2026-05-26, Session 16, post-D118-bis user-prompted follow-up)
+
+Three follow-ups to D118-bis:
+
+**(a) Per-seed KernelRidge(RBF) across the 4 production + Thrust-6 seed retrains**:
+
+| Seed | Test B G | Test B D | Test B Y | mean |
+|---|---|---|---|---|
+| production | 0.960 | 0.737 | 0.731 | 0.809 |
+| seed0 | 0.958 | 0.761 | 0.767 | 0.829 |
+| seed1 | 0.961 | 0.716 | 0.682 | 0.786 |
+| seed2 | 0.958 | 0.674 | 0.773 | 0.802 |
+| std | 0.002 | 0.037 | 0.042 | 0.018 |
+
+**The nonlinear recoverability of (G, D, Y) is seed-stable.** Combined with
+D118 Part (c) (LINEAR PLS/PCA bases overlap at random-baseline level
+cos^2 ~ 0.05), this gives the cleanest paper headline available so far:
+
+> **The JEPA encoder learns a CANONICAL nonlinear parameter-extraction
+function (Y R^2 std 0.04 across 4 seeds) whose linear coordinate
+representation is seed-arbitrary (PLS/PCA basis cos^2 ~ random baseline).**
+
+**(b) Regularized MLP probe** (3 hidden x 256, weight_decay 1e-2,
+early stopping on test_a with patience 400 iters), trained on
+production encoder:
+
+| Target | Test B R^2 | Test C R^2 | best_iter | (Exp 2 MLP test_b for comparison) |
+|---|---|---|---|---|
+| G | 0.979 | 0.000 | 750 | 0.774 |
+| D | 0.875 | 0.667 | 300 | 0.600 |
+| Y | 0.607 | -0.796 | 350 | -0.205 |
+
+The Exp 2 "MLP fails on Y" finding (test_b R^2 -0.21) was a
+regularization artefact. With weight_decay 1e-2 and early stopping, the
+MLP reaches Y test_b R^2 = 0.61 -- still below KernelRidge (0.73) but
+qualitatively different from -0.21. The Exp 2 probe sweep therefore
+underestimated the encoder's parameter content; the state-vs-parameter
+dichotomy in D120 needs softening.
+
+On D the regularized MLP actually BEATS both Ridge (0.79) and
+KernelRidge (0.74) on Test B (0.875) and dramatically beats both on
+Test C OOD (0.667 vs 0.11 and 0.19). The MLP's local-coordinate
+nonlinearity extrapolates the D axis better than the smoother
+KernelRidge.
+
+**(c) Isomap d sweep** (n_components in (3, 5, 8, 12), n_neighbors=10)
++ Ridge:
+
+| d | Test B G | Test B D | Test B Y | mean |
+|---|---|---|---|---|
+| 3 | 0.655 | 0.295 | -0.080 | 0.290 |
+| 5 | 0.624 | 0.273 | 0.275 | 0.391 |
+| 8 | 0.628 | -0.035 | 0.077 | 0.223 |
+| 12 | 0.608 | 0.301 | -0.003 | 0.302 |
+
+Isomap embedding + linear ridge does NOT climb with d -- mean R^2 peaks
+at d=5 (0.39) and stays below the linear Ridge baseline on full 64-D z
+(0.74). The encoder's nonlinear parameter information is not aligned
+with the manifold's geodesic structure that Isomap captures. The
+canonical 3-D intrinsic manifold (D103) and the nonlinear parameter
+encoding live in DIFFERENT geometric structures of the latent space:
+the intrinsic dim is ~3 by curvature-agnostic estimators (PCA / LB /
+Two-NN), but parameter information is spread across all 64 dimensions
+in a way Isomap cannot un-tangle.
+
+**Implications for the paper**:
+
+1. **D118 headline** (canonical manifold, arbitrary basis) becomes a
+clean *two-part theorem*: linear coordinates are seed-arbitrary
+(cos^2 ~ random); nonlinear recoverability is seed-canonical (Y R^2
+std 0.04). The encoder learns a stable parameter-extraction function;
+no particular linear projection of that function is identifiable.
+
+2. **D120 framing** (state encoder, not parameter encoder) needs to be
+softened: with the right probe (KernelRidge or regularized MLP), the
+parameters are recoverable from z. The right framing is "state explicit,
+parameters implicit through nonlinear curvature".
+
+3. **Section 5.12 paper claim** should re-rank the 14 Exp 2 targets
+using the regularized MLP and KernelRidge probes alongside the original
+3-layer unregularized MLP. Expect Y, D, G to climb several positions.
+
+4. **D118 + D118-bis + D118-ter together** are the strongest claim of
+the paper. Worth its own section.
+
+Files: outputs/session16/exp1/{exp1a_ter_followups.json,
+exp1a_bis_finding.json, exp1a_bis_cv.json, exp1a_bis_nonlinear.json};
+scripts/session16/{exp1a_bis_nonlinear.py, exp1a_bis_cv.py,
+exp1a_ter_followups.py}.
