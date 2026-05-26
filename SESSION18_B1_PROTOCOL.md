@@ -32,9 +32,138 @@ downsampling). All baselines work in the same pixel space.
 Frame sampling: identical impact-aware sampler used by the JEPA training
 loop (70% impact-aware, 30% uniform, sub-trajectory length L = 32).
 
-Observable head targets: future C_L at deltas (8, 16, 24) frames from
-the sampled subsequence's last frame. Same target structure for all
-baselines that train a lift head.
+Observable head targets: per-baseline canonical lift target. The
+JEPA production checkpoint and the Fukami AE retrains both predict
+the CURRENT-FRAME C_L (delta = 0); see "Loss configurations and the
+documented asymmetry" section below for the per-baseline objective.
+
+## Loss configurations and the documented asymmetry
+
+The three baselines (JEPA, Fukami AE, POD) use DIFFERENT TRAINING LOSSES
+because each method has a canonical recipe that defines what the method
+IS. Forcing them onto a single loss would mean "this is no longer the
+JEPA / Fukami AE we are claiming to compare against." The fairness rule
+is therefore:
+
+1. Each baseline uses its OWN published / project-locked loss recipe.
+2. All baselines see the SAME data, the SAME ω-pipeline preprocessing,
+   the SAME train/test_a/test_b/test_c split, the SAME impact-aware
+   sampler.
+3. The DOWNSTREAM comparison is on a COMMON transformer predictor
+   (identical architecture and recipe per "Common transformer
+   predictor" section).
+4. Every term in every loss is documented below with its motivating
+   HANDOFF.md entry. Reviewers can audit term-by-term.
+
+### JEPA d=64 production loss
+
+Total objective at training time, with weights pulled from
+`outputs/runs/session12/S12_E_d64/encoder/checkpoint_iter020000.pt`:
+
+```
+L_JEPA = L_pred                                              (weight 1.0; teacher-forced 1-step in latent space)
+       + 0.5  * L_roll                                       (open-loop rollout, H_roll = 8; V-JEPA 2-AC recipe)
+       + 0.01 * SIGReg(z)                                    (anti-collapse on the BatchNorm-projected latent)
+       + 0.01 * MSE(C_L(t), C_L_hat(t))                      (lift-augmentation head, current-frame; delta = 0)
+       + 1.0  * SmoothL1(wake_target_t, wake_hat_t)          (patch_signed_spectrum 80-D wake observable head)
+```
+
+Justifications, per HANDOFF.md entry:
+
+- L_pred + 0.5 * L_roll: CLAUDE.md "Locked decisions, Training"; the
+  V-JEPA 2-AC recipe transposed to our setting per
+  `src/training/scheduled_sampling.py` docstring. Teacher-forced one-step
+  loss over T-1 = 31 positions of the sub-trajectory plus an H_roll = 8
+  open-loop rollout with fixed coefficient 0.5.
+
+- 0.01 * SIGReg(z): D5 (SIGReg with auto-fallback to VICReg, locked
+  Session 2), D13 (LeWM Appendix A formulation, no N multiplier),
+  D17 (BatchNorm projection required by SIGReg). The lambda_sigreg
+  value is the locked production weight; the auto-fallback to VICReg
+  did NOT fire on the S12_E_d64 run.
+
+- 0.01 * MSE(C_L(t), C_L_hat(t)) at delta = 0: D37 (Session 6,
+  observable head added as auxiliary loss with weight eta = 0.01).
+  Quote: "with eta = 0.01 ... the observable term contributes about
+  a percent of the total loss at convergence -- the head is a weak
+  guidance signal, not a primary supervision target." Delta = 0
+  (current-frame C_L) matches Fukami's published recipe.
+
+- 1.0 * SmoothL1(wake_target_t, wake_hat_t) on patch_signed_spectrum:
+  D81-D84 (Session 11 Track 1 W0_C_lam100, the winning JEPA + decoder
+  configuration on this flow). Lambda_wake = 1.0 was reached by
+  extending the original Session 11 lambda ladder beyond its max of
+  0.30 after the W0_C_lam30 result showed visible wake reconstruction
+  for the first time. The patch_signed_spectrum mode produces an 80-D
+  target by sampling signed-vorticity patches on a coarse wake grid.
+
+### Fukami AE training loss (paper-faithful)
+
+Reference: Fukami and Taira, "Grasping Extreme Aerodynamics on a
+Low-Dimensional Manifold," arXiv:2305.08024 (Phys. Rev. Fluids 10,
+084703, 2025), equation 3. Verified via arxiv MCP during Session 18.
+
+```
+L_Fukami = ||q - q_hat||_2^2                                  (L2 vorticity-field reconstruction)
+         + beta * ||C_L - C_L_hat||_2^2                       (lift-augmentation; beta = 0.05 per L-curve analysis)
+```
+
+with beta = 0.05 and the lift head outputting a single scalar C_L at
+the same frame as the input vorticity (Table S.1, "Output 2 (Lift
+coefficient)", Data size (1)). No anti-collapse term, no rollout term,
+no wake observable head in the original Fukami AE.
+
+Identical knobs across d = 3, 32, 64 (only `--d` varies):
+
+- ω-pipeline preprocessing (matches JEPA).
+- recon_loss_type = mse (matches the L2 reconstruction term in eqn 3).
+- lambda_recon = 1.0, lambda_lift = 0.05.
+- observable_head_deltas = [0] (single-scalar current C_L).
+- ReLU + GroupNorm + bf16 instead of strict-paper tanh + no GroupNorm
+  + fp32. The strict-paper variant gives Test B probe delta of -0.45
+  on this Re=5000 flow (CLAUDE.md "Things to NOT do"); the activation
+  + norm + precision adaptation preserves Fukami's objective while
+  making training numerically stable on RTX 6000 Blackwell.
+
+### POD training loss (none)
+
+POD is closed-form. Snapshot SVD on the same ω-pipeline-normalised
+train frames produces the d-rank truncated basis. No training loss
+exists; nothing to be "fair" to.
+
+### The asymmetries that survive
+
+After enforcing same data + same preprocessing + same split, three
+loss-side asymmetries remain:
+
+1. JEPA has L_pred + 0.5 * L_roll. Fukami AE has none. POD has none.
+   Each method's objective IS its identity; matching them would
+   require constructing a new method that isn't the published one.
+
+2. JEPA has 0.01 * SIGReg(z). Fukami AE has none (its latent
+   regularisation comes from the bottleneck dimension and lift loss).
+   POD has none (the basis is orthonormal by construction).
+
+3. JEPA has the wake observable head (Session 11 W0_C_lam100
+   W0_C_lam100, lambda_wake = 1.0). Fukami AE does not (the original
+   paper does not have this; the Session 11 attempt to add it to
+   Fukami AE in D86 broke training and was abandoned). POD does not.
+
+These asymmetries are inherent to the method comparison the paper
+is making. Each baseline gets ITS CANONICAL CONFIGURATION. The
+methods appendix tabulates all weights with HANDOFF.md citations.
+
+The CONSEQUENCE: the comparison is not "which loss is better at the
+same objective"; it is "which low-dimensional representation, trained
+under its method-defining recipe, produces the best downstream
+physical-Markov closure when the same transformer predictor is
+trained on top." This is the cleanest scientifically meaningful
+comparison given the methods themselves are structurally different.
+
+The downstream transformer-predictor stage IS strictly uniform (see
+"Common transformer predictor" section): same architecture, same
+optimiser, same iter budget, only the input latent_dim varies. This
+is where the fairness gates apply.
 
 ## Fukami AE (B1 Part a)
 
