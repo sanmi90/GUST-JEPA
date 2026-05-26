@@ -279,9 +279,9 @@ class FukamiAEWrapper(nn.Module):
         self.lambda_recon = lambda_recon
         self.lambda_lift = lambda_lift
         self.omega_scale = float(omega_scale)
-        if recon_loss_type not in {"mse", "l1", "charbonnier", "multiscale"}:
+        if recon_loss_type not in {"mse", "l1", "charbonnier", "multiscale", "l2norm"}:
             raise ValueError(f"Unknown recon_loss_type {recon_loss_type!r}; "
-                             "choose mse / l1 / charbonnier / multiscale.")
+                             "choose mse / l1 / charbonnier / multiscale / l2norm.")
         self.recon_loss_type = recon_loss_type
         self.charbonnier_epsilon = float(charbonnier_epsilon)
         # Active-pixel mask (training only). When > 0, the per-pixel loss is
@@ -400,8 +400,22 @@ class FukamiAEWrapper(nn.Module):
           linear above eps (L1-like robustness for sparse high-magnitude
           features). Single eps hyperparameter, set to roughly the noise
           floor of the normalized data.
+
+        - ``l2norm``: paper-faithful Fukami loss form (un-squared L2
+          norm per frame, averaged over batch and time). Eqn 6 of
+          arXiv:2305.08024 writes ``||q - q_hat||_2`` literally. Per
+          frame: ``sqrt(sum_pixels (target - pred)^2)``. Per batch:
+          ``mean over (B, T) of per-frame L2 norm``. This DIFFERS from
+          MSE in gradient magnitude and effective beta scaling; expect
+          the L-curve elbow to shift versus MSE.
         """
         err = target - pred
+        # l2norm path: per-frame L2 norm averaged over batch+time. Independent
+        # of the active-pixel weighting (paper does not specify one).
+        if self.recon_loss_type == "l2norm":
+            sum_axes = tuple(range(2, err.dim()))  # (C, H, W) for (B, T, C, H, W)
+            sq_per_frame = (err ** 2).sum(dim=sum_axes)  # (B, T)
+            return sq_per_frame.clamp_min(1e-12).sqrt().mean()
         tau = self.recon_active_threshold
         if tau > 0.0:
             # Active-pixel weighted loss: |target| > tau gets weight 1,

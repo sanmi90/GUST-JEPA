@@ -138,7 +138,7 @@ def parse_args() -> argparse.Namespace:
                         "airfoil-mask-path. Build the manifest with "
                         "scripts/build_omega_pipeline.py.")
     p.add_argument("--recon-loss-type", type=str, default="mse",
-                   choices=["mse", "l1", "charbonnier", "multiscale"],
+                   choices=["mse", "l1", "charbonnier", "multiscale", "l2norm"],
                    help="Per-pixel reconstruction loss. Charbonnier (smooth L1) "
                         "recommended for sparse-vortical DNS where MSE collapses "
                         "the decoder to predict zero.")
@@ -456,6 +456,24 @@ def main() -> None:
         args.omega_pipeline_manifest = None
     train_loader = make_train_loader(args)
     test_b_loader = make_test_b_loader(args)
+    # Test A loader for the diagnostic loop. Test A is same-case held-out
+    # encounters (within training cases), so it matches Fukami's reporting
+    # convention (train/val split within the same case set).
+    from src.data.episode_dataset import EpisodeDataset
+    test_a_ds = EpisodeDataset(
+        partition=args.partition, split="test_a", subtraj_len=args.T,
+        emit_cl_future=(args.observable_head == "cl_future"),
+        cl_future_deltas=tuple(args.observable_head_deltas),
+        omega_pipeline_manifest=args.omega_pipeline_manifest,  # respects the bypass
+    )
+    if len(test_a_ds) > 0:
+        test_a_loader = torch.utils.data.DataLoader(
+            test_a_ds, batch_size=args.B, shuffle=True, num_workers=0,
+            collate_fn=jepa_collate, drop_last=False,
+        )
+    else:
+        test_a_loader = None
+        log("[fukami-train] WARNING: Test A loader is empty; skipping ε diagnostic")
     if omega_pipeline is not None:
         args.omega_pipeline_manifest = _saved_manifest_for_wrapper
     # Swap to the Fukami collate (carries case_ids + encounter_indices) when
@@ -544,6 +562,7 @@ def main() -> None:
 
         if iteration % args.diagnostic_every == 0 and iteration > 0:
             wrapper.eval()
+            diag_payload: dict[str, float] = {}
             with torch.no_grad():
                 tb = move_batch_mixed(next(test_b_iter), device)
                 with torch.autocast(device_type="cuda", dtype=torch.bfloat16, enabled=not args.fp32):
@@ -551,11 +570,50 @@ def main() -> None:
                 z_b = tb_out["z"].float()
                 pr = float((z_b.var(dim=(0, 1)).sum() ** 2) /
                            (z_b.var(dim=(0, 1)) ** 2).sum().clamp_min(1e-8))
-            log(f"[diag iter {iteration}] PR={pr:.2f} L_recon_test_b="
-                f"{tb_out['L_recon'].item():.4f}")
-            _log_metrics({"diag/pr_test_b": pr,
-                          "diag/L_recon_test_b": float(tb_out["L_recon"].item())},
-                         step=iteration)
+                diag_payload["diag/pr_test_b"] = pr
+                diag_payload["diag/L_recon_test_b"] = float(tb_out["L_recon"].item())
+
+                # Test A diagnostic: ε = ||target - pred||_2 / ||target||_2
+                # in RAW omega scale per frame, averaged. Matches Fukami's
+                # paper-reported metric and the user's tracking convention.
+                if test_a_loader is not None:
+                    ta_batch = move_batch_mixed(next(iter(test_a_loader)), device)
+                    omega_ta = ta_batch.get("omega_z", ta_batch.get("omega"))
+                    if omega_ta.dim() == 4:  # (B, T, H, W) needs channel
+                        omega_ta = omega_ta.unsqueeze(2)
+                    ta_batch["omega"] = omega_ta
+                    with torch.autocast(device_type="cuda", dtype=torch.bfloat16, enabled=not args.fp32):
+                        ta_out = wrapper(ta_batch)
+                    # Reconstruct raw-scale prediction to compute ε
+                    if wrapper.omega_pipeline is not None:
+                        omega_raw = wrapper._preprocess_with_pipeline(omega_ta, ta_batch)
+                        omega_norm = wrapper.omega_pipeline.normalize(omega_raw)
+                        with torch.autocast(device_type="cuda", dtype=torch.bfloat16, enabled=not args.fp32):
+                            z_ta = wrapper.encoder(omega_norm)
+                            omega_hat_norm = wrapper.decoder(z_ta)
+                        omega_hat_raw = wrapper.omega_pipeline.unnormalize(omega_hat_norm.float())
+                    else:
+                        omega_raw = wrapper._maybe_clip(omega_ta)
+                        with torch.autocast(device_type="cuda", dtype=torch.bfloat16, enabled=not args.fp32):
+                            z_ta = wrapper.encoder(omega_raw / wrapper.omega_scale)
+                            omega_hat = wrapper.decode(z_ta).float()
+                        omega_hat_raw = omega_hat
+                    # ε per frame in raw scale
+                    err = (omega_raw.float() - omega_hat_raw.float())
+                    sum_axes = tuple(range(2, err.dim()))  # spatial dims
+                    err_norm = (err ** 2).sum(dim=sum_axes).clamp_min(0).sqrt()  # (B, T)
+                    sig_norm = (omega_raw.float() ** 2).sum(dim=sum_axes).clamp_min(1.0).sqrt()
+                    eps_per_frame = err_norm / sig_norm  # (B, T)
+                    eps_mean = float(eps_per_frame.mean().item())
+                    diag_payload["diag/eps_test_a"] = eps_mean
+                    diag_payload["diag/L_recon_test_a"] = float(ta_out["L_recon"].item())
+            msg = (f"[diag iter {iteration}] PR={pr:.2f}  "
+                   f"L_recon_test_b={tb_out['L_recon'].item():.4f}")
+            if "diag/eps_test_a" in diag_payload:
+                msg += (f"  eps_test_a={diag_payload['diag/eps_test_a']:.4f}"
+                        f"  L_recon_test_a={diag_payload['diag/L_recon_test_a']:.4f}")
+            log(msg)
+            _log_metrics(diag_payload, step=iteration)
             wrapper.train()
 
         if iteration > 0 and iteration % args.checkpoint_every == 0:
