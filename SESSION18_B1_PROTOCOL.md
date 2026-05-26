@@ -40,54 +40,40 @@ baselines that train a lift head.
 
 Implementation: `src/baselines/fukami_ae.py` `FukamiAEWrapper`.
 
-Pragmatic recipe choice: each d uses the BEST-EXISTING or
-matched-recipe checkpoint that achieves the strongest reconstruction
-quality on this flow. Recipe varies across d because the data shows
-that no single (loss, lambda_lift, preprocessing) combination wins at
-all d on this Re=5000 mid-plane omega. The fairness constraint is at
-the downstream-predictor stage (identical predictor architecture and
-recipe per Section "Common transformer predictor" below). The per-d
-recipe used is logged in each checkpoint's `args` blob and is
-reproducible from `outputs/runs/session{9,11}/`.
+UNIFIED recipe across d = 3, 32, 64 (no per-d knob varies):
 
-Recipes used in B1 (and why):
+- Activation: `relu` (load-bearing variant per CLAUDE.md; the strict-
+  paper `tanh` + no GroupNorm + fp32 variant gives Test B probe delta
+  of -0.45 on this flow and is excluded from the headline comparison).
+- Conv blocks: GroupNorm enabled (`use_conv_norm=True`), n_groups=4.
+- omega_pipeline: `outputs/data_pipeline/v1/manifest.json` (canonical
+  three-stage pipeline; same as JEPA encoder input).
+- recon_loss_type: `mse`. Charbonnier and multiscale variants were
+  tested in Session 9 and did NOT improve SSIM on this flow under
+  the pipeline preprocessing.
+- lambda_recon = 1.0, lambda_lift = 0.05.
+  Note: lambda_lift = 0.05 ("beta") matches the Session 9 d=3
+  best-existing recipe and approximates the JEPA's
+  observable_head_weight = 0.01 relative scale. The same value is
+  used at d = 3, 32, 64 for strict cross-d fairness.
+- observable_head = `cl_future`, observable_head_deltas = (8, 16, 24).
+- omega_clip = None, omega_clip_pct = None (pipeline clips already).
+- No active-pixel mask (`recon_active_threshold = 0.0`).
+- No wake observable head (`wake_observable_weight = 0.0`).
 
-- d = 3: Session 9 `run_a11_fukami_ae_d3_beta005`.
-  No omega_pipeline (raw / omega_scale=1000), MSE loss, ReLU +
-  GroupNorm, observable_head_deltas=(8,16,24), lambda_recon=1.0,
-  lambda_lift=0.05 (the "beta005" name). Test A SSIM=0.70 / Test B
-  SSIM=0.67. Strongest d=3 result observed.
+All three Fukami AE share architecture (encoder
+`FukamiCNNEncoder` with 1->32->16->8->4 channels and four 2x maxpools,
+288 -> 256 -> 64 -> 32 -> 16 -> d FC chain; mirror decoder; 3-layer
+MLP lift head with output 3 = len(deltas)).
 
-- d = 32: Session 11 `D4_fukami_ae_d32_matched`.
-  omega_pipeline, MSE loss, ReLU + GroupNorm,
-  observable_head_deltas=(8,16,24), lambda_recon=1.0, lambda_lift=1.0.
-  Test A SSIM=0.48 / Test B SSIM=0.40. Strongest d=32 result observed
-  with the canonical preprocessing pipeline.
+Optimizer (same as Fukami's original recipe):
 
-- d = 64: Session 18 retrain (no pre-existing d=64 checkpoint).
-  omega_pipeline, MSE loss, ReLU + GroupNorm,
-  observable_head_deltas=(8,16,24), lambda_recon=1.0, lambda_lift=0.05.
-  Closer to JEPA d=64's observable_head_weight=0.01 ratio than the
-  d=32 recipe.
-
-All three checkpoints use the same encoder architecture
-(`FukamiCNNEncoder` with 1->32->16->8->4 channels and four 2x maxpools,
-plus the 288 -> 256 -> 64 -> 32 -> 16 -> d FC chain) and the same
-decoder structure (mirror image). Only the loss and preprocessing
-hyperparameters differ.
-
-The strict-paper Fukami variant (`tanh` + no GroupNorm + fp32) gives
-Test B probe delta of -0.45 on this flow (CLAUDE.md) and is excluded
-from the B1 comparison. Documented in the methods appendix as a
-negative result on this Re=5000 regime.
-
-Common knobs across the three d values:
-
-- 20,000 training iterations, B = 16, T = 32.
-- AdamW, betas=(0.9, 0.95), weight_decay=0.0 (Fukami's choice).
-- Peak learning rate 1.0e-3, warmup 5%, cosine decay to 5% of peak.
+- AdamW, betas=(0.9, 0.95), weight_decay=0.0.
+- Peak learning rate 1.0e-3.
+- Warmup 5%, cosine decay to 5% of peak.
 - Gradient clip 1.0.
 - bf16 mixed precision on RTX 6000 Blackwell.
+- 20,000 iterations, B = 16, T = 32, partition v1, --all-train.
 
 Verification gate before predictor training:
 
@@ -96,9 +82,13 @@ Verification gate before predictor training:
 
 Outputs: `outputs/session18/exp_b1/fukami_ae_d{3,32,64}/checkpoint_iter020000.pt`
 + `final_eval.json` (Test A, B, C per-encounter MSE, SSIM, eps_volume).
-For d = 3 and d = 32 the checkpoint and final_eval.json are symlinks
-into `outputs/runs/session{9,11}/` so the original artefacts remain
-the source of truth.
+
+Two pre-existing Fukami AE checkpoints (Session 9 `run_a11_fukami_ae_
+d3_beta005` and Session 11 `D4_fukami_ae_d32_matched`) were initially
+considered as drop-in d=3 and d=32 baselines but were retrained under
+this unified recipe to eliminate cross-d preprocessing inconsistencies
+(no-pipeline at d=3, lambda_lift=1.0 at d=32). The retrained checkpoints
+are the ones used in B1.
 
 ## POD (B1 Part b)
 

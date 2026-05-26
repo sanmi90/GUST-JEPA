@@ -25,28 +25,53 @@ export WANDB_PROJECT=vortex-jepa
 python -c "from src.utils.device import require_rtx6000; print(require_rtx6000(gpu_index=0))"
 ```
 
-### 1. Fukami AE training (B1 Part a, ~12h on RTX 6000)
+### 1. Fukami AE training (B1 Part a)
+
+All three d values are trained with the SAME recipe (omega_pipeline +
+MSE + lambda_lift=0.05 + ReLU + GroupNorm + observable deltas
+(8,16,24)). See `SESSION18_B1_PROTOCOL.md` Fukami AE section for the
+locked recipe. The driver `train_fukami_baselines.sh` originally used
+Charbonnier; for B1 fairness use the explicit invocations below
+(`recon-loss-type mse`, `lambda-lift 0.05`).
 
 ```bash
-# d = 3, 32, 64 sequentially on GPU 0 (~4h per d):
-bash scripts/session18/train_fukami_baselines.sh "3 32 64" 0
+# Single card, sequential:
+for d in 3 32 64; do
+    python scripts/session9_train_fukami.py \
+        --gpu 0 --partition v1 --all-train \
+        --max-iters 20000 --seed 0 \
+        --d $d \
+        --B 16 --T 32 \
+        --observable-head cl_future --observable-head-deltas 8 16 24 \
+        --observable-head-weight 1.0 \
+        --lambda-recon 1.0 --lambda-lift 0.05 \
+        --omega-pipeline-manifest outputs/data_pipeline/v1/manifest.json \
+        --recon-loss-type mse \
+        --activation relu \
+        --lr 1e-3 --weight-decay 0.0 --warmup-frac 0.05 --grad-clip 1.0 \
+        --num-workers 4 \
+        --tag-suffix session18_b1_fukami_d${d}_unified \
+        --wandb-mode offline \
+        --output-dir outputs/session18/exp_b1/fukami_ae_d${d}
+done
 
-# Two-card parallel (split across both RTX 6000s):
-bash scripts/session18/train_fukami_baselines.sh "3"  0 &
-bash scripts/session18/train_fukami_baselines.sh "32" 1 &
-wait
-bash scripts/session18/train_fukami_baselines.sh "64" 0
+# Two cards, parallel pair (d=3 + d=32 on GPU 1, d=64 on GPU 0):
+# Same invocation, vary --gpu and --d, launch in background.
 ```
 
-After each d, the verification gate runs automatically. To re-check a
-finished run by hand:
+After each d completes, run the verification gate:
 
 ```bash
 python scripts/session18/verify_fukami_gate.py \
-    --eval-json outputs/session18/exp_b1/fukami_ae_d64/final_eval.json --d 64
+    --eval-json outputs/session18/exp_b1/fukami_ae_d${d}/final_eval.json --d $d
 ```
 
 The gate passes when Test A SSIM_mean >= 0.60 OR Test A ratio_mean < 2.0.
+
+Two pre-existing checkpoints (Session 9 d=3 beta005; Session 11 D4 d=32)
+were rejected for B1 because their recipes deviated from the unified
+protocol (Session 9 d=3 had no pipeline; Session 11 d=32 used
+lambda_lift=1.0).
 
 ### 2. POD basis computation (B1 Part b, ~1h CPU)
 
