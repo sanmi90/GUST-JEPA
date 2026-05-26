@@ -142,6 +142,18 @@ Sanity check on first run
   exists and is readable before any training run starts. Fail fast with a clear
   message if `PREVENT_ROOT` is unset or the path is missing.
 
+Pre-extracted artefacts (reuse instead of re-encoding)
+- Production E d=64 impact-frame and full-trajectory latents:
+  `outputs/session14/latents/S12_E_d64/{train,test_a,test_b,test_c}.npz`
+  with keys `z (n, 64)`, `z_full (n, 120, 64)`, `G`, `D`, `Y`, `case_id`,
+  `encounter_index`, `impact_frame`. Saves ~20 s per script vs re-encoding.
+- 3 Thrust-6 seed retrains for variance analyses:
+  `outputs/runs/session14/thrust6/jepa_d64_seed{0,1,2}/encoder/checkpoint_iter020000.pt`
+  (same architecture and recipe as production; canonical for seed-variance work).
+- Per-frame flow descriptors (centroid, circulation, peak omega, etc.) at
+  `outputs/session16/exp2/per_frame_targets/{split}.npz` -- 14 scalar columns
+  per (encounter, frame) plus z_full mirrored from above.
+
 ## Omega preprocessing pipeline (v1)
 
 The canonical omega_z preprocessor lives at `src/data/omega_pipeline.py` with a
@@ -424,7 +436,14 @@ python scripts/train_decoder.py jepa_checkpoint=outputs/checkpoints/jepa_v1.pt
 python scripts/evaluate_paper.py checkpoint=outputs/checkpoints/jepa_v1.pt
 
 # Tests and style. Session 2 primitives have a 15-test suite in tests/.
-pytest tests/                                            # 15 passed (sigreg, adaln_zero, rope)
+pytest tests/                                            # full suite is SLOW (>5 min); prefer targeted subsets
+# pytest-timeout is NOT installed; use shell `timeout` for hard cutoff:
+timeout 120 pytest tests/test_predictor.py tests/test_encoder.py tests/test_epiplexity.py -q
+
+# Reuse pre-extracted latents (see "Dataset layout") instead of re-encoding (~20 s/script saved).
+# Per-frame flow descriptors for probe experiments live under
+# outputs/session16/exp2/per_frame_targets/{split}.npz.
+
 black --check --line-length 100 src/ tests/
 flake8 --max-line-length=100 src/ tests/                 # ruff not yet installed; flake8 stopgap
 # (Planned) ruff check src/ tests/
@@ -448,6 +467,20 @@ Auto-fallback rule (hard-coded in `src/training/train_jepa.py`):
 - If iteration >= 20k AND PR < 0.3 * d AND probe R^2 for c < 0.7:
   switch SIGReg to VICReg with mu = 25.0, nu = 1.0 (Bardes, Ponce, LeCun, ICLR 2022).
   Log this event prominently to W&B and stdout. Continue training; do not restart.
+
+Probe methodology (Session 16 findings, must be followed)
+- Probing the encoder for (G, D, Y) gives DIFFERENT answers per regime
+  (D118-bis vs D120-bis). IMPACT-frame z encodes parameters nonlinearly
+  (KernelRidge(RBF) CV-honest Y test_b R^2 = 0.73); PER-frame z does not
+  (all probe families test_b Y R^2 < 0). Any new probe script must declare
+  the regime in its docstring; default to IMPACT-frame z for parameter
+  probes and PER-frame z only for state-descriptor probes.
+- Subspace overlap analyses: the random-baseline mean cos^2 for two
+  K-dim subspaces in d-dim ambient space is K/d (= 0.047 for K=3, d=64).
+  Any pairwise cos^2 within ~0.01 of K/d is statistically indistinguishable
+  from random rotations and should NOT be interpreted as overlap. Session 16
+  D118 confirmed PLS/PCA bases across 4 seed retrains overlap at 0.049/0.055,
+  bounding latent-space interpretability claims.
 
 ## Things to NOT do
 
