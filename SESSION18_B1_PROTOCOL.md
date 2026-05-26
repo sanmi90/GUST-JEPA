@@ -187,9 +187,20 @@ Concrete settings:
 
 - omega_pipeline: `outputs/data_pipeline/v1/manifest.json` (canonical
   three-stage pipeline; same as JEPA encoder input).
-- recon_loss_type: `mse` (matches the L2 reconstruction term in
-  equation 3).
-- lambda_recon = 1.0, lambda_lift = 0.05 (Fukami's published beta).
+- recon_loss_type: `l2norm` (per-frame un-squared L2 norm,
+  averaged over batch and time). Matches Fukami eqn 6's `‖q - q̂‖₂`
+  literally. Note: lift loss in `FukamiAEWrapper.forward` is still
+  MSE form, not L2-norm; this loss-form asymmetry means our absolute
+  β values are not directly comparable to Fukami's published β=0.05
+  (the relative balance between reconstruction and lift contributions
+  scales differently). The paper's actual prescription is "choose β
+  by L-curve analysis", and we follow that methodology on our data
+  with our loss normalization. The elbow β* on our L-curve gives the
+  locally-optimal β for B1, which may not equal 0.05 numerically but
+  satisfies the same balance criterion the paper applied.
+- lambda_recon = 1.0, lambda_lift = elbow β* from L-curve sweep on
+  d=3 (transferred to d=32, d=64). β=0.05 is the paper's value but
+  not directly portable to our loss normalization.
 - observable_head = `cl_future`, observable_head_deltas = [0]
   (single-scalar current-frame C_L, matching Fukami's Output 2).
 - omega_clip = None, omega_clip_pct = None (pipeline clips already).
