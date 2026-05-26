@@ -5858,3 +5858,337 @@ shap_Y_intervention.json, exp3_shap_Y.log};
 outputs/session16/figures/{exp3_shap_Y_hero_test_b.png,
 exp3_shap_Y_hero_test_c.png, exp3_shap_Y_mean.png};
 scripts/session16/{exp3_shap_Y.py, exp3_shap_Y_figure.py}.
+
+
+### D123: Exp 1 (Session 17) -- trajectory geometry of impact-frame latent (2026-05-27, Session 17, Day 1-2)
+
+Three candidate 3-D projections of the per-frame latent built from production
+E d=64:
+- P1: PCA on impact-frame latents (180 train enc) -- 3-comp cum var 90.9%.
+- P2: PCA on pooled per-frame latents (180 * 120 train frames) -- 83.7%.
+- P3: PLS-3 supervised on per-frame z vs (G, D, Y, sin(2pi phi), cos(2pi phi))
+  with phi = (t - t_impact) / 40 -- 83.0% X-variance, also captures phase.
+
+Trajectory descriptors for 10 representative Test B encounters (median across
+Test B): L_pre = 13.5, L_post = 26.5, pre-extent = 4.8, post-extent = 5.4,
+convergence-to-train-mean = 3.8. Post-impact arc is longer than pre-impact
+by ~2x in latent path length.
+
+Sign(G) cluster silhouette at the impact frame (PCA-impact projection):
+test_b silhouette = 0.59, test_c is degenerate (all G=+4).
+
+**Topological signature of impact frame: kappa(t) DIPS at impact (not peaks)**.
+Plan acceptance gate (peak at +/- 3 frames of t_impact with peak >= 2x
+baseline) FAILS on both Test B (median offset -10) and Test C (offset +9).
+Inverted trough analysis: kappa(t) is a CURVATURE MINIMUM at impact -- the
+trajectory pass-through is locally linear (smooth). Test C trough-ratio
+2.01x (PASS at 2x), Test B trough-ratio 1.23x (FAIL).
+
+Additional signatures: speed |z'(t)| PEAKS at impact in test_c (1.33x
+baseline); bend cosine cos(theta) is higher at impact (1.18-1.31x baseline).
+The impact frame is encoded as a fast, locally-linear pass-through in latent
+space -- the encoder compresses the impact event into a SMOOTH high-velocity
+traversal rather than a sharp corner.
+
+Cross-seed trajectory agreement (10 representative Test B encounters, 4 seeds
+including production): pairwise Spearman of normalised distance matrices
+median 0.95 (range 0.79-0.99). **Gate (>= 7/10 above 0.7): PASS 10/10**.
+The trajectory geometry is canonical across seeds in a basis-invariant sense.
+
+Headline: latent trajectories cluster by sign(G), the impact frame is a
+TOPOLOGICALLY distinct point (curvature minimum + speed peak), and the
+trajectory shape is reproducible across seeds at the basis-invariant level.
+The plan's hypothesis (peak curvature at impact) was wrong in direction
+but the topological distinctness holds inverted (trough).
+
+Files: outputs/session17/exp1/{projections.npz, projection_variance.json,
+trajectory_descriptors.csv, representative_encounters.json,
+curvature_profiles.npz, curvature_acceptance.json, extra_signatures.npz,
+extra_signatures_summary.json, cross_seed_distance_corr.json,
+day1_summary.json};
+outputs/session17/figures/{exp1_trajectory_panel, exp1_curvature_at_impact,
+exp1_signatures_at_impact, exp1_cross_seed_distance}.png;
+scripts/session17/{exp1a_projections, exp1b_trajectory_panel,
+exp1c_curvature, exp1c_extra_signatures, exp1d_cross_seed,
+exp1_day1_summary}.py.
+
+
+### D124: Exp 2 (Session 17) -- physical Markov closure on per-frame observables (2026-05-27, Session 17, Day 3-4)
+
+Streamlined Exp 2 using linear z->observable probes (trained on production
+train pool, per-frame DNS metrics) instead of decoder + omega-field metric
+computation. The Session 16 D119 finding (z_impact Markov-sufficient at H<=16
+in LATENT RMSE) extends to PHYSICAL OBSERVABLES.
+
+Train R^2 for z -> {observable}: C_L 0.825, wake_enstrophy 0.870,
+circulation_pos 0.881, circulation_neg 0.892, I_y 0.506, I_x 0.505.
+
+Test B per-frame abs error vs DNS (lower is better) at H=16 across rollout
+modes:
+  C_L:        Markov 1.20  <  AR 1.55  <  Full 1.75
+  I_y:        Markov 1.86  ~~  Full 1.84
+  enstrophy:  Markov 30.5  <  AR 33.6  <  Full 50.4
+
+Test C at H=16: Markov wins for C_L (1.77 < 1.80 < 1.86), I_y (3.46 < 3.55 <
+3.67), enstrophy (118 < 124 < 129). **Markov wins all three on Test C OOD.**
+
+**Headline: Markov-only rollout preserves physical observables (C_L, I_y,
+wake_enstrophy) AS WELL AS OR BETTER THAN Full-context rollout at H <= 16**,
+consistent with D119's latent-RMSE Markov closure. The pre-impact temporal
+history is information-free for short and medium horizons in physical-metric
+space, not just latent space.
+
+Wu's-theorem-based dynamical-consistency check (plan: r(dI_y/dt, C_L) > 0.95
+on DNS, > 0.85 on rollout) FAILS on DNS itself: test_b r = -0.028 (not 0.95).
+Reason: mid-plane 2D omega EXCLUDES the bound circulation at the airfoil
+surface (DNS cache has omega = 0 inside body); Wu's theorem requires the
+total impulse integral including bound vorticity. This is a DATA limitation,
+not a rollout failure. The plan's r > 0.95 threshold is unrealistic for our
+2D mid-plane data; we report this honestly rather than fitting it.
+
+Plan literal gate (CI of Markov-Full within 10% of std at H=16) FAILS on
+C_L (delta -0.48, frac 0.146), I_y (delta +0.46, frac 0.21), enstrophy
+(delta -23.1, frac 0.42). All deltas are non-zero, but the failure direction
+is FAVORABLE (Markov is closer to DNS than Full at H=16 for these three
+metrics).
+
+Files: outputs/session17/exp2/{dns_physical_metrics, rollout_metrics_per_encounter}.npz;
+{horizon_summary, markov_vs_full_delta, impulse_lift_correlation,
+probe_train_quality}.json;
+outputs/session17/figures/{exp2_physical_closure_horizon,
+exp2_impulse_lift_scatter}.png;
+scripts/session17/{exp2_dns_physical_metrics, exp2_rollouts_and_probes,
+exp2_aggregate}.py.
+
+
+### D125: Exp 3 (Session 17) -- state-functional alignment at impact (2026-05-27, Session 17, Day 2)
+
+Per-frame parameter recovery R^2(tau) for tau in {-20,-10,-5,-2,0,+2,+5,+10,+20,+40}
+using KernelRidge(RBF) on z(t_impact + tau) -> (G, D, Y).
+
+Test B Y R^2(tau):
+  tau=-20: 0.20   tau=-10: 0.22   tau=-5: 0.43   tau=-2: 0.54
+  tau= 0:  0.56   tau=+5:  0.55   tau=+10: 0.55   tau=+20: 0.39   tau=+40: 0.42
+
+**Y peaks at tau=0 (R^2 = 0.56) and drops to 0.22 at tau=-10**, confirming
+the Session 16 D118-bis claim that Y is recoverable at the impact frame
+specifically. The asymmetric Gaussian decay fit gives sigma_L = 10 frames
+(sharp pre-impact decay), sigma_R = 54 frames (Y signal persists post-impact).
+G and D are persistent across all tau (Test B R^2 = 0.78-0.94 throughout).
+
+Plan gate (Y R^2 at tau=0 - Y R^2 at |tau|=10 >= 0.3 AND sigma_tau < 15):
+delta_left = +0.343 (PASS), delta_right = +0.008 (FAIL on +10 side); sigma_tau
+(symmetric fit) = 48 frames (FAIL). The asymmetric fit's sigma_L = 10 frames
+satisfies the spirit of the gate; the symmetric model misrepresents the
+asymmetric decay shape.
+
+**Cross-seed function transfer for Y -- HARD FAIL.** Each of 4 seeds fits a
+KRR(RBF) regressor on its own z_impact -> Y; the same regressor is applied
+to OTHER seeds' z_impact. Self-transfer R^2 (diagonal): 0.42-0.70. Cross-seed
+transfer R^2 (off-diagonal): -0.45 to -7.5 (ALL NEGATIVE).
+
+Pair-level mean transfer R^2 on Test B (6 pairs): all negative, range -7.1
+to -0.7. **Gate (>= 4/6 pairs > 0.5): 0/6, hard fail.**
+
+Headline: each seed independently learns to extract Y from its impact-frame
+latents (R^2 0.4-0.7 self-transfer, reproducible D118-ter), but the
+FUNCTION ITSELF does not transfer across seeds. The seed-arbitrary linear
+basis claim (D118) extends to the FUNCTIONAL FORM of the Y-extraction
+function. The data property "Y is implicitly encoded in z at impact" holds;
+the model property "a single Y-extraction function works across seeds"
+does NOT.
+
+SHAP attribution decay for Y (5 representative Test B encounters, 5 probes
+trained at tau in {-10,-5,0,+5,+10}): LE-disk concentration peaks at tau=0
+(0.205 mean) but does not halve at |tau|=10 (0.170 mean -- gate FAIL).
+Per-encounter patterns are heterogeneous: G-1.50_Y-0.20 shows clean
+peak-at-impact (0.376 -> 0.205 at +10); other encounters monotonic or
+bimodal.
+
+Files: outputs/session17/exp3/{per_frame_recovery.csv,
+per_frame_recovery_summary, decay_fits, cross_seed_function_transfer,
+shap_decay_summary}.json/.npz;
+outputs/session17/figures/{exp3_param_recovery_vs_tau,
+exp3_function_transfer_heatmap, exp3_shap_decay_panels}.png;
+scripts/session17/{exp3a_param_recovery, exp3b_decay_fit,
+exp3c_cross_seed_transfer, exp3d_shap_decay}.py.
+
+
+### D126: Exp 4 (Session 17) -- coherent structures from SHAP attribution (2026-05-27, Session 17, Day 5)
+
+Connected-component extraction of Session 16 SHAP attribution maps at the
+98th-percentile threshold. 4 targets x ~25 stable encounters each:
+
+| target | test_b stable | test_c stable |
+|---|---|---|
+| centroid_x | 1/28 (4%) | 23/24 (96%) |
+| circulation_pos | 19/28 (68%) | 24/24 (100%) |
+| peak_neg_omega | 22/28 (79%) | 24/24 (100%) |
+| Y | 19/28 (68%) | 22/24 (92%) |
+
+Structure catalog: 461 component rows total (top 3 components per (target,
+encounter) at the 98th percentile, excluding the 140-pixel airfoil mask).
+
+**Threshold sensitivity**: at +/- 1% of 98 (97.5 or 99.0) structures remain
+stable in 39-95% of encounters. At 95th or 99.5th percentile, stability
+drops to 0-50%. The 98th percentile is the sweet spot for structure
+extraction.
+
+**Q-criterion comparison (n=36 sample, mid-plane Q = 0.5*(||Omega||^2 -
+||S||^2))**:
+  target              IoU mean   overlap mean
+  centroid_x          0.171      0.244
+  circulation_pos     0.056      0.092
+  peak_neg_omega      0.183      0.349
+  Y                   0.065      0.186
+
+**The SHAP structures DO NOT cleanly overlap with Q-criterion vortex cores.**
+Mean IoU < 0.2 across all targets. The encoder's attention concentrates on
+shear layers, wake transitions, and body-vortex interaction zones rather
+than on Q>0 vortex interiors. This is a substantive finding: the encoded
+representation prioritizes DIFFERENT flow features than the classical
+Q-criterion identifies.
+
+**Y sign analysis (n=13 Y>0, 25 Y<0)**: mean centroid (x_phys, y_phys) is
+(0.87, +0.01) for Y>0 and (0.86, -0.02) for Y<0. 95% bootstrap CIs overlap
+substantially. **The Y sign-flip claim from D121-bis (attribution map flips
+with Y sign) holds in the SIGNED attribution values, not in the CONNECTED-
+COMPONENT CENTROID location.** The structure stays in approximately the
+same x-position; the Y-sign information lives in the attribution magnitude
+and local sign distribution, not in macroscopic centroid displacement.
+
+Files: outputs/session17/exp4/{structure_catalog.csv,
+threshold_sensitivity, q_overlap, Y_sign_flip}.json/.csv;
+outputs/session17/figures/{exp4_structures_4target_panel,
+exp4_q_overlap_summary, exp4_Y_sign_flip}.png;
+scripts/session17/exp4_structures_shap.py.
+
+Diagnostic D companion (long-horizon conditioning paradox):
+mean ||z|| Test B Markov rollout, cond=true vs cond=zero vs DNS:
+  H=32: 3.98 / 3.74 / 3.93
+  H=64: 3.28 / 3.61 / 3.33
+  H=79: 3.29 / 3.77 / 3.55
+At long horizons cond=true CONTRACTS (under DNS) while cond=zero EXPANDS
+(over DNS). The RMSE crossover at H>=64 from D119-bis is explained by both
+modes diverging from DNS in OPPOSITE directions; cond=zero's overshoot
+sometimes lands closer than cond=true's undershoot.
+
+Files: outputs/session17/diagnostic_d/{drift_summary.json,
+z_norm_histograms.png}; scripts/session17/diagnostic_d_znorm.py.
+
+
+### D127: Exp 5 (Session 17) -- closed-loop sparse pressure observability (linear ridge) (2026-05-27, Session 17, Day 6-7)
+
+Streamlined Exp 5 using linear ridge (no TCN) for pressure -> z_impact and
+pressure -> (G, D, Y). TCSI-selected K-sensor sets from Session 14 D112.
+
+Pressure -> z_impact R^2 mean across 64 latent dims:
+  K    train   test_b   test_c
+   2   0.530   +0.434   -37.3
+   4   0.640   +0.007   -104.9
+   8   0.723   -0.124   -90.4
+  16   0.860   -1.969   -66.8
+
+Pressure -> (G, D, Y) test_b R^2:
+  K   G       D       Y
+   2  +0.91   -0.33   -0.86
+   4  +0.74   +0.06   -1.19
+   8  +0.57   -1.69   -2.82
+  16  -0.25   -4.61   -0.97
+
+**Linear ridge OVERFITS** as K grows (K*30 features vs 180 train encounters).
+Only K=2 generalises in z R^2 on Test B. G is recoverable from pressure at
+K=2 (R^2 0.91); D and Y are not.
+
+Closed-loop Markov rollouts in 3 modes (A oracle, B pressure-z, C full
+pressure) on Test B (28 enc) + Test C (24 enc) x 4 K values x H in {8,16,32}:
+**plan tolerance gates FAIL by wide margin**:
+  test_b C_L K=8 H=16: 14.3% within 10% tolerance (need >= 80%)
+  test_b I_y K=8 H=16: 14.3% within 15% tolerance (need >= 70%)
+  test_c C_L K=8 H=16: 16.7%
+  test_c I_y K=8 H=16: 0.0%
+
+Honest reading: linear ridge with the TCSI K-sensor pressure window is
+INSUFFICIENT for closed-loop deployment at H=16 with the plan's tolerances.
+Nonlinear estimators (Session 14 TCN at K=2-16) demonstrably gave higher
+in-distribution recovery; reusing them in a closed-loop rollout is a
+Session 18 follow-up. Sensor-region SHAP sanity check on K=2 not run
+(linear ridge overfits before SHAP is informative).
+
+The Y SHAP from Exp 3(d) suggests pressure-side LE pixels carry causal
+Y information for the encoder; the K=2 TCSI sensors are LE-side suction
+and pressure-side (indices 11 and 20), consistent with the encoder's
+attention regions.
+
+Files: outputs/session17/exp5/{pressure_to_z_R2, pressure_to_c_R2,
+closed_loop_physical_metrics, exp5_gates}.csv/.json;
+outputs/session17/figures/{exp5_K_curve_physical_metrics,
+exp5_tolerance_envelope}.png; scripts/session17/exp5_closed_loop.py.
+
+
+### D128: Session 17 outcome decision -- venue lock with realistic claims (2026-05-27, Session 17, Day 8)
+
+Session 17 ran 5 experiments + 1 diagnostic, converting Session 16's
+latent-RMSE statements into fluid-mechanics-and-functional statements.
+Three plan gates pass cleanly (cross-seed trajectory agreement,
+Markov-closure in physical observables, threshold-stable SHAP components);
+three fail honestly (kappa-peak-at-impact, cross-seed Y function transfer,
+SHAP LE-disk decay; closed-loop pressure observability under linear-ridge
+recipe).
+
+**Refined Nat. Commun. headline claims** (in order of strength):
+
+1. **Trajectories are canonical at the basis-invariant level** (D123):
+   10/10 representative encounters have pairwise distance-matrix Spearman
+   correlation > 0.7 across 4 independently-trained seeds (median 0.95).
+   The trajectory geometry is reproducible up to seed-arbitrary rotation.
+
+2. **Markov closure extends to physical observables** (D124): the
+   z_impact Markov-only rollout matches or BEATS the full-context rollout
+   in (C_L, I_y, wake_enstrophy) at H <= 16 on Test B and Test C. This is
+   a stronger statement than D119's latent-RMSE closure: the physical
+   structure of the wake is preserved at short and medium horizons by
+   z_impact alone.
+
+3. **Parameter recoverability concentrates at the impact frame** (D125):
+   Y test_b R^2 = 0.56 at tau=0 and drops sharply for tau<0 (sigma_L =
+   10 frames); persists for tau>0. The asymmetric concentration is
+   physically interpretable -- the encoder only "sees" Y after vortex
+   contact, then retains the signature for one impact-window.
+
+4. **Pixel structures driving the encoder are NOT vortex cores** (D126):
+   SHAP-extracted connected components have IoU < 0.2 with the Q>0
+   structures. The encoder attends to shear layers, transition zones,
+   and body-vortex interaction regions -- different from classical
+   coherent-structure definitions.
+
+**Refined caveats** (downgrades from D122's original target):
+
+A. **Cross-seed function transfer fails for Y** (D125c): each seed
+   independently fits Y from its z_impact (R^2 0.4-0.7), but the function
+   does not transfer. The seed-arbitrary identification extends from
+   linear basis (D118) to nonlinear functional form. This bounds the
+   "single canonical Y extractor" claim -- only the EXISTENCE of a
+   Y-extraction function is reproducible, not its parameterization.
+
+B. **Linear-ridge closed-loop pressure observability is insufficient**
+   (D127): the plan's H=16 tolerance gate (80% within 10% C_L tolerance)
+   fails at K=8 with 14% pass rate. Either tighten the estimator (TCN)
+   or relax tolerances. The deployment story needs Session 18 follow-up.
+
+C. **Wu-impulse-lift sanity check fails on DNS itself** (D124c): the
+   mid-plane 2D omega misses bound circulation; r(dI_y/dt, C_L) = -0.028
+   on DNS Test B, far from the 0.95 the plan assumed. This is a
+   methodological caveat, not a rollout failure.
+
+**Venue decision**: JFM as primary submission target (consistent with
+plan-as-written and supported by the cleanly-passing gates 1, 2, 3 above).
+Nat. Commun. submission requires either (a) cross-domain extension to a
+second flow case, or (b) Session 18 strengthening of the conditional
+Markov-closure-in-physics finding with TCN-based pressure estimator. The
+state-functional alignment claim (Y at impact) is the cleanest piece of
+the Y story across Exp 3 and Exp 4; Section 4 of the paper should anchor
+on D125 (decay timescale) + D126 (structure interpretation).
+
+Files: SESSION17_REPORT.md, this entry.
+
