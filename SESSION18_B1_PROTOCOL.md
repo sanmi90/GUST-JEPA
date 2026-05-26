@@ -40,26 +40,46 @@ baselines that train a lift head.
 
 Implementation: `src/baselines/fukami_ae.py` `FukamiAEWrapper`.
 
-UNIFIED recipe across d = 3, 32, 64 (no per-d knob varies):
+PAPER-FAITHFUL recipe across d = 3, 32, 64 (only `--d` varies).
+Reference: Fukami and Taira, "Grasping Extreme Aerodynamics on a Low-
+Dimensional Manifold," arXiv:2305.08024 (Phys. Rev. Fluids 10, 084703,
+2025).
 
-- Activation: `relu` (load-bearing variant per CLAUDE.md; the strict-
-  paper `tanh` + no GroupNorm + fp32 variant gives Test B probe delta
-  of -0.45 on this flow and is excluded from the headline comparison).
-- Conv blocks: GroupNorm enabled (`use_conv_norm=True`), n_groups=4.
+The Fukami training objective (their equation 3):
+
+    w* = argmin_w [ ||q - q_hat||_2 + beta * ||C_L - C_L_hat||_2 ]
+
+Quoted from the paper: "we choose beta = 0.05 based on the L-curve
+analysis [56]". The lift decoder outputs a single scalar C_L at the
+SAME frame as the input vorticity (their Table S.1, "Output 2 (Lift
+coefficient)" with Data size (1)). NOT multi-horizon C_L.
+
+Concrete settings:
+
 - omega_pipeline: `outputs/data_pipeline/v1/manifest.json` (canonical
   three-stage pipeline; same as JEPA encoder input).
-- recon_loss_type: `mse`. Charbonnier and multiscale variants were
-  tested in Session 9 and did NOT improve SSIM on this flow under
-  the pipeline preprocessing.
-- lambda_recon = 1.0, lambda_lift = 0.05.
-  Note: lambda_lift = 0.05 ("beta") matches the Session 9 d=3
-  best-existing recipe and approximates the JEPA's
-  observable_head_weight = 0.01 relative scale. The same value is
-  used at d = 3, 32, 64 for strict cross-d fairness.
-- observable_head = `cl_future`, observable_head_deltas = (8, 16, 24).
+- recon_loss_type: `mse` (matches the L2 reconstruction term in
+  equation 3).
+- lambda_recon = 1.0, lambda_lift = 0.05 (Fukami's published beta).
+- observable_head = `cl_future`, observable_head_deltas = [0]
+  (single-scalar current-frame C_L, matching Fukami's Output 2).
 - omega_clip = None, omega_clip_pct = None (pipeline clips already).
 - No active-pixel mask (`recon_active_threshold = 0.0`).
 - No wake observable head (`wake_observable_weight = 0.0`).
+
+Activation / normalisation adaptation (stability for bf16 mixed
+precision; this is the load-bearing variant per CLAUDE.md):
+
+- Activation: `relu` (Fukami used `tanh` in fp32; switching to ReLU
+  + GroupNorm stabilises the bf16 training).
+- Conv blocks: GroupNorm enabled (`use_conv_norm=True`), n_groups=4.
+
+The strict-paper variant (`tanh` + no GroupNorm + fp32) gives Test B
+probe delta of -0.45 on this Re=5000 flow per CLAUDE.md, so it is
+documented in the methods appendix as a known-broken variant and is
+NOT used in the headline comparison. The (ReLU + GroupNorm + bf16)
+adaptation preserves Fukami's objective while making training
+numerically stable on RTX 6000 Blackwell.
 
 All three Fukami AE share architecture (encoder
 `FukamiCNNEncoder` with 1->32->16->8->4 channels and four 2x maxpools,
