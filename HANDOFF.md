@@ -5684,3 +5684,177 @@ Files: outputs/session16/exp1/{exp1a_ter_followups.json,
 exp1a_bis_finding.json, exp1a_bis_cv.json, exp1a_bis_nonlinear.json};
 scripts/session16/{exp1a_bis_nonlinear.py, exp1a_bis_cv.py,
 exp1a_ter_followups.py}.
+
+
+### D119-bis: Exp 4 cond=0 ablation -- predictor RELIES on AdaLN-Zero conditioning at short horizons; long-horizon stability is paradoxically better without it (2026-05-26, Session 16, post-D118-bis follow-up)
+
+Test: rerun the Markov-only / AR-from-z_impact / full-context rollouts with
+the AdaLN-Zero conditioning ZEROED at inference (cond = zeros instead of
+cond = (G, D, Y)). Question: does z_impact's nonlinear parameter content
+(D118-bis) make the predictor's explicit c channel REDUNDANT?
+
+Test B latent RMSE per horizon (cond=zero vs cond=true):
+
+| H | Markov c=0 | Markov c=true | delta % |
+|---|---|---|---|
+| 1  | 0.134 | 0.092 | +45 % |
+| 4  | 0.161 | 0.091 | +77 % |
+| 8  | 0.228 | 0.127 | +80 % |
+| 16 | 0.318 | 0.176 | +81 % |
+| 32 | 0.405 | 0.323 | +25 % |
+| 64 | 0.459 | 0.401 | +15 % |
+| 79 | 0.426 | 0.498 | -14 % (c=0 BETTER) |
+
+Test C OOD:
+
+| H | Markov c=0 | Markov c=true | delta % |
+|---|---|---|---|
+| 1  | 0.151 | 0.108 | +40 % |
+| 8  | 0.364 | 0.257 | +42 % |
+| 32 | 0.468 | 0.328 | +43 % |
+| 79 | 0.414 | 0.513 | -19 % (c=0 BETTER) |
+
+**Headline (cond=0 vs cond=true)**:
+
+1. **Short horizons (H<=16): cond=0 is 40-80% WORSE.** The predictor relies
+on explicit c via AdaLN-Zero; even though z_impact encodes (G, D, Y)
+nonlinearly (D118-bis), the predictor does NOT internally extract that
+information at inference. The encoder provides redundant parameter info but
+the predictor uses the explicit channel it was trained on.
+
+2. **Long horizons (H>=64): cond=0 sometimes BEATS cond=true.** On the
+test_b H=79 metric, cond=zero gives RMSE 0.426 vs cond=true 0.498 (cond=0
+14% better). Similar on test_c OOD. Plausible mechanism: explicit
+conditioning amplifies systematic prediction errors over many
+autoregressive steps; without conditioning, the predictor's rollout
+relaxes toward a more stable latent basin.
+
+3. **Refinement of D119 (Markov closure)**: the closure of z_impact alone
+holds GIVEN the conditioning c is passed. Strip both contexts (z history
+and c) and the closure breaks. The conditioning is load-bearing.
+
+**Paper implication**: The Markov closure finding (D119) should be stated
+as: "given the (G, D, Y) conditioning at inference, z_impact is approximately
+sufficient for the next ~16 frames of latent trajectory; the conditioning is
+not made redundant by z_impact's parameter content." This is a more cautious
+but more accurate claim.
+
+Files: outputs/session16/exp4/cond_ablation.{json,log};
+scripts/session16/exp4_cond_ablation.py.
+
+---
+
+### D120-bis: Exp 2 redo with KernelRidge + regularized MLP -- per-frame state>>parameter ranking is robust; D118-bis Y success is an impact-frame phenomenon (2026-05-26, Session 16, post-D118-bis follow-up)
+
+Triggered by the D118-bis finding that KernelRidge(RBF) recovers Y from
+the IMPACT-frame z (test_b R^2 = 0.73). Repeated the Exp 2 14-target probe
+sweep with 3 probe families on the PER-FRAME data:
+
+* MLP_unreg: original Exp 2 recipe (weight_decay 1e-4, no early stopping)
+* MLP_reg: weight_decay 1e-2, early stopping on test_a (patience 400)
+* KernelRidge(RBF): CV-selected (alpha, gamma) per target
+
+Test B R^2 ranking by BEST probe per target:
+
+| Target | MLP_unreg | MLP_reg | KRR_RBF | BEST |
+|---|---|---|---|---|
+| centroid_x | 0.92 | 0.92 | 0.81 | 0.92 |
+| circulation_neg | 0.90 | 0.92 | 0.78 | 0.92 |
+| circulation_pos | 0.91 | 0.92 | 0.79 | 0.92 |
+| centroid_y | 0.89 | 0.91 | 0.74 | 0.91 |
+| C_D | 0.90 | 0.90 | 0.78 | 0.90 |
+| peak_neg_omega | 0.87 | 0.87 | 0.57 | 0.87 |
+| C_L | 0.85 | 0.84 | 0.83 | 0.85 |
+| wake_enstrophy | 0.83 | 0.79 | 0.66 | 0.83 |
+| wake_thickness | 0.80 | 0.81 | 0.66 | 0.81 |
+| G | 0.77 | 0.79 | 0.38 | 0.79 |
+| peak_pos_omega | 0.67 | 0.57 | 0.43 | 0.67 |
+| D | 0.60 | 0.62 | 0.07 | 0.62 |
+| wake_length | -0.05 | -0.15 | -1.55 | -0.05 |
+| Y | -0.21 | -0.25 | -0.73 | -0.21 |
+
+**Headline**: the per-frame state>>parameter ranking from D120 is robust
+across probe families. Y is uniformly hard at the per-frame level; KRR
+(which worked on impact-frame z) actually performs WORSE per-frame
+(-0.73). MLP_reg matches or slightly beats MLP_unreg on most targets
+(modest early-stopping improvements).
+
+**Reconciliation with D118-bis** (Y test_b R^2 = 0.73 under KRR on
+IMPACT-FRAME z):
+- The per-frame and impact-frame regimes are different. Per-frame z varies
+  widely (each frame is a different dynamical state); Y is constant per
+  encounter; the relationship z[t] -> Y is not smooth across frames.
+- IMPACT-frame z is the natural dynamical state at vortex contact; its
+  encoding includes the Y-signature of the asymmetric impact.
+- D120's "state encoder, not parameter encoder" framing stands AT THE
+  PER-FRAME LEVEL. D118-bis's "parameters recoverable nonlinearly" framing
+  stands AT THE IMPACT-FRAME LEVEL. Both are simultaneously true and
+  consistent with D119 (z_impact is approximately Markov-sufficient).
+
+**Paper claim update**: replace "the encoder does not encode Y" (implicit in
+the original D120) with "Y is encoded at the impact frame nonlinearly
+(D118-bis) but does not generalise across per-frame samples (D120 / D120-bis).
+The encoder's Y-encoding concentrates around vortex contact and is washed
+out at earlier and later frames."
+
+Files: outputs/session16/exp2/{probe_sweep_redo.json, exp2_redo.log};
+scripts/session16/exp2_redo_probes.py.
+
+---
+
+### D121-bis: Exp 3 extension -- pixel-level SHAP for Y axis succeeds with highest intervention ratio yet (2026-05-26, Session 16, post-D118-bis follow-up)
+
+Added Y to the SHAP target set after D118-bis showed Y is recoverable
+from IMPACT-frame z. Trained an impact-frame-only regularized MLP probe
+for Y (test_b R^2 = 0.62, test_c = -0.38) and computed 32-step
+integrated gradients on the same 28 test_b + 24 test_c encounters.
+
+**Bootstrap stability** (4-baseline drop-one-out, r >= 0.7):
+
+| Target | Test B stable | Test C stable |
+|---|---|---|
+| Y (new) | 19/28 (68 %) | 22/24 (92 %) |
+| centroid_x (D121) | 1/28 (4 %) | 23/24 (96 %) |
+| circulation_pos (D121) | 19/28 (68 %) | 24/24 (100 %) |
+| peak_neg_omega (D121) | 22/28 (79 %) | 24/24 (100 %) |
+
+Y's bootstrap stability is similar to circulation_pos on Test B (68%
+each) and slightly below the strongest D121 results on Test C (92% vs
+100%). The Y attribution IS stable enough for structure extraction on
+the majority of encounters.
+
+**Intervention validation** (top-400 SHAP pixels Gaussian-blurred
+inpaint, sigma=3):
+
+| Target | Test B ratio | Test B shap>random | Test C ratio | Test C shap>random |
+|---|---|---|---|---|
+| Y (new) | **65.3x** | **19/19** | **60.1x** | **21/22** |
+| centroid_x (D121) | 14.2x | 1/1 | 17.1x | 21/23 |
+| circulation_pos (D121) | 40.4x | 19/19 | 52.8x | 24/24 |
+| peak_neg_omega (D121) | 27.7x | 22/22 | 50.2x | 24/24 |
+
+**Y intervention ratios are the HIGHEST of all four targets** (65x on
+test_b vs the prior best 40x for circulation). This is striking: even
+though Y is the parameter that linear PLS-3 couldn't recover at all
+(-0.12 R^2), its pixel structures are the MOST causal once you have
+the right probe. 19/19 test_b stable encounters validate SHAP > random;
+21/22 on test_c.
+
+**Physical reading**: the encoder's Y-encoding concentrates on
+specific suction-side / pressure-side pixel regions whose perturbation
+causes large Y prediction shifts. The asymmetry of the +14 deg AoA
+makes Y > 0 and Y < 0 cases generate distinctly different LE-region
+pixel patterns, and the encoder learned to attend to those.
+
+**Paper implication**: the original D121 framing of "structures driving
+the encoded STATE" extends cleanly to "structures driving the encoded
+PARAMETERS" once we use the right probe (impact-frame-only). The
+Nat. Commun. structure-discovery anchor is now four-fold (centroid_x,
+circulation_pos, peak_neg_omega, Y) rather than three-fold, with Y
+giving the cleanest intervention ratio.
+
+Files: outputs/session16/exp3/{shap_Y_attribution.npz, shap_Y_bootstrap.json,
+shap_Y_intervention.json, exp3_shap_Y.log};
+outputs/session16/figures/{exp3_shap_Y_hero_test_b.png,
+exp3_shap_Y_hero_test_c.png, exp3_shap_Y_mean.png};
+scripts/session16/{exp3_shap_Y.py, exp3_shap_Y_figure.py}.
