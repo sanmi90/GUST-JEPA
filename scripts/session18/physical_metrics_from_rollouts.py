@@ -51,7 +51,7 @@ DNS_METRICS_PATH = REPO / "outputs" / "session17" / "exp2" / "dns_physical_metri
 
 
 def fit_ridge(Z: np.ndarray, y: np.ndarray, alpha: float = 1.0) -> dict:
-    """Standardize Z, fit ridge regression. Returns dict for inference."""
+    """Standardize Z, fit linear ridge regression."""
     Z = Z.astype(np.float64)
     y = y.astype(np.float64)
     mu_z = Z.mean(axis=0)
@@ -60,12 +60,48 @@ def fit_ridge(Z: np.ndarray, y: np.ndarray, alpha: float = 1.0) -> dict:
     yc = y - y.mean()
     A = Zn.T @ Zn + alpha * np.eye(Zn.shape[1])
     W = np.linalg.solve(A, Zn.T @ yc)
-    return {"W": W, "mu_z": mu_z, "sigma_z": sigma_z, "b": float(y.mean())}
+    return {"kind": "ridge", "W": W, "mu_z": mu_z, "sigma_z": sigma_z, "b": float(y.mean())}
+
+
+def fit_krr_rbf(Z: np.ndarray, y: np.ndarray, alpha: float = 1.0,
+                gamma: float = 0.01, n_subsample: int = 4000) -> dict:
+    """Kernel Ridge Regression (RBF kernel). Subsample to keep cost bounded."""
+    from sklearn.kernel_ridge import KernelRidge
+    Z = Z.astype(np.float64)
+    y = y.astype(np.float64)
+    mu_z = Z.mean(axis=0)
+    sigma_z = Z.std(axis=0).clip(min=1e-9)
+    Zn = (Z - mu_z) / sigma_z
+    if len(Zn) > n_subsample:
+        idx = np.random.RandomState(0).choice(len(Zn), n_subsample, replace=False)
+        Zn = Zn[idx]; y = y[idx]
+    model = KernelRidge(alpha=alpha, kernel="rbf", gamma=gamma)
+    model.fit(Zn, y)
+    return {"kind": "krr_rbf", "model": model, "mu_z": mu_z, "sigma_z": sigma_z}
+
+
+def fit_mlp_reg(Z: np.ndarray, y: np.ndarray, hidden: int = 64, alpha: float = 1e-2,
+                max_iter: int = 200) -> dict:
+    """Regularised MLP (sklearn). Small hidden layer + weight_decay-equivalent."""
+    from sklearn.neural_network import MLPRegressor
+    Z = Z.astype(np.float64)
+    y = y.astype(np.float64)
+    mu_z = Z.mean(axis=0)
+    sigma_z = Z.std(axis=0).clip(min=1e-9)
+    Zn = (Z - mu_z) / sigma_z
+    model = MLPRegressor(hidden_layer_sizes=(hidden, hidden),
+                         alpha=alpha, max_iter=max_iter, random_state=0,
+                         early_stopping=True, validation_fraction=0.1,
+                         n_iter_no_change=10)
+    model.fit(Zn, y)
+    return {"kind": "mlp_reg", "model": model, "mu_z": mu_z, "sigma_z": sigma_z}
 
 
 def apply_probe(z: np.ndarray, probe: dict) -> np.ndarray:
     Zn = (z.astype(np.float64) - probe["mu_z"]) / probe["sigma_z"]
-    return Zn @ probe["W"] + probe["b"]
+    if probe["kind"] == "ridge":
+        return Zn @ probe["W"] + probe["b"]
+    return probe["model"].predict(Zn)
 
 
 def match_dns_to_latents(
@@ -104,8 +140,9 @@ def fit_probes_for_baseline(
     dns: np.lib.npyio.NpzFile,
     metrics: tuple[str, ...] = METRICS,
     ridge_alpha: float = 1.0,
+    probe_kind: str = "ridge",
 ) -> dict:
-    """Fit ridge probes on the baseline's TRAIN per-frame latents."""
+    """Fit probes on the baseline's TRAIN per-frame latents."""
     train_lat = np.load(latents_dir / "train.npz", allow_pickle=True)
     z_full = train_lat["z_full"].astype(np.float32)  # (n_enc, 120, d)
     cid_lat = _get(train_lat, "case_ids", "case_id")
@@ -132,7 +169,14 @@ def fit_probes_for_baseline(
     for metric in metrics:
         y_per_enc = dns[f"train_{metric}"][dns_idx_used]  # (n_keep, 120)
         y_flat = y_per_enc.reshape(n_keep * T).astype(np.float64)
-        probe = fit_ridge(Z_flat, y_flat, alpha=ridge_alpha)
+        if probe_kind == "ridge":
+            probe = fit_ridge(Z_flat, y_flat, alpha=ridge_alpha)
+        elif probe_kind == "krr_rbf":
+            probe = fit_krr_rbf(Z_flat, y_flat, alpha=ridge_alpha)
+        elif probe_kind == "mlp_reg":
+            probe = fit_mlp_reg(Z_flat, y_flat)
+        else:
+            raise ValueError(f"Unknown probe_kind {probe_kind!r}")
         # Train R^2 for sanity
         y_pred = apply_probe(Z_flat, probe)
         ss_res = float(((y_flat - y_pred) ** 2).sum())
@@ -251,6 +295,9 @@ def parse_args() -> argparse.Namespace:
         default=REPO / "outputs" / "session18" / "exp_b1" / "physical_closure_comparison.csv",
     )
     p.add_argument("--ridge-alpha", type=float, default=1.0)
+    p.add_argument("--probe-kind", type=str, default="ridge",
+                   choices=["ridge", "krr_rbf", "mlp_reg"],
+                   help="Probe family for latent->observable mapping.")
     p.add_argument("--n-bootstrap", type=int, default=2000)
     p.add_argument("--ci-level", type=float, default=0.95)
     p.add_argument("--horizons", nargs="+", type=int, default=[8, 16, 32])
@@ -282,6 +329,7 @@ def main() -> None:
         probe_blob = fit_probes_for_baseline(
             latents_dir, dns,
             metrics=METRICS, ridge_alpha=args.ridge_alpha,
+            probe_kind=args.probe_kind,
         )
         probes = probe_blob["probes"]
         for m, r2 in probe_blob["train_r2"].items():

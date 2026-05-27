@@ -55,24 +55,58 @@ present in the latent at the forecast frame" without mixing predictor
 quality with decoder quality. Reporting is mean absolute error vs DNS
 with 2000-resample bootstrap 95% confidence intervals.
 
-## 5.2 Headline result: JEPA wins decisively on wake structure
+## 5.2 Headline result: JEPA wins on wake structure
 
 Figure 4 shows the mean absolute error of the Markov-only rollout
 prediction vs the DNS reference at H = 16 on Test B (in-distribution
 held-out cases) and Test C (out-of-distribution G = +4) for three
-canonical physical observables. The headline numbers on Test B at H = 16
-are:
+canonical physical observables. The latent-to-observable probe family
+matters: linear ridge, kernel ridge with RBF kernel, and a regularised
+multi-layer perceptron give different absolute errors per baseline
+because the encoding from latent to physical observable is nonlinear
+for some (encoder, observable) pairs. We report all three probe families
+and take each baseline's best probe per metric, in the spirit of the
+"each method on its preferred probe" fairness frame.
 
-| Baseline       | C_L  | I_y  | wake_enstrophy |
-|---------------|------|------|----------------|
-| JEPA d=64     | 1.00 | 1.57 | **22.3**       |
-| Fukami AE d=64| 1.13 | 1.73 | 68.9           |
-| POD d=64      | 1.66 | 1.56 | 73.2           |
+Test B Markov-only abs error at H = 16, best probe per (baseline,
+metric):
 
-JEPA d=64 achieves wake_enstrophy forecast error a factor of three
-lower than Fukami AE at matched d and a factor of 3.3 lower than POD
-at matched d. The wake_enstrophy bootstrap 95% confidence intervals are
-non-overlapping; the JEPA advantage is statistically clear.
+| Baseline       | C_L (best probe) | I_y (best probe) | wake_enstrophy (best probe) |
+|---------------|------------------|------------------|------------------------------|
+| JEPA d=64     | 0.90 (KRR)       | 1.57 (ridge)     | **18.4 (MLP)**               |
+| Fukami AE d=3 | **0.75 (MLP)**   | 1.57 (KRR)       | 77.9 (ridge)                 |
+| Fukami AE d=64| 1.11 (MLP)       | 1.73 (ridge)     | 28.1 (MLP)                   |
+| POD d=16      | 1.46 (MLP)       | 1.53 (ridge)     | 36.4 (KRR)                   |
+| POD d=64      | 1.66 (ridge)     | **1.40 (MLP)**   | 47.4 (KRR)                   |
+
+JEPA d=64 achieves wake_enstrophy forecast error **1.5x lower than
+Fukami AE at matched d=64** and **2.6x lower than POD at matched d=64**.
+The wake_enstrophy advantage is the clean result of the comparison;
+on C_L and I_y the classical baselines remain competitive (Fukami d=3
+narrowly leads on C_L; POD d=64 leads on I_y).
+
+The JEPA advantage on wake_enstrophy is **robust to probe choice** but
+its magnitude depends on the probe family chosen, reflecting the
+relative linear vs nonlinear encoding of the observable in each
+baseline's latent:
+
+| Probe family used uniformly | JEPA d=64 vs Fukami d=64 | vs POD d=64 |
+|----------------------------|---------------------------|--------------|
+| Linear ridge                | 3.10x                     | 3.29x        |
+| Kernel ridge (RBF)          | 1.97x                     | 1.90x        |
+| Regularised MLP             | 1.53x                     | 3.72x        |
+
+The linear-ridge multiplier (3x) overstates the JEPA advantage because
+Fukami AE and POD latents encode wake_enstrophy NONLINEARLY (the
+nonlinear probe drops their error by 30-35 percent). JEPA's latent
+already encodes wake_enstrophy LINEARLY well (training-set probe
+R^2 = 0.870 with ridge), so the nonlinear probe gives no additional
+improvement. The honest cross-baseline comparison is therefore the
+1.5x-2x advantage under the nonlinear probes; the 3x linear-ridge
+number is reported as a methodologically-transparent upper bound.
+
+The bootstrap 95% confidence intervals on the JEPA wake_enstrophy
+advantage are non-overlapping under all three probe families.
 
 On the simpler scalar observables, classical baselines are competitive:
 
