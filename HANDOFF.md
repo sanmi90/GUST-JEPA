@@ -6244,3 +6244,144 @@ correspondence with TCSI K=2 sensors at pressure indices 11, 20).
 
 Files: SESSION17_REPORT.md, this entry.
 
+
+### D129: Session 18 B1 -- Fukami AE and POD baseline comparison on physical Markov closure (2026-05-27, Session 18, Day 1-2)
+
+Compared the JEPA d=64 production stack against Fukami AE (d=3, 32, 64;
+paper-faithful per arXiv:2305.08024 with beta=0.01 from L-curve elbow on
+our data) and POD (d=16, 32, 64; snapshot SVD on pipeline-normalised
+train frames) on physical Markov closure of (C_L, I_y, wake_enstrophy)
+at H=8, 16, 32 on Test B and Test C. All seven baselines used a unified
+common transformer predictor: AdaLN-Zero conditioning on (G, D, Y),
+hidden_dim=384, depth=6, heads=16, max_seq_len=32, RoPE on Q/K,
+no output BatchNorm; AdamW lr=5e-4, weight_decay=0.05, 6000 iters.
+Predictors trained on precomputed per-frame latents (z-score normalised
+per-baseline in dataset). Linear ridge probes fit on per-frame DNS metrics
+(reusing outputs/session17/exp2/dns_physical_metrics.npz).
+
+**Headline result (Test B Markov-only abs error at H=16):**
+
+| Baseline    | C_L  | I_y  | wake_enstrophy |
+|-------------|------|------|----------------|
+| JEPA d=64   | 1.00 | 1.57 | **22.3**       |
+| Fukami d=3  | **0.81** | 2.16 | 77.9       |
+| Fukami d=32 | 0.96 | 1.95 | 90.6           |
+| Fukami d=64 | 1.13 | 1.73 | 68.9           |
+| POD d=16    | 1.56 | **1.53** | 54.9       |
+| POD d=32    | 1.46 | 1.78 | 58.2           |
+| POD d=64    | 1.66 | 1.56 | 73.2           |
+
+**Case A framing locked**: JEPA d=64 wins on wake_enstrophy by 3x
+(22.3 vs Fukami d=64's 68.9 vs POD d=64's 73.2). Classical baselines
+remain competitive on simple scalars: Fukami d=3 (lift-tied 3-D latent)
+narrowly leads on C_L; POD d=16 leads on I_y (vorticity impulse is a
+linear function of the POD basis by construction).
+
+**Probe linear R^2 on train per-frame (JEPA encoder wins on flow-state
+encoding):**
+
+| Baseline    | C_L  | I_y  | wake_enstrophy | circ_pos | circ_neg |
+|-------------|------|------|----------------|----------|----------|
+| JEPA d=64   | 0.825 | 0.506 | **0.870** | **0.881** | **0.892** |
+| Fukami d=64 | 0.811 | 0.283 | 0.479     | 0.400     | 0.449     |
+| POD d=64    | 0.708 | **0.772** | 0.413 | 0.391     | 0.481     |
+
+JEPA dominates on wake-structure observables; POD wins on I_y by
+geometric construction. The wake_enstrophy probe R^2 gap (0.870 vs
+0.479 / 0.413) explains the Markov closure win.
+
+**Bug fix narrative (load-bearing for the result):**
+
+Two infrastructure bugs were uncovered during B1 and fixed:
+
+1. **Double-normalisation of omega in FukamiAEWrapper.forward**. When
+   the dataset's pipeline-application path (D85, Session 11) was added
+   to enable num_workers > 0, FukamiAEWrapper.forward kept its own
+   normalise+preprocess path from the Session 9 pre-D85 era. With both
+   active, omega was divided by the 3-sigma divisor twice (std went from
+   0.245 to 0.023), training the encoder/decoder on micro-scale inputs
+   that didn't match the eval distribution. The eval encoder saw 10x
+   larger input than training, producing ~10x amplitude-compressed
+   reconstruction. SSIM was ~0.16 across d=3, 32, 64 with the bug;
+   ~0.41-0.48 after fix. Patch in scripts/session9_train_fukami.py
+   sets args.omega_pipeline_manifest=None before loader construction,
+   restores it for the wrapper.
+
+2. **Predictor output-BatchNorm running statistics mismatch**. The
+   AutoregressivePredictor's BatchNorm1d at out_proj has running stats
+   trained on teacher-forced data; at autoregressive rollout the
+   distribution shifts and the BN over-regularises the predictions.
+   This manifested as a transient H=16 spike for JEPA (C_L_err 3.25
+   at H=16 vs 0.55 at H=8 and 1.51 at H=32). Replacing the output BN
+   with Identity (--no-output-bn flag in train_baseline_predictor.py)
+   removed the spike across ALL baselines and gave 4-37x lower
+   predictor training loss for every baseline. The unified B1 recipe
+   uses --no-output-bn for all 7 predictors.
+
+Verification of the BN fix via three independent paths:
+- Test 1: generic predictor without output BN on JEPA latents
+  reaches C_L H=16 = 1.00 (was 3.25 with BN, 1.20 with the production
+  predictor).
+- Test 2: production JEPA predictor (jointly trained, BN running
+  stats calibrated to encoder output) on the same Session 14 latents
+  reaches C_L H=16 = 1.20.
+- Test 3: new JEPA with projection_norm=layernorm + anticollapse=vicreg
+  (no BN at encoder boundary) trains overnight; result lands tomorrow
+  and confirms the encoder-side BN insensitivity if the same C_L H=16
+  is achieved with a generic predictor.
+
+**L-curve methodology**: matched Fukami paper convention (their
+arXiv:2305.08024 says "we choose beta = 0.05 based on the L-curve
+analysis"). User's specified beta grid {0.005, 0.01, 0.02, 0.05, 0.1}
+at d=3; sweep produced monotonic Test A epsilon vs beta with elbow at
+beta=0.01 (Test A SSIM 0.408, eps 0.913). beta=0.01 transferred to
+d=32 (SSIM 0.442) and d=64 (SSIM 0.484). Fukami's paper uses MSE
+("loss='mse'" in Keras), confirmed via user's check of Fukami's
+code; the eqn 6 ||q-q_hat||_2 notation is Keras shorthand for MSE.
+
+**Reconstruction quality (Test A, mid-plane, MSE + ω-pipeline +
+β=0.01 + δ=0)**:
+
+| d  | SSIM_mean | eps_volume_mean |
+|----|-----------|-----------------|
+|  3 | 0.408     | 0.913           |
+| 32 | 0.442     | 0.875           |
+| 64 | 0.484     | 0.854           |
+
+Lift recovery (per-frame lift head applied to encoder latent on 12
+representative Test A encounters):
+- Fukami AE d=64: relative L2 = 0.233, RMS = 0.499
+- JEPA d=64: relative L2 = 0.167, RMS = 0.353 (30% better than Fukami)
+
+**Loss-form asymmetry (documented):**
+
+JEPA loss = L_pred + 0.5 * L_roll + 0.01 * SIGReg(z) +
+0.01 * MSE(C_L_t, C_L_hat_t) + 1.0 * SmoothL1(wake_target_t)
+Fukami loss = MSE(omega, omega_hat) + beta * MSE(C_L, C_L_hat) with
+beta = 0.01 (L-curve-selected on our data; the paper's published 0.05
+came from L-curve on Fukami's narrower training set).
+POD = closed-form snapshot SVD on pipeline-normalised train frames.
+
+Each method uses its canonical loss; the downstream predictor recipe is
+strictly uniform (--no-output-bn AutoregressivePredictor, same optimizer,
+6000 iters). The methods appendix tabulates every weight with
+citations. SESSION18_B1_PROTOCOL.md is the truth document.
+
+**Recommendation for Section 5 of the manuscript**: lead with the
+wake_enstrophy result (3x JEPA advantage, statistically clean via
+2000-resample bootstrap CIs); acknowledge classical baselines remain
+competitive on simple scalars (C_L, I_y); frame the JEPA advantage
+as "manifests on flow-structure-rich observables, not on per-frame
+single scalars". Both the bug fixes (double-normalize + output-BN)
+must be documented in the methods appendix because they are
+load-bearing for the comparison validity; without them the JEPA row
+would have been spuriously poor and the paper's headline reversed.
+
+Files: SESSION18 PLAN.md, SESSION18_B1_PROTOCOL.md,
+scripts/session18/*, outputs/session18/exp_b1/*,
+outputs/session18/exp_b1_test3/*,
+outputs/session18/figures/exp_b1_markov_closure_noBN_unified.png,
+outputs/session18/figures/exp_b1_lift_recon_d64.png,
+outputs/session18/figures/exp_b1_lift_recon_jepa_d64.png,
+outputs/session18/figures/exp_b1_lift_predictive_horizon.png.
+
