@@ -187,6 +187,11 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--B", type=int, default=PROTOCOL_DEFAULTS["B"])
     p.add_argument("--T", type=int, default=PROTOCOL_DEFAULTS["T"])
     p.add_argument("--H-roll", type=int, default=PROTOCOL_DEFAULTS["H_roll"])
+    p.add_argument(
+        "--no-output-bn", action="store_true",
+        help="Replace the predictor's output BatchNorm1d with Identity. Test 1 for the "
+             "B1 BN-running-stats-mismatch hypothesis on JEPA latents.",
+    )
     return p.parse_args()
 
 
@@ -252,6 +257,11 @@ def main() -> None:
         dropout=PROTOCOL_DEFAULTS["dropout"],
         max_seq_len=args.T,
     ).to(device)
+    if args.no_output_bn:
+        # B1 Test 1: replace the output BN with Identity. The Linear stays.
+        out_lin = predictor.out_proj[0]
+        predictor.out_proj = nn.Sequential(out_lin, nn.Identity()).to(device)
+        log("[predictor-train] --no-output-bn: replaced out_proj BatchNorm1d with Identity")
     n_params = sum(p.numel() for p in predictor.parameters())
     log(f"[predictor-train] AutoregressivePredictor params={n_params:,} ({n_params/1e6:.2f}M)")
 
