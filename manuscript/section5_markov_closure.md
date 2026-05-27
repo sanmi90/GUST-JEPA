@@ -108,6 +108,13 @@ number is reported as a methodologically-transparent upper bound.
 The bootstrap 95% confidence intervals on the JEPA wake_enstrophy
 advantage are non-overlapping under all three probe families.
 
+The main paper figure (Figure 4) uses the linear ridge probe for
+clarity and direct comparison with the published probe convention.
+Supplementary Figure S1 (same layout, KernelRidge-RBF probe) shows
+the nonlinear-probe variant; both figures use identical baselines
+and identical rollouts. The MLP probe variant is reported numerically
+in the table above but not figured to keep the supplementary lean.
+
 On the simpler scalar observables, classical baselines are competitive:
 
 - **C_L** (single scalar lift coefficient): Fukami AE d=3 wins narrowly
