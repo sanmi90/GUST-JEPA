@@ -144,7 +144,15 @@ def load_predictor(checkpoint: Path, d: int, device: torch.device):
         dropout=float(pcfg.get("dropout", 0.1)),
         max_seq_len=int(pcfg.get("max_seq_len", 32)),
     ).to(device)
-    pred.load_state_dict(blob["predictor_state_dict"])
+    state = blob["predictor_state_dict"]
+    if "out_proj.1.weight" not in state and "out_proj.1.running_mean" not in state:
+        # B1 Test 1: checkpoint trained with --no-output-bn (out_proj is
+        # Sequential(Linear, Identity)). Patch the predictor to match.
+        from torch import nn as _nn
+        out_lin = pred.out_proj[0]
+        pred.out_proj = _nn.Sequential(out_lin, _nn.Identity()).to(device)
+        print(f"[load] patched out_proj to Identity (no-output-bn checkpoint)")
+    pred.load_state_dict(state)
     pred.eval()
     for p in pred.parameters():
         p.requires_grad_(False)
