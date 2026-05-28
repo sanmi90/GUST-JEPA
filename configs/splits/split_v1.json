@@ -1,10 +1,10 @@
 {
   "manifest_version": "split_v1",
-  "created_iso": "2026-05-22T19:57:11.975575+00:00",
+  "created_iso": "2026-05-28T09:40:47.891328+00:00",
   "source_inventory": {
     "version": "raw_cases_inventory_v1",
-    "created_iso": "2026-05-22T19:57:03.192795+00:00",
-    "sha256": "e62b471836f78f0b50f224e650020d7f6c358af3836daed2e9d87dbf55cc2a85"
+    "created_iso": "2026-05-28T09:40:37.929325+00:00",
+    "sha256": "a27df853255a4f226932aeaafc62ed6967fb3c9e562453fc9eb4414cf7a64ab1"
   },
   "physical_constants": {
     "airfoil": "NACA0012",
@@ -58,16 +58,16 @@
     "G+4.00_D1.00_Y-0.10"
   ],
   "summary": {
-    "n_cases_total": 65,
-    "n_cases_train": 55,
+    "n_cases_total": 84,
+    "n_cases_train": 74,
     "n_cases_test_b": 6,
     "n_cases_test_c": 4,
     "n_cases_calibration_reference": 1,
-    "n_encounters_train": 180,
-    "n_encounters_test_a": 70,
+    "n_encounters_train": 237,
+    "n_encounters_test_a": 89,
     "n_encounters_test_b": 28,
     "n_encounters_test_c": 24,
-    "n_encounters_total_in_splits": 302
+    "n_encounters_total_in_splits": 378
   },
   "cases": {
     "Baseline": {
@@ -1582,6 +1582,443 @@
       "source_group": "run3",
       "filename": "Gust_047_x-1.892_y-0.678_s-2.0_d1.5.h5",
       "relative_path": "data/raw/periodic/run3/Gust_047_x-1.892_y-0.678_s-2.0_d1.5.h5",
+      "n_frames": 480,
+      "n_encounters_full": 4,
+      "trailing_partial_frames": 0,
+      "discarded_trailing_partial": false,
+      "split": "train",
+      "train_encounter_indices": [
+        0,
+        1,
+        2
+      ],
+      "test_a_encounter_indices": [
+        3
+      ],
+      "is_calibration_reference": false
+    },
+    "G+2.00_D1.00_Y+0.20": {
+      "case_id": "G+2.00_D1.00_Y+0.20",
+      "G": 2.0,
+      "D": 1.0,
+      "Y": 0.2,
+      "source_group": "run3",
+      "filename": "Gust_048_x-1.989_y-0.290_s2.0_d1.0.h5",
+      "relative_path": "data/raw/periodic/run3/Gust_048_x-1.989_y-0.290_s2.0_d1.0.h5",
+      "n_frames": 480,
+      "n_encounters_full": 4,
+      "trailing_partial_frames": 0,
+      "discarded_trailing_partial": false,
+      "split": "train",
+      "train_encounter_indices": [
+        0,
+        1,
+        2
+      ],
+      "test_a_encounter_indices": [
+        3
+      ],
+      "is_calibration_reference": false
+    },
+    "G-2.00_D1.00_Y+0.00": {
+      "case_id": "G-2.00_D1.00_Y+0.00",
+      "G": -2.0,
+      "D": 1.0,
+      "Y": 0.0,
+      "source_group": "run3",
+      "filename": "Gust_049_x-1.941_y-0.484_s-2.0_d1.0.h5",
+      "relative_path": "data/raw/periodic/run3/Gust_049_x-1.941_y-0.484_s-2.0_d1.0.h5",
+      "n_frames": 480,
+      "n_encounters_full": 4,
+      "trailing_partial_frames": 0,
+      "discarded_trailing_partial": false,
+      "split": "train",
+      "train_encounter_indices": [
+        0,
+        1,
+        2
+      ],
+      "test_a_encounter_indices": [
+        3
+      ],
+      "is_calibration_reference": false
+    },
+    "G+0.50_D0.50_Y-0.20": {
+      "case_id": "G+0.50_D0.50_Y-0.20",
+      "G": 0.5,
+      "D": 0.5,
+      "Y": -0.2,
+      "source_group": "run3",
+      "filename": "Gust_050_x-1.892_y-0.678_s0.5_d0.5.h5",
+      "relative_path": "data/raw/periodic/run3/Gust_050_x-1.892_y-0.678_s0.5_d0.5.h5",
+      "n_frames": 480,
+      "n_encounters_full": 4,
+      "trailing_partial_frames": 0,
+      "discarded_trailing_partial": false,
+      "split": "train",
+      "train_encounter_indices": [
+        0,
+        1,
+        2
+      ],
+      "test_a_encounter_indices": [
+        3
+      ],
+      "is_calibration_reference": false
+    },
+    "G+0.50_D1.50_Y+0.00": {
+      "case_id": "G+0.50_D1.50_Y+0.00",
+      "G": 0.5,
+      "D": 1.5,
+      "Y": 0.0,
+      "source_group": "run3",
+      "filename": "Gust_051_x-1.941_y-0.484_s0.5_d1.5.h5",
+      "relative_path": "data/raw/periodic/run3/Gust_051_x-1.941_y-0.484_s0.5_d1.5.h5",
+      "n_frames": 480,
+      "n_encounters_full": 4,
+      "trailing_partial_frames": 0,
+      "discarded_trailing_partial": false,
+      "split": "train",
+      "train_encounter_indices": [
+        0,
+        1,
+        2
+      ],
+      "test_a_encounter_indices": [
+        3
+      ],
+      "is_calibration_reference": false
+    },
+    "G+3.00_D1.00_Y-0.20": {
+      "case_id": "G+3.00_D1.00_Y-0.20",
+      "G": 3.0,
+      "D": 1.0,
+      "Y": -0.2,
+      "source_group": "run3",
+      "filename": "Gust_052_x-1.892_y-0.678_s3.0_d1.0.h5",
+      "relative_path": "data/raw/periodic/run3/Gust_052_x-1.892_y-0.678_s3.0_d1.0.h5",
+      "n_frames": 480,
+      "n_encounters_full": 4,
+      "trailing_partial_frames": 0,
+      "discarded_trailing_partial": false,
+      "split": "train",
+      "train_encounter_indices": [
+        0,
+        1,
+        2
+      ],
+      "test_a_encounter_indices": [
+        3
+      ],
+      "is_calibration_reference": false
+    },
+    "G+3.00_D0.50_Y+0.00": {
+      "case_id": "G+3.00_D0.50_Y+0.00",
+      "G": 3.0,
+      "D": 0.5,
+      "Y": 0.0,
+      "source_group": "run3",
+      "filename": "Gust_053_x-1.941_y-0.484_s3.0_d0.5.h5",
+      "relative_path": "data/raw/periodic/run3/Gust_053_x-1.941_y-0.484_s3.0_d0.5.h5",
+      "n_frames": 480,
+      "n_encounters_full": 4,
+      "trailing_partial_frames": 0,
+      "discarded_trailing_partial": false,
+      "split": "train",
+      "train_encounter_indices": [
+        0,
+        1,
+        2
+      ],
+      "test_a_encounter_indices": [
+        3
+      ],
+      "is_calibration_reference": false
+    },
+    "G+3.00_D1.50_Y-0.10": {
+      "case_id": "G+3.00_D1.50_Y-0.10",
+      "G": 3.0,
+      "D": 1.5,
+      "Y": -0.1,
+      "source_group": "run3",
+      "filename": "Gust_054_x-1.916_y-0.581_s3.0_d1.5.h5",
+      "relative_path": "data/raw/periodic/run3/Gust_054_x-1.916_y-0.581_s3.0_d1.5.h5",
+      "n_frames": 480,
+      "n_encounters_full": 4,
+      "trailing_partial_frames": 0,
+      "discarded_trailing_partial": false,
+      "split": "train",
+      "train_encounter_indices": [
+        0,
+        1,
+        2
+      ],
+      "test_a_encounter_indices": [
+        3
+      ],
+      "is_calibration_reference": false
+    },
+    "G-1.00_D1.50_Y+0.20": {
+      "case_id": "G-1.00_D1.50_Y+0.20",
+      "G": -1.0,
+      "D": 1.5,
+      "Y": 0.2,
+      "source_group": "run3",
+      "filename": "Gust_055_x-1.989_y-0.290_s-1.0_d1.5.h5",
+      "relative_path": "data/raw/periodic/run3/Gust_055_x-1.989_y-0.290_s-1.0_d1.5.h5",
+      "n_frames": 480,
+      "n_encounters_full": 4,
+      "trailing_partial_frames": 0,
+      "discarded_trailing_partial": false,
+      "split": "train",
+      "train_encounter_indices": [
+        0,
+        1,
+        2
+      ],
+      "test_a_encounter_indices": [
+        3
+      ],
+      "is_calibration_reference": false
+    },
+    "G+1.50_D0.50_Y+0.20": {
+      "case_id": "G+1.50_D0.50_Y+0.20",
+      "G": 1.5,
+      "D": 0.5,
+      "Y": 0.2,
+      "source_group": "run3",
+      "filename": "Gust_056_x-1.989_y-0.290_s1.5_d0.5.h5",
+      "relative_path": "data/raw/periodic/run3/Gust_056_x-1.989_y-0.290_s1.5_d0.5.h5",
+      "n_frames": 480,
+      "n_encounters_full": 4,
+      "trailing_partial_frames": 0,
+      "discarded_trailing_partial": false,
+      "split": "train",
+      "train_encounter_indices": [
+        0,
+        1,
+        2
+      ],
+      "test_a_encounter_indices": [
+        3
+      ],
+      "is_calibration_reference": false
+    },
+    "G-2.00_D0.50_Y-0.10": {
+      "case_id": "G-2.00_D0.50_Y-0.10",
+      "G": -2.0,
+      "D": 0.5,
+      "Y": -0.1,
+      "source_group": "run3",
+      "filename": "Gust_057_x-1.916_y-0.581_s-2.0_d0.5.h5",
+      "relative_path": "data/raw/periodic/run3/Gust_057_x-1.916_y-0.581_s-2.0_d0.5.h5",
+      "n_frames": 480,
+      "n_encounters_full": 4,
+      "trailing_partial_frames": 0,
+      "discarded_trailing_partial": false,
+      "split": "train",
+      "train_encounter_indices": [
+        0,
+        1,
+        2
+      ],
+      "test_a_encounter_indices": [
+        3
+      ],
+      "is_calibration_reference": false
+    },
+    "G-0.50_D1.50_Y-0.20": {
+      "case_id": "G-0.50_D1.50_Y-0.20",
+      "G": -0.5,
+      "D": 1.5,
+      "Y": -0.2,
+      "source_group": "run3",
+      "filename": "Gust_058_x-1.892_y-0.678_s-0.5_d1.5.h5",
+      "relative_path": "data/raw/periodic/run3/Gust_058_x-1.892_y-0.678_s-0.5_d1.5.h5",
+      "n_frames": 480,
+      "n_encounters_full": 4,
+      "trailing_partial_frames": 0,
+      "discarded_trailing_partial": false,
+      "split": "train",
+      "train_encounter_indices": [
+        0,
+        1,
+        2
+      ],
+      "test_a_encounter_indices": [
+        3
+      ],
+      "is_calibration_reference": false
+    },
+    "G+2.00_D0.50_Y-0.20": {
+      "case_id": "G+2.00_D0.50_Y-0.20",
+      "G": 2.0,
+      "D": 0.5,
+      "Y": -0.2,
+      "source_group": "run3",
+      "filename": "Gust_060_x-1.892_y-0.678_s2.0_d0.5.h5",
+      "relative_path": "data/raw/periodic/run3/Gust_060_x-1.892_y-0.678_s2.0_d0.5.h5",
+      "n_frames": 480,
+      "n_encounters_full": 4,
+      "trailing_partial_frames": 0,
+      "discarded_trailing_partial": false,
+      "split": "train",
+      "train_encounter_indices": [
+        0,
+        1,
+        2
+      ],
+      "test_a_encounter_indices": [
+        3
+      ],
+      "is_calibration_reference": false
+    },
+    "G-1.00_D1.00_Y+0.10": {
+      "case_id": "G-1.00_D1.00_Y+0.10",
+      "G": -1.0,
+      "D": 1.0,
+      "Y": 0.1,
+      "source_group": "run3",
+      "filename": "Gust_061_x-1.965_y-0.387_s-1.0_d1.0.h5",
+      "relative_path": "data/raw/periodic/run3/Gust_061_x-1.965_y-0.387_s-1.0_d1.0.h5",
+      "n_frames": 480,
+      "n_encounters_full": 4,
+      "trailing_partial_frames": 0,
+      "discarded_trailing_partial": false,
+      "split": "train",
+      "train_encounter_indices": [
+        0,
+        1,
+        2
+      ],
+      "test_a_encounter_indices": [
+        3
+      ],
+      "is_calibration_reference": false
+    },
+    "G+1.50_D1.50_Y+0.10": {
+      "case_id": "G+1.50_D1.50_Y+0.10",
+      "G": 1.5,
+      "D": 1.5,
+      "Y": 0.1,
+      "source_group": "run3",
+      "filename": "Gust_062_x-1.965_y-0.387_s1.5_d1.5.h5",
+      "relative_path": "data/raw/periodic/run3/Gust_062_x-1.965_y-0.387_s1.5_d1.5.h5",
+      "n_frames": 480,
+      "n_encounters_full": 4,
+      "trailing_partial_frames": 0,
+      "discarded_trailing_partial": false,
+      "split": "train",
+      "train_encounter_indices": [
+        0,
+        1,
+        2
+      ],
+      "test_a_encounter_indices": [
+        3
+      ],
+      "is_calibration_reference": false
+    },
+    "G-1.50_D0.50_Y+0.10": {
+      "case_id": "G-1.50_D0.50_Y+0.10",
+      "G": -1.5,
+      "D": 0.5,
+      "Y": 0.1,
+      "source_group": "run3",
+      "filename": "Gust_064_x-1.965_y-0.387_s-1.5_d0.5.h5",
+      "relative_path": "data/raw/periodic/run3/Gust_064_x-1.965_y-0.387_s-1.5_d0.5.h5",
+      "n_frames": 480,
+      "n_encounters_full": 4,
+      "trailing_partial_frames": 0,
+      "discarded_trailing_partial": false,
+      "split": "train",
+      "train_encounter_indices": [
+        0,
+        1,
+        2
+      ],
+      "test_a_encounter_indices": [
+        3
+      ],
+      "is_calibration_reference": false
+    },
+    "G-1.50_D1.00_Y-0.10": {
+      "case_id": "G-1.50_D1.00_Y-0.10",
+      "G": -1.5,
+      "D": 1.0,
+      "Y": -0.1,
+      "source_group": "run3",
+      "filename": "Gust_065_x-1.916_y-0.581_s-1.5_d1.0.h5",
+      "relative_path": "data/raw/periodic/run3/Gust_065_x-1.916_y-0.581_s-1.5_d1.0.h5",
+      "n_frames": 480,
+      "n_encounters_full": 4,
+      "trailing_partial_frames": 0,
+      "discarded_trailing_partial": false,
+      "split": "train",
+      "train_encounter_indices": [
+        0,
+        1,
+        2
+      ],
+      "test_a_encounter_indices": [
+        3
+      ],
+      "is_calibration_reference": false
+    },
+    "G-0.50_D0.50_Y-0.10": {
+      "case_id": "G-0.50_D0.50_Y-0.10",
+      "G": -0.5,
+      "D": 0.5,
+      "Y": -0.1,
+      "source_group": "run3",
+      "filename": "Gust_066_x-1.916_y-0.581_s-0.5_d0.5.h5",
+      "relative_path": "data/raw/periodic/run3/Gust_066_x-1.916_y-0.581_s-0.5_d0.5.h5",
+      "n_frames": 480,
+      "n_encounters_full": 4,
+      "trailing_partial_frames": 0,
+      "discarded_trailing_partial": false,
+      "split": "train",
+      "train_encounter_indices": [
+        0,
+        1,
+        2
+      ],
+      "test_a_encounter_indices": [
+        3
+      ],
+      "is_calibration_reference": false
+    },
+    "G+1.00_D0.50_Y+0.00": {
+      "case_id": "G+1.00_D0.50_Y+0.00",
+      "G": 1.0,
+      "D": 0.5,
+      "Y": 0.0,
+      "source_group": "run3",
+      "filename": "Gust_067_x-1.941_y-0.484_s1.0_d0.5.h5",
+      "relative_path": "data/raw/periodic/run3/Gust_067_x-1.941_y-0.484_s1.0_d0.5.h5",
+      "n_frames": 480,
+      "n_encounters_full": 4,
+      "trailing_partial_frames": 0,
+      "discarded_trailing_partial": false,
+      "split": "train",
+      "train_encounter_indices": [
+        0,
+        1,
+        2
+      ],
+      "test_a_encounter_indices": [
+        3
+      ],
+      "is_calibration_reference": false
+    },
+    "G+1.50_D1.00_Y+0.00": {
+      "case_id": "G+1.50_D1.00_Y+0.00",
+      "G": 1.5,
+      "D": 1.0,
+      "Y": 0.0,
+      "source_group": "run3",
+      "filename": "Gust_068_x-1.941_y-0.484_s1.5_d1.0.h5",
+      "relative_path": "data/raw/periodic/run3/Gust_068_x-1.941_y-0.484_s1.5_d1.0.h5",
       "n_frames": 480,
       "n_encounters_full": 4,
       "trailing_partial_frames": 0,
