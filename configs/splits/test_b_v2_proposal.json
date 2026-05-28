@@ -1,0 +1,103 @@
+{
+  "criteria_summary": "C1-C5 stratified case-level holdout (C6 dropped \u2014 OOD distinction carried by Test C)",
+  "criteria": {
+    "C1_G_magnitude": ">=2 cases at |G| in {0.5, 1.0, 1.5, 2.0}, >=1 case at |G|=3.0",
+    "C2_G_sign_balance": "absolute difference between G>0 and G<0 counts <= 2",
+    "C3_D_coverage": ">=3 cases per D bucket in {0.5, 1.0, 1.5}",
+    "C4_Y_span": ">=2 cases at |Y|=0.4, >=1 case at Y=0, both Y signs represented",
+    "C5_source_pooling": "periodic and run3 mixed; no per-source quota imposed",
+    "C6_removed_rationale": "Original C6 required nearest train neighbor at Manhattan distance <= 1 grid step. Negative-G cases are sampled via offset Latin Hypercube (each (G, D) cell covers only 2 of 7 Y points, with no overlap between adjacent G), so no negative-G case has a Manhattan-1 neighbor. C6 was therefore unworkable and is replaced by the Test C OOD set (G=+4, strictly outside train G range [-3, +3]) as the interpolation-vs-OOD demarcation."
+  },
+  "cases": [
+    {
+      "case_id": "G+0.50_D1.50_Y+0.00",
+      "G": 0.5,
+      "D": 1.5,
+      "Y": 0.0,
+      "source_group": "run3",
+      "n_encounters_full": 4,
+      "slot_label": "|G|=0.5 (+) D=1.5 Y=0"
+    },
+    {
+      "case_id": "G-0.50_D1.00_Y-0.40",
+      "G": -0.5,
+      "D": 1.0,
+      "Y": -0.4,
+      "source_group": "run3",
+      "n_encounters_full": 4,
+      "slot_label": "|G|=0.5 (-) D=1.0 Y=-0.4"
+    },
+    {
+      "case_id": "G+1.00_D0.50_Y+0.40",
+      "G": 1.0,
+      "D": 0.5,
+      "Y": 0.4,
+      "source_group": "run3",
+      "n_encounters_full": 4,
+      "slot_label": "|G|=1.0 (+) D=0.5 Y=+0.4"
+    },
+    {
+      "case_id": "G-1.00_D1.00_Y-0.20",
+      "G": -1.0,
+      "D": 1.0,
+      "Y": -0.2,
+      "source_group": "run3",
+      "n_encounters_full": 4,
+      "slot_label": "|G|=1.0 (-) D=0.5 Y<0"
+    },
+    {
+      "case_id": "G+1.50_D1.50_Y+0.10",
+      "G": 1.5,
+      "D": 1.5,
+      "Y": 0.1,
+      "source_group": "run3",
+      "n_encounters_full": 4,
+      "slot_label": "|G|=1.5 (+) D=1.5 Y>0"
+    },
+    {
+      "case_id": "G-1.50_D0.50_Y-0.20",
+      "G": -1.5,
+      "D": 0.5,
+      "Y": -0.2,
+      "source_group": "run3",
+      "n_encounters_full": 4,
+      "slot_label": "|G|=1.5 (-) D=0.5 Y<0"
+    },
+    {
+      "case_id": "G+2.00_D0.50_Y+0.10",
+      "G": 2.0,
+      "D": 0.5,
+      "Y": 0.1,
+      "source_group": "periodic",
+      "n_encounters_full": 6,
+      "slot_label": "|G|=2.0 (+) D=0.5 Y>0"
+    },
+    {
+      "case_id": "G-2.00_D1.00_Y-0.40",
+      "G": -2.0,
+      "D": 1.0,
+      "Y": -0.4,
+      "source_group": "run3",
+      "n_encounters_full": 4,
+      "slot_label": "|G|=2.0 (-) D=1.0 Y=-0.4"
+    },
+    {
+      "case_id": "G+3.00_D1.00_Y+0.10",
+      "G": 3.0,
+      "D": 1.0,
+      "Y": 0.1,
+      "source_group": "run3",
+      "n_encounters_full": 4,
+      "slot_label": "|G|=3.0 (+) D=1.0 Y>0"
+    },
+    {
+      "case_id": "G-3.00_D1.50_Y-0.10",
+      "G": -3.0,
+      "D": 1.5,
+      "Y": -0.1,
+      "source_group": "run3",
+      "n_encounters_full": 4,
+      "slot_label": "|G|=3.0 (-) D=1.5 Y<0"
+    }
+  ]
+}

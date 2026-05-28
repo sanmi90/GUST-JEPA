@@ -6385,3 +6385,101 @@ outputs/session18/figures/exp_b1_lift_recon_d64.png,
 outputs/session18/figures/exp_b1_lift_recon_jepa_d64.png,
 outputs/session18/figures/exp_b1_lift_predictive_horizon.png.
 
+
+
+### D130: Split v2 -- 4-way train/val/test_b/test_c protocol with stratified Test B (2026-05-28, Session 18, Day 9)
+
+**Context.** Final dataset landed at 84 cases (21 periodic + 63 run3) after the
+overnight DNS runs. Carlos asked whether the v1 partition design is still the
+most defensible now that we have 84 cases, and required that train metrics be
+reported alongside val/test on every headline to show no overfitting.
+
+**Locked decisions.**
+
+1. **New split file: `configs/splits/split_v2.json`.** Preserve v1 for older
+   session reproducibility. v1 stays untouched; all paper-load-bearing reruns
+   move to v2.
+
+2. **Naming: 4-way train / val / test_b / test_c.** v1's `test_a`
+   (within-train-case encounter holdout) renamed to `val` in v2 manifests.
+   Mechanism identical (periodic 4+2 encs; run3 3+1 encs). The rename is
+   semantic clarity for reviewers: val is the model-selection signal monitored
+   during training, test_b is in-distribution case-level held out, test_c is
+   OOD extrapolation (G=+4) held until the final number.
+
+3. **Test C unchanged.** 4 periodic cases at G=+4.0 (24 encounters). This is
+   the canonical paper OOD extrapolation story.
+
+4. **Test B expanded from 6 to 10 cases (`TEST_B_V2_CASE_IDS`).** Selected
+   deterministically under stratification criteria C1-C5:
+   - C1 |G| magnitude: >= 2 cases at |G| in {0.5, 1.0, 1.5, 2.0}, >= 1 at |G|=3.0
+   - C2 G sign balance: |count(G>0) - count(G<0)| <= 2
+   - C3 D coverage: >= 3 cases per D bucket in {0.5, 1.0, 1.5}
+   - C4 Y span: >= 2 at |Y|=0.4, >= 1 at Y=0, both Y signs represented
+   - C5 source pooling: mix periodic and run3 without per-source quota
+   The final 10 cases: G+0.50_D1.50_Y+0.00, G-0.50_D1.00_Y-0.40,
+   G+1.00_D0.50_Y+0.40, G-1.00_D1.00_Y-0.20, G+1.50_D1.50_Y+0.10,
+   G-1.50_D0.50_Y-0.20, G+2.00_D0.50_Y+0.10 (periodic), G-2.00_D1.00_Y-0.40,
+   G+3.00_D1.00_Y+0.10, G-3.00_D1.50_Y-0.10. Coverage: 5 G>0 + 5 G<0;
+   D: 3 each at 0.5/1.0/1.5 (with D=1.0 receiving the extra slot proportional
+   to inventory dominance); Y: 3 corners + 1 midplane; both signs; 1 periodic
+   + 9 run3.
+
+5. **C6 dropped (and documented why).** Original C6 demanded each test_b case
+   have a train neighbor at grid-step Manhattan distance <= 1. The run3 design
+   is offset Latin Hypercube (each (G, D) cell uses only 2 of 7 Y points, with
+   no Y overlap between adjacent G cells), so 0 of 34 negative-G candidates
+   have a Manhattan-1 train neighbor. C6 was unworkable. Replaced by the Test
+   C OOD set (G=+4 strictly outside train's G range [-3, +3]) as the
+   interpolation-vs-OOD demarcation. The dropped-rationale paragraph is
+   archived in split_v2.json under `test_b_criteria.C6_dropped_rationale` so
+   the methodology decision is visible in the manifest itself.
+
+6. **Two-tier Test B reporting.** Each test_b case carries
+   `n_train_neighbors_d2` (count of train cases within Manhattan distance
+   <= 2 grid steps in (G, D, Y)) and `tier` in {interior, boundary}. Interior
+   = >= 4 neighbors; boundary = 1-3 neighbors. Split: 5 interior + 5 boundary.
+   Headline aggregates report both tiers separately so corner-case behavior
+   is visible.
+
+7. **Reporting protocol (paper-mandatory, encoded in split_v2.json
+   `split_policy.uncertainty_protocol`).** Train + val + test_b + test_c
+   metrics ALL reported on every headline (recon MSE, lift R^2, I_y MAE,
+   wake enstrophy MAE, Markov abs-err at H=16, probe R^2 for G/D/Y). Three
+   independent uncertainty signals:
+   - Bootstrap: 2000 resamples on test encounters
+   - Seed variance: 3 encoder retrains (S14 Thrust 6 set)
+   - Probe CV: 5-fold k-fold over cases on the readout step
+   Together these approximate what gold-standard 5-fold case-CV would buy at
+   ~5x the training cost; the methodology decision and its compute cost are
+   recorded in `split_policy.uncertainty_protocol.note`.
+
+**Why this over alternatives (compare-against-alternatives audit).**
+- Random (case, encounter) pair split would leak case identity (encounters
+  within same case share G, D, Y); discarded.
+- K-fold CV over cases is gold-standard but ~15 days end-to-end (5 folds x
+  3-day pipeline). Community standard (Fukami PRF 2025, Solera-Rico Nat.
+  Commun. 2024, PLDM Sobal 2025) is single split + bootstrap. Documented
+  as a one-line limitation in methods.
+- Two-tier interior/boundary Test B reporting adds rigor without compute
+  cost; adopted.
+- C6 (Manhattan <= 1 neighbor) sounded principled but is incompatible with
+  the run3 LHS design; dropped with explicit reasoning in the manifest.
+
+**Files produced this session (committed).**
+- `build_split_manifest_v2.py` (new, 252 lines): generator for split_v2.json
+  with C1-C5 stratification, two-tier neighbor labels, uncertainty protocol
+  metadata. Parallel file to build_split_manifest.py; v1 untouched.
+- `configs/splits/split_v2.json`: 84-case 4-way split with criteria archived
+  inside the manifest.
+- `configs/splits/test_b_v2_proposal.json`: the analysis proposal that was
+  used to inform the locked TEST_B_V2_CASE_IDS set (kept for traceability).
+
+**Rerun implication.** Every paper-load-bearing artifact in Sessions 12-18
+was produced against split_v1. Moving to split_v2 means retraining the
+production JEPA encoder, the 3 seed retrains, the SL decoder, all 7 B1
+baselines, and rerunning Sessions 16-17 latent analyses. End-to-end cost is
+the same as the v1 rerun listed in RERUN_MANIFEST.md (~3 days on the two
+RTX 6000 cards in parallel); only the input split is different. The
+RERUN_MANIFEST.md is updated to reference split_v2 throughout.
+
