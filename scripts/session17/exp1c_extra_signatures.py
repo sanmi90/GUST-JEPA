@@ -86,7 +86,7 @@ def compute_signatures(z: np.ndarray) -> tuple[np.ndarray, np.ndarray, np.ndarra
 
 
 def main() -> None:
-    test_b = load_z_full("test_b", supplement="test_b_v1p5_supplement")
+    test_b = load_z_full("test_b", supplement=None)
     test_c = load_z_full("test_c")
     splits = {"test_b": test_b, "test_c": test_c}
 

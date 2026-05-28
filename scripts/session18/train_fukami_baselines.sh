@@ -102,6 +102,7 @@ for D in $D_LIST; do
     python "$REPO/scripts/session9_train_fukami.py" \
         --gpu "$GPU" \
         --partition "$PARTITION" \
+        --split configs/splits/split_v2.json \
         --all-train \
         --max-iters "$MAX_ITERS" \
         --seed "$SEED" \

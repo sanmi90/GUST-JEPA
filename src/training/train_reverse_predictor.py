@@ -87,7 +87,7 @@ PREVENT = Path(os.environ.get("PREVENT_ROOT", str(Path.home() / "PREVENT")))
 CACHE = Path(
     os.environ.get("VORTEX_JEPA_CACHE", PREVENT / "data" / "processed" / "vortex-jepa")
 )
-SPLIT_MANIFEST_PATH = REPO / "configs" / "splits" / "split_v1.json"
+SPLIT_MANIFEST_PATH = REPO / "configs" / "splits" / "split_v2.json"
 
 
 def file_sha256(path: Path) -> str:
@@ -242,7 +242,7 @@ def gather_test_a_encounters(partition: str) -> list[dict]:
     for cid, case in manifest["cases"].items():
         if case.get("split") != "train":
             continue
-        for k in case["test_a_encounter_indices"]:
+        for k in (case.get("val_encounter_indices") or case["test_a_encounter_indices"]):
             out.append(
                 {
                     "case_id": cid,

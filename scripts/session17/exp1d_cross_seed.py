@@ -72,25 +72,27 @@ def normalised_distance_matrix(z_full: np.ndarray) -> np.ndarray:
 
 def main() -> None:
     rep = json.loads((EXP1 / "representative_encounters.json").read_text())
-    # representative_encounters.json was built against session14 ordering
-    # (v1 + v1p5 supplement). Re-resolve to the seed_latents v1p5 ordering by
-    # case_id + encounter_index lookup so that we compare the SAME encounters
-    # across seeds.
+    # representative_encounters.json carries (case_id, encounter_index) pairs.
+    # Re-resolve to the seed_latents ordering by lookup so that we compare the
+    # SAME encounters across seeds. Under split_v2 the production test_b.npz
+    # contains all 42 test_b encounters natively; the historical v1p5
+    # supplement file is loaded if it exists for backward compatibility.
     session14_v1 = np.load(
         REPO / "outputs" / "session14" / "latents" / "S12_E_d64" / "test_b.npz",
         allow_pickle=True,
     )
-    session14_supp = np.load(
+    merged_cid = session14_v1["case_id"].astype(str)
+    merged_ei = session14_v1["encounter_index"].astype(int)
+    supp_path = (
         REPO / "outputs" / "session14" / "latents" / "S12_E_d64"
-        / "test_b_v1p5_supplement.npz",
-        allow_pickle=True,
+        / "test_b_v1p5_supplement.npz"
     )
-    merged_cid = np.concatenate(
-        [session14_v1["case_id"], session14_supp["case_id"]]
-    ).astype(str)
-    merged_ei = np.concatenate(
-        [session14_v1["encounter_index"], session14_supp["encounter_index"]]
-    ).astype(int)
+    if supp_path.exists():
+        session14_supp = np.load(supp_path, allow_pickle=True)
+        merged_cid = np.concatenate([merged_cid, session14_supp["case_id"].astype(str)])
+        merged_ei = np.concatenate(
+            [merged_ei, session14_supp["encounter_index"].astype(int)]
+        )
 
     seed_data = {seed: load_test_b_full(seed) for seed in SEEDS}
     base = seed_data["production"]
@@ -201,8 +203,13 @@ def main() -> None:
     )
 
     # Figure: per-encounter heatmap of pairwise Spearman.
+    # Iterate over actual records (may be < 10 if some reps weren't in seed_latents).
     fig, axes = plt.subplots(2, 5, figsize=(20, 8))
+    n_recs = len(per_enc_records)
     for i, ax in enumerate(axes.flat):
+        if i >= n_recs:
+            ax.set_visible(False)
+            continue
         r = per_enc_records[i]
         m = np.full((len(SEEDS), len(SEEDS)), np.nan)
         for a in range(len(SEEDS)):

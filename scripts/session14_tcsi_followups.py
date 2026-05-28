@@ -570,7 +570,7 @@ def _build_regimes(
 
 def _resolve_source_groups(case_ids: Iterable[str]) -> np.ndarray:
     """Look up source_group from the split manifest for each case_id."""
-    split_path = REPO_ROOT / "configs" / "splits" / "split_v1.json"
+    split_path = REPO_ROOT / "configs" / "splits" / "split_v2.json"
     with open(split_path) as f:
         manifest = json.load(f)
     cases = manifest["cases"]

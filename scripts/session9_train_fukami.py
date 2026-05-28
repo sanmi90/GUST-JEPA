@@ -98,7 +98,11 @@ CACHE = Path(os.environ.get("VORTEX_JEPA_CACHE", PREVENT / "data" / "processed" 
 
 def parse_args() -> argparse.Namespace:
     p = argparse.ArgumentParser(description="Session 9 Ablation A11: Fukami AE")
-    p.add_argument("--partition", type=str, default="v1")
+    p.add_argument("--partition", type=str, default="v1",
+                   help="Cache partition; v1 cache stays valid for the v2 rerun.")
+    p.add_argument("--split", type=str,
+                   default="configs/splits/split_v2.json",
+                   help="Path to split manifest. Default split_v2.json (v2 rerun).")
     p.add_argument("--cases", nargs="+", default=None)
     p.add_argument("--cases-from", type=str, default=None)
     p.add_argument("--all-train", action="store_true")
@@ -232,12 +236,12 @@ def _ssim(x: np.ndarray, y: np.ndarray, c1: float = 0.16, c2: float = 1.44) -> f
 
 
 def gather_eval_encounters(split: str) -> list[dict]:
-    with open(REPO / "configs" / "splits" / "split_v1.json") as f:
+    with open(REPO / "configs" / "splits" / "split_v2.json") as f:
         manifest = json.load(f)
     out = []
     for cid, case in manifest["cases"].items():
         if split == "test_a" and case["split"] == "train":
-            ks = case["test_a_encounter_indices"]
+            ks = (case.get("val_encounter_indices") or case["test_a_encounter_indices"])
         elif split == "test_b" and case["split"] == "test_b":
             ks = list(range(case["n_encounters_full"]))
         elif split == "test_c" and case["split"] == "test_c":
@@ -370,7 +374,15 @@ def main() -> None:
         )
     log(f"[fukami-train] device={device} gpu={gpu_name}")
 
-    split_path = REPO_ROOT / "configs" / "splits" / f"split_{args.partition}.json"
+    # v2 rerun: read the --split CLI if provided (default split_v2.json),
+    # else fall back to the historical f"split_{partition}.json" convention.
+    split_arg = getattr(args, "split", None)
+    if split_arg is None:
+        split_path = REPO_ROOT / "configs" / "splits" / f"split_{args.partition}.json"
+    else:
+        split_path = Path(split_arg)
+        if not split_path.is_absolute():
+            split_path = REPO_ROOT / split_path
     with open(split_path) as f:
         split_manifest = json.load(f)
     with open(REPO_ROOT / "configs" / "preprocessing.yaml") as f:

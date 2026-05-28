@@ -36,7 +36,7 @@ REPO = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(REPO))
 
 
-SPLIT_MANIFEST = REPO / "configs" / "splits" / "split_v1.json"
+SPLIT_MANIFEST = REPO / "configs" / "splits" / "split_v2.json"
 LATENTS_DIR = REPO / "outputs" / "session14" / "latents" / "S12_E_d64"
 OUT = REPO / "outputs" / "session16" / "exp2" / "per_frame_targets"
 OUT.mkdir(parents=True, exist_ok=True)
@@ -125,7 +125,7 @@ def gather_encounters_for_split(split: str) -> list[dict]:
         if split == "train" and case["split"] == "train":
             ks = case["train_encounter_indices"]
         elif split == "test_a" and case["split"] == "train":
-            ks = case["test_a_encounter_indices"]
+            ks = (case.get("val_encounter_indices") or case["test_a_encounter_indices"])
         elif split == "test_b" and case["split"] == "test_b":
             ks = list(range(int(case["n_encounters_full"])))
         elif split == "test_c" and case["split"] == "test_c":

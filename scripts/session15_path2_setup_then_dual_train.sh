@@ -25,12 +25,12 @@ echo "[s15-p2] start at $(date -Iseconds)" | tee "$LOG"
 
 # Stage 1: build v1_mean cache (one-shot, ~30-60 min I/O)
 echo "[s15-p2] Stage 1: building v1_mean cache" | tee -a "$LOG"
-python scripts/build_omega_mean_cache.py --split configs/splits/split_v1.json \
+python scripts/build_omega_mean_cache.py --split configs/splits/split_v2.json \
     2>&1 | tee -a "$LOG"
 
 # Stage 2: build v1_mean pipeline manifest (one-shot)
 echo "[s15-p2] Stage 2: building v1_mean pipeline manifest" | tee -a "$LOG"
-python scripts/build_omega_mean_pipeline.py --split configs/splits/split_v1.json \
+python scripts/build_omega_mean_pipeline.py --split configs/splits/split_v2.json \
     2>&1 | tee -a "$LOG"
 
 # Stage 3: launch BOTH variants in parallel

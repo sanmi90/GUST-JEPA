@@ -38,21 +38,23 @@ T_ENC = 120
 
 
 # Hand-picked 10 representative Test B encounters (5 G>0, 5 G<0).
-# Indices into the v1p5 test_b latent block (28 v1 + 28 supplement, in load order).
+# Indices into the split_v2 test_b latent block (42 encounters, in load order;
+# see outputs/session14/latents/S12_E_d64/test_b.npz). One representative per
+# v2 test_b case (10 cases total: 5 G>0 + 5 G<0 by C2 sign-balance).
 REP = {
     "G>0": [
-        {"idx": 0,  "label": "G+1.00 D1.00 Y+0.10"},
-        {"idx": 20, "label": "G+0.50 D1.00 Y+0.20"},
-        {"idx": 36, "label": "G+2.00 D1.00 Y+0.20"},
-        {"idx": 44, "label": "G+3.00 D1.00 Y-0.20"},
-        {"idx": 48, "label": "G+3.00 D1.50 Y-0.10"},
+        {"idx": 22, "label": "G+1.00 D0.50 Y+0.40 enc0"},   # boundary
+        {"idx": 34, "label": "G+0.50 D1.50 Y+0.00 enc0"},   # boundary
+        {"idx": 38, "label": "G+1.50 D1.50 Y+0.10 enc0"},   # interior
+        {"idx": 0,  "label": "G+2.00 D0.50 Y+0.10 enc0"},   # interior
+        {"idx": 14, "label": "G+3.00 D1.00 Y+0.10 enc0"},   # interior
     ],
     "G<0": [
-        {"idx": 12, "label": "G-1.50 D0.50 Y-0.20"},
-        {"idx": 16, "label": "G-0.50 D1.00 Y+0.00"},
-        {"idx": 52, "label": "G-2.00 D1.00 Y+0.00"},
-        {"idx": 13, "label": "G-1.50 D0.50 Y-0.20  enc1"},
-        {"idx": 53, "label": "G-2.00 D1.00 Y+0.00  enc1"},
+        {"idx": 30, "label": "G-0.50 D1.00 Y-0.40 enc0"},   # boundary
+        {"idx": 18, "label": "G-1.00 D1.00 Y-0.20 enc0"},   # interior
+        {"idx": 10, "label": "G-1.50 D0.50 Y-0.20 enc0"},   # boundary
+        {"idx": 26, "label": "G-2.00 D1.00 Y-0.40 enc0"},   # interior
+        {"idx": 6,  "label": "G-3.00 D1.50 Y-0.10 enc0"},   # boundary
     ],
 }
 
@@ -127,7 +129,7 @@ def compute_descriptors(zt: np.ndarray, t_imp: int) -> dict:
 def main() -> None:
     proj = np.load(EXP1 / "projections.npz", allow_pickle=True)
     train = load_z_full("train")
-    test_b = load_z_full("test_b", supplement="test_b_v1p5_supplement")
+    test_b = load_z_full("test_b", supplement=None)
     print(f"[exp1b] train z_full {train['z_full'].shape}  test_b {test_b['z_full'].shape}")
 
     rep_flat = []

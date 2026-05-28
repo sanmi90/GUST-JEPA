@@ -85,7 +85,7 @@ def main() -> None:
           f"of {mask.size} = {100*mask.sum()/mask.size:.2f}%)")
 
     print("[clip-thresholds] iterating manifest to compute per-encounter thresholds")
-    with open(REPO / "configs" / "splits" / "split_v1.json") as f:
+    with open(REPO / "configs" / "splits" / "split_v2.json") as f:
         manifest = json.load(f)
 
     thresholds: dict[str, dict[str, dict[str, float]]] = {}

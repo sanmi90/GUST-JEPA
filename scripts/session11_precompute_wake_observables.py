@@ -69,7 +69,11 @@ _MODES = (
 
 def parse_args() -> argparse.Namespace:
     p = argparse.ArgumentParser(description="Precompute wake observables for Session 11")
-    p.add_argument("--partition", default="v1")
+    p.add_argument("--partition", default="v1",
+                   help="Cache partition; v1 cache stays valid for the v2 rerun.")
+    p.add_argument("--split", type=str,
+                   default="configs/splits/split_v2.json",
+                   help="Path to split manifest. Default split_v2.json (v2 rerun).")
     p.add_argument(
         "--omega-pipeline-manifest",
         default="outputs/data_pipeline/v1/manifest.json",
@@ -94,8 +98,17 @@ def parse_args() -> argparse.Namespace:
     return p.parse_args()
 
 
-def gather_encounters(partition: str, cases_filter: list[str] | None) -> list[dict]:
-    manifest_path = REPO / "configs" / "splits" / f"split_{partition}.json"
+def gather_encounters(
+    partition: str,
+    cases_filter: list[str] | None,
+    split_manifest_path: Path | str | None = None,
+) -> list[dict]:
+    if split_manifest_path is None:
+        manifest_path = REPO / "configs" / "splits" / f"split_{partition}.json"
+    else:
+        manifest_path = Path(split_manifest_path)
+        if not manifest_path.is_absolute():
+            manifest_path = REPO / manifest_path
     with open(manifest_path) as f:
         manifest = json.load(f)
     out = []
@@ -128,8 +141,10 @@ def main() -> None:
     print(f"[wake-precompute] loaded omega pipeline from {manifest_path}", flush=True)
     print(f"[wake-precompute] modes={args.modes}", flush=True)
 
-    encs = gather_encounters(args.partition, args.cases)
-    print(f"[wake-precompute] {len(encs)} encounters found in partition {args.partition}", flush=True)
+    encs = gather_encounters(args.partition, args.cases,
+                             split_manifest_path=args.split)
+    print(f"[wake-precompute] {len(encs)} encounters from {args.split} "
+          f"(partition {args.partition})", flush=True)
 
     out_root = CACHE / args.partition / "wake_observables"
     out_root.mkdir(parents=True, exist_ok=True)

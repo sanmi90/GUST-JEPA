@@ -82,7 +82,7 @@ def gather_all(partition: str) -> list[dict]:
     for cid, c in m["cases"].items():
         if c["split"] == "train":
             train_ks = c.get("train_encounter_indices", [])
-            tA_ks = c.get("test_a_encounter_indices", [])
+            tA_ks = (c.get("val_encounter_indices") or c.get("test_a_encounter_indices", []))
             for k in train_ks:
                 out.append(dict(case_id=cid, k=int(k), G=c["G"], D=c["D"], Y=c["Y"],
                                 split="train"))

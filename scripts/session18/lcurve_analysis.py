@@ -72,13 +72,13 @@ def discover_betas(sweep_dir: Path) -> list[tuple[float, Path]]:
 
 
 def gather_test_a():
-    with open(REPO / "configs/splits/split_v1.json") as f:
+    with open(REPO / "configs/splits/split_v2.json") as f:
         m = json.load(f)
     out = []
     for cid, case in m["cases"].items():
         if case["split"] != "train":
             continue
-        for k in case["test_a_encounter_indices"]:
+        for k in (case.get("val_encounter_indices") or case["test_a_encounter_indices"]):
             path = CACHE / cid / f"encounter_{int(k):02d}.h5"
             if path.exists():
                 out.append({"case_id": cid, "k": int(k), "path": path})

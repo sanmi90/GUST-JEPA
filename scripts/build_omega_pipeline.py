@@ -57,7 +57,14 @@ def build_airfoil_adjacent_mask() -> np.ndarray:
 
 def parse_args() -> argparse.Namespace:
     p = argparse.ArgumentParser(description="Build omega preprocessing manifest")
-    p.add_argument("--partition", type=str, default="v1")
+    p.add_argument("--partition", type=str, default="v1",
+                   help="Cache partition (subdir of VORTEX_JEPA_CACHE). Default v1; "
+                        "v2 reruns keep partition=v1 because the cache layout is "
+                        "split-independent.")
+    p.add_argument("--split", type=str,
+                   default="configs/splits/split_v2.json",
+                   help="Path to split manifest. Default split_v2.json (v2 rerun); "
+                        "pass configs/splits/split_v1.json to reproduce v1 stats.")
     p.add_argument("--output-dir", type=str, default="outputs/data_pipeline/v1")
     p.add_argument("--clip-percentile", type=float, default=99.99,
                    help="Per-encounter clip percentile (post-mask). Default 99.99 "
@@ -72,7 +79,11 @@ def main() -> None:
     out_dir = REPO / args.output_dir
     out_dir.mkdir(parents=True, exist_ok=True)
 
+    split_path = Path(args.split)
+    if not split_path.is_absolute():
+        split_path = REPO / split_path
     print(f"[build-pipeline] partition={args.partition}", flush=True)
+    print(f"[build-pipeline] split manifest = {split_path}", flush=True)
     print(f"[build-pipeline] clip percentile = p{args.clip_percentile}", flush=True)
     print(f"[build-pipeline] output dir = {out_dir}", flush=True)
 
@@ -89,7 +100,7 @@ def main() -> None:
     # Stage B: per-encounter p99.99 thresholds (post-mask)
     print("[build-pipeline] step 2/3: per-encounter p"
           f"{args.clip_percentile} thresholds (post-mask)", flush=True)
-    with open(REPO / "configs" / "splits" / f"split_{args.partition}.json") as f:
+    with open(split_path) as f:
         manifest = json.load(f)
 
     thresholds: dict[str, dict[str, float]] = {}
@@ -124,7 +135,12 @@ def main() -> None:
     for cid, case in sorted(manifest["cases"].items()):
         if case["split"] != "train":
             continue
-        test_a_idx = set(case.get("test_a_encounter_indices", []))
+        # v2 manifests use val_encounter_indices; v1 used test_a_encounter_indices.
+        # Holdout encounters are excluded from train-stat accumulation either way.
+        held = case.get("val_encounter_indices")
+        if held is None:
+            held = case.get("test_a_encounter_indices", [])
+        test_a_idx = set(held)
         for k in range(case["n_encounters_full"]):
             if k in test_a_idx:
                 continue
@@ -163,6 +179,8 @@ def main() -> None:
     )
     manifest_dict = pipeline.to_dict(mask_path=mask_filename)
     manifest_dict["partition"] = args.partition
+    manifest_dict["split_manifest"] = str(split_path.relative_to(REPO)) \
+        if split_path.is_relative_to(REPO) else str(split_path)
     manifest_dict["clip_percentile"] = args.clip_percentile
     manifest_dict["created_at"] = datetime.datetime.now().isoformat(timespec="seconds")
 

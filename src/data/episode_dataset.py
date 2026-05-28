@@ -8,9 +8,13 @@ in this range yields a sub-trajectory [start, start + L) whose intersection with
 the impact window [25, 55] contains at least 7 frames). Otherwise the start is
 uniform over the full episode (`uniform_start_range`, default [0, n_frames - L]).
 
-Split semantics (consume `split_v{partition}.json`):
+Split semantics (default split file: ``configs/splits/split_v2.json``; override via
+``split_manifest_path``):
     train   -> for each case with split == 'train', enumerate train_encounter_indices
-    test_a  -> for each case with split == 'train', enumerate test_a_encounter_indices
+    test_a  -> for each case with split == 'train', enumerate val_encounter_indices
+               (falls back to test_a_encounter_indices for v1 manifests; the
+               in-code split name is still 'test_a' for backwards compatibility,
+               and is treated as the validation holdout used for model selection)
     test_b  -> for each case with split == 'test_b',  enumerate all encounters
     test_c  -> for each case with split == 'test_c',  enumerate all encounters
 
@@ -70,6 +74,7 @@ class EpisodeDataset(torch.utils.data.Dataset):
         wake_observables_root: str | Path | None = None,
         wake_observable_standardize: bool = True,
         omega_pipeline_manifest: str | Path | None = None,
+        split_manifest_path: str | Path | None = None,
         seed: int | None = None,
     ) -> None:
         if split not in _VALID_SPLITS:
@@ -78,8 +83,16 @@ class EpisodeDataset(torch.utils.data.Dataset):
         repo = Path(__file__).resolve().parents[2]
         with open(repo / "configs" / "preprocessing.yaml") as f:
             config = yaml.safe_load(f)
-        with open(repo / "configs" / "splits" / f"split_{partition}.json") as f:
+        if split_manifest_path is None:
+            split_manifest_path = repo / "configs" / "splits" / "split_v2.json"
+        else:
+            p = Path(split_manifest_path)
+            if not p.is_absolute():
+                p = repo / p
+            split_manifest_path = p
+        with open(split_manifest_path) as f:
             split_manifest = json.load(f)
+        self.split_manifest_path = split_manifest_path
 
         prevent_root = Path(prevent_root or os.environ.get("PREVENT_ROOT", "/home/carlos/PREVENT"))
         if cache_root is None:
@@ -156,7 +169,12 @@ class EpisodeDataset(torch.utils.data.Dataset):
                 for k in case["train_encounter_indices"]:
                     self.samples.append((case_id, int(k)))
             elif split == "test_a" and case["split"] == "train":
-                for k in case["test_a_encounter_indices"]:
+                # v2 manifests rename test_a_encounter_indices -> val_encounter_indices;
+                # in-code "test_a" still names the within-train-case validation holdout.
+                ks = case.get("val_encounter_indices")
+                if ks is None:
+                    ks = case["test_a_encounter_indices"]
+                for k in ks:
                     self.samples.append((case_id, int(k)))
             elif split in ("test_b", "test_c") and case["split"] == split:
                 for k in range(int(case["n_encounters_full"])):

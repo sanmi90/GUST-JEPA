@@ -34,7 +34,7 @@ launch_variant() {
         set -e
         # Use --partition v1_mean (which expects cache at PARENT/v1_mean/) instead
         # of overriding VORTEX_JEPA_CACHE. configs/splits/split_v1_mean.json is a
-        # symlink to split_v1.json; wake_observables precomputed at
+        # symlink to split_v2.json; wake_observables precomputed at
         # \$PREVENT_ROOT/data/processed/vortex-jepa/v1_mean/wake_observables/
         python -u -m src.training.train_jepa \\
             --partition v1_mean --all-train --max-iters 20000 --seed 42 \\

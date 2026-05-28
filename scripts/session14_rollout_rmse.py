@@ -152,7 +152,7 @@ def gather_split_encounters(split: str, splits_path: Path) -> list[dict]:
     out = []
     for cid, case in manifest["cases"].items():
         if split == "test_a" and case["split"] == "train":
-            ks = case["test_a_encounter_indices"]
+            ks = (case.get("val_encounter_indices") or case["test_a_encounter_indices"])
         elif split == "test_b" and case["split"] == "test_b":
             ks = list(range(int(case["n_encounters_full"])))
         elif split == "test_c" and case["split"] == "test_c":
@@ -503,7 +503,7 @@ def parse_args() -> argparse.Namespace:
     p.add_argument(
         "--splits-path",
         type=str,
-        default="configs/splits/split_v1.json",
+        default="configs/splits/split_v2.json",
     )
     p.add_argument(
         "--max-encounters",

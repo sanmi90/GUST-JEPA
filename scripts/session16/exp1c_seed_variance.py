@@ -44,7 +44,7 @@ from src.models.encoder import HybridCNNViTEncoder  # noqa: E402
 from src.utils.device import require_rtx6000  # noqa: E402
 
 OMEGA_MANIFEST = REPO / "outputs" / "data_pipeline" / "v1" / "manifest.json"
-SPLIT_MANIFEST = REPO / "configs" / "splits" / "split_v1.json"
+SPLIT_MANIFEST = REPO / "configs" / "splits" / "split_v2.json"
 DEFAULT_IMPACT_FRAME = 40
 PARTITION = "v1"
 SPLITS = ("train", "test_a", "test_b", "test_c")
@@ -74,7 +74,7 @@ def gather_encounters(split: str, cache_root: Path) -> list[dict]:
         if split == "train" and case["split"] == "train":
             ks = list(case["train_encounter_indices"])
         elif split == "test_a" and case["split"] == "train":
-            ks = list(case["test_a_encounter_indices"])
+            ks = list((case.get("val_encounter_indices") or case["test_a_encounter_indices"]))
         elif split == "test_b" and case["split"] == "test_b":
             ks = list(range(int(case["n_encounters_full"])))
         elif split == "test_c" and case["split"] == "test_c":

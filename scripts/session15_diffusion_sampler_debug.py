@@ -44,7 +44,7 @@ def parse_args() -> argparse.Namespace:
                    default=str(REPO / "outputs/runs/session12/S12_E_d64/encoder/decoder_specloss_recipe/decoder_iter012000.pt"))
     p.add_argument("--omega-pipeline-manifest", type=str,
                    default=str(REPO / "outputs/data_pipeline/v1/manifest.json"))
-    p.add_argument("--split", type=str, default=str(REPO / "configs/splits/split_v1.json"))
+    p.add_argument("--split", type=str, default=str(REPO / "configs/splits/split_v2.json"))
     p.add_argument("--n-encounters", type=int, default=6, help="held-out test_b encounters to use")
     p.add_argument("--n-frames-per-enc", type=int, default=4, help="frames sampled per encounter (impact +/- offset)")
     p.add_argument("--gpu", type=int, default=0)

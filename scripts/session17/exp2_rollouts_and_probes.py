@@ -46,7 +46,7 @@ ENCODER_CKPT = (
     / "checkpoint_iter020000.pt"
 )
 OMEGA_MANIFEST = REPO / "outputs" / "data_pipeline" / "v1" / "manifest.json"
-SPLIT_MANIFEST = REPO / "configs" / "splits" / "split_v1.json"
+SPLIT_MANIFEST = REPO / "configs" / "splits" / "split_v2.json"
 PARTITION = "v1"
 DEFAULT_IMPACT_FRAME = 40
 OUT = REPO / "outputs" / "session17" / "exp2"

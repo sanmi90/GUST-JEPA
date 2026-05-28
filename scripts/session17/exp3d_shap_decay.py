@@ -47,7 +47,7 @@ from scripts.session16.exp3_shap import (  # noqa: E402
 SEED_LATENTS = REPO / "outputs" / "session17" / "seed_latents"
 EXP3 = REPO / "outputs" / "session17" / "exp3"
 FIGS = REPO / "outputs" / "session17" / "figures"
-SPLIT_MANIFEST = REPO / "configs" / "splits" / "split_v1p5.json"
+SPLIT_MANIFEST = REPO / "configs" / "splits" / "split_v2.json"
 T_IMPACT = 40
 TAUS = (-10, -5, 0, +5, +10)
 N_STEPS = 32

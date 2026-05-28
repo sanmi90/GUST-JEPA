@@ -91,7 +91,7 @@ def curvature(z: np.ndarray) -> np.ndarray:
 
 
 def main() -> None:
-    test_b = load_split("test_b", supplement="test_b_v1p5_supplement")
+    test_b = load_split("test_b", supplement=None)
     test_c = load_split("test_c")
     train = load_split("train")
     test_a = load_split("test_a")

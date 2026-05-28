@@ -143,13 +143,13 @@ def load_decoder(
 
 def gather_train_encounters() -> list[dict]:
     """Training pool = all non-test-a encounters from ``split == train`` cases."""
-    with open(REPO / "configs" / "splits" / "split_v1.json") as f:
+    with open(REPO / "configs" / "splits" / "split_v2.json") as f:
         manifest = json.load(f)
     out = []
     for cid, case in manifest["cases"].items():
         if case["split"] != "train":
             continue
-        test_a_idx = set(case["test_a_encounter_indices"])
+        test_a_idx = set((case.get("val_encounter_indices") or case["test_a_encounter_indices"]))
         for k in range(case["n_encounters_full"]):
             if k in test_a_idx:
                 continue
@@ -162,12 +162,12 @@ def gather_train_encounters() -> list[dict]:
 
 def gather_eval_encounters(split: str) -> list[dict]:
     """Held-out encounters for the named split (``test_a``, ``test_b``, ``test_c``)."""
-    with open(REPO / "configs" / "splits" / "split_v1.json") as f:
+    with open(REPO / "configs" / "splits" / "split_v2.json") as f:
         manifest = json.load(f)
     out = []
     for cid, case in manifest["cases"].items():
         if split == "test_a" and case["split"] == "train":
-            ks = case["test_a_encounter_indices"]
+            ks = (case.get("val_encounter_indices") or case["test_a_encounter_indices"])
         elif split == "test_b" and case["split"] == "test_b":
             ks = list(range(case["n_encounters_full"]))
         elif split == "test_c" and case["split"] == "test_c":

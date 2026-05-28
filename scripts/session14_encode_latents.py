@@ -3,7 +3,7 @@
 Loads the production E d=64 JEPA encoder (W0_C_lam100 recipe at d=64,
 ``outputs/runs/session12/S12_E_d64/encoder/checkpoint_iter020000.pt``),
 walks the four splits (train, test_a, test_b, test_c) from
-``configs/splits/split_v1.json``, opens each cached encounter HDF5 directly
+``configs/splits/split_v2.json``, opens each cached encounter HDF5 directly
 (bypassing ``EpisodeDataset`` to skip sub-trajectory sampling), applies the
 frozen omega pipeline (mask + per-encounter clip + 3-sigma scale), and pushes
 the full 120-frame stack through the encoder in bf16.
@@ -54,7 +54,7 @@ CHECKPOINT_PATH = (
     REPO_ROOT / "outputs" / "runs" / "session12" / "S12_E_d64" / "encoder"
     / "checkpoint_iter020000.pt"
 )
-SPLIT_MANIFEST_PATH = REPO_ROOT / "configs" / "splits" / "split_v1.json"
+SPLIT_MANIFEST_PATH = REPO_ROOT / "configs" / "splits" / "split_v2.json"
 OMEGA_PIPELINE_MANIFEST = REPO_ROOT / "outputs" / "data_pipeline" / "v1" / "manifest.json"
 DEFAULT_OUTPUT_DIR = REPO_ROOT / "outputs" / "session14" / "latents" / "S12_E_d64"
 DEFAULT_IMPACT_FRAME = 40
@@ -169,7 +169,7 @@ def gather_encounters(split: str, cache_root: Path) -> list[dict]:
         if split == "train" and case["split"] == "train":
             ks = list(case["train_encounter_indices"])
         elif split == "test_a" and case["split"] == "train":
-            ks = list(case["test_a_encounter_indices"])
+            ks = list((case.get("val_encounter_indices") or case["test_a_encounter_indices"]))
         elif split == "test_b" and case["split"] == "test_b":
             ks = list(range(int(case["n_encounters_full"])))
         elif split == "test_c" and case["split"] == "test_c":

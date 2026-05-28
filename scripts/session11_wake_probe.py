@@ -82,7 +82,7 @@ def parse_args() -> argparse.Namespace:
 
 
 def gather_test_b_encounters() -> list[dict]:
-    with open(REPO / "configs" / "splits" / "split_v1.json") as f:
+    with open(REPO / "configs" / "splits" / "split_v2.json") as f:
         manifest = json.load(f)
     out = []
     for cid, case in manifest["cases"].items():

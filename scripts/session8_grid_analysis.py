@@ -94,12 +94,12 @@ def load_encoder(run_dir: Path, kind: str, iters: int, device: torch.device) -> 
 
 
 def gather_encounters(split_key: str) -> list[dict]:
-    with open(REPO / "configs" / "splits" / "split_v1.json") as f:
+    with open(REPO / "configs" / "splits" / "split_v2.json") as f:
         manifest = json.load(f)
     encs = []
     for cid, case in manifest["cases"].items():
         if split_key == "test_a" and case["split"] == "train":
-            ks = case["test_a_encounter_indices"]
+            ks = (case.get("val_encounter_indices") or case["test_a_encounter_indices"])
         elif split_key == "test_b" and case["split"] == "test_b":
             ks = list(range(case["n_encounters_full"]))
         elif split_key == "test_c" and case["split"] == "test_c":

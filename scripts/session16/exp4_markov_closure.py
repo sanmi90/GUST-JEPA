@@ -76,7 +76,7 @@ ENCODER_CKPT = (
     / "checkpoint_iter020000.pt"
 )
 OMEGA_MANIFEST = REPO / "outputs" / "data_pipeline" / "v1" / "manifest.json"
-SPLIT_MANIFEST = REPO / "configs" / "splits" / "split_v1.json"
+SPLIT_MANIFEST = REPO / "configs" / "splits" / "split_v2.json"
 PARTITION = "v1"
 DEFAULT_IMPACT_FRAME = 40
 OUT = REPO / "outputs" / "session16" / "exp4"
@@ -97,7 +97,7 @@ def gather_split_encounters(split: str) -> list[dict]:
     out: list[dict] = []
     for cid, case in manifest["cases"].items():
         if split == "test_a" and case["split"] == "train":
-            ks = case["test_a_encounter_indices"]
+            ks = (case.get("val_encounter_indices") or case["test_a_encounter_indices"])
         elif split == "test_b" and case["split"] == "test_b":
             ks = list(range(int(case["n_encounters_full"])))
         elif split == "test_c" and case["split"] == "test_c":

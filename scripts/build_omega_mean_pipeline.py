@@ -27,7 +27,7 @@ REPO = Path(__file__).resolve().parent.parent
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--split", default=str(REPO / "configs/splits/split_v1.json"))
+    ap.add_argument("--split", default=str(REPO / "configs/splits/split_v2.json"))
     ap.add_argument("--cache-root", default=None)
     ap.add_argument("--out-dir", default=str(REPO / "outputs/data_pipeline/v1_mean"))
     args = ap.parse_args()

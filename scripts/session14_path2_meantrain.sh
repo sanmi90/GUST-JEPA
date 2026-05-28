@@ -31,7 +31,7 @@ echo "[path2] start at $(date -Iseconds) on gpu=$GPU" | tee "$LOG"
 # -----------------------------------------------------------------------------
 echo "[path2] Stage 1: building v1_mean cache" | tee -a "$LOG"
 python scripts/build_omega_mean_cache.py \
-    --split configs/splits/split_v1.json \
+    --split configs/splits/split_v2.json \
     2>&1 | tee -a "$LOG"
 
 # -----------------------------------------------------------------------------
@@ -39,7 +39,7 @@ python scripts/build_omega_mean_cache.py \
 # -----------------------------------------------------------------------------
 echo "[path2] Stage 2: building v1_mean pipeline manifest" | tee -a "$LOG"
 python scripts/build_omega_mean_pipeline.py \
-    --split configs/splits/split_v1.json \
+    --split configs/splits/split_v2.json \
     2>&1 | tee -a "$LOG"
 
 # -----------------------------------------------------------------------------

@@ -44,12 +44,12 @@ FUKAMI_CKPT = REPO / "outputs/session18/exp_b1/fukami_ae_d64/checkpoint_iter0060
 
 
 def gather_test_a():
-    with open(REPO / "configs/splits/split_v1.json") as f:
+    with open(REPO / "configs/splits/split_v2.json") as f:
         m = json.load(f)
     out = []
     for cid, case in m["cases"].items():
         if case["split"] == "train":
-            for k in case["test_a_encounter_indices"]:
+            for k in (case.get("val_encounter_indices") or case["test_a_encounter_indices"]):
                 out.append({
                     "case_id": cid, "k": int(k),
                     "G": float(case["G"]),

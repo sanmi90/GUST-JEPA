@@ -66,6 +66,7 @@ for D in $D_LIST; do
     python "$REPO/scripts/session11_pod_baseline.py" \
         --d "$D" \
         --partition "$PARTITION" \
+        --split configs/splits/split_v2.json \
         --omega-pipeline-manifest "$PIPELINE_MANIFEST" \
         --output-dir "$OUT_DIR"
     echo

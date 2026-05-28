@@ -97,14 +97,14 @@ def parse_args() -> argparse.Namespace:
 
 
 def gather_encs(split: str) -> list[dict]:
-    with open(REPO / "configs" / "splits" / "split_v1.json") as f:
+    with open(REPO / "configs" / "splits" / "split_v2.json") as f:
         m = json.load(f)
     out = []
     for cid, case in m["cases"].items():
         if split == "train" and case["split"] == "train":
             ks = case["train_encounter_indices"]
         elif split == "test_a" and case["split"] == "train":
-            ks = case["test_a_encounter_indices"]
+            ks = (case.get("val_encounter_indices") or case["test_a_encounter_indices"])
         elif split in ("test_b", "test_c") and case["split"] == split:
             ks = list(range(case["n_encounters_full"]))
         else:

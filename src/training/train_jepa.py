@@ -61,7 +61,12 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 
 def parse_args() -> argparse.Namespace:
     p = argparse.ArgumentParser(description="Train the JEPA on partition v1")
-    p.add_argument("--partition", type=str, default="v1")
+    p.add_argument("--partition", type=str, default="v1",
+                   help="Cache partition (subdir of VORTEX_JEPA_CACHE). v1 cache "
+                        "stays valid for the v2 rerun; only --split changes.")
+    p.add_argument("--split", type=str,
+                   default="configs/splits/split_v2.json",
+                   help="Path to split manifest. Default split_v2.json (v2 rerun).")
     p.add_argument(
         "--cases",
         nargs="+",
@@ -407,6 +412,7 @@ def make_train_loader(args: argparse.Namespace) -> DataLoader:
             else "patch_signed_spectrum",
         wake_observables_root=args.wake_observables_root,
         omega_pipeline_manifest=args.omega_pipeline_manifest,
+        split_manifest_path=getattr(args, "split", None),
     )
     if args.cases is not None:
         wanted = set(args.cases)
@@ -453,6 +459,7 @@ def make_test_b_loader(args: argparse.Namespace) -> DataLoader:
             else "patch_signed_spectrum",
         wake_observables_root=args.wake_observables_root,
         omega_pipeline_manifest=args.omega_pipeline_manifest,
+        split_manifest_path=getattr(args, "split", None),
     )
     return DataLoader(
         ds,
@@ -570,7 +577,9 @@ def main() -> None:
     output_dir = Path(args.output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    split_path = REPO_ROOT / "configs" / "splits" / f"split_{args.partition}.json"
+    split_path = Path(args.split)
+    if not split_path.is_absolute():
+        split_path = REPO_ROOT / split_path
     with open(split_path) as f:
         split_manifest = json.load(f)
     with open(REPO_ROOT / "configs" / "preprocessing.yaml") as f:

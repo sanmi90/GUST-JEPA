@@ -73,7 +73,7 @@ def gather_encounters(partition: str, split: str) -> list[dict]:
         if split == "train" and case["split"] == "train":
             ks = case["train_encounter_indices"]
         elif split == "test_a" and case["split"] == "train":
-            ks = case["test_a_encounter_indices"]
+            ks = (case.get("val_encounter_indices") or case["test_a_encounter_indices"])
         elif split in ("test_b", "test_c") and case["split"] == split:
             ks = list(range(case["n_encounters_full"]))
         else:
@@ -196,11 +196,12 @@ def _load_jepa_encoder(
     @torch.no_grad()
     def encode_fn(omega_THW: np.ndarray, case_id: str, k: int) -> np.ndarray:
         omega = pipeline.preprocess_raw(omega_THW, case_id, int(k))
-        omega_t = torch.from_numpy(omega).unsqueeze(1).to(device)  # (T, 1, H, W)
+        # JEPA encoder requires 5D (B, T, C, H, W).
+        omega_t = torch.from_numpy(omega).unsqueeze(0).unsqueeze(2).to(device)
         omega_norm = pipeline.normalize(omega_t)
         with torch.autocast(device_type="cuda", dtype=torch.bfloat16, enabled=True):
-            z = encoder(omega_norm)  # (T, d)
-        return z.float().cpu().numpy()
+            z = encoder(omega_norm)  # (1, T, d)
+        return z.float().squeeze(0).cpu().numpy()  # (T, d)
 
     return encode_fn, d
 

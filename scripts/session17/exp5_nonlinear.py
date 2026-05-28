@@ -68,7 +68,7 @@ ENCODER_CKPT = (
     / "checkpoint_iter020000.pt"
 )
 OMEGA_MANIFEST = REPO / "outputs" / "data_pipeline" / "v1" / "manifest.json"
-SPLIT_MANIFEST = REPO / "configs" / "splits" / "split_v1.json"
+SPLIT_MANIFEST = REPO / "configs" / "splits" / "split_v2.json"
 TCSI_PORTFOLIO = REPO / "outputs" / "session14" / "tcsi_pilot" / "methods_portfolio.json"
 PARTITION = "v1"
 DEFAULT_IMPACT_FRAME = 40
@@ -98,7 +98,7 @@ def gather_split(split: str) -> list[dict]:
         if split == "train" and case["split"] == "train":
             ks = list(case["train_encounter_indices"])
         elif split == "test_a" and case["split"] == "train":
-            ks = list(case["test_a_encounter_indices"])
+            ks = list((case.get("val_encounter_indices") or case["test_a_encounter_indices"]))
         elif split == "test_b" and case["split"] == "test_b":
             ks = list(range(int(case["n_encounters_full"])))
         elif split == "test_c" and case["split"] == "test_c":

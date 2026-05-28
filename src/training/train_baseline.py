@@ -62,7 +62,11 @@ def parse_args() -> argparse.Namespace:
     p = argparse.ArgumentParser(description="Train a matched-capacity baseline")
     p.add_argument("--baseline", type=str, choices=["pldm", "fukami_ae", "solera_rico", "pod"],
                    required=True)
-    p.add_argument("--partition", type=str, default="v1")
+    p.add_argument("--partition", type=str, default="v1",
+                   help="Cache partition; v1 cache stays valid for the v2 rerun.")
+    p.add_argument("--split", type=str,
+                   default="configs/splits/split_v2.json",
+                   help="Path to split manifest. Default split_v2.json (v2 rerun).")
     p.add_argument("--cases", nargs="+", default=None)
     p.add_argument("--cases-from", type=str, default=None)
     p.add_argument(
@@ -131,6 +135,7 @@ def make_train_loader(args: argparse.Namespace) -> DataLoader:
         partition=args.partition, split="train", subtraj_len=args.T,
         emit_cl_future=_emit_cl(args),
         cl_future_deltas=tuple(args.observable_head_deltas),
+        split_manifest_path=getattr(args, "split", None),
     )
     if args.cases is not None:
         wanted = set(args.cases)
@@ -153,6 +158,7 @@ def make_test_b_loader(args: argparse.Namespace) -> DataLoader:
         partition=args.partition, split="test_b", subtraj_len=args.T,
         emit_cl_future=_emit_cl(args),
         cl_future_deltas=tuple(args.observable_head_deltas),
+        split_manifest_path=getattr(args, "split", None),
     )
     return DataLoader(
         ds, batch_size=args.B, shuffle=False, num_workers=0,
@@ -239,7 +245,9 @@ def main() -> None:
     output_dir = Path(args.output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    split_path = REPO_ROOT / "configs" / "splits" / f"split_{args.partition}.json"
+    split_path = Path(args.split)
+    if not split_path.is_absolute():
+        split_path = REPO_ROOT / split_path
     with open(split_path) as f:
         split_manifest = json.load(f)
     with open(REPO_ROOT / "configs" / "preprocessing.yaml") as f:

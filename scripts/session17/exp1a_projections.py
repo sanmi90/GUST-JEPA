@@ -82,7 +82,7 @@ def main() -> None:
     splits = {
         "train": load_split("train"),
         "test_a": load_split("test_a"),
-        "test_b": load_split("test_b", supplement="test_b_v1p5_supplement"),
+        "test_b": load_split("test_b", supplement=None),
         "test_c": load_split("test_c"),
     }
     for n, s in splits.items():

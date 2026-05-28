@@ -86,7 +86,7 @@ def write_encounter(out_path: Path, encoded: dict, case_meta: dict,
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--split", default=str(REPO / "configs/splits/split_v1.json"))
+    ap.add_argument("--split", default=str(REPO / "configs/splits/split_v2.json"))
     ap.add_argument("--config", default=str(REPO / "configs/preprocessing.yaml"))
     ap.add_argument("--cache-root", default=None,
                     help="Override cache root. Default: $PREVENT_ROOT/data/processed/vortex-jepa/v1_mean")

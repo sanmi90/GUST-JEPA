@@ -53,7 +53,11 @@ CACHE = Path(os.environ.get("VORTEX_JEPA_CACHE", PREVENT / "data" / "processed" 
 def parse_args() -> argparse.Namespace:
     p = argparse.ArgumentParser(description="POD baseline for Session 11")
     p.add_argument("--d", type=int, default=32, help="Number of POD modes.")
-    p.add_argument("--partition", type=str, default="v1")
+    p.add_argument("--partition", type=str, default="v1",
+                   help="Cache partition; v1 cache stays valid for the v2 rerun.")
+    p.add_argument("--split", type=str,
+                   default="configs/splits/split_v2.json",
+                   help="Path to split manifest. Default split_v2.json (v2 rerun).")
     p.add_argument(
         "--omega-pipeline-manifest", type=str,
         default="outputs/data_pipeline/v1/manifest.json",
@@ -66,8 +70,14 @@ def parse_args() -> argparse.Namespace:
     return p.parse_args()
 
 
-def gather_encounters(partition: str, split: str) -> list[dict]:
-    manifest_path = REPO / "configs" / "splits" / f"split_{partition}.json"
+def gather_encounters(partition: str, split: str,
+                     split_manifest_path: "str | Path | None" = None) -> list[dict]:
+    if split_manifest_path is None:
+        manifest_path = REPO / "configs" / "splits" / "split_v2.json"
+    else:
+        manifest_path = Path(split_manifest_path)
+        if not manifest_path.is_absolute():
+            manifest_path = REPO / manifest_path
     with open(manifest_path) as f:
         m = json.load(f)
     out = []
@@ -75,7 +85,7 @@ def gather_encounters(partition: str, split: str) -> list[dict]:
         if split == "train" and c["split"] == "train":
             ks = c["train_encounter_indices"]
         elif split == "test_a" and c["split"] == "train":
-            ks = c["test_a_encounter_indices"]
+            ks = (c.get("val_encounter_indices") or c["test_a_encounter_indices"])
         elif split in ("test_b", "test_c") and c["split"] == split:
             ks = list(range(c["n_encounters_full"]))
         else:
@@ -118,7 +128,7 @@ def main() -> None:
     log(f"[pod] pipeline loaded from {manifest_path}")
 
     H, W = 192, 96
-    train_encs = gather_encounters(args.partition, "train")
+    train_encs = gather_encounters(args.partition, "train", split_manifest_path=args.split)
     log(f"[pod] train encounters: {len(train_encs)}")
 
     # Build snapshot matrix: (n_frames, H*W) of pipeline-normalized omega.
@@ -167,7 +177,7 @@ def main() -> None:
     # Evaluate on each split with the Session 10 metric bundle.
     summary: dict = {"d": args.d, "energy_fraction": float(energy)}
     for split in ("test_a", "test_b", "test_c"):
-        encs = gather_encounters(args.partition, split)
+        encs = gather_encounters(args.partition, split, split_manifest_path=args.split)
         per_enc = []
         for e in encs:
             with h5py.File(e["path"], "r") as f:

@@ -17,7 +17,7 @@ After integrating new run3 cases into a v1.x split (e.g. via
 ``build_split_manifest_v1p5.py``) and preprocessing them, run:
 
     python scripts/data_integrity_audit.py \
-        --split configs/splits/split_v1p5.json \
+        --split configs/splits/split_v2.json \
         --out-manifest outputs/session14/data_integrity/integrity_manifest.json \
         --write-clean-split
 
@@ -27,7 +27,7 @@ simulations so they can re-run the broken encounters.
 
 For a one-off check of the current production split:
 
-    python scripts/data_integrity_audit.py --split configs/splits/split_v1.json
+    python scripts/data_integrity_audit.py --split configs/splits/split_v2.json
 
 Flags
 -----
