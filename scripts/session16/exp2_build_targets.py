@@ -178,7 +178,8 @@ def main() -> None:
             "wake_thickness": np.zeros((n, T), dtype=np.float32),
             "wake_enstrophy": np.zeros((n, T), dtype=np.float32),
         }
-        z_full = np.zeros((n, T, 64), dtype=np.float32)
+        latent_d = int(latents["z_full"].shape[-1])
+        z_full = np.zeros((n, T, latent_d), dtype=np.float32)
         case_ids = np.array([e["case_id"] for e in encs], dtype=object)
         encounter_indices = np.array([e["k"] for e in encs], dtype=np.int32)
         impact_frames = np.zeros(n, dtype=np.int32)

@@ -1,0 +1,129 @@
+% Fig 2 - Reconstructive (AE / Fukami) vs Predictive (JEPA), revised layout.
+%
+% LEFT panel: AE single column with L_AE loss box on the LEFT side, half-height,
+%             with short loss arrows from both the input and the reconstruction.
+% RIGHT panel: JEPA two parallel columns. Main column (left): input(t) -> encoder
+%             -> z_t -> predictor -> zhat. Target column (right): input(t+dt) ->
+%             shared-weight encoder -> z(t+dt), drawn faint. L_JEPA loss box at
+%             the BOTTOM RIGHT, outside the spine, with arrows from zhat and z(t+dt).
+%
+% Standalone-compilable: pdflatex fig2_predictive_vs_reconstructive.tex
+
+\documentclass[border=10pt,tikz]{standalone}
+\usepackage{tikz}
+\usepackage{amsmath,amssymb}
+\usetikzlibrary{positioning,arrows.meta,fit,shapes.geometric,calc,backgrounds}
+
+\begin{document}
+
+\begin{tikzpicture}[
+    font=\small,
+    box/.style={draw, rounded corners=2pt, align=center, inner sep=5pt, thick},
+    encoder/.style={box, fill=blue!8,    minimum width=36mm, minimum height=14mm},
+    encoderfaint/.style={box, fill=blue!4, draw=blue!30,
+                         minimum width=36mm, minimum height=14mm,
+                         text=black!60},
+    predictor/.style={box, fill=orange!10, minimum width=36mm, minimum height=14mm},
+    decoder/.style={box, fill=gray!18, minimum width=36mm, minimum height=14mm},
+    state/.style={draw, rectangle, rounded corners=1pt, fill=white,
+                  minimum height=9mm, minimum width=26mm, inner sep=3pt},
+    statefaint/.style={draw=black!40, rectangle, rounded corners=1pt, fill=white,
+                       minimum height=9mm, minimum width=26mm, inner sep=3pt,
+                       text=black!60},
+    losssm/.style={draw, rectangle, dashed, fill=red!5, inner sep=3pt,
+                   minimum height=14mm, minimum width=34mm, align=center,
+                   font=\footnotesize},
+    arr/.style={-{Stealth[length=2.5mm]}, thick},
+    arrfaint/.style={-{Stealth[length=2mm]}, semithick, black!40, densely dashed},
+    lossarr/.style={-{Stealth[length=2mm]}, dashed, semithick, red!70!black},
+    header/.style={font=\bfseries\small, align=center}
+  ]
+
+  % ============= LEFT PANEL: AE / Fukami =============
+  \node[header] (ltitle) {Reconstructive (AE / Fukami)};
+
+  \node[state, below=6mm of ltitle] (aein)
+    {$\boldsymbol{\omega}_z(t)$};
+  \node[encoder, below=7mm of aein] (aeenc)
+    {\textbf{Encoder} $E_{\theta}$ \\[1pt] CNN};
+  \node[state, below=7mm of aeenc] (aez)
+    {$\mathbf{z}_t \in \mathbb{R}^{d}$};
+  \node[decoder, below=7mm of aez] (aedec)
+    {\textbf{Decoder} $D_{\psi}$ \\[1pt] transposed CNN};
+  \node[state, below=7mm of aedec] (aeout)
+    {$\widehat{\boldsymbol{\omega}}_z(t)$};
+
+  \draw[arr] (aein) -- (aeenc);
+  \draw[arr] (aeenc) -- (aez);
+  \draw[arr] (aez) -- (aedec);
+  \draw[arr] (aedec) -- (aeout);
+
+  % AE loss box: placed to the LEFT of the spine, at the vertical midpoint, narrow
+  % so the loss arrows come from the input above and the reconstruction below.
+  \node[losssm, left=20mm of aez] (laerec)
+    {$\mathcal{L}_{\text{AE}}$ \\[2pt]
+     $\| \widehat{\boldsymbol{\omega}}_z(t) - \boldsymbol{\omega}_z(t) \|^{2}$ \\[1pt]
+     \emph{pixel-space MSE}};
+
+  \draw[lossarr] (laerec.north) to[out=90,in=180] (aein.west);
+  \draw[lossarr] (laerec.south) to[out=-90,in=180] (aeout.west);
+
+  % ============= RIGHT PANEL: JEPA =============
+  \node[header, right=72mm of ltitle] (rtitle) {Predictive (JEPA)};
+
+  % Two parallel columns: main (left, full color) and target (right, faint).
+  \node[state, below=6mm of rtitle, xshift=-22mm] (jin)
+    {$\boldsymbol{\omega}_z(t)$};
+  \node[statefaint, below=6mm of rtitle, xshift=22mm] (jintgt)
+    {$\boldsymbol{\omega}_z(t+\Delta t)$};
+
+  \node[encoder, below=7mm of jin] (jenc)
+    {\textbf{Encoder} $E_{\theta}$ \\[1pt] CNN $+$ ViT};
+  \node[encoderfaint, below=7mm of jintgt] (jenctgt)
+    {Encoder $E_{\theta}$ \\[1pt] \emph{shared weights}};
+
+  \node[state, below=7mm of jenc] (jz)
+    {$\mathbf{z}_t \in \mathbb{R}^{d}$};
+  \node[statefaint, below=7mm of jenctgt] (jztgt)
+    {$\mathbf{z}_{t+\Delta t}$};
+
+  \node[predictor, below=7mm of jz] (jpred)
+    {\textbf{Predictor} $P_{\phi}$ \\[1pt] AR transformer};
+
+  \node[state, below=7mm of jpred] (jzhat)
+    {$\widehat{\mathbf{z}}_{t+\Delta t}$};
+
+  % main forward path solid; target path faint dashed
+  \draw[arr] (jin) -- (jenc);
+  \draw[arr] (jenc) -- (jz);
+  \draw[arr] (jz) -- (jpred);
+  \draw[arr] (jpred) -- (jzhat);
+  \draw[arrfaint] (jintgt) -- (jenctgt);
+  \draw[arrfaint] (jenctgt) -- (jztgt);
+
+  % JEPA loss box: BOTTOM RIGHT, outside the predictor spine. Arrows from
+  % zhat (left) and z_target (right) converge into it.
+  \node[losssm, right=14mm of jzhat] (ljpred)
+    {$\mathcal{L}_{\text{JEPA}}$ \\[2pt]
+     $\| \widehat{\mathbf{z}}_{t+\Delta t} - \mathbf{z}_{t+\Delta t} \|^{2}$ \\[1pt]
+     \emph{latent-space MSE}};
+
+  \draw[lossarr] (jzhat.east) -- (ljpred.west);
+  \draw[lossarr] (jztgt.south) to[out=-90,in=60] (ljpred.north east);
+
+  % Annotation: NO pixel-space loss in JEPA, above the right title
+  \node[align=center, font=\footnotesize\itshape, text=red!60!black,
+        above=4mm of rtitle]
+    (nopix) {No pixel-space loss, no decoder during training};
+
+  % ============= background frames =============
+  \begin{scope}[on background layer]
+    \node[draw=gray!50, rounded corners=4pt, dashed, inner sep=5mm,
+          fit=(ltitle)(aein)(aeenc)(aez)(aedec)(aeout)(laerec)] (lframe) {};
+    \node[draw=orange!50, rounded corners=4pt, dashed, inner sep=5mm,
+          fit=(rtitle)(jin)(jintgt)(jenc)(jenctgt)(jz)(jztgt)(jpred)(jzhat)(ljpred)(nopix)] (rframe) {};
+  \end{scope}
+
+\end{tikzpicture}
+
+\end{document}

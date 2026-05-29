@@ -70,6 +70,7 @@ ENCODER_CKPT = (
 OMEGA_MANIFEST = REPO / "outputs" / "data_pipeline" / "v1" / "manifest.json"
 SPLIT_MANIFEST = REPO / "configs" / "splits" / "split_v2.json"
 TCSI_PORTFOLIO = REPO / "outputs" / "session14" / "tcsi_pilot" / "methods_portfolio.json"
+DNS_METRICS_PATH = REPO / "outputs" / "session17" / "exp2" / "dns_physical_metrics.npz"
 PARTITION = "v1"
 DEFAULT_IMPACT_FRAME = 40
 OUT = REPO / "outputs" / "session17" / "exp5"
@@ -409,7 +410,7 @@ def main() -> None:
     enc, pred_model = load_encoder_predictor(device)
     pipeline = OmegaPipeline.from_manifest(OMEGA_MANIFEST)
 
-    dns_metrics = np.load(REPO / "outputs" / "session17" / "exp2" / "dns_physical_metrics.npz", allow_pickle=True)
+    dns_metrics = np.load(DNS_METRICS_PATH, allow_pickle=True)
     train_full = np.load(REPO / "outputs" / "session14" / "latents" / "S12_E_d64" / "train.npz", allow_pickle=True)
     z_full_train = train_full["z_full"].astype(np.float32)
     train_full_cid = train_full["case_id"].astype(str)

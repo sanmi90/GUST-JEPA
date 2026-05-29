@@ -1,0 +1,43 @@
+% Figure 4: Markov closure centerpiece (Session 18, Experiment B1).
+% Source figure: outputs/session18/figures/figure4_markov_closure_centerpiece.pdf
+% Source data:   outputs/session18/exp_b1_test3/physical_closure_noBN_unified.csv (864 rows)
+% Aggregation:   z_markov mode, horizon H=16 frames after impact, mean absolute error,
+%                bootstrap 95\,\% CI over encounters (n=42 Test B, n=24 Test C).
+
+\begin{figure}
+  \centering
+  \includegraphics[width=\textwidth]{outputs/session18/figures/figure4_markov_closure_centerpiece.pdf}
+  \caption[Markov closure of physical observables across eight latent baselines.]{%
+    Markov-only forecast of physical observables at horizon $H=16$ frames after
+    vortex impact, comparing JEPA against the Fukami AE and POD baseline
+    families under a single unified transformer predictor (no output BatchNorm)
+    fit on \texttt{train}. The panel grid is $2\times3$: rows distinguish
+    \emph{Test B} (in-distribution, $n=42$ encounters, top) from \emph{Test C}
+    ($G=+4$ out-of-distribution, $n=24$, bottom); columns report the lift
+    coefficient $C_L$, the wake $y$-impulse $I_y$, and the wake enstrophy
+    $\Omega_w$. Within each panel the seven bars compare, left to right, Fukami
+    AE at $d\in\{3,32,64\}$ (red shades), POD at $d\in\{16,32,64\}$ (blue
+    shades), and JEPA $d=64$ (green, hatched); error bars are bootstrap 95\,\%
+    CI ($n=2000$ resamples over encounters); horizontal dotted lines mark the
+    DNS-oracle floor (best closure from ground-truth observables, also fit on
+    \texttt{train}). JEPA wins decisively on the wake structure on both
+    splits: on Test B $\Omega_w$ absolute error drops from
+    $74.2$--$89.3$ (POD family) and $55.7$--$73.3$ (Fukami AE family) to $41.3$
+    for JEPA $d=64$; on Test C it drops from $217.0$--$223.4$ (POD) and
+    $233.6$--$262.6$ (Fukami AE) to $139.2$, the only entry below the
+    DNS-oracle floor on this OOD split, and the same advantage carries over to
+    circulation$_{\pm}$ in Table~\ref{tab:b1-headline} where JEPA reduces error
+    by $1.5$--$3.3\times$ over POD. On the aerodynamic coefficients $C_L$ and
+    $C_D$ JEPA ties the strongest classical baseline at matched capacity
+    (matched-$d=64$ Test B $C_L$: $0.80$ for JEPA, $0.78$ for POD $d=64$ and
+    Fukami AE $d=64$, with overlapping CIs); on $I_y$ POD wins on Test C, an
+    honest task-dependent trade-off. Full headline numbers across
+    \texttt{train}, \texttt{val}, \texttt{test\_b}, and \texttt{test\_c} with
+    three-seed encoder variance, five-fold probe cross-validation, the six
+    physical observables, and the horizon sweep $H\in\{8,16,32\}$ are reported
+    in Table~\ref{tab:b1-headline}. Source data:
+    \texttt{outputs/session18/exp\_b1\_test3/physical\_closure\_noBN\_unified.csv}
+    (ridge probes; KRR-RBF sensitivity in Figure~S6).
+  }
+  \label{fig:b1-markov-closure}
+\end{figure}

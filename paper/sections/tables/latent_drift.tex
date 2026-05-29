@@ -1,0 +1,25 @@
+% Latent drift diagnostic: Mahalanobis distance of the rolled-out latent vs the
+% DNS-encoded latent reference distribution, averaged over n=42 test_b encounters.
+% Source: outputs/session18/exp_b1_test3/latent_drift_diagnostic.json.
+
+\begin{table}[t]
+  \centering
+  \caption{Latent drift diagnostic on test\_b. The Mahalanobis distance of the
+  rolled-out latent is reported alongside that of the DNS-encoded latent in the same
+  reference distribution. Their ratio $r = d_{\text{Mahal, Markov}} / d_{\text{Mahal, DNS}}$
+  quantifies how far the predictor's autoregressive rollout has left the training
+  manifold. A ratio close to one means the rollout stays in distribution; a large
+  ratio means the rollout has gone out of distribution.}
+  \label{tab:latent_drift}
+  \small
+  \begin{tabular}{l c c c c c}
+    \toprule
+    Baseline & $d$ & $d_{\text{Mahal, DNS}}$ & $d_{\text{Mahal, Markov}}$ & ratio & rel.\ drift @ $H{=}16$ \\
+    \midrule
+    Fukami & 64 & 2.92 & 28.96 & \textbf{9.90} & 0.370 \\
+    JEPA   & 64 & 8.08 & 6.84  & 0.85          & 0.494 \\
+    JEPA   & 32 & 5.43 & 4.65  & 0.86          & 0.475 \\
+    POD    & 64 & 7.74 & 6.27  & 0.81          & 0.722 \\
+    \bottomrule
+  \end{tabular}
+\end{table}

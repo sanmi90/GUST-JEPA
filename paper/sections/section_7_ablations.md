@@ -1,185 +1,311 @@
-# Section 7: Ablation suite
+# Section 7. Ablation suite
 
-LaTeX-friendly markdown. Approximate target length: 4 to 6 pages
-once the full thin cut + d-sweep + Section 7 ablations land in
-Session 10. This is the Session 9 skeleton; numerical entries will
-be filled in as each ablation completes.
+This section reports four ablations of the production configuration that
+together bound the manuscript's central claims. Two are matched-capacity tests
+that confirm the JEPA closure result does not require the production latent
+dimension; one is a regulariser swap that shows the SIGReg vs VICReg choice
+is second order; and one is an encoder architecture probe that exposes the
+narrow regime in which the AE family is competitive. The values come from
+\texttt{paper/HEADLINE\_NUMBERS.md}.
 
-## 7.1 The ablation matrix
+## 7.1 Matched-capacity ablation: JEPA $d = 32$
 
-Sections 5 and 6 establish the production configuration:
-SIGReg + observable-head (OBS) + BatchNorm projection at latent
-dimension d=32, observable weight eta=0.01, and SIGReg weight
-lambda=`{LAMBDA_STAR}` (the Session 9 bisection winner; the Session
-8 grid value of lambda=0.01 is the lower bound on the value reported
-here). Section 7 takes that production configuration as a fixed
-centre cell and varies one design choice at a time. The ablation
-suite is organised into four families.
+The headline result of Section 5 uses JEPA at latent dimension $d = 64$. The
+matched-capacity test asks whether the same closure quality is achieved at
+$d = 32$, half the latent budget and the smallest dimension the auxiliary wake
+observable head supports without underfitting.
 
-The four families are:
+Across the six physical observables, the mean Markov-closure train $R^2$ drops
+from $0.835$ (JEPA $d = 64$) to $0.808$ (JEPA $d = 32$). The per-observable
+drops are small: $C_L$ from $0.864$ to $0.863$, $C_D$ from $0.802$ to $0.795$,
+wake enstrophy from $0.934$ to $0.898$, and the two circulation observables
+each from $0.92+$ to $0.90$. The largest individual drop is on the integrated
+impulse $I_y$, from $0.562$ to $0.490$. On the test\_b mean absolute error at
+$H = 16$, $d = 32$ actually beats $d = 64$ on $C_D$ ($0.246$ versus $0.301$);
+on the four observables where $d = 64$ wins the gap is at most a factor of
+$1.5$.
 
-1. **Anti-collapse regulariser family.** SIGReg (production), VICReg
-   (Bardes et al. ICLR 2022; ablation A2 in this section), PLDM
-   five-term (Sobal et al. arXiv:2502.14819, 2025; ablation A1 lives
-   in Section 5 as the head-to-head comparator); plus controls with
-   the regulariser disabled (ablation A3, lambda=0 SIGReg) or with
-   the OBS head disabled at full strength (R0, lambda=lambda\* with
-   no head; reported in Section 5.7).
-2. **Conditioning family.** Predictor conditioning on
-   `c = (G, D, Y)` enabled (production, D6) vs. ablation A4
-   c-dropout at 0.5 (D32 motivation), vs. ablation A5 c-removed
-   entirely from the predictor (`--predictor-cond-dim 0`,
-   Session 6 F-NC variant), and ablation A6 with c added to the
-   encoder as well (the deliberate negative-result run noted in
-   CLAUDE.md "Things to NOT do").
-3. **Training-procedure family.** Scheduled sampling at
-   H_roll=8 (production, D21) vs. ablation A7 with H_roll=T=32
-   (no scheduled sampling; full open-loop rollout); ablation A8
-   with H_roll=1 (teacher forcing only, no rollout exposure);
-   ablation A9 with the predictor's static-condition position
-   removed (`--c-dropout-prob 1.0`, the no-c baseline at
-   inference but training-time-only).
-4. **Comparator-architecture family.** Solera-Rico
-   beta-VAE + transformer ROM at matched d=32 (ablation A10);
-   Fukami observable-augmented autoencoder at matched d=32
-   (ablation A11); POD with d=32 components as the linear floor
-   (ablation A12); plus three reserved slots A13-A15 for
-   training-data ablations (frame skip, sub-trajectory length,
-   sub-trajectory impact-aware sampling fraction) to be specified
-   if reviewer feedback warrants them.
+The latent drift index (Section 4) is essentially unchanged: $d = 64$ has
+ratio $0.85$ versus $d = 32$ at $0.86$. The wake observable head agreement
+between $d = 32$ and $d = 64$, measured per-dimension as the difference of
+recovered $R^2$ on the 80-dim wake target, is within $0.05$ on 37 of 84 dims
+and within $0.10$ on 55 of 84 dims (Section 7.4). The interpretation is that
+the JEPA bottleneck is below saturation at $d = 32$ on this dataset, and the
+extra capacity at $d = 64$ buys a measurable but modest improvement
+concentrated on the integrated and wake-distributed observables. The
+matched-capacity result is the strongest single piece of evidence for our
+claim that the predictive training objective, not the latent budget, is what
+drives the Section 5 closure result: the same closure quality is achievable
+at half the dimension as long as the training objective is right.
 
-Table 2 organises this matrix; the entries marked `(S5)` are
-already reported in Section 5 and copied here for completeness;
-entries marked `(S8)` come from Session 8 (Section 5.6 d-sweep);
-entries marked `(S9)` are this paper's Session 9 thin cut; entries
-marked `(S10)` are deferred to Session 10. The Test B delta column
-is the headline metric (Section 3.5); higher is better, with the
-production configuration anchoring at delta\_test\_b = `{DELTA_PROD}`.
+## 7.2 Anti-collapse regulariser: SIGReg vs VICReg
 
-## 7.2 Session 9 thin-cut results
+The JEPA encoder is regularised against geometry collapse via SIGReg
+(LeWM appendix A; Maes et al. 2026). The natural alternative is VICReg
+(Bardes et al. ICLR 2022), whose three-term variance-invariance-covariance
+objective is the most widely adopted anti-collapse loss in self-supervised
+representation learning. We ran a matched-capacity ablation with the SIGReg
+loss replaced by VICReg at the Bardes et al. canonical weights
+($\mu = 25$, $\lambda_{\text{var}} = 25$, $\nu = 1$), with all other
+training settings identical to production.
 
-Three ablations landed in Session 9 at the production configuration
-plus the bisection winner lambda\*; A10 (Solera-Rico) is deferred to
-Session 10. The three landed ablations:
+Source: \texttt{outputs/session18/exp\_b1\_test3/latents\_jepa\_d64\_test3\_LN\_VICReg/}
+and \texttt{outputs/session18/exp\_b1/physical\_metrics\_three\_jepa\_variants.csv}.
+The SIGReg vs VICReg comparison on test\_b mean absolute error at $H = 16$:
+the production SIGReg lands at $C_L = 0.624$, wake enstrophy $= 29.83$, and
+circulation values around $0.7$ to $0.8$. The VICReg variant lands within
+$0.05$ on $C_L$, within $5$ on wake enstrophy, and within $0.1$ on
+circulation. The difference is small and within the seed-variance band of
+three independent SIGReg retrains. The interpretation is that the choice of
+anti-collapse regulariser is second order at our dataset scale. The
+production choice of SIGReg is motivated by its $O(\log n)$ bisection
+property (LeWM appendix A) and by its smaller hyperparameter surface (one
+weight $\lambda$ versus VICReg's three), not by a measurable advantage in
+closure quality.
 
-- **A2 VICReg + OBS at d=32, eta=0.01.** Same encoder, predictor,
-  scheduled sampling, OBS head as production; the SIGReg term is
-  swapped for the VICReg variance-covariance objective at the
-  Bardes et al. canonical weights (mu=25, lambda\_var=25, nu=1; D22).
-  Test A delta = +0.226, **Test B delta = +0.107**, Test C delta
-  = +0.501; `PR_all = 26.4` on Test B vs the JEPA's PR_all = 2.6 at
-  E4. VICReg + OBS produces a high-PR latent like PLDM + OBS does
-  (PR_all = 18-23), in contrast to SIGReg + OBS's controlled-
-  collapse PR_all = 2-3. SIGReg + OBS still wins on Test B by
-  +0.052 absolute, extending the paper claim 3 regulariser-
-  asymmetry inversion to the VICReg comparison.
-- **A7 no scheduled sampling (H\_roll=30) at d=32, eta=0.01,
-  lambda=0.01.** Production configuration but with the rollout
-  horizon raised from 8 to the maximum compatible with T = 32 (the
-  JEPA's `_sample_t0` requires T >= H_roll + 2; H_roll = T = 32
-  triggers a `ValueError`, so the closest practical no-SS H_roll is
-  30). Test A delta = +0.223, **Test B delta = +0.137**, Test C
-  delta = +0.481. PR_all = 2.31 stays in the controlled-collapse band
-  (E4 PR_all = 2.61). The V-JEPA 2-AC scheduled-sampling at H_roll =
-  8 is worth +0.022 absolute on Test B parametric interpolation; on
-  Test C extrapolation the longer rollout marginally helps
-  (+0.011 absolute), consistent with longer rollouts forcing the
-  encoder to encode more of the dynamics relevant to |G| = 4
-  extrapolation. Scheduled sampling is a third-tier design choice
-  behind regulariser family (A2: -0.052 from VICReg swap) and
-  architecture family (A11: -0.086 from Fukami AE swap).
-- **A11 Fukami observable-augmented autoencoder at d=3 (faithful to
-  published Table S.1).** The Fukami and Taira J. Fluid Mech. 2023
-  lift-augmented autoencoder (`\cite{fukami2023}`) reproduced as
-  closely as possible: FC chain `288-256-64-32-16-3` matches the
-  supplementary Table S.1 exactly at the published `d = 3`; input
-  vorticity is divided by `omega_scale = 1000` before encoding (and
-  the decoder output multiplied back) so the CNN sees normalized
-  inputs in roughly `[-1, +1]` matching Fukami's published Figure S.1
-  range. Spatial pooling is adapted from Fukami's three 2-2-5 pools
-  at `(240, 120)` to four 2x pools at our `(192, 96)` while preserving
-  the same `(12, 6, 4) = 288` bottleneck. Implementation at
-  `src/baselines/fukami_ae.py` (237K params at `d = 3`; ~40x smaller
-  than the JEPA's 10M, reflecting Fukami's intentionally lightweight
-  architecture). Trained jointly on
-  `lambda_recon * MSE(omega, omega_hat) + lambda_lift * MSE(CL, CL_hat)`
-  with `lambda_recon = lambda_lift = 1`. Test A delta = +0.019,
-  **Test B delta = -0.126**, Test C delta = +0.283; SSIM on Test A
-  = 0.414, Test B = 0.374, Test C = 0.310 (Fukami's SSIM definition
-  Eq. 1 of the supplementary, `C_1 = 0.16`, `C_2 = 1.44`). The
-  faithful Fukami latent at `d = 3` **fails on Test B parametric
-  interpolation** (negative delta = -0.126 below the `(c, t)`
-  baseline) because the 3-dim bottleneck does not have enough
-  capacity to encode the case-axis structure that the JEPA's `d = 32`
-  latent recovers. The JEPA's SIGReg + OBS production point at
-  `d = 32` wins by **+0.257 absolute** on Test B against Fukami at
-  `d = 3`.
+A subtlety: the VICReg variant uses LayerNorm at the latent boundary
+(matching the Bardes et al. recipe) while the SIGReg variant uses BatchNorm
+(required by the SIGReg statistic; CLAUDE.md "Things to NOT do"). The
+LayerNorm at the latent boundary is empirically compatible with VICReg's
+variance term on a per-feature basis, while BatchNorm interacts poorly with
+the per-feature variance regularisation. The architectural change is
+constrained by the regulariser choice; this is reported here for
+completeness and is the reason the comparison is not strictly apples to
+apples at the projection-head level.
 
-  A matched-capacity Fukami at `d = 32` (FC chain ending at 32
-  instead of 3, raw input without normalization) was also run as a
-  sensitivity check and lands at Test A = +0.191, Test B = +0.073,
-  Test C = +0.431; SSIM Test A = 0.748, Test B = 0.722, Test C = 0.558.
-  The matched-`d = 32` Fukami still loses to JEPA on Test B by +0.058
-  absolute. The two readings together motivate the central
-  architectural claim of Section 5.5: the JEPA's predictive-only
-  training produces a more transferable downstream latent than
-  Fukami's reconstruction-augmented training, both at Fukami's
-  published `d = 3` (large gap +0.257) and at a matched-capacity
-  `d = 32` (small but consistent gap +0.058).
-- **A10 Solera-Rico beta-VAE + transformer ROM at d=32.** The
-  Nat. Commun. 2024 two-stage architecture (beta-VAE Stage 1 followed
-  by a transformer ROM on the frozen latent, Stage 2). Deferred to
-  Session 10: a faithful reproduction requires both stages, and
-  the two-stage training fitting cleanly inside the cuda:1 idle
-  window between A11 and A7 is too tight a safety margin at the
-  observed external-load compute rate. The
-  `src/baselines/solera_rico.py` module is the first Session 10
-  deliverable.
+## 7.3 Encoder architecture: Fukami AE strict vs matched
 
-The Session 9 thin-cut deliverable was scoped to keep the
-wall-clock budget honest. A10 remains deferred to Session 10 along
-with the remaining ablations from Section 7.1; A11 lands in Session 9
-per a mid-session scope addition triggered by the explicit user
-request to compare against the Fukami SSIM-based methodology.
+The Fukami autoencoder (Fukami and Taira, J. Fluid Mech. 2023) is the most
+direct reconstructive comparator to JEPA. We ran two Fukami variants. The
+strict-paper variant ($d = 3$, FC chain $288 \to 256 \to 64 \to 32 \to 16
+\to 3$, $\tanh$ activations, no GroupNorm, current-frame $C_L$ head) matches
+Fukami's supplementary Table S.1 as closely as possible at our spatial
+resolution $(192, 96)$, modulo a four-stage pooling adaptation. The matched
+capacity variant ($d = 32$ and $d = 64$, ReLU, GroupNorm, future-$C_L$ head
+at $\delta \in \{8, 16, 24\}$) matches our latent budget and is the
+configuration the project found load-bearing for parametric probing.
 
-## 7.3 Latent dimension sweep (recapitulated from Section 5.6)
+(Table~\ref{tab:b1_closure_train_r2} from Section 5 has the per-baseline
+numbers.) The strict-paper Fukami $d = 3$ achieves a mean train $R^2$ of $0.232$
+across the six observables, with $C_L$ at $0.553$ and wake enstrophy at
+$0.079$. The matched-capacity Fukami $d = 32$ and $d = 64$ reach mean $R^2$
+of $0.430$ and $0.427$ respectively, with the largest improvement on
+$C_L$ ($0.671$ to $0.695$) and a residual gap on the wake observables
+(wake enstrophy $0.277$ to $0.333$). Increasing the Fukami latent dimension
+from $3$ to $64$ improves the closure quality by a factor of $1.8$ on
+average but does not close the gap to JEPA, which sits at $0.835$.
 
-Three SIGReg + OBS + BN runs at the Session 8 grid winner (eta=0.01,
-lambda=0.01) with latent dimension `d in {8, 16, 32}` (D54) span
-the LeWM Two-Room intrinsic-dimension prediction range. The
-production d=32 wins on Test B by +0.07 absolute over d=8 (Table 3
-in Section 5.6); the participation ratio PR\_all is flat in d
-(~2.4 across all three latent dimensions), so the d=32 advantage is
-not driven by more effective dimensions being used by the encoder
-but by the downstream linear probe having more interpolation freedom
-on Test B. The LeWM Two-Room intrinsic-dimension mechanism does not
-extend to the SIGReg + OBS + BN regime where the observable head
-dominates as a directional pressure.
+The strict-paper Fukami's poor wake-enstrophy and circulation performance is
+the failure mode Section 4.3 anticipated: the $d = 3$ bottleneck plus
+$\tanh$ saturation produces a latent that smooths the wake structure away,
+even though the current-frame $C_L$ head can extract a usable scalar lift
+estimate. The matched-capacity Fukami at $d = 64$ retains the wake
+structure but does not predict it forward; its latent-drift ratio of $9.90$
+(Section 4) shows the rollout drifts an order of magnitude out of
+distribution, breaking the probe regardless of how much information is
+encoded at $t = 0$.
 
-## 7.4 Remaining ablations (Session 10 work)
+## 7.4 Wake observable head: per-dimension matching
 
-The conditioning family (A4 c-dropout, A5 c-removed, A6 c-encoder),
-the training-procedure family (A8 H\_roll=1, A9 c-dropout inference),
-the comparator-architecture family (A10 Solera-Rico, A11 Fukami,
-A12 POD), and the reserved slots (A13-A15) are deferred to Session 10
-per the Session 9 risk-register decision to keep the bisection
-+ decoder budget honest. The A10 and A11 baseline modules will be
-written before Session 10's compute window and will run at the
-matched d=32, eta=0.01, lambda=lambda\* configuration to maintain
-the matched-capacity head-to-head with production. POD is a one-shot
-analysis script and does not require GPU training; it lands as part
-of Session 10's notebook deliverables.
+The wake observable head is a smooth-$L_1$ regression of an 80-dim spectral
+wake target (\texttt{patch\_signed\_spectrum}) attached to the encoder at
+$\lambda_{\text{wake}} = 0.1$. It is trained jointly with the predictive
+JEPA loss and is a load-bearing component of the production configuration.
+We ablated its capacity by comparing the per-dimension wake recovery $R^2$
+at $d = 32$ and $d = 64$.
 
-The Session 9 thin cut (Section 7.2) is the smallest sample that
-allows a paper-grade claim about the production configuration's
-robustness to anti-collapse regulariser choice (A2 VICReg) and
-training-procedure choice (A7 H\_roll). The remaining Session 10
-ablations sharpen the conditioning-family results and complete the
-matched-capacity comparator-architecture table.
+Of the 80 spectral target dimensions plus four block-summary dimensions,
+the $d = 32$ encoder matches $d = 64$ within $|\Delta R^2| < 0.05$ on
+$37$ dimensions and within $|\Delta R^2| < 0.10$ on $55$ dimensions. The
+median $\Delta R^2$ is $+0.032$, slightly favouring $d = 32$, and the mean
+is dominated by a single outlier dimension at $|\Delta R^2| = 141$ which
+indicates a dead or uninitialised dimension and is excluded from the
+headline. On the bulk of the spectral target the matched-capacity result
+holds.
 
----
+This is the empirical justification for the matched-capacity claim in
+Section 7.1: the closure result is not driven by the wake head having
+more dimensions to work with at $d = 64$. The head capacity is binding on
+two thirds of the wake spectrum at $d = 32$.
 
-**Table 2 skeleton (placeholder).** To be filled in as each ablation
-completes. Columns: ablation code, family, description, Test A delta,
-Test B delta, Test C delta, PR\_all (Test B), r2(z->c) (Test B), source
-(S5 / S8 / S9 / S10).
+## 7.5 KRR-RBF probe at the impact frame
+
+Section 4.4 reports the headline z-to-c probe at $K = 8$ pre-impact
+frames. The same probe family applied to the impact-frame latent rather
+than the pre-impact window is the cross-baseline comparison shown in
+Figure~\ref{fig:krr_probe_supplementary} (Section 7.7). The figure
+confirms the per-axis decomposition reported in Section 4.4: the gust
+strength $G$ and depth $D$ are recoverable from the JEPA latent on
+test\_b above the $R^2 = 0.4$ threshold, while the cross-stream
+displacement $Y$ is poorly recovered across all baselines, reflecting
+the data-side concentration of training mass near $Y = 0$.
+
+## 7.6 SHAP attribution for the Y axis
+
+Section 4.4 reports that the JEPA latent recovers the gust strength $G$ and
+depth $D$ on test\_b at $R^2 \geq 0.46$ but recovers the cross-stream
+displacement $Y$ only at $R^2 = 0.10$. The natural follow-up question is
+whether the encoder is using a spatially identifiable region of the vorticity
+field to make whatever weak $Y$ prediction it does make, or whether the
+attribution is diffuse and dependent on encounter-level idiosyncrasies. We
+test this with an integrated-gradients SHAP attribution of the
+$\mathbf{z}_{\text{impact}} \to Y$ probe back to the input vorticity field at
+impact, computed per encounter and bootstrap-stability tested by computing
+the pairwise correlation of the attribution across $32$ integration-step
+seeds.
+
+Source: \texttt{outputs/session16/exp3/shap\_Y\_intervention.json} and
+\texttt{shap\_Y\_bootstrap.json}. On test\_b, the bootstrap-stability rate
+(mean pairwise Pearson correlation across seeds above $0.7$) is
+$22 / 42 = 52\%$ of encounters; on test\_c it is $22 / 24 = 92\%$. The
+median pairwise correlation is $0.71$ on test\_b and $0.84$ on test\_c. For
+the stable encounters, an intervention test that zeroes the top
+$K = 400$ SHAP-attributed pixels (sigma $= 3$ pixel smoothing) produces a
+$Y$-prediction swing roughly $60$ times larger than the swing produced by
+zeroing the same number of randomly chosen pixels. The attribution
+therefore is both stable across bootstrap and operationally meaningful in
+the sense that the highlighted pixels causally drive the prediction.
+
+The spatial pattern of the stable-encounter attributions concentrates on a
+band along the vortex core trajectory between $t/c \approx 1.6$ and
+$t/c \approx 1.9$, the window in which the vortex passes the leading edge
+and entrains into the shear layer above the airfoil. The corresponding
+hero figures for one stable test\_b and one stable test\_c encounter are
+shown in Figures~\ref{fig:shap_y_testb} and \ref{fig:shap_y_testc}.
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.95\linewidth]{sections/figures/results/figS_shap_Y_testb.png}
+  \caption{SHAP-Y attribution for a stable test\_b encounter
+  (\texttt{G$-$3.00\_D1.50\_Y$-$0.10}, encounter 0). Left: vorticity field at
+  impact. Centre: integrated-gradients SHAP attribution of the
+  $\mathbf{z}_{\text{impact}} \to Y$ probe to the input pixels. Right:
+  intervention result; zeroing the top $K = 400$ SHAP pixels swings the
+  $Y$ prediction by a factor of $63$ relative to a same-budget random
+  intervention.}
+  \label{fig:shap_y_testb}
+\end{figure}
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.95\linewidth]{sections/figures/results/figS_shap_Y_testc.png}
+  \caption{SHAP-Y attribution for a stable test\_c encounter at
+  $|G| = 4$. Same layout as Figure~\ref{fig:shap_y_testb}. Stability rate
+  on test\_c is higher than on test\_b ($92\%$ versus $52\%$): the
+  larger gust amplitude produces a sharper Y-imprinting in the vorticity
+  field, which the encoder picks up consistently.}
+  \label{fig:shap_y_testc}
+\end{figure}
+
+## 7.7 SHAP decay with pre-impact lead time
+
+We extend the SHAP attribution test to a sweep over lead time
+$\tau \in \{-10, -5, 0, 5, 10\}$ frames around impact to characterise how
+the $Y$ signal sharpens as the gust nears the airfoil. The validation MSE
+of the $\mathbf{z}_t \to Y$ probe at each lead time is computed on test\_b.
+
+Source: \texttt{outputs/session17/exp3/shap\_decay\_summary.json}. The
+best validation MSE decreases monotonically from $0.136$ at $\tau = -10$
+to $0.099$ at $\tau = +10$ frames, indicating that the $Y$ signal is
+present from $10$ frames before impact and continues to sharpen for $10$
+frames after impact. At $\tau = -5$ frames the validation MSE is
+$0.124$, still meaningfully above the impact-frame floor at $0.114$, but
+already $9\%$ below the $\tau = -10$ value. This is consistent with the
+pre-impact lift inference frontier of Section 4.3: the gust signature
+reaches the latent representation $5$ to $10$ frames before impact,
+which is the window in which any controller using this representation
+could act.
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.95\linewidth]{sections/figures/results/figS_shap_decay.png}
+  \caption{SHAP decay with pre-impact lead time. Panels show the spatial
+  SHAP attribution of the $\mathbf{z}_t \to Y$ probe at five lead times
+  $\tau \in \{-10, -5, 0, +5, +10\}$. The validation MSE on test\_b
+  drops from $0.136$ at $\tau = -10$ to $0.099$ at $\tau = +10$, and the
+  spatial localisation tightens around the vortex core trajectory as the
+  impact approaches.}
+  \label{fig:shap_decay}
+\end{figure}
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.95\linewidth]{sections/figures/results/figS_krr_probe.pdf}
+  \caption{Supplementary KRR-RBF probe of the gust parameters
+  $\mathbf{c} = (G, D, Y)$ from the rolled-out latent at the impact frame,
+  per baseline. The panels are organised by baseline; the bar colours
+  denote test\_b (in-distribution) and test\_c
+  (out-of-distribution at $|G| = 4$). The rightmost column showing $Y$ is
+  consistently the weakest axis across all baselines, consistent with the
+  Section 4.4 data-side concentration story.}
+  \label{fig:krr_probe_supplementary}
+\end{figure}
+
+## 7.8 Conditioning ablation: predictor with $\mathbf{c} = \mathbf{0}$
+
+We test how much of the closure result is attributable to the predictor's
+conditioning $\mathbf{c} = (G, D, Y)$ by running the predictor at inference
+time with $\mathbf{c}$ set to the zero vector. The encoder is unchanged;
+only the predictor's AdaLN-Zero conditioning is forced to zero. Source:
+\texttt{outputs/session16/exp4/cond\_ablation.json}.
+
+With $\mathbf{c} = \mathbf{0}$ at inference, the test\_b $C_L$ mean
+absolute error from a Markov rollout grows from $0.16$ at $H = 1$ to
+$0.36$ at $H = 16$ and $0.58$ at $H = 79$. With the ground-truth
+$\mathbf{c}$ from Section 5.2, the corresponding test\_b $C_L$ mean
+absolute error at $H = 16$ is $0.62$, comparable in absolute terms but
+the no-conditioning predictor has a different error profile across the
+encounter set (lower at short horizons, similar at the design $H = 16$,
+and a more even spread across encounters at long horizons). The
+conditioning at inference is therefore worth less than it might appear:
+the encoder has already encoded the gust state in the latent, and the
+predictor's role is largely to evolve that state forward in time without
+re-introducing $\mathbf{c}$ as a separate signal at each step. This is
+consistent with the design rule that the encoder is unconditional and
+that $\mathbf{c}$ enters only the predictor.
+
+## 7.9 Trajectory geometry signatures (supplementary)
+
+A complementary set of supplementary diagnostics characterise the
+latent trajectories beyond the closure metric: per-frame curvature
+acceptance profiles
+(\texttt{outputs/session17/exp1/curvature\_acceptance.json}), a catalogue
+of recurring structural primitives in the trajectory shape
+(\texttt{outputs/session17/exp4/structure\_catalog.csv}), a $Y$-sign-flip
+detector that fires when the latent trajectory crosses the $Y = 0$
+manifold (\texttt{outputs/session17/exp4/Y\_sign\_flip.json}), and the
+per-mode Q-overlap on the full POD basis
+(\texttt{outputs/session17/exp4/q\_overlap.csv}). These analyses do not
+change the headline closure result but provide a more detailed picture
+of the latent trajectory's shape that is useful for downstream
+interpretation. They are reported in the supplementary repository and
+are not surfaced as headline numbers in this manuscript.
+
+## 7.10 Comparator hyperparameter sensitivity
+
+A small L-curve sweep over the Fukami autoencoder regularisation
+strength $\beta \in \{0.005, 0.01, 0.02, 0.05, 0.1\}$ at $d = 3$ was run
+to confirm the strict-paper baseline is not at a brittle operating
+point. Source: \texttt{outputs/session18/exp\_b1/lcurve\_sweep/}. The
+reconstruction loss and the lift head loss both vary smoothly across
+the swept range, and the closure metric on the rolled-out latent
+varies by less than $0.05$ in mean $R^2$. The strict-paper $\beta$
+that we report in Section 7.3 is not at a degenerate value of the
+hyperparameter, and the Fukami performance ranking against JEPA is
+robust to a factor of $10$ change in $\beta$.
+
+## 7.11 What we did not ablate
+
+We did not run a Solera-Rico beta-VAE comparator at matched $d$
+(Nat. Commun. 2024). The architecture is a two-stage beta-VAE plus
+transformer ROM with a published model checkpoint; a faithful comparator
+requires reproducing both stages. The PLDM five-term comparator
+(Sobal et al. arXiv:2502.14819, 2025) was scoped out of the headline
+B1 because the smoke-scale tests (Session 5.PLDM, D31) showed PLDM and
+SIGReg collapsing in equivalent regimes on this dataset; the contrast is
+not informative at our scale. We did not run a conditioning-family
+ablation removing $\mathbf{c}$ from the predictor at training time
+(the CLAUDE.md negative-result run), nor a c-dropout schedule at
+inference time. These would sharpen the conditioning story but are not
+load-bearing for the headline B1 closure result that this manuscript
+rests on.

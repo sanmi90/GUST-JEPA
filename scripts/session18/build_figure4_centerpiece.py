@@ -52,6 +52,7 @@ BASELINE_ORDER = (
     "pod_d16_noBN",
     "pod_d32_noBN",
     "pod_d64_noBN",
+    "jepa_d32_noBN",
     "jepa_d64_test1_noBN",
 )
 BASELINE_LABELS = {
@@ -61,6 +62,7 @@ BASELINE_LABELS = {
     "pod_d16_noBN": r"POD $d=16$",
     "pod_d32_noBN": r"POD $d=32$",
     "pod_d64_noBN": r"POD $d=64$",
+    "jepa_d32_noBN": r"JEPA $d=32$",
     "jepa_d64_test1_noBN": r"JEPA $d=64$",
 }
 BASELINE_COLORS = {
@@ -70,6 +72,7 @@ BASELINE_COLORS = {
     "pod_d16_noBN": "#9ecae1",
     "pod_d32_noBN": "#4292c6",
     "pod_d64_noBN": "#08519c",
+    "jepa_d32_noBN": "#74c476",
     "jepa_d64_test1_noBN": "#238b45",
 }
 
@@ -118,18 +121,26 @@ def main() -> None:
     plt.rcParams.update({
         "font.family": "serif",
         "mathtext.fontset": "stix",
-        "axes.linewidth": 0.8,
-        "xtick.major.size": 3.5,
-        "ytick.major.size": 3.5,
-        "xtick.minor.size": 2.0,
-        "ytick.minor.size": 2.0,
+        "axes.linewidth": 1.1,
+        "xtick.major.size": 4.5,
+        "ytick.major.size": 4.5,
+        "xtick.minor.size": 2.5,
+        "ytick.minor.size": 2.5,
+        "xtick.major.width": 1.0,
+        "ytick.major.width": 1.0,
         "xtick.direction": "in",
         "ytick.direction": "in",
+        "xtick.labelsize": 12,
+        "ytick.labelsize": 12,
+        "axes.labelsize": 13,
+        "axes.titlesize": 14,
+        "legend.fontsize": 11,
+        "figure.titlesize": 15,
     })
 
     fig, axes = plt.subplots(
         2, len(PRIMARY_METRICS),
-        figsize=(11, 6.8),
+        figsize=(15.5, 8.6),
         sharex=True,
         constrained_layout=True,
     )
@@ -162,53 +173,55 @@ def main() -> None:
             colors = [BASELINE_COLORS[b] for b in BASELINE_ORDER]
             bars = ax.bar(
                 x, heights, width=bar_w,
-                color=colors, edgecolor="black", linewidth=0.5,
+                color=colors, edgecolor="black", linewidth=0.9,
             )
             # Highlight JEPA bar
             jepa_idx = BASELINE_ORDER.index("jepa_d64_test1_noBN")
             bars[jepa_idx].set_edgecolor("black")
-            bars[jepa_idx].set_linewidth(1.2)
+            bars[jepa_idx].set_linewidth(1.8)
             bars[jepa_idx].set_hatch("//")
 
             ax.errorbar(
                 x, np.where(np.isnan(heights), 0, heights),
                 yerr=np.vstack([np.where(np.isnan(lows), 0, lows),
                                 np.where(np.isnan(highs), 0, highs)]),
-                fmt="none", ecolor="black", elinewidth=0.7, capsize=2.5,
+                fmt="none", ecolor="black", elinewidth=1.1, capsize=3.5,
             )
 
             # DNS oracle line
             if not np.isnan(dns_height):
-                ax.axhline(dns_height, color="gray", linestyle=":", linewidth=1.0,
-                           alpha=0.7,
+                ax.axhline(dns_height, color="gray", linestyle=":", linewidth=1.4,
+                           alpha=0.75,
                            label="DNS-oracle floor" if (row_idx == 0 and col_idx == 0) else None)
 
             ax.set_yscale("log")
-            ax.grid(True, axis="y", which="major", alpha=0.25, linewidth=0.5)
-            ax.grid(True, axis="y", which="minor", alpha=0.1, linewidth=0.3)
+            ax.grid(True, axis="y", which="major", alpha=0.28, linewidth=0.6)
+            ax.grid(True, axis="y", which="minor", alpha=0.12, linewidth=0.4)
+            ax.tick_params(axis="both", which="major", labelsize=12)
 
             # Y-axis label only on the left column
             if col_idx == 0:
                 ax.set_ylabel(METRIC_LABELS[metric] if metric != "wake_enstrophy" else
                               r"Wake enstrophy $|\Delta E_w|$",
-                              fontsize=10)
+                              fontsize=13.5)
             else:
-                ax.set_ylabel(METRIC_LABELS[metric].split()[0], fontsize=10)
+                ax.set_ylabel(METRIC_LABELS[metric].split()[0], fontsize=13.5)
 
             # Title: metric on top row, split label on rightmost column
             if row_idx == 0:
                 ax.set_title(METRIC_LABELS[metric].split()[0] if metric != "wake_enstrophy"
                              else r"Wake enstrophy ($\Omega_w$)",
-                             fontsize=11, fontweight="normal")
+                             fontsize=14, fontweight="bold")
             if col_idx == len(PRIMARY_METRICS) - 1:
-                ax.text(1.04, 0.5, SPLIT_LABELS[split], transform=ax.transAxes,
-                        rotation=270, va="center", ha="left", fontsize=10)
+                ax.text(1.05, 0.5, SPLIT_LABELS[split], transform=ax.transAxes,
+                        rotation=270, va="center", ha="left", fontsize=13,
+                        fontweight="bold")
 
             # X-axis labels only on bottom row
             if row_idx == 1:
                 ax.set_xticks(x)
                 ax.set_xticklabels([BASELINE_LABELS[b] for b in BASELINE_ORDER],
-                                   rotation=35, ha="right", fontsize=8.5)
+                                   rotation=35, ha="right", fontsize=12)
             else:
                 ax.set_xticks(x)
                 ax.set_xticklabels([])
@@ -216,21 +229,24 @@ def main() -> None:
     fig.suptitle(
         f"Physical Markov closure at H={H} frames after impact "
         r"(unified $-$no$-$output$-$BN predictor across all baselines)",
-        fontsize=12, y=1.02,
+        fontsize=15, fontweight="bold", y=1.02,
     )
 
     # Single legend at the bottom of figure
     from matplotlib.patches import Patch
     from matplotlib.lines import Line2D
     handles = [
-        Patch(facecolor="#238b45", edgecolor="black", hatch="//", label=r"JEPA $d=64$ (this work)"),
-        Patch(facecolor="#cb181d", edgecolor="black", label="Fukami AE family"),
-        Patch(facecolor="#08519c", edgecolor="black", label="POD family"),
-        Line2D([0], [0], color="gray", linestyle=":", linewidth=1.4,
+        Patch(facecolor="#238b45", edgecolor="black", hatch="//", linewidth=1.5,
+              label=r"JEPA $d=64$ (this work)"),
+        Patch(facecolor="#cb181d", edgecolor="black", linewidth=1.0,
+              label="Fukami AE family"),
+        Patch(facecolor="#08519c", edgecolor="black", linewidth=1.0,
+              label="POD family"),
+        Line2D([0], [0], color="gray", linestyle=":", linewidth=1.8,
                label="DNS-oracle baseline (lower bound)"),
     ]
     fig.legend(handles=handles, loc="lower center", ncol=4, frameon=False,
-               bbox_to_anchor=(0.5, -0.05), fontsize=9)
+               bbox_to_anchor=(0.5, -0.04), fontsize=12)
 
     args.output_png.parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(args.output_png, dpi=300, bbox_inches="tight")

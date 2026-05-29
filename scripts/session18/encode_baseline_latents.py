@@ -63,9 +63,15 @@ CACHE = Path(
 )
 
 
-def gather_encounters(partition: str, split: str) -> list[dict]:
+def gather_encounters(partition: str, split: str,
+                     split_manifest_path: "str | Path | None" = None) -> list[dict]:
     """Resolve (case_id, encounter_index, path) triples for one split."""
-    manifest_path = REPO / "configs" / "splits" / f"split_{partition}.json"
+    if split_manifest_path is None:
+        manifest_path = REPO / "configs" / "splits" / "split_v2.json"
+    else:
+        manifest_path = Path(split_manifest_path)
+        if not manifest_path.is_absolute():
+            manifest_path = REPO / manifest_path
     with open(manifest_path) as f:
         m = json.load(f)
     out: list[dict] = []
@@ -232,7 +238,11 @@ def parse_args() -> argparse.Namespace:
         type=Path,
         default=REPO / "outputs/data_pipeline/v1/manifest.json",
     )
-    p.add_argument("--partition", type=str, default="v1")
+    p.add_argument("--partition", type=str, default="v1",
+                   help="Cache partition; v1 cache stays valid for the v2 rerun.")
+    p.add_argument("--split", type=str,
+                   default="configs/splits/split_v2.json",
+                   help="Path to split manifest. Default split_v2.json (v2 rerun).")
     p.add_argument(
         "--output-dir",
         type=Path,
@@ -295,7 +305,7 @@ def main() -> None:
     )
 
     for split in args.splits:
-        encs = gather_encounters(args.partition, split)
+        encs = gather_encounters(args.partition, split, split_manifest_path=args.split)
         n_enc = len(encs)
         if n_enc == 0:
             print(f"[encode] {split}: 0 encounters; skipping")

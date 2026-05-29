@@ -108,7 +108,7 @@ def main() -> None:
         f"[exp1a] P2 PCA(pool)   var_ratio_3={pca_pool.explained_variance_ratio_} "
         f"cum={pca_pool.explained_variance_ratio_.sum():.4f}"
     )
-    pca_pool_full = PCA(n_components=64).fit(Z_pool)
+    pca_pool_full = PCA(n_components=min(64, Z_pool.shape[1])).fit(Z_pool)
 
     # P3: supervised PLS-3 on per-frame z vs (G, D, Y, sin(2pi phi), cos(2pi phi)).
     G = splits["train"]["G"]

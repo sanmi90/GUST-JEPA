@@ -246,7 +246,7 @@ Berkooz ("Turbulence, Coherent Structures, Dynamical Systems and
 Symmetry," Cambridge, 1996; \cite{holmes1996}). POD computes the
 singular value decomposition of a snapshot matrix and projects the
 flow onto the d leading singular vectors; the resulting modal basis
-is optimal in the L^2 sense at preserving energy under the
+is optimal in the $L^2$ sense at preserving energy under the
 proper-orthogonal-decomposition norm but does not by itself produce a
 dynamical model. The Galerkin reduction of the Navier-Stokes equations
 onto the POD basis (reviewed in Rowley and Dawson, "Model Reduction
@@ -317,7 +317,7 @@ on the gust-airfoil regime at Re = 5000 is either reconstruction-based
 autoencoders (Fukami 2023, Fukami 2025). None of it uses a JEPA-style
 predictive-only objective on the same flow. The present work applies
 JEPA-from-pixels to gust-airfoil DNS at the same regime and reports
-forecasting horizon and probing r^2 at matched latent dimension
+forecasting horizon and probing $r^2$ at matched latent dimension
 against the published Fukami and Solera-Rico numbers. Second, the
 LeWM controlled-collapse mechanism (SIGReg with small lambda plus an
 observable head; \cite{lewm}) has not been tested on low-intrinsic-

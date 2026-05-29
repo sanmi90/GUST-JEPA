@@ -1,0 +1,108 @@
+% Fig 1 - JEPA architecture for vortex-jepa manuscript.
+%
+% Layout (v5): losses placed NEXT to their targets so arrows are short
+% and never cross other boxes.
+%   LEFT column:       L_obs and L_wake (aux-head losses), next to cl/wake
+%   MIDDLE-LEFT:       aux observable heads (cl, wake)
+%   CENTER:            input -> encoder -> z_t -> predictor -> zhat -> decoder -> xhat
+%   RIGHT column:      L_sigreg, c=(G,D,Y), L_pred, L_roll (one per spine box)
+%
+% Standalone-compilable: pdflatex fig1_jepa_architecture.tex
+
+\documentclass[border=10pt,tikz]{standalone}
+\usepackage{tikz}
+\usepackage{amsmath,amssymb}
+\usetikzlibrary{positioning,arrows.meta,fit,shapes.geometric,calc,backgrounds}
+
+\begin{document}
+
+\begin{tikzpicture}[
+    font=\small,
+    box/.style={draw, rounded corners=2pt, align=center, inner sep=5pt, thick},
+    encoder/.style={box, fill=blue!8,    minimum width=44mm, minimum height=16mm},
+    predictor/.style={box, fill=orange!10, minimum width=56mm, minimum height=16mm},
+    decoder/.style={box, fill=gray!6, dashed, minimum width=44mm, minimum height=16mm},
+    obs/.style={box, fill=green!10, minimum width=38mm, minimum height=13mm,
+                font=\footnotesize},
+    state/.style={draw, rectangle, rounded corners=1pt, fill=white,
+                  minimum height=10mm, minimum width=30mm, inner sep=3pt},
+    cond/.style={box, fill=yellow!18, minimum width=38mm, minimum height=14mm,
+                 font=\footnotesize},
+    loss/.style={draw, rectangle, dashed, fill=red!5, inner sep=4pt,
+                 minimum height=12mm, minimum width=46mm, align=center,
+                 font=\footnotesize},
+    arr/.style={-{Stealth[length=2.5mm]}, thick},
+    lossarr/.style={-{Stealth[length=2mm]}, dashed, semithick, red!70!black}
+  ]
+
+  % ===== central spine =====
+  \node[state] (input) {$\boldsymbol{\omega}_z(t) \in \mathbb{R}^{192 \times 96}$};
+  \node[encoder, below=12mm of input] (enc)
+    {\textbf{Encoder} $E_{\theta}$ \\[2pt]
+     CNN stem $+$ 6-layer ViT \\[1pt]
+     BatchNorm projection};
+  \node[state, below=12mm of enc] (zt) {$\mathbf{z}_t \in \mathbb{R}^{d}$};
+  \node[predictor, below=12mm of zt] (pred)
+    {\textbf{Predictor} $P_{\phi}$ \\[2pt]
+     AR transformer (6 layers, hidden 384) \\[1pt]
+     AdaLN-Zero conditioning, RoPE on $Q,K$};
+  \node[state, below=12mm of pred] (zhat) {$\widehat{\mathbf{z}}_{t+\Delta t}$};
+  \node[decoder, below=16mm of zhat] (dec)
+    {\textbf{Visualization decoder} $D_{\psi}$ \\[2pt]
+     LapFiLM $+$ spectral loss \\[1pt]
+     trained on frozen $E_{\theta}$};
+  \node[state, below=12mm of dec] (xhat)
+    {$\widehat{\boldsymbol{\omega}}_z(t + \Delta t)$};
+
+  \draw[arr] (input) -- (enc);
+  \draw[arr] (enc) -- (zt);
+  \draw[arr] (zt) -- (pred);
+  \draw[arr] (pred) -- (zhat);
+  \draw[arr, dashed] (zhat) -- (dec);
+  \draw[arr, dashed] (dec)  -- (xhat);
+
+  % ===== middle-left column: auxiliary observable heads =====
+  \node[obs, left=26mm of zt, yshift=16mm] (wake)
+    {wake head \\[-1pt] \textit{patch\_signed\_spectrum} (80-D)};
+  \node[obs, left=26mm of zt, yshift=-16mm] (cl)
+    {observable head \\[-1pt] $C_L$};
+  \draw[arr] (zt.west) to[out=160,in=0] (wake.east);
+  \draw[arr] (zt.west) to[out=200,in=0] (cl.east);
+
+  % ===== far-LEFT: losses for the aux heads =====
+  \node[loss, left=14mm of wake] (lwake)
+    {$\mathcal{L}_{\text{wake}}$ \\[1pt] smooth-$L_1$ on wake target};
+  \node[loss, left=14mm of cl]   (lobs)
+    {$\mathcal{L}_{\text{obs}}$ \\[1pt] MSE on $C_L$};
+  \draw[lossarr] (lwake.east) -- (wake.west);
+  \draw[lossarr] (lobs.east)  -- (cl.west);
+
+  % ===== RIGHT column: one loss / cond per spine box =====
+  \node[loss, right=20mm of zt]    (lsig)
+    {$\mathcal{L}_{\text{SIGReg}}$ \\[1pt] anti-collapse on $\mathbf{z}$};
+  \node[cond, right=20mm of pred]  (c)
+    {$\mathbf{c}=(G, D, Y)$ \\[1pt] gust parameters \\[1pt]
+     \emph{enters predictor only}};
+  \node[loss, right=20mm of zhat]  (lroll)
+    {$\mathcal{L}_{\text{roll}}$ \\[1pt] scheduled sampling, $H{=}8$};
+  \node[loss, below=8mm of lroll]  (lpred)
+    {$\mathcal{L}_{\text{pred}} = \| \widehat{\mathbf{z}}_{t+\Delta t} - \mathbf{z}_{t+\Delta t} \|^{2}$};
+
+  \draw[lossarr] (lsig.west)  -- (zt.east);
+  \draw[arr]     (c.west)     -- (pred.east);
+  \draw[lossarr] (lroll.west) -- (pred.east);
+  \draw[lossarr] (lpred.west) to[out=180,in=0] (zhat.east);
+
+  % ===== background frames =====
+  \begin{scope}[on background layer]
+    \node[draw=blue!30, rounded corners=4pt, dashed, inner sep=6mm,
+          fit=(lwake)(lobs)(wake)(cl)(input)(enc)(zt)(pred)(zhat)(lsig)(c)(lpred)(lroll),
+          label={[blue!50!black,font=\small]above:JEPA training stage}] {};
+    \node[draw=gray!50, rounded corners=4pt, dashed, inner sep=4mm,
+          fit=(dec)(xhat),
+          label={[gray!50!black,font=\small]below:Visualization-only, after JEPA training}] {};
+  \end{scope}
+
+\end{tikzpicture}
+
+\end{document}

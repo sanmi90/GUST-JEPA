@@ -1,0 +1,146 @@
+% Fig 3 - Predictor detail.
+%
+% Zoom-in on the 6-layer AR transformer predictor used in JEPA.
+% Two explicit blocks shown, an ellipsis in between, and the last block.
+% Each block exposes:
+%   - Multi-head self-attention (16 heads) with RoPE on Q,K and a causal mask
+%   - FFN with AdaLN-Zero modulation conditioned on c = (G, D, Y)
+% Inputs: sequence z_{t-T+1} ... z_t, time embeddings dt, conditioning c.
+% Output: zhat_{t+1}.
+%
+% Standalone-compilable: pdflatex fig3_predictor_detail.tex
+
+\documentclass[border=10pt,tikz]{standalone}
+\usepackage{tikz}
+\usepackage{amsmath,amssymb}
+\usetikzlibrary{positioning,arrows.meta,fit,shapes.geometric,calc,backgrounds,patterns}
+
+\begin{document}
+
+\begin{tikzpicture}[
+    font=\small,
+    box/.style={draw, rounded corners=2pt, align=center, inner sep=5pt, thick},
+    submod/.style={draw, rounded corners=2pt, fill=orange!18, align=center,
+                   inner sep=4pt, font=\footnotesize, minimum width=58mm,
+                   minimum height=10mm},
+    state/.style={draw, rectangle, rounded corners=1pt, fill=white,
+                  minimum height=10mm, minimum width=44mm, inner sep=3pt},
+    cond/.style={box, fill=yellow!18, minimum width=36mm, minimum height=12mm,
+                 font=\footnotesize},
+    note/.style={align=center, font=\footnotesize\itshape, text=black!60},
+    arr/.style={-{Stealth[length=2.5mm]}, thick},
+    arrshort/.style={-{Stealth[length=2mm]}, semithick},
+    arrcond/.style={-{Stealth[length=2mm]}, semithick, yellow!50!black, dashed}
+  ]
+
+  % ========= input sequence =========
+  \node[state] (zseq) {$\{\mathbf{z}_{t-T+1},\, \ldots,\, \mathbf{z}_{t}\}$ \\[1pt]
+                       \footnotesize sequence length $T$};
+
+  % time embeddings to the left
+  \node[state, left=14mm of zseq, fill=blue!4] (dtemb)
+    {$\Delta t$ embeddings \\[1pt] \footnotesize RoPE positions};
+
+  \draw[arr] (dtemb) -- (zseq);
+
+  % conditioning c to the right
+  \node[cond, right=24mm of zseq] (cond)
+    {$\mathbf{c} = (G, D, Y)$ \\[1pt] gust parameters};
+
+  % ========= Block 1 (explicit, two submodules with ample spacing) =========
+  % Place attention then FFN, then fit a frame around them.
+  \node[submod, below=16mm of zseq] (b1a)
+    {Multi-head self-attention (16 heads, $d_{\text{model}}{=}384$) \\
+     RoPE on $Q,K$; causal mask};
+  \node[submod, below=4mm of b1a] (b1f)
+    {FFN (hidden $1536$, dropout $0.1$) \\
+     AdaLN-Zero modulation by $\mathbf{c}$};
+  \draw[arrshort] (b1a.south) -- (b1f.north);
+
+  % ========= Block 2 (explicit) =========
+  \node[submod, below=16mm of b1f] (b2a)
+    {Multi-head self-attention (16 heads) \\ RoPE on $Q,K$; causal mask};
+  \node[submod, below=4mm of b2a] (b2f)
+    {FFN (hidden $1536$, dropout $0.1$) \\ AdaLN-Zero modulation by $\mathbf{c}$};
+  \draw[arrshort] (b2a.south) -- (b2f.north);
+
+  % ========= ellipsis =========
+  \node[below=8mm of b2f, font=\Large] (dots) {$\vdots$};
+
+  % ========= Block 6 (last, explicit) =========
+  \node[submod, below=8mm of dots] (b6a)
+    {Multi-head self-attention (16 heads) \\ RoPE on $Q,K$; causal mask};
+  \node[submod, below=4mm of b6a] (b6f)
+    {FFN (hidden $1536$, dropout $0.1$) \\ AdaLN-Zero modulation by $\mathbf{c}$};
+  \draw[arrshort] (b6a.south) -- (b6f.north);
+
+  % ========= output =========
+  \node[state, below=14mm of b6f, fill=orange!4] (zout)
+    {$\widehat{\mathbf{z}}_{t+1} \in \mathbb{R}^{d}$};
+
+  % ========= main forward arrows (between blocks) =========
+  \draw[arr] (zseq.south) -- (b1a.north);
+  \draw[arr] (b1f.south)  -- (b2a.north);
+  \draw[arr] (b2f.south)  -- (dots.north);
+  \draw[arr] (dots.south) -- (b6a.north);
+  \draw[arr] (b6f.south)  -- (zout.north);
+
+  % ========= block frames (fit each block around its two submodules) =========
+  \begin{scope}[on background layer]
+    \node[draw=orange!50, rounded corners=3pt, fill=orange!6, inner sep=4pt,
+          fit=(b1a)(b1f),
+          label={[orange!60!black,font=\footnotesize\bfseries]left:Block 1}] (b1) {};
+    \node[draw=orange!50, rounded corners=3pt, fill=orange!6, inner sep=4pt,
+          fit=(b2a)(b2f),
+          label={[orange!60!black,font=\footnotesize\bfseries]left:Block 2}] (b2) {};
+    \node[draw=orange!50, rounded corners=3pt, fill=orange!6, inner sep=4pt,
+          fit=(b6a)(b6f),
+          label={[orange!60!black,font=\footnotesize\bfseries]left:Block 6}] (b6) {};
+  \end{scope}
+
+  % ========= conditioning arrows (yellow dashed) -- to each block =========
+  \draw[arrcond] (cond.south) to[out=-90,in=0] (b1.east);
+  \draw[arrcond] (cond.south) to[out=-90,in=0] (b2.east);
+  \draw[arrcond] (cond.south) to[out=-90,in=0] (b6.east);
+
+  % ========= causal mask indicator on the right side =========
+  % Placed FAR right so the conditioning arrows from c to each block route
+  % cleanly along the right edge of the spine without crossing the mask widget
+  % or the hyperparameter summary.
+  \node[draw, fill=white, inner sep=2pt, right=44mm of b2,
+        font=\footnotesize, align=center] (mask)
+    {Causal mask \\[2pt]
+     \begin{tikzpicture}[baseline=0pt]
+       % 4x4 lower-triangular indicator
+       \foreach \r in {0,1,2,3} {
+         \foreach \c in {0,1,2,3} {
+           \ifnum\c>\r
+             \fill[gray!20] (\c*3mm, -\r*3mm) rectangle ++(3mm, -3mm);
+           \else
+             \fill[orange!55!black!70] (\c*3mm, -\r*3mm) rectangle ++(3mm, -3mm);
+           \fi
+           \draw[gray!50, very thin] (\c*3mm, -\r*3mm) rectangle ++(3mm, -3mm);
+         }
+       }
+     \end{tikzpicture} \\[2pt]
+     future $\to$ past blocked};
+
+  % ========= hyperparameter summary box =========
+  \node[note, below=18mm of mask, draw=orange!40, dashed,
+        rounded corners=2pt, inner sep=4pt, align=left] (hp)
+    {\textbf{Hyperparameters} \\
+     6 layers, hidden $384$ \\
+     16 attention heads \\
+     dropout $0.1$ \\
+     AdamW, lr $5{\times}10^{-4}$};
+
+  % ========= background frame =========
+  \begin{scope}[on background layer]
+    \node[draw=orange!50, rounded corners=4pt, dashed, inner sep=6mm,
+          fit=(dtemb)(zseq)(cond)(b1)(b2)(dots)(b6)(zout)(mask)(hp),
+          label={[orange!60!black,font=\small]above:Autoregressive transformer predictor $P_{\phi}$ (causal, 6 blocks)}] {};
+  \end{scope}
+
+\end{tikzpicture}
+
+\end{document}

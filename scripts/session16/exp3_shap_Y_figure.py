@@ -21,11 +21,34 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.colors import Normalize
+from matplotlib.patches import Polygon
 
 REPO = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(REPO))
 
 from src.data.omega_pipeline import OmegaPipeline  # noqa: E402
+
+
+def load_airfoil_xy() -> np.ndarray:
+    """Load NACA 0012 airfoil surface coordinates (x, y) in chord-normalized
+    physical units from the raw Baseline file. Returns a closed-polygon (N, 2)
+    array. The imshow panels in this figure use ``extent=(*X_EXTENT, *Y_EXTENT)``
+    with ``aspect="equal"`` so the polygon can be drawn directly in physical
+    (chord-normalized) coordinates without pixel conversion.
+    """
+    raw = Path(os.environ.get("PREVENT_ROOT", str(Path.home() / "PREVENT"))) \
+        / "data" / "raw" / "periodic" / "Baseline.h5"
+    with h5py.File(raw, "r") as f:
+        xy = np.asarray(f["airfoil_xy"])
+    if not np.allclose(xy[0], xy[-1]):
+        xy = np.vstack([xy, xy[0:1]])
+    return xy
+
+
+def _add_airfoil(ax, airfoil_xy: np.ndarray) -> None:
+    """Overlay a black filled NACA 0012 polygon on a vorticity panel."""
+    ax.add_patch(Polygon(airfoil_xy, closed=True, facecolor="black",
+                         edgecolor="black", linewidth=0.7, zorder=10))
 
 OUT = REPO / "outputs" / "session16" / "exp3"
 FIG_DIR = REPO / "outputs" / "session16" / "figures"
@@ -68,6 +91,7 @@ def load_encounter_omega_raw(case_id: str, k: int) -> np.ndarray:
 def main() -> None:
     shap = np.load(OUT / "shap_Y_attribution.npz", allow_pickle=True)
     pipeline = OmegaPipeline.from_manifest(OMEGA_MANIFEST)
+    airfoil_xy = load_airfoil_xy()
 
     for split in ("test_b", "test_c"):
         hero = pick_hero_by_y_value(shap, split)
@@ -89,6 +113,7 @@ def main() -> None:
             ax_o = axes[row, 0]
             ax_o.imshow(omega_at_impact.T, origin="lower", extent=(*X_EXTENT, *Y_EXTENT),
                          cmap="RdBu_r", norm=Normalize(vmin=-2, vmax=2), aspect="equal")
+            _add_airfoil(ax_o, airfoil_xy)
             ax_o.set_title(f"omega (frame={impact})\n{case_id}, enc {k}\nG={G:+.1f} D={D:.1f} **Y={Y:+.2f}**", fontsize=9)
             ax_o.set_xticks([]); ax_o.set_yticks([])
 
@@ -96,6 +121,7 @@ def main() -> None:
             base = shap["baseline_mean_per_frame"][min(impact, shap["baseline_mean_per_frame"].shape[0] - 1)]
             ax_base.imshow(base.T, origin="lower", extent=(*X_EXTENT, *Y_EXTENT),
                           cmap="RdBu_r", norm=Normalize(vmin=-2, vmax=2), aspect="equal")
+            _add_airfoil(ax_base, airfoil_xy)
             ax_base.set_title(f"phase-matched G=0 baseline (frame={impact})", fontsize=9)
             ax_base.set_xticks([]); ax_base.set_yticks([])
 
@@ -103,6 +129,7 @@ def main() -> None:
             attr_lim = float(np.percentile(np.abs(attr), 99))
             ax_attr.imshow(attr.T, origin="lower", extent=(*X_EXTENT, *Y_EXTENT),
                             cmap="RdBu_r", norm=Normalize(vmin=-attr_lim, vmax=attr_lim), aspect="equal")
+            _add_airfoil(ax_attr, airfoil_xy)
             ax_attr.set_title(f"Y SHAP attribution\n probe_pred_Y={pred:+.3f} (true {Y:+.2f})", fontsize=9)
             ax_attr.set_xticks([]); ax_attr.set_yticks([])
         plt.suptitle(f"Exp 3 Y SHAP {split}: 3 hero encounters spanning Y<0 / Y~0 / Y>0\n"
@@ -125,6 +152,7 @@ def main() -> None:
         ax = axes2[col]
         ax.imshow(mean_attr.T, origin="lower", extent=(*X_EXTENT, *Y_EXTENT),
                    cmap="hot", norm=Normalize(vmin=0, vmax=attr_lim), aspect="equal")
+        _add_airfoil(ax, airfoil_xy)
         ax.set_title(f"Mean |Y SHAP attribution| | {split}\n(n_stable = {len(kept)}/{len(attrs)})", fontsize=10)
         ax.set_xlabel("x / chord"); ax.set_ylabel("y / chord")
     plt.suptitle("Exp 3 Y SHAP: mean attribution over bootstrap-stable subset", fontsize=11)

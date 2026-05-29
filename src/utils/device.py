@@ -80,6 +80,36 @@ def require_rtx6000(gpu_index: int | None = None) -> torch.device:
             exceeds the number of RTX 6000 cards, or if the selected
             device fails the probe kernel.
     """
+    # One-off opt-in bypass for the L40S cards. When
+    # ``VORTEX_JEPA_ALLOW_NON_RTX6000=1`` (or =idx,idx,...), the helper
+    # ALSO accepts non-RTX-6000 devices; gpu_index then indexes into the
+    # full CUDA enumeration. This is a temporary hatch for the split_v2
+    # rerun where the user explicitly opened the L40S cards for parallel
+    # workloads; production paper-grade runs still default to RTX-only.
+    allow_non = os.environ.get("VORTEX_JEPA_ALLOW_NON_RTX6000", "").strip()
+    if allow_non and torch.cuda.is_available():
+        if gpu_index is None:
+            gpu_index = 0
+        n = torch.cuda.device_count()
+        if gpu_index < 0 or gpu_index >= n:
+            raise NoRTX6000Error(
+                f"--gpu={gpu_index} requested with NON_RTX6000 bypass, but only "
+                f"{n} CUDA device(s) visible."
+            )
+        device = torch.device(f"cuda:{gpu_index}")
+        name = torch.cuda.get_device_name(gpu_index)
+        print(f"[device] WARNING: VORTEX_JEPA_ALLOW_NON_RTX6000 bypass active; "
+              f"using cuda:{gpu_index} ({name})", flush=True)
+        try:
+            probe = torch.zeros(4, device=device) + 1.0
+            torch.cuda.synchronize(device)
+        except RuntimeError as e:
+            raise NoRTX6000Error(
+                f"NON_RTX6000 bypass: probe kernel failed on cuda:{gpu_index} "
+                f"({name}): {e}"
+            ) from e
+        return device
+
     indices = find_rtx6000_indices()
     if not indices:
         visible = os.environ.get("CUDA_VISIBLE_DEVICES", "<unset>")

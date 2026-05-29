@@ -586,7 +586,8 @@ def main() -> None:
         preprocessing_cfg = yaml.safe_load(f)
 
     gpu_name = torch.cuda.get_device_name(device.index)
-    if "RTX" not in gpu_name or "6000" not in gpu_name:
+    _allow_non = os.environ.get("VORTEX_JEPA_ALLOW_NON_RTX6000", "").strip()
+    if not _allow_non and ("RTX" not in gpu_name or "6000" not in gpu_name):
         raise RuntimeError(
             f"Hardware policy violation (CLAUDE.md): gpu_name={gpu_name!r} does not "
             "contain both 'RTX' and '6000'. Run aborted."

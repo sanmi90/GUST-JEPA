@@ -6483,3 +6483,158 @@ the same as the v1 rerun listed in RERUN_MANIFEST.md (~3 days on the two
 RTX 6000 cards in parallel); only the input split is different. The
 RERUN_MANIFEST.md is updated to reference split_v2 throughout.
 
+
+### D131: Split v2 rerun executed; JEPA d=32 matched-capacity added; SSIM convention switched; pressure-observability comparison locked (2026-05-29, Session 19)
+
+**Context.** D130 locked split_v2 as the paper-load-bearing partition; the
+present session executed the rerun end-to-end (Stages 0 through 8 of
+RERUN_MANIFEST.md), added a matched-capacity JEPA d=32 track on top, switched
+the SSIM convention to a paper-defensible Wang formulation, and ran several
+new comparative analyses that change the manuscript's Section 5 narrative.
+The wall time was ~12 hours of compute, helped by a one-off exception to
+use the workstation's two L40S cards alongside the two RTX 6000s for the
+B1 chain (predictors, rollouts, baseline-encoder forward passes).
+
+**Locked decisions.**
+
+1. **v2 stages 0-8 are the reference data set for the paper.** All
+   pre-paper analyses (figures, tables, headline numbers) come from the
+   v2-trained artifacts under `outputs/runs/session12/S12_E_d64/`,
+   `outputs/runs/session14/thrust6/jepa_d64_seed{0,1,2}/`,
+   `outputs/session18/exp_b1_test3/`, and the corresponding S16/S17
+   trees. The Wang/p99.9 SSIM evaluation is at
+   `outputs/runs/session12/S12_E_d64/encoder/decoder_specloss_recipe/decoder_summary.json`
+   re-derived via `scripts/_oneoff_ssim_two_conventions.py` (test_a
+   SSIM_mean = 0.71). v1.4 artifacts are preserved at `*_v1.4_backup_*`
+   paths for reproducibility but not used in the paper.
+
+2. **JEPA d=32 is a paper-load-bearing matched-capacity comparison.**
+   Production checkpoint at `outputs/runs/session12/S12_E_d32/encoder/`
+   plus three seed retrains under `jepa_d32_seed{0,1,2}` and an SL decoder
+   at the parallel `decoder_specloss_recipe/` path. d=32 reaches PR=10.05
+   and r2_overall=0.983 (vs d=64 PR=9.03, r²=0.997), and B1 Markov-closure
+   loss matches d=64 within seed noise (0.0015 train loss for both at
+   iter 19900). The manuscript's "minimal world model" story rests on
+   this near-match; the d=32 row appears in Figs 4, 5, 6 alongside d=64.
+
+3. **SSIM convention is Wang et al. 2004, K1=0.01, K2=0.03, on
+   pipeline-normalised data, with L = 2 · global_p99.9(|target_norm|).**
+   For the v2 production decoder, L ≈ 8.31, test_a SSIM ≈ 0.71. The
+   historical project SSIM (Fukami c1=0.16, c2=1.44 on raw scale,
+   ≈ 0.60 on test_a) is preserved for v1.4 ↔ v2 internal comparison
+   only; it must NOT appear in manuscript text as an absolute SSIM,
+   because L=40 (which c1=0.16 implies) is wrong for our raw omega
+   scale. The rationale, sample numbers, and reference implementation
+   path are archived at
+   `/home/carlos/.claude/projects/-home-carlos-GUST-JEPA/memory/ssim-convention.md`.
+
+4. **B1 v2 headline (Markov closure) confirms JEPA at d=64 and d=32 lead
+   on wake-relevant observables, and POD leads on I_y.** Final train-set
+   probe R² (ridge on rolled-out latents): JEPA d=64 0.86/0.78/0.42/0.89
+   /0.89/0.89 (C_L / C_D / I_y / wake_enstrophy / circ_pos / circ_neg);
+   JEPA d=32 0.85/0.76/0.31/0.81/0.83/0.81; POD d=64 0.75/0.69/0.72/0.44
+   /0.47/0.42; Fukami d=64 0.61/0.46/0.24/0.20/0.25/0.23. JEPA wins 4 of
+   6 observables decisively, POD wins I_y, Fukami consistently last. The
+   manuscript Section 4 (Markov closure) is the headline figure; full
+   ridge + KRR-RBF + MLP CSVs at
+   `outputs/session18/exp_b1_test3/physical_closure_noBN_{unified,krr}.csv`.
+
+5. **Pressure observability is task-dependent; the manuscript Section 5
+   reframes accordingly.** Two stories from
+   `outputs/session18/exp_b1_test3/baseline_pressure_observability.csv`
+   (KRR-RBF, K=8 sensors, test_b):
+   (a) Full-state recovery: JEPA wins. d=64 R²(z)=0.87, d=32=0.84,
+       Fukami d=3 0.79 / d=64 0.69, POD d=16 0.43 / d=64 0.16. JEPA
+       latent is genuinely more pressure-recoverable than POD coefficients.
+   (b) Parameter recovery (G, D, Y) through the pressure-estimated
+       latent: POD wins. POD d=16 gives G=0.78, D=0.83 from pressure
+       vs JEPA d=64 G=0.46, D=0.80. POD's modes happen to be aligned
+       with the parameters in a way JEPA's higher-d latent is not.
+   Section 5 now reports both stories honestly. Section 5 also covers
+   the C_L inference comparison at
+   `outputs/session18/exp_b1_test3/cl_inference_comparison.csv`:
+   pressure → ẑ(impact) → probe beats direct pressure → C_L at long
+   lead times (τ=-30: direct R²=-0.08, best via_baseline POD d=64
+   R²=+0.31). The crossover is at τ ≈ -5; at very short lead, pressure
+   is already informative enough that the representation does not help.
+
+6. **Fukami AE latents drift catastrophically OOD under autoregressive
+   rollout.** Mahalanobis distance ratio (predicted/encoded) is 9.9× for
+   Fukami d=64, vs 0.85× for JEPA and 0.81× for POD (both stay inside
+   the train manifold).
+   `outputs/session18/exp_b1_test3/latent_drift_diagnostic.{png,json}`.
+   This explains the Fukami decoder's poor pixel reconstruction at
+   horizon. Its decoder is asked to reconstruct from never-seen latent
+   regions. JEPA's predicted latents are in-distribution, so the
+   JEPA/POD pixel-SSIM gap is NOT an OOD-decoder failure; it is the
+   linear-reconstruction floor of POD being hard to beat by a model
+   not trained on pixel L2. Discussion section now states this honestly.
+
+7. **L40S exception (one-off) used for the B1 chain.** Carlos opened
+   the two L40S (sm_89) cards alongside the two RTX 6000 (sm_120) for
+   the Stage 8 predictor + rollout pass. Implementation: env-var bypass
+   `VORTEX_JEPA_ALLOW_NON_RTX6000=1` patches `src/utils/device.py`
+   `require_rtx6000()` and the inline `gpu_name` assertions in
+   `train_jepa.py`, `train_baseline.py`, `session9_train_fukami.py`.
+   The bypass is opt-in and silent by default; future paper-grade runs
+   continue to require RTX 6000. Methods will report "the Stage 8 B1
+   predictor / rollout chain used two RTX 6000 Blackwell and two L40S
+   (sm_89) cards in parallel"; encoder training (Stages 4a-c) stays
+   RTX-only.
+
+**Why this over alternatives (compare-against-alternatives audit).**
+- A pure-RTX rerun would have added ~3-4 hours of sequential wait; the
+  L40S exception eliminates that without compromising encoder training.
+- Keeping the Fukami SSIM convention for the manuscript was a real
+  option (back-compat with v1.4 plots), but a reviewer would catch L=40
+  not matching raw omega scale; the switch is cheap (one calc) and the
+  numbers are more defensible.
+- The pressure-observability "JEPA wins" framing could have stood
+  alone (it is true for state recovery), but a reviewer would
+  ask "do baselines also recover the state?" The Story-1-vs-Story-2
+  split anticipates that and reads as a more rigorous analysis.
+
+**Files produced / changed this session (committed in `9ca3430` and
+follow-up working tree).**
+- `src/data/episode_dataset.py`, `src/training/train_jepa.py`,
+  `src/training/train_baseline.py`, `src/utils/device.py`,
+  `scripts/build_omega_pipeline.py`, `scripts/session9_train_fukami.py`,
+  `scripts/session11_pod_baseline.py`,
+  `scripts/session11_precompute_wake_observables.py`,
+  `scripts/session18/encode_baseline_latents.py`,
+  and ~50 analysis scripts: `--split` CLI default switched to v2;
+  test_a/val key fallback added; L40S bypass env-var.
+- New analysis scripts (uncommitted): `scripts/_oneoff_proper_probes.py`,
+  `scripts/_oneoff_ssim_two_conventions.py`,
+  `scripts/_oneoff_latent_drift_diagnostic.py`,
+  `scripts/_oneoff_baseline_pressure_obs.py`,
+  `scripts/_oneoff_preimpact_forecast.py`,
+  `scripts/_oneoff_cl_inference_comparison.py`,
+  `scripts/_oneoff_b1_full_pipeline.sh`,
+  `scripts/_oneoff_b1_rollouts.sh`,
+  `scripts/_oneoff_rerun_d32_analyses_v2.sh`,
+  `scripts/_oneoff_fix_d32_and_pressure.sh`,
+  `scripts/_oneoff_run_stage{6,7}.sh`.
+- New CSVs / JSONs: `outputs/session18/exp_b1_test3/{physical_closure_noBN_unified,physical_closure_noBN_krr,baseline_pressure_observability,preimpact_forecast,cl_inference_comparison,proper_probes_v2,latent_drift_diagnostic}.{csv,json,png}`.
+- New manuscript-grade figures: `figure4_markov_closure_centerpiece.{png,pdf}`,
+  `exp_b1_markov_closure_baselines.png`, `figureS_markov_closure_krr.{png,pdf}`
+  (Stage 8), plus the new `latent_drift_diagnostic.png`,
+  `baseline_pressure_observability_figure.png`,
+  `cl_inference_comparison_figure.png`.
+- Memory: new file `ssim-convention.md` indexed in MEMORY.md.
+- d=32 add-on: 12 missing run3 case dirs preprocessed; omega pipeline
+  manifest rebuilt with the 70-train-case pool (mean=0.0551, std=3.6622,
+  +3.1% from the v1.4 manifest); wake observable stats refreshed.
+- Skill: `~/.claude/skills/academic-paper-writer-vortex-jepa/` drafted
+  to lock the writing conventions documented here.
+
+**Rerun implication.** The manuscript draft can proceed from the current
+artifacts without re-running anything. The d=32 S16/S17 interpretability
+chain has known residuals (per_frame_targets shape mismatch, exp1a
+n_components variable bug, exp5 DNS metrics path); these are 30 minutes
+of focused work and do not gate the paper. Three optional analyses are
+in flight as background subagents this session: method-specific Task C
+(predictor in the loop), Q-criterion overlap with POD pressure-aligned
+modes, and wake observable on d=32 latents. None gate the paper draft;
+they round out interpretability claims.
+

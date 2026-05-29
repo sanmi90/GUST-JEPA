@@ -40,6 +40,11 @@ logs/
 checkpoints/
 runs/
 
+# Exception: paper manuscript figures live under paper/sections/figures/results/
+# even though the top-level results/ folder is ignored.
+!paper/sections/figures/results/
+!paper/sections/figures/results/*
+
 # IDE
 .vscode/
 .idea/
@@ -55,3 +60,19 @@ Thumbs.db
 # Environment variables / secrets
 .env
 *.key
+
+# LaTeX build artifacts (auto-regenerable; source is paper/sections/*.md + main.tex)
+paper/main.aux
+paper/main.bbl
+paper/main.blg
+paper/main.log
+paper/main.out
+paper/main.toc
+paper/sections/figures/tikz/*.aux
+paper/sections/figures/tikz/*.log
+paper/sections/figures/tikz/*-1.png
+paper/sections/figures/tikz/*preview-1.png
+
+# Generated section .tex files (produced from .md by scripts/_oneoff_md_to_tex.py)
+paper/sections/abstract.tex
+paper/sections/section_*.tex

@@ -1,0 +1,61 @@
+% B1 fairness protocol: physical-closure train R^2 (rolled-out latent -> observable).
+% Source: outputs/session18/exp_b1_test3/probe_train_r2.csv (8 baselines x 6 observables).
+% Best per column in bold. Reporting train R^2 because the rollout closure metric is
+% defined on the training distribution; test_b/test_c MAE for the same closure is in
+% Table~\ref{tab:b1_mae_testb}.
+
+\begin{table}[t]
+  \centering
+  \caption{B1 fairness protocol. Train $R^2$ for predicting six physical observables
+  from the rolled-out (Markov-recursion, $H = 16$) latent. All baselines share the
+  same unified autoregressive transformer predictor (6 layers, hidden $384$, 16 heads,
+  AdaLN-Zero conditioning on $\mathbf{c} = (G, D, Y)$, RoPE on $Q,K$), the same
+  training schedule, and the same probe family. The only thing that varies is the
+  encoder. Best per column in bold; row mean in the rightmost column.}
+  \label{tab:b1_closure_train_r2}
+  \small
+  \begin{tabular}{l c c c c c c c c}
+    \toprule
+    Baseline & $d$ & $C_L$ & $C_D$ & $I_y$ & wake-enst.\ & circ.\ pos.\ & circ.\ neg.\ & mean \\
+    \midrule
+    JEPA   & 64 & \textbf{0.864} & \textbf{0.802} & 0.562 & \textbf{0.934} & \textbf{0.922} & \textbf{0.927} & \textbf{0.835} \\
+    JEPA   & 32 & 0.863 & 0.795 & 0.490 & 0.898 & 0.901 & 0.897 & 0.808 \\
+    \midrule
+    Fukami & 3  & 0.553 & 0.408 & 0.191 & 0.079 & 0.130 & 0.033 & 0.232 \\
+    Fukami & 32 & 0.695 & 0.596 & 0.278 & 0.333 & 0.369 & 0.313 & 0.430 \\
+    Fukami & 64 & 0.671 & 0.589 & 0.335 & 0.277 & 0.336 & 0.352 & 0.427 \\
+    \midrule
+    POD    & 16 & 0.763 & 0.720 & 0.514 & 0.574 & 0.582 & 0.527 & 0.613 \\
+    POD    & 32 & 0.763 & 0.748 & 0.690 & 0.589 & 0.618 & 0.621 & 0.671 \\
+    POD    & 64 & 0.641 & 0.656 & \textbf{0.799} & 0.373 & 0.388 & 0.506 & 0.561 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\begin{table}[t]
+  \centering
+  \caption{B1 fairness protocol: test\_b mean absolute error at horizon $H = 16$ for
+  the same six observables, mode \texttt{z\_dns} (oracle-encoded latent).
+  Smaller is better; best per column in bold. Source:
+  \texttt{physical\_closure\_noBN\_unified.csv}, $n = 42$ encounters. The wake\_enstrophy
+  and circulation columns are reported in their native units; the lift and drag
+  coefficients are dimensionless.}
+  \label{tab:b1_mae_testb}
+  \small
+  \begin{tabular}{l c c c c c c c}
+    \toprule
+    Baseline & $d$ & $C_L$ & $C_D$ & $I_y$ & wake-enst.\ & circ.\ pos.\ & circ.\ neg.\ \\
+    \midrule
+    JEPA   & 64 & \textbf{0.624} & 0.301 & \textbf{1.901} & \textbf{29.83} & \textbf{0.801} & \textbf{0.715} \\
+    JEPA   & 32 & 0.675 & \textbf{0.246} & 2.976 & 37.99 & 1.084 & 1.061 \\
+    \midrule
+    Fukami & 3  & 1.074 & 0.384 & 2.327 & 51.70 & 1.110 & 1.886 \\
+    Fukami & 32 & 1.038 & 0.368 & 2.195 & 63.94 & 0.946 & 1.789 \\
+    Fukami & 64 & 0.989 & 0.340 & 2.421 & 72.90 & 1.057 & 1.904 \\
+    \midrule
+    POD    & 16 & 1.168 & 0.317 & 2.235 & 89.14 & 1.645 & 1.681 \\
+    POD    & 32 & 0.937 & 0.269 & 2.608 & 81.82 & 1.650 & 1.617 \\
+    POD    & 64 & 0.872 & 0.291 & 2.245 & 89.31 & 1.660 & 1.800 \\
+    \bottomrule
+  \end{tabular}
+\end{table}

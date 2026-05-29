@@ -1,0 +1,31 @@
+% Conditioning-only control floor: KRR-RBF((G, D, Y)) -> observable(impact) fit on
+% train, evaluated on test_b and test_c. This is the parametric floor any learned
+% encoder must clear to demonstrate that its latent (not the parameters alone) is
+% doing the work.
+% Source: outputs/session18/exp_b1_test3/conditioning_only_baseline.csv.
+
+\begin{table}[t]
+  \centering
+  \caption{Conditioning-only control floor. A kernel-ridge regressor with an
+  RBF kernel is fit on the train split mapping the gust parameters
+  $\mathbf{c} = (G, D, Y)$ directly to each physical observable at the impact frame,
+  with no latent representation. The resulting $R^2$ is the floor that any learned
+  encoder $+$ predictor must clear on held-out cases to demonstrate that the latent
+  representation is contributing beyond what is already implicit in the parameters.
+  The rightmost column reports the JEPA d $= 64$ train $R^2$ from Table~\ref{tab:b1_closure_train_r2}
+  for direct comparison.}
+  \label{tab:conditioning_floor}
+  \small
+  \begin{tabular}{l c c c c c}
+    \toprule
+    Observable & $n_{\text{train}}$ & train $R^2$ & test\_b $R^2$ & test\_c $R^2$ & JEPA d=64 train $R^2$ \\
+    \midrule
+    $C_L$            & 226 & 0.895 & 0.303  & 0.547  & 0.864 \\
+    $C_D$            & 226 & 0.941 & 0.386  & -2.459 & 0.802 \\
+    $I_y$            & 226 & 0.422 & -0.301 & -1.335 & 0.562 \\
+    wake-enstrophy   & 226 & 0.806 & 0.482  & -1.252 & 0.934 \\
+    circ.\ pos.\     & 226 & 0.792 & -0.032 & -0.249 & 0.922 \\
+    circ.\ neg.\     & 226 & 0.799 & 0.568  & -4.262 & 0.927 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
