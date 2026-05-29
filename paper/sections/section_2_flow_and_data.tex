@@ -1,0 +1,92 @@
+% Flow configuration and data. New physics-first section in the idiom of
+% Fukami's "Flow physics" subsection and the PRF "Simulation setup". It (i)
+% describes the encounter as a staged cycle (base -> LEV -> arch/TEV -> recovery),
+% following Smith et al. 2024 and Odaka et al. 2026; (ii) frames the baseline as
+% a limit cycle, following Fukami, Nakao & Taira 2024; (iii) reframes |G|=4 as a
+% physical 2D->3D regime change, following the PRF source paper; (iv) defines the
+% six observables physically. The implementation-diary split metadata, the sha,
+% and the hardware lines from the original Methods are removed.
+
+\subsection{Vortex gust-airfoil interaction}
+\label{sec:flow_physics}
+
+We study a NACA~0012 airfoil at angle of attack $\alpha = 14^\circ$ and chord
+Reynolds number $\vRe = 5000$, perturbed by a discrete vortex gust modelled as a
+spanwise-oriented Taylor vortex released upstream of the leading edge. The
+governing data are the spanwise-periodic simulations of Fukami, Smith \& Taira
+\cite{fukami2025prf}, in which the same configuration was characterised in
+detail. % CHECK: that source describes the data as large-eddy simulation; the
+% present text says "numerical simulation" pending confirmation of DNS vs LES.
+The gust is parametrised by three scalars: the signed gust ratio $G$, the core
+diameter $D$, and the wall-normal offset $Y/c$ of the vortex centre relative to
+the leading edge. The training envelope spans $|G| \in \{0.5, 1.0, 1.5, 2.0,
+3.0\}$ with $G = 0$ as the undisturbed reference, $D \in \{0.5, 1.0, 1.5\}$
+chords, and $Y/c \in [-0.4, +0.4]$; the value $|G| = 4$ is held out as an
+extrapolation boundary, for reasons that are physical and that we return to
+below. Convective time $t$ is measured in chords and set to zero when the
+vortex centre reaches the leading edge.
+
+Without a gust, the $\alpha = 14^\circ$ wake at this Reynolds number is
+massively separated and sheds periodically; in dynamical terms the undisturbed
+flow is a limit cycle. A gust encounter is then a transient excursion from this
+limit cycle and back, and it is helpful to read it in stages
+\cite{smith2024,fukami2025prf,odaka2026}. The vortex first induces a strong
+wall-normal vorticity flux at the leading edge, the airfoil experiences a sharp
+lift excursion as a leading-edge vortex (LEV) forms, the LEV rolls up and sheds
+together with a trailing-edge structure as the load reaches its extremum, and
+the wake then relaxes back toward the baseline shedding. The sign of $G$ sets
+whether the first lift excursion is positive or negative, $Y$ sets the side and
+strength of the impingement, $D$ sets how much of the encounter is dominated by
+the vortex core, and the impact timing sets the phase of the baseline cycle at
+which the disturbance arrives. The six observables defined in
+\S\ref{sec:flow_observables} are quantitative summaries of exactly this
+sequence.
+
+A consequence of the source characterisation \cite{fukami2025prf} is central to
+how we read the extrapolation case. For $|G| \le 3$ the encounter is primarily
+two-dimensional, so a mid-plane slice of the spanwise vorticity carries the
+relevant large-scale dynamics; for $|G| \ge 4$ the interaction becomes
+genuinely three-dimensional, with fine-scale instabilities developing during
+impact. Because the encoder in this work consumes a single mid-plane vorticity
+field (\S\ref{sec:flow_observables}), the held-out $|G| = 4$ case is not merely
+one parameter step beyond the training range; it is a regime in which the
+quantity the encoder observes no longer determines the true dynamics. We
+therefore treat $|G| = 4$ as a physical observability boundary rather than as a
+claim of parametric generalisation.
+
+\subsection{Data, fields, and observables}
+\label{sec:flow_observables}
+
+Each simulation case is one long run partitioned into encounters of $120$ cached
+frames at $\Delta t = 0.05\,t/c$, one encounter per gust release. The dataset
+comprises $84$ cases partitioned into training, validation, an
+in-distribution test set (test\_b), and an out-of-distribution test set
+(test\_c). The in-distribution test set is stratified to span the five gust
+strengths, the three core diameters, and the two source groups; test\_c is the
+$|G| = 4$ extrapolation set. At the horizon $H = 16$ used throughout, the
+partition contains $226$ training, $28$ validation, $42$ test\_b, and $24$
+test\_c encounters. The undisturbed reference case is retained in training. The
+partition is fixed once and used identically by every model and baseline.
+
+For each frame the cache stores the mid-plane spanwise vorticity
+$\omegaz(192, 96)$, the span-averaged wall pressure $p_{\mathrm{wall}}(192)$,
+and the lift and drag coefficients $C_L, C_D$. The vorticity is normalised by a
+fixed pipeline: a spatial mask removes the solid and one adjacent cell layer to
+suppress the leading-edge finite-difference artefact, a per-encounter
+high-percentile clip caps spikes, and the field is scaled by the training
+standard deviation with no mean shift, preserving the vorticity antisymmetry.
+All representation and probe losses are computed in this normalised space;
+unnormalised values are used only for physical-units metrics and figures.
+
+We evaluate forward closure against six physical observables that together span
+body-force, integrated-flow, and spatially distributed wake diagnostics. The
+lift and drag coefficients $C_L$ and $C_D$ are the body forces. The wall-normal
+impulse $I_y$ is an integrated-flow quantity coupled to the wake-vortex
+dynamics. The wake enstrophy and the positive and negative circulation are
+spatially distributed wake observables: they integrate (signed) vorticity over
+the wake region and are the most demanding to forecast, because they are
+sensitive to the redistribution of vorticity that the LEV roll-up and shedding
+produce. The choice is deliberate: the wake observables can change sharply while
+the scalar forces change little, so they are the part of the encounter most
+likely to separate a representation that has captured the gust-vortex physics
+from one that has only captured its force signature.

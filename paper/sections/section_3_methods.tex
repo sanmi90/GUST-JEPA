@@ -1,0 +1,159 @@
+% Predictive latent representation and evaluation protocol. Former Section 3
+% (Methods), compressed and de-diaried. Removed: split sha, hardware/GPU lines,
+% the CLAUDE.md auto-fallback as a main-text rule, the D130 label, the
+% PLDM/SIGReg "two anti-collapse bases" framing. The auxiliary-head description
+% is kept but now explicitly flagged as part of the confound that Sec. 4.5
+% controls for. The predictor internal schematic (former Fig. 3) is moved to an
+% appendix; this section keeps Figs. 1, 2 and 4.
+
+\subsection{Encoder, predictor, and the conditioning split}
+\label{sec:methods_arch}
+
+The predictive encoder $E_\theta$ maps the mid-plane vorticity field
+$\omegaz(192,96)$ to a latent $\zvec \in \mathbb{R}^d$ at $d \in \{32, 64\}$. It
+is a hybrid network: three convolutional downsampling stages produce a
+$24 \times 12 \times 256$ feature map, a six-layer vision transformer processes
+the resulting tokens, and the class-token output is projected to $\zvec$ through
+a single linear layer with a batch-normalisation boundary, which the
+characteristic-function regulariser below requires. The encoder is
+\emph{unconditional} by design: it sees only the flow field, not the gust
+parameters $\cvec = (G,D,Y)$. This is the property that lets the latent itself
+serve as the observable a controller would have access to, since at deployment
+the gust parameters are not known a priori (\S\ref{sec:discussion}).
+
+The predictor $P_\phi$ advances the latent in time. It is a six-layer
+autoregressive transformer with rotary positional embeddings and a causal mask,
+conditioned on $\cvec$ through adaptive layer-norm modulation at every block;
+its internal structure is given in Appendix~A. The predictor is the only stage
+that sees $\cvec$. Figure~\ref{fig:jepa_architecture} shows the encoder and
+predictor, and Figure~\ref{fig:predictive_vs_reconstructive} contrasts the
+predictive training signal with the reconstructive one: the reconstructive
+autoencoder passes the field at time $t$ through an encoder and a decoder and
+incurs a field-space error, whereas the predictive model encodes the fields at
+$t$ and $t+\Delta t$ with shared weights and incurs a latent-space error between
+the predicted and observed target embeddings, with no field-space loss.
+
+\subsection{Training objective and the auxiliary observable heads}
+\label{sec:methods_loss}
+
+The predictive encoder and predictor are trained jointly on a one-step
+latent-prediction term, a scheduled-sampling rollout term that exposes the
+predictor to its own errors, and an anti-collapse regulariser that prevents the
+encoder from collapsing to a constant. We use the characteristic-function
+regulariser of \cite{lejepa,lewm}, which matches the latent distribution to an
+isotropic Gaussian through a small number of random projections; we found the
+choice of anti-collapse regulariser to be second order relative to a
+variance-covariance alternative \cite{vicreg} at this data scale, and we report
+that comparison in Appendix~A.
+
+Two auxiliary heads read aerodynamic observables off the encoder output: a lift
+head that maps $\zvec_t$ to $C_L(t)$, and a wake head that maps $\zvec_t$ to an
+$80$-dimensional signed wake spectrum, trained with small weights jointly with
+the representation. These heads are adopted from the observable-augmentation
+lineage \cite{fukami2023,fukami2025}. They are also, however, the reason the
+present predictive encoder is not a clean isolation of the training objective:
+the reconstructive baseline below carries a lift head but not a wake head, and
+the two encoders differ in architecture as well. We are explicit about this
+throughout. The headline comparison is therefore between encoder
+\emph{families} as configured, and the controls of \S\ref{sec:res_controls}
+are designed to separate the objective from the architecture and the wake
+supervision. % PENDING: those controls (2x2 objective x architecture, and a
+% no-wake-head JEPA) have not yet been run; see REWRITE_NOTES.md.
+
+\subsection{The matched-predictor fairness protocol}
+\label{sec:methods_protocol}
+
+The comparison rests on a single principle: every baseline is the same
+three-stage pipeline, and only the encoder differs. Each encoder produces a
+latent trajectory $\zvec_{1:T}$ from the vorticity fields; an identical
+autoregressive transformer predictor rolls it forward one step at a time given
+$\cvec$; and an identical probe family maps the predicted latent to a physical
+observable for evaluation (Figure~\ref{fig:b1_fairness}). The predictor
+architecture, its training recipe, the parametric conditioning, and the probe
+family are held fixed across the three encoder families. The latent dimension
+is matched within each family: JEPA at $d \in \{32, 64\}$, the reconstructive
+autoencoder at $d \in \{3, 32, 64\}$ to include both the published $d = 3$
+recipe and matched-capacity variants, and POD at $d \in \{16, 32, 64\}$. This
+isolation is the only fair way to attribute forecast quality to the
+representation rather than to incidental differences in the predictor or its
+training.
+
+\subsection{Forward physical closure}
+\label{sec:methods_closure}
+
+The figure of merit is forward physical closure. Given a ground-truth $\cvec$
+and an initial latent, the predictor is rolled recursively to $H = 16$, and at
+each step the probe maps the predicted latent to each observable. A small
+closure error means the encoder produces a latent whose dynamics, propagated by
+the shared predictor, retain the information the probe needs to recover the
+physical quantity; a large error means either that the encoder discarded that
+information or that the predictor lost it during rollout, a distinction the
+drift diagnostic below resolves. We report closure on the held-out test\_b and
+test\_c encounters as the mean absolute error against the simulation, with
+bootstrap $95\%$ confidence intervals over encounters and the coefficient of
+determination $R^2$.
+%
+% HONESTY NOTE: the original draft headed the results with a *training-set* R^2
+% (mean 0.835). That number is retained only as a training-fit reference
+% (Table~\ref{tab:b1_closure_train_r2}); the headline is the held-out error.
+% test_b / test_c R^2 must be computed from the same rollout predictions already
+% used for the held-out MAE and dropped into Table~\ref{tab:b1_r2_heldout}.
+\pending{compute held-out test\_b/test\_c $R^2$ for all baselines and populate
+Table~\ref{tab:b1_r2_heldout}.}
+
+\subsection{Two mechanistic diagnostics}
+\label{sec:methods_diag}
+
+\emph{Latent drift.} A predictor with low one-step error need not produce a
+useful long rollout, because each prediction is fed back as the next input and
+small geometric errors accumulate. We quantify how far a rollout has left the
+training manifold by the Mahalanobis distance of the rolled-out latent at
+horizon $H$, measured against the distribution of simulation-encoded latents for
+the same encoder, normalised by the Mahalanobis distance of the
+simulation-encoded latent itself. A ratio near one means the rollout stays
+within the natural spread of the training latents; a large ratio means it has
+gone out of distribution, so that the probe is then queried outside its support.
+
+\emph{Conditioning-only floor.} Because the predictor is conditioned on
+$\cvec = (G,D,Y)$, a natural concern is that the forecast quality is carried by
+the conditioning rather than by the latent. We bound this with a
+kernel-ridge regressor that maps $\cvec$ directly to each observable at the
+impact frame, with no latent input, fit on training and evaluated on the
+held-out splits. This is the floor any learned encoder must clear on held-out
+cases to demonstrate that its latent contributes beyond what is already implicit
+in the parameters.
+
+% --- figures retained from the original draft (paths unchanged) ---
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.95\linewidth]{sections/figures/tikz/fig1_jepa_architecture.pdf}
+  \caption{Predictive encoder and predictor. The encoder is unconditional and
+  maps the mid-plane vorticity field to a latent $\zvec_t$. The autoregressive
+  transformer predictor advances the latent given the gust conditioning
+  $\cvec = (G,D,Y)$. The two auxiliary observable heads (lift and wake) and the
+  visualisation decoder are attached to the frozen encoder and are never part of
+  the latent-prediction loss.}
+  \label{fig:jepa_architecture}
+\end{figure}
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.95\linewidth]{sections/figures/tikz/fig2_predictive_vs_reconstructive.pdf}
+  \caption{Predictive versus reconstructive training. Left: the reconstructive
+  autoencoder encodes the field at $t$, decodes it, and incurs a field-space
+  error. Right: the predictive model encodes the fields at $t$ and $t+\Delta t$
+  with shared weights and incurs a latent-space error between the predicted and
+  observed target embeddings, with no field-space loss and no decoder during
+  training.}
+  \label{fig:predictive_vs_reconstructive}
+\end{figure}
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.95\linewidth]{sections/figures/tikz/fig4_b1_fairness.pdf}
+  \caption{Matched-predictor fairness protocol. Each encoder family produces its
+  own latent stream, which is then advanced by an identical autoregressive
+  predictor with identical conditioning $\cvec = (G,D,Y)$ and read by an
+  identical probe family. Closure quality is attributable to the encoder alone.}
+  \label{fig:b1_fairness}
+\end{figure}

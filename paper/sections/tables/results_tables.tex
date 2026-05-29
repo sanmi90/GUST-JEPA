@@ -1,0 +1,193 @@
+% Tables for the Results section. De-diaried (source-file paths removed),
+% captions rewritten. The training-set R^2 table is retained but explicitly
+% labelled as a training fit; the held-out MAE is the headline; a held-out R^2
+% table is scaffolded for the number that must replace the original headline.
+
+% ---------------------------------------------------------------------------
+% TABLE: model families and objectives (new; standard JFM summary table).
+% ---------------------------------------------------------------------------
+\begin{table}[t]
+  \centering
+  \caption{Encoder families compared under the matched-predictor protocol of
+  \S\ref{sec:methods_protocol}. All three share one autoregressive transformer
+  predictor, training recipe, conditioning on $\cvec=(G,D,Y)$, and probe family;
+  only the encoder differs. ``Aux.\ heads'' lists the observable supervision
+  attached to the encoder. The architecture and auxiliary-head columns differ
+  across families, which is why the headline result is attributed to the
+  predictive \emph{family} and isolated only by the controls of
+  \S\ref{sec:res_controls}.}
+  \label{tab:families}
+  \small
+  \begin{tabular}{l l l l l}
+    \toprule
+    Family & Objective & Encoder & Latent dim.\ $d$ & Aux.\ heads \\
+    \midrule
+    JEPA (this work) & predictive (latent) & CNN $+$ ViT & $32,\,64$ & lift $+$ wake \\
+    Reconstructive AE & reconstructive (field) & CNN & $3,\,32,\,64$ & lift \\
+    POD & linear projection & --- & $16,\,32,\,64$ & --- \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+% ---------------------------------------------------------------------------
+% TABLE: held-out closure (test_b MAE). THIS IS THE HEADLINE TABLE.
+% ---------------------------------------------------------------------------
+\begin{table}[t]
+  \centering
+  \caption{Held-out forward closure. Mean absolute error at horizon $H = 16$ on
+  the $n = 42$ test\_b encounters, for the rollout from the
+  simulation-encoded initial latent, against six physical observables. Smaller
+  is better; best per column in bold. The wake-enstrophy and circulation columns
+  are in native units, the force coefficients are dimensionless. This held-out
+  error, not the training fit of Table~\ref{tab:b1_closure_train_r2}, is the
+  headline evidence.}
+  \label{tab:b1_mae_testb}
+  \small
+  \begin{tabular}{l c c c c c c c}
+    \toprule
+    Baseline & $d$ & $C_L$ & $C_D$ & $I_y$ & wake-enst.\ & circ.\ pos.\ & circ.\ neg.\ \\
+    \midrule
+    JEPA   & 64 & \textbf{0.624} & 0.301 & \textbf{1.901} & \textbf{29.83} & \textbf{0.801} & \textbf{0.715} \\
+    JEPA   & 32 & 0.675 & \textbf{0.246} & 2.976 & 37.99 & 1.084 & 1.061 \\
+    \midrule
+    Fukami & 3  & 1.074 & 0.384 & 2.327 & 51.70 & 1.110 & 1.886 \\
+    Fukami & 32 & 1.038 & 0.368 & 2.195 & 63.94 & 0.946 & 1.789 \\
+    Fukami & 64 & 0.989 & 0.340 & 2.421 & 72.90 & 1.057 & 1.904 \\
+    \midrule
+    POD    & 16 & 1.168 & 0.317 & 2.235 & 89.14 & 1.645 & 1.681 \\
+    POD    & 32 & 0.937 & 0.269 & 2.608 & 81.82 & 1.650 & 1.617 \\
+    POD    & 64 & 0.872 & 0.291 & 2.245 & 89.31 & 1.660 & 1.800 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+% ---------------------------------------------------------------------------
+% TABLE: held-out R^2 (PLACEHOLDER -- to be generated).
+% ---------------------------------------------------------------------------
+\begin{table}[t]
+  \centering
+  \caption{Held-out forward closure, coefficient of determination $R^2$ at
+  $H = 16$ on test\_b (and test\_c), to be computed from the same rollout
+  predictions used for Table~\ref{tab:b1_mae_testb}. This table replaces the
+  training-set $R^2$ of Table~\ref{tab:b1_closure_train_r2} as the reported
+  closure quality.}
+  \label{tab:b1_r2_heldout}
+  \small
+  \begin{tabular}{l c c c c c c c c}
+    \toprule
+    Baseline & $d$ & $C_L$ & $C_D$ & $I_y$ & wake-enst.\ & circ.\ pos.\ & circ.\ neg.\ & mean \\
+    \midrule
+    \multicolumn{9}{c}{\pending{generate held-out $R^2$ from the rollout predictions}} \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+% ---------------------------------------------------------------------------
+% TABLE: training-set R^2 (RETAINED AS REFERENCE ONLY, relabelled).
+% ---------------------------------------------------------------------------
+\begin{table}[t]
+  \centering
+  \caption{Training-set fit, for reference only. Coefficient of determination
+  $R^2$ for predicting the six observables from the rolled-out latent ($H = 16$)
+  evaluated \emph{on the training distribution}. This quantifies in-distribution
+  fit and is \emph{not} the headline; held-out closure is in
+  Tables~\ref{tab:b1_mae_testb}--\ref{tab:b1_r2_heldout}. Best per column in
+  bold; row mean at right.}
+  \label{tab:b1_closure_train_r2}
+  \small
+  \begin{tabular}{l c c c c c c c c}
+    \toprule
+    Baseline & $d$ & $C_L$ & $C_D$ & $I_y$ & wake-enst.\ & circ.\ pos.\ & circ.\ neg.\ & mean \\
+    \midrule
+    JEPA   & 64 & \textbf{0.864} & \textbf{0.802} & 0.562 & \textbf{0.934} & \textbf{0.922} & \textbf{0.927} & \textbf{0.835} \\
+    JEPA   & 32 & 0.863 & 0.795 & 0.490 & 0.898 & 0.901 & 0.897 & 0.808 \\
+    \midrule
+    Fukami & 3  & 0.553 & 0.408 & 0.191 & 0.079 & 0.130 & 0.033 & 0.232 \\
+    Fukami & 32 & 0.695 & 0.596 & 0.278 & 0.333 & 0.369 & 0.313 & 0.430 \\
+    Fukami & 64 & 0.671 & 0.589 & 0.335 & 0.277 & 0.336 & 0.352 & 0.427 \\
+    \midrule
+    POD    & 16 & 0.763 & 0.720 & 0.514 & 0.574 & 0.582 & 0.527 & 0.613 \\
+    POD    & 32 & 0.763 & 0.748 & 0.690 & 0.589 & 0.618 & 0.621 & 0.671 \\
+    POD    & 64 & 0.641 & 0.656 & \textbf{0.799} & 0.373 & 0.388 & 0.506 & 0.561 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+% ---------------------------------------------------------------------------
+% TABLE: latent drift.
+% ---------------------------------------------------------------------------
+\begin{table}[t]
+  \centering
+  \caption{Latent-drift diagnostic on test\_b at $H = 16$. The Mahalanobis
+  distance of the rolled-out latent is reported alongside that of the
+  simulation-encoded latent in the same reference distribution; their ratio
+  $r = d_{\text{Mahal, Markov}} / d_{\text{Mahal, DNS}}$ measures how far the
+  autoregressive rollout has left the training manifold. A ratio near one means
+  the rollout stays in distribution.}
+  \label{tab:latent_drift}
+  \small
+  \begin{tabular}{l c c c c}
+    \toprule
+    Baseline & $d$ & $d_{\text{Mahal, ref}}$ & $d_{\text{Mahal, rollout}}$ & ratio $r$ \\
+    \midrule
+    Fukami & 64 & 2.92 & 28.96 & \textbf{9.90} \\
+    JEPA   & 64 & 8.08 & 6.84  & 0.85 \\
+    JEPA   & 32 & 5.43 & 4.65  & 0.86 \\
+    POD    & 64 & 7.74 & 6.27  & 0.81 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+% ---------------------------------------------------------------------------
+% TABLE: conditioning-only floor.
+% ---------------------------------------------------------------------------
+\begin{table}[t]
+  \centering
+  \caption{Conditioning-only floor. A kernel-ridge regressor maps the gust
+  parameters $\cvec = (G,D,Y)$ directly to each observable at the impact frame,
+  with no latent input; $R^2$ is reported on each split. This is the floor any
+  learned encoder must clear on held-out cases to show its latent contributes
+  beyond the parameters. The conditioning floor interpolates the training points
+  but collapses on the held-out splits, going negative on test\_c for five of
+  six observables.
+  % HONESTY NOTE: the original table compared this floor's held-out R^2 against
+  % JEPA's *training-set* R^2. The fair comparison is against JEPA's held-out
+  % R^2 (Table~\ref{tab:b1_r2_heldout}); the last column is left for that number.
+  }
+  \label{tab:conditioning_floor}
+  \small
+  \begin{tabular}{l c c c c c}
+    \toprule
+    Observable & $n_{\text{train}}$ & train $R^2$ & test\_b $R^2$ & test\_c $R^2$ & JEPA $d{=}64$ test\_b $R^2$ \\
+    \midrule
+    $C_L$          & 226 & 0.895 & 0.303  & 0.547  & \pending{} \\
+    $C_D$          & 226 & 0.941 & 0.386  & -2.459 & \pending{} \\
+    $I_y$          & 226 & 0.422 & -0.301 & -1.335 & \pending{} \\
+    wake-enstrophy & 226 & 0.806 & 0.482  & -1.252 & \pending{} \\
+    circ.\ pos.\   & 226 & 0.792 & -0.032 & -0.249 & \pending{} \\
+    circ.\ neg.\   & 226 & 0.799 & 0.568  & -4.262 & \pending{} \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+% ---------------------------------------------------------------------------
+% TABLE: 2x2 objective x architecture controls (PLACEHOLDER -- decisive experiment).
+% ---------------------------------------------------------------------------
+\begin{table}[t]
+  \centering
+  \caption{Objective $\times$ architecture controls (decisive experiment). Mean
+  held-out closure ($R^2$ at $H = 16$, test\_b) and drift ratio for the four
+  cells crossing \{predictive, reconstructive\} with \{CNN, CNN$+$ViT\} at
+  $d = 64$, with the auxiliary heads matched across cells, plus a JEPA variant
+  with the wake head removed. This table isolates the objective from the
+  architecture and from the wake supervision.}
+  \label{tab:controls_2x2}
+  \small
+  \begin{tabular}{l l c c c}
+    \toprule
+    Objective & Encoder & Aux.\ heads & mean closure $R^2$ & drift ratio \\
+    \midrule
+    \multicolumn{5}{c}{\pending{run the $2\times2$ (auxiliary-matched) and the no-wake-head JEPA; populate}} \\
+    \bottomrule
+  \end{tabular}
+\end{table}

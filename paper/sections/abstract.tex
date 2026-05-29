@@ -1,0 +1,41 @@
+% Abstract. Rewritten to (i) lead with the physical question, (ii) report
+% HELD-OUT evidence rather than the training-set R^2 that headed the original
+% draft, and (iii) attribute the gain to the predictive latent *family* rather
+% than to the objective in isolation, pending the matched-architecture controls.
+
+We ask whether a predictive latent training objective yields a reduced-order
+state for parametric vortex-gust airfoil interactions that is more useful for
+forward-time forecasting than a reconstructive one. The data are numerical
+simulations of a NACA~0012 airfoil at angle of attack $\alpha = 14^\circ$ and
+chord Reynolds number $\vRe = 5000$, perturbed by a discrete Taylor vortex
+parametrised by gust strength $G$, core diameter $D$, and wall-normal offset
+$Y$, spanning $84$ cases partitioned into $226$ training, $28$ validation,
+$42$ in-distribution test, and $24$ out-of-distribution extrapolation
+encounters. Three encoder families are compared at matched latent dimension:
+a joint-embedding predictive architecture (JEPA), an observable-augmented
+reconstructive autoencoder in the lineage of Fukami \& Taira, and a proper
+orthogonal decomposition (POD) basis. A single autoregressive transformer
+predictor, training recipe, parametric conditioning on $(G,D,Y)$, and probe
+family are held fixed across all three, so that the encoder is the only thing
+that varies. We judge each reduced state not by snapshot reconstruction but by
+\emph{forward physical closure}: whether the predictor rollout keeps six
+physical observables, namely the lift and drag coefficients, the wall-normal
+impulse, the wake enstrophy, and the positive and negative circulation, close
+to the simulation out to a horizon of $H = 16$ frames after gust impact. On
+held-out encounters the predictive latent reduces the wake-enstrophy error by
+a factor of $2.4$ to $3.0$ relative to the reconstructive and linear baselines,
+with smaller but consistent gains on the force observables, while the linear
+basis remains competitive on the integrated impulse. The mechanism is a
+latent-drift diagnostic: under autoregressive rollout the reconstructive latent
+leaves its training manifold by an order of magnitude at $H = 16$, whereas the
+predictive and linear latents remain within it, so that the wake observables
+that are hidden from a reconstruction objective become recoverable from a
+predictive one. A conditioning-only floor shows that the held-out advantage is
+not explained by the parametric conditioning the predictor shares across
+baselines. Because the predictive encoder here also differs from the
+reconstructive baseline in architecture and in auxiliary observable
+supervision, we attribute the gain to the predictive latent family rather than
+to the training objective in isolation, and we set out the matched-architecture
+controls that would isolate it. The predictor is the latent dynamics function
+required by model-based control, and we discuss the pathway to closed-loop
+deployment and its current limits.

@@ -1,0 +1,113 @@
+% Discussion. Former Section 8, restructured and de-diaried. The closed-loop
+% pilot is reported as a limitation/future pathway, not a contribution. The
+% objective-isolation caveat is stated plainly. The latent non-uniqueness framing
+% (Tran et al. 2026) is used to explain *why* reconstruction leaves the geometry
+% free.
+
+\subsection{What the predictive latent retains, and why}
+\label{sec:disc_mechanism}
+
+The central finding is about dynamic closure, not reconstruction. Under a shared
+predictor, parametric conditioning, and probe family, the predictive latent
+family keeps the forward evolution of six physical observables closer to the
+simulation than the reconstructive and linear families do, and the advantage is
+concentrated on the spatially distributed wake observables that integrate over
+the shedding region. The mechanism is geometric. A reconstruction objective
+fixes the latent only up to a diffeomorphism \cite{tran2026,kelshaw2024}, so the
+decoder is free to place codes anywhere it finds convenient and nothing
+constrains the latent geometry to be predictable in time; under autoregressive
+rollout the reconstructive latent therefore leaves its own training manifold,
+and a probe queried on that drifted state fails for reasons unrelated to the
+predictor's one-step accuracy. The predictive objective, regularised against
+collapse, instead organises the latent so that the encounter is a closed cycle
+that survives rollout and so that latent distance tracks the physical transport
+geometry of the flow, which is why iterating the predictor does not leave the
+manifold. The wake observables are the sharpest discriminator precisely because
+they can change while the scalar forces do not: a representation can carry the
+lift signature of an encounter without carrying the vorticity redistribution
+that produces it, and the reconstructive latent does exactly that, recovering
+the impact lift poorly from its own oracle while the predictive latent recovers
+it well.
+
+\subsection{What the comparison does and does not establish}
+\label{sec:disc_caveat}
+
+We are deliberate about the scope of the claim. The predictive encoder here
+differs from the reconstructive baseline in three respects at once: the training
+objective, the CNN$+$ViT architecture, and the wake supervision. The result as
+it stands is therefore a statement about the predictive latent \emph{family} as
+configured. The conditioning-only floor removes the shared parametric
+conditioning as an explanation, but the architecture and, most pointedly, the
+wake supervision remain confounded with the objective, and the largest part of
+the advantage is on the very wake observables the predictive encoder was
+supervised on. Attributing the gain to the predictive objective in isolation
+requires the matched-architecture, matched-auxiliary controls and the
+no-wake-head variant of \S\ref{sec:res_controls}; until those are in hand the
+safe statement is ``the predictive latent family improves forward closure'', not
+``the predictive objective alone does''. The linear basis, for its part, remains
+genuinely useful: it is the most competitive family on the integrated impulse
+and is amplitude-accurate in reconstruction, so the result is not that POD is
+obsolete but that it does not produce a latent whose rollout closes the wake
+observables.
+
+\subsection{Limitations}
+\label{sec:disc_limits}
+
+Three limitations bound the claims. First, the wall-normal offset $Y$ is weakly
+resolved because the training mass concentrates near $Y \approx 0$; this is a
+data limitation, and $Y$-conditional statements should be read with it in mind.
+Second, the $|G| = 4$ extrapolation degrades for a physical reason, not merely a
+statistical one: the encoder observes a single mid-plane vorticity slice, and at
+$|G| = 4$ the true dynamics become three-dimensional \cite{fukami2025prf}, so
+test\_c is best read as the observability boundary of a mid-plane representation
+rather than as a parametric-generalisation claim. Third, the visualisation
+decoder is a diagnostic on the frozen encoder, never part of the predictive
+loss; a reader expecting sharp reconstructions from a predictive latent will be
+disappointed, which is the explicit trade the objective makes. To these we add
+the objective-isolation caveat of \S\ref{sec:disc_caveat} as a fourth.
+
+\subsection{Pathway to model-based control, and a pilot that does not yet close}
+\label{sec:disc_control}
+
+The predictor is, by construction, the latent dynamics function a model-based
+controller plans against, and three properties of the architecture support that
+use: closure holds out to the planning horizon relevant to the impact-instant
+load, the latent is two to three orders of magnitude cheaper to evolve than the
+full field, and the rollout stays on the training manifold, which is the
+property that determines whether long-horizon plans remain meaningful since a
+planner queries the predictor on states reached by its own rollout. Because the
+encoder is unconditional, the latent itself is the observable a controller has
+access to, and the gust parameters enter only the predictor; replacing the
+parametric conditioning with an actuation channel is a change of input rather
+than of architecture, and the phase-amplitude reading of \S\ref{sec:res_param_phase}
+connects the predictor directly to the sensitivity-function control designed for
+these flows \cite{fukami2024control}.
+
+We also report, as a limitation rather than a result, a closed-loop pilot that
+chains a wall-pressure state estimator, the predictor rollout, and an
+observable probe. A temporal-convolutional estimator recovers the latent from a
+pre-impact pressure window well (held-out $R^2 \approx 0.87$ at eight sensors),
+but the assembled loop does not meet the tolerances set in advance: at the
+design horizon only a small fraction of held-out encounters fall within the
+$C_L$ and $I_y$ tolerance bands, and none of the pre-registered gates are met.
+The bottleneck is the rollout rather than the estimator, since the within-
+tolerance fraction is essentially unchanged when the oracle latent is
+substituted for the estimated one. The honest reading is that the representation
+and the pressure observability are in place but the rollout needs reinforcement,
+through more frequent re-estimation from pressure during the rollout or a longer
+scheduled-sampling horizon, before a usable controller follows. The estimator,
+sensor-placement, and closed-loop details are deferred to Appendix~C.
+
+\subsection{Outlook}
+\label{sec:disc_outlook}
+
+The contribution is narrow by design: a controlled comparison on a single
+parametric flow, anchored to forward physical closure rather than to
+in-distribution reconstruction, with a drift mechanism that explains the gap and
+a set of controls that bound its interpretation. The immediate next step is to
+run those controls and the horizon, topology, transport, and phase-amplitude
+analyses set out above, which together would either promote the claim to the
+predictive objective in isolation or sharpen it to the predictive family. Beyond
+that, applying the same matched-predictor closure protocol to other parametric
+flow datasets would test how general the predictive-versus-reconstructive trade
+reported here actually is.

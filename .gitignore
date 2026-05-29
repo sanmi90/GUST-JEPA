@@ -74,5 +74,5 @@ paper/sections/figures/tikz/*-1.png
 paper/sections/figures/tikz/*preview-1.png
 
 # Generated section .tex files (produced from .md by scripts/_oneoff_md_to_tex.py)
-paper/sections/abstract.tex
-paper/sections/section_*.tex
+# paper/sections/abstract.tex (now canonical, hand-authored)
+# paper/sections/section_*.tex (now canonical, hand-authored)

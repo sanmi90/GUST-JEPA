@@ -1,0 +1,291 @@
+% Results, restructured by physical question (replacing the original Sections 4,
+% 5, 6, 7). Order: closure -> horizon -> mechanism (drift + new topology and
+% transport analyses) -> parameter/phase dependence (+ new phase-amplitude) ->
+% the decisive objective/architecture controls -> physical-space interpretation
+% (reconstruction reframed with an OT metric + scale decomposition). Numbers that
+% exist are reported; numbers and figures from not-yet-run analyses are marked
+% % RESULT PENDING and \pending{...}.
+
+\input{sections/tables/results_tables.tex}
+
+\subsection{Forward physical closure across encoder families}
+\label{sec:res_closure}
+
+Table~\ref{tab:families} summarises the three encoder families and the protocol.
+The held-out closure is reported in Table~\ref{tab:b1_mae_testb} as the mean
+absolute error of the $H = 16$ rollout against each observable on the test\_b
+encounters, and graphically in Figure~\ref{fig:b1_results} across test\_b and
+test\_c. The predictive latent gives the lowest held-out error on the wake
+observables by a wide margin: at $d = 64$ its wake-enstrophy error is $29.83$
+against $72.90$ for the reconstructive autoencoder and $89.31$ for the linear
+basis, a factor of $2.4$ and $3.0$ respectively, and its positive and negative
+circulation errors are likewise the smallest. The gap narrows on the scalar
+forces, which all three families approximate more evenly, although the
+predictive latent still leads on $C_L$ ($0.624$ against $0.989$ and $0.872$).
+The integrated impulse $I_y$ is where the linear basis is most competitive: on
+the in-distribution training fit (Table~\ref{tab:b1_closure_train_r2}) POD
+attains the highest $I_y$ score of any family, an expected consequence of its
+energy-optimal projection, although on held-out error the predictive latent
+still leads there. We flag this train-versus-held-out reversal because it is
+exactly why the held-out coefficient of determination, not the training fit,
+must head the comparison.
+
+That held-out coefficient of determination is the one number the original
+analysis did not report; it reported a training-set $R^2$
+(Table~\ref{tab:b1_closure_train_r2}, mean $0.835$ at $d = 64$), which measures
+in-distribution fit rather than generalisation. The held-out $R^2$ follows
+directly from the same rollout predictions already used for
+Table~\ref{tab:b1_mae_testb} and belongs in Table~\ref{tab:b1_r2_heldout}.
+\pending{populate Table~\ref{tab:b1_r2_heldout} and rewrite this paragraph's
+summary statistic in held-out $R^2$.}
+
+The conditioning-only floor (Table~\ref{tab:conditioning_floor}) confirms that
+the held-out result is not an artefact of the parametric conditioning the
+predictor shares. A kernel-ridge map from $\cvec = (G,D,Y)$ to the impact-frame
+observables interpolates the training points well, as any flexible kernel in a
+three-dimensional input will, but collapses on test\_b and goes negative on
+test\_c for five of six observables. The parameters alone cannot generalise
+outside the training envelope, so the held-out closure is doing representational
+work that the conditioning cannot replicate.
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.98\linewidth]{sections/figures/results/fig5_b1_results.pdf}
+  \caption{Held-out forward closure at $H = 16$ for the force, impulse, and wake
+  observables across all baselines on test\_b (in-distribution, top) and test\_c
+  ($|G| = 4$ extrapolation, bottom). Error bars are bootstrap $95\%$ confidence
+  intervals over $n = 42$ and $n = 24$ encounters. The wake panel shows the
+  clearest separation between the predictive latent and the reconstructive and
+  linear families.}
+  \label{fig:b1_results}
+\end{figure}
+
+\subsection{Horizon dependence}
+\label{sec:res_horizon}
+
+A dynamics paper should not rest on a single horizon. Comparing recursive
+(Markov) rollout against a one-shot prediction at horizon $H$, the two agree to
+within the encounter-level scatter for $H \le 16$ and diverge for $H \ge 32$ as
+the recursive error compounds, which places the reported $H = 16$ inside the
+regime where the rollout mode does not affect the conclusion and which matches
+the planning horizon relevant to the impact-instant load. The full decay of
+closure with horizon, swept over $H \in \{1,4,8,16,32,64\}$ for every family on
+test\_b and test\_c, is the natural extension.
+% RESULT PENDING: horizon sweep. Expected figure: closure (R^2 and MAE) vs H,
+% one panel per observable group, with the horizon at which each family drops
+% below R^2 = 0.5; the question is whether the predictive latent degrades
+% smoothly while the reconstructive one fails abruptly, and whether the failure
+% coincides with the drift onset of Sec. 4.3.
+\pending{run the horizon sweep and add the closure-versus-$H$ figure.}
+
+\subsection{The drift mechanism: distance, topology, and transport geometry}
+\label{sec:res_drift}
+
+The closure gap is large enough that its mechanism deserves direct measurement.
+
+\paragraph{Distance.} The latent-drift diagnostic (Table~\ref{tab:latent_drift})
+measures how far each rollout leaves its training manifold. After $H = 16$ steps
+the reconstructive rollout sits an order of magnitude further from its training
+distribution than its simulation-encoded counterpart (ratio $9.90$), while the
+predictive and linear rollouts remain within it (ratios $0.85$ and $0.81$). This
+is the mechanism behind the closure gap: the probe attached to a drifted rollout
+is queried outside the support it was fit on, so its output degrades for reasons
+unrelated to the predictor's one-step quality. A reconstruction objective places
+latent codes wherever the decoder finds convenient and does not constrain the
+geometry to be predictable in time; the predictive objective, regularised
+against collapse, produces a latent that supports stable rollout by
+construction. The pre-impact inference of the impact lift makes the same point
+from the encoder side: an oracle probe on the simulation-encoded predictive
+latent recovers the impact $C_L$ at $R^2 = 0.683$ at every lead time, whereas
+the same oracle on the reconstructive latent is negative ($-0.185$), a
+representation failure rather than a probe failure, since no probe can recover
+information the latent does not carry. Rolling the predictive latent forward
+through the predictor recovers about $0.60$ of that skill from five frames
+before impact and about $0.35$ from ten, several frames of usable forecast
+horizon beyond a direct wall-pressure read at the same lead times.
+
+\paragraph{Topology.} A single distance understates the geometric content of the
+result. A gust encounter is, in state space, a closed cycle: the flow departs
+the baseline limit cycle, executes the LEV-formation and shedding excursion, and
+returns \cite{smith2024}. We characterise this with persistent homology, which
+identifies the persistent one-dimensional cycle ($H_1$ generator) of a
+trajectory by a Vietoris--Rips filtration \cite{smith2024}, applied here to four
+latent point clouds per encounter: the simulation-encoded predictive latent, its
+rollout, the simulation-encoded reconstructive latent, and its rollout. The
+prediction this makes, and the figure it produces, is that the predictive
+rollout preserves the encounter's persistent $H_1$ generator (the cycle
+survives) while the reconstructive rollout's generator collapses or fragments as
+the trajectory leaves the manifold, turning the scalar drift ratio into a
+coordinate-free topological signature.
+% RESULT PENDING: persistent homology of latent trajectories. Tooling: ripser /
+% giotto-tda on existing latents (post-processing, no retraining). Figure: four
+% persistence diagrams plus maximum H_1 lifetime versus horizon per family.
+\pending{compute persistence diagrams of the four latent trajectories and add
+the $H_1$-lifetime-versus-horizon panel.}
+
+\paragraph{Transport geometry.} The geometric reason the predictive rollout
+stays on the manifold can be made physical. Euclidean distance between vorticity
+fields is insensitive to the spatial transport of structures, whereas an
+unbalanced optimal-transport (OT) distance measures the cost of rearranging one
+field into another and so tracks advection of the LEV and shear layer
+\cite{tran2026}. Computing the OT distance between simulation fields along an
+encounter gives a physical transport geometry against which the latent metric
+can be checked: the prediction is that distances in the predictive latent track
+the OT geodesic more faithfully than distances in the reconstructive latent, so
+that a single predictor step corresponds to a physically smooth, transport-
+consistent change and iterating it does not leave the data manifold.
+% RESULT PENDING: alignment of latent Euclidean distance with the OT geodesic
+% (signed vorticity split into positive/negative parts, Sinkhorn via the POT
+% library). Figure: Shepard plot / rank correlation of latent distance vs OT
+% distance, predictive vs reconstructive.
+\pending{compute the OT-geodesic alignment of each latent metric and report the
+correlation, predictive versus reconstructive.}
+
+\subsection{Where closure holds and fails: parameter and phase dependence}
+\label{sec:res_param_phase}
+
+\paragraph{Which gust axes the latent resolves.} Probing the predictive latent
+for the gust parameters on test\_b recovers the gust strength $G$ and the core
+diameter $D$ ($R^2 = 0.46$ and $0.80$) but barely resolves the wall-normal
+offset $Y$ ($R^2 = 0.10$). This is a property of the data rather than of the
+architecture: the training mass concentrates near $Y \approx 0$, so encounters
+at different offsets within the envelope are weakly separated along $Y$, and the
+latent inherits that weakness. Any deployment-time parameter estimate should
+treat $Y$ as a nuisance variable the encoder resolves only weakly.
+
+\paragraph{Phase relative to the baseline cycle.} Because the undisturbed wake
+is a limit cycle (\S\ref{sec:flow_physics}), an encounter is naturally described
+by its phase and amplitude relative to that cycle, the same reduction used to
+design gust-mitigation control for these flows \cite{fukami2024control}. Reading
+the predictive latent this way makes ``recovery'' precise: it is the return of
+the latent trajectory to the baseline limit cycle. The analysis we add is to
+verify that the predictive latent of the undisturbed case traces a closed
+periodic orbit, to define a phase along it, and to show that the predictor
+rollout carries the disturbed trajectory back toward that orbit for the
+predictive latent while the reconstructive rollout departs from it, which both
+defines recovery and connects the predictor to the phase-amplitude machinery of
+control. The persistent cycle of the previous subsection and this limit cycle
+are the same object viewed topologically and dynamically.
+% RESULT PENDING: limit-cycle and phase-amplitude reading of the latent
+% (post-processing on existing latents; an optional sparse-regression fit of the
+% latent dynamics mirrors the control reference). Figure: baseline orbit in the
+% latent, with disturbed trajectories departing and returning, phase vs time.
+\pending{construct the latent limit cycle and phase, and show return-to-orbit
+under rollout, predictive versus reconstructive.}
+
+\paragraph{Where the error concentrates.} The average closure hides where each
+family fails physically. Stratifying the held-out error by gust regime, namely
+the sign and magnitude of $G$, the diameter $D$, the offset $Y$, and the
+encounter phase (pre-impact, impact, peak load, recovery), would localise the
+predictive latent's residual error and test whether the reconstructive failure
+concentrates in the wake-sensitive shedding and recovery phases, organised by
+physical effect as in the source characterisation of these flows
+\cite{fukami2025prf}.
+% RESULT PENDING: parameter- and phase-stratified closure. Figures: closure vs
+% (sign G, |G|, D, Y) and vs phase, per family.
+\pending{add the parameter- and phase-stratified closure analysis.}
+
+\subsection{Isolating the cause: objective, architecture, and auxiliary-head controls}
+\label{sec:res_controls}
+
+The results so far establish that the predictive latent \emph{family}, as
+configured, closes the forward observables better than the reconstructive and
+linear families, and that the mechanism is reduced rollout drift. They do not
+yet establish that the \emph{predictive objective in isolation} is responsible,
+because the predictive encoder differs from the reconstructive baseline in two
+further ways: its CNN$+$ViT architecture, and its $80$-dimensional wake
+supervision. The latter is the more pointed confound, since the largest part of
+the reported advantage is on the wake observables that the predictive encoder
+alone was supervised on. Isolating the objective requires the controls in
+Table~\ref{tab:controls_2x2}: a $2 \times 2$ crossing of objective
+\{predictive, reconstructive\} with architecture \{CNN, CNN$+$ViT\} at matched
+$d = 64$, with the auxiliary heads matched across all four cells, evaluated
+under the same predictor and probes; together with a predictive variant from
+which the wake head is removed. The decisive question is whether the predictive
+objective still closes the wake observables better than the reconstructive one
+once the architecture and the wake supervision are held in common.
+% RESULT PENDING: the 2x2 (auxiliary-matched, >=3 seeds at d=64) and the
+% no-wake-head JEPA. This is the most important outstanding experiment; the
+% strength of the central claim is contingent on it.
+\pending{run the auxiliary-matched $2\times2$ and the no-wake-head JEPA;
+populate Table~\ref{tab:controls_2x2}; then state, per the evidence, whether the
+claim is ``predictive objective improves closure'', ``predictive encoder family
+improves closure'', or ``the wake supervision improves closure''.}
+
+\subsection{Physical-space interpretation}
+\label{sec:res_physical}
+
+Forward closure is a statement about numbers; the encounter is a statement about
+vortices. Decoded and reconstructed vorticity fields on held-out encounters
+(Figures~\ref{fig:recon_a}--\ref{fig:recon_c}) connect the two, with one
+methodological caution and one new metric.
+
+The caution is that field-space similarity scores are misleading here. On a
+held-out interpolation encounter the reconstructive autoencoder attains a high
+structural similarity yet a peak reconstructed vorticity magnitude of only
+$0.36$ against a target peak near $9.7$: it has collapsed to a near-uniform mean
+field and lost the vortex-impingement signature, and the high similarity merely
+reflects bulk agreement with a field that is itself mostly quiescent away from
+the impact region. The predictive latent localises the impingement at the right
+position and sign (peak magnitude $5.31$) but its visualisation decoder is blurry
+by construction, and the linear basis is amplitude-accurate (peak $4.10$) since
+its objective is amplitude-optimal.
+
+The new metric resolves the caution. An unbalanced optimal-transport distance
+between the reconstructed and the simulation fields, computed for the positive
+and negative vorticity separately and summed \cite{tran2026}, penalises the
+collapsed reconstruction correctly (a large transport cost to move a quiescent
+field onto the true LEV) and rewards the correctly localised one, where
+structural similarity does the opposite. Recomputing the reconstruction
+comparison under this transport metric is the honest replacement for the
+similarity score.
+% RESULT PENDING: OT field-dissimilarity for the reconstruction comparison
+% (post-processing on existing decoded fields). Replaces/augments the SSIM table.
+\pending{recompute the reconstruction comparison under the OT field distance.}
+
+Finally, the wake observables can be tied to the structures that carry the load.
+A scale decomposition that separates the large-scale vortical structures
+responsible for the lift peaks from the fine-scale turbulence
+\cite{odaka2026,motoori2019}, applied to the simulation field and to each
+family's reconstruction, would show which scales the predictive latent retains
+and the reconstructive one smooths away, narrated through the staged encounter
+of \S\ref{sec:flow_physics}: the gust-induced leading-edge vorticity flux, the
+LEV roll-up, the trailing-edge shedding at peak load, and the recovery. This is
+where the wake-enstrophy and circulation advantage of \S\ref{sec:res_closure}
+becomes a statement about the leading-edge vortex and the shear layer rather
+than about a scalar.
+% RESULT PENDING: scale decomposition (Gaussian filter) and, optionally, a
+% force-element computation linking retained structures to lift.
+\pending{add the scale-decomposition interpretation of the wake-observable
+advantage.}
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.98\linewidth]{sections/figures/results/figS_recon_test_a.pdf}
+  \caption{Reconstruction on a held-out test\_a encounter (trained gust case,
+  held-out encounter): simulation, predictive-latent decode, reconstructive
+  autoencoder, and POD. The predictive decoder is blurry by design but localises
+  the structures; field-space similarity scores are reframed by the
+  optimal-transport metric of \S\ref{sec:res_physical}.}
+  \label{fig:recon_a}
+\end{figure}
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.98\linewidth]{sections/figures/results/figS_recon_test_b.pdf}
+  \caption{Reconstruction on a held-out test\_b interpolation encounter (unseen
+  interior $(G,D,Y)$). The reconstructive autoencoder has collapsed to a
+  near-uniform field at this unseen condition while the predictive latent retains
+  the impingement geometry; see \S\ref{sec:res_physical}.}
+  \label{fig:recon_b}
+\end{figure}
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.98\linewidth]{sections/figures/results/figS_recon_test_c.pdf}
+  \caption{Reconstruction on a held-out test\_c extrapolation encounter at
+  $|G| = 4$, the three-dimensional regime of \S\ref{sec:flow_physics}. All
+  families degrade; the comparison is reported as the observability boundary
+  rather than as a generalisation claim.}
+  \label{fig:recon_c}
+\end{figure}

@@ -1,0 +1,100 @@
+% Introduction. Related work (former Section 2) is folded in here, in the JFM
+% idiom (no standalone "Related work" section). The SIGReg-vs-PLDM "second paper"
+% that headed Section 1.2 of the original draft has been removed; the regulariser
+% choice is now a methods detail (Sec. 3) and an appendix. Contributions are
+% reframed around forward physical closure, with the objective-isolation claim
+% explicitly deferred to the controls.
+
+Small uncrewed and micro air vehicles increasingly operate in airspace where
+the gust velocity is comparable to or larger than their flight speed, such as
+urban canyons, mountainous terrain, and the wakes of buildings and ships
+\cite{jones2022,mohamed2023}. In this regime the gust ratio $G$, the ratio of
+the characteristic gust velocity to the free-stream velocity, exceeds unity,
+and the interaction between a discrete vortex gust and a lifting surface
+produces large, fast transients in the aerodynamic loads that conventional
+gust models do not capture \cite{fukami2024control,fukami2025prf}. The response
+is governed by the timing of the vortex impact relative to the airfoil's own
+shedding, by the wall-normal offset of the vortex core, and by the gust
+strength and core size. Even at the moderate chord Reynolds number
+$\vRe = 5000$, the post-stall flow at $\alpha = 14^\circ$ is massively
+separated, and the gust-induced disturbance interacts nonlinearly with the
+natural shedding cycle \cite{fukami2025prf}. Resolving the full parametric
+envelope by simulation is expensive, so reduced-order models (ROMs) of the
+encounter-to-encounter and case-to-case variability are an active line of work,
+and a reduced model is also the object a controller would plan against.
+
+Recent ROMs for separated and extreme-aerodynamic flows share a common
+ingredient: a reconstruction-trained autoencoder whose bottleneck is shaped by
+an auxiliary aerodynamic observable. Fukami \& Taira \cite{fukami2023} trained
+a convolutional autoencoder jointly with a lift-prediction head and found that
+the auxiliary loss reduced the intrinsic dimension of the discovered manifold
+for extreme vortex-gust flows from roughly ten to three. The same
+observable-augmentation idea was extended across multi-source turbulent data
+\cite{fukami2025}, and was used by Solera-Rico et al. \cite{solera2024} with a
+$\beta$-variational autoencoder and a transformer ROM on a vortex-gust airfoil
+dataset of the same family considered here. Across this lineage the
+reconstruction term anchors the latent geometry to the instantaneous flow
+field, and an observable-prediction term orients it along aerodynamically
+relevant directions. A recurring theme of the geometric-analysis literature,
+however, is that the latent coordinates of an autoencoder are unique only up to
+a diffeomorphism, so reconstruction leaves the geometry of the latent largely
+unconstrained, which complicates any downstream task that relies on that
+geometry, including dynamics, interpolation, and comparison
+\cite{tran2026,kelshaw2024}.
+
+A complementary route to a reduced state is to drop the reconstruction term
+altogether and to train the encoder and a predictor end to end on
+latent-space forecasting, with an explicit anti-collapse regulariser in place
+of the decoder. This is the joint-embedding predictive architecture (JEPA)
+\cite{lecun2022}: an encoder maps the input to a representation, a predictor
+advances that representation in time, and the loss never reconstructs the
+field. Two consequences follow. The encoder is free to discard detail that is
+not predictive of the future, and the predictor cannot exploit pixel-level
+shortcuts because no field-space signal reaches it. The image and video
+instantiations \cite{ijepa,vjepa2} and the recent from-pixels variants that
+remove the moving-target encoder in favour of a characteristic-function
+regulariser \cite{lewm,lejepa} or a variance-covariance objective
+\cite{pldm,vicreg} have so far been evaluated on gridworld and toy visual
+domains. Their behaviour on a low-intrinsic-dimension physics dataset, where
+the data sit on a roughly five- to ten-dimensional manifold, is uncharacterised.
+
+The question this paper addresses is therefore not which encoder reconstructs
+the flow best, but which produces a reduced state that remains useful when
+propagated forward in time. We treat this as a fluid-mechanics question with a
+physical answer: a reduced state for gust-airfoil forecasting should be judged
+by whether its forward evolution keeps physically meaningful observables close
+to the simulation, and by whether the latent trajectory it generates stays on
+the manifold the model was trained on. We make three contributions.
+
+First, we set up a controlled comparison in which a predictive encoder (JEPA),
+a reconstructive encoder in the Fukami lineage, and a POD basis are evaluated
+at matched latent dimension under a single shared autoregressive predictor,
+training recipe, parametric conditioning on $\cvec = (G,D,Y)$, and probe
+family, so that forecast quality is attributable to the encoder alone
+(\S\ref{sec:methods}). The figure of merit is forward physical closure of the
+rollout to six observables at horizon $H = 16$ (\S\ref{sec:res_closure}). On
+held-out encounters the predictive latent closes the spatially distributed wake
+observables markedly better than the reconstructive and linear baselines, while
+the linear basis remains competitive on the integrated impulse.
+
+Second, we identify the mechanism. A latent-drift diagnostic shows that the
+reconstructive rollout leaves its training manifold by an order of magnitude at
+$H = 16$, whereas the predictive and linear rollouts remain within it
+(\S\ref{sec:res_drift}). We strengthen this from a single distance into a
+geometric and topological statement: the predictive latent organises the
+encounter as a closed cycle whose topology survives rollout, and its
+latent metric tracks the physical transport geometry of the flow more
+faithfully than the reconstructive latent does.
+
+Third, we are explicit about what the comparison does and does not isolate. The
+predictive encoder differs from the reconstructive baseline not only in its
+objective but also in its architecture and in its auxiliary observable
+supervision. We therefore phrase the result as a property of the
+\emph{predictive latent family}, report a conditioning-only floor that rules
+out the shared parametric conditioning as the explanation (\S\ref{sec:res_closure}),
+and set out the matched-architecture and matched-auxiliary controls required to
+attribute the gain to the predictive objective in isolation
+(\S\ref{sec:res_controls}). We close by relating the predictor to the latent
+dynamics function of model-based control, including a deployment pilot that does
+not yet meet its tolerances and is reported as a limitation rather than a result
+(\S\ref{sec:discussion}).

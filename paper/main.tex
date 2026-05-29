@@ -1,10 +1,23 @@
-% Manuscript: JEPA for parametric vortex-gust airfoil interactions at Re = 5000.
+% Manuscript: Predictive latent dynamics for parametric vortex-gust airfoil
+% interactions at Re = 5000.
 % Build: pdflatex main && bibtex main && pdflatex main && pdflatex main
-% Target venue: J. Fluid Mech. / Phys. Rev. Fluids style.
+% Target venue: J. Fluid Mech. (Rapids-adjacent length) / Phys. Rev. Fluids.
+%
+% ----------------------------------------------------------------------------
+% REWRITE NOTE (read REWRITE_NOTES.md first):
+% This is a structural and stylistic rewrite of the original eight-section draft
+% into the six-section idiom of the Taira-group extreme-aerodynamics literature
+% (Smith et al. 2024 JFM; Fukami, Nakao & Taira 2024 JFM; Fukami & Taira 2025 JFM;
+% Tran, Yeh & Taira 2026 JFM; Odaka, Lopez-Doriga & Taira 2026 JFM). It removes
+% the implementation diary, demotes the SIGReg-vs-PLDM material to a single
+% methods paragraph plus an appendix, and reframes the headline onto held-out
+% evidence. Claims that require the not-yet-run controls are marked inline with
+% % PENDING. New analyses adapted from the references are scaffolded with their
+% method text written and their results marked % RESULT PENDING.
+% ----------------------------------------------------------------------------
 
 \documentclass[11pt,a4paper]{article}
 
-% --- packages ---
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
 \usepackage{lmodern}
@@ -21,7 +34,10 @@
 \usepackage{microtype}
 \usepackage{enumitem}
 
-% Hyperref styling
+% Lightweight TODO macro so pending items are visible in the compiled PDF.
+% Set \pendingon to \pendingoff before submission to hide them.
+\newcommand{\pending}[1]{{\color{red}\textbf{[PENDING: #1]}}}
+
 \hypersetup{
   colorlinks=true,
   linkcolor=blue!50!black,
@@ -29,65 +45,57 @@
   urlcolor=blue!50!black
 }
 
-% --- title block ---
 \title{Predictive latent dynamics for parametric vortex-gust airfoil
-interactions: a JEPA benchmark against reconstructive and linear baselines}
+interactions at $\mathrm{Re}=5000$}
 \author[1,2]{Carlos Sanmiguel Vila}
 \affil[1]{INTA, Instituto Nacional de T\'ecnica Aeroespacial}
 \affil[2]{Universidad Carlos III de Madrid}
 \date{}
 
-% --- math operators / shortcuts ---
 \newcommand{\vRe}{\mathrm{Re}}
 \newcommand{\zvec}{\mathbf{z}}
 \newcommand{\xvec}{\mathbf{x}}
 \newcommand{\cvec}{\mathbf{c}}
 \newcommand{\uvec}{\mathbf{u}}
-\newcommand{\omegaz}{\boldsymbol{\omega}_z}
+\newcommand{\omegaz}{\omega_z}
 
 \begin{document}
 
 \maketitle
 
-% --- abstract ---
 \begin{abstract}
 \input{sections/abstract.tex}
 \end{abstract}
 
-% --- body ---
 \section{Introduction}
 \label{sec:introduction}
 \input{sections/section_1_introduction.tex}
 
-\section{Related work}
-\label{sec:related}
-\input{sections/section_2_related_work.tex}
+\section{Flow configuration and data}
+\label{sec:flow}
+\input{sections/section_2_flow_and_data.tex}
 
-\section{Methods}
+\section{Predictive latent representation and evaluation protocol}
 \label{sec:methods}
 \input{sections/section_3_methods.tex}
 
-\section{Failure modes of latent dynamics models on gust-vortex flow}
-\label{sec:failure_modes}
-\input{sections/section_4_failure_modes.tex}
-
-\section{Full-scale results}
+\section{Results}
 \label{sec:results}
-\input{sections/section_5_full_scale_results.tex}
-
-\section{Visualisation decoder}
-\label{sec:decoder}
-\input{sections/section_6_decoder.tex}
-
-\section{Ablation suite}
-\label{sec:ablations}
-\input{sections/section_7_ablations.tex}
+\input{sections/section_4_results.tex}
 
 \section{Discussion}
 \label{sec:discussion}
-\input{sections/section_8_discussion.tex}
+\input{sections/section_5_discussion.tex}
 
-% --- bibliography ---
+\section{Conclusions}
+\label{sec:conclusions}
+\input{sections/section_6_conclusions.tex}
+
+% Appendices (scaffold): A. encoder/predictor architecture detail and the
+% SIGReg/VICReg anti-collapse comparison; B. probe and bootstrap protocol;
+% C. deployment-oriented pressure-to-latent estimation and the closed-loop
+% pilot (negative result); D. trajectory-geometry supplementary diagnostics.
+
 \bibliographystyle{abbrv}
 \bibliography{refs}
 

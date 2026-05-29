@@ -1,0 +1,21 @@
+% Conclusions. Short, in the idiom of the reference papers' "Concluding remarks".
+
+We compared a predictive latent (JEPA), a reconstructive observable-augmented
+autoencoder, and a proper orthogonal decomposition basis as reduced states for
+parametric vortex-gust airfoil interactions at $\vRe = 5000$, under a protocol
+in which a single autoregressive predictor, conditioning, and probe family were
+held fixed so that only the encoder varied, and judged each by forward physical
+closure rather than by reconstruction. On held-out encounters the predictive
+latent kept the wake observables closest to the simulation, by a factor of two
+to three over the other families on wake enstrophy, while the linear basis
+remained most competitive on the integrated impulse. The mechanism is rollout
+drift: the reconstructive latent leaves its training manifold by an order of
+magnitude over the forecast horizon, so that the wake information hidden from a
+reconstruction objective becomes recoverable from a predictive one, whereas the
+predictive and linear latents stay in distribution. Because the predictive
+encoder also differs in architecture and auxiliary supervision, we attribute the
+result to the predictive latent family and set out the matched controls that
+would isolate the objective. The predictor is the latent dynamics function of
+model-based control; a closed-loop pilot does not yet meet its tolerances, with
+the rollout rather than the state estimator as the bottleneck, and is reported
+as the boundary of what the present representation supports.
