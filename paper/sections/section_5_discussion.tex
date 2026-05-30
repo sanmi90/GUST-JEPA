@@ -21,8 +21,15 @@ and a probe queried on that drifted state fails for reasons unrelated to the
 predictor's one-step accuracy. The predictive objective, regularised against
 collapse, instead organises the latent so that the encounter is a closed cycle
 that survives rollout and so that latent distance tracks the physical transport
-geometry of the flow, which is why iterating the predictor does not leave the
-manifold. The wake observables are the sharpest discriminator precisely because
+geometry of the flow. Iterating the predictor therefore does not leave the
+manifold, the property that data-driven state-space and Koopman models of
+coherent-state dynamics on invariant manifolds rely on
+\cite{constanteamores2024}. The manifold departure of the reconstructive rollout
+is the
+parametric-gust counterpart of the catastrophic-divergence tail reported for
+reconstruction-based latent dynamics in controlled wakes
+\cite{solerarico_compactness_underreview}; the predictive objective is the common
+cure. The wake observables are the sharpest discriminator precisely because
 they can change while the scalar forces do not: a representation can carry the
 lift signature of an encounter without carrying the vorticity redistribution
 that produces it, and the reconstructive latent does exactly that, recovering

@@ -34,21 +34,27 @@
 % ---------------------------------------------------------------------------
 \begin{table}[t]
   \centering
-  \caption{Held-out representational closure. Mean absolute error at $H = 16$ on
-  the $n = 42$ test\_b encounters when each family's per-frame probe is applied
-  to the simulation-encoded latent (the latent encoded directly from the held-out
-  field, isolating how well the representation carries each observable), against
-  six physical observables. Smaller is better; best per column in bold. The
-  wake-enstrophy and circulation columns are in native units, the force
-  coefficients are dimensionless. The companion held-out \emph{forecast} closure
-  (predictor rolled out from impact) is in Table~\ref{tab:b1_r2_heldout}; the
-  predictive latent leads both: on test\_b the JEPA $d{=}64$ representational
-  wake-enstrophy $R^2$ is positive and well above the conditioning floor, while
-  the reconstructive AE and POD representations are negative (full probe values
-  with bootstrap CIs in Appendix~A).}
-  \label{tab:b1_mae_testb}
+  \caption{Held-out closure across encoder families at $H = 16$ on the $n = 42$
+  test\_b encounters, in two modes. \emph{(a)} Representational closure: the mean
+  absolute error when each family's per-frame probe is applied to the
+  simulation-encoded latent (the latent encoded directly from the held-out field),
+  smaller is better. \emph{(b)} Forecast closure: the coefficient of determination
+  $R^2$ of the Markov rollout from the impact frame against the simulation
+  observable, larger is better (the variance baseline is the held-out split mean,
+  so $R^2 < 0$ is worse than predicting that mean). Best per column in bold; the
+  forecast panel gives the row mean at right. The wake-enstrophy and circulation
+  columns are in native units, the force coefficients dimensionless. This held-out
+  forecast $R^2$, not the training-set fit of
+  Table~\ref{tab:b1_closure_train_r2}, is the reported closure quality. The
+  predictive latent leads in both modes: its representational wake-enstrophy error
+  is $2.4$ to $3.0$ times lower than the reconstructive and linear families, and
+  its forecast wake-enstrophy $R^2$ is the only one above the predict-the-mean
+  floor; the paired per-encounter test is in Table~\ref{tab:paired_closure} and
+  full probe values with bootstrap CIs are in Appendix~\ref{app:reg}.}
+  \label{tab:closure}\label{tab:b1_mae_testb}\label{tab:b1_r2_heldout}
   \small
   \begin{tabular}{l c c c c c c c}
+    \multicolumn{8}{c}{\textit{(a) Representational closure: mean absolute error}}\\
     \toprule
     Baseline & $d$ & $C_L$ & $C_D$ & $I_y$ & wake-enst.\ & circ.\ pos.\ & circ.\ neg.\ \\
     \midrule
@@ -64,28 +70,11 @@
     POD    & 64 & 0.872 & 0.291 & 2.245 & 89.31 & 1.660 & 1.800 \\
     \bottomrule
   \end{tabular}
-\end{table}
 
-% ---------------------------------------------------------------------------
-% TABLE: held-out R^2 (PLACEHOLDER -- to be generated).
-% ---------------------------------------------------------------------------
-\begin{table}[t]
-  \centering
-  \caption{Held-out forward (Markov-rollout) closure, coefficient of
-  determination $R^2$ at $H = 16$ on the $n = 42$ test\_b encounters. The
-  predictor is rolled out autoregressively from the simulation-encoded
-  impact-frame latent, and the per-frame probe of each family is applied to the
-  forecast latent at $H = 16$; $R^2$ is against the simulation observable on the
-  same held-out encounters (variance baseline is the held-out split mean, so
-  $R^2 < 0$ means worse than predicting that mean). This held-out forecast $R^2$,
-  not the training-set fit of Table~\ref{tab:b1_closure_train_r2}, is the
-  reported closure quality. Best per column in bold; row mean at right.
-  The predictive latent is the only one whose held-out wake-enstrophy forecast
-  stays above the predict-the-mean floor; the reconstructive and POD latents go
-  negative. test\_c (OOD, $G=+4$) is reported in the text.}
-  \label{tab:b1_r2_heldout}
-  \small
+  \vspace{6pt}
+
   \begin{tabular}{l c c c c c c c c}
+    \multicolumn{9}{c}{\textit{(b) Forecast closure: coefficient of determination $R^2$}}\\
     \toprule
     Baseline & $d$ & $C_L$ & $C_D$ & $I_y$ & wake-enst.\ & circ.\ pos.\ & circ.\ neg.\ & mean \\
     \midrule
@@ -99,37 +88,6 @@
     POD    & 16 & 0.499 & 0.364 & -0.515 & -0.129 & -0.230 & 0.340 & 0.055 \\
     POD    & 32 & 0.714 & 0.558 & -0.256 & 0.042 & -0.066 & 0.394 & 0.231 \\
     POD    & 64 & 0.683 & 0.539 & -0.813 & -0.089 & 0.057 & 0.507 & 0.147 \\
-    \bottomrule
-  \end{tabular}
-\end{table}
-
-% ---------------------------------------------------------------------------
-% TABLE: training-set R^2 (RETAINED AS REFERENCE ONLY, relabelled).
-% ---------------------------------------------------------------------------
-\begin{table}[t]
-  \centering
-  \caption{Training-set fit, for reference only. Coefficient of determination
-  $R^2$ for predicting the six observables from the rolled-out latent ($H = 16$)
-  evaluated \emph{on the training distribution}. This quantifies in-distribution
-  fit and is \emph{not} the headline; held-out closure is in
-  Tables~\ref{tab:b1_mae_testb}--\ref{tab:b1_r2_heldout}. Best per column in
-  bold; row mean at right.}
-  \label{tab:b1_closure_train_r2}
-  \small
-  \begin{tabular}{l c c c c c c c c}
-    \toprule
-    Baseline & $d$ & $C_L$ & $C_D$ & $I_y$ & wake-enst.\ & circ.\ pos.\ & circ.\ neg.\ & mean \\
-    \midrule
-    JEPA   & 64 & \textbf{0.864} & \textbf{0.802} & 0.562 & \textbf{0.934} & \textbf{0.922} & \textbf{0.927} & \textbf{0.835} \\
-    JEPA   & 32 & 0.863 & 0.795 & 0.490 & 0.898 & 0.901 & 0.897 & 0.808 \\
-    \midrule
-    Fukami & 3  & 0.553 & 0.408 & 0.191 & 0.079 & 0.130 & 0.033 & 0.232 \\
-    Fukami & 32 & 0.695 & 0.596 & 0.278 & 0.333 & 0.369 & 0.313 & 0.430 \\
-    Fukami & 64 & 0.671 & 0.589 & 0.335 & 0.277 & 0.336 & 0.352 & 0.427 \\
-    \midrule
-    POD    & 16 & 0.763 & 0.720 & 0.514 & 0.574 & 0.582 & 0.527 & 0.613 \\
-    POD    & 32 & 0.763 & 0.748 & 0.690 & 0.589 & 0.618 & 0.621 & 0.671 \\
-    POD    & 64 & 0.641 & 0.656 & \textbf{0.799} & 0.373 & 0.388 & 0.506 & 0.561 \\
     \bottomrule
   \end{tabular}
 \end{table}
@@ -172,8 +130,8 @@
   but collapses on the held-out splits, going negative on test\_c for five of
   six observables.
   The last column is JEPA's held-out forecast $R^2$
-  (Table~\ref{tab:b1_r2_heldout}, $d{=}64$, test\_b), the fair comparison: the
-  original draft compared this floor against JEPA's training-set fit. The
+  (Table~\ref{tab:b1_r2_heldout}, $d{=}64$, test\_b), the like-for-like
+  comparison. The
   predictive forecast clears the floor on the force coefficients and the
   circulations; on wake-enstrophy the $H{=}16$ forecast ($0.449$) is about level
   with the parameter floor ($0.482$), while JEPA's representational closure
@@ -208,10 +166,10 @@
   $d = 64$, with the auxiliary heads (current lift at $\delta = 0$ plus the
   $80$-dimensional wake head) matched across all four cells, plus a predictive
   variant with the wake head removed. Predictive beats reconstructive on wake
-  closure at both architectures (A1 vs A3, A2 vs A4), so the objective is not a
-  confound of the architecture; removing the wake head from the predictive model
-  (A5) collapses wake closure below the floor, so the wake supervision is also
-  necessary. The CNN and CNN$+$ViT columns do not separate, so the ViT is not the
+  closure at both architectures (predictive versus reconstructive at CNN$+$ViT,
+  and again at CNN), so the objective is not a confound of the architecture;
+  removing the wake head from the predictive model collapses wake closure below
+  the floor, so the wake supervision is also necessary. The CNN and CNN$+$ViT columns do not separate, so the ViT is not the
   driver.}
   \label{tab:controls_2x2}
   \small

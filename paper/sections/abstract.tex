@@ -1,49 +1,35 @@
-% Abstract. Rewritten to (i) lead with the physical question, (ii) report
-% HELD-OUT evidence rather than the training-set R^2 that headed the original
-% draft, and (iii) attribute the gain to the predictive latent *family* rather
-% than to the objective in isolation, pending the matched-architecture controls.
+% Abstract. Single paragraph, ~260 words, held-out evidence first, ends on
+% significance. Reports the four-way split, the paired-significance result, and
+% the DNS/SOD2D provenance; the gain is attributed to the predictive objective
+% trained with wake supervision (per the matched-architecture controls).
 
-We ask whether a predictive latent training objective yields a reduced-order
-state for parametric vortex-gust airfoil interactions that is more useful for
-forward-time forecasting than a reconstructive one. The data are numerical
-simulations of a NACA~0012 airfoil at angle of attack $\alpha = 14^\circ$ and
-chord Reynolds number $\vRe = 5000$, perturbed by a discrete Taylor vortex
-parametrised by gust strength $G$, core diameter $D$, and wall-normal offset
-$Y$, spanning $84$ cases partitioned into $226$ training, $28$ validation,
+We ask whether a predictive latent objective yields a reduced-order state for
+parametric vortex-gust airfoil interactions that forecasts forward in time
+better than a reconstructive one. The data are our own direct numerical
+simulations (spectral-element solver SOD2D) of a NACA~0012 at angle of attack
+$\alpha = 14^\circ$ and chord Reynolds number $\vRe = 5000$, perturbed by a
+discrete Taylor vortex parametrised by gust strength $G$, core diameter $D$, and
+wall-normal offset $Y$, spanning $84$ cases ($226$ training, $28$ validation,
 $42$ in-distribution test, and $24$ out-of-distribution extrapolation
-encounters. Three encoder families are compared at matched latent dimension:
-a joint-embedding predictive architecture (JEPA), an observable-augmented
-reconstructive autoencoder in the lineage of Fukami \& Taira, and a proper
-orthogonal decomposition (POD) basis. A single autoregressive transformer
-predictor, training recipe, parametric conditioning on $(G,D,Y)$, and probe
-family are held fixed across all three, so that the encoder is the only thing
-that varies. We judge each reduced state not by snapshot reconstruction but by
-\emph{forward physical closure}: whether the predictor rollout keeps six
-physical observables, namely the lift and drag coefficients, the wall-normal
-impulse, the wake enstrophy, and the positive and negative circulation, close
-to the simulation out to a horizon of $H = 16$ frames after gust impact. On
-held-out encounters the predictive latent leads on the wake observables in point
-estimate across both modes: its representational wake-enstrophy error is $2.4$ to
-$3.0$ times lower than the reconstructive and linear baselines, its
-representational wake-enstrophy $R^2$ is positive ($0.75$) where theirs are
-negative, and it is the only latent whose forward forecast of wake enstrophy
-stays above the predict-the-mean floor. The gains on the force observables are
-smaller but consistent, and the linear basis remains competitive on the
-integrated impulse. Bootstrap intervals over the $42$ held-out encounters are
-wide for the per-observable closure, so the decisive and statistically robust
-evidence is mechanistic. The mechanism is a
-latent-drift diagnostic: under autoregressive rollout the reconstructive latent
-leaves its training manifold by an order of magnitude at $H = 16$, whereas the
-predictive and linear latents remain within it, so that the wake observables
-that are hidden from a reconstruction objective become recoverable from a
-predictive one. A conditioning-only floor shows that the held-out advantage is
-not explained by the parametric conditioning the predictor shares across
-baselines. A matched-architecture, matched-supervision $2 \times 2$ control
-isolates the cause: the predictive objective improves held-out wake closure over
-the reconstructive objective at both a CNN and a CNN$+$ViT encoder, so the gain
-is the objective and not the architecture, while a no-wake-head ablation shows
-the auxiliary wake supervision is a necessary component of the configuration that
-achieves it. The advantage is thus a property of the predictive objective trained
-with wake supervision, not of the objective or the architecture alone. The predictor is the latent dynamics function
-required by model-based control, and we discuss the pathway to closed-loop
-deployment and its current limits.
+encounters). Three encoders are compared at matched latent dimension, a
+joint-embedding predictive architecture (JEPA), a reconstructive autoencoder
+after Fukami \& Taira, and a proper orthogonal decomposition basis, under one
+shared autoregressive predictor, training recipe, conditioning on $(G,D,Y)$, and
+probe family, so that only the encoder varies. We judge each state not by
+reconstruction but by \emph{forward physical closure} of six observables
+spanning body forces, integrated impulse, and wake diagnostics, sixteen frames
+after gust impact. The predictive latent leads on
+the wake observables: on held-out encounters its representational wake-enstrophy
+$R^2$ is positive ($0.75$) where the reconstructive and linear baselines are
+negative, and a per-encounter paired test, which cancels the shared encounter
+difficulty, gives it the smaller wake-enstrophy error on $31$ of $42$ encounters
+representationally and $27$ of $42$ under forecast (one-sided sign
+$p = 1.4\times10^{-3}$ and $4.4\times10^{-2}$). The mechanism is latent drift:
+under rollout the reconstructive latent leaves its training manifold by an order
+of magnitude while the predictive and linear latents stay within it. A
+conditioning-only floor and a matched-architecture, matched-supervision
+$2 \times 2$ control attribute the gain to the predictive objective trained with
+wake supervision, not to the architecture. The predictor is the latent dynamics
+function a model-based controller plans against, establishing the predictive
+objective as a route to forecastable reduced-order states for unsteady
+aerodynamics.

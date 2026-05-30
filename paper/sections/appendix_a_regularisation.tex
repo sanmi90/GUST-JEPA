@@ -48,3 +48,78 @@ particular held-out split. Together these approximate what a full five-fold
 case-level cross-validation of the entire pipeline would buy, at a fraction of the
 training cost; a single split with bootstrap intervals is the community standard
 for this class of study.
+
+\paragraph{Training-set fit.} For reference, Table~\ref{tab:b1_closure_train_r2}
+reports the in-distribution training fit that the held-out closure of
+\S\ref{sec:res_closure} must be read against. The predictive latent attains the
+highest training fit (mean $R^2 = 0.835$ at $d = 64$), but the ordering of the
+families is established by the held-out closure of Table~\ref{tab:closure}, not
+by this in-distribution number.
+
+\begin{table}[t]
+  \centering
+  \caption{Training-set fit, for reference only. Coefficient of determination
+  $R^2$ for predicting the six observables from the rolled-out latent ($H = 16$)
+  evaluated \emph{on the training distribution}. This quantifies in-distribution
+  fit and is \emph{not} the headline; held-out closure is in
+  Table~\ref{tab:closure}. Best per column in bold; row mean at right.}
+  \label{tab:b1_closure_train_r2}
+  \small
+  \begin{tabular}{l c c c c c c c c}
+    \toprule
+    Baseline & $d$ & $C_L$ & $C_D$ & $I_y$ & wake-enst.\ & circ.\ pos.\ & circ.\ neg.\ & mean \\
+    \midrule
+    JEPA   & 64 & \textbf{0.864} & \textbf{0.802} & 0.562 & \textbf{0.934} & \textbf{0.922} & \textbf{0.927} & \textbf{0.835} \\
+    JEPA   & 32 & 0.863 & 0.795 & 0.490 & 0.898 & 0.901 & 0.897 & 0.808 \\
+    \midrule
+    Fukami & 3  & 0.553 & 0.408 & 0.191 & 0.079 & 0.130 & 0.033 & 0.232 \\
+    Fukami & 32 & 0.695 & 0.596 & 0.278 & 0.333 & 0.369 & 0.313 & 0.430 \\
+    Fukami & 64 & 0.671 & 0.589 & 0.335 & 0.277 & 0.336 & 0.352 & 0.427 \\
+    \midrule
+    POD    & 16 & 0.763 & 0.720 & 0.514 & 0.574 & 0.582 & 0.527 & 0.613 \\
+    POD    & 32 & 0.763 & 0.748 & 0.690 & 0.589 & 0.618 & 0.621 & 0.671 \\
+    POD    & 64 & 0.641 & 0.656 & \textbf{0.799} & 0.373 & 0.388 & 0.506 & 0.561 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\paragraph{Paired closure across all observables.} Table~\ref{tab:paired_closure}
+reports the per-encounter paired comparison of \S\ref{sec:res_closure} for all six
+observables in both modes, the source of the wake-enstrophy significance cited in
+the main text. Pairing cancels the encounter-to-encounter difficulty that widens
+the marginal intervals of Table~\ref{tab:closure}.
+
+\begin{table}[t]
+  \centering
+  \caption{Paired held-out closure, predictive ($d = 64$) against reconstructive
+  ($d = 64$) on the $n = 42$ test\_b encounters at $H = 16$, for the
+  representational mode (probe on the simulation-encoded latent) and the forecast
+  mode (Markov rollout from impact). $\Delta\mathrm{err}$ is the per-encounter
+  mean of (reconstructive $-$ predictive) absolute error in each observable's own
+  units, so a positive value favours the predictive latent; the $95\%$ interval
+  is a $2000$-resample paired bootstrap, and the sign test counts the encounters
+  on which the predictive error is the smaller of the pair. Wake enstrophy
+  separates the families in both modes by both the bootstrap interval and the sign
+  test; all six observables are shown, not a selected subset.}
+  \label{tab:paired_closure}
+  \small
+  \begin{tabular}{l l r c l}
+    \toprule
+    Mode & Observable & $\Delta\mathrm{err}$ & $95\%$ CI & sign test \\
+    \midrule
+    repr.\ & $C_L$          & $+0.364$ & $[+0.070, +0.643]$ & $25/42$, $p = 0.14$ \\
+    repr.\ & $C_D$          & $+0.039$ & $[-0.052, +0.131]$ & $20/42$, $p = 0.68$ \\
+    repr.\ & $I_y$          & $+0.52$  & $[-0.028, +1.08]$  & $25/42$, $p = 0.14$ \\
+    repr.\ & wake-enst.\    & $+43.1$  & $[+23.5, +66.0]$   & $31/42$, $p = 1.4{\times}10^{-3}$ \\
+    repr.\ & circ.\ pos.\   & $+0.256$ & $[-0.117, +0.673]$ & $20/42$, $p = 0.68$ \\
+    repr.\ & circ.\ neg.\   & $+1.19$  & $[+0.567, +1.93]$  & $30/42$, $p = 4.0{\times}10^{-3}$ \\
+    \midrule
+    forecast & $C_L$        & $-0.021$ & $[-0.206, +0.152]$ & $20/42$, $p = 0.68$ \\
+    forecast & $C_D$        & $+0.066$ & $[+0.011, +0.128]$ & $26/42$, $p = 0.082$ \\
+    forecast & $I_y$        & $+0.264$ & $[-0.164, +0.666]$ & $26/42$, $p = 0.082$ \\
+    forecast & wake-enst.\  & $+32.0$  & $[+10.8, +54.8]$   & $27/42$, $p = 4.4{\times}10^{-2}$ \\
+    forecast & circ.\ pos.\ & $-0.018$ & $[-0.319, +0.297]$ & $19/42$, $p = 0.78$ \\
+    forecast & circ.\ neg.\ & $+0.555$ & $[+0.067, +1.11]$  & $18/42$, $p = 0.86$ \\
+    \bottomrule
+  \end{tabular}
+\end{table}

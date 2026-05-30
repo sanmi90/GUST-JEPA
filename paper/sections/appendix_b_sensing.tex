@@ -16,27 +16,12 @@ report where it works and where it does not.
 A linear ridge from all $192$ taps to the latent recovers essentially nothing
 (held-out $R^2 \approx 0.03$); a temporal-convolutional estimator on a handful of
 taps reaches $R^2 \approx 0.88$, so the pressure-to-state map is strongly
-nonlinear and a linear observability analysis understates it. For sensor
-selection we compared a target-conditioned greedy criterion against
-QR-pivoting (qDEIM), mutual-information greedy, LASSO, and random and uniform
-baselines (Figure~\ref{fig:sensor_selection}). The selectors that condition on the
-target (the greedy criterion and qDEIM) match the full $192$-tap recovery with
-$K = 8$ to $16$ taps and beat random placement, but they do not identify a unique
-optimal tap set: the surface pressures are strongly collinear, so the defensible
-output is a set of chord regions where sensors should sit, clustered near the
-leading edge and the early suction surface, rather than specific taps.
-
-\begin{figure}[t]
-  \centering
-  \includegraphics[width=0.98\linewidth]{sections/figures/results/figS_sensor_selection.png}
-  \caption{Sparse-sensor selection. Left: a representative target-conditioned
-  selection of $K = 16$ taps on the NACA~0012 surface (the freestream meets the
-  chord at $\alpha = 14^\circ$). Right: held-out latent-recovery $R^2$ (five-fold
-  case cross-validation) for target-conditioned selection, qDEIM, random, uniform,
-  and all $192$ taps, across $K$. Target-conditioned selection and qDEIM reach the
-  full-array recovery with a handful of taps; random placement does not.}
-  \label{fig:sensor_selection}
-\end{figure}
+nonlinear and a linear observability analysis understates it. For sparse sensor
+placement \cite{manohar2018sensors} a target-conditioned greedy criterion matches
+the full $192$-tap recovery with $K = 8$ to $16$ taps and beats random placement,
+but the strongly collinear surface pressures do not admit a unique optimal tap
+set: the defensible output is a set of chord regions, clustered near the leading
+edge and the early suction surface, rather than specific taps.
 
 \paragraph{In-distribution state recovery is strong, and the predictive latent is
 the most recoverable.} With nonlinear estimators (temporal-convolutional,
@@ -80,8 +65,8 @@ envelope and fails at the three-dimensional observability boundary of
 For the operational question of estimating the impact lift from pressure ahead of
 time, we compare a direct pressure-to-$C_L$ regressor against the
 representation-mediated chain (pressure to the estimated impact latent to the
-$C_L$ probe), as a function of the lead time before impact
-(Figure~\ref{fig:cl_inference}). At short lead, two frames before impact, the
+$C_L$ probe), as a function of the lead time before impact. At short lead, two
+frames before impact, the
 direct read is already accurate ($R^2 = 0.69$) and the representation adds
 nothing, because the imminent lift is already imprinted on the pressure. At long
 lead the direct read degrades below zero ($R^2 = -0.08$ at thirty frames), while
@@ -92,18 +77,6 @@ for the direct read. The crossover is near five frames of lead: inside it, read
 $C_L$ straight off the pressure; beyond it, route through the representation. The
 ceiling of the mediated chain is the $z \to C_L$ probe itself ($R^2 \approx 0.68$).
 
-\begin{figure}[t]
-  \centering
-  \includegraphics[width=0.95\linewidth]{sections/figures/results/figC_cl_inference.png}
-  \caption{Inferring the impact lift $C_L$ from $K = 8$ pressure sensors as a
-  function of lead time before impact, on test\_b (left) and test\_c (right).
-  Dashed black is the direct pressure-to-$C_L$ regressor; coloured lines route the
-  estimate through each family's latent. Beyond about five frames of lead the
-  representation-mediated estimate is the more accurate, most clearly out of
-  distribution.}
-  \label{fig:cl_inference}
-\end{figure}
-
 \paragraph{The closed loop is rollout-limited, not estimator-limited.} Chaining
 the pressure estimator, the predictor rollout, and the observable probe into a
 closed loop does not yet meet a tight control tolerance: at $H = 16$ only $18\%$
@@ -111,11 +84,9 @@ of test\_b encounters fall within $10\%$ of the true $C_L$, against a target of
 $80\%$. The informative point is that this gate fails even for an oracle that is
 handed the true impact latent and the true parameters ($18\%$ as well), so the
 tolerance is bounded by the irreducible error of the predictor and probe, not by
-the pressure estimator. Under the appropriate gate, the degradation of the
-pressure-driven rollout relative to the oracle rollout, the pressure chain matches
-the oracle to within a factor of $0.7$ to $1.3$ in physical-metric error at
-$K = 8$; the estimated initial condition is sometimes effectively denoised
-relative to the simulation-derived one. The honest reading is that the
+the pressure estimator. The pressure chain matches the oracle to within a factor
+of $0.7$ to $1.3$ in physical-metric error at $K = 8$, so the estimated initial
+condition is not the bottleneck. The honest reading is that the
 representation and the pressure observability are in place in distribution, and
 the closed loop is limited by the rollout horizon rather than by the estimator;
 more frequent re-estimation from pressure during the rollout, or a longer

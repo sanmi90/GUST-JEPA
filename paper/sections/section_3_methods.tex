@@ -57,8 +57,7 @@ the two encoders differ in architecture as well. We are explicit about this
 throughout. The headline comparison is therefore between encoder
 \emph{families} as configured, and the controls of \S\ref{sec:res_controls}
 are designed to separate the objective from the architecture and the wake
-supervision. % PENDING: those controls (2x2 objective x architecture, and a
-% no-wake-head JEPA) have not yet been run; see REWRITE_NOTES.md.
+supervision.
 
 \subsection{The matched-predictor fairness protocol}
 \label{sec:methods_protocol}
@@ -68,7 +67,7 @@ three-stage pipeline, and only the encoder differs. Each encoder produces a
 latent trajectory $\zvec_{1:T}$ from the vorticity fields; an identical
 autoregressive transformer predictor rolls it forward one step at a time given
 $\cvec$; and an identical probe family maps the predicted latent to a physical
-observable for evaluation (Figure~\ref{fig:b1_fairness}). The predictor
+observable for evaluation. The predictor
 architecture, its training recipe, the parametric conditioning, and the probe
 family are held fixed across the three encoder families. The latent dimension
 is matched within each family: JEPA at $d \in \{32, 64\}$, the reconstructive
@@ -150,12 +149,3 @@ in the parameters.
   \label{fig:predictive_vs_reconstructive}
 \end{figure}
 
-\begin{figure}[t]
-  \centering
-  \includegraphics[width=0.95\linewidth]{sections/figures/tikz/fig4_b1_fairness.pdf}
-  \caption{Matched-predictor fairness protocol. Each encoder family produces its
-  own latent stream, which is then advanced by an identical autoregressive
-  predictor with identical conditioning $\cvec = (G,D,Y)$ and read by an
-  identical probe family. Closure quality is attributable to the encoder alone.}
-  \label{fig:b1_fairness}
-\end{figure}

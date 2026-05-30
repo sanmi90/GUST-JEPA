@@ -61,42 +61,16 @@
   \draw[arr, dashed] (zhat) -- (dec);
   \draw[arr, dashed] (dec)  -- (xhat);
 
-  % ===== middle-left column: auxiliary observable heads =====
-  \node[obs, left=26mm of zt, yshift=16mm] (wake)
-    {wake head \\[-1pt] \textit{patch\_signed\_spectrum} (80-D)};
-  \node[obs, left=26mm of zt, yshift=-16mm] (cl)
-    {observable head \\[-1pt] $C_L$};
-  \draw[arr] (zt.west) to[out=160,in=0] (wake.east);
-  \draw[arr] (zt.west) to[out=200,in=0] (cl.east);
-
-  % ===== far-LEFT: losses for the aux heads =====
-  \node[loss, left=14mm of wake] (lwake)
-    {$\mathcal{L}_{\text{wake}}$ \\[1pt] smooth-$L_1$ on wake target};
-  \node[loss, left=14mm of cl]   (lobs)
-    {$\mathcal{L}_{\text{obs}}$ \\[1pt] MSE on $C_L$};
-  \draw[lossarr] (lwake.east) -- (wake.west);
-  \draw[lossarr] (lobs.east)  -- (cl.west);
-
-  % ===== RIGHT column: one loss / cond per spine box =====
-  \node[loss, right=20mm of zt]    (lsig)
-    {$\mathcal{L}_{\text{SIGReg}}$ \\[1pt] anti-collapse on $\mathbf{z}$};
-  \node[cond, right=20mm of pred]  (c)
+  % ===== conditioning enters the predictor only =====
+  \node[cond, right=22mm of pred]  (c)
     {$\mathbf{c}=(G, D, Y)$ \\[1pt] gust parameters \\[1pt]
      \emph{enters predictor only}};
-  \node[loss, right=20mm of zhat]  (lroll)
-    {$\mathcal{L}_{\text{roll}}$ \\[1pt] scheduled sampling, $H{=}8$};
-  \node[loss, below=8mm of lroll]  (lpred)
-    {$\mathcal{L}_{\text{pred}} = \| \widehat{\mathbf{z}}_{t+\Delta t} - \mathbf{z}_{t+\Delta t} \|^{2}$};
-
-  \draw[lossarr] (lsig.west)  -- (zt.east);
-  \draw[arr]     (c.west)     -- (pred.east);
-  \draw[lossarr] (lroll.west) -- (pred.east);
-  \draw[lossarr] (lpred.west) to[out=180,in=0] (zhat.east);
+  \draw[arr] (c.west) -- (pred.east);
 
   % ===== background frames =====
   \begin{scope}[on background layer]
     \node[draw=blue!30, rounded corners=4pt, dashed, inner sep=6mm,
-          fit=(lwake)(lobs)(wake)(cl)(input)(enc)(zt)(pred)(zhat)(lsig)(c)(lpred)(lroll),
+          fit=(input)(enc)(zt)(pred)(zhat)(c),
           label={[blue!50!black,font=\small]above:JEPA training stage}] {};
     \node[draw=gray!50, rounded corners=4pt, dashed, inner sep=4mm,
           fit=(dec)(xhat),

@@ -12,11 +12,13 @@
 
 We study a NACA~0012 airfoil at angle of attack $\alpha = 14^\circ$ and chord
 Reynolds number $\vRe = 5000$, perturbed by a discrete vortex gust modelled as a
-spanwise-oriented Taylor vortex released upstream of the leading edge. The
-governing data are the spanwise-periodic simulations of Fukami, Smith \& Taira
-\cite{fukami2025prf}, in which the same configuration was characterised in
-detail. % CHECK: that source describes the data as large-eddy simulation; the
-% present text says "numerical simulation" pending confirmation of DNS vs LES.
+spanwise-oriented Taylor vortex released upstream of the leading edge. The data
+analysed here are our own direct numerical simulations of this configuration,
+computed with the GPU-enabled spectral-element solver SOD2D
+\cite{gasparino2024sod2d} at low Mach number, so the flow is effectively
+incompressible. The configuration and its physical characterisation follow
+Fukami, Smith \& Taira \cite{fukami2025prf}, which is the reference for the
+physics, not the source of the data.
 The gust is parametrised by three scalars: the signed gust ratio $G$, the core
 diameter $D$, and the wall-normal offset $Y/c$ of the vortex centre relative to
 the leading edge. The training envelope spans $|G| \in \{0.5, 1.0, 1.5, 2.0,
@@ -58,11 +60,19 @@ claim of parametric generalisation.
 \label{sec:flow_observables}
 
 Each simulation case is one long run partitioned into encounters of $120$ cached
-frames at $\Delta t = 0.05\,t/c$, one encounter per gust release. The dataset
+frames at $\Delta t = 0.05\,t/c$, one encounter per gust release. The
+simulations use a spectral-element discretisation of polynomial order $p = 4$,
+and the fields are cached on a structured grid of $192 \times 96 \times 32$
+points spanning $x/c \in [-1.5, 4.5]$, $y/c \in [-1.5, 1.5]$, and a spanwise
+extent of approximately one chord. The remaining solver-resolution details,
+namely the element count, the near-wall grid spacing relative to the local small
+scale, and the Mach number, will be supplied by the simulation collaborators
+before submission. The dataset
 comprises $84$ cases partitioned into training, validation, an
 in-distribution test set (test\_b), and an out-of-distribution test set
 (test\_c). The in-distribution test set is stratified to span the five gust
-strengths, the three core diameters, and the two source groups; test\_c is the
+strengths, the three core diameters, and the two source groups
+(Figure~\ref{fig:paramspace}); test\_c is the
 $|G| = 4$ extrapolation set. At the horizon $H = 16$ used throughout, the
 partition contains $226$ training, $28$ validation, $42$ test\_b, and $24$
 test\_c encounters. The undisturbed reference case is retained in training. The
@@ -90,3 +100,17 @@ produce. The choice is deliberate: the wake observables can change sharply while
 the scalar forces change little, so they are the part of the encounter most
 likely to separate a representation that has captured the gust-vortex physics
 from one that has only captured its force signature.
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=\linewidth]{sections/figures/results/figB_paramspace.pdf}
+  \caption{Parameter-space sampling of the $84$ cases in the $(G, D, Y)$ gust
+  envelope, shown as three planar projections and coloured by split: training
+  ($226$ encounters), the stratified in-distribution test set (test\_b, $42$
+  encounters, split into interior and boundary tiers), and the
+  out-of-distribution extrapolation set (test\_c, $24$ encounters). The dashed
+  line marks the $|G| = 4$ extrapolation boundary, and training mass concentrates
+  near $Y/c = 0$, which is why the wall-normal offset is the least well resolved
+  parameter (\S\ref{sec:res_param_phase}).}
+  \label{fig:paramspace}
+\end{figure}
