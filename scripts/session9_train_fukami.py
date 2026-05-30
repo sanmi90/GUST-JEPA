@@ -159,6 +159,13 @@ def parse_args() -> argparse.Namespace:
                         "pixels in the loss. 0 = hard mask (no freestream "
                         "supervision; risk of decoder noise divergence). "
                         "0.05 = soft mask preserving 1/20th freestream signal.")
+    p.add_argument("--encoder", type=str, default="cnn",
+                   choices=["cnn", "cnn_vit"],
+                   help="Reconstructive-AE encoder family. 'cnn' is the native "
+                        "Fukami CNN encoder (Session 20 Track A cell A4). 'cnn_vit' "
+                        "swaps in the production hybrid CNN+ViT encoder (HANDOFF.md "
+                        "D3) under the reconstruction objective, isolating the "
+                        "objective axis vs the predictive A1 (Track A cell A3).")
     p.add_argument("--activation", type=str, default="relu",
                    choices=["relu", "tanh"],
                    help="Activation used in conv blocks and FC chains. "
@@ -411,6 +418,9 @@ def main() -> None:
         "observable_head": args.observable_head,
         "observable_head_weight": args.observable_head_weight,
         "observable_head_deltas": list(args.observable_head_deltas),
+        "encoder": args.encoder,
+        "lambda_wake": args.lambda_wake,
+        "wake_observable_type": args.wake_observable_type,
     }
 
     import wandb
@@ -530,6 +540,7 @@ def main() -> None:
         wake_observable_weight=args.lambda_wake if wake_head is not None else 0.0,
         wake_loss_kind=args.wake_loss,
         wake_loss_beta=args.wake_loss_beta,
+        encoder_kind=args.encoder,
     ).to(device)
     n_params = sum(p.numel() for p in wrapper.parameters())
     log(f"[fukami-train] params={n_params:,} ({n_params/1e6:.2f}M)")

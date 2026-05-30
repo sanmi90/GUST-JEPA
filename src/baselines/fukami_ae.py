@@ -255,10 +255,25 @@ class FukamiAEWrapper(nn.Module):
         wake_observable_weight: float = 0.0,
         wake_loss_kind: str = "smooth_l1",
         wake_loss_beta: float = 0.5,
+        encoder_kind: str = "cnn",
     ) -> None:
         super().__init__()
-        self.encoder = FukamiCNNEncoder(latent_dim, activation=activation,
-                                        use_norm=use_conv_norm)
+        # encoder_kind 'cnn' is the native Fukami CNN encoder (the reconstructive
+        # CNN baseline, Session 20 Track A cell A4). 'cnn_vit' swaps in the exact
+        # production hybrid CNN+ViT encoder (HANDOFF.md D3) trained under the
+        # reconstruction objective, isolating the objective axis against the
+        # predictive A1 at identical architecture (Session 20 Track A cell A3).
+        if encoder_kind not in ("cnn", "cnn_vit"):
+            raise ValueError(f"encoder_kind must be 'cnn' or 'cnn_vit', got {encoder_kind!r}")
+        self.encoder_kind = encoder_kind
+        if encoder_kind == "cnn_vit":
+            from src.models.encoder import HybridCNNViTEncoder
+            self.encoder: nn.Module = HybridCNNViTEncoder(
+                latent_dim=latent_dim, projection_norm="batchnorm"
+            )
+        else:
+            self.encoder = FukamiCNNEncoder(latent_dim, activation=activation,
+                                            use_norm=use_conv_norm)
         self.decoder = FukamiCNNDecoder(latent_dim, activation=activation,
                                         use_norm=use_conv_norm)
         self.lift_head = FukamiLiftHead(latent_dim, n_deltas, activation=activation)
@@ -535,11 +550,12 @@ class FukamiAEWrapper(nn.Module):
         if (
             self.wake_observable_head is not None
             and self.wake_observable_weight > 0.0
+            and "wake_target" in batch
         ):
-            if "wake_target" not in batch:
-                raise KeyError(
-                    "wake_observable_head configured but batch has no 'wake_target' tensor"
-                )
+            # Training batches carry 'wake_target'; the Test A diagnostic /
+            # eval batches do not. Skip the wake loss in that case rather than
+            # raising, since the diagnostic does not need it (the encoder is
+            # shaped by the training-loop wake loss).
             wake_pred = self.wake_observable_head(z)
             wake_target = batch["wake_target"]
             if self.wake_loss_kind == "mse":

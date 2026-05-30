@@ -68,6 +68,9 @@ paper/main.blg
 paper/main.log
 paper/main.out
 paper/main.toc
+paper/main.fdb_latexmk
+paper/main.fls
+paper/.compile_cache/
 paper/sections/figures/tikz/*.aux
 paper/sections/figures/tikz/*.log
 paper/sections/figures/tikz/*-1.png

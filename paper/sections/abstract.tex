@@ -22,20 +22,28 @@ that varies. We judge each reduced state not by snapshot reconstruction but by
 physical observables, namely the lift and drag coefficients, the wall-normal
 impulse, the wake enstrophy, and the positive and negative circulation, close
 to the simulation out to a horizon of $H = 16$ frames after gust impact. On
-held-out encounters the predictive latent reduces the wake-enstrophy error by
-a factor of $2.4$ to $3.0$ relative to the reconstructive and linear baselines,
-with smaller but consistent gains on the force observables, while the linear
-basis remains competitive on the integrated impulse. The mechanism is a
+held-out encounters the predictive latent leads on the wake observables in point
+estimate across both modes: its representational wake-enstrophy error is $2.4$ to
+$3.0$ times lower than the reconstructive and linear baselines, its
+representational wake-enstrophy $R^2$ is positive ($0.75$) where theirs are
+negative, and it is the only latent whose forward forecast of wake enstrophy
+stays above the predict-the-mean floor. The gains on the force observables are
+smaller but consistent, and the linear basis remains competitive on the
+integrated impulse. Bootstrap intervals over the $42$ held-out encounters are
+wide for the per-observable closure, so the decisive and statistically robust
+evidence is mechanistic. The mechanism is a
 latent-drift diagnostic: under autoregressive rollout the reconstructive latent
 leaves its training manifold by an order of magnitude at $H = 16$, whereas the
 predictive and linear latents remain within it, so that the wake observables
 that are hidden from a reconstruction objective become recoverable from a
 predictive one. A conditioning-only floor shows that the held-out advantage is
 not explained by the parametric conditioning the predictor shares across
-baselines. Because the predictive encoder here also differs from the
-reconstructive baseline in architecture and in auxiliary observable
-supervision, we attribute the gain to the predictive latent family rather than
-to the training objective in isolation, and we set out the matched-architecture
-controls that would isolate it. The predictor is the latent dynamics function
+baselines. A matched-architecture, matched-supervision $2 \times 2$ control
+isolates the cause: the predictive objective improves held-out wake closure over
+the reconstructive objective at both a CNN and a CNN$+$ViT encoder, so the gain
+is the objective and not the architecture, while a no-wake-head ablation shows
+the auxiliary wake supervision is a necessary component of the configuration that
+achieves it. The advantage is thus a property of the predictive objective trained
+with wake supervision, not of the objective or the architecture alone. The predictor is the latent dynamics function
 required by model-based control, and we discuss the pathway to closed-loop
 deployment and its current limits.

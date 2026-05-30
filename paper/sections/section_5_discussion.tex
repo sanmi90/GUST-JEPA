@@ -81,7 +81,12 @@ access to, and the gust parameters enter only the predictor; replacing the
 parametric conditioning with an actuation channel is a change of input rather
 than of architecture, and the phase-amplitude reading of \S\ref{sec:res_param_phase}
 connects the predictor directly to the sensitivity-function control designed for
-these flows \cite{fukami2024control}.
+these flows \cite{fukami2024control}. In the action-conditioned world-model
+reading of \S\ref{sec:introduction}, the present intervention is the gust; an actuation
+channel enters at the same point, the predictor conditioning, and the same
+forward-closure machinery applies with the control as the action rather than the
+disturbance. The predictor is the world model a controller would use; it is not
+itself a controller, and the pilot below shows the gap.
 
 We also report, as a limitation rather than a result, a closed-loop pilot that
 chains a wall-pressure state estimator, the predictor rollout, and an

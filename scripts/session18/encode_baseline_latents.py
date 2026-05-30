@@ -134,21 +134,35 @@ def _load_fukami_encoder(
         charbonnier_epsilon=float(_opt("charbonnier_epsilon", 0.05)),
         activation=str(_opt("activation", "relu")),
         use_conv_norm=not bool(_opt("no_conv_norm", False)),
+        encoder_kind=str(_opt("encoder", "cnn")),
     ).to(device)
-    wrapper.load_state_dict(blob["wrapper_state_dict"])
+    # Trained Track A Fukami cells carry a wake_observable_head used only in the
+    # training loss; the encode-time wrapper omits it, so load non-strict and
+    # ignore those unexpected keys. Guard that the encoder itself fully loaded.
+    incompat = wrapper.load_state_dict(blob["wrapper_state_dict"], strict=False)
+    enc_missing = [k for k in incompat.missing_keys if k.startswith("encoder.")]
+    if enc_missing:
+        raise RuntimeError(
+            f"Fukami encoder weights did not load (missing {len(enc_missing)} "
+            f"encoder keys, e.g. {enc_missing[:3]}); encoder_kind mismatch?"
+        )
     wrapper.eval()
 
     @torch.no_grad()
     def encode_fn(omega_THW: np.ndarray, case_id: str, k: int) -> np.ndarray:
+        # Feed 5D (1, T, 1, H, W): the FukamiCNNEncoder and the HybridCNNViTEncoder
+        # (Track A A3 cnn_vit) both accept it and return (1, T, d); squeeze the
+        # leading batch back to (T, d). The earlier 4D path worked only for the
+        # CNN encoder, which is frame-independent.
         if used_pipeline:
             omega = pipeline.preprocess_raw(omega_THW, case_id, int(k))
-            omega_t = torch.from_numpy(omega).unsqueeze(1).to(device)
+            omega_t = torch.from_numpy(omega).unsqueeze(0).unsqueeze(2).to(device)
             omega_norm = pipeline.normalize(omega_t)
             z = wrapper.encoder(omega_norm)
         else:
-            omega_t = torch.from_numpy(omega_THW).unsqueeze(1).to(device)
+            omega_t = torch.from_numpy(omega_THW).unsqueeze(0).unsqueeze(2).to(device)
             z = wrapper.encoder(omega_t / wrapper.omega_scale)
-        return z.float().cpu().numpy()
+        return z.float().squeeze(0).cpu().numpy()
 
     return encode_fn, int(train_args["d"])
 
@@ -179,12 +193,18 @@ def _load_jepa_encoder(
     device: torch.device,
 ):
     """Reconstruct the HybridCNNViTEncoder from a JEPA checkpoint."""
-    from src.models.encoder import HybridCNNViTEncoder
+    from src.models.encoder import CNNOnlyEncoder, HybridCNNViTEncoder
 
     blob = torch.load(checkpoint_path, map_location="cpu", weights_only=False)
-    d = int(blob.get("d", blob.get("run_config", {}).get("d", 64)))
-    proj_norm = str(blob.get("run_config", {}).get("projection_norm", "batchnorm"))
-    encoder = HybridCNNViTEncoder(latent_dim=d, projection_norm=proj_norm).to(device)
+    targs = blob.get("args", {})
+    d = int(targs.get("d", blob.get("d", blob.get("run_config", {}).get("d", 64))))
+    proj_norm = str(targs.get("projection_norm",
+                              blob.get("run_config", {}).get("projection_norm", "batchnorm")))
+    encoder_kind = str(targs.get("encoder", "hybrid"))
+    if encoder_kind == "cnn_only":
+        encoder = CNNOnlyEncoder(latent_dim=d, projection_norm=proj_norm).to(device)
+    else:
+        encoder = HybridCNNViTEncoder(latent_dim=d, projection_norm=proj_norm).to(device)
     # JEPA checkpoint stores the full JEPA module; extract encoder weights
     state = blob.get("jepa_state_dict", blob.get("encoder_state_dict", blob))
     enc_state = {

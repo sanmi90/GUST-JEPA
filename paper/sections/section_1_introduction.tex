@@ -58,6 +58,29 @@ regulariser \cite{lewm,lejepa} or a variance-covariance objective
 domains. Their behaviour on a low-intrinsic-dimension physics dataset, where
 the data sit on a roughly five- to ten-dimensional manifold, is uncharacterised.
 
+This places the present model within the action-conditioned world-model
+framework articulated by \cite{lecun2022}: a system is observed through an
+encoder into an abstract state, an intervention is applied, and a predictor
+forecasts the outcome of that intervention in the representation space rather
+than in the space of the raw observation. The defining property of such a model
+is that it does not reconstruct every detail of the outcome; it predicts only in
+the abstract space. The vortex gust is the intervention. A discrete vortex of
+strength $G$, size $D$, and offset $Y$ is released into the post-stall wake, and
+the encounter is the outcome of that intervention; the encoder maps the
+vorticity field to an unconditional latent state, and the predictor advances
+that state conditioned on the gust parameters. We use the gust as an observed,
+exogenous intervention rather than an agent's chosen action, so the model is the
+interventional world model a controller would use, not yet a controller; and
+because we condition on the true generative parameters but do not perform
+counterfactual identification, we keep to the interventional reading and do not
+claim a full causal model. The reconstructive and linear baselines we compare
+against are, in this framing, the objects the world-model view argues against: a
+reconstruction-trained autoencoder is pushed toward reproducing every detail of
+the field, and a proper orthogonal decomposition is an energy-optimal
+reconstruction basis, neither of which is constrained to make the latent state
+forward-predictable. The drift mechanism of \S\ref{sec:res_drift} is the
+empirical consequence.
+
 The question this paper addresses is therefore not which encoder reconstructs
 the flow best, but which produces a reduced state that remains useful when
 propagated forward in time. We treat this as a fluid-mechanics question with a

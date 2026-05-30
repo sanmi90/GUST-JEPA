@@ -39,7 +39,7 @@ from torch.utils.data import DataLoader
 
 from src.data.episode_dataset import EpisodeDataset
 from src.data.omega_pipeline import OmegaPipeline
-from src.models.encoder import HybridCNNViTEncoder
+from src.models.encoder import CNNOnlyEncoder, HybridCNNViTEncoder
 from src.models.jepa import JEPA
 from src.models.observable_head import ObservableHead, WakeObservableHead
 from src.data.wake_observables import mode_output_dim
@@ -157,6 +157,18 @@ def parse_args() -> argparse.Namespace:
         help=(
             "Encoder projection norm. Default 'batchnorm' per HANDOFF.md D17; "
             "'layernorm' is the Session 5 Run B diagnostic intervention."
+        ),
+    )
+    p.add_argument(
+        "--encoder",
+        type=str,
+        choices=["hybrid", "cnn_only"],
+        default="hybrid",
+        help=(
+            "Encoder family. 'hybrid' is the locked CNN+ViT production encoder "
+            "(HANDOFF.md D3); 'cnn_only' removes the ViT (Session 20 Track A "
+            "A2/A4 architecture-axis control), keeping the same CNN stem and "
+            "BatchNorm latent projection."
         ),
     )
     p.add_argument(
@@ -685,7 +697,12 @@ def main() -> None:
     train_iter = infinite_iter(train_loader)
     test_b_iter = infinite_iter(test_b_loader)
 
-    encoder = HybridCNNViTEncoder(latent_dim=args.d, projection_norm=args.projection_norm)
+    if args.encoder == "cnn_only":
+        encoder: nn.Module = CNNOnlyEncoder(
+            latent_dim=args.d, projection_norm=args.projection_norm
+        )
+    else:
+        encoder = HybridCNNViTEncoder(latent_dim=args.d, projection_norm=args.projection_norm)
     predictor = AutoregressivePredictor(
         latent_dim=args.d,
         cond_dim=args.predictor_cond_dim,

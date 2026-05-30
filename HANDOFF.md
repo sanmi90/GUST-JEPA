@@ -6638,3 +6638,187 @@ in flight as background subagents this session: method-specific Task C
 modes, and wake observable on d=32 latents. None gate the paper draft;
 they round out interpretability claims.
 
+
+### D133: Held-out R^2 computed; representation vs forecast separated; training-R^2 headline retired (2026-05-29, Session 20, Track B)
+
+Added `scripts/session20/exp_closure_r2.py`, which reproduces the canonical
+`physical_closure_noBN_unified.csv` MAE exactly (max |delta| = 0.0) and adds
+held-out R^2 across H in {1,4,8,16,32,64}, both splits, all three rollout modes,
+all 8 B1 baselines (JEPA d=64/32, Fukami d=3/32/64, POD d=16/32/64), with
+bootstrap CIs.
+
+Load-bearing finding: the rewrite's "held-out forward closure" MAE table
+(`tab:b1_mae_testb`) was the `z_dns` mode (probe on the simulation-encoded latent
+= REPRESENTATION quality), not the Markov rollout its caption claimed. The two
+are now separated and both reported:
+- Representational closure (z_dns), test_b H=16 R^2: JEPA d=64 wake 0.754 (mean
+  over six observables 0.647); Fukami d=64 wake -0.406 (mean 0.129); POD d=64
+  wake -0.310 (mean 0.077).
+- Forecast closure (z_markov rollout), test_b H=16 R^2: JEPA d=64 wake 0.449
+  (only positive), d=32 0.214; Fukami d=64 -0.478; POD d=64 -0.089; JEPA mean
+  0.445 vs 0.147 / 0.147.
+- Conditioning floor (KRR c->observable, test_b): wake R^2 0.482. So JEPA's
+  representation clears the floor on wake (0.754) while its H=16 forecast (0.449)
+  is about level with it: the forecasting edge on wake is real but modest, the
+  representational edge is large. JEPA forecast clears the floor on C_L
+  (0.723 vs 0.303), C_D (0.634 vs 0.386), circ_neg (0.607 vs 0.568).
+- test_c (OOD G=+4): JEPA wake forecast R^2 stays positive (0.33 d=64, 0.45
+  d=32); all others -1.1 to -1.5; only C_L forecast well by any family (0.79).
+
+Manuscript: `tab:b1_r2_heldout` populated with the forecast R^2; the
+`tab:conditioning_floor` JEPA column filled with the same; `tab:b1_mae_testb`
+relabelled representational closure; the abstract lead restated as the forecast
+R^2-sign-flip (predictive latent is the only one above the predict-the-mean wake
+floor), with the 2.4 to 3.0x as the representational-closure error ratio.
+
+
+### D134: Persistent homology -- the topological signature is generator count, not lifetime preservation (2026-05-29, Session 20, Track C)
+
+`scripts/session20/exp_persistent_homology.py` (ripser, Vietoris-Rips H0/H1 on
+the 120-frame latent point cloud per encounter; noise floor at 5% of the H0
+diameter, Smith et al. JFM 980 A18 2024).
+
+GATE on the planned H1-lifetime ratio rollout/DNS (JEPA >= 0.7 AND Fukami < 0.5):
+FAILS, and the honest route is descriptive. The ratio does not separate the
+families (test_b median JEPA 0.66, Fukami 1.05): Fukami's loop survives because
+its drifted rollout becomes a large diffuse cloud (H0 diameter 1.5 to 2.7 vs
+JEPA 0.5 to 0.7) that still supports a long-lived but non-canonical loop. The
+robust, scale-free signal is the GENERATOR COUNT of the simulation-encoded
+latent: JEPA encodes a clean single cycle (test_b median 1 significant H1, 55%
+exactly one), Fukami fragments (median 3.5, 71% with >=3); Mann-Whitney one-sided
+p = 4.4e-8, same direction on test_c (p = 0.04). d=32 agrees (single predictive
+loop vs reconstructive fragmentation). D123 cross-check PASSES: curvature dips at
+impact (trough ratio 0.815, 74% of encounters), a smooth pass-through, no
+contradiction. Manuscript 4.3 rewritten to lead with the generator-count contrast
+as the coordinate-free reading of the drift.
+
+
+### D135: OT field metric reframes the reconstruction comparison; OT-geodesic alignment explains on-manifold rollout (2026-05-29, Session 20, Track D)
+
+`scripts/session20/exp_ot_field_and_alignment.py` (POT unbalanced KL Sinkhorn,
+Tran et al. JFM 1027 A24 2026 signed-vorticity split, fields pooled to 48x24).
+Shared decode for the field comparison via `scripts/session20/decode_reconstructions.py`
+(JEPA d=64/d=32 LapFiLM, Fukami AE, POD; verified against the SSIM anchor, val
+impact-frame Wang-SSIM 0.727 vs the D131 ~0.71).
+
+D-i GATE PASS: OT field distance at the test_b impact frame ranks Fukami worst
+(11.25) vs JEPA d=64 9.90, POD 9.95. The instructive correction is POD, which has
+the highest SSIM (0.69, above JEPA 0.65) yet no transport advantage over the
+blurry predictive decode: SSIM would crown the linear floor, OT does not. Lead
+with OT, report SSIM alongside. Honest boundary: on test_c the ordering breaks
+(Fukami 18.9 < JEPA 20.7), so the OT advantage is in-envelope.
+
+D-ii GATE PASS: per-encounter Spearman of latent distance vs the simulation
+OT-geodesic, test_b: JEPA d=64 0.630, d=32 0.607, Fukami d=64 0.449 (margins
++0.18 and +0.16, both above the +0.15 target); JEPA more faithful on 36/42
+encounters. Honest flag: the pooled Spearman reverses (Fukami 0.63 > JEPA 0.38)
+because pooling conflates within-encounter geometry with a between-encounter
+latent-norm scale the drift-prone Fukami latent inflates; the per-encounter mean
+is the geometrically correct statistic and is what the gate and the figure use.
+Manuscript 4.3 transport-geometry and 4.6 OT-field blocks filled.
+
+
+### D136: Baseline latent is a limit cycle; recovery = return to orbit; predictive rollout returns, reconstructive departs (2026-05-29, Session 20, Track E)
+
+`scripts/session20/exp_phase_amplitude.py`. GATE PASS (qualified), d=64 and d=32.
+The no-gust baseline latent traces a closed orbit (return distance 1.0% of
+diameter; four episodes overlap the same loop; period ~56 frames, St ~ 0.36; a
+Hilbert protophase advances monotonically, though the orbit is >2-D so the phase
+is a reduction). Under rollout the predictive latent contracts toward the orbit
+and the reconstructive one expands away: median return-to-orbit smaller for JEPA
+at every horizon, bootstrap-robust at H=64 (8.70 vs 9.96, 95% CI on the paired
+difference [1.13, 3.25]), marginal at H=32. Load-bearing caveat: the simulation
+gust trajectories do not themselves fully return within the 120-frame window, so
+the comparison measures drift direction, not completed physical recovery. SINDy
+fit is dense and low-R^2 (orbit >2-D), reported as negative and non-gating.
+Unifies with D134: the limit cycle is the H1 generator. Manuscript 4.4 filled.
+
+
+### D137: Scale decomposition shows the predictive latent retains the lift-bearing large-scale LEV/shear structures the reconstructive one smooths (2026-05-29, Session 20, Track F)
+
+`scripts/session20/exp_scale_decomposition.py` (Gaussian large/small split at
+sigma/c = 0.05, Motoori & Goto via Odaka et al. JFM 1031 R3 2026). GATE PASS on
+test_b. Large-scale wake-enstrophy tracking vs simulation: JEPA d=64 correlation
+0.89/0.91 (impact / H=16), relative error 0.22; Fukami d=64 0.23/0.61, relative
+error ~0.8, retaining 16 to 20% of large-scale amplitude and near-zero
+small-scale energy. POD has comparable correlation but worse amplitude (rel err
+0.34 to 0.38). Claim is specific: the predictive latent tracks the large-scale
+LEV and shear layer better than the reconstructive AE on both correlation and
+amplitude, and better than POD in amplitude. d=32 holds; test_c degrades (0.91 to
+0.65), the 2D-to-3D observability boundary at |G|=4. Manuscript 4.6 filled.
+
+
+### D138: Horizon sweep -- predictive closure degrades gracefully, reconstructive fails at the drift onset (2026-05-29, Session 20, Track G)
+
+`scripts/session20/exp_horizon_sweep.py` over H in {1,4,8,16,32,64}, from the
+Track B closure CSV. JEPA d=64 and d=32 hold wake-enstrophy forecast R^2 above
+0.5 to H=16 then decline; Fukami d=64 and POD d=64 are already below 0.5 at H=1
+and negative by H=16, so they never hold a usable wake forecast. C_L (carried by
+all) decays smoothly for all. The abrupt wake failure coincides with the
+rollout-drift onset (D131.6 / Table latent_drift). Manuscript 4.2 filled.
+
+
+### D132: Track A 2x2 objective x architecture controls -- predictive objective AND wake supervision are both load-bearing (2026-05-30, Session 20)
+
+The decisive control on the central claim. Five cells at d=64, three encoder
+seeds each, auxiliary heads matched (current lift at delta 0 + 80-d
+patch_signed_spectrum wake head), all evaluated under the identical unified
+no-output-BN predictor and B1 ridge probe. Held-out test_b wake-enstrophy and
+mean closure R^2 at H=16 (Markov rollout), mean +- std over 3 seeds:
+
+| cell | objective | encoder | aux | wake R^2 | mean R^2 |
+|------|-----------|---------|-----|----------|----------|
+| A1 | predictive    | CNN+ViT | lift+wake | 0.463 +- 0.034 | 0.454 |
+| A2 | predictive    | CNN     | lift+wake | 0.445 +- 0.062 | 0.522 |
+| A3 | reconstructive | CNN+ViT | lift+wake | 0.160 +- 0.272 | 0.228 |
+| A4 | reconstructive | CNN     | lift+wake | 0.287 +- 0.048 | 0.418 |
+| A5 | predictive    | CNN+ViT | lift only | -1.030 +- 0.289 | 0.090 |
+
+**Gate outcome (two-part, both stated honestly in the manuscript):**
+1. The predictive objective improves wake closure at BOTH architectures with aux
+   matched: A1 0.463 > A3 0.160 (delta +0.303), A2 0.445 > A4 0.287 (delta
+   +0.158). The CNN vs CNN+ViT columns do not separate (predictive CNN A2 leads
+   the mean R^2 at 0.522), so the ViT is not the driver; the objective is not a
+   confound of the architecture.
+2. The wake supervision is NECESSARY: removing the wake head from the predictive
+   model (A5) collapses wake closure to -1.030, below the floor and below every
+   reconstructive cell. So the result is NOT the predictive objective in
+   isolation; it is the predictive objective trained WITH wake supervision. The
+   reconstructive cells carry the SAME wake head and do not reach the predictive
+   closure, so the head alone on an arbitrary objective is not sufficient either.
+The automated gate (track_a_closure.py) flagged PREDICTIVE_OBJECTIVE_WINS on the
+A1>A3 & A2>A4 criterion; we downgraded the manuscript wording to the honest
+two-part claim because A5 shows the wake head is co-necessary (the plan's gate
+says an A5 collapse triggers this caveat). Abstract and Section 4.5 set
+accordingly; tab:controls_2x2 populated. Large A3 seed variance (+-0.272) is
+consistent with the drift picture (no forward-predictable geometry -> unstable
+wake closure across seeds).
+
+**Infrastructure built this session (Track A).** CNNOnlyEncoder in
+src/models/encoder.py (hybrid CNN stem, ViT removed, same BatchNorm latent
+projection; 1.94M vs 6.68M params) for A2/A4; train_jepa.py --encoder
+{hybrid,cnn_only}; FukamiAEWrapper encoder_kind {cnn,cnn_vit} +
+session9_train_fukami.py --encoder for A3/A4 (the Fukami trainer already carried
+the wake head from Session 11, so A4 needed no new code). A5 is the production
+recipe with --lambda-wake 0.
+
+**Two load-bearing bug fixes (without them the comparison is invalid).**
+1. The Fukami trainer's periodic Test-A diagnostic built an eval batch without a
+   wake_target tensor; the wake-head forward raised on it, crashing all Fukami
+   cells at the first iter-2000 diagnostic (the 3-iter smoke never reached it).
+   Fix: FukamiAEWrapper.forward skips the wake loss when wake_target is absent
+   (eval context); training batches carry it and are unaffected.
+2. encode_baseline_latents.py: (a) the trained Fukami wrappers carry a wake head
+   the encode-time wrapper omits, so load the state_dict non-strict with a guard
+   that the encoder keys fully load; (b) the cnn_vit encoder needs 5D
+   (B,T,C,H,W) input, so the encode helper feeds (1,T,1,H,W) and squeezes (also
+   correct for the CNN encoder).
+
+**Resource note.** User authorised all four GPUs this session; the 12 control
+encoders trained in one wave (heavy cnn_vit cells A3/A5 on the two RTX 6000,
+light CNN cells A2/A4 on the two L40S). Fukami cells were evaluated from their
+iter-10000 checkpoint (past the ~6000-iter convergence of D129), not 20000, to
+land the gate sooner. Files: scripts/session20/{launch_track_a,_train_one,
+eval_track_a,_eval_one,track_a_closure}; outputs/session20/track_a/
+controls_2x2.{json,csv}.
+

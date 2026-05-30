@@ -34,13 +34,18 @@
 % ---------------------------------------------------------------------------
 \begin{table}[t]
   \centering
-  \caption{Held-out forward closure. Mean absolute error at horizon $H = 16$ on
-  the $n = 42$ test\_b encounters, for the rollout from the
-  simulation-encoded initial latent, against six physical observables. Smaller
-  is better; best per column in bold. The wake-enstrophy and circulation columns
-  are in native units, the force coefficients are dimensionless. This held-out
-  error, not the training fit of Table~\ref{tab:b1_closure_train_r2}, is the
-  headline evidence.}
+  \caption{Held-out representational closure. Mean absolute error at $H = 16$ on
+  the $n = 42$ test\_b encounters when each family's per-frame probe is applied
+  to the simulation-encoded latent (the latent encoded directly from the held-out
+  field, isolating how well the representation carries each observable), against
+  six physical observables. Smaller is better; best per column in bold. The
+  wake-enstrophy and circulation columns are in native units, the force
+  coefficients are dimensionless. The companion held-out \emph{forecast} closure
+  (predictor rolled out from impact) is in Table~\ref{tab:b1_r2_heldout}; the
+  predictive latent leads both: on test\_b the JEPA $d{=}64$ representational
+  wake-enstrophy $R^2$ is positive and well above the conditioning floor, while
+  the reconstructive AE and POD representations are negative (full probe values
+  with bootstrap CIs in Appendix~A).}
   \label{tab:b1_mae_testb}
   \small
   \begin{tabular}{l c c c c c c c}
@@ -66,18 +71,34 @@
 % ---------------------------------------------------------------------------
 \begin{table}[t]
   \centering
-  \caption{Held-out forward closure, coefficient of determination $R^2$ at
-  $H = 16$ on test\_b (and test\_c), to be computed from the same rollout
-  predictions used for Table~\ref{tab:b1_mae_testb}. This table replaces the
-  training-set $R^2$ of Table~\ref{tab:b1_closure_train_r2} as the reported
-  closure quality.}
+  \caption{Held-out forward (Markov-rollout) closure, coefficient of
+  determination $R^2$ at $H = 16$ on the $n = 42$ test\_b encounters. The
+  predictor is rolled out autoregressively from the simulation-encoded
+  impact-frame latent, and the per-frame probe of each family is applied to the
+  forecast latent at $H = 16$; $R^2$ is against the simulation observable on the
+  same held-out encounters (variance baseline is the held-out split mean, so
+  $R^2 < 0$ means worse than predicting that mean). This held-out forecast $R^2$,
+  not the training-set fit of Table~\ref{tab:b1_closure_train_r2}, is the
+  reported closure quality. Best per column in bold; row mean at right.
+  The predictive latent is the only one whose held-out wake-enstrophy forecast
+  stays above the predict-the-mean floor; the reconstructive and POD latents go
+  negative. test\_c (OOD, $G=+4$) is reported in the text.}
   \label{tab:b1_r2_heldout}
   \small
   \begin{tabular}{l c c c c c c c c}
     \toprule
     Baseline & $d$ & $C_L$ & $C_D$ & $I_y$ & wake-enst.\ & circ.\ pos.\ & circ.\ neg.\ & mean \\
     \midrule
-    \multicolumn{9}{c}{\pending{generate held-out $R^2$ from the rollout predictions}} \\
+    JEPA   & 64 & 0.723 & 0.634 & 0.056 & \textbf{0.449} & 0.201 & \textbf{0.607} & \textbf{0.445} \\
+    JEPA   & 32 & \textbf{0.751} & \textbf{0.648} & -0.082 & 0.214 & 0.087 & 0.552 & 0.362 \\
+    \midrule
+    Fukami & 3  & 0.632 & 0.226 & 0.115 & -0.082 & 0.258 & -0.048 & 0.184 \\
+    Fukami & 32 & 0.641 & 0.239 & \textbf{0.205} & 0.007 & \textbf{0.420} & 0.161 & 0.279 \\
+    Fukami & 64 & 0.729 & 0.406 & 0.043 & -0.478 & 0.182 & 0.003 & 0.147 \\
+    \midrule
+    POD    & 16 & 0.499 & 0.364 & -0.515 & -0.129 & -0.230 & 0.340 & 0.055 \\
+    POD    & 32 & 0.714 & 0.558 & -0.256 & 0.042 & -0.066 & 0.394 & 0.231 \\
+    POD    & 64 & 0.683 & 0.539 & -0.813 & -0.089 & 0.057 & 0.507 & 0.147 \\
     \bottomrule
   \end{tabular}
 \end{table}
@@ -150,9 +171,14 @@
   beyond the parameters. The conditioning floor interpolates the training points
   but collapses on the held-out splits, going negative on test\_c for five of
   six observables.
-  % HONESTY NOTE: the original table compared this floor's held-out R^2 against
-  % JEPA's *training-set* R^2. The fair comparison is against JEPA's held-out
-  % R^2 (Table~\ref{tab:b1_r2_heldout}); the last column is left for that number.
+  The last column is JEPA's held-out forecast $R^2$
+  (Table~\ref{tab:b1_r2_heldout}, $d{=}64$, test\_b), the fair comparison: the
+  original draft compared this floor against JEPA's training-set fit. The
+  predictive forecast clears the floor on the force coefficients and the
+  circulations; on wake-enstrophy the $H{=}16$ forecast ($0.449$) is about level
+  with the parameter floor ($0.482$), while JEPA's representational closure
+  (probe on the encoded latent, $R^2 = 0.754$, Table~\ref{tab:b1_mae_testb})
+  clears it comfortably.
   }
   \label{tab:conditioning_floor}
   \small
@@ -160,12 +186,12 @@
     \toprule
     Observable & $n_{\text{train}}$ & train $R^2$ & test\_b $R^2$ & test\_c $R^2$ & JEPA $d{=}64$ test\_b $R^2$ \\
     \midrule
-    $C_L$          & 226 & 0.895 & 0.303  & 0.547  & \pending{} \\
-    $C_D$          & 226 & 0.941 & 0.386  & -2.459 & \pending{} \\
-    $I_y$          & 226 & 0.422 & -0.301 & -1.335 & \pending{} \\
-    wake-enstrophy & 226 & 0.806 & 0.482  & -1.252 & \pending{} \\
-    circ.\ pos.\   & 226 & 0.792 & -0.032 & -0.249 & \pending{} \\
-    circ.\ neg.\   & 226 & 0.799 & 0.568  & -4.262 & \pending{} \\
+    $C_L$          & 226 & 0.895 & 0.303  & 0.547  & 0.723 \\
+    $C_D$          & 226 & 0.941 & 0.386  & -2.459 & 0.634 \\
+    $I_y$          & 226 & 0.422 & -0.301 & -1.335 & 0.056 \\
+    wake-enstrophy & 226 & 0.806 & 0.482  & -1.252 & 0.449 \\
+    circ.\ pos.\   & 226 & 0.792 & -0.032 & -0.249 & 0.201 \\
+    circ.\ neg.\   & 226 & 0.799 & 0.568  & -4.262 & 0.607 \\
     \bottomrule
   \end{tabular}
 \end{table}
@@ -175,19 +201,30 @@
 % ---------------------------------------------------------------------------
 \begin{table}[t]
   \centering
-  \caption{Objective $\times$ architecture controls (decisive experiment). Mean
-  held-out closure ($R^2$ at $H = 16$, test\_b) and drift ratio for the four
-  cells crossing \{predictive, reconstructive\} with \{CNN, CNN$+$ViT\} at
-  $d = 64$, with the auxiliary heads matched across cells, plus a JEPA variant
-  with the wake head removed. This table isolates the objective from the
-  architecture and from the wake supervision.}
+  \caption{Objective $\times$ architecture controls (decisive experiment).
+  Held-out wake-enstrophy closure and mean closure ($R^2$ at $H = 16$, test\_b,
+  Markov rollout, mean $\pm$ standard deviation over three encoder seeds) for the
+  four cells crossing \{predictive, reconstructive\} with \{CNN, CNN$+$ViT\} at
+  $d = 64$, with the auxiliary heads (current lift at $\delta = 0$ plus the
+  $80$-dimensional wake head) matched across all four cells, plus a predictive
+  variant with the wake head removed. Predictive beats reconstructive on wake
+  closure at both architectures (A1 vs A3, A2 vs A4), so the objective is not a
+  confound of the architecture; removing the wake head from the predictive model
+  (A5) collapses wake closure below the floor, so the wake supervision is also
+  necessary. The CNN and CNN$+$ViT columns do not separate, so the ViT is not the
+  driver.}
   \label{tab:controls_2x2}
   \small
-  \begin{tabular}{l l c c c}
+  \begin{tabular}{l l l c c}
     \toprule
-    Objective & Encoder & Aux.\ heads & mean closure $R^2$ & drift ratio \\
+    Objective & Encoder & Aux.\ heads & wake-enst.\ $R^2$ & mean $R^2$ \\
     \midrule
-    \multicolumn{5}{c}{\pending{run the $2\times2$ (auxiliary-matched) and the no-wake-head JEPA; populate}} \\
+    predictive     & CNN$+$ViT & lift $+$ wake & $\mathbf{0.46 \pm 0.03}$ & $0.45$ \\
+    predictive     & CNN       & lift $+$ wake & $0.45 \pm 0.06$ & $\mathbf{0.52}$ \\
+    reconstructive & CNN$+$ViT & lift $+$ wake & $0.16 \pm 0.27$ & $0.23$ \\
+    reconstructive & CNN       & lift $+$ wake & $0.29 \pm 0.05$ & $0.42$ \\
+    \midrule
+    predictive     & CNN$+$ViT & lift only     & $-1.03 \pm 0.29$ & $0.09$ \\
     \bottomrule
   \end{tabular}
 \end{table}

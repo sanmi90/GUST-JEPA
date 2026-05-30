@@ -235,6 +235,82 @@ class HybridCNNViTEncoder(nn.Module):
         return z.view(B, T, -1)
 
 
+class CNNOnlyEncoder(nn.Module):
+    """CNN-only ablation of :class:`HybridCNNViTEncoder` (the ViT removed).
+
+    Shares the exact 3-stage CNN stem of the hybrid encoder, then global
+    average pools the ``(B*T, c3, 24, 12)`` feature map to ``(B*T, c3)`` and
+    applies the SAME ``Linear -> BatchNorm1d`` projection head to the latent
+    dimension ``d``. The only architectural difference from
+    :class:`HybridCNNViTEncoder` is the absence of the transformer, which is
+    precisely the "CNN vs CNN+ViT" axis isolated by the Session 20 Track A
+    2x2 controls (A2/A4 vs A1/A3). The output contract ``(B, T, d)`` and the
+    BatchNorm latent boundary (required by SIGReg, CLAUDE.md) are identical,
+    so it drops into the JEPA wrapper unchanged.
+    """
+
+    def __init__(
+        self,
+        in_channels: int = 1,
+        cnn_channels: tuple[int, int, int] = (64, 128, 256),
+        latent_dim: int = 32,
+        projection_norm: str = "batchnorm",
+    ) -> None:
+        super().__init__()
+        if projection_norm not in ("batchnorm", "layernorm"):
+            raise ValueError(
+                f"projection_norm must be 'batchnorm' or 'layernorm', got {projection_norm!r}"
+            )
+        self.projection_norm = projection_norm
+        c1, c2, c3 = cnn_channels
+
+        self.stem = nn.Sequential(
+            nn.Conv2d(in_channels, c1, kernel_size=7, stride=2, padding=3, bias=True),
+            nn.GroupNorm(8, c1),
+            nn.GELU(),
+        )
+        self.block1 = nn.Sequential(
+            _conv_block(c1, c1, kernel=3, stride=1),
+            _conv_block(c1, c1, kernel=3, stride=1),
+        )
+        self.down1 = _conv_block(c1, c2, kernel=3, stride=2)
+        self.block2 = nn.Sequential(
+            _conv_block(c2, c2, kernel=3, stride=1),
+            _conv_block(c2, c2, kernel=3, stride=1),
+        )
+        self.down2 = _conv_block(c2, c3, kernel=3, stride=2)
+        self.block3 = nn.Sequential(
+            _conv_block(c3, c3, kernel=3, stride=1),
+            _conv_block(c3, c3, kernel=3, stride=1),
+        )
+
+        proj_norm: nn.Module = (
+            nn.BatchNorm1d(latent_dim)
+            if projection_norm == "batchnorm"
+            else nn.LayerNorm(latent_dim)
+        )
+        self.proj = nn.Sequential(
+            nn.Linear(c3, latent_dim),
+            proj_norm,
+        )
+
+    def forward(self, x: Tensor) -> Tensor:
+        """Encode ``(B, T, C, H, W)`` with ``C=1, H=192, W=96`` into ``(B, T, d)``."""
+        B, T = x.shape[0], x.shape[1]
+        x_flat = x.flatten(0, 1)
+
+        h = self.stem(x_flat)
+        h = self.block1(h)
+        h = self.down1(h)
+        h = self.block2(h)
+        h = self.down2(h)
+        h = self.block3(h)
+
+        h = h.mean(dim=(2, 3))  # global average pool -> (B*T, c3)
+        z = self.proj(h)
+        return z.view(B, T, -1)
+
+
 class PatchPoolEncoder(nn.Module):
     """Tiny baseline encoder used for the Track 0.1 LapFiLM upper-bound test.
 
