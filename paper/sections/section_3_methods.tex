@@ -24,7 +24,7 @@ the gust parameters are not known a priori (\S\ref{sec:discussion}).
 The predictor $P_\phi$ advances the latent in time. It is a six-layer
 autoregressive transformer with rotary positional embeddings and a causal mask,
 conditioned on $\cvec$ through adaptive layer-norm modulation at every block;
-its internal structure is given in Appendix~A. The predictor is the only stage
+its internal structure is given in Appendix~\ref{app:reg}. The predictor is the only stage
 that sees $\cvec$. Figure~\ref{fig:jepa_architecture} shows the encoder and
 predictor, and Figure~\ref{fig:predictive_vs_reconstructive} contrasts the
 predictive training signal with the reconstructive one: the reconstructive
@@ -41,10 +41,10 @@ latent-prediction term, a scheduled-sampling rollout term that exposes the
 predictor to its own errors, and an anti-collapse regulariser that prevents the
 encoder from collapsing to a constant. We use the characteristic-function
 regulariser of \cite{lejepa,lewm}, which matches the latent distribution to an
-isotropic Gaussian through a small number of random projections; we found the
-choice of anti-collapse regulariser to be second order relative to a
-variance-covariance alternative \cite{vicreg} at this data scale, and we report
-that comparison in Appendix~A.
+isotropic Gaussian through a small number of random projections, with an
+automatic fall-back to a variance-covariance objective \cite{vicreg} should the
+participation ratio of the latent indicate collapse. Its configuration is given
+in Appendix~\ref{app:reg}.
 
 Two auxiliary heads read aerodynamic observables off the encoder output: a lift
 head that maps $\zvec_t$ to $C_L(t)$, and a wake head that maps $\zvec_t$ to an

@@ -1,0 +1,50 @@
+% Appendix: architecture detail, anti-collapse regularisation, and uncertainty
+% quantification. Describes only what is used on the present (v2) dataset: the
+% SIGReg regulariser with its participation-ratio safeguard, and the three
+% held-out uncertainty signals. The SIGReg/VICReg/PLDM comparison was a smaller-
+% scale development study and is deliberately NOT claimed here.
+
+\paragraph{Architecture detail.} The encoder is a hybrid convolutional stem
+followed by a small vision transformer. Three downsampling convolutional stages
+map the single-channel $192 \times 96$ vorticity field to a $24 \times 12$ feature
+map at $256$ channels, that is $288$ spatial tokens, which a six-layer
+pre-norm transformer of width $256$ with eight heads processes; the latent is read
+from a prepended class token through a one-layer projection whose output passes a
+BatchNorm, the layer the characteristic-function regulariser below requires. The
+encoder is unconditional and carries no information about the gust parameters. The
+predictor is a six-layer autoregressive transformer of width $384$ with sixteen
+heads and dropout $0.1$, with a causal mask and rotary temporal positions. The
+gust parameters $\cvec = (G, D, Y)$ and the within-encounter phase enter only the
+predictor, through adaptive layer normalisation initialised to the identity
+(AdaLN-Zero), so that at initialisation the predictor is the unconditioned
+dynamics and the conditioning is learned as a modulation. Training minimises the
+one-step latent prediction loss plus a scheduled-sampling rollout term and the
+regulariser below, with AdamW and bf16 mixed precision.
+
+\paragraph{Anti-collapse regularisation.} Because the encoder and predictor are
+trained end to end on latent-space prediction with no decoder, the latent is held
+away from a collapsed solution by an explicit regulariser rather than by a
+reconstruction term. We use SIGReg, the characteristic-function (Epps--Pulley)
+regulariser of the from-pixels joint-embedding line \cite{lewm,lejepa}, with $M$
+random one-dimensional projections of the latent and a small weight ($0.01$) in
+the loss. As a safeguard the participation ratio of the latent is monitored every
+thousand iterations, with an automatic fall-back to a variance-covariance
+objective \cite{vicreg} if it indicates collapse while the parameter probe is
+still uninformative; on the runs reported here the participation ratio stays
+healthy and the fall-back does not trigger.
+
+\paragraph{Uncertainty quantification.} Every held-out coefficient of
+determination and mean absolute error in the paper carries three independent
+uncertainty signals, following the reporting protocol fixed with the split. The
+first is a bootstrap confidence interval from $2000$ resamples over the held-out
+test encounters, which is the dominant source of scatter at the present sample
+size ($n = 42$ for test\_b, $n = 24$ for test\_c) and is wide for the individual
+wake observables, as noted in \S\ref{sec:res_closure}. The second is the variance
+across three encoder retrains from independent random seeds, reported as the
+standard deviation in the objective-times-architecture controls of
+\S\ref{sec:res_controls}. The third is a five-fold cross-validation over cases on
+the read-out (probe) step, which guards against a probe that overfits the
+particular held-out split. Together these approximate what a full five-fold
+case-level cross-validation of the entire pipeline would buy, at a fraction of the
+training cost; a single split with bootstrap intervals is the community standard
+for this class of study.

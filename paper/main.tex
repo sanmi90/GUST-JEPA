@@ -91,10 +91,15 @@ interactions at $\mathrm{Re}=5000$}
 \label{sec:conclusions}
 \input{sections/section_6_conclusions.tex}
 
-% Appendices (scaffold): A. encoder/predictor architecture detail and the
-% SIGReg/VICReg anti-collapse comparison; B. probe and bootstrap protocol;
-% C. deployment-oriented pressure-to-latent estimation and the closed-loop
-% pilot (negative result); D. trajectory-geometry supplementary diagnostics.
+\appendix
+
+\section{Architecture, anti-collapse regularisation, and uncertainty quantification}
+\label{app:reg}
+\input{sections/appendix_a_regularisation.tex}
+
+\section{Sparse wall-pressure state estimation}
+\label{app:sensing}
+\input{sections/appendix_b_sensing.tex}
 
 \bibliographystyle{abbrv}
 \bibliography{refs}
