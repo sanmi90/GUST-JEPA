@@ -1,0 +1,39 @@
+qc_version: raw_vorticity_qc_v2_gust_aware
+scanned: 83
+headline: No numerical faults (0 NaN/Inf in fluid, no case above the 10000 blow-up bound). Dataset is
+  healthy. A few cases carry more vorticity than their gust strength predicts; inspect, not necessarily
+  repeat.
+numerical_faults_nan_or_inf: 0
+max_off_airfoil_range:
+- 174.9
+- 1252.6
+blowup_bound: 10000
+method: max |omega_z| over all 32 z-stations, fluid cells, excluding the 1-cell leading-edge artifact
+  layer; anomaly = within-|G|-bin robust z>3.5 OR max_off>10000 OR NaN/Inf in fluid.
+vorticity_scale_note: bulk field median ~0, p99.9 ~50; peak scales with |G| (and tighter D), 175 (baseline/weak)
+  to ~1250 off-airfoil for the strongest gusts (~4377 including the LE layer).
+inspect_candidates:
+- case: Gust_052_x-1.892_y-0.678_s3.0_d1.0
+  G: 3.0
+  D: 1.0
+  max_off_airfoil: 1252.6
+  within_Gbin_z: 6.08
+  reason: vorticity high for its gust strength/diameter
+- case: Gust_060_x-1.892_y-0.678_s2.0_d0.5
+  G: 2.0
+  D: 0.5
+  max_off_airfoil: 963.9
+  within_Gbin_z: 5.08
+  reason: vorticity high for its gust strength/diameter
+- case: Gust_054_x-1.916_y-0.581_s3.0_d1.5
+  G: 3.0
+  D: 1.5
+  max_off_airfoil: 1039.7
+  within_Gbin_z: 4.25
+  reason: vorticity high for its gust strength/diameter
+files_not_in_inventory:
+- Gust_069_x-1.941_y-0.484_s-1.5_d1.5
+- Gust_070_x-1.916_y-0.581_s1.0_d1.5
+globally_flagged_but_exonerated:
+- Gust_022_x-1.916_y-0.581_s4.0_d0.5 (s=4.0, expected strong gust, z=1.1)
+- Gust_017_x-1.916_y-0.581_s4.0_d1.0 (s=4.0, expected, z=0.6)

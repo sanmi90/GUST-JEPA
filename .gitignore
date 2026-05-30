@@ -79,3 +79,6 @@ paper/sections/figures/tikz/*preview-1.png
 # Generated section .tex files (produced from .md by scripts/_oneoff_md_to_tex.py)
 # paper/sections/abstract.tex (now canonical, hand-authored)
 # paper/sections/section_*.tex (now canonical, hand-authored)
+
+# QC report is a small manifest, not data
+!data_manifest/raw_cases_qc.csv
