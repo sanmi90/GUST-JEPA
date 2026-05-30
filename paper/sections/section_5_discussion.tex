@@ -49,7 +49,11 @@ The physics the predictive objective organises into the latent, the closed
 encounter cycle and its transport-consistent metric, is therefore a
 low-dimensional object already present at $d = 32$, and the additional dimensions
 at $d = 64$ buy in-distribution forecast precision rather than a qualitatively
-different representation.
+different representation. The parameter content of the two latents is consistent
+with this reading: the dominant gust-strength axis is encoded as well at $d = 32$
+as at $d = 64$, while the core diameter and the wall-normal offset, the axes the
+data resolve least, are the ones whose recovery degrades when the dimension is
+halved, the same axes whose forward closure the extra dimensions sharpen.
 
 \subsection{What the comparison does and does not establish}
 \label{sec:disc_caveat}
