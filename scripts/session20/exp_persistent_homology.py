@@ -577,6 +577,7 @@ def gate_verdict(tb: dict) -> dict:
 
 
 def main() -> None:
+    global JEPA_TAG, FUKAMI_TAG
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--out-dir", type=Path, default=OUT_DIR)
     ap.add_argument("--jepa-tag", type=str, default=JEPA_TAG,
@@ -586,7 +587,6 @@ def main() -> None:
     ap.add_argument("--skip-test-c", action="store_true")
     args = ap.parse_args()
     args.out_dir.mkdir(parents=True, exist_ok=True)
-    global JEPA_TAG, FUKAMI_TAG
     JEPA_TAG, FUKAMI_TAG = args.jepa_tag, args.fukami_tag
     print(f"[track-c] JEPA={JEPA_TAG}  Fukami={FUKAMI_TAG}  out={args.out_dir}")
 
