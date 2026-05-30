@@ -29,26 +29,52 @@ that produces it, and the reconstructive latent does exactly that, recovering
 the impact lift poorly from its own oracle while the predictive latent recovers
 it well.
 
+This organisation survives a halving of the latent dimension, which is the basis
+for reading it as a low-dimensional predictive state rather than an artefact of
+capacity. At $d = 32$ the predictive latent matches the $d = 64$ latent on
+representation quality, the held-out wake-enstrophy representation $R^2$ is $0.74$
+against $0.75$, and on every mechanism diagnostic: it traces the same single
+persistent cycle rather than fragmenting (\S\ref{sec:res_drift}), its latent
+metric aligns with the physical transport geometry to within the $d = 64$ margin
+(rank correlation $0.61$ against $0.63$), it returns to the baseline limit cycle
+under rollout (\S\ref{sec:res_param_phase}), it retains the same large-scale wake
+structure (\S\ref{sec:res_physical}), and its rollout-drift ratio is $0.86$
+against $0.85$ (Table~\ref{tab:latent_drift}). The one quantity that degrades is
+the in-distribution wake forecast, where the $H = 16$ closure $R^2$ falls from
+$0.45$ to $0.21$ (Table~\ref{tab:b1_r2_heldout}): halving the dimension costs
+forecast sharpness on the wake observables while leaving the geometric mechanism
+intact. On the out-of-distribution test\_c set the $d = 32$ latent is in fact
+marginally the more robust of the two, $0.45$ against $0.33$ on wake enstrophy.
+The physics the predictive objective organises into the latent, the closed
+encounter cycle and its transport-consistent metric, is therefore a
+low-dimensional object already present at $d = 32$, and the additional dimensions
+at $d = 64$ buy in-distribution forecast precision rather than a qualitatively
+different representation.
+
 \subsection{What the comparison does and does not establish}
 \label{sec:disc_caveat}
 
-We are deliberate about the scope of the claim. The predictive encoder here
-differs from the reconstructive baseline in three respects at once: the training
-objective, the CNN$+$ViT architecture, and the wake supervision. The result as
-it stands is therefore a statement about the predictive latent \emph{family} as
-configured. The conditioning-only floor removes the shared parametric
-conditioning as an explanation, but the architecture and, most pointedly, the
-wake supervision remain confounded with the objective, and the largest part of
-the advantage is on the very wake observables the predictive encoder was
-supervised on. Attributing the gain to the predictive objective in isolation
-requires the matched-architecture, matched-auxiliary controls and the
-no-wake-head variant of \S\ref{sec:res_controls}; until those are in hand the
-safe statement is ``the predictive latent family improves forward closure'', not
-``the predictive objective alone does''. The linear basis, for its part, remains
-genuinely useful: it is the most competitive family on the integrated impulse
-and is amplitude-accurate in reconstruction, so the result is not that POD is
-obsolete but that it does not produce a latent whose rollout closes the wake
-observables.
+We are deliberate about the scope of the claim. The predictive encoder differs
+from the reconstructive baseline in three respects at once: the training
+objective, the CNN$+$ViT architecture, and the wake supervision. The
+conditioning-only floor removes the shared parametric conditioning as an
+explanation, and the matched-architecture, matched-auxiliary $2 \times 2$
+controls of \S\ref{sec:res_controls} separate the remaining two. They give a
+two-part answer that we state in full. The predictive objective does improve
+forward wake closure over the reconstructive objective at both a CNN and a
+CNN$+$ViT encoder with the auxiliary heads matched, and the two architecture
+columns do not separate, so the gain is the objective and not the architecture.
+The wake supervision, however, is a necessary part of the configuration that
+achieves it: a predictive model with the wake head removed collapses below the
+predict-the-mean floor on wake closure. The honest claim is therefore that the
+predictive objective improves forward closure \emph{when trained with wake
+supervision}, not that the objective in isolation does, and not that the wake
+head attached to an arbitrary objective does, since the reconstructive cells
+carry the same head and do not reach the predictive closure. The linear basis,
+for its part, remains genuinely useful: it is the most competitive family on the
+integrated impulse and is amplitude-accurate in reconstruction, so the result is
+not that POD is obsolete but that it does not produce a latent whose rollout
+closes the wake observables.
 
 \subsection{Limitations}
 \label{sec:disc_limits}
@@ -63,8 +89,11 @@ test\_c is best read as the observability boundary of a mid-plane representation
 rather than as a parametric-generalisation claim. Third, the visualisation
 decoder is a diagnostic on the frozen encoder, never part of the predictive
 loss; a reader expecting sharp reconstructions from a predictive latent will be
-disappointed, which is the explicit trade the objective makes. To these we add
-the objective-isolation caveat of \S\ref{sec:disc_caveat} as a fourth.
+disappointed, which is the explicit trade the objective makes. To these we add,
+as a fourth, the co-necessity of the wake supervision established in
+\S\ref{sec:disc_caveat}: the predictive objective improves forward closure in the
+configuration tested, with the wake head as a necessary component, not as a
+property of the objective stripped of all auxiliary supervision.
 
 \subsection{Pathway to model-based control, and a pilot that does not yet close}
 \label{sec:disc_control}

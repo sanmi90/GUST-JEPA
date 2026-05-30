@@ -205,11 +205,29 @@ def process_split(split: str, wake: np.ndarray, rng) -> dict:
     return out
 
 
+def _load_airfoil_xy() -> "np.ndarray":
+    """NACA 0012 outline in physical (x/c, y/c) coords from Baseline.h5, closed."""
+    import os
+
+    import h5py
+
+    raw = (Path(os.environ.get("PREVENT_ROOT", str(Path.home() / "PREVENT")))
+           / "data" / "raw" / "periodic" / "Baseline.h5")
+    with h5py.File(raw, "r") as f:
+        xy = np.asarray(f["airfoil_xy"], dtype=np.float64)
+    if not np.allclose(xy[0], xy[-1]):
+        xy = np.vstack([xy, xy[0:1]])
+    return xy
+
+
 def make_figure(results: dict, wake: np.ndarray) -> None:
     import matplotlib
 
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
+    from matplotlib.patches import Polygon
+
+    airfoil_xy = _load_airfoil_xy()  # physical coords, matches imshow extent
 
     rb = results["test_b"]
     # ---- representative large-scale fields at impact+16: DNS vs JEPA vs Fukami ----
@@ -234,6 +252,8 @@ def make_figure(results: dict, wake: np.ndarray) -> None:
         im = ax.imshow(
             field.T, origin="lower", extent=extent, cmap="RdBu_r", vmin=-3, vmax=3, aspect="equal"
         )
+        ax.add_patch(Polygon(airfoil_xy, closed=True, facecolor="black",
+                             edgecolor="black", linewidth=0.6, zorder=10))
         ax.axvline(0.0, color="k", lw=0.6, ls=":")  # leading edge / wake boundary
         ax.set_title(title, fontsize=10)
         ax.set_xlabel("x/c")
