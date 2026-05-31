@@ -1,81 +1,149 @@
-% Appendix: sparse wall-pressure state estimation. Reports the deployment-facing
-% pressure-observability study honestly: in-distribution state recovery is strong
-% and the predictive latent is more pressure-recoverable than POD; out-of-
-% distribution recovery collapses; the closed loop is rollout-limited, not
-% estimator-limited. Figures are v2 (split_v2) artifacts.
+% Appendix: sparse wall-pressure state estimation. Redone on the production v2
+% (noBN) latents with the optimal target-conditioned (TCSI) sensor placement, and
+% reporting absolute error in physical units, not R^2 alone. The central honest
+% point is that latent recoverability (R^2) and physical estimation quality are
+% different axes: the easiest-to-recover latent gives the worst lift estimate, and
+% the lift is read most accurately straight off the pressure.
 
 At deployment the vorticity field is not available; only the wall pressure is. We
-therefore ask how much of the latent state, the gust parameters, and the impact
-lift can be recovered from a sparse set of wall-pressure taps, and whether routing
-the estimate through the predictive representation helps. The input is the
-span-averaged wall pressure on $192$ surface taps, sub-sampled to $K$ sensors over
-a pre-impact window. This is a feasibility study, not a closed controller, and we
-report where it works and where it does not.
+ask how much of the latent state, the gust parameters, and the impact lift can be
+recovered from a sparse set of $K$ wall-pressure taps over a pre-impact window,
+and through which representation. The input is the span-averaged pressure on the
+$192$ surface taps, and the pressure-to-latent map is a kernel-ridge regressor
+with a radial-basis kernel on the flattened $K$-sensor by pre-impact-window
+feature vector. Nonlinear estimators of this class (kernel ridge, a
+temporal-convolutional network, a regularised perceptron, and a cross-validated
+LSTM) perform comparably on the state; the recurrent model's advantage appears for
+the scalar lift at short lead (Figure~\ref{fig:leadtime}). We use kernel ridge
+throughout the cross-family comparison for a uniform, low-variance estimator
+across families. This is a feasibility study, not a closed controller, and we report
+where it works and where it does not.
 
-\paragraph{The map is nonlinear, and sensor placement is a region question.}
-A linear ridge from all $192$ taps to the latent recovers essentially nothing
-(held-out $R^2 \approx 0.03$); a temporal-convolutional estimator on a handful of
-taps reaches $R^2 \approx 0.88$, so the pressure-to-state map is strongly
-nonlinear and a linear observability analysis understates it. For sparse sensor
-placement \cite{manohar2018sensors} a target-conditioned greedy criterion matches
-the full $192$-tap recovery with $K = 8$ to $16$ taps and beats random placement,
-but the strongly collinear surface pressures do not admit a unique optimal tap
-set: the defensible output is a set of chord regions, clustered near the leading
-edge and the early suction surface, rather than specific taps.
+\paragraph{Optimal placement clusters at the leading edge and matters most at very
+low $K$.} We place the $K$ sensors by a target-conditioned greedy selection
+(TCSI), conditioned on recovering the predictive latent, and compare it against
+QR-pivoting (qDEIM) \cite{manohar2018sensors}, uniform, and random placement. The
+selected taps cluster on both surfaces near the leading edge, where the gust
+impinges (Figure~\ref{fig:sensor_placement}a). At $K = 2$ the placement is
+decisive: TCSI recovers the predictive state at $R^2 = 0.80$ against $0.44$ for
+qDEIM and $0.52$ for uniform. By $K \ge 4$, however, the wall pressure is
+information-rich enough that the selection method barely separates
+($R^2 \approx 0.86$ to $0.89$ for all three; Figure~\ref{fig:sensor_placement}b).
+Optimal placement buys the most when sensors are scarcest. The robustness of the
+greedy, target-conditioned selection over a marginal-attribution ranking (such as
+SHAP or permutation importance) is expected here: the surface pressures are
+strongly collinear, so a method that scores sensors individually double-counts
+the shared information, whereas the greedy selection conditions each pick on those
+already chosen and spreads the array. The gap is largest at the smallest $K$,
+where redundancy is most costly.
 
-\paragraph{In-distribution state recovery is strong, and the predictive latent is
-the most recoverable.} With nonlinear estimators (temporal-convolutional,
-regularised multilayer perceptron, kernel ridge) the latent is recovered well on
-the in-distribution test\_b set: the mean latent $R^2$ reaches $0.92$ at $K = 8$
-for the regularised perceptron, and $0.79$ already at $K = 2$. Across encoder
-families at $K = 8$ (kernel ridge, Figure~\ref{fig:pressure_obs}) the predictive
-latent is markedly the most pressure-recoverable: $R^2 = 0.87$ for JEPA at
-$d = 64$ and $0.84$ at $d = 32$, against $0.79$ for the reconstructive autoencoder
-at $d = 3$, $0.69$ at $d = 64$, and only $0.43$ and $0.16$ for the POD
-coefficients at $d = 16$ and $d = 64$. The energy-optimal POD coefficients are the
-hardest to read from pressure, which is the deployment-side counterpart of the
-representation result in the main text. The gust parameters are also recoverable
-from pressure directly: a temporal-convolutional estimator reaches
-$(G, D, Y)$ test\_b $R^2 = (0.96, 0.95, 0.85)$ at $K = 16$, with $G$ and $D$
-recovered even at $K = 2$ to $4$ and the wall-normal offset $Y$ the weakest, in
-keeping with its weak resolution throughout the paper. Recovering the parameters
-\emph{through} a learned latent instead favours POD ($G$ test\_b $R^2 = 0.78$
-against $0.46$ for JEPA at $d = 64$), because the predictive latent is organised as
-a state, not as a parameter code, so its energy-aligned POD counterpart is the
-better intermediary for parameter read-out. The decisive caveat is
-generalisation: on the out-of-distribution test\_c set ($G = +4$) every estimator
-and every family gives negative latent $R^2$ (between $-0.5$ and $-2.8$). Sparse
-pressure observability, like the rest of the model, holds inside the training
-envelope and fails at the three-dimensional observability boundary of
-\S\ref{sec:disc_limits}.
+\paragraph{The predictive state is the most pressure-recoverable.} With the TCSI
+array and a kernel-ridge estimator the predictive latent is markedly the most
+recoverable across encoder families (Figure~\ref{fig:observability}a): at $K = 8$
+the held-out test\_b state $R^2$ is $0.89$ at $d = 64$ and $0.87$ at $d = 32$,
+against $0.58$ to $0.67$ for the reconstructive autoencoder and $0.32$ to $0.49$
+for POD. The contrast is sharpest at matched capacity: at $d = 64$ the predictive
+latent recovers at $R^2 = 0.89$ against $0.58$ for the reconstructive autoencoder
+and $0.32$ for POD, and at $d = 32$ at $0.87$ against $0.63$ and $0.42$. The
+energy-optimal POD coordinates are the hardest to read from pressure,
+the deployment counterpart of the representation result in the main text. Decoding
+the pressure-estimated latent makes the recovery physical
+(Figure~\ref{fig:flow_recovery}): from eight taps the leading-edge vortex and
+shear layer are recovered close to the oracle decode, and even two taps capture
+the gross impingement.
+
+\paragraph{Recoverability is not estimation quality, and $C_L$ is read directly.}
+A high recovery $R^2$ does not imply an accurate physical estimate, and the
+pressure study makes the distinction concrete. The three-dimensional
+reconstructive latent is the \emph{easiest} to recover from pressure (state
+$R^2 = 0.91$ at $K = 2$, the highest of any family) yet routing the impact-lift
+estimate through it gives the \emph{worst} $C_L$: a mean absolute error of $1.0$
+against a $C_L$ spread of $1.37$, while the predictive latent gives $0.49$
+(Figure~\ref{fig:observability}b). The lift itself is read most accurately
+straight off the pressure: a direct pressure-to-$C_L$ regressor reaches a mean
+absolute error of $0.39$ at the impact frame, better than any latent-mediated
+route, because the imminent lift is already imprinted on the wall. The deployment
+value of the predictive latent is therefore the recoverable \emph{forecastable
+state} it hands to the predictor, not the instantaneous lift, which needs no
+latent. We report the physical estimate in $C_L$ units rather than the state $R^2$
+alone precisely because the two measure different things.
+
+\paragraph{Parameters and the out-of-distribution boundary.} The gust parameters
+recover directly from pressure on test\_b, with the core diameter best and the
+wall-normal offset weakest ($(G, D, Y)$ $R^2 = (0.73, 0.89, 0.65)$ at $K = 8$), in
+keeping with $Y$'s weak resolution throughout the paper. On the
+out-of-distribution test\_c set ($|G| = 4$) every estimator and every family gives
+negative state $R^2$ (between $-0.3$ and $-0.9$) and a large lift error, the same
+three-dimensional observability boundary of \S\ref{sec:disc_limits} that bounds
+the rest of the model.
 
 \begin{figure}[t]
   \centering
-  \includegraphics[width=0.98\linewidth]{sections/figures/results/figC_pressure_observability.png}
-  \caption{Pressure observability across encoder families on test\_b, kernel-ridge
-  estimator, versus sensor count $K$. Left to right: recovery of the latent state,
-  and of the gust parameters $G$, $D$, and $Y$. The predictive (JEPA) latent is
-  the most pressure-recoverable; $G$ and $D$ recover well, $Y$ weakly. The
-  out-of-distribution test\_c counterpart (not shown) is negative for every family
-  and is reported in the text.}
-  \label{fig:pressure_obs}
+  \includegraphics[width=\linewidth]{sections/figures/results/figE_sensor_placement.pdf}
+  \caption{Sparse-sensor placement on v2. (a) The target-conditioned (TCSI) taps
+  for $K = 2, 4, 8$ on the NACA~0012 surface; they cluster near the leading edge
+  on both surfaces. (b) Predictive-state recovery (held-out test\_b $R^2$) versus
+  sensor count for TCSI, qDEIM, and uniform placement: optimal placement is
+  decisive at $K = 2$ and the methods converge by $K \ge 4$.}
+  \label{fig:sensor_placement}
 \end{figure}
 
-\paragraph{Routing the lift estimate through the representation buys lead time.}
-For the operational question of estimating the impact lift from pressure ahead of
-time, we compare a direct pressure-to-$C_L$ regressor against the
-representation-mediated chain (pressure to the estimated impact latent to the
-$C_L$ probe), as a function of the lead time before impact. At short lead, two
-frames before impact, the
-direct read is already accurate ($R^2 = 0.69$) and the representation adds
-nothing, because the imminent lift is already imprinted on the pressure. At long
-lead the direct read degrades below zero ($R^2 = -0.08$ at thirty frames), while
-the representation-mediated estimate holds up better, and the gap is sharpest
-out of distribution: thirty frames is too early for either, but at ten frames on
-test\_c the representation-mediated estimate reaches $R^2 = 0.52$ against $0.24$
-for the direct read. The crossover is near five frames of lead: inside it, read
-$C_L$ straight off the pressure; beyond it, route through the representation. The
-ceiling of the mediated chain is the $z \to C_L$ probe itself ($R^2 \approx 0.68$).
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=\linewidth]{sections/figures/results/figF_observability.pdf}
+  \caption{Cross-family pressure observability on v2 under the TCSI placement.
+  (a) Latent-state recovery $R^2$ versus sensor count: the predictive (JEPA)
+  state is the most recoverable at $K \ge 4$, POD the least. (b) The physical
+  estimate, impact $C_L$ mean absolute error routed through each family's
+  recovered latent, with the direct pressure-to-$C_L$ baseline (dashed). The
+  contrast is the point: the reconstructive $d = 3$ latent is the easiest to
+  recover (highest $R^2$ at low $K$) yet gives the worst lift estimate, and the
+  lift is read most accurately directly from the pressure.}
+  \label{fig:observability}
+\end{figure}
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=\linewidth]{sections/figures/results/figG_flow_recovery.pdf}
+  \caption{Flow recovered from sparse wall pressure on three held-out encounters
+  (rows, labelled by $(G, D, Y)$). Columns: the simulation, the oracle decode (the
+  visualisation decoder applied to the simulation-encoded latent), and the decode
+  of the latent estimated from $K = 8$ and $K = 2$ TCSI pressure taps. From eight
+  taps the predictive latent recovers the leading-edge vortex and shear layer close
+  to the oracle; two taps capture the gross impingement. The decoder is blurry by
+  design (\S\ref{sec:res_physical}).}
+  \label{fig:flow_recovery}
+\end{figure}
+
+\paragraph{Predicting the impact before it occurs.} The deployment target is the
+impact itself, ahead of time. Ending the pre-impact pressure window $\tau$ frames
+before impact and predicting the impact-frame state and lift
+(Figure~\ref{fig:leadtime}), the impact state stays recoverable to eight instants
+ahead with a gentle degradation, and kernel ridge and the LSTM are comparable
+across the lead (state $R^2$ between $0.80$ and $0.83$). The impact lift is read
+accurately to about six instants ahead before degrading. Both estimators are
+selected by five-fold cross-validation on the training set, and the selection is
+not overfit: the cross-validated state $R^2$ ($0.83$) matches the held-out value
+($0.80$), and the search prefers a small recurrent model. The LSTM reads the
+scalar lift more accurately at every lead (mean absolute error $0.25$ at the
+impact frame and $0.39$ at a six-frame lead, against the kernel ridge's $0.30$ and
+$0.45$; lift $R^2 = 0.89$ against $0.77$ at the impact frame), an advantage that
+survives cross-validated selection and reflects its use of the temporal signature
+of the approaching gust. The imminent impact is therefore predictable a handful of
+instants before it occurs, the regime a controller would act in, and degrades into
+the rollout-limited regime of the closed-loop pilot beyond that lead.
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=\linewidth]{sections/figures/results/figH_leadtime.pdf}
+  \caption{Predicting the impact before it occurs. (a) Impact-state recovery $R^2$
+  and (b) impact-lift $C_L$ mean absolute error versus the lead, the number of
+  frames before impact at which the pre-impact pressure window ends, for the
+  kernel-ridge and LSTM estimators ($K = 8$ TCSI taps, test\_b). The impact state
+  is recoverable to eight instants ahead; the lift to about four, with the LSTM
+  the more accurate lift estimator at short lead.}
+  \label{fig:leadtime}
+\end{figure}
 
 \paragraph{The closed loop is rollout-limited, not estimator-limited.} Chaining
 the pressure estimator, the predictor rollout, and the observable probe into a
@@ -84,11 +152,9 @@ of test\_b encounters fall within $10\%$ of the true $C_L$, against a target of
 $80\%$. The informative point is that this gate fails even for an oracle that is
 handed the true impact latent and the true parameters ($18\%$ as well), so the
 tolerance is bounded by the irreducible error of the predictor and probe, not by
-the pressure estimator. The pressure chain matches the oracle to within a factor
-of $0.7$ to $1.3$ in physical-metric error at $K = 8$, so the estimated initial
-condition is not the bottleneck. The honest reading is that the
-representation and the pressure observability are in place in distribution, and
-the closed loop is limited by the rollout horizon rather than by the estimator;
-more frequent re-estimation from pressure during the rollout, or a longer
-scheduled-sampling horizon, is the route to a usable controller. We report this as
-a pathway, not a result.
+the pressure estimator. The honest reading is that the representation and the
+pressure observability are in place in distribution, and the closed loop is
+limited by the rollout horizon rather than by the estimator; more frequent
+re-estimation from pressure during the rollout, or a longer scheduled-sampling
+horizon, is the route to a usable controller. We report this as a pathway, not a
+result.

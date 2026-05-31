@@ -132,7 +132,11 @@ We also report, as a limitation rather than a result, a closed-loop pilot that
 chains a wall-pressure state estimator, the predictor rollout, and an
 observable probe. A temporal-convolutional estimator recovers the latent from a
 pre-impact pressure window well (held-out $R^2 \approx 0.87$ at eight sensors),
-but the assembled loop does not meet the tolerances set in advance: at the
+and at matched latent dimension the predictive state is markedly more recoverable
+from the wall than the reconstructive or linear latents ($R^2 = 0.89$ versus
+$0.58$ and $0.32$ at $d = 64$; Appendix~\ref{app:sensing}), the deployment mirror
+of the representation result.
+But the assembled loop does not meet the tolerances set in advance: at the
 design horizon only a small fraction of held-out encounters fall within the
 $C_L$ and $I_y$ tolerance bands, and none of the pre-registered gates are met.
 The bottleneck is the rollout rather than the estimator, since the within-
