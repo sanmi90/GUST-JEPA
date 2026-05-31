@@ -6822,3 +6822,98 @@ land the gate sooner. Files: scripts/session20/{launch_track_a,_train_one,
 eval_track_a,_eval_one,track_a_closure}; outputs/session20/track_a/
 controls_2x2.{json,csv}.
 
+### D139: Session 21 A/B/C -- JFM revision executed (correctness, rebuilt figures, restructure) (2026-05-30/31, Session 21)
+
+Executed the three-part JFM revision plan (committed 8d89c7c) against the
+manuscript in `paper/`. Commits: 72b4108 (21A/B/C), 0f27369 (pressure redo, D140).
+
+**21A (correctness / statistics / references).** Fixed the data provenance: the
+data are the authors' own DNS computed with the SOD2D spectral-element solver
+(Gasparino, Spiga & Lehmkuhl 2024), reproducing the Fukami, Smith & Taira (2025)
+configuration; ref [6] (Fukami) is demoted from data source to
+configuration/characterisation source. Added per-encounter PAIRED-closure
+statistics (`scripts/session21/session21_paired_closure_stats.py`, reusing the
+Session 20 closure machinery): pairing per encounter cancels the shared
+encounter-to-encounter difficulty, so the wake comparison goes from "not
+individually significant" to significant -- wake-enstrophy: predictive has the
+smaller error on 31/42 encounters representationally (paired mean +43.1, sign
+p=1.4e-3) and 27/42 under forecast (+32.0, p=4.4e-2). Removed all "original
+draft" language; fixed the broken ref [13] (-> Mohamed et al., Drones 7(1), 22);
+added Key words; stripped internal vocab (A1-A5, Track, B1, Session); added
+Solera-Rico (companion under review), Constante-Amores & Graham (JFM 984 R9
+2024), Manohar (sparse sensing) citations.
+
+**21B (figures).** Rebuilt 8 main-text figures from existing Session 20/18 arrays
+in one shared style (`scripts/session21/figstyle.py`: fixed 4-colour family key,
+serif 7-8pt, DESIGNED AT THE MEASURED 5.0in textwidth = 360pt). Closure as
+dots+CIs (was a bar chart); new parameter-space, observable-trace, and
+encounter-as-cycle centrepiece (the last with REAL Sinkhorn per-snapshot OT via
+`exp_ot_field_and_alignment.d_field`); persistence recomputed via ripser;
+de-cluttered horizon/OT/scale; Fig 1 schematic stripped to the data path,
+fairness schematic cut.
+
+**21C (restructure).** Merged the representational-MAE and forecast-R2 tables into
+one two-panel exhibit (`tab:closure`, with both old labels aliased); moved the
+training-fit and paired-closure tables to Appendix A; consolidated 3
+reconstruction panels into one new-style figure; resolved the not-done Section
+4.4 paragraph; sentence-length, internal-vocab, em-dash sweep. Result: 11
+main-text figures, 5 tables; compiles clean. Reporting protocol unchanged (D130).
+
+### D140: Pressure-observability appendix redone on v2 with optimal placement and CV-tuned estimators (2026-05-31, Session 21)
+
+User-driven deep-dive on Appendix B (sparse wall-pressure sensing). Commit 0f27369.
+
+**The bug.** The old appendix used EVENLY-SPACED sensors
+(`_oneoff_baseline_pressure_obs.select_sensors_evenly`), v1-era latents
+(`latents_jepa_d64`, not the noBN production), and reported R2 only. The headline
+recoverability figure was on the wrong sensor selection and the wrong latents.
+
+**Redo on v2 + TCSI.** Recomputed on the v2 production latents
+(`latents_jepa_d64_test1_noBN` etc.) with the TCSI optimal placement RE-DERIVED on
+v2 (`session14_tcsi_pilot.greedy_forward_selection`, target = JEPA z first PC).
+TCSI K=8 picks = [37,11,18,12,10,47,190,8], clustering at the leading edge (tap 11
+= LE, x~0). TCSI beats qDEIM/uniform decisively at K=2 (state R2 0.80 vs 0.44 /
+0.52) but the methods CONVERGE by K>=4 (R2~0.86-0.89): optimal placement buys the
+most only when sensors are scarce. Script:
+`scripts/session21/exp_pressure_v2_tcsi.py`; picks in
+`outputs/session21/pressure_v2/sensor_picks_v2.json`.
+
+**Cross-family recovery (test_b, K=8, kernel ridge).** Predictive latent most
+pressure-recoverable at matched d: d64 R2 0.89 (JEPA) vs 0.58 (Fukami) vs 0.32
+(POD); d32 0.87 vs 0.63 vs 0.42. The d=3 reconstructive latent is the only one
+above JEPA, and only at K=2 (0.91), a degenerate small-target effect.
+
+**R2-vs-quality decoupling (the load-bearing user point).** A high recovery R2
+does NOT imply a good physical estimate: the d=3 latent is easiest to recover yet
+gives the WORST impact-C_L (MAE ~1.0 vs JEPA ~0.5; C_L spread 1.37), and C_L is
+read most accurately DIRECTLY from pressure (MAE 0.39), routing through a latent
+does not help at the impact frame. We therefore report C_L MAE in physical units,
+not R2 alone (figF panel b).
+
+**Flow recovery (figG).** Decoded the pressure-estimated latent with the
+PRODUCTION v2 encoder + decoder (`S12_E_d64/encoder/checkpoint_iter020000.pt` +
+`decoder_specloss_recipe/decoder_iter030000.pt`; verified the noBN latents equal
+the S12_E_d64 encoding at cos~1.0). 8 taps recover the LEV and shear layer close
+to the oracle decode; 2 taps the gross impingement. GOTCHA:
+`decode_reconstructions.pick_device()` PREFERS the L40S ("to leave the RTX 6000s
+for Track A"); FORCE the RTX 6000 via `require_rtx6000(gpu_index=0)` -- a
+collaborator (asolera) is using the L40S cards for SOD2D run3 regeneration.
+
+**Lead-time impact prediction (figH).** Pre-impact pressure window ending tau
+frames BEFORE impact -> impact-frame state and C_L, tau in {0,2,4,6,8}. The impact
+state is recoverable to ~8 instants ahead (R2 ~0.80-0.83, gentle), the lift to
+~6. Estimators (kernel ridge, LSTM) selected by 5-FOLD CV on train (overfitting
+guard: the single-val tuned LSTM had CV R2 0.945 vs test 0.852 and the search
+picked the largest model; CV selection picks a small model with CV R2 0.83 ~ test
+0.80). Under CV: state KRR ~= LSTM (tied); lift LSTM consistently better at every
+lead (MAE 0.25 vs 0.30 at impact, lift R2 0.89 vs 0.77), the advantage survives
+CV. Scripts: `exp_pressure_leadtime{,_tuned,_cv}.py`, `exp_pressure_lstm.py`;
+data in `outputs/session21/pressure_v2/{pressure_obs_v2.csv, leadtime.json,
+leadtime_cv_configs.json}`.
+
+**Manuscript.** Surfaced the matched-d recoverability result in the Discussion
+(deployment mirror of the representation result). Added the TCSI-vs-SHAP
+robustness note (joint target-conditioned selection beats marginal attribution
+under collinear surface pressures). Appendix B now has 4 figures (figE-figH);
+the paper compiles clean at 31 pages.
+

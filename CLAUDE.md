@@ -95,6 +95,16 @@ Path resolution
   external avoids accidental commits and lets multiple consumers (PREVENT, vortex-jepa,
   any future project) share one source of truth.
 
+Provenance (do not misattribute): the DNS were computed with the GPU-enabled
+spectral-element solver SOD2D (Gasparino, Spiga & Lehmkuhl 2024) at low Mach
+number, reproducing the Fukami, Smith & Taira (2025, PRF 10, 084703)
+configuration. Fukami is the CONFIGURATION / physical-characterisation source,
+NOT the data source, and the data are DNS, NOT LES. Do not write "simulations of
+Fukami" or call the data large-eddy simulation (the Session 21 JFM revision fixed
+this in the manuscript; see HANDOFF D139). The full-resolution solver details
+(element count, near-wall spacing, Mach number) are pending the simulation
+collaborators and are a visible TODO in paper Section 2.2.
+
 Cache layout
 - Preprocessed per-encounter cache lives at
   `${VORTEX_JEPA_CACHE}/{partition_version}/{case_id}/encounter_{k:02d}.h5`.
@@ -153,6 +163,18 @@ Pre-extracted artefacts (reuse instead of re-encoding)
 - Per-frame flow descriptors (centroid, circulation, peak omega, etc.) at
   `outputs/session16/exp2/per_frame_targets/{split}.npz` -- 14 scalar columns
   per (encounter, frame) plus z_full mirrored from above.
+- Shared paper-figure style: `scripts/session21/figstyle.py` (fixed 4-colour
+  family key, per-family markers, `vort_panel()` red-blue + black-airfoil
+  convention, designed at the MEASURED 5.0in = 360pt JFM textwidth). Import it for
+  any new manuscript figure so the whole set stays consistent.
+- Pressure-observability v2 artefacts (Session 21 D140):
+  `outputs/session21/pressure_v2/sensor_picks_v2.json` (TCSI / qDEIM / uniform
+  optimal sensor indices at K=2/4/8/16, physical taps 0-191),
+  `pressure_obs_v2.csv` (cross-family pressure->state R2 + impact-C_L MAE), and
+  `leadtime{,_cv_configs}.json` (lead-time impact prediction, CV-selected
+  estimators). The pressure-to-latent map is KernelRidge(RBF) on the flattened
+  K-sensor x pre-impact-window vector; the LSTM/KRR comparison is 5-fold-CV
+  selected to guard small-sample overfitting.
 
 ## Omega preprocessing pipeline (v1)
 
@@ -288,6 +310,12 @@ This is the canonical two-card pattern. Do NOT use shell-level
 `CUDA_VISIBLE_DEVICES` to select between the two RTX 6000s; the helper
 in `src.utils.device.require_rtx6000(gpu_index=...)` handles the
 selection correctly and the W&B logging picks up the right device.
+
+GOTCHA (decode/eval scripts): `scripts/session20/decode_reconstructions.py`
+defines a `pick_device()` that PREFERS a non-RTX (L40S) card. Do NOT call it for
+vortex-jepa work. Force the RTX 6000 with `require_rtx6000(gpu_index=0)` when
+decoding latents to fields or running the encoder. A collaborator (asolera) runs
+SOD2D on the L40S cards, so they must stay free (Session 21 D140).
 
 How to enforce it:
 - Call `from src.utils.device import require_rtx6000` at the top of every
