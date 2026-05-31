@@ -67,7 +67,7 @@ def main() -> None:
     di_dns = match_index(jcid, jei, dns[f"{SPLIT}_case_id"], dns[f"{SPLIT}_encounter_index"])
 
     fig, axes = plt.subplots(3, 3, figsize=fs.figure_size(1.0, aspect=0.85),
-                             sharex=True)
+                             sharex=True, layout="constrained")
     for r, (title, ridx) in enumerate(pick.items()):
         cid, ei = str(jcid[ridx]), int(jei[ridx])
         impact = int(jb["impact_frame"][ridx])
@@ -104,7 +104,7 @@ def main() -> None:
                                    s=34)
             if r == 0:
                 ax.set_title(mlab)
-            if r == 2:
+            if r == 2 and c == 1:
                 ax.set_xlabel("frames relative to impact")
             if c == 0:
                 ax.set_ylabel(f"{title}")
@@ -112,9 +112,8 @@ def main() -> None:
     handles = [plt.Line2D([], [], color="0.15", lw=1.6, label="simulation")]
     handles += [plt.Line2D([], [], color=fs.FAMILY_COLOR[f], lw=1.0,
                            label=fs.FAMILY_LABEL[f]) for f, _ in FAMS]
-    fig.legend(handles=handles, loc="lower center", ncol=4,
-               bbox_to_anchor=(0.5, -0.02), columnspacing=1.3, handletextpad=0.4)
-    fig.tight_layout(rect=(0, 0.04, 1, 1))
+    fig.legend(handles=handles, loc="outside lower center", ncol=4,
+               columnspacing=1.3, handletextpad=0.4)
     OUT_PDF.parent.mkdir(parents=True, exist_ok=True)
     OUT_PNG.parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(OUT_PDF)

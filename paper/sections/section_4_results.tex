@@ -3,8 +3,7 @@
 % transport analyses) -> parameter/phase dependence (+ new phase-amplitude) ->
 % the decisive objective/architecture controls -> physical-space interpretation
 % (reconstruction reframed with an OT metric + scale decomposition). All Session
-% 20 analyses (Tracks A-G) are complete; every result is populated and no
-% \pending markers remain.
+% 20 analyses are complete; every result is populated.
 
 \input{sections/tables/results_tables.tex}
 
@@ -14,8 +13,8 @@
 Table~\ref{tab:families} summarises the three encoder families and the protocol.
 We distinguish two questions. Does the latent, encoded directly from a held-out
 field, carry each observable (representation quality,
-Table~\ref{tab:closure}a)? And does the predictor, rolled out from the impact
-frame, forecast it (forecast quality, Table~\ref{tab:closure}b)? The first
+Table~\ref{tab:closure}(a))? And does the predictor, rolled out from the impact
+frame, forecast it (forecast quality, Table~\ref{tab:closure}(b))? The first
 isolates the encoder; the second tests the encoder and the learned dynamics
 together. The predictive latent leads on both, and the forecast is the
 load-bearing test. On representation, the wake separation is widest: at $d = 64$ the
@@ -31,7 +30,7 @@ projection, although on held-out error the predictive latent still leads there.
 We flag this train-versus-held-out reversal because it is exactly why a held-out
 coefficient of determination, not the training fit, must head the comparison.
 
-On the forecast (Table~\ref{tab:b1_r2_heldout} and Figure~\ref{fig:traces}),
+On the forecast (Table~\ref{tab:closure}(b) and Figure~\ref{fig:traces}),
 evaluated as the held-out $R^2$
 at $H = 16$ of the Markov rollout, the predictive latent is the only
 representation whose wake-enstrophy forecast stays above the predict-the-mean
@@ -140,8 +139,9 @@ few steps, so its wake forecast collapses immediately rather than eroding.
   \centering
   \includegraphics[width=0.98\linewidth]{sections/figures/results/fig_horizon_sweep.pdf}
   \caption{Held-out forecast closure ($R^2$ of the Markov rollout) versus horizon
-  $H$ for the wake-enstrophy, $C_L$, and negative-circulation observables, on
-  test\_b (top) and test\_c (bottom), for the predictive latent at $d = 64$ and
+  $H$ for the wake-enstrophy, $C_L$, and negative-circulation observables, on the
+  in-distribution test\_b (top) and the $|G| = 4$ extrapolation test\_c (bottom),
+  for the predictive latent at $d = 64$ and
   $d = 32$, the reconstructive autoencoder, and POD. The dotted line marks
   $R^2 = 0.5$. The predictive latent holds wake-enstrophy above the floor to
   $H = 16$; the reconstructive and linear latents are already below it at
@@ -284,9 +284,9 @@ object viewed dynamically and topologically.
   trajectory in the leading two baseline principal components departs the no-gust
   limit cycle (grey), executes the leading-edge-vortex growth and shedding, and
   returns; numbered glyphs mark the four stages and the arrow gives the direction
-  of travel. (b) The orbit phase relative to the impact frame. (c--e) Mid-plane
-  vorticity at the four stages for the simulation, the predictive decode, and the
-  reconstructive decode; the predictive decode localises the impingement while the
+  of travel. (b) The orbit phase relative to the impact frame. (c) Mid-plane
+  vorticity at the four stages (rows) for the simulation, the predictive decode, and
+  the reconstructive decode (columns); the predictive decode localises the impingement while the
   reconstructive decode collapses, with the optimal-transport field distance
   between each decode and the simulation annotated at each stage (largest for the
   reconstructive decode near impact). The stage glyphs are those of

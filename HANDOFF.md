@@ -6917,3 +6917,65 @@ robustness note (joint target-conditioned selection beats marginal attribution
 under collinear surface pressures). Appendix B now has 4 figures (figE-figH);
 the paper compiles clean at 31 pages.
 
+### D141: Session 22 figure-clarity and narrative polish (2026-05-31, Session 22)
+
+Print-size sweep of every figure plus targeted prose fixes. The figures were
+confirmed defective at 200 dpi in the compiled PDF, not just suspected.
+
+**Four figure rebuilds (verified in the compiled PDF, not just standalone).**
+- figC_cycle (Fig 8, centrepiece): panels (a) and (b) were vertically jammed
+  (PC1 label hit the 2pi tick), no panel letters, stage glyphs 1/2/3 overlapped
+  at the top of the loop, the direction arrow was invisible, "baseline cycle" sat
+  at the axis edge. Rebuilt with nested subgridspecs (left column hspace=0.55,
+  snapshot block hspace=0.12, wspace=0.30 between blocks), left-aligned panel
+  titles "(a) latent cycle" / "(b) orbit phase" / "(c) staged flow", glyphs fanned
+  off the trajectory with thin leader lines, a prominent direction arrow on the
+  recovery arc (mutation_scale=13), "baseline cycle" moved inside with a white
+  bbox, and (a)/(b) given their own ticks. Caption (c--e) -> (c).
+- fig5_horizon (Fig 6): the two-line rotated row y-labels OVERPRINTED because the
+  long split names ("in-distribution (test B)") exceeded the panel height when
+  rotated. Compacted to "test B" / "test C, |G|=4" over "forecast R2",
+  constrained_layout + outside legend. Descriptive phrasing moved to the caption.
+- fig6_persistence (Fig 7): legend sat on the bars and the x-label was clipped.
+  Legend moved above the histogram panel, x-label shortened to "$H_1$ generators",
+  ylim headroom, removed a stray "\\ " that printed a literal backslash.
+- figA_traces (Fig 5): the rightmost "frames relative to impact" clipped the page
+  edge. A centered xlabel under the rightmost of N columns overflows the figure
+  edge and constrained_layout does NOT fix that (it reserves vertical, not
+  horizontal). FIX PATTERN: put one xlabel under the MIDDLE column (supxlabel
+  collided with the outside legend; the middle-column xlabel does not).
+
+**Layout lesson (reusable).** For the matplotlib JFM figures: a long xlabel
+centered under the edge column clips at the figure boundary regardless of
+constrained_layout; either shorten the label, or place a single label under the
+middle column / use the caption. Long ROTATED ylabels clip/overprint when the
+text length exceeds the panel height; shorten and move detail to the caption.
+
+**Sweep (item F).** All 15 figures inspected at 150 dpi in the compiled PDF:
+Figs 1-4 (paramspace p5, two TikZ schematics p22-23, closure centrepiece p24) and
+9-15 (p28-31) are clean; 5-8 fixed as above.
+
+**Narrative (item G).** The merged closure table (Table 2) had three \label on
+one table (tab:closure / tab:b1_mae_testb / tab:b1_r2_heldout) all resolving to
+"2"; dropped the two aliases and repointed every reference to Table 2(a)
+(representational MAE) / 2(b) (forecast R2), fixing the "Table 2...Table 2"
+self-reference in S3.4. Table 5 caption "current lift at delta=0" -> "the
+instantaneous lift". Removed "on v2" from the Fig 12/13 captions and the "Tracks
+A-G" comment token. Introduced test\_a in S2.2 (validation = held-out encounters
+of the training cases) and added the in-distribution/extrapolation gloss to the
+horizon caption. Zero em/en-dashes; no undefined refs.
+
+**BLOCKER for the simulation collaborators (asolera), gates submission.** S2.2
+still has the placeholder for the solver-resolution numbers (element count,
+near-wall spacing, Mach number). RE-CONFIRMED unobtainable on 2026-05-31:
+`/home/asolera/CasosSOD2D/` is permission-denied and the raw HDF5 carry only
+basedir/casestr/created_iso/prename/varlist attrs (no mesh, no Mach). Do NOT
+invent these. ALSO a wording contradiction to resolve: S2.2 says "low Mach
+number, so the flow is effectively incompressible" while the placeholder lists
+"the Mach number" to be supplied, and the case path (...IncompGust) implies an
+incompressible solver with no Mach number. Left for asolera to fill/resolve.
+
+**Deferred (item H, optional).** PC1~phase / PC2~LEV physical-axis labelling and
+colour-Fig-8-by-frame skipped: colour-by-frame would break the green=predictive
+family key, and the PC-axis claim needs verification. Figs 2/3 already consistent.
+

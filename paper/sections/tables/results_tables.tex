@@ -51,7 +51,7 @@
   its forecast wake-enstrophy $R^2$ is the only one above the predict-the-mean
   floor; the paired per-encounter test is in Table~\ref{tab:paired_closure} and
   full probe values with bootstrap CIs are in Appendix~\ref{app:reg}.}
-  \label{tab:closure}\label{tab:b1_mae_testb}\label{tab:b1_r2_heldout}
+  \label{tab:closure}
   \small
   \begin{tabular}{l c c c c c c c}
     \multicolumn{8}{c}{\textit{(a) Representational closure: mean absolute error}}\\
@@ -130,12 +130,12 @@
   but collapses on the held-out splits, going negative on test\_c for five of
   six observables.
   The last column is JEPA's held-out forecast $R^2$
-  (Table~\ref{tab:b1_r2_heldout}, $d{=}64$, test\_b), the like-for-like
+  (Table~\ref{tab:closure}(b), $d{=}64$, test\_b), the like-for-like
   comparison. The
   predictive forecast clears the floor on the force coefficients and the
   circulations; on wake-enstrophy the $H{=}16$ forecast ($0.449$) is about level
   with the parameter floor ($0.482$), while JEPA's representational closure
-  (probe on the encoded latent, $R^2 = 0.754$, Table~\ref{tab:b1_mae_testb})
+  (probe on the encoded latent, $R^2 = 0.754$, Table~\ref{tab:closure}(a))
   clears it comfortably.
   }
   \label{tab:conditioning_floor}
@@ -163,7 +163,7 @@
   Held-out wake-enstrophy closure and mean closure ($R^2$ at $H = 16$, test\_b,
   Markov rollout, mean $\pm$ standard deviation over three encoder seeds) for the
   four cells crossing \{predictive, reconstructive\} with \{CNN, CNN$+$ViT\} at
-  $d = 64$, with the auxiliary heads (current lift at $\delta = 0$ plus the
+  $d = 64$, with the auxiliary heads (the instantaneous lift plus the
   $80$-dimensional wake head) matched across all four cells, plus a predictive
   variant with the wake head removed. Predictive beats reconstructive on wake
   closure at both architectures (predictive versus reconstructive at CNN$+$ViT,

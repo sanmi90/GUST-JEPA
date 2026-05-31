@@ -24,8 +24,8 @@ OUT_PNG = REPO / "outputs/session21/figs/fig_horizon_sweep.png"
 
 COLS = [("wake_enstrophy", r"wake enstrophy $\Omega_w$"),
         ("C_L", r"$C_L$"), ("circulation_neg", r"$\Gamma^{-}$")]
-SPLITS = [("test_b", "in-distribution (test B)"),
-          ("test_c", r"extrapolation $|G|=4$ (test C)")]
+SPLITS = [("test_b", "test B"),
+          ("test_c", r"test C, $|G|{=}4$")]
 FAMILIES = [("jepa_d64_test1_noBN", "predictive (JEPA) $d{=}64$"),
             ("jepa_d32_noBN", "predictive (JEPA) $d{=}32$"),
             ("fukami_d64_noBN", "reconstructive $d{=}64$"),
@@ -35,8 +35,8 @@ FAMILIES = [("jepa_d64_test1_noBN", "predictive (JEPA) $d{=}64$"),
 def main() -> None:
     fs.use_style()
     data = json.load(open(J))
-    fig, axes = plt.subplots(2, 3, figsize=fs.figure_size(1.0, aspect=0.66),
-                             sharex=True)
+    fig, axes = plt.subplots(2, 3, figsize=fs.figure_size(1.0, aspect=0.72),
+                             sharex=True, layout="constrained")
     for i, (split, slab) in enumerate(SPLITS):
         for j, (metric, mlab) in enumerate(COLS):
             ax = axes[i, j]
@@ -64,9 +64,8 @@ def main() -> None:
     handles = [plt.Line2D([], [], color=fs.family_color(t),
                           marker=fs.FAMILY_MARKER[fs.BASELINE[t][0]], ms=3.5,
                           lw=1.0, label=l) for t, l in FAMILIES]
-    fig.legend(handles=handles, loc="lower center", ncol=4,
-               bbox_to_anchor=(0.5, -0.03), columnspacing=1.2, handletextpad=0.3)
-    fig.tight_layout(rect=(0, 0.05, 1, 1))
+    fig.legend(handles=handles, loc="outside lower center", ncol=4,
+               columnspacing=1.2, handletextpad=0.3)
     OUT_PDF.parent.mkdir(parents=True, exist_ok=True)
     OUT_PNG.parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(OUT_PDF)

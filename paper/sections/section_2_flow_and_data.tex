@@ -68,14 +68,15 @@ extent of approximately one chord. The remaining solver-resolution details,
 namely the element count, the near-wall grid spacing relative to the local small
 scale, and the Mach number, will be supplied by the simulation collaborators
 before submission. The dataset
-comprises $84$ cases partitioned into training, validation, an
+comprises $84$ cases partitioned into training, validation (the held-out
+encounters of the training cases, denoted test\_a), an
 in-distribution test set (test\_b), and an out-of-distribution test set
 (test\_c). The in-distribution test set is stratified to span the five gust
 strengths, the three core diameters, and the two source groups
 (Figure~\ref{fig:paramspace}); test\_c is the
 $|G| = 4$ extrapolation set. At the horizon $H = 16$ used throughout, the
-partition contains $226$ training, $28$ validation, $42$ test\_b, and $24$
-test\_c encounters. The undisturbed reference case is retained in training. The
+partition contains $226$ training, $28$ validation (test\_a), $42$ test\_b,
+and $24$ test\_c encounters. The undisturbed reference case is retained in training. The
 partition is fixed once and used identically by every model and baseline.
 
 For each frame the cache stores the mid-plane spanwise vorticity

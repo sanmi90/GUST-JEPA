@@ -70,27 +70,29 @@ def main() -> None:
     fuk_mask = nf >= 3
     ifk = int(np.where(fuk_mask, pf, -1).argmax())            # fragmented, prominent
 
-    fig, axes = plt.subplots(1, 3, figsize=fs.figure_size(1.0, aspect=0.36))
+    fig, axes = plt.subplots(1, 3, figsize=fs.figure_size(1.0, aspect=0.40),
+                             layout="constrained")
     diagram(axes[0], zj, ij, fs.FAMILY_COLOR["jepa"], "predictive (JEPA) encoding")
     diagram(axes[1], zf, ifk, fs.FAMILY_COLOR["fukami"], "reconstructive encoding")
 
     ax = axes[2]
     mx = int(max(nj.max(), nf.max()))
     bins = np.arange(-0.5, mx + 1.5)
-    ax.hist(nj, bins=bins, color=fs.FAMILY_COLOR["jepa"], alpha=0.7, rwidth=0.9,
-            label=f"predictive (median {int(np.median(nj))})")
-    ax.hist(nf, bins=bins, color=fs.FAMILY_COLOR["fukami"], alpha=0.55, rwidth=0.9,
-            label=f"reconstructive (median {int(np.median(nf))})")
-    ax.set_xlabel("significant $H_1$ generators")
+    nj_h, _, _ = ax.hist(nj, bins=bins, color=fs.FAMILY_COLOR["jepa"], alpha=0.7,
+                         rwidth=0.9, label=f"predictive (median {int(np.median(nj))})")
+    nf_h, _, _ = ax.hist(nf, bins=bins, color=fs.FAMILY_COLOR["fukami"], alpha=0.55,
+                         rwidth=0.9, label=f"reconstructive (median {int(np.median(nf))})")
+    ax.set_xlabel("$H_1$ generators")
     ax.set_ylabel("encounters")
     ax.set_xticks(range(0, mx + 1, 2))
     ax.set_xlim(-0.6, mx + 0.6)
-    ax.legend(loc="upper right", handlelength=1.0, handletextpad=0.4,
-              borderpad=0.2)
-    ax.text(0.96, 0.62, f"$p = {PVAL:.0e}$", transform=ax.transAxes,
-            ha="right", fontsize=6, color="0.3")
-
-    fig.tight_layout()
+    ax.set_ylim(0, max(nj_h.max(), nf_h.max()) * 1.45)
+    # legend above the panel so it never sits on the bars
+    ax.legend(loc="lower center", bbox_to_anchor=(0.5, 1.0), ncol=1,
+              handlelength=1.0, handletextpad=0.4, borderpad=0.2,
+              labelspacing=0.3, fontsize=6)
+    ax.text(0.96, 0.88, f"$p = {PVAL:.0e}$", transform=ax.transAxes,
+            ha="right", va="top", fontsize=6, color="0.3")
     OUT_PDF.parent.mkdir(parents=True, exist_ok=True)
     OUT_PNG.parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(OUT_PDF)
