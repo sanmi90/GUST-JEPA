@@ -192,6 +192,12 @@ def parse_args() -> argparse.Namespace:
         help="Replace the predictor's output BatchNorm1d with Identity. Test 1 for the "
              "B1 BN-running-stats-mismatch hypothesis on JEPA latents.",
     )
+    p.add_argument(
+        "--cond-dim", type=int, default=PROTOCOL_DEFAULTS["cond_dim"],
+        help="Predictor conditioning dimension. Default 3 (G, D, Y). Set 0 for the "
+             "no-conditioning (F-NC) ablation: the predictor never sees the gust "
+             "parameters and AdaLN-Zero collapses to unconditional.",
+    )
     return p.parse_args()
 
 
@@ -249,7 +255,7 @@ def main() -> None:
 
     predictor = AutoregressivePredictor(
         latent_dim=d,
-        cond_dim=PROTOCOL_DEFAULTS["cond_dim"],
+        cond_dim=args.cond_dim,
         hidden_dim=PROTOCOL_DEFAULTS["hidden_dim"],
         depth=PROTOCOL_DEFAULTS["depth"],
         heads=PROTOCOL_DEFAULTS["heads"],
@@ -288,16 +294,18 @@ def main() -> None:
             "std": dataset.std.tolist(),
         },
         "predictor_config": {
-            k: PROTOCOL_DEFAULTS[k]
-            for k in (
-                "hidden_dim",
-                "depth",
-                "heads",
-                "mlp_ratio",
-                "dropout",
-                "max_seq_len",
-                "cond_dim",
-            )
+            **{
+                k: PROTOCOL_DEFAULTS[k]
+                for k in (
+                    "hidden_dim",
+                    "depth",
+                    "heads",
+                    "mlp_ratio",
+                    "dropout",
+                    "max_seq_len",
+                )
+            },
+            "cond_dim": args.cond_dim,
         },
         "optimizer_config": {
             "lr": PROTOCOL_DEFAULTS["lr"],

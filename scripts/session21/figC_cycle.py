@@ -22,6 +22,7 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 import numpy as np
 from scipy.signal import hilbert
+from scipy.spatial.distance import cdist
 from sklearn.decomposition import PCA
 
 import figstyle as fs
@@ -52,7 +53,6 @@ def main() -> None:
     trG = tr["G"]
     base = tr["z_full"][np.isclose(trG, 0.0)]            # (n_base, 120, 64)
     pca = PCA(n_components=2).fit(base.reshape(-1, 64))
-    base_pc = pca.transform(base.reshape(-1, 64)).reshape(base.shape[0], -1, 2)
 
     # representative strong-gust encounter, matched across latents and decodes
     tb_cid = np.array([str(c) for c in tb["case_id"]])
@@ -66,42 +66,43 @@ def main() -> None:
     stage_idx = [dec_off.index(s) for s in STAGES]
 
     jepa = fs.FAMILY_COLOR["jepa"]
-    fig = plt.figure(figsize=fs.figure_size(1.0, aspect=1.02))
+    fig = plt.figure(figsize=fs.figure_size(1.0, aspect=1.06))
     # decoupled spacings: generous between the two left panels, tight among the
-    # snapshot tiles, and a clear horizontal gap between the two blocks.
-    outer = fig.add_gridspec(1, 2, width_ratios=[1.0, 1.5], wspace=0.30,
-                             left=0.10, right=0.88, top=0.90, bottom=0.10)
+    # snapshot tiles, and a clear horizontal gap between the two blocks. The right
+    # block carries most of the width so the staged-flow fields are large.
+    outer = fig.add_gridspec(1, 2, width_ratios=[0.62, 2.35], wspace=0.16,
+                             left=0.085, right=0.88, top=0.91, bottom=0.09)
     gsL = outer[0, 0].subgridspec(2, 1, hspace=0.55)
     gsR = outer[0, 1].subgridspec(4, 3, hspace=0.12, wspace=0.10)
 
-    # (a) latent loop --------------------------------------------------------
+    # (a) departure from the baseline orbit -----------------------------------
+    # A 2-D projection of the encounter is a self-intersecting shadow of a >2-D
+    # orbit, so we instead show the distance of the gust trajectory to the
+    # baseline orbit point cloud (full 64-D), per frame, in units of the baseline
+    # orbit diameter. The encounter departs the baseline cycle and only partially
+    # relaxes back: it does not close within the window (S4.4). The single-cycle
+    # topology is established coordinate-free by the persistent-homology figure.
     axa = fig.add_subplot(gsL[0])
-    axa.plot(base_pc[0, :, 0], base_pc[0, :, 1], color="0.62", lw=0.9, zorder=1)
-    axa.text(base_pc[0, :, 0].mean(), base_pc[0, :, 1].mean(), "baseline\ncycle",
-             ha="center", va="center", fontsize=5.5, color="0.5", zorder=5,
-             bbox=dict(boxstyle="round,pad=0.1", fc="white", ec="none", alpha=0.75))
-    axa.plot(gust_pc[:, 0], gust_pc[:, 1], color=jepa, lw=1.2, zorder=2)
-    # numbered stage glyphs, fanned off the trajectory with thin leader lines so
-    # the clustered early stages stay legible.
-    fan = [(-20, 13), (19, 14), (21, -3), (-3, -20)]
-    for (n, s), (dx, dy) in zip(enumerate(STAGES, start=1), fan):
-        f = impact + s
-        p = (gust_pc[f, 0], gust_pc[f, 1])
-        axa.scatter([p[0]], [p[1]], s=16, color=jepa, zorder=4,
-                    edgecolors="white", linewidths=0.5)
-        axa.annotate(str(n), xy=p, xytext=(dx, dy), textcoords="offset points",
-                     ha="center", va="center", fontsize=6, fontweight="bold",
-                     color=jepa, zorder=5,
-                     arrowprops=dict(arrowstyle="-", lw=0.5, color=jepa,
-                                     shrinkA=0.0, shrinkB=2.0))
-    # prominent direction-of-travel arrow on the clean recovery arc
-    fa, fb = impact + 22, impact + 27
-    axa.annotate("", xy=gust_pc[fb], xytext=gust_pc[fa],
-                 arrowprops=dict(arrowstyle="-|>", mutation_scale=13,
-                                 color=jepa, lw=1.3), zorder=3)
-    axa.set_xlabel("PC1", labelpad=2); axa.set_ylabel("PC2", labelpad=2)
-    axa.tick_params(labelleft=False, labelbottom=False, length=2)
-    axa.set_title("(a) latent cycle", fontsize=7.5, loc="left")
+    gust64 = tb["z_full"][gi]                            # (120, 64)
+    base_flat = base.reshape(-1, 64)
+    d_gust = cdist(gust64, base_flat).min(axis=1)        # (120,)
+    mu = base_flat.mean(0)
+    diam = np.linalg.norm(base_flat - mu, axis=1).max() * 2.0
+    dd = cdist(base_flat, base_flat)
+    np.fill_diagonal(dd, np.inf)
+    band = float(np.percentile(dd.min(1), 95) / diam)
+    dn = d_gust / diam
+    trel = np.arange(120) - impact
+    axa.axhspan(0, band, color="0.88", zorder=0)
+    axa.plot(trel, dn, color=jepa, lw=1.4, zorder=2)
+    for n, s in enumerate(STAGES, start=1):
+        axa.axvline(s, color="0.8", lw=0.5, ls="--", zorder=0)
+        axa.text(s, dn.max() * 1.03, str(n), ha="center", fontsize=5.5, color="0.45")
+    axa.set_xlim(-12, 79)
+    axa.set_ylim(0, dn.max() * 1.13)
+    axa.set_xlabel("frames rel. impact", labelpad=2)
+    axa.set_ylabel("distance to\nbaseline orbit", labelpad=2)
+    axa.set_title("(a) departure", fontsize=7.5, loc="left")
 
     # (b) phase along the orbit ---------------------------------------------
     axb = fig.add_subplot(gsL[1])

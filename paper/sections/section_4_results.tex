@@ -17,7 +17,8 @@ Table~\ref{tab:closure}(a))? And does the predictor, rolled out from the impact
 frame, forecast it (forecast quality, Table~\ref{tab:closure}(b))? The first
 isolates the encoder; the second tests the encoder and the learned dynamics
 together. The predictive latent leads on both, and the forecast is the
-load-bearing test. On representation, the wake separation is widest: at $d = 64$ the
+load-bearing test (Figure~\ref{fig:b1_results}). On representation, the wake
+separation is widest: at $d = 64$ the
 predictive wake-enstrophy error is $29.83$ against $72.90$ for the reconstructive
 autoencoder and $89.31$ for the linear basis, a factor of $2.4$ and $3.0$, with
 the smallest positive and negative circulation errors. The gap narrows on the
@@ -29,6 +30,23 @@ highest $I_y$ score of any family, an expected consequence of its energy-optimal
 projection, although on held-out error the predictive latent still leads there.
 We flag this train-versus-held-out reversal because it is exactly why a held-out
 coefficient of determination, not the training fit, must head the comparison.
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=\linewidth]{sections/figures/results/fig4_closure.pdf}
+  \caption{Held-out forward closure at $H = 16$ after gust impact, as the mean
+  absolute error of the Markov rollout against the simulation, for the lift
+  coefficient $C_L$, the wall-normal impulse $I_y$, and the wake enstrophy
+  $\Omega_w$ (columns) on the in-distribution test set (test\_b, top) and the
+  $|G| = 4$ extrapolation set (test\_c, bottom). Points are family means with
+  bootstrap $95\%$ confidence whiskers over $n = 42$ and $n = 24$ encounters,
+  shaded from light to dark with the latent dimension within each family; the
+  dashed line marks the DNS-oracle floor, the best closure achievable from the
+  simulation-encoded latent without rollout. The wake panel shows the clearest
+  separation: the predictive latent (JEPA) approaches the oracle floor while the
+  reconstructive and linear families do not.}
+  \label{fig:b1_results}
+\end{figure}
 
 On the forecast (Table~\ref{tab:closure}(b) and Figure~\ref{fig:traces}),
 evaluated as the held-out $R^2$
@@ -48,56 +66,6 @@ between $-1.1$ and $-1.5$; the force coefficient $C_L$ is the only observable an
 family forecasts well there ($R^2 = 0.79$), consistent with the
 three-dimensional observability boundary of \S\ref{sec:flow_physics}.
 
-All held-out closure numbers carry $2000$-resample bootstrap confidence intervals
-(reported in full in Appendix~\ref{app:reg}). Taken one observable at a time these
-marginal intervals are wide, because they are dominated by the
-encounter-to-encounter difficulty of the held-out set that every model shares:
-the predictive forecast wake-enstrophy $R^2$ point estimate of $0.449$ has
-interval $[-0.96, 0.79]$, and the forecast wake error $41.3$ has interval
-$[29.1, 59.2]$ against the reconstructive $73.3$ $[50.2, 98.4]$. Pairing the
-comparison per encounter removes that shared difficulty and is the appropriate
-test (Table~\ref{tab:paired_closure}): the predictive latent carries the smaller
-wake-enstrophy error on $31$ of $42$ held-out encounters under direct encoding
-(paired mean improvement $43.1$, $95\%$ CI $[23.5, 66.0]$, one-sided sign
-$p = 1.4 \times 10^{-3}$) and on $27$ of $42$ under forward forecast (paired mean
-improvement $32.0$, $95\%$ CI $[10.8, 54.8]$, sign $p = 4.4 \times 10^{-2}$), so
-the primary wake comparison is significant once the shared difficulty is
-cancelled. All six observables are reported in both modes, not a selected subset,
-so the consistency of the ordering across every observable is itself part of the
-evidence. The reconstructive \emph{representational} wake-enstrophy $R^2$ interval
-is entirely negative ($[-4.62, -0.12]$), a cleaner statement that the
-reconstructive latent fails to carry wake structure on held-out cases, and the
-decisive confirmation is the mechanistic evidence of \S\ref{sec:res_drift} (the
-drift ratio, the topological generator count at $p = 4 \times 10^{-8}$, the
-transport alignment, and the scale-resolved wake-enstrophy tracking), where the
-families separate unambiguously.
-
-The conditioning-only floor (Table~\ref{tab:conditioning_floor}) confirms that
-the held-out result is not an artefact of the parametric conditioning the
-predictor shares. A kernel-ridge map from $\cvec = (G,D,Y)$ to the impact-frame
-observables interpolates the training points well, as any flexible kernel in a
-three-dimensional input will, but collapses on test\_b and goes negative on
-test\_c for five of six observables. The parameters alone cannot generalise
-outside the training envelope, so the held-out closure is doing representational
-work that the conditioning cannot replicate.
-
-\begin{figure}[t]
-  \centering
-  \includegraphics[width=\linewidth]{sections/figures/results/fig4_closure.pdf}
-  \caption{Held-out forward closure at $H = 16$ after gust impact, as the mean
-  absolute error of the Markov rollout against the simulation, for the lift
-  coefficient $C_L$, the wall-normal impulse $I_y$, and the wake enstrophy
-  $\Omega_w$ (columns) on the in-distribution test set (test\_b, top) and the
-  $|G| = 4$ extrapolation set (test\_c, bottom). Points are family means with
-  bootstrap $95\%$ confidence whiskers over $n = 42$ and $n = 24$ encounters,
-  shaded from light to dark with the latent dimension within each family; the
-  dashed line marks the DNS-oracle floor, the best closure achievable from the
-  simulation-encoded latent without rollout. The wake panel shows the clearest
-  separation: the predictive latent (JEPA) approaches the oracle floor while the
-  reconstructive and linear families do not.}
-  \label{fig:b1_results}
-\end{figure}
-
 \begin{figure}[t]
   \centering
   \includegraphics[width=\linewidth]{sections/figures/results/figA_traces.pdf}
@@ -113,6 +81,99 @@ work that the conditioning cannot replicate.
   encounter stages used throughout: baseline, impact, peak load, and recovery.}
   \label{fig:traces}
 \end{figure}
+
+The primary wake comparison rests on a per-encounter paired test
+(Table~\ref{tab:paired_closure}), which cancels the encounter-to-encounter
+difficulty of the held-out set that every model shares. The predictive latent
+carries the smaller wake-enstrophy error on $31$ of $42$ held-out encounters
+under direct encoding (paired mean improvement $43.1$, $95\%$ CI $[23.5, 66.0]$,
+one-sided sign $p = 1.4 \times 10^{-3}$) and on $27$ of $42$ under forward
+forecast (paired mean improvement $32.0$, $95\%$ CI $[10.8, 54.8]$, sign
+$p = 4.4 \times 10^{-2}$). The marginal per-observable bootstrap intervals
+($2000$ resamples, reported in full in Appendix~\ref{app:reg}) are by contrast
+wide, because the same shared difficulty inflates them (the predictive forecast
+wake-enstrophy $R^2$ of $0.449$ has interval $[-0.96, 0.79]$); the paired test,
+not the marginal interval, is therefore the headline. This paired wake advantage is robust to the encoder seed: across three
+independent retrains of both families the paired representational improvement is
+positive in all three (median $+38$, the predictive latent carrying the smaller
+error on $25$ to $30$ of $42$ encounters), and the representational wake $R^2$ is
+$0.72 \pm 0.10$ for the predictive latent against $-0.22 \pm 0.14$ for the
+reconstructive (mean $\pm$ s.d.\ over seeds). All six observables are reported in both modes, not a selected subset. The
+ordering is not uniform: the predictive latent leads decisively on the wake
+observables (enstrophy and negative circulation) in both modes and on the forces
+representationally, but on forward forecast the scalar $C_L$ and positive
+circulation fall within the paired noise between the families
+(Table~\ref{tab:paired_closure}). The wake is where the three families separate. The reconstructive \emph{representational} wake-enstrophy $R^2$ interval
+is entirely negative ($[-4.62, -0.12]$), a cleaner statement that the
+reconstructive latent fails to carry wake structure on held-out cases, and the
+decisive confirmation is the mechanistic evidence of \S\ref{sec:res_drift} (the
+drift ratio, the topological generator count at $p = 4 \times 10^{-8}$, the
+transport alignment, and the scale-resolved wake-enstrophy tracking), where the
+families separate unambiguously.
+
+\begin{table}[t]
+  \centering
+  \caption{Conditioning-only floor at the forecast horizon. A cross-validated
+  kernel-ridge regressor maps the gust parameters $\cvec = (G,D,Y)$ directly to
+  each observable at $H=16$ after impact, with no latent input, frame-matched to
+  the held-out JEPA forecast in the last column ($d{=}64$, test\_b,
+  Table~\ref{tab:closure}(b)); $R^2$ is reported on each split. This is the floor
+  a learned encoder must clear at the horizon the closure is evaluated to show
+  its latent contributes beyond the shared parameters. The floor is
+  observable-dependent. On wake enstrophy, the observable that carries the
+  result, it is low (test\_b $R^2 = 0.17$), so the predictive forecast ($0.449$)
+  and especially the representational closure ($0.754$,
+  Table~\ref{tab:closure}(a)) clear it; at the impact frame, by contrast, the
+  same parameter floor on wake enstrophy reaches $R^2 \approx 0.70$, because the
+  just-released gust nearly determines the instantaneous state and the gap opens
+  only as the wake evolves. On the lift and the negative circulation, which track
+  the gust forcing more directly, the floor matches or exceeds the predictive
+  forecast, the same mixed ordering discussed in the text; out of distribution
+  (test\_c, $|G| = 4$) it turns negative for the wake, drag, and
+  positive-circulation observables.
+  }
+  \label{tab:conditioning_floor}
+  \small
+  \begin{tabular}{l c c c c c}
+    \toprule
+    Observable & $n_{\text{train}}$ & train $R^2$ & test\_b $R^2$ & test\_c $R^2$ & JEPA $d{=}64$ test\_b $R^2$ \\
+    \midrule
+    $C_L$          & 226 & 0.922 & 0.707  & 0.741  & 0.723 \\
+    $C_D$          & 226 & 0.886 & 0.521  & -3.993 & 0.634 \\
+    $I_y$          & 226 & 0.651 & 0.417  & 0.207  & 0.056 \\
+    wake-enstrophy & 226 & 0.571 & 0.173  & -0.103 & 0.449 \\
+    circ.\ pos.\   & 226 & 0.845 & 0.166  & -1.884 & 0.201 \\
+    circ.\ neg.\   & 226 & 0.832 & 0.795  & 0.214  & 0.607 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+The conditioning-only floor (Table~\ref{tab:conditioning_floor}) confirms that
+the wake closure is not an artefact of the parametric conditioning every model
+shares. Mapping the gust parameters $\cvec = (G,D,Y)$ to each observable at the
+forecast horizon $H = 16$ with a cross-validated kernel-ridge regressor,
+frame-matched to the closure it must be compared against, the floor on wake
+enstrophy is low (test\_b $R^2 = 0.17$, rising to $0.31$ only when a
+within-encounter shedding-phase proxy is added), well below both the predictive
+representational closure ($0.754$) and its forecast ($0.449$). The contrast with
+the impact frame is the mechanism: there the same parameter floor on wake
+enstrophy reaches $R^2 \approx 0.70$, because the just-released gust nearly
+determines the instantaneous state, but sixteen frames into the
+leading-edge-vortex roll-up the wake observable is governed by the unfolding
+dynamics, which is the information the predictive latent supplies and the
+parameters do not. The floor is by construction strong on the observables that
+track the gust forcing directly, the lift and the negative circulation, where it
+matches or exceeds the predictive forecast: the predictive advantage is specific
+to the spatially distributed wake, not uniform across observables. The
+wake-forecast claim therefore rests on the per-encounter paired test
+(Table~\ref{tab:paired_closure}) and the drift mechanism (\S\ref{sec:res_drift}),
+and the conditioning floor establishes that the shared parameters do not supply
+the wake closure at the horizon the closure is evaluated. The converse control, a
+predictive model from which the conditioning is removed so it never sees $\cvec$,
+is reported with the other ablations in \S\ref{sec:res_controls}
+(Table~\ref{tab:jepa_dimsweep}): it leaves the wake forecast at the floor as well,
+so the wake closure requires the latent and the parameters together, not either
+alone.
 
 \subsection{Horizon dependence}
 \label{sec:res_horizon}
@@ -154,6 +215,28 @@ few steps, so its wake forecast collapses immediately rather than eroding.
 
 The closure gap is large enough that its mechanism deserves direct measurement.
 
+\begin{table}[t]
+  \centering
+  \caption{Latent-drift diagnostic on test\_b at $H = 16$. The Mahalanobis
+  distance of the rolled-out latent is reported alongside that of the
+  simulation-encoded latent in the same reference distribution; their ratio
+  $r = d_{\text{Mahal, Markov}} / d_{\text{Mahal, DNS}}$ measures how far the
+  autoregressive rollout has left the training manifold. A ratio near one means
+  the rollout stays in distribution.}
+  \label{tab:latent_drift}
+  \small
+  \begin{tabular}{l c c c c}
+    \toprule
+    Baseline & $d$ & $d_{\text{Mahal, ref}}$ & $d_{\text{Mahal, rollout}}$ & ratio $r$ \\
+    \midrule
+    Fukami & 64 & 2.92 & 28.96 & \textbf{9.90} \\
+    JEPA   & 64 & 8.08 & 6.84  & 0.85 \\
+    JEPA   & 32 & 5.43 & 4.65  & 0.86 \\
+    POD    & 64 & 7.74 & 6.27  & 0.81 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
 \paragraph{Distance.} The latent-drift diagnostic (Table~\ref{tab:latent_drift})
 measures how far each rollout leaves its training manifold. After $H = 16$ steps
 the reconstructive rollout sits an order of magnitude further from its training
@@ -176,9 +259,10 @@ before impact and about $0.35$ from ten, several frames of usable forecast
 horizon beyond a direct wall-pressure read at the same lead times.
 
 \paragraph{Topology.} A single distance understates the geometric content of the
-result. A gust encounter is, in state space, a closed cycle: the flow departs
-the baseline limit cycle, executes the LEV-formation and shedding excursion, and
-returns \cite{smith2024}. We characterise this with persistent homology, which
+result. A gust encounter departs the baseline limit cycle, executes the
+LEV-formation and shedding excursion, and relaxes back toward it without closing
+within the window (\S\ref{sec:res_param_phase}); in the encoded latent the
+excursion nonetheless has the topology of a single cycle \cite{smith2024}. We characterise this with persistent homology, which
 identifies the persistent one-dimensional cycle ($H_1$ generator) of a
 trajectory by a Vietoris--Rips filtration \cite{smith2024}, applied here to four
 latent point clouds per encounter: the simulation-encoded predictive latent, its
@@ -271,37 +355,69 @@ bootstrap-robust at $H = 64$ (predictive $8.70$ versus reconstructive $9.96$,
 $95\%$ confidence interval on the paired difference $[1.13, 3.25]$), marginal at
 $H = 32$. One caveat is load-bearing and we state it: the simulation gust
 trajectories do not themselves fully return to the baseline orbit within the
-$120$-frame window, so the comparison measures the relative drift direction (the
-predictive rollout contracts toward the orbit, the reconstructive one expands
-away), not a completed physical recovery. The result is the same at $d = 32$.
+$120$-frame window. That window is the gust-release period itself
+($6\,t/c$ at $\Delta t = 0.05\,t/c$, with impact near $2\,t/c$), so only about
+$4\,t/c$ of post-impact relaxation is ever observed before the next gust is
+released, short of a full return; this is a window-length limitation set by the
+gust-release cadence, and at fixed core diameter it is not strength-dependent.
+The comparison therefore measures the relative drift direction (the predictive
+rollout contracts toward the orbit, the reconstructive one expands away), not a
+completed physical recovery. The result is the same at $d = 32$.
 This limit cycle and the persistent cycle of the previous subsection are the same
 object viewed dynamically and topologically.
 \begin{figure}[t]
   \centering
   \includegraphics[width=\linewidth]{sections/figures/results/figC_cycle.pdf}
-  \caption{The gust encounter as a single closed cycle in the predictive latent,
-  for a strong negative gust $(G, D, Y) = (-3.0, 1.5, -0.1)$. (a) The latent
-  trajectory in the leading two baseline principal components departs the no-gust
-  limit cycle (grey), executes the leading-edge-vortex growth and shedding, and
-  returns; numbered glyphs mark the four stages and the arrow gives the direction
-  of travel. (b) The orbit phase relative to the impact frame. (c) Mid-plane
-  vorticity at the four stages (rows) for the simulation, the predictive decode, and
-  the reconstructive decode (columns); the predictive decode localises the impingement while the
+  \caption{The gust encounter in the predictive latent, for a strong negative
+  gust $(G, D, Y) = (-3.0, 1.5, -0.1)$. (a) Distance of the gust trajectory to the
+  baseline orbit (full latent, in units of the orbit diameter; the grey band is
+  the baseline orbit thickness): the encounter departs the baseline cycle and only
+  partially relaxes back, without closing within the inter-gust window
+  (\S\ref{sec:res_param_phase}); the single-cycle topology of the encoded latent
+  is established coordinate-free in Figure~\ref{fig:persistence}. (b) The orbit
+  phase relative to the impact frame. (c) Mid-plane vorticity at the four stages
+  (rows) for the simulation, the predictive decode, and the reconstructive decode
+  (columns); the predictive decode localises the impingement while the
   reconstructive decode collapses, with the optimal-transport field distance
   between each decode and the simulation annotated at each stage (largest for the
-  reconstructive decode near impact). The stage glyphs are those of
+  reconstructive decode near impact). The numbered stages are those of
   Figure~\ref{fig:traces}.}
   \label{fig:phase_amplitude}
 \end{figure}
 
-\paragraph{Where the error concentrates.} The first-order answer to where closure
-holds is already in the per-axis probe above: the predictive latent resolves $G$
-and $D$ but weakly resolves $Y$, so its residual error is expected to concentrate
-at off-midplane offsets. A full per-stratum closure table, broken out by gust
-regime and encounter phase as in the source characterisation of these flows
-\cite{fukami2025prf}, is left to a study with more cases per cell than the present
-split affords; the two-tier interior and boundary test\_b reporting already
-exposes the corner-case behaviour that such a table would isolate.
+\paragraph{Where the predictive advantage concentrates.} Rather than a
+per-stratum closure table, which the present test set is too small to populate,
+we read the per-encounter paired improvement
+$\Delta e = e_{\text{AE}} - e_{\text{JEPA}}$ in held-out wake-enstrophy error
+directly against each gust axis with a locally weighted regression and a
+bootstrapped band (Figure~\ref{fig:error_maps}). The advantage is not uniform
+across the envelope. It grows with the gust core diameter $D$ (Spearman
+$\rho = 0.42$ on the encoded latent, $0.53$ under forecast) and toward
+off-midplane wall-normal offset $Y$ ($\rho = 0.49$ and $0.45$), both significant,
+while its dependence on the gust strength $G$ is weak on the encoded latent and
+moderate under forecast. The predictive advantage therefore concentrates away
+from the $Y \approx 0$ training mass and at the larger cores that most reorganise
+the wake, consistent with the weak $Y$ resolution of the probe above. The
+shedding phase at impact, the axis the gust-response literature emphasises
+\cite{fukami2024control}, is only weakly sampled by this dataset: impact is fixed
+near a single convective instant while the gust recurs about every two shedding
+periods, so the encounters fall into essentially two phase clusters and a
+phase-resolved trend is not identifiable here, which a design that varies the
+impact phase would isolate.
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=\linewidth]{sections/figures/results/fig_error_maps.png}
+  \caption{Per-encounter paired improvement
+  $\Delta e = e_{\text{AE}} - e_{\text{JEPA}}$ in held-out wake-enstrophy error
+  against the gust strength $G$, core diameter $D$, wall-normal offset $Y$, and
+  the baseline shedding phase at impact $\phi$ (test\_b, $n = 42$); positive
+  $\Delta e$ means the predictive latent carries the smaller error. Each panel
+  shows the per-encounter values, a locally weighted (LOWESS) trend, and a
+  bootstrap band over encounters. The predictive advantage grows with $D$ and
+  toward off-midplane $Y$; the shedding-phase axis falls into two clusters because
+  impact is fixed near a single convective instant.}
+  \label{fig:error_maps}
+\end{figure}
 
 \subsection{Isolating the cause: objective, architecture, and auxiliary-head controls}
 \label{sec:res_controls}
@@ -322,6 +438,36 @@ under the same predictor and probes; together with a predictive variant from
 which the wake head is removed. The decisive question is whether the predictive
 objective still closes the wake observables better than the reconstructive one
 once the architecture and the wake supervision are held in common.
+
+\begin{table}[t]
+  \centering
+  \caption{Objective $\times$ architecture controls (decisive experiment).
+  Held-out wake-enstrophy closure and mean closure ($R^2$ at $H = 16$, test\_b,
+  Markov rollout, mean $\pm$ standard deviation over three encoder seeds) for the
+  four cells crossing \{predictive, reconstructive\} with \{CNN, CNN$+$ViT\} at
+  $d = 64$, with the auxiliary heads (the instantaneous lift plus the
+  $80$-dimensional wake head) matched across all four cells, plus a predictive
+  variant with the wake head removed. Predictive beats reconstructive on wake
+  closure at both architectures (predictive versus reconstructive at CNN$+$ViT,
+  and again at CNN), so the objective is not a confound of the architecture;
+  removing the wake head from the predictive model collapses wake closure below
+  the floor, so the wake supervision is also necessary. The CNN and CNN$+$ViT columns do not separate, so the ViT is not the
+  driver.}
+  \label{tab:controls_2x2}
+  \small
+  \begin{tabular}{l l l c c}
+    \toprule
+    Objective & Encoder & Aux.\ heads & wake-enst.\ $R^2$ & mean $R^2$ \\
+    \midrule
+    predictive     & CNN$+$ViT & lift $+$ wake & $\mathbf{0.46 \pm 0.03}$ & $0.45$ \\
+    predictive     & CNN       & lift $+$ wake & $0.45 \pm 0.06$ & $\mathbf{0.52}$ \\
+    reconstructive & CNN$+$ViT & lift $+$ wake & $0.16 \pm 0.27$ & $0.23$ \\
+    reconstructive & CNN       & lift $+$ wake & $0.29 \pm 0.05$ & $0.42$ \\
+    \midrule
+    predictive     & CNN$+$ViT & lift only     & $-1.03 \pm 0.29$ & $0.09$ \\
+    \bottomrule
+  \end{tabular}
+\end{table}
 
 The controls (Table~\ref{tab:controls_2x2}, three encoder seeds per cell) give a
 two-part answer, and we state both. First, the predictive objective improves wake
@@ -348,6 +494,40 @@ it. The large seed variance of the reconstructive CNN$+$ViT cell
 forward-predictable latent geometry, wake closure is unstable across
 initialisations.
 
+\paragraph{Latent capacity, the heads, and the conditioning.} Three further
+controls vary the latent dimension, the second auxiliary head, and the predictor
+conditioning (Table~\ref{tab:jepa_dimsweep}).
+Sweeping the predictive latent over $d \in \{4, 8, 16, 32, 64\}$ at fixed recipe,
+the held-out forecast holds on a plateau down to $d = 16$, with mean closure $R^2$
+of $0.45$, $0.36$, and $0.36$ at $d = 64$, $32$, and $16$, and then falls off: at
+$d = 8$ the wake-enstrophy forecast drops below the predict-the-mean floor
+($R^2 = -0.07$) and the mean over observables halves to $0.17$, and $d = 4$ is
+lower still ($0.14$). The reported $d = 32$ and $d = 64$ thus sit on the plateau of
+this curve, and the wake forecast is not recoverable below roughly $d = 16$ on this
+dataset. The instantaneous-lift head, removed while the wake head is kept (last
+row, the complement of the wake-removal control above), is load-bearing but less so
+than the wake head: at $d = 64$ its removal lowers the lift forecast $R^2$ from
+$0.72$ to $0.54$ and, through the shared latent dynamics, the wake forecast from
+$0.45$ to $0.31$ and the mean from $0.45$ to $0.28$, so the lift supervision
+improves even the channel it does not directly supervise. The two head ablations are
+therefore asymmetric: removing the wake head collapses the wake forecast below the
+floor (Table~\ref{tab:controls_2x2}), whereas removing the lift head degrades every
+channel without collapsing any. The third control removes the gust-parameter
+conditioning from the predictor (last row), so the model never sees $\cvec$. It
+leaves the representation almost intact (wake MAE $34.21$ against $29.83$, since the
+encoder is unconditional in either case) but degrades the forward forecast: the
+held-out wake-enstrophy $R^2$ falls from $0.449$ to $0.038$ and the lift from
+$0.723$ to $0.392$, with the mean at $0.309$. The effect is stronger out of
+distribution: on the $|G| = 4$ test\_c set the conditioned model holds a positive
+wake forecast ($R^2 = 0.33$) and a strong lift ($0.79$) while the unconditioned one
+collapses to $-1.06$ on the wake and to $0.39$ on the lift, so the parameters are
+necessary to extrapolate the wake to an unseen gust strength. This is the exact
+complement of the conditioning-only floor of \S\ref{sec:res_closure}: the latent
+without the parameters and the parameters without the latent each leave the wake
+forecast near the predict-the-mean floor, and only their combination closes it.
+
+\input{sections/tables/jepa_dimsweep_table.tex}
+
 \subsection{Physical-space interpretation}
 \label{sec:res_physical}
 
@@ -355,6 +535,23 @@ Forward closure is a statement about numbers; the encounter is a statement about
 vortices. Decoded and reconstructed vorticity fields on held-out encounters
 (Figure~\ref{fig:recon}) connect the two, with one
 methodological caution and one new metric.
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=\linewidth]{sections/figures/results/figD_reconstructions.pdf}
+  \caption{Decoded vorticity at the impact frame on held-out encounters from the
+  three splits (rows: a trained-gust test\_a encounter, an interpolation test\_b
+  encounter, and a $|G| = 4$ test\_c encounter) for the simulation and the
+  predictive, reconstructive, and POD decodes (columns). The predictive decoder is
+  blurry by design but localises the impingement; the reconstructive autoencoder
+  collapses toward a near-uniform field on the held-out interpolation condition,
+  while the linear basis is amplitude-accurate. All families degrade in the
+  $|G| = 4$ regime, reported as the observability boundary of
+  \S\ref{sec:flow_physics} rather than as a generalisation claim. Field-space
+  similarity is reframed by the optimal-transport metric of
+  \S\ref{sec:res_physical}.}
+  \label{fig:recon}
+\end{figure}
 
 The caution is that field-space similarity scores are misleading here. On a
 held-out interpolation encounter the reconstructive autoencoder attains a high
@@ -419,7 +616,18 @@ encounter the simulation large-scale enstrophy rises from the gust-induced
 leading-edge flux through the LEV roll-up and peak-load shedding; the predictive
 reconstruction follows that rise while the reconstructive one stays flat. This is
 where the wake-enstrophy advantage of \S\ref{sec:res_closure} becomes a statement
-about the leading-edge vortex and shear layer rather than about a scalar. The
+about the leading-edge vortex and shear layer rather than about a scalar.
+Tracking the large-scale leading-edge vortex directly makes this quantitative.
+Extracting the dominant suction-side vortex from the same $\sigma/c = 0.05$
+field, the predictive decode places a coherent leading-edge vortex in all $42$
+held-out encounters at $H = 16$, within $0.32$ chords of the simulation centroid
+and recovering its circulation to within $5\%$, whereas the reconstructive decode
+has smoothed the vortex below detection in $36$ of the $42$ (its large-scale
+leading-edge amplitude falls to about a tenth of the simulation), and where it
+survives its circulation error is six times larger. Per encounter the
+wake-enstrophy error and the leading-edge-vortex circulation error co-vary
+(Spearman $0.57$), so the scalar wake observable stands in for the position and
+strength of the leading-edge vortex that produces the lift transient. The
 result holds at $d = 32$; on the OOD test\_c set the predictive tracking degrades
 ($0.91$ to $0.65$ from impact to $H = 16$), as expected where the flow becomes
 three-dimensional and the mid-plane decomposition is itself incomplete
@@ -436,19 +644,44 @@ three-dimensional and the mid-plane decomposition is itself incomplete
   \label{fig:scale_decomp}
 \end{figure}
 
+\subsection{The predictive state is the most observable from the wall}
+\label{sec:res_observability}
+
+At deployment the vorticity field is not available; only the wall pressure is.
+The forecast result has an exact deployment mirror: we ask which representation
+is most recoverable from a sparse set of $K$ wall-pressure taps over a pre-impact
+window, using one kernel-ridge estimator across families for a uniform comparison
+(the sensor placement, the lead-time prediction, and a closed-loop pilot are
+detailed in Appendix~\ref{app:sensing}). The predictive state is markedly the
+most recoverable (Figure~\ref{fig:observability}a): with $K = 8$ taps the
+held-out test\_b state $R^2$ is $0.89$ at $d = 64$ and $0.87$ at $d = 32$,
+against $0.58$ for the reconstructive autoencoder and $0.32$ for the linear basis
+at $d = 64$, and the contrast is sharpest at matched capacity. The energy-optimal
+POD coordinates, optimal for reconstruction, are the hardest of the three to read
+from the wall: the same predictive objective that produces a forecastable wake
+state produces one that is also legible from pressure.
+
+Recoverability is not estimation quality, and the distinction is itself
+informative (Figure~\ref{fig:observability}b). The three-dimensional
+reconstructive latent is the \emph{easiest} to recover from pressure (state
+$R^2 = 0.91$ at $K = 2$, the highest of any family) yet routing the impact-lift
+estimate through it gives the \emph{worst} lift error (mean absolute error $1.0$
+against a $C_L$ spread of $1.37$), while the predictive latent gives $0.49$; the
+lift itself is read most accurately straight off the pressure ($0.39$), because
+the imminent lift is already imprinted on the wall. The deployment value of the
+predictive latent is therefore the forecastable, observable state it hands to the
+predictor, not the instantaneous lift, which needs no latent.
+
 \begin{figure}[t]
   \centering
-  \includegraphics[width=\linewidth]{sections/figures/results/figD_reconstructions.pdf}
-  \caption{Decoded vorticity at the impact frame on held-out encounters from the
-  three splits (rows: a trained-gust test\_a encounter, an interpolation test\_b
-  encounter, and a $|G| = 4$ test\_c encounter) for the simulation and the
-  predictive, reconstructive, and POD decodes (columns). The predictive decoder is
-  blurry by design but localises the impingement; the reconstructive autoencoder
-  collapses toward a near-uniform field on the held-out interpolation condition,
-  while the linear basis is amplitude-accurate. All families degrade in the
-  $|G| = 4$ regime, reported as the observability boundary of
-  \S\ref{sec:flow_physics} rather than as a generalisation claim. Field-space
-  similarity is reframed by the optimal-transport metric of
-  \S\ref{sec:res_physical}.}
-  \label{fig:recon}
+  \includegraphics[width=\linewidth]{sections/figures/results/figF_observability.pdf}
+  \caption{Cross-family pressure observability under the target-conditioned
+  (TCSI) sensor placement. (a) Latent-state recovery $R^2$ versus sensor count
+  $K$: the predictive (JEPA) state is the most recoverable at $K \ge 4$, the
+  linear basis the least. (b) The physical estimate, impact $C_L$ mean absolute
+  error routed through each family's recovered latent, with the direct
+  pressure-to-$C_L$ baseline (dashed). The reconstructive $d = 3$ latent is the
+  easiest to recover (highest $R^2$ at low $K$) yet gives the worst lift estimate,
+  and the lift is read most accurately directly from the pressure.}
+  \label{fig:observability}
 \end{figure}

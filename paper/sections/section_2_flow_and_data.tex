@@ -15,15 +15,25 @@ Reynolds number $\vRe = 5000$, perturbed by a discrete vortex gust modelled as a
 spanwise-oriented Taylor vortex released upstream of the leading edge. The data
 analysed here are our own direct numerical simulations of this configuration,
 computed with the GPU-enabled spectral-element solver SOD2D
-\cite{gasparino2024sod2d} at low Mach number, so the flow is effectively
-incompressible. The configuration and its physical characterisation follow
+\cite{gasparino2024sod2d} with no subgrid-scale model, so that all scales of the
+separated wake are resolved at this Reynolds number. The solver is run in the
+low-Mach regime in which the flow is effectively incompressible. The configuration and its physical characterisation follow
 Fukami, Smith \& Taira \cite{fukami2025prf}, which is the reference for the
 physics, not the source of the data.
-The gust is parametrised by three scalars: the signed gust ratio $G$, the core
-diameter $D$, and the wall-normal offset $Y/c$ of the vortex centre relative to
-the leading edge. The training envelope spans $|G| \in \{0.5, 1.0, 1.5, 2.0,
+The vortex has the azimuthal velocity profile
+\begin{equation}
+  u_\theta(r) = u_{\theta,\max}\,\frac{r}{R}\,
+  \exp\!\left[\tfrac12\!\left(1 - \frac{r^2}{R^2}\right)\right],
+  \label{eq:taylor}
+\end{equation}
+which peaks at the core radius $r = R$ \cite{taylor1918}, and is parametrised by
+three scalars: the signed gust ratio $G \equiv u_{\theta,\max}/u_\infty$, the
+core diameter $D \equiv 2R/c$, and the wall-normal offset $Y$ of the vortex
+centre, the displacement normal to the chord (the laboratory coordinates are
+rotated by the angle of attack to define $Y$). The profile and the $(G, D, Y)$
+sampling follow the configuration of \cite{fukami2025prf}. The training envelope spans $|G| \in \{0.5, 1.0, 1.5, 2.0,
 3.0\}$ with $G = 0$ as the undisturbed reference, $D \in \{0.5, 1.0, 1.5\}$
-chords, and $Y/c \in [-0.4, +0.4]$; the value $|G| = 4$ is held out as an
+chords, and $Y \in [-0.4, +0.4]$; the value $|G| = 4$ is held out as an
 extrapolation boundary, for reasons that are physical and that we return to
 below. Convective time $t$ is measured in chords and set to zero when the
 vortex centre reaches the leading edge.
@@ -49,7 +59,12 @@ how we read the extrapolation case. For $|G| \le 3$ the encounter is primarily
 two-dimensional, so a mid-plane slice of the spanwise vorticity carries the
 relevant large-scale dynamics; for $|G| \ge 4$ the interaction becomes
 genuinely three-dimensional, with fine-scale instabilities developing during
-impact. Because the encoder in this work consumes a single mid-plane vorticity
+impact. We confirm this from the full three-dimensional vorticity fields: the
+fraction of the spanwise-vorticity ($\omegaz$) enstrophy not captured by its
+spanwise mean, the content a mid-plane slice discards, is roughly constant across
+the training range ($|G| \le 3$, post-impact wake median $\approx 0.20$) and rises
+about threefold at $|G| = 4$ ($\approx 0.56$, over the four available cases).
+Because the encoder in this work consumes a single mid-plane vorticity
 field (\S\ref{sec:flow_observables}), the held-out $|G| = 4$ case is not merely
 one parameter step beyond the training range; it is a regime in which the
 quantity the encoder observes no longer determines the true dynamics. We
@@ -63,20 +78,30 @@ Each simulation case is one long run partitioned into encounters of $120$ cached
 frames at $\Delta t = 0.05\,t/c$, one encounter per gust release. The
 simulations use a spectral-element discretisation of polynomial order $p = 4$,
 and the fields are cached on a structured grid of $192 \times 96 \times 32$
-points spanning $x/c \in [-1.5, 4.5]$, $y/c \in [-1.5, 1.5]$, and a spanwise
-extent of approximately one chord. The remaining solver-resolution details,
-namely the element count, the near-wall grid spacing relative to the local small
-scale, and the Mach number, will be supplied by the simulation collaborators
-before submission. The dataset
+points spanning $x/c \in [-1.5, 4.5]$ and $y/c \in [-1.5, 1.5]$ with a spanwise
+extent of approximately one chord; this analysis subdomain matches the
+data-driven subdomain of the source characterisation \cite{fukami2025prf}. The
+lift and drag coefficients are $C_L = F_L/(\tfrac12 \rho u_\infty^2 c)$ and
+$C_D = F_D/(\tfrac12 \rho u_\infty^2 c)$, obtained by integrating the pressure
+and viscous stresses over the airfoil surface.
+\pending{Authors to insert the DNS solver-resolution details: the free-stream
+Mach number of the low-Mach formulation (or confirmation that the incompressible
+limit was used); the full computational domain and spanwise extent $L_z/c$; the
+element and solution-point counts; the minimum wall-normal spacing
+$\Delta n_{\min}/c$ and the corresponding $\Delta n^+$ in the baseline wake; the
+time step $\Delta t\,u_\infty/c$ and maximum CFL; the gust release station
+$x_0/c$; and the grid and time-step sensitivity check. These DNS details are not
+yet filled in and will be added by the authors.} The dataset
 comprises $84$ cases partitioned into training, validation (the held-out
 encounters of the training cases, denoted test\_a), an
 in-distribution test set (test\_b), and an out-of-distribution test set
 (test\_c). The in-distribution test set is stratified to span the five gust
 strengths, the three core diameters, and the two source groups
 (Figure~\ref{fig:paramspace}); test\_c is the
-$|G| = 4$ extrapolation set. At the horizon $H = 16$ used throughout, the
-partition contains $226$ training, $28$ validation (test\_a), $42$ test\_b,
-and $24$ test\_c encounters. The undisturbed reference case is retained in training. The
+$|G| = 4$ extrapolation set. These $84$ cases are separated in preprocessing into $378$ encounter windows of
+$120$ frames each, one per gust release: $226$ training, $86$ validation
+(test\_a, the held-out last encounters of the training cases), $42$ test\_b, and
+$24$ test\_c. The undisturbed reference case is retained in training. The
 partition is fixed once and used identically by every model and baseline.
 
 For each frame the cache stores the mid-plane spanwise vorticity
@@ -101,6 +126,33 @@ produce. The choice is deliberate: the wake observables can change sharply while
 the scalar forces change little, so they are the part of the encounter most
 likely to separate a representation that has captured the gust-vortex physics
 from one that has only captured its force signature.
+
+The six observables are defined on each frame of the masked vorticity field
+$\omegaz$ described above. The lift and drag coefficients $C_L, C_D$ are the body
+forces defined in \S\ref{sec:flow_observables}. On the wake window
+$\Omega_w = \{(x, y) : x/c \in [0.5, 4],\ |y/c| \le 1\}$ the wake enstrophy is
+\begin{equation}
+  E_w(t) = \int_{\Omega_w} \omegaz^2 \,\mathrm{d}A,
+  \label{eq:enstrophy}
+\end{equation}
+and the signed wake circulations integrate the vorticity over its strongly
+rotational parts,
+\begin{equation}
+  \Gamma^{+}(t) = \!\!\int_{\Omega_w,\,\omegaz > \omega_c}\!\!\! \omegaz \,\mathrm{d}A,
+  \qquad
+  \Gamma^{-}(t) = \!\!\int_{\Omega_w,\,\omegaz < -\omega_c}\!\!\! \omegaz \,\mathrm{d}A,
+  \label{eq:circulation}
+\end{equation}
+with threshold $\omega_c = 1$. The wall-normal hydrodynamic impulse per unit span
+is
+\begin{equation}
+  I_y(t) = \int_{\Omega} x \, \omegaz \,\mathrm{d}A
+  \label{eq:impulse}
+\end{equation}
+over the full cached field $\Omega$. Every case uses the same fixed window and
+mask, and values are reported in the cache vorticity units integrated over
+chord-normalised area. The forecast horizon $H = 16$ is the sixteenth cached
+frame after impact, $t = 16\,\Delta t = 0.8\,c/u_\infty$.
 
 \begin{figure}[t]
   \centering

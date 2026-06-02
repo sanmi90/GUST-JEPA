@@ -42,9 +42,11 @@ METRICS = ("C_L", "C_D", "I_y", "wake_enstrophy", "circulation_pos", "circulatio
 DEFAULT_BASELINES = [
     ("jepa_d64_test1_noBN", "jepa", 64),
     ("jepa_d32_noBN", "jepa", 32),
+    ("jepa_d16_noBN", "jepa", 16),
     ("fukami_d3_noBN", "fukami", 3),
     ("fukami_d32_noBN", "fukami", 32),
     ("fukami_d64_noBN", "fukami", 64),
+    ("fukami_d16_noBN", "fukami", 16),
     ("pod_d16_noBN", "pod", 16),
     ("pod_d32_noBN", "pod", 32),
     ("pod_d64_noBN", "pod", 64),

@@ -188,7 +188,10 @@ def main() -> None:
     )
     parser.add_argument("--full-splits", nargs="+", default=["test_b"])
     parser.add_argument("--skip-existing", action="store_true")
+    parser.add_argument("--out-root", type=Path, default=OUT_ROOT,
+                        help="Override output root (default outputs/session17/seed_latents).")
     args = parser.parse_args()
+    out_root = args.out_root
 
     device = require_rtx6000(gpu_index=args.gpu)
     print(f"[encode] device={device} ({torch.cuda.get_device_name(device.index)})")
@@ -204,7 +207,7 @@ def main() -> None:
 
     for seed_name in args.seeds:
         ckpt_path = SEED_ENCODERS[seed_name]
-        seed_out_dir = OUT_ROOT / seed_name
+        seed_out_dir = out_root / seed_name
         seed_out_dir.mkdir(parents=True, exist_ok=True)
         if not ckpt_path.exists():
             print(f"[encode] WARNING: missing {ckpt_path}, skipping {seed_name}")

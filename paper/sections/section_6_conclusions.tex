@@ -15,7 +15,9 @@ reconstruction objective becomes recoverable from a predictive one, whereas the
 predictive and linear latents stay in distribution. Because the predictive
 encoder also differs in architecture and auxiliary supervision, we attribute the
 result to the predictive latent family and set out the matched controls that
-would isolate the objective. The predictor is the latent dynamics function of
-model-based control; a closed-loop pilot does not yet meet its tolerances, with
-the rollout rather than the state estimator as the bottleneck, and is reported
-as the boundary of what the present representation supports.
+would isolate the objective. The same predictive state is the most recoverable of the three from sparse wall
+pressure, so it is observable as well as forecastable, the property a downstream
+estimator or controller would exploit. The remaining limitations are the weak
+resolution of the wall-normal offset, the three-dimensional observability
+boundary at $|G| = 4$, and a rollout error that still prevents a closed-loop
+control demonstration.

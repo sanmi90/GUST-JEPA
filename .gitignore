@@ -75,6 +75,13 @@ paper/sections/figures/tikz/*.aux
 paper/sections/figures/tikz/*.log
 paper/sections/figures/tikz/*-1.png
 paper/sections/figures/tikz/*preview-1.png
+paper/edrfcm2026/*.aux
+paper/edrfcm2026/*.bbl
+paper/edrfcm2026/*.blg
+paper/edrfcm2026/*.log
+paper/edrfcm2026/*.out
+paper/edrfcm2026/*.fdb_latexmk
+paper/edrfcm2026/*.fls
 
 # Generated section .tex files (produced from .md by scripts/_oneoff_md_to_tex.py)
 # paper/sections/abstract.tex (now canonical, hand-authored)

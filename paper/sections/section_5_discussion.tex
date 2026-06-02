@@ -19,7 +19,7 @@ constrains the latent geometry to be predictable in time; under autoregressive
 rollout the reconstructive latent therefore leaves its own training manifold,
 and a probe queried on that drifted state fails for reasons unrelated to the
 predictor's one-step accuracy. The predictive objective, regularised against
-collapse, instead organises the latent so that the encounter is a closed cycle
+collapse, instead organises the latent so that the encounter is a recurrent cycle
 that survives rollout and so that latent distance tracks the physical transport
 geometry of the flow. Iterating the predictor therefore does not leave the
 manifold, the property that data-driven state-space and Koopman models of
@@ -38,7 +38,16 @@ it well.
 
 This organisation survives a halving of the latent dimension, which is the basis
 for reading it as a low-dimensional predictive state rather than an artefact of
-capacity. At $d = 32$ the predictive latent matches the $d = 64$ latent on
+capacity. The latent is in fact far lower-dimensional than its nominal budget:
+the encoded $d = 64$ latent has a participation ratio of about $1.7$ across the
+held-out trajectories, with the leading principal component carrying roughly
+three-quarters of the variance and six components spanning $90\%$. The dominant
+direction tracks the gust-strength dynamic range, the largest physical source of
+variation across encounters, so the structure is concentrated in a handful of
+directions rather than collapsed, as the parameter probes and forecasts confirm;
+both $d = 64$ and $d = 32$ are therefore over-complete relative to it, and the
+halving leaves the representation and every mechanism diagnostic intact.
+At $d = 32$ the predictive latent matches the $d = 64$ latent on
 representation quality, the held-out wake-enstrophy representation $R^2$ is $0.74$
 against $0.75$, and on every mechanism diagnostic: it traces the same single
 persistent cycle rather than fragmenting (\S\ref{sec:res_drift}), its latent
@@ -50,7 +59,12 @@ against $0.85$ (Table~\ref{tab:latent_drift}). The one quantity that degrades is
 the in-distribution wake forecast, where the $H = 16$ closure $R^2$ falls from
 $0.45$ to $0.21$ (Table~\ref{tab:closure}(b)): halving the dimension costs
 forecast sharpness on the wake observables while leaving the geometric mechanism
-intact. On the out-of-distribution test\_c set the $d = 32$ latent is in fact
+intact. Halving once more to $d = 16$ keeps the qualitative ordering, the
+predictive latent still leads on wake enstrophy where the reconstructive and
+linear latents are negative (Table~\ref{tab:closure}), but its representational
+wake $R^2$ now falls to $0.55$ (from $0.74$ at $d = 32$): the budget is
+approaching the effective dimensionality, and the extra dimensions buy precision
+rather than a qualitatively different representation. On the out-of-distribution test\_c set the $d = 32$ latent is in fact
 marginally the more robust of the two, $0.45$ against $0.33$ on wake enstrophy.
 The physics the predictive objective organises into the latent, the closed
 encounter cycle and its transport-consistent metric, is therefore a
@@ -121,21 +135,35 @@ access to, and the gust parameters enter only the predictor; replacing the
 parametric conditioning with an actuation channel is a change of input rather
 than of architecture, and the phase-amplitude reading of \S\ref{sec:res_param_phase}
 connects the predictor directly to the sensitivity-function control designed for
-these flows \cite{fukami2024control}. In the action-conditioned world-model
-reading of \S\ref{sec:introduction}, the present intervention is the gust; an actuation
-channel enters at the same point, the predictor conditioning, and the same
-forward-closure machinery applies with the control as the action rather than the
-disturbance. The predictor is the world model a controller would use; it is not
-itself a controller, and the pilot below shows the gap.
+these flows \cite{fukami2024control}. In the action-conditioned
+reading of \S\ref{sec:introduction}, the present perturbation is the gust; an
+actuation channel would enter at the same point, the predictor conditioning, and
+the same forward-closure machinery would apply with the control as the action
+rather than the disturbance. We caution against over-reading this as an
+interventional world model. The conditioning is far from inert: removing it entirely
+collapses the held-out wake forecast to the predict-the-mean floor
+(\S\ref{sec:res_controls}), so the gust parameters carry forecast-relevant
+information, and what is at issue is the narrower question of whether the predictor
+responds to a \emph{change} in that conditioning as the simulation does. A direct
+test, perturbing the conditioning along $G$
+by a fixed increment and comparing the predicted change in the six closure
+observables to the change measured between matched simulation encounters that
+differ only in $G$, does not support the interventional reading: across the
+parameter grid the predicted and measured responses are uncorrelated to weakly
+anti-correlated (pooled $r = -0.27$ at the best-powered increment $\Delta G = 2$,
+$n = 23$ base points), although the predictor's response has physically plausible
+magnitude. The predictor is therefore a conditional forward model that forecasts
+the observed encounters well and whose conditioning improves closure, not a
+validated counterfactual model of parameter changes; it is not itself a
+controller, and the pilot below shows a further gap.
 
 We also report, as a limitation rather than a result, a closed-loop pilot that
 chains a wall-pressure state estimator, the predictor rollout, and an
 observable probe. A temporal-convolutional estimator recovers the latent from a
 pre-impact pressure window well (held-out $R^2 \approx 0.87$ at eight sensors),
-and at matched latent dimension the predictive state is markedly more recoverable
-from the wall than the reconstructive or linear latents ($R^2 = 0.89$ versus
-$0.58$ and $0.32$ at $d = 64$; Appendix~\ref{app:sensing}), the deployment mirror
-of the representation result.
+and the predictive state is the most recoverable of the three from the wall
+(\S\ref{sec:res_observability}), the deployment mirror of the representation
+result.
 But the assembled loop does not meet the tolerances set in advance: at the
 design horizon only a small fraction of held-out encounters fall within the
 $C_L$ and $I_y$ tolerance bands, and none of the pre-registered gates are met.
@@ -153,10 +181,15 @@ sensor-placement, and closed-loop details are deferred to Appendix~\ref{app:sens
 The contribution is narrow by design: a controlled comparison on a single
 parametric flow, anchored to forward physical closure rather than to
 in-distribution reconstruction, with a drift mechanism that explains the gap and
-a set of controls that bound its interpretation. The immediate next step is to
-run those controls and the horizon, topology, transport, and phase-amplitude
-analyses set out above, which together would either promote the claim to the
-predictive objective in isolation or sharpen it to the predictive family. Beyond
-that, applying the same matched-predictor closure protocol to other parametric
-flow datasets would test how general the predictive-versus-reconstructive trade
-reported here actually is.
+a set of controls (\S\ref{sec:res_controls}) that bound its interpretation. What
+the comparison establishes is bounded accordingly. The predictive advantage is
+robust on the wake observables and in the drift mechanism; it is partial on
+parameter extrapolation, where the wake forecast survives at $G = +4$ but the
+other observables do not (\S\ref{sec:res_closure}), and on the wall-normal offset
+$Y$, which is harder to resolve than $G$ and $D$ (\S\ref{sec:res_param_phase});
+and it is absent where we tested the interventional reading and the closed-loop
+tolerances, both of which fail. We claim the closure result and its mechanism,
+not a controller or a counterfactual model. The natural next step is to apply the
+same matched-predictor closure protocol to other parametric flow datasets, to
+test how general the predictive-versus-reconstructive trade reported here
+actually is.

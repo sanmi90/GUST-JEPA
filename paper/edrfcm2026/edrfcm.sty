@@ -1,0 +1,170 @@
+%%
+%%
+\ProvidesFile{edrm.sty}
+              [2005/01/03 (9pt option)]
+\renewcommand\normalsize{%
+   \@setfontsize\normalsize\@viiipt\@xpt
+   \abovedisplayskip 9\p@ \@plus2\p@ \@minus4\p@
+   \abovedisplayshortskip \z@ \@plus3\p@
+   \belowdisplayshortskip 6\p@ \@plus3\p@ \@minus3\p@
+   \belowdisplayskip \abovedisplayskip
+   \let\@listi\@listI}
+\normalsize
+\renewcommand\small{%
+   \@setfontsize\small\@viipt\@ixpt%
+   \abovedisplayskip 7\p@ \@plus2\p@ \@minus3\p@
+   \abovedisplayshortskip \z@ \@plus2\p@
+   \belowdisplayshortskip 3\p@ \@plus2\p@ \@minus2\p@
+   \def\@listi{\leftmargin\leftmargini
+               \topsep 3\p@ \@plus2\p@ \@minus2\p@
+               \parsep \p@ \@plus\p@ \@minus\p@
+               \itemsep \parsep}%
+   \belowdisplayskip \abovedisplayskip
+}
+\renewcommand\footnotesize{%
+   \@setfontsize\footnotesize\@viipt{8.3}%
+   \abovedisplayskip 4\p@ \@plus2\p@ \@minus3\p@
+   \abovedisplayshortskip \z@ \@plus\p@
+   \belowdisplayshortskip 2\p@ \@plus\p@ \@minus\p@
+   \def\@listi{\leftmargin\leftmargini
+               \topsep 2\p@ \@plus\p@ \@minus\p@
+               \parsep 2\p@ \@plus\p@ \@minus\p@
+               \itemsep \parsep}%
+   \belowdisplayskip \abovedisplayskip
+}
+\renewcommand\scriptsize{\@setfontsize\scriptsize\@vipt\@viipt}
+\renewcommand\tiny{\@setfontsize\tiny\@vpt\@vpt}
+\renewcommand\large{\@setfontsize\large\@xpt{10}}
+\renewcommand\Large{\@setfontsize\Large\@xipt{13}}
+\renewcommand\LARGE{\@setfontsize\LARGE\@xviipt{22}}
+\renewcommand\huge{\@setfontsize\huge\@xxpt{25}}
+\renewcommand\Huge{\@setfontsize\Huge\@xxvpt{30}}
+\if@twocolumn
+%  \setlength\parindent{1.5em}
+  \setlength\parindent{1.25em}
+\else
+  \setlength\parindent{13\p@}
+\fi
+
+\setlength\smallskipamount{3\p@ \@plus 1\p@ \@minus 1\p@}
+\setlength\medskipamount{6\p@ \@plus 2\p@ \@minus 2\p@}
+\setlength\bigskipamount{12\p@ \@plus 4\p@ \@minus 4\p@}
+\setlength\headheight{12\p@}
+\setlength\headsep   {25\p@}
+\setlength\topskip   {9\p@}
+\setlength\footskip{30\p@}
+\setlength\maxdepth{.5\topskip}
+  \setlength\@tempdima{\paperwidth}
+  \addtolength\@tempdima{-2in}
+  \setlength\@tempdimb{345\p@}
+  \if@twocolumn
+    \ifdim\@tempdima>2\@tempdimb\relax
+      \setlength\textwidth{2\@tempdimb}
+    \else
+      \setlength\textwidth{\@tempdima}
+    \fi
+  \else
+    \ifdim\@tempdima>\@tempdimb\relax
+      \setlength\textwidth{\@tempdimb}
+    \else
+      \setlength\textwidth{\@tempdima}
+    \fi
+  \fi
+  \@settopoint\textwidth
+  \setlength\@tempdima{\paperheight}
+  \addtolength\@tempdima{-2in}
+  \addtolength\@tempdima{-1.5in}
+  \divide\@tempdima\baselineskip
+  \@tempcnta=\@tempdima
+  \setlength\textheight{\@tempcnta\baselineskip}
+\addtolength\textheight{\topskip}
+\if@twocolumn
+ \setlength\marginparsep {10\p@}
+\else
+  \setlength\marginparsep{11\p@}
+\fi
+\setlength\marginparpush{5\p@}
+  \if@twoside
+    \setlength\@tempdima        {\paperwidth}
+    \addtolength\@tempdima      {-\textwidth}
+    \setlength\oddsidemargin    {2.75cm}
+%    \setlength\oddsidemargin    {.4\@tempdima}
+    \addtolength\oddsidemargin  {-1in}
+    \setlength\marginparwidth   {.6\@tempdima}
+    \addtolength\marginparwidth {-\marginparsep}
+    \addtolength\marginparwidth {-0.4in}
+  \else
+    \setlength\@tempdima        {\paperwidth}
+    \addtolength\@tempdima      {-\textwidth}
+    \setlength\oddsidemargin    {2.75cm}
+%    \setlength\oddsidemargin    {.5\@tempdima}
+    \addtolength\oddsidemargin  {-1in}
+    \setlength\marginparwidth   {.5\@tempdima}
+    \addtolength\marginparwidth {-\marginparsep}
+    \addtolength\marginparwidth {-0.4in}
+    \addtolength\marginparwidth {-.4in}
+  \fi
+  \ifdim \marginparwidth >2in
+     \setlength\marginparwidth{2in}
+  \fi
+  \@settopoint\oddsidemargin
+  \@settopoint\marginparwidth
+  \setlength\evensidemargin  {\paperwidth}
+  \addtolength\evensidemargin{-\textwidth}
+  \addtolength\evensidemargin{-5.50cm}
+  \addtolength\evensidemargin{-\oddsidemargin}
+  \@settopoint\evensidemargin
+  \setlength\topmargin{\paperheight}
+  \addtolength\topmargin{-2in}
+  \addtolength\topmargin{-\headheight}
+  \addtolength\topmargin{-\headsep}
+  \addtolength\topmargin{-\textheight}
+  \addtolength\topmargin{-\footskip} 
+  \addtolength\topmargin{-.5\topmargin}
+  \@settopoint\topmargin
+\setlength\footnotesep{5.755\p@}
+\setlength{\skip\footins}{9.5\p@ \@plus 4\p@ \@minus 2\p@}
+\setlength\floatsep    {12\p@ \@plus 2\p@ \@minus 2\p@}
+\setlength\textfloatsep{20\p@ \@plus 2\p@ \@minus 4\p@}
+\setlength\intextsep   {12\p@ \@plus 2\p@ \@minus 2\p@}
+\setlength\dblfloatsep    {12\p@ \@plus 2\p@ \@minus 2\p@}
+\setlength\dbltextfloatsep{20\p@ \@plus 2\p@ \@minus 4\p@}
+\setlength\@fptop{0\p@ \@plus 1fil}
+\setlength\@fpsep{8\p@ \@plus 2fil}
+\setlength\@fpbot{0\p@ \@plus 1fil}
+\setlength\@dblfptop{0\p@ \@plus 1fil}
+\setlength\@dblfpsep{8\p@ \@plus 2fil}
+\setlength\@dblfpbot{0\p@ \@plus 1fil}
+\setlength\partopsep{2\p@ \@plus 1\p@ \@minus 1\p@}
+\def\@listi{\leftmargin\leftmargini
+            \parsep 4\p@ \@plus2\p@ \@minus\p@
+            \topsep 8\p@ \@plus2\p@ \@minus4\p@
+            \itemsep4\p@ \@plus2\p@ \@minus\p@}
+\let\@listI\@listi
+\@listi
+\def\@listii {\leftmargin\leftmarginii
+              \labelwidth\leftmarginii
+              \advance\labelwidth-\labelsep
+              \topsep    4\p@ \@plus2\p@ \@minus\p@
+              \parsep    2\p@ \@plus\p@  \@minus\p@
+              \itemsep   \parsep}
+\def\@listiii{\leftmargin\leftmarginiii
+              \labelwidth\leftmarginiii
+              \advance\labelwidth-\labelsep
+              \topsep    2\p@ \@plus\p@\@minus\p@
+              \parsep    \z@
+              \partopsep \p@ \@plus\z@ \@minus\p@
+              \itemsep   \topsep}
+\def\@listiv {\leftmargin\leftmarginiv
+              \labelwidth\leftmarginiv
+              \advance\labelwidth-\labelsep}
+\def\@listv  {\leftmargin\leftmarginv
+              \labelwidth\leftmarginv
+              \advance\labelwidth-\labelsep}
+\def\@listvi {\leftmargin\leftmarginvi
+              \labelwidth\leftmarginvi
+              \advance\labelwidth-\labelsep}
+\endinput
+
+%%
+%% End of file `edrm.sty'.

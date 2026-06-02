@@ -1,7 +1,8 @@
-% Tables for the Results section. De-diaried (source-file paths removed),
-% captions rewritten. The training-set R^2 table is retained but explicitly
-% labelled as a training fit; the held-out MAE is the headline; a held-out R^2
-% table is scaffolded for the number that must replace the original headline.
+% Tables for the Results section. Only the two tables discussed at the very top
+% of Section 4 (the families overview and the headline closure table) live here
+% and are \input at the start of the section. The later tables (conditioning
+% floor, latent drift, 2x2 controls) are placed inline next to their first
+% reference, further down the section, so floats land near their discussion.
 
 % ---------------------------------------------------------------------------
 % TABLE: model families and objectives (new; standard JFM summary table).
@@ -22,8 +23,8 @@
     \toprule
     Family & Objective & Encoder & Latent dim.\ $d$ & Aux.\ heads \\
     \midrule
-    JEPA (this work) & predictive (latent) & CNN $+$ ViT & $32,\,64$ & lift $+$ wake \\
-    Reconstructive AE & reconstructive (field) & CNN & $3,\,32,\,64$ & lift \\
+    JEPA (this work) & predictive (latent) & CNN $+$ ViT & $16,\,32,\,64$ & lift $+$ wake \\
+    Reconstructive AE & reconstructive (field) & CNN & $3,\,16,\,32,\,64$ & lift \\
     POD & linear projection & --- & $16,\,32,\,64$ & --- \\
     \bottomrule
   \end{tabular}
@@ -60,10 +61,12 @@
     \midrule
     JEPA   & 64 & \textbf{0.624} & 0.301 & \textbf{1.901} & \textbf{29.83} & \textbf{0.801} & \textbf{0.715} \\
     JEPA   & 32 & 0.675 & \textbf{0.246} & 2.976 & 37.99 & 1.084 & 1.061 \\
+    JEPA   & 16 & 0.627 & 0.267 & 2.883 & 50.09 & 0.939 & 1.322 \\
     \midrule
     Fukami & 3  & 1.074 & 0.384 & 2.327 & 51.70 & 1.110 & 1.886 \\
     Fukami & 32 & 1.038 & 0.368 & 2.195 & 63.94 & 0.946 & 1.789 \\
     Fukami & 64 & 0.989 & 0.340 & 2.421 & 72.90 & 1.057 & 1.904 \\
+    Fukami & 16 & 1.133 & 0.421 & 2.424 & 77.26 & 1.158 & 1.837 \\
     \midrule
     POD    & 16 & 1.168 & 0.317 & 2.235 & 89.14 & 1.645 & 1.681 \\
     POD    & 32 & 0.937 & 0.269 & 2.608 & 81.82 & 1.650 & 1.617 \\
@@ -80,109 +83,16 @@
     \midrule
     JEPA   & 64 & 0.723 & 0.634 & 0.056 & \textbf{0.449} & 0.201 & \textbf{0.607} & \textbf{0.445} \\
     JEPA   & 32 & \textbf{0.751} & \textbf{0.648} & -0.082 & 0.214 & 0.087 & 0.552 & 0.362 \\
+    JEPA   & 16 & 0.642 & 0.465 & 0.002 & 0.265 & 0.250 & 0.557 & 0.363 \\
     \midrule
     Fukami & 3  & 0.632 & 0.226 & 0.115 & -0.082 & 0.258 & -0.048 & 0.184 \\
     Fukami & 32 & 0.641 & 0.239 & \textbf{0.205} & 0.007 & \textbf{0.420} & 0.161 & 0.279 \\
     Fukami & 64 & 0.729 & 0.406 & 0.043 & -0.478 & 0.182 & 0.003 & 0.147 \\
+    Fukami & 16 & 0.565 & 0.125 & -0.216 & -0.395 & 0.237 & 0.225 & 0.090 \\
     \midrule
     POD    & 16 & 0.499 & 0.364 & -0.515 & -0.129 & -0.230 & 0.340 & 0.055 \\
     POD    & 32 & 0.714 & 0.558 & -0.256 & 0.042 & -0.066 & 0.394 & 0.231 \\
     POD    & 64 & 0.683 & 0.539 & -0.813 & -0.089 & 0.057 & 0.507 & 0.147 \\
-    \bottomrule
-  \end{tabular}
-\end{table}
-
-% ---------------------------------------------------------------------------
-% TABLE: latent drift.
-% ---------------------------------------------------------------------------
-\begin{table}[t]
-  \centering
-  \caption{Latent-drift diagnostic on test\_b at $H = 16$. The Mahalanobis
-  distance of the rolled-out latent is reported alongside that of the
-  simulation-encoded latent in the same reference distribution; their ratio
-  $r = d_{\text{Mahal, Markov}} / d_{\text{Mahal, DNS}}$ measures how far the
-  autoregressive rollout has left the training manifold. A ratio near one means
-  the rollout stays in distribution.}
-  \label{tab:latent_drift}
-  \small
-  \begin{tabular}{l c c c c}
-    \toprule
-    Baseline & $d$ & $d_{\text{Mahal, ref}}$ & $d_{\text{Mahal, rollout}}$ & ratio $r$ \\
-    \midrule
-    Fukami & 64 & 2.92 & 28.96 & \textbf{9.90} \\
-    JEPA   & 64 & 8.08 & 6.84  & 0.85 \\
-    JEPA   & 32 & 5.43 & 4.65  & 0.86 \\
-    POD    & 64 & 7.74 & 6.27  & 0.81 \\
-    \bottomrule
-  \end{tabular}
-\end{table}
-
-% ---------------------------------------------------------------------------
-% TABLE: conditioning-only floor.
-% ---------------------------------------------------------------------------
-\begin{table}[t]
-  \centering
-  \caption{Conditioning-only floor. A kernel-ridge regressor maps the gust
-  parameters $\cvec = (G,D,Y)$ directly to each observable at the impact frame,
-  with no latent input; $R^2$ is reported on each split. This is the floor any
-  learned encoder must clear on held-out cases to show its latent contributes
-  beyond the parameters. The conditioning floor interpolates the training points
-  but collapses on the held-out splits, going negative on test\_c for five of
-  six observables.
-  The last column is JEPA's held-out forecast $R^2$
-  (Table~\ref{tab:closure}(b), $d{=}64$, test\_b), the like-for-like
-  comparison. The
-  predictive forecast clears the floor on the force coefficients and the
-  circulations; on wake-enstrophy the $H{=}16$ forecast ($0.449$) is about level
-  with the parameter floor ($0.482$), while JEPA's representational closure
-  (probe on the encoded latent, $R^2 = 0.754$, Table~\ref{tab:closure}(a))
-  clears it comfortably.
-  }
-  \label{tab:conditioning_floor}
-  \small
-  \begin{tabular}{l c c c c c}
-    \toprule
-    Observable & $n_{\text{train}}$ & train $R^2$ & test\_b $R^2$ & test\_c $R^2$ & JEPA $d{=}64$ test\_b $R^2$ \\
-    \midrule
-    $C_L$          & 226 & 0.895 & 0.303  & 0.547  & 0.723 \\
-    $C_D$          & 226 & 0.941 & 0.386  & -2.459 & 0.634 \\
-    $I_y$          & 226 & 0.422 & -0.301 & -1.335 & 0.056 \\
-    wake-enstrophy & 226 & 0.806 & 0.482  & -1.252 & 0.449 \\
-    circ.\ pos.\   & 226 & 0.792 & -0.032 & -0.249 & 0.201 \\
-    circ.\ neg.\   & 226 & 0.799 & 0.568  & -4.262 & 0.607 \\
-    \bottomrule
-  \end{tabular}
-\end{table}
-
-% ---------------------------------------------------------------------------
-% TABLE: 2x2 objective x architecture controls (PLACEHOLDER -- decisive experiment).
-% ---------------------------------------------------------------------------
-\begin{table}[t]
-  \centering
-  \caption{Objective $\times$ architecture controls (decisive experiment).
-  Held-out wake-enstrophy closure and mean closure ($R^2$ at $H = 16$, test\_b,
-  Markov rollout, mean $\pm$ standard deviation over three encoder seeds) for the
-  four cells crossing \{predictive, reconstructive\} with \{CNN, CNN$+$ViT\} at
-  $d = 64$, with the auxiliary heads (the instantaneous lift plus the
-  $80$-dimensional wake head) matched across all four cells, plus a predictive
-  variant with the wake head removed. Predictive beats reconstructive on wake
-  closure at both architectures (predictive versus reconstructive at CNN$+$ViT,
-  and again at CNN), so the objective is not a confound of the architecture;
-  removing the wake head from the predictive model collapses wake closure below
-  the floor, so the wake supervision is also necessary. The CNN and CNN$+$ViT columns do not separate, so the ViT is not the
-  driver.}
-  \label{tab:controls_2x2}
-  \small
-  \begin{tabular}{l l l c c}
-    \toprule
-    Objective & Encoder & Aux.\ heads & wake-enst.\ $R^2$ & mean $R^2$ \\
-    \midrule
-    predictive     & CNN$+$ViT & lift $+$ wake & $\mathbf{0.46 \pm 0.03}$ & $0.45$ \\
-    predictive     & CNN       & lift $+$ wake & $0.45 \pm 0.06$ & $\mathbf{0.52}$ \\
-    reconstructive & CNN$+$ViT & lift $+$ wake & $0.16 \pm 0.27$ & $0.23$ \\
-    reconstructive & CNN       & lift $+$ wake & $0.29 \pm 0.05$ & $0.42$ \\
-    \midrule
-    predictive     & CNN$+$ViT & lift only     & $-1.03 \pm 0.29$ & $0.09$ \\
     \bottomrule
   \end{tabular}
 \end{table}

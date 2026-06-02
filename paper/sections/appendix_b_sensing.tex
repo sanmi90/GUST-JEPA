@@ -19,54 +19,43 @@ throughout the cross-family comparison for a uniform, low-variance estimator
 across families. This is a feasibility study, not a closed controller, and we report
 where it works and where it does not.
 
-\paragraph{Optimal placement clusters at the leading edge and matters most at very
-low $K$.} We place the $K$ sensors by a target-conditioned greedy selection
-(TCSI), conditioned on recovering the predictive latent, and compare it against
-QR-pivoting (qDEIM) \cite{manohar2018sensors}, uniform, and random placement. The
-selected taps cluster on both surfaces near the leading edge, where the gust
-impinges (Figure~\ref{fig:sensor_placement}a). At $K = 2$ the placement is
-decisive: TCSI recovers the predictive state at $R^2 = 0.80$ against $0.44$ for
-qDEIM and $0.52$ for uniform. By $K \ge 4$, however, the wall pressure is
-information-rich enough that the selection method barely separates
-($R^2 \approx 0.86$ to $0.89$ for all three; Figure~\ref{fig:sensor_placement}b).
-Optimal placement buys the most when sensors are scarcest. The robustness of the
-greedy, target-conditioned selection over a marginal-attribution ranking (such as
-SHAP or permutation importance) is expected here: the surface pressures are
-strongly collinear, so a method that scores sensors individually double-counts
-the shared information, whereas the greedy selection conditions each pick on those
-already chosen and spreads the array. The gap is largest at the smallest $K$,
-where redundancy is most costly.
+\paragraph{Target-aware placement helps only when sensors are scarce.} The
+placement we use, TCSI, is \emph{target-aware}: a greedy forward selection that,
+for each of the $192$ surface taps, forms a pre-impact pressure window of $W = 17$
+frames centred on impact and adds at each step the tap whose inclusion most
+improves the recovery of the target, the leading principal component of the
+predictive latent, from the joint flattened window of the already-selected taps
+(the exact selection objective is in the released code). The picks are nested in
+$K$ and cluster on both surfaces near the leading edge, where the gust impinges
+(Figure~\ref{fig:sensor_placement}a). We compare it against the QR-pivot optimum
+of the pressure modes (qDEIM) \cite{manohar2018sensors}, which is
+\emph{target-blind}: it places taps to reconstruct the pressure field, with no
+knowledge of the latent it is later asked to recover. The two differ in what they
+optimise, so the comparison measures the value of target-awareness, not of
+placement quality alone, and that value is confined to the scarce-sensor regime.
+At $K = 2$ the target-aware placement recovers the predictive state at
+$R^2 = 0.80$ against $0.44$ for the target-blind one, but by $K \ge 4$ the wall
+pressure is information-rich enough that the two converge ($R^2 \approx 0.86$ to
+$0.89$; Figure~\ref{fig:sensor_placement}b). The cross-family recoverability
+result of \S\ref{sec:res_observability} is therefore not an artefact of a bespoke
+target-aware placement: with four or more taps a placement blind to the target
+recovers the predictive latent just as well. The target-aware selection is greedy
+and joint rather than a marginal-attribution ranking (SHAP or permutation
+importance): under the strongly collinear surface pressures, scoring taps
+individually double-counts the shared information, whereas conditioning each pick
+on those already chosen spreads the array. A direct comparison against
+log-likelihood and mutual-information selectors of the same target, all of
+comparable cost, confirms that the greedy selection gives the best held-out latent
+recovery and that the alternatives are no better.
 
-\paragraph{The predictive state is the most pressure-recoverable.} With the TCSI
-array and a kernel-ridge estimator the predictive latent is markedly the most
-recoverable across encoder families (Figure~\ref{fig:observability}a): at $K = 8$
-the held-out test\_b state $R^2$ is $0.89$ at $d = 64$ and $0.87$ at $d = 32$,
-against $0.58$ to $0.67$ for the reconstructive autoencoder and $0.32$ to $0.49$
-for POD. The contrast is sharpest at matched capacity: at $d = 64$ the predictive
-latent recovers at $R^2 = 0.89$ against $0.58$ for the reconstructive autoencoder
-and $0.32$ for POD, and at $d = 32$ at $0.87$ against $0.63$ and $0.42$. The
-energy-optimal POD coordinates are the hardest to read from pressure,
-the deployment counterpart of the representation result in the main text. Decoding
-the pressure-estimated latent makes the recovery physical
+\paragraph{Cross-family recoverability (in the main text).} The headline
+cross-family result, that the predictive state is the most recoverable from the
+wall and that recoverability is not estimation quality, is reported in
+\S\ref{sec:res_observability} (Figure~\ref{fig:observability}). Decoding the
+pressure-estimated latent makes that recovery physical
 (Figure~\ref{fig:flow_recovery}): from eight taps the leading-edge vortex and
 shear layer are recovered close to the oracle decode, and even two taps capture
 the gross impingement.
-
-\paragraph{Recoverability is not estimation quality, and $C_L$ is read directly.}
-A high recovery $R^2$ does not imply an accurate physical estimate, and the
-pressure study makes the distinction concrete. The three-dimensional
-reconstructive latent is the \emph{easiest} to recover from pressure (state
-$R^2 = 0.91$ at $K = 2$, the highest of any family) yet routing the impact-lift
-estimate through it gives the \emph{worst} $C_L$: a mean absolute error of $1.0$
-against a $C_L$ spread of $1.37$, while the predictive latent gives $0.49$
-(Figure~\ref{fig:observability}b). The lift itself is read most accurately
-straight off the pressure: a direct pressure-to-$C_L$ regressor reaches a mean
-absolute error of $0.39$ at the impact frame, better than any latent-mediated
-route, because the imminent lift is already imprinted on the wall. The deployment
-value of the predictive latent is therefore the recoverable \emph{forecastable
-state} it hands to the predictor, not the instantaneous lift, which needs no
-latent. We report the physical estimate in $C_L$ units rather than the state $R^2$
-alone precisely because the two measure different things.
 
 \paragraph{Parameters and the out-of-distribution boundary.} The gust parameters
 recover directly from pressure on test\_b, with the core diameter best and the
@@ -80,27 +69,20 @@ the rest of the model.
 \begin{figure}[t]
   \centering
   \includegraphics[width=\linewidth]{sections/figures/results/figE_sensor_placement.pdf}
-  \caption{Sparse-sensor placement. (a) The target-conditioned (TCSI) taps
-  for $K = 2, 4, 8$ on the NACA~0012 surface; they cluster near the leading edge
-  on both surfaces. (b) Predictive-state recovery (held-out test\_b $R^2$) versus
-  sensor count for TCSI, qDEIM, and uniform placement: optimal placement is
-  decisive at $K = 2$ and the methods converge by $K \ge 4$.}
+  \caption{Sparse-sensor placement. (a) The target-conditioned (TCSI) taps on the
+  NACA~0012 surface, a single ranked set with one marker per tap coloured from
+  dark (picked first, most informative) to light (least); the greedy picks are
+  nested, so the two darkest are the decisive $K = 2$ pair and the eight shown are
+  the $K = 8$ set. They cluster near the leading edge, where the gust impinges.
+  (b) Predictive-state recovery (held-out test\_b $R^2$) versus sensor count for
+  the target-aware selection (TCSI) and the target-blind QR-pivot optimum of the
+  pressure modes (qDEIM): the target-aware placement helps at $K = 2$ but the two
+  converge by $K \ge 4$, so the recoverability result is not an artefact of the
+  placement.}
   \label{fig:sensor_placement}
 \end{figure}
 
-\begin{figure}[t]
-  \centering
-  \includegraphics[width=\linewidth]{sections/figures/results/figF_observability.pdf}
-  \caption{Cross-family pressure observability under the TCSI placement.
-  (a) Latent-state recovery $R^2$ versus sensor count: the predictive (JEPA)
-  state is the most recoverable at $K \ge 4$, POD the least. (b) The physical
-  estimate, impact $C_L$ mean absolute error routed through each family's
-  recovered latent, with the direct pressure-to-$C_L$ baseline (dashed). The
-  contrast is the point: the reconstructive $d = 3$ latent is the easiest to
-  recover (highest $R^2$ at low $K$) yet gives the worst lift estimate, and the
-  lift is read most accurately directly from the pressure.}
-  \label{fig:observability}
-\end{figure}
+% figF (cross-family observability) promoted to the main text, Figure~\ref{fig:observability} in \S\ref{sec:res_observability}.
 
 \begin{figure}[t]
   \centering

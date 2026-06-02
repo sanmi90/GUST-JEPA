@@ -10,7 +10,7 @@
 \label{sec:methods_arch}
 
 The predictive encoder $E_\theta$ maps the mid-plane vorticity field
-$\omegaz(192,96)$ to a latent $\zvec \in \mathbb{R}^d$ at $d \in \{32, 64\}$. It
+$\omegaz(192,96)$ to a latent $\zvec \in \mathbb{R}^d$ at $d \in \{16, 32, 64\}$. It
 is a hybrid network: three convolutional downsampling stages produce a
 $24 \times 12 \times 256$ feature map, a six-layer vision transformer processes
 the resulting tokens, and the class-token output is projected to $\zvec$ through
@@ -32,6 +32,34 @@ autoencoder passes the field at time $t$ through an encoder and a decoder and
 incurs a field-space error, whereas the predictive model encodes the fields at
 $t$ and $t+\Delta t$ with shared weights and incurs a latent-space error between
 the predicted and observed target embeddings, with no field-space loss.
+Table~\ref{tab:architecture} summarises the two networks.
+
+\begin{table}[t]
+  \centering
+  \caption{Encoder and predictor configuration. The encoder is unconditional;
+  the gust parameters $\cvec = (G,D,Y)$ and the within-encounter phase enter only
+  the predictor, through identity-initialised adaptive layer normalisation
+  (AdaLN-Zero). Parameter counts are for the $d = 64$ configuration; two small
+  auxiliary heads read observables off the encoder output (a lift head,
+  $4\times10^{3}$ parameters, and an $80$-dimensional wake-spectrum head,
+  $3.5\times10^{4}$ parameters; \S\ref{sec:methods_loss}).}
+  \label{tab:architecture}
+  \small
+  \begin{tabular}{l l l}
+    \toprule
+     & Encoder $E_\theta$ & Predictor $P_\phi$ \\
+    \midrule
+    role            & field $\to$ latent (unconditional) & latent dynamics (conditioned) \\
+    input           & $\omegaz \in \mathbb{R}^{192 \times 96}$ & latent sequence $\zvec_{1:t}$ \\
+    backbone        & 3 conv.\ stages $+$ 6-layer ViT & 6-layer autoregressive transformer \\
+    width / heads   & $256$ / $8$ & $384$ / $16$ \\
+    tokens / context & $24 \times 12 = 288$ spatial & $\le 32$ temporal (causal) \\
+    conditioning    & none & AdaLN-Zero on $(\cvec, \phi)$, rotary time \\
+    latent read-out & class token $\to$ linear $\to$ BatchNorm & next-step latent \\
+    parameters      & $6.7$M & $16.2$M \\
+    \bottomrule
+  \end{tabular}
+\end{table}
 
 \subsection{Training objective and the auxiliary observable heads}
 \label{sec:methods_loss}
@@ -70,9 +98,11 @@ $\cvec$; and an identical probe family maps the predicted latent to a physical
 observable for evaluation. The predictor
 architecture, its training recipe, the parametric conditioning, and the probe
 family are held fixed across the three encoder families. The latent dimension
-is matched within each family: JEPA at $d \in \{32, 64\}$, the reconstructive
+is matched within each family: JEPA at $d \in \{16, 32, 64\}$, the reconstructive
 autoencoder at $d \in \{3, 32, 64\}$ to include both the published $d = 3$
-recipe and matched-capacity variants, and POD at $d \in \{16, 32, 64\}$. This
+recipe and matched-capacity variants, and POD at $d \in \{16, 32, 64\}$. The
+predictive family is additionally swept to $d \in \{4, 8\}$ and ablated without its
+predictor conditioning in \S\ref{sec:res_controls}. This
 isolation is the only fair way to attribute forecast quality to the
 representation rather than to incidental differences in the predictor or its
 training.
@@ -135,6 +165,22 @@ in the parameters.
   visualisation decoder are attached to the frozen encoder and are never part of
   the latent-prediction loss.}
   \label{fig:jepa_architecture}
+\end{figure}
+
+% ALTERNATIVE to fig:jepa_architecture, block-diagram style (kept so the
+% authors can choose between the two). Remove one before submission.
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.95\linewidth]{sections/figures/tikz/fig1b_jepa_blockdiagram.pdf}
+  \caption{Block-diagram view of the JEPA, partitioned into the physical (DNS)
+  and computational domains in the style of a data-driven control schematic. The
+  encoder builds the reduced state $\zvec_t = E_\theta(\omegaz^t)$ and the
+  predictor advances it forward in time (the forward model), with the gust
+  parameters $\cvec = (G,D,Y)$ entering only the predictor. Two observable heads
+  read the lift and an $80$-dimensional wake spectrum off the latent (the wake
+  penalty), supervised by the DNS observables; the visualisation decoder is
+  trained later and never enters the latent-prediction loss.}
+  \label{fig:jepa_blockdiagram}
 \end{figure}
 
 \begin{figure}[t]

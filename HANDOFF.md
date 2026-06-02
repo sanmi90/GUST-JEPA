@@ -6979,3 +6979,305 @@ incompressible solver with no Mach number. Left for asolera to fill/resolve.
 colour-Fig-8-by-frame skipped: colour-by-frame would break the green=predictive
 family key, and the PC-axis claim needs verification. Figs 2/3 already consistent.
 
+### D142: Session 23 Track A -- S2.2 numerical-method facts scaffolded; DNS (no subgrid) + Taylor profile + C_L/C_D defined; resolution numbers left as the one allowed author-fill block (2026-05-31, Session 23)
+
+S2.2 now states the runs are DNS with no subgrid-scale model (SOD2D, p=4),
+adds the Taylor-vortex azimuthal profile (Eq.~taylor) with the code-verified
+conventions G = u_theta_max/u_inf, D = 2R/c, Y the chord-normal offset
+(alpha=14deg rotation, per data_manifest parser.formula_inverse), the C_L/C_D
+normalisations, and the cache-subdomain lineage to fukami2025prf. The D141
+Mach-vs-"effectively incompressible" contradiction is resolved in prose
+(low-Mach regime, effectively incompressible) with the exact Mach/incompressible
+choice deferred to the authors. The solver-resolution numbers (Mach, domain,
+element/solution-point counts, Delta n+, dt, CFL, x0/c, sensitivity check)
+remain a single clearly-marked \pending{} author-fill block, the ONE allowed
+remaining pending per the Track K gate; this is the sole outstanding author
+input (BLOCKER continues from D141, asolera). Added taylor1918 to
+refs_to_add.bib (marked CONFIRM the exact imposed profile). Build (latexmk in
+paper/) clean, exit 0, no undefined citations.
+
+### D143: Session 23 Track B -- six observables defined with equations (verified EXACT vs code); case/encounter counts corrected to 84 -> 378 (val is 86, not 28) (2026-05-31, Session 23)
+
+scripts/session23/verify_observable_defs.py re-implements the six closure
+observables INDEPENDENTLY from the written S2.2 equations and reproduces the
+stored session17 dns_physical_metrics targets to 0.000e+00 (exact, float32) on
+sampled test_b + train encounters x 120 frames. Equations added to S2.2
+(eq:enstrophy / eq:circulation / eq:impulse): wake window
+Omega_w = {x/c in [0.5,4], |y/c| <= 1}; E_w = int omega_z^2 dA over Omega_w;
+Gamma+/- = int omega_z over {+/- omega_z > omega_c = 1} (THRESHOLDED at 1, NOT
+max(omega,0) as the revision plan wrote); I_y = +int x*omega_z dA over the FULL
+field (the revision plan's minus sign was WRONG); H=16 = 0.8 c/u. The field is
+the pipeline-masked + clipped vorticity at raw scale (same as the closure).
+COUNT CORRECTION (gap 6, materially wrong in the draft): split_v2.json
+val_encounter_indices sum to 86 (last 2 of 6 periodic / last 1 of 4 run3),
+test_a_encounter_indices is empty; the eval code (gather_split_encounters), the
+AE final_eval, and session17 all use test_a = 86. The draft's "28 validation /
+320 total" was WRONG; corrected to 86 validation, total 378 = 226 + 86 + 42 + 24,
+in S2.2 AND the abstract, with the 84-cases -> 378-encounter-windows relationship
+stated explicitly. Build clean (latexmk exit 0).
+
+### D145: Session 23 Track D -- conditioning floor is STRONGER than the paper claimed; the in-envelope "parameters cannot generalise" over-claim is retired (2026-05-31, Session 23)
+
+scripts/session23/exp_conditioning_floor_plus.py. Five floors (c-only,
+phase-only, c+phase, NN-in-(G,D,Y), leave-one-CASE-out KRR) for the six closure
+observables on train/test_b/test_c, against the SAME session17
+dns_physical_metrics observable definitions the closure uses (NOT the session16
+per_frame_targets, which lack I_y and use a different enstrophy). Sanity: the
+existing fixed recipe (KRR alpha=0.1 gamma=0.5) reproduces the paper's wake
+test_b floor 0.482 exactly. LOAD-BEARING NEGATIVE RESULT: a properly CV-tuned
+c-only KRR floor on wake enstrophy test_b is 0.700 (leave-one-case-out also
+0.700), and c+phase is 0.825. The paper's 0.482 was an under-tuned
+hyperparameter, not the true floor. The true floor (0.70) MATCHES/EXCEEDS the
+JEPA representation R2=0.754 in-envelope, so "parameters alone cannot generalise"
+is false in-envelope for wake enstrophy. The linear-ridge floor stays 0.112 (the
+strength is mild nonlinearity in (G,D,Y), not a leak); GroupKFold out-of-fold
+agrees, so the higher floor is honest. What STANDS: OOD (test_c) every floor
+collapses to <= 0 (best c+phase +0.027). Claim decision (weaker, per gate +
+hard-rule 2): retire the in-envelope floor claim; correct 0.482 -> 0.700; rest
+the wake claim on the paired test + drift mechanism; narrow the floor's role to
+the wake-specific, forecast-horizon claim.
+
+H=16 RESOLUTION (computed this session via --horizon 16; the JEPA closure numbers
+0.754 / 0.449 are themselves H=16, so the impact-frame floor was the mismatched
+one). Frame-matched to the H=16 closure, the wake-enstrophy floor is LOW: c-only
+test_b 0.173, c+phase 0.315 (upper bound; phase proxy extrapolates),
+leave-one-case-out 0.173 -- so the JEPA representation (0.754) and forecast
+(0.449) BOTH clear it. The impact-frame floor (0.70) is high only because the
+just-released gust sets the instantaneous state; the gap opens over the 16-frame
+LEV roll-up. So the wake claim is RESTORED, not retired: at the forecast horizon
+the parameters do not supply the wake closure. Honest, observable-dependent
+nuance: the H=16 floor stays high on the gust-forcing observables and
+MATCHES/EXCEEDS the JEPA forecast on I_y (0.417 vs 0.056) and negative
+circulation (0.795 vs 0.607) -- consistent with the paper's mixed-ordering
+message, and CORRECTING the D133 note that JEPA "clears the floor on circ_neg"
+(true only against the impact floor). On test_c the floor goes negative for the
+wake, drag, and positive-circulation observables. APPLIED: Table 4
+(tab:conditioning_floor) reset to the frame-matched H=16 c-only floor + caption;
+S4.1 floor paragraph rewritten to the frame-matched, wake-specific,
+mixed-ordering-honest claim resting on the paired test + drift; the 0.482 /
+"parameters cannot generalise" over-claim removed. Full 5-floor x 6-observable x
+3-split tables at both horizons in
+outputs/session23/conditioning_floor_plus/{floor.csv, h16/floor.csv}. Build clean
+(latexmk exit 0).
+
+### D146: Session 23 Track E -- wake-enstrophy advantage localised to the LEV: predictive decode tracks it 42/42, reconstructive loses it 36/42 (2026-05-31, Session 23)
+
+scripts/session23/exp_lev_tracking.py on the sigma/c=0.05 large-scale decoded
+fields (outputs/session20/decoded; filter matched to exp_scale_decomposition).
+GATE PASS. At H=16 on test_b: JEPA LEV-centroid distance 0.319c < Fukami 0.334c,
+LEV-circulation error 0.050 vs 0.290 (~6x). The honest headline is the DETECTION
+COLLAPSE: DNS/JEPA/POD detect a coherent large-scale LEV in 42/42 test_b
+encounters at H16, Fukami in only 6/42 (its large-scale LEV amplitude collapses
+to ~11% of DNS; the Fukami centroid/circulation stats are the charitable
+6-encounter subset). Per-encounter Spearman(wake-enstrophy error,
+LEV-circulation error) = 0.57 (p ~ 1e-16), tying the scalar wake advantage to
+the physical LEV. test_c Fukami detection 0/24 (the |G|=4 boundary, consistent
+with D137); POD detects but under-retains circulation (~0.62). No contradiction
+with D129/D131/D137. APPLIED: S4.6 LEV sentence added, leading with the detection
+collapse (42/42 vs 6/42), centroid 0.32c, circulation within 5% / 6x, Spearman
+0.57. Build clean.
+
+### D148: Session 23 Track G -- predictive advantage concentrates on gust scale D and off-midplane Y; shedding phase is under-sampled by the fixed impact timing (2026-05-31, Session 23)
+
+scripts/session23/exp_error_maps.py. Per-encounter paired improvement
+Delta_e = e_AE - e_JEPA on wake enstrophy (from the verified session21 paired
+machinery; repr Delta_e mean +43.1 / 31-of-42, forecast +32 / 27-of-42, matching
+D139) vs G, D, Y, phi, with LOWESS + bootstrap bands. GATE PASS. The advantage
+concentrates on gust SCALE D (Spearman +0.42 repr / +0.53 forecast) and
+off-midplane offset Y (+0.49 / +0.45), both significant; G weak in repr /
+moderate in forecast. Shedding phase phi (computed from the D136 baseline
+limit-cycle Hilbert phase) is bimodal and weakly informative because impact is
+pinned at frame 40 while gusts release every ~2.14 shedding periods, so only
+~2 phase states are sampled; the source-paper "timing relative to the cycle"
+axis is under-sampled by this dataset and is reported as a limitation, not
+over-claimed. Replaces the S4.4 "left to a study with more cases" deferral.
+Note: statsmodels 0.14.6 was installed into .venv for the LOWESS dependency.
+APPLIED: S4.4 deferral replaced with the measured result (advantage grows with D
+and off-midplane Y, both significant; phase under-sampled), and fig:error_maps
+added (PNG placeholder; Track J to regenerate as JFM vector PDF). Build clean.
+
+### D147: Session 23 Track F -- |G|=4 observability boundary measured by chi_3D; the omega_z channel nearly triples post-impact (2026-05-31, Session 23)
+
+scripts/session23/exp_chi3d.py reads raw /curlU (shape (T,192,96,32,3); NaN
+cells = inside_solid masked from both sums) for 78/84 cases (6 run3 raws absent
+mid-regeneration, gracefully skipped; the 4 |G|=4 cases all present), one
+encounter per case, every 2nd frame, with a byte-identical double-read integrity
+guard against asolera's concurrent run3 I/O. chi_3D = spanwise-fluctuating
+enstrophy fraction (full 3-component and omega_z-only variants). KEY DESIGN
+POINT: the spun-up periodic wake already carries large ambient 3D content (|G|=0
+floor chi_full ~0.52, wz ~0.27), so the max is taken over impact / post-impact /
+whole windows to isolate the gust. GATE PASS (post-impact, gust-isolating): the
+omega_z chi median rises from ~0.20 across |G|<=3 (flat; Spearman 0.25) to 0.555
+at |G|=4 = 2.78x (full: 0.447 -> 0.761, 1.70x); excess over the |G|=0 ambient
+floor +0.34 (wz). The impact-window ratio DECREASES (0.62x) -- the strong gust
+momentarily organises (2D-ises) the near field, the 3D content re-emerges in the
+post-impact wake. Honest caveats: high ambient floor, n=4 at |G|=4 (one of the
+four, G+4_D1.00_Y+0.10, sits in-family at wz 0.169), non-monotonic within
+|G|<=3. Converts the verbal test_c 2D->3D argument (S2.1/S5.3) into a measured
+number; feeds the Track J Fig 1 inset. APPLIED: S2.1 observability-boundary
+paragraph now cites the measured omega_z chi_3D (~0.20 across |G|<=3, ~0.56 at
+|G|=4, n=4 cases). Build clean.
+
+### D149: Session 23 Track H -- pressure observability promoted to a main-text Results subsection; model-based-control removed from headline claims (2026-05-31, Session 23)
+
+Added main-text subsection S4.7 "The predictive state is the most observable from
+the wall" (sec:res_observability) presenting the cross-family recoverability
+(JEPA d64 0.89 vs Fukami 0.58 vs POD 0.32 at K=8) and the
+recoverability-vs-estimation-quality decoupling (the d=3 reconstructive latent is
+easiest to recover yet gives the worst impact-C_L; the lift is read best directly
+from pressure), with figF (fig:observability) MOVED from Appendix B into S4.7.
+Appendix B keeps the placement (figE), flow recovery (figG), lead-time (figH), and
+the closed-loop pilot as a clearly-labelled limitation; its recoverability
+paragraphs were replaced by a pointer to S4.7 (no duplicate fig:observability
+label). Abstract and Conclusion endings rewritten to end on observability +
+forecastability ("observable as well as forecastable"); "model-based control" no
+longer appears as a headline claim (grep-confirmed gone from abstract +
+conclusion). S5.4 recoverability restatement deduped to point at S4.7. Build clean
+(latexmk exit 0). NOTE for Track K: the abstract is now ~289 words (detex), still
+over the 250-word JFM limit; Track K to trim (revision III.1 paste text is at the
+limit).
+
+### D150: Session 23 Track C -- headline wake advantage is seed-robust; gate PASS (2026-06-01, Session 23)
+
+Three independent encoder retrains (thrust6 seed{0,1,2}): the per-encounter
+paired representational wake-enstrophy improvement (reconstructive minus
+predictive absolute error) is positive in all three (+46.8 / +27.4 / +38.1,
+median +38), predictive carrying the smaller error on 25-30 of 42.
+Representational wake R^2 = 0.72 +- 0.10 (predictive) vs -0.22 +- 0.14
+(reconstructive), mean +- s.d. over seeds; seed0 reproduces the single-seed
+headline (0.754, +43.1, 31/42). thrust6 is a separate canonical-variance set from
+the production checkpoint, so the 3-seed mean 0.72 sits just below the single-seed
+headline -- the honest variance picture. Seed-robustness sentence added to S4.1.
+
+### D151: Session 23 -- d=16 robustness rung added (2026-06-01, Session 23)
+
+Added d=16 rows to Table 1 (dims) and Table 2(a)/(b). JEPA d16 keeps a positive
+representational wake R^2 (0.557) and dominates Fukami d16 across observables;
+representation precision degrades (representational wake R^2 falls to ~0.55 from
+0.74 at d64), stated honestly in S5.1. POD d16 reproduced byte-identical to the
+existing row, validating the closure-chain match. Justifies the d=32 floor
+empirically rather than by assertion.
+
+### D152: Session 23 -- calibrated LL/MI sensor selection is NOT better than MSE-TCSI; my "expensive/fragile" claim was wrong (2026-06-01, Session 23)
+
+Tested log-likelihood / mutual-information calibrated sensor selectors against the
+MSE-based TCSI greedy selection. Calibrated selectors run in 5-12 s (NOT "far more
+expensive" as I had asserted) and the small-sample instability (Jaccard ~0.19)
+applies to ALL methods including MSE-TCSI. Empirically, greedy MSE selection gives
+the best held-out latent recovery and the calibrated alternatives are no better.
+The Appendix B sentence now rests on this empirical comparison, not the false
+expensive/fragile claim. Feedback memory written (back claims with refs or tests).
+
+### D153: Session 23 -- Fig 8a honesty; the non-return is a release-cadence / core-size effect, not strength (2026-06-01, Session 23)
+
+Replaced figC_cycle panel (a) with distance-to-baseline-orbit (the prior
+latent-loop over-claimed a "closed cycle"). Investigated "the strong gust never
+returns to baseline": the 120-frame encounter IS the 6 t/c gust-release period
+(dt=0.05), impact ~2 t/c, so only ~4 t/c of post-impact relaxation is observed. A
+DIAMETER-CONTROLLED sweep (fixed D=1.0, G<0, Y~0, mean over encounters) shows
+departure amplitude ~constant across |G| (peak 3.2-3.5 diam), all strengths still
+contracting at the window end, the strongest gust ending CLOSEST. The earlier
+"departure grows with strength / strong stalls ~2 diam out" was a CORE-SIZE
+(D=1.5) confound (the figC case is D=1.5). S4.4 caveat corrected to a
+"window-length limitation set by the gust-release cadence, not strength-dependent
+at fixed core diameter"; figC caption reverted. Also explained the G+2 latent
+outlier: same peak vorticity (~6) as G-1.5 but stays latent-close to baseline
+because the +G/+Y small-core vortex is SAME-signed as the suction-side LEV (merges
+in) while -G vortices inject opposite-signed structure (G/Y sign asymmetry).
+Diameter-controlled figure added to Appendix A (D155).
+
+### D154: Session 23 Track I -- interventional test FAILS; world-model language SOFTENED to "conditional forward model" (2026-06-01, Session 23)
+
+Wrote scripts/session23/exp_intervention.py (reuses the verified
+eval_baseline_rollouts markov rollout, raw (G,D,Y) conditioning,
+normalise-in/denormalise-out; ridge closure probe fit on train, latent<->DNS
+aligned by (case_id, encounter)). Perturb the conditioning by dG, roll the
+predictor to H=16 under c and c', probe the six observables, and correlate the
+PREDICTED change against the DNS group-mean change between matched encounters
+differing only in G. Across dG in {0.5, 1.0, 2.0} the pooled predicted-vs-measured
+r = 0.12 (n=6) / 0.24 (n=5) / -0.27 (n=23); at the best-powered dG=2 the response
+is weakly ANTI-correlated, with physically plausible magnitude but not the
+simulation's direction. GATE FAIL. Per the plan, softened S1 and S5: the predictor
+is a "conditional forward model", not a validated interventional / counterfactual
+or causal model, reported as a limitation with the numbers in S5. S5.1 "closed
+cycle" also softened to "recurrent cycle".
+
+### D155: Session 23 Track J/K optional batch landed (2026-06-01, Session 23)
+
+Optional items done. (J) Encoder/predictor architecture Table 3 in S3 (exact
+param counts from checkpoints: encoder 6.68M, predictor 16.15M; width 256/8 and
+384/16); diameter-controlled return figure into Appendix A (fig:appA_return, backs
+the D153 cadence caveat); graphical abstract at
+paper/sections/figures/results/graphical_abstract.pdf (standalone for JFM
+submission, not embedded in main.tex). (K polish) III.3 mixed-ordering sentence in
+S4.1 (retired the "consistency across every observable" over-claim, since forecast
+C_L and circ_pos are within paired noise); III.4 paired-test-first ordering in S4.1
+(lead with 31/42, p=1.4e-3; marginal CI demoted to parenthetical); III.5 scope
+paragraph in the Outlook consolidating the bounds (robust on wake, partial on
+test_c / Y, absent for interventional + closed-loop). Build clean (latexmk exit 0),
+36 pp, abstract 248 words, no undefined refs, no em-dashes. REMAINING: S2.2 DNS
+solver numbers (author-fill, blocked on collaborators); funding +
+author-contributions blocks; final citation style pass.
+
+### D156: Session 23 -- JEPA latent-capacity sweep (d=4..64) and the lift-head ablation (2026-06-02, Session 23)
+
+Trained three new predictive encoders replicating the d=16 Session-23 recipe
+exactly (20k it, seed 42, lift head wt 0.01, wake patch_signed_spectrum lambda=1.0,
+SIGReg 0.01, v2 split 226/42/24, RTX 6000): JEPA_d8, JEPA_d4, and a no-lift d=64
+reference (--observable-head-weight 0.0, wake head kept). All exit 0, no collapse
+(final PR 4.9 / 2.4 / 10.1 for d8 / d4 / d64-nolift). Closure via the canonical
+exp_closure_r2 probe (closure_r2_dsweep.py reuses it unchanged so the new rows match
+the d16/32/64 rows of closure_r2_dimsweep_d16.csv that feed tab:closure). Two
+findings. Capacity: held-out mean forecast R^2 (H=16, test_b, Markov) is 0.45 /
+0.36 / 0.36 at d=64 / 32 / 16 (a plateau), then falls off a cliff to 0.17 at d=8
+(wake-enstrophy R^2 goes below the predict-the-mean floor, -0.07) and 0.14 at d=4;
+so d=32/64 sit on the plateau and the wake forecast is not recoverable below
+roughly d=16 on this data. Lift-head ablation at matched d=64: removing the lift
+head (wake kept) lowers C_L forecast R^2 0.72->0.54, wake R^2 0.45->0.31, mean
+0.45->0.28, so the lift supervision helps even the wake channel it does not
+supervise, through the shared predictor dynamics. This is asymmetric with the
+existing wake-removal control (tab:controls_2x2, lift-only collapses wake to -1.03):
+removing wake collapses, removing lift degrades without collapsing. Landed as
+tab:jepa_dimsweep + a "Latent capacity and the lift head" paragraph in S4.5.
+Reproducible: scripts/session23/{train_dsweep,closure_dsweep}.sh,
+closure_r2_dsweep.py, build_jepa_table.py; encoders at
+outputs/runs/session23/JEPA_d{8,4}/ and JEPA_d64_nolift/ (checkpoint_iter020000.pt);
+metrics at outputs/session23_closure/closure_r2_dsweep.csv. Same pass also fixed a
+real defect found during float repositioning: the H=16 closure centerpiece
+fig:b1_results (fig4_closure) was never cited in the live manuscript (only in an
+archived markdown); added its citation and moved fig:b1_results, fig:traces,
+fig:recon next to their first references (def-to-ref gaps cut from 119/136/108 to
+28/31/17 lines). Build clean (latexmk exit 0), 37 pp, no undefined refs, no
+em-dashes.
+
+### D157: Session 23 -- no-conditioning (F-NC) ablation; the gust parameters are load-bearing for the forecast, not the representation (2026-06-02, Session 23)
+
+Tested removing the gust parameters (G,D,Y) from the model. The encoder is
+unconditional by design, so the only c-injection is the predictor; trained JEPA d=64
+with --predictor-cond-dim 0 (JEPA_d64_noc), identical to the production d64 recipe
+(which matches the session23 recipe exactly: 20k it, seed 42, lift 0.01, wake 1.0,
+SIGReg 0.01, v2) in every other respect, so the c-conditioned production d64 is the
+matched baseline. Closure with a no-cond closure predictor required a one-line
+addition to scripts/session18/train_baseline_predictor.py (--cond-dim, default 3 so
+all prior runs are unchanged); eval_baseline_rollouts needs no change because the
+AutoregressivePredictor ignores the cond tensor when cond_dim=0 (forward sets
+c_seq=None). Result (H=16): removing c leaves the REPRESENTATION almost intact
+(test_b wake MAE 29.83->34.21, since the encoder is unconditional either way) but
+degrades the FORECAST: test_b wake-enstrophy R^2 0.449->0.038 (collapses to the
+predict-the-mean floor), C_L 0.723->0.392, mean 0.445->0.309. The effect is stronger
+out of distribution: on test_c (|G|=4) the conditioned model holds wake R^2=0.33 and
+C_L=0.79 while the no-c model collapses to wake -1.06 and C_L 0.39, so the parameters
+are necessary to extrapolate the wake to an unseen gust strength. This is the exact
+complement of the conditioning-only floor (c without latent): each input alone leaves
+the wake near the floor, only their combination closes it. NOTE / red herring: the
+in-training diagnostic r2_overall was 0.999 for the no-c run (teacher-forced, on the
+training distribution); the held-out Markov rollout is where the missing c shows up,
+so do not read the training diagnostic as closure. Landed: no-c row in
+tab:jepa_dimsweep (second column relabelled "Configuration"; "no $\cvec$" row),
+extended S4.5 "Latent capacity, the heads, and the conditioning" paragraph, and a
+converse-control sentence in S4.1 next to the conditioning floor. Reproducible:
+scripts/session23/{train_noc,closure_noc}.sh; encoder
+outputs/runs/session23/JEPA_d64_noc/checkpoint_iter020000.pt; metrics
+outputs/session23_closure/closure_r2_noc.csv. Build clean (latexmk exit 0), 37 pp,
+no undefined refs, no em-dashes.
+

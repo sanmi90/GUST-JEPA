@@ -16,6 +16,7 @@ from pathlib import Path
 
 import matplotlib.pyplot as plt
 import numpy as np
+from matplotlib.colors import BoundaryNorm, ListedColormap
 
 import figstyle as fs
 
@@ -24,9 +25,6 @@ PV = REPO / "outputs/session21/pressure_v2"
 AIRFOIL = np.load(REPO / "outputs/session21/airfoil_xy.npy")
 OUT_PDF = REPO / "paper/sections/figures/results/figE_sensor_placement.pdf"
 OUT_PNG = REPO / "outputs/session21/figs/figE_sensor_placement.png"
-
-KMARK = [2, 4, 8]
-KCOL = {2: "#d6604d", 4: "#f4a582", 8: "#4393c3"}
 
 
 def main() -> None:
@@ -40,26 +38,30 @@ def main() -> None:
     # (a) airfoil + TCSI taps, nested by K
     axa.plot(AIRFOIL[:, 0], AIRFOIL[:, 1], color="0.25", lw=1.0, zorder=2)
     axa.fill(AIRFOIL[:, 0], AIRFOIL[:, 1], color="0.9", zorder=1)
-    for K in reversed(KMARK):
-        idx = picks[str(K)]
-        pts = AIRFOIL[idx]
-        axa.scatter(pts[:, 0], pts[:, 1], s=24 + 8 * (8 - K), color=KCOL[K],
-                    edgecolors="white", linewidths=0.4, zorder=3,
-                    label=f"$K={K}$")
+    # One uniform marker per tap, coloured dark (most informative, picked first)
+    # to light (least), by the greedy TCSI selection rank. The picks are nested,
+    # so the two darkest are the K=2 pair, the four darkest the K=4 set, etc.
+    ranked = picks["8"]  # greedy order; index 0 = rank 1 = most informative
+    n = len(ranked)
+    pts = AIRFOIL[ranked]
+    base = plt.cm.Blues(np.linspace(0.93, 0.38, n))  # dark -> light
+    lcmap = ListedColormap(base)
+    norm = BoundaryNorm(np.arange(n + 1) - 0.5, n)
+    sc = axa.scatter(pts[:, 0], pts[:, 1], c=np.arange(n), cmap=lcmap, norm=norm,
+                     s=42, marker="o", edgecolors="0.25", linewidths=0.5, zorder=3)
     axa.set_aspect("equal")
     axa.set_xlim(-0.08, 1.05); axa.set_ylim(-0.16, 0.16)
     axa.set_xlabel("$x/c$"); axa.set_ylabel("$y/c$")
     axa.set_title("TCSI sensor placement", fontsize=8)
-    axa.legend(loc="upper right", handletextpad=0.2, borderpad=0.2, ncol=3,
-               columnspacing=0.8)
-    axa.annotate("leading edge", (0.0, 0.0), textcoords="offset points",
-                 xytext=(18, -22), fontsize=6, color="0.4",
-                 arrowprops=dict(arrowstyle="->", color="0.6", lw=0.6))
+    cb = fig.colorbar(sc, ax=axa, location="bottom", fraction=0.07, pad=0.30,
+                      aspect=30)
+    cb.set_ticks([0, n - 1]); cb.set_ticklabels(["most", "least"])
+    cb.set_label("TCSI relevance rank", fontsize=6, labelpad=1.5)
+    cb.ax.tick_params(labelsize=6, length=2, pad=1)
 
     # (b) method comparison vs K (JEPA d=64 latent recovery, test_b)
-    styles = {"TCSI": ("#1b7837", "o", "-", "TCSI (optimal)"),
-              "qDEIM": ("#762a83", "s", "--", "qDEIM"),
-              "uniform": ("0.5", "^", ":", "uniform")}
+    styles = {"TCSI": ("#1b7837", "o", "-", "TCSI (ours)"),
+              "qDEIM": ("#762a83", "s", "--", "qDEIM")}
     for m, (col, mk, ls, lab) in styles.items():
         pts = sorted((x["K"], x["R2_z"]) for x in mc
                      if x["method"] == m and x["split"] == "test_b")

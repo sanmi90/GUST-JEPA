@@ -29,6 +29,17 @@
   doi     = {10.1103/PhysRevFluids.10.084703}
 }
 
+% --- Taylor vortex profile cited for the gust model (Section 2.1, Eq. taylor). ---
+% --- CONFIRM: the standard Taylor (1918) vortex; verify the authors' DNS used   ---
+% --- this exact azimuthal profile, else cite the form actually imposed.         ---
+@article{taylor1918,
+  author  = {Taylor, G. I.},
+  title   = {On the dissipation of eddies},
+  journal = {Reports and Memoranda, Advisory Committee for Aeronautics},
+  number  = {598},
+  year    = {1918}
+}
+
 % --- VERIFIED. Replaces the broken ref [13] ("verify volume/pages").          ---
 % --- This is the urban-canyon / building-wake gust motivation in the intro.    ---
 % --- If a different "gust-aware flight" paper was intended, confirm the handle. ---
@@ -81,6 +92,113 @@
             latent-space reduced-order models in controlled wake flows},
   note   = {Under review, Journal of Fluid Mechanics},
   year   = {2025}
+}
+
+% --- Introduction references (Session 23 research brief). The canonical field   ---
+% --- references are standard; CONFIRM DOIs/volumes against the publisher before  ---
+% --- submission (the brief flagged a few). liu2025modelbased is the newest, the  ---
+% --- closest action-conditioned latent-control prior art: verify before ship.    ---
+@article{eldredge2019leading,
+  author  = {Eldredge, Jeff D. and Jones, Anya R.},
+  title   = {Leading-Edge Vortices: Mechanics and Modeling},
+  journal = {Annual Review of Fluid Mechanics},
+  volume  = {51},
+  pages   = {75--104},
+  year    = {2019},
+  doi     = {10.1146/annurev-fluid-010518-040334}
+}
+
+@article{berkooz1993pod,
+  author  = {Berkooz, Gal and Holmes, Philip and Lumley, John L.},
+  title   = {The Proper Orthogonal Decomposition in the Analysis of Turbulent Flows},
+  journal = {Annual Review of Fluid Mechanics},
+  volume  = {25},
+  pages   = {539--575},
+  year    = {1993},
+  doi     = {10.1146/annurev.fl.25.010193.002543}
+}
+
+@article{schmid2010dmd,
+  author  = {Schmid, Peter J.},
+  title   = {Dynamic mode decomposition of numerical and experimental data},
+  journal = {Journal of Fluid Mechanics},
+  volume  = {656},
+  pages   = {5--28},
+  year    = {2010},
+  doi     = {10.1017/S0022112010001217}
+}
+
+@article{murata2020nonlinear,
+  author  = {Murata, Takaaki and Fukami, Kai and Fukagata, Koji},
+  title   = {Nonlinear mode decomposition with convolutional neural networks for
+             fluid dynamics},
+  journal = {Journal of Fluid Mechanics},
+  volume  = {882},
+  pages   = {A13},
+  year    = {2020},
+  doi     = {10.1017/jfm.2019.822}
+}
+
+@article{linot2023dynamics,
+  author  = {Linot, Alec J. and Graham, Michael D.},
+  title   = {Dynamics of a data-driven low-dimensional model of turbulent minimal
+             {C}ouette flow},
+  journal = {Journal of Fluid Mechanics},
+  volume  = {973},
+  pages   = {A42},
+  year    = {2023},
+  doi     = {10.1017/jfm.2023.720}
+}
+
+@article{lusch2018deep,
+  author  = {Lusch, Bethany and Kutz, J. Nathan and Brunton, Steven L.},
+  title   = {Deep learning for universal linear embeddings of nonlinear dynamics},
+  journal = {Nature Communications},
+  volume  = {9},
+  pages   = {4950},
+  year    = {2018},
+  doi     = {10.1038/s41467-018-07210-0}
+}
+
+@inproceedings{ha2018world,
+  author    = {Ha, David and Schmidhuber, J\"urgen},
+  title     = {Recurrent World Models Facilitate Policy Evolution},
+  booktitle = {Advances in Neural Information Processing Systems 31 (NeurIPS)},
+  year      = {2018},
+  note      = {arXiv:1803.10122}
+}
+
+@article{lee2020model,
+  author  = {Lee, Kookjin and Carlberg, Kevin T.},
+  title   = {Model reduction of dynamical systems on nonlinear manifolds using
+             deep convolutional autoencoders},
+  journal = {Journal of Computational Physics},
+  volume  = {404},
+  pages   = {108973},
+  year    = {2020},
+  doi     = {10.1016/j.jcp.2019.108973}
+}
+
+@article{brunton2020machine,
+  author  = {Brunton, Steven L. and Noack, Bernd R. and Koumoutsakos, Petros},
+  title   = {Machine Learning for Fluid Mechanics},
+  journal = {Annual Review of Fluid Mechanics},
+  volume  = {52},
+  pages   = {477--508},
+  year    = {2020},
+  doi     = {10.1146/annurev-fluid-010719-060214}
+}
+
+% --- CONFIRM (newest, closest prior art). Physics-augmented AE + latent dynamics ---
+% --- as an RL surrogate for gust control. Verify AIAA J DOI / online date.        ---
+@article{liu2025modelbased,
+  author  = {Liu, Zhecheng and Beckers, Diederik and Eldredge, Jeff D.},
+  title   = {Model-Based Reinforcement Learning for Control of Strongly-Disturbed
+             Unsteady Aerodynamic Flows},
+  journal = {AIAA Journal},
+  year    = {2025},
+  doi     = {10.2514/1.J064790},
+  note    = {arXiv:2408.14685}
 }
 
 % ============================================================================
