@@ -7613,3 +7613,27 @@ note, and the primary-endpoint designation; Table 10 (tab:paired_closure) gains 
 for all 12 tests and a caption reporting the case-clustered wake CIs + the survival verdict. Build
 clean (latexmk exit 0, 40 pp, 0 undefined, 0 em-dashes in the two edited files). GATE 1 PASS.
 
+### D166: Session 26 Track 2 -- persistent-homology threshold + sampling robustness; "decisive" softened (2026-06-03)
+
+scripts/session26/track2_topology_robustness.py runs ripser once per (encounter, family, stride),
+stores every H1 lifetime + cloud_scale, then re-thresholds cheaply. Grid: noise floor in
+{2,5,10,15,20}% of the cloud diameter x points-per-encounter in {120,60,40,30} (uniform stride).
+The significance rule is floor = NOISE_FRAC * cloud_scale (cloud_scale = max finite H0 death).
+FINDING: the predictive (JEPA z_dns) median is one generator in ALL 20 cells (rock-solid clean
+loop). The predictive-vs-reconstructive Mann-Whitney separation is below 1e-3 for floors 2-15% at
+120-point sampling and up to 5% at 60-point sampling (canonical 5%/120pt = 4.4e-8), but the exact p
+ranges over nine orders of magnitude across the grid (1e-11 to ~1): at the most aggressive 20% floor
+the reconstructive median itself falls to 1 (from 6 at the 2% floor) and under heavy subsampling to
+30 points both medians approach 1 and the separation washes out. So the ROBUST statement is the
+median-count separation over a defensible floor and sampling range, NOT the order-of-magnitude p;
+the word "decisive" is softened accordingly (hard-rule honesty). The case-clustered signed-rank
+(10/10 cases at canonical, from Track 1) holds across the same range. APPLIED: S4.3 gains a
+robustness sentence citing smith2024 (convergence protocol) + Appendix A "Topological robustness"
+paragraph with the grid summary. Also CORRECTED an internal contradiction the Track 1 caption
+exposed: the S4.1 summary sentence said the predictive latent "leads decisively on the wake
+observables ... in both modes"; reworded so the representational wake advantage (which survives
+clustering + family-wide correction) is the lead and the forecast advantage is same-direction but
+survives neither (the principle-level reframe stays for Track 6). Grid at
+outputs/session26/topology_robustness/grid.{json,csv}. Build clean (latexmk exit 0, 40 pp, 0
+undefined, 0 em-dashes, section_4 flag count unchanged at the pre-existing 46). GATE 2 PASS.
+

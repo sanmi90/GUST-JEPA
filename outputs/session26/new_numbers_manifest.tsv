@@ -8,3 +8,7 @@ case-level Wilcoxon repr wake p=0.03 (7/10)	Table 10 caption	0.032	scripts/sessi
 case-level Wilcoxon forecast wake p=0.10 (7/10)	Table 10 caption	0.097	scripts/session26/track1_stats.py	outputs/session26/stats/wake_paired.json
 Holm-adjusted p (12 tests) repr wake 0.017; forecast wake 0.44; repr circ_neg 0.044	Table 10 Holm column	see holm.json	scripts/session26/track1_stats.py	outputs/session26/stats/holm.json
 n_cases test_b=10 test_c=4	S2.2	10 / 4	(split_v2.json)	outputs/session26/split_v2_case_map.json
+topology predictive median 1 in all 20 threshold x sampling cells	S4.3 + App A	1	scripts/session26/track2_topology_robustness.py	outputs/session26/topology_robustness/grid.json
+topology MW separation <1e-3 floors 2-15% (120pt), <=5% (60pt)	App A	see grid	scripts/session26/track2_topology_robustness.py	outputs/session26/topology_robustness/grid.csv
+topology reconstructive median 6 at 2% floor to 1 at 20% floor (120pt)	App A	6 -> 1	scripts/session26/track2_topology_robustness.py	outputs/session26/topology_robustness/grid.csv
+topology case-clustered 10/10 cases signed-rank p=1e-3 canonical	S4.3 + Table 10	0.001	scripts/session26/track1_stats.py	outputs/session26/stats/topology.json

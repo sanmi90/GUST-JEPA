@@ -99,17 +99,20 @@ positive in all three (median $+38$, the predictive latent carrying the smaller
 error on $25$ to $30$ of $42$ encounters), and the representational wake $R^2$ is
 $0.72 \pm 0.10$ for the predictive latent against $-0.22 \pm 0.14$ for the
 reconstructive (mean $\pm$ s.d.\ over seeds). All six observables are reported in both modes, not a selected subset. The
-ordering is not uniform: the predictive latent leads decisively on the wake
-observables (enstrophy and negative circulation) in both modes and on the forces
-representationally, but on forward forecast the scalar $C_L$ and positive
-circulation fall within the paired noise between the families
-(Table~\ref{tab:paired_closure}). The wake is where the three families separate. The reconstructive \emph{representational} wake-enstrophy $R^2$ interval
-is entirely negative ($[-4.62, -0.12]$), a cleaner statement that the
-reconstructive latent fails to carry wake structure on held-out cases, and the
-decisive confirmation is the mechanistic evidence of \S\ref{sec:res_drift} (the
-drift ratio, the topological generator count at $p = 4 \times 10^{-8}$, the
-transport alignment, and the scale-resolved wake-enstrophy tracking), where the
-families separate unambiguously.
+ordering is not uniform: the predictive latent leads on the wake observables
+(enstrophy and negative circulation), and this representational wake advantage is
+the one that survives both case-level clustering and a family-wide correction over
+the twelve paired tests; the forecast advantage points the same way but survives
+neither (Table~\ref{tab:paired_closure}), and on forward forecast the scalar $C_L$
+and positive circulation fall within the paired noise between the families. The
+wake is where the three families separate. The reconstructive
+\emph{representational} wake-enstrophy $R^2$ interval is entirely negative
+($[-4.62, -0.12]$), a cleaner statement that the reconstructive latent fails to
+carry wake structure on held-out cases, and the confirmation rests on the
+mechanistic evidence of \S\ref{sec:res_drift} (the drift ratio, the topological
+generator-count separation, robust over a defensible noise-floor and sampling
+range, the transport alignment, and the scale-resolved wake-enstrophy tracking),
+where the families separate consistently.
 
 \begin{table}[t]
   \centering
@@ -283,7 +286,16 @@ the curvature geometry of \S\ref{sec:res_param_phase}: the impact frame is a
 curvature minimum of the predictive trajectory, a smooth pass-through rather than
 a sharp corner, so the cycle it traces is a single well-formed loop. The result
 at $d = 32$ is the same (single predictive loop versus reconstructive
-fragmentation).
+fragmentation). The separation is robust to the two free choices of the analysis,
+following the convergence protocol of \cite{smith2024}: across noise floors from
+$2\%$ to $15\%$ of the cloud diameter and trajectory subsampling down to $60$
+points the predictive median stays at one generator and the Mann--Whitney
+separation holds at $p < 10^{-3}$, and it survives case-level clustering ($10$ of
+$10$ cases, signed-rank $p = 10^{-3}$ at the canonical setting). At the most
+aggressive $20\%$ floor, or under heavy subsampling to $30$ points, the spurious
+reconstructive generators are themselves filtered and the two medians converge, so
+the exact $p$ is floor- and sampling-dependent while the median-count separation
+is not (Appendix~\ref{app:reg}).
 \begin{figure}[t]
   \centering
   \includegraphics[width=0.98\linewidth]{sections/figures/results/fig_persistence.pdf}
