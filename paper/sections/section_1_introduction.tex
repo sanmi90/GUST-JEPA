@@ -124,8 +124,9 @@ The question this paper addresses is therefore not which encoder reconstructs
 the flow best, but which produces a reduced state that remains useful when
 propagated forward in time. We treat this as a fluid-mechanics question with a
 geometric answer: a reduced state forecasts these encounters well when its latent
-metric is an isometry of the optimal-transport geometry of the field, so that one
-predictor step is a transport-consistent move and iterating it stays on the data
+metric stays well aligned with the optimal-transport geometry of the field, in the
+empirical sense that latent distances preserve the ordering of the transport
+distances, so that iterating the predictor step keeps the rollout close to the data
 manifold. A reconstruction objective does not impose this property, so its rollout
 drifts off the manifold; a predictive objective regularised against collapse does.
 The joint-embedding predictive architecture is the instrument we use to realise the
@@ -168,5 +169,5 @@ objective trained with wake-observable supervision, not to the architecture. We
 further show that the same predictive state is the most recoverable of the three
 from sparse wall pressure, so it is observable as well as forecastable
 (\S\ref{sec:res_observability}), and we relate the predictor to the latent
-dynamics function a controller would plan against, with a deployment pilot
+dynamics function a controller would plan against, with a closed-loop pilot
 reported as a limitation rather than a result (\S\ref{sec:discussion}).

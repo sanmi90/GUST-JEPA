@@ -19,7 +19,10 @@ characteristic-function regulariser below requires. The encoder is
 \emph{unconditional} by design: it sees only the flow field, not the gust
 parameters $\cvec = (G,D,Y)$. This is the property that lets the latent itself
 serve as the observable a controller would have access to, since at deployment
-the gust parameters are not known a priori (\S\ref{sec:discussion}).
+the gust parameters are not known a priori (\S\ref{sec:discussion}). The
+conditional predictor, by contrast, still requires $\cvec$, either estimated
+from the wall or marginalised over, so an observable latent is a necessary but
+not a sufficient condition for a deployable forward model.
 
 The predictor $P_\phi$ advances the latent in time. It is a six-layer
 autoregressive transformer with rotary positional embeddings and a causal mask,
@@ -37,7 +40,7 @@ Table~\ref{tab:architecture} summarises the two networks.
 \begin{table}[t]
   \centering
   \caption{Encoder and predictor configuration. The encoder is unconditional;
-  the gust parameters $\cvec = (G,D,Y)$ and the within-encounter phase enter only
+  the gust parameters $\cvec = (G,D,Y)$ enter only
   the predictor, through identity-initialised adaptive layer normalisation
   (AdaLN-Zero). Parameter counts are for the $d = 64$ configuration; two small
   auxiliary heads read observables off the encoder output (a lift head,
@@ -54,7 +57,7 @@ Table~\ref{tab:architecture} summarises the two networks.
     backbone        & 3 conv.\ stages $+$ 6-layer ViT & 6-layer autoregressive transformer \\
     width / heads   & $256$ / $8$ & $384$ / $16$ \\
     tokens / context & $24 \times 12 = 288$ spatial & $\le 32$ temporal (causal) \\
-    conditioning    & none & AdaLN-Zero on $(\cvec, \phi)$, rotary time \\
+    conditioning    & none & AdaLN-Zero on $\cvec = (G,D,Y)$, rotary time \\
     latent read-out & class token $\to$ linear $\to$ BatchNorm & next-step latent \\
     parameters      & $6.7$M & $16.2$M \\
     \bottomrule
@@ -116,8 +119,8 @@ comparison is therefore against a tuned baseline, not a hobbled one.
 
 The figure of merit is forward physical closure, the empirical test of the
 geometric criterion set out in the introduction: a latent whose metric stays
-transport-consistent under the predictor keeps each observable recoverable along the
-rollout, while one that drifts off the manifold loses it. Given a ground-truth
+aligned with the transport geometry under the predictor keeps each observable
+recoverable along the rollout, while one that drifts off the manifold loses it. Given a ground-truth
 $\cvec$ and an initial latent, the predictor is rolled recursively to $H = 16$, and
 at each step the probe maps the predicted latent to each observable. A small
 closure error means the encoder produces a latent whose dynamics, propagated by
@@ -156,10 +159,14 @@ gone out of distribution, so that the probe is then queried outside its support.
 $\cvec = (G,D,Y)$, a natural concern is that the forecast quality is carried by
 the conditioning rather than by the latent. We bound this with a
 kernel-ridge regressor that maps $\cvec$ directly to each observable at the
-impact frame, with no latent input, fit on training and evaluated on the
-held-out splits. This is the floor any learned encoder must clear on held-out
-cases to demonstrate that its latent contributes beyond what is already implicit
-in the parameters.
+forecast horizon $H = 16$, with no latent input, fit on training and evaluated on
+the held-out splits, so that it is frame-matched to the closure it is compared
+against. This is the floor any learned encoder must clear at that horizon to
+demonstrate that its latent contributes beyond what is already implicit in the
+parameters. At the impact frame the same parameter floor is high, because the
+just-released gust nearly determines the instantaneous state; the predictive
+latent must instead close the gap that opens as the wake evolves
+(\S\ref{sec:res_closure}).
 
 % --- figures retained from the original draft (paths unchanged) ---
 \begin{figure}[t]
@@ -174,21 +181,9 @@ in the parameters.
   \label{fig:jepa_architecture}
 \end{figure}
 
-% ALTERNATIVE to fig:jepa_architecture, block-diagram style (kept so the
-% authors can choose between the two). Remove one before submission.
-\begin{figure}[t]
-  \centering
-  \includegraphics[width=0.95\linewidth]{sections/figures/tikz/fig1b_jepa_blockdiagram.pdf}
-  \caption{Block-diagram view of the JEPA, partitioned into the physical (DNS)
-  and computational domains in the style of a data-driven control schematic. The
-  encoder builds the reduced state $\zvec_t = E_\theta(\omegaz^t)$ and the
-  predictor advances it forward in time (the forward model), with the gust
-  parameters $\cvec = (G,D,Y)$ entering only the predictor. Two observable heads
-  read the lift and an $80$-dimensional wake spectrum off the latent (the wake
-  penalty), supervised by the DNS observables; the visualisation decoder is
-  trained later and never enters the latent-prediction loss.}
-  \label{fig:jepa_blockdiagram}
-\end{figure}
+% Block-diagram alternative (fig1b_jepa_blockdiagram) demoted from the main text in
+% the JFM hardening pass to keep a single architecture schematic (Fig.~1) plus
+% Table~1; the tikz asset is retained under sections/figures/tikz/ for reuse.
 
 \begin{figure}[t]
   \centering

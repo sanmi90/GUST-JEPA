@@ -2,9 +2,10 @@
 
 We asked what makes a reduced-order state forecast parametric vortex-gust airfoil
 interactions, and reached a geometric answer: the state forecasts well when its
-latent metric is an isometry of the optimal-transport geometry of the flow, so that
-one predictor step is a transport-consistent move and iterating it stays on the data
-manifold. A reconstruction objective does not impose this property and its rollout
+latent metric stays well aligned with the optimal-transport geometry of the flow,
+in the empirical sense that latent distances preserve the ordering of the transport
+distances, so that the rollout stays close to the data manifold. A reconstruction
+objective does not impose this property and its rollout
 drifts off the manifold; a predictive objective regularised against collapse does.
 We tested this by comparing a predictive latent (JEPA), a reconstructive
 observable-augmented autoencoder, and a proper orthogonal decomposition basis as
@@ -24,7 +25,9 @@ encoder also differs in architecture and auxiliary supervision, matched controls
 attribute the advantage to the predictive objective trained with wake supervision.
 The same predictive state is the most recoverable of the three from sparse wall
 pressure, so it is observable as well as forecastable, the property a downstream
-estimator or controller would exploit. The remaining limitations are the weak
-resolution of the wall-normal offset, the three-dimensional observability boundary
-at $|G| = 4$, and a rollout error that still prevents a closed-loop control
-demonstration.
+estimator or controller would exploit. We claim a conditional forward-closure
+model, not a validated counterfactual controller: the predictor forecasts the
+consequences of observed gust parameters but is not shown to respond correctly to
+interventions on them. The remaining limitations are the weak resolution of the
+wall-normal offset, the three-dimensional observability boundary at $|G| = 4$, and
+a rollout error that still prevents a closed-loop control demonstration.

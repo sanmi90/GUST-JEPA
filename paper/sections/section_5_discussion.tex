@@ -15,8 +15,8 @@ observables and established first at the representation level, where it survives
 case-level clustering and a family-wide correction; the forward rollout is
 consistent with the same ordering but is not, on its own, decisive at the case
 level. The mechanism is a property of the latent metric: it is, to a good
-approximation, an isometry of the optimal-transport geometry of the flow, so that
-one predictor step is a transport-consistent move and iterating it stays on the data
+approximation, aligned with the optimal-transport geometry of the flow in the
+empirical distance-matrix sense, so that the rollout stays close to the data
 manifold. A reconstruction objective
 fixes the latent only up to a diffeomorphism \cite{tran2026,kelshaw2024}, so the
 decoder is free to place codes anywhere it finds convenient and nothing
@@ -116,7 +116,7 @@ approaching the effective dimensionality, and the extra dimensions buy precision
 rather than a qualitatively different representation. On the out-of-distribution test\_c set the $d = 32$ latent is in fact
 marginally the more robust of the two, $0.45$ against $0.33$ on wake enstrophy.
 The physics the predictive objective organises into the latent, the closed
-encounter cycle and its transport-consistent metric, is therefore a
+encounter cycle and its transport-aligned metric, is therefore a
 low-dimensional object already present at $d = 32$, and the additional dimensions
 at $d = 64$ buy in-distribution forecast precision rather than a qualitatively
 different representation. The parameter content of the two latents is consistent
@@ -174,14 +174,16 @@ property of the objective stripped of all auxiliary supervision.
 \label{sec:disc_control}
 
 The predictor is, by construction, the latent dynamics function a model-based
-controller plans against, and three properties of the architecture support that
-use: closure holds out to the planning horizon relevant to the impact-instant
+controller would plan against, and three properties of the architecture are
+relevant to that use: closure holds out to the planning horizon relevant to the impact-instant
 load, the latent is two to three orders of magnitude cheaper to evolve than the
 full field, and the rollout stays on the training manifold, which is the
 property that determines whether long-horizon plans remain meaningful since a
 planner queries the predictor on states reached by its own rollout. Because the
 encoder is unconditional, the latent itself is the observable a controller has
-access to, and the gust parameters enter only the predictor; replacing the
+access to, but the conditioning $\cvec$ is not observed at deployment and must be
+estimated from the wall or marginalised over before the predictor is run, and the
+gust parameters enter only the predictor; replacing the
 parametric conditioning with an actuation channel is a change of input rather
 than of architecture, and the phase-amplitude reading of \S\ref{sec:res_param_phase}
 connects the predictor directly to the sensitivity-function control designed for

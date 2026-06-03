@@ -14,7 +14,7 @@ BatchNorm, the layer the characteristic-function regulariser below requires. The
 encoder is unconditional and carries no information about the gust parameters. The
 predictor is a six-layer autoregressive transformer of width $384$ with sixteen
 heads and dropout $0.1$, with a causal mask and rotary temporal positions. The
-gust parameters $\cvec = (G, D, Y)$ and the within-encounter phase enter only the
+gust parameters $\cvec = (G, D, Y)$ enter only the
 predictor, through adaptive layer normalisation initialised to the identity
 (AdaLN-Zero), so that at initialisation the predictor is the unconditioned
 dynamics and the conditioning is learned as a modulation. Training minimises the
