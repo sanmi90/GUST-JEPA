@@ -1,0 +1,50 @@
+{
+  "thresholds": [
+    0.5,
+    1.0,
+    2.0
+  ],
+  "collinearity_test_b": {
+    "circulation_pos": {
+      "0.5_vs_1.0": 0.9898565666862731,
+      "0.5_vs_2.0": 0.9062896610906017,
+      "1.0_vs_2.0": 0.9368940525626194
+    },
+    "circulation_neg": {
+      "0.5_vs_1.0": 0.9925585055880874,
+      "0.5_vs_2.0": 0.9861969726329958,
+      "1.0_vs_2.0": 0.9946599889484412
+    }
+  },
+  "repr_closure_R2_test_b_H16": {
+    "circulation_pos": {
+      "0.5": {
+        "jepa_d64": 0.7869506149892711,
+        "fukami_d64": 0.2400209617564223
+      },
+      "1.0": {
+        "jepa_d64": 0.7749022337987822,
+        "fukami_d64": 0.33465764179596147
+      },
+      "2.0": {
+        "jepa_d64": 0.8797969115601612,
+        "fukami_d64": 0.30842306890180726
+      }
+    },
+    "circulation_neg": {
+      "0.5": {
+        "jepa_d64": 0.8617987460286256,
+        "fukami_d64": -0.2016673645700615
+      },
+      "1.0": {
+        "jepa_d64": 0.8530650386877092,
+        "fukami_d64": -0.21097940857835829
+      },
+      "2.0": {
+        "jepa_d64": 0.8716047711497419,
+        "fukami_d64": -0.22837418345770133
+      }
+    }
+  },
+  "note": "circulation closure (repr R^2) and the JEPA-minus-Fukami advantage are compared across omega_c to test sensitivity to the threshold choice."
+}

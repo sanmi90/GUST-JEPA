@@ -1,0 +1,18 @@
+{
+  "definition": "r(dI_y/dt, C_L); the 2D impulse-lift relation would give |r|~1",
+  "train": {
+    "n_enc": 226,
+    "r_pooled": -0.0028101796476235077,
+    "r_per_encounter_mean": -0.06798915251344746
+  },
+  "test_b": {
+    "n_enc": 42,
+    "r_pooled": -0.050940304932896065,
+    "r_per_encounter_mean": -0.10550264126829244
+  },
+  "test_c": {
+    "n_enc": 24,
+    "r_pooled": -0.00679177014290651,
+    "r_per_encounter_mean": -4.3436001300567e-05
+  }
+}

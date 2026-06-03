@@ -1,0 +1,7 @@
+{
+  "source": "outputs/session23/chi3d/chi3d_gate.json (post_impact, omega_z)",
+  "median_le3": 0.19969149094196692,
+  "median_g4": 0.555324156601579,
+  "ratio_g4_over_le3": 2.7809104633455,
+  "note": "in-distribution (|G|<=3) out-of-plane omega_z enstrophy fraction ~0.20; rises to ~0.555 at |G|=4 (n_le3=74, n_g4=4 cases)."
+}

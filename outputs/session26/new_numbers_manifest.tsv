@@ -12,3 +12,6 @@ topology predictive median 1 in all 20 threshold x sampling cells	S4.3 + App A	1
 topology MW separation <1e-3 floors 2-15% (120pt), <=5% (60pt)	App A	see grid	scripts/session26/track2_topology_robustness.py	outputs/session26/topology_robustness/grid.csv
 topology reconstructive median 6 at 2% floor to 1 at 20% floor (120pt)	App A	6 -> 1	scripts/session26/track2_topology_robustness.py	outputs/session26/topology_robustness/grid.csv
 topology case-clustered 10/10 cases signed-rank p=1e-3 canonical	S4.3 + Table 10	0.001	scripts/session26/track1_stats.py	outputs/session26/stats/topology.json
+r(dIy/dt, CL) ~ -0.05 test_b (Iy is not impulse-theorem lift)	S2.2	-0.0509	scripts/session26/track3_physics_caveats.py	outputs/session26/physics_caveats/impulse.json
+omega_c collinearity pairwise Pearson > 0.90	S2.2	>0.90	scripts/session26/track3_physics_caveats.py	outputs/session26/physics_caveats/omega_c_sensitivity.json
+omega_c circ closure advantage: circ_neg +1.06..+1.10, circ_pos +0.44..+0.57	S2.2	stable	scripts/session26/track3_physics_caveats.py	outputs/session26/physics_caveats/omega_c_sensitivity.json

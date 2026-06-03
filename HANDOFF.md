@@ -7637,3 +7637,25 @@ survives neither (the principle-level reframe stays for Track 6). Grid at
 outputs/session26/topology_robustness/grid.{json,csv}. Build clean (latexmk exit 0, 40 pp, 0
 undefined, 0 em-dashes, section_4 flag count unchanged at the pre-existing 46). GATE 2 PASS.
 
+### D167: Session 26 Track 3 -- physical-definition caveats (Iy non-impulse, 2D proxy, omega_c) (2026-06-03)
+
+scripts/session26/track3_physics_caveats.py (CPU, reads cache + cached latents). (3a) Recomputed
+r(dI_y/dt, C_L) from the DNS observables: near zero everywhere (test_b pooled -0.051, per-encounter
+mean -0.106; train -0.003/-0.068), confirming D124c that the mid-plane 2D impulse I_y is NOT the
+impulse-theorem lift (which would give |r|~1). (3b) chi_3D reference read from the committed
+outputs/session23/chi3d/chi3d_gate.json (post-impact omega_z): in-distribution median 0.200
+(|G|<=3), 0.555 (|G|=4); already stated in S2.1, now cross-referenced from the observables section.
+(3c) Recomputed the DNS signed circulations at omega_c in {0.5,1,2} from the cache and refit the
+representational closure probe at each: the observable is nearly collinear across thresholds
+(pairwise Pearson circ_pos 0.91-0.99, circ_neg 0.99) and the JEPA-minus-Fukami repr closure
+advantage is stable (circ_pos +0.55/+0.44/+0.57, circ_neg +1.06/+1.06/+1.10 at omega_c 0.5/1/2), so
+the closure does not depend on the arbitrary threshold; omega_c=1 kept. APPLIED to S2.2: a one-line
+omega_c sensitivity after the circulation definition, and a two-point caveat paragraph after the
+observable definitions stating (i) I_y is a mid-plane 2D wake-transport diagnostic and not the
+impulse-theorem lift (r ~ -0.05, no closure result recovers the impulse lift) and (ii) the wake/flow
+observables are mid-plane 2D proxies (out-of-plane ~one fifth in distribution, cross-ref S2.1)
+against the true 3D forces, weakest at the |G|=4 boundary (~0.56). No Section 4 passage implies I_y
+is the impulse lift (checked). Numbers at outputs/session26/physics_caveats/{impulse,chi3d_ref,
+omega_c_sensitivity}.json. Build clean (latexmk exit 0, 41 pp, 0 undefined, 0 em-dashes, section_2
+flag count unchanged at the pre-existing 1). GATE 3 PASS.
+
