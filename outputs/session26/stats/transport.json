@@ -1,0 +1,18 @@
+{
+  "metric": "per-encounter Spearman(OT frame-frame, latent frame-frame); JEPA d64 vs Fukami",
+  "encounter_level": {
+    "n": 42,
+    "jepa_mean": 0.6301107341733521,
+    "fukami_mean": 0.44897472226762214,
+    "margin_mean": 0.18113601190573
+  },
+  "case_level": {
+    "n_cases": 10,
+    "jepa_case_mean": 0.628574509515208,
+    "fukami_case_mean": 0.44700772972565056,
+    "margin_case_mean": 0.18156677978955763,
+    "cases_jepa_higher": 9,
+    "wilcoxon_stat": 54.0,
+    "wilcoxon_p_one_sided": 0.001953125
+  }
+}

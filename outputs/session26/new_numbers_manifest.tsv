@@ -2,3 +2,9 @@ paper_number	where_in_paper	value	generating_script	committed_output_file
 # Session 26 traceability manifest. Every NEW number introduced into the manuscript this
 # session must appear here with a committed source. Tab-separated. Numbers that merely move
 # or are reworded (already traceable from prior sessions) are not re-listed.
+case-clustered repr wake CI [+12.5,+77.2]	Table 10 caption	[+12.5,+77.2]	scripts/session26/track1_stats.py	outputs/session26/stats/wake_paired.json
+case-clustered forecast wake CI [-4.5,+72.6]	Table 10 caption	[-4.5,+72.6]	scripts/session26/track1_stats.py	outputs/session26/stats/wake_paired.json
+case-level Wilcoxon repr wake p=0.03 (7/10)	Table 10 caption	0.032	scripts/session26/track1_stats.py	outputs/session26/stats/wake_paired.json
+case-level Wilcoxon forecast wake p=0.10 (7/10)	Table 10 caption	0.097	scripts/session26/track1_stats.py	outputs/session26/stats/wake_paired.json
+Holm-adjusted p (12 tests) repr wake 0.017; forecast wake 0.44; repr circ_neg 0.044	Table 10 Holm column	see holm.json	scripts/session26/track1_stats.py	outputs/session26/stats/holm.json
+n_cases test_b=10 test_c=4	S2.2	10 / 4	(split_v2.json)	outputs/session26/split_v2_case_map.json

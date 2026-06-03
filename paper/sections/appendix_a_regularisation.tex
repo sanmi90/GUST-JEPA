@@ -98,28 +98,37 @@ the marginal intervals of Table~\ref{tab:closure}.
   mean of (reconstructive $-$ predictive) absolute error in each observable's own
   units, so a positive value favours the predictive latent; the $95\%$ interval
   is a $2000$-resample paired bootstrap, and the sign test counts the encounters
-  on which the predictive error is the smaller of the pair. Wake enstrophy
-  separates the families in both modes by both the bootstrap interval and the sign
-  test; all six observables are shown, not a selected subset.}
+  on which the predictive error is the smaller of the pair. The wake enstrophy is
+  the pre-registered primary endpoint (\S\ref{sec:flow_observables}); the final
+  column is its raw sign-test $p$ Holm-corrected across the twelve tests of the
+  table, so the secondary observables are read after the family-wide correction.
+  The $42$ encounters come from only $10$ cases, so the wake rows additionally
+  carry a case-clustered $95\%$ interval (resampling the $10$ cases, encounters
+  averaged within case): representational $[+12.5, +77.2]$ and forecast
+  $[-4.5, +72.6]$, with a case-level signed-rank test on the per-case mean
+  improvement of $p = 0.03$ ($7/10$ cases) and $p = 0.10$ ($7/10$ cases)
+  respectively. The representational wake advantage survives both the case-level
+  clustering and the family-wide correction; the forecast wake advantage survives
+  neither. All six observables are shown, not a selected subset.}
   \label{tab:paired_closure}
   \small
-  \begin{tabular}{l l r c l}
+  \begin{tabular}{l l r c l r}
     \toprule
-    Mode & Observable & $\Delta\mathrm{err}$ & $95\%$ CI & sign test \\
+    Mode & Observable & $\Delta\mathrm{err}$ & $95\%$ CI & sign test & Holm $p$ \\
     \midrule
-    repr.\ & $C_L$          & $+0.364$ & $[+0.070, +0.643]$ & $25/42$, $p = 0.14$ \\
-    repr.\ & $C_D$          & $+0.039$ & $[-0.052, +0.131]$ & $20/42$, $p = 0.68$ \\
-    repr.\ & $I_y$          & $+0.52$  & $[-0.028, +1.08]$  & $25/42$, $p = 0.14$ \\
-    repr.\ & wake-enst.\    & $+43.1$  & $[+23.5, +66.0]$   & $31/42$, $p = 1.4{\times}10^{-3}$ \\
-    repr.\ & circ.\ pos.\   & $+0.256$ & $[-0.117, +0.673]$ & $20/42$, $p = 0.68$ \\
-    repr.\ & circ.\ neg.\   & $+1.19$  & $[+0.567, +1.93]$  & $30/42$, $p = 4.0{\times}10^{-3}$ \\
+    repr.\ & $C_L$          & $+0.364$ & $[+0.070, +0.643]$ & $25/42$, $p = 0.14$ & $0.98$ \\
+    repr.\ & $C_D$          & $+0.039$ & $[-0.052, +0.131]$ & $20/42$, $p = 0.68$ & $1.00$ \\
+    repr.\ & $I_y$          & $+0.52$  & $[-0.028, +1.08]$  & $25/42$, $p = 0.14$ & $0.98$ \\
+    repr.\ & wake-enst.\    & $+43.1$  & $[+23.5, +66.0]$   & $31/42$, $p = 1.4{\times}10^{-3}$ & $0.017$ \\
+    repr.\ & circ.\ pos.\   & $+0.256$ & $[-0.117, +0.673]$ & $20/42$, $p = 0.68$ & $1.00$ \\
+    repr.\ & circ.\ neg.\   & $+1.19$  & $[+0.567, +1.93]$  & $30/42$, $p = 4.0{\times}10^{-3}$ & $0.044$ \\
     \midrule
-    forecast & $C_L$        & $-0.021$ & $[-0.206, +0.152]$ & $20/42$, $p = 0.68$ \\
-    forecast & $C_D$        & $+0.066$ & $[+0.011, +0.128]$ & $26/42$, $p = 0.082$ \\
-    forecast & $I_y$        & $+0.264$ & $[-0.164, +0.666]$ & $26/42$, $p = 0.082$ \\
-    forecast & wake-enst.\  & $+32.0$  & $[+10.8, +54.8]$   & $27/42$, $p = 4.4{\times}10^{-2}$ \\
-    forecast & circ.\ pos.\ & $-0.018$ & $[-0.319, +0.297]$ & $19/42$, $p = 0.78$ \\
-    forecast & circ.\ neg.\ & $+0.555$ & $[+0.067, +1.11]$  & $18/42$, $p = 0.86$ \\
+    forecast & $C_L$        & $-0.021$ & $[-0.206, +0.152]$ & $20/42$, $p = 0.68$ & $1.00$ \\
+    forecast & $C_D$        & $+0.066$ & $[+0.011, +0.128]$ & $26/42$, $p = 0.082$ & $0.74$ \\
+    forecast & $I_y$        & $+0.264$ & $[-0.164, +0.666]$ & $26/42$, $p = 0.082$ & $0.74$ \\
+    forecast & wake-enst.\  & $+32.0$  & $[+10.8, +54.8]$   & $27/42$, $p = 4.4{\times}10^{-2}$ & $0.44$ \\
+    forecast & circ.\ pos.\ & $-0.018$ & $[-0.319, +0.297]$ & $19/42$, $p = 0.78$ & $1.00$ \\
+    forecast & circ.\ neg.\ & $+0.555$ & $[+0.067, +1.11]$  & $18/42$, $p = 0.86$ & $1.00$ \\
     \bottomrule
   \end{tabular}
 \end{table}

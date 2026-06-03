@@ -98,7 +98,14 @@ strengths, the three core diameters, and the two source groups
 $|G| = 4$ extrapolation set. These $84$ cases are separated in preprocessing into $378$ encounter windows of
 $120$ frames each, one per gust release: $226$ training, $86$ validation
 (test\_a, the held-out last encounters of the training cases), $42$ test\_b, and
-$24$ test\_c. The undisturbed reference case is retained in training. The
+$24$ test\_c. The undisturbed reference case is retained in training. Behind these
+encounter counts are far fewer distinct cases: the $42$ test\_b encounters come
+from only $10$ held-out cases (five interior and five boundary tier) and the $24$
+test\_c encounters from $4$ cases, with most cases contributing four to six
+encounters that share a baseline shedding history. Encounters of the same case are
+therefore not independent, so encounter-level intervals overstate the effective
+sample size; the headline wake comparison is reported additionally with a
+case-clustered bootstrap and a case-level paired test (Appendix~\ref{app:reg}). The
 partition is fixed once and used identically by every model and baseline.
 
 \begin{table}
@@ -154,7 +161,11 @@ sensitive to the redistribution of vorticity that the LEV roll-up and shedding
 produce. The choice is deliberate: the wake observables can change sharply while
 the scalar forces change little, so they are the part of the encounter most
 likely to separate a representation that has captured the gust-vortex physics
-from one that has only captured its force signature.
+from one that has only captured its force signature. On these grounds we fix the
+wake enstrophy in advance as the single primary endpoint of the closure
+comparison; the other five observables are reported as secondary and descriptive.
+This pre-registration is what the family-wide multiplicity correction in
+Appendix~\ref{app:reg} is applied against.
 
 The six observables are defined on each frame of the masked vorticity field
 $\omegaz$ described above. The lift and drag coefficients $C_L, C_D$ are the body

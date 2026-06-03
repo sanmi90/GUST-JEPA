@@ -7581,3 +7581,35 @@ element to cluster. GATE 0 PASS (no blockers; all table/figure sources found).
 Outputs are gitignored; small .txt/.json/.tsv/.md summaries are force-added for traceability,
 following the established 17-file pattern.
 
+### D165: Session 26 Track 1 -- statistics hardening; the FORECAST wake claim weakens, representation holds (2026-06-03)
+
+scripts/session26/track1_stats.py (CPU, no training) extends the verified session21 paired
+loader to keep the (case_id, encounter) key, so the wake comparison can be clustered by case.
+Outputs outputs/session26/stats/{wake_paired,holm,floor,topology,transport,scale}.json +
+stats_summary.md. test_b is 10 cases / 42 encounters, so encounters are NOT independent.
+
+CLAIM THAT WEAKENED (honesty over preservation, hard-rule 9). The FORECAST (Markov-rollout)
+wake-enstrophy advantage does NOT survive case-level clustering: case-clustered 95% CI
+[-4.5, +72.6] includes 0 (vs encounter-level [+10.8, +54.8]); case-level signed-rank p=0.10
+(7/10 cases); mixed-effects intercept p=0.10. It also does NOT survive a family-wide Holm
+correction over the 12 paired tests (raw 4.4e-2 -> Holm 0.44). The REPRESENTATIONAL (z_dns)
+wake advantage DOES survive both: case-clustered CI [+12.5, +77.2] excludes 0, signed-rank
+p=0.032 (7/10), Holm 1.4e-3 -> 0.017. (repr circ_neg also survives Holm, 4.0e-3 -> 0.044.)
+Consequence: wake enstrophy is now the pre-registered PRIMARY endpoint (S2.2), the forecast is
+demoted from load-bearing test to consistent confirmation, and Track 6 re-anchors the wake claim
+on representation + mechanism. The forecast-vs-floor margin is also not established at the case
+level (1c): per-encounter forecast-minus-floor CI [-15.5, +31.4], 4/10 cases; the representational
+closure exceeds the floor in R^2 (0.754 vs 0.173, the latter reproduced exactly) with 7/10 cases
+but a case-clustered paired CI [-2.0, +45.9] that grazes 0. So the margin over the floor is carried
+by the high-variance encounters that dominate R^2, not a uniform per-case gain.
+
+CLAIMS THAT HELD at the case level (all three mechanism statistics re-checked with a case as the
+unit): topology generator-count MW p=4.4e-8 -> case-level Wilcoxon p=9.8e-4 with 10/10 cases JEPA
+fewer (the "decisive" wording is defensible; Track 2 adds threshold/sampling robustness); transport
+Spearman margin +0.181 -> case margin +0.182, Wilcoxon p=2.0e-3, 9/10 cases; scale large-scale
+enstrophy corr JEPA 0.908/Fukami 0.605 -> case-level 0.954/0.770 (ordering holds). These anchor the
+paper. APPLIED: S2.2 gains the distinct-case counts (10 test_b, 4 test_c), the non-independence
+note, and the primary-endpoint designation; Table 10 (tab:paired_closure) gains a Holm-$p$ column
+for all 12 tests and a caption reporting the case-clustered wake CIs + the survival verdict. Build
+clean (latexmk exit 0, 40 pp, 0 undefined, 0 em-dashes in the two edited files). GATE 1 PASS.
+

@@ -1,0 +1,67 @@
+{
+  "n_tests": 12,
+  "tests": {
+    "repr/CL": {
+      "raw_p": 0.13997811926446957,
+      "holm_p": 0.979846834851287,
+      "survives_0.05": false
+    },
+    "repr/CD": {
+      "raw_p": 0.6780155218148138,
+      "holm_p": 1.0,
+      "survives_0.05": false
+    },
+    "repr/Iy": {
+      "raw_p": 0.13997811926446957,
+      "holm_p": 0.979846834851287,
+      "survives_0.05": false
+    },
+    "repr/wake_enstrophy": {
+      "raw_p": 0.001443623987142928,
+      "holm_p": 0.017323487845715135,
+      "survives_0.05": true
+    },
+    "repr/circ_pos": {
+      "raw_p": 0.6780155218148138,
+      "holm_p": 1.0,
+      "survives_0.05": false
+    },
+    "repr/circ_neg": {
+      "raw_p": 0.003957948667448363,
+      "holm_p": 0.043537435341931996,
+      "survives_0.05": true
+    },
+    "forecast/CL": {
+      "raw_p": 0.6780155218148138,
+      "holm_p": 1.0,
+      "survives_0.05": false
+    },
+    "forecast/CD": {
+      "raw_p": 0.08207470089155322,
+      "holm_p": 0.738672308023979,
+      "survives_0.05": false
+    },
+    "forecast/Iy": {
+      "raw_p": 0.08207470089155322,
+      "holm_p": 0.738672308023979,
+      "survives_0.05": false
+    },
+    "forecast/wake_enstrophy": {
+      "raw_p": 0.044214773493877146,
+      "holm_p": 0.44214773493877146,
+      "survives_0.05": false
+    },
+    "forecast/circ_pos": {
+      "raw_p": 0.7796004663287022,
+      "holm_p": 1.0,
+      "survives_0.05": false
+    },
+    "forecast/circ_neg": {
+      "raw_p": 0.8600218807355304,
+      "holm_p": 1.0,
+      "survives_0.05": false
+    }
+  },
+  "primary_endpoint": "wake_enstrophy",
+  "note": "Wake enstrophy is the pre-registered PRIMARY endpoint (reported uncorrected). Holm over all 12 is reported so the family-wide statement is explicit: representational wake survives, forecast wake does not."
+}

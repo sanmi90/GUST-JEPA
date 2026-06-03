@@ -1,0 +1,40 @@
+{
+  "metric": "large-scale (sigma/c=0.05) wake-enstrophy corr(pred, DNS) at impact+16",
+  "stage": "impact+16",
+  "encounter_level": {
+    "jepa_d64": {
+      "n": 42,
+      "corr": 0.9082008003480523
+    },
+    "jepa_d32": {
+      "n": 42,
+      "corr": 0.8073798039481853
+    },
+    "fukami": {
+      "n": 42,
+      "corr": 0.604964241298302
+    },
+    "pod": {
+      "n": 42,
+      "corr": 0.9635230554591031
+    }
+  },
+  "case_level": {
+    "jepa_d64": {
+      "n_cases": 10,
+      "corr": 0.9541472211787252
+    },
+    "jepa_d32": {
+      "n_cases": 10,
+      "corr": 0.9404441708383434
+    },
+    "fukami": {
+      "n_cases": 10,
+      "corr": 0.7697892952704154
+    },
+    "pod": {
+      "n_cases": 10,
+      "corr": 0.988675063468833
+    }
+  }
+}
