@@ -7659,3 +7659,23 @@ is the impulse lift (checked). Numbers at outputs/session26/physics_caveats/{imp
 omega_c_sensitivity}.json. Build clean (latexmk exit 0, 41 pp, 0 undefined, 0 em-dashes, section_2
 flag count unchanged at the pre-existing 1). GATE 3 PASS.
 
+### D168: Session 26 Track 4 -- decoder confound resolved by scoping S4.6 to the encode-decode ceiling at large scale (2026-06-03)
+
+Verified the source of the S4.6 physical-space numbers: scripts/session20/decode_reconstructions.py
+does encode-decode (line 130-131: z = encoder(x); xh = decoder(z) on the DNS frame), and the LEV
+tracking (exp_lev_tracking.py) and scale decomposition (exp_scale_decomposition.py) both read
+outputs/session20/decoded. So ALL S4.6 quantitative physical-space metrics (LEV centroid 0.319c,
+circulation within 5%, large-scale enstrophy corr 0.91 at impact+16, OT distance 9.90) are already
+the encode-decode RECONSTRUCTION = the visualisation decoder's ceiling on what the simulation-encoded
+latent carries, NOT a forecast rollout. The confound (a decoder "blurry by design" that nonetheless
+localises the LEV to 0.32 chords) is resolved by two scoping points added as a paragraph at the start
+of S4.6: (i) the fields are encode-decode reconstructions, so the numbers are the decoder's ceiling on
+what the latent carries, not a forecast rollout (whose latent leaves the manifold for the
+reconstructive baseline); (ii) every quantitative physical-space claim is on the validated large-scale
+band sigma/c=0.05, the decoder being blurry at small scale by construction, so large-scale LEV/shear
+tracking is meaningful while full-resolution and small-scale fidelity are not claimed. No rollout-decode
+physical-space numbers exist in the paper to put "alongside" the ceiling; the honest statement is that
+the physical-space claims ARE the ceiling, recorded as such. Force-added lev.json + scale_decomp.json
+for traceability. Build clean (latexmk exit 0, 41 pp, 0 undefined, 0 em-dashes, section_4 flag count
+unchanged at the pre-existing 46). GATE 4 PASS.
+

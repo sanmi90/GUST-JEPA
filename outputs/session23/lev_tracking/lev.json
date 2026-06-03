@@ -1,0 +1,692 @@
+{
+  "config": {
+    "sigma_px": 1.6,
+    "sigma_over_c": 0.05,
+    "px_per_chord": 32,
+    "omega_iso_level": 0.5,
+    "le_region": "streamwise index < 80 (x/c < 1)",
+    "le_x_index": 48,
+    "te_x_index": 80,
+    "lev_sign": "negative omega_z (suction-side, clockwise; du/dy - dv/dx)",
+    "centroid": "|omega|-weighted center_of_mass of strongest connected component",
+    "circulation": "Gamma_LEV = sum_{lobe} omega_z * dx * dy (signed, normalised)",
+    "wake_enstrophy": "0.5 * sum_{wake px} u_L^2 (identical to exp_scale_decomposition)",
+    "offsets": [
+      -8,
+      0,
+      8,
+      16,
+      24,
+      32,
+      40
+    ],
+    "impact_index": 1,
+    "h16_index": 3,
+    "n_bootstrap": 2000,
+    "seed": 0,
+    "decoded_source": "/home/carlos/GUST-JEPA/outputs/session20/decoded",
+    "note": "Absolute iso-level (not fraction-of-own-peak) for fair cross-family comparison; collapsed-amplitude fields record LEV-not-detected, reported via detection_rate_family."
+  },
+  "splits": {
+    "test_a": {
+      "n_enc": 86,
+      "metrics": {
+        "jepa_d64": {
+          "impact": {
+            "n_both": 82,
+            "detection_rate_dns": 0.9534883720930233,
+            "detection_rate_family": 0.9651162790697675,
+            "centroid_dist_mean": 0.08447350009461643,
+            "centroid_dist_median": 0.02135076826316206,
+            "centroid_dist_ci": [
+              0.04263306922905394,
+              0.13921951027873555
+            ],
+            "gamma_abs_err_mean": 0.03209721686307159,
+            "gamma_abs_err_median": 0.006499584764242172,
+            "gamma_abs_err_ci": [
+              0.01868555913892257,
+              0.04822782049872685
+            ],
+            "retained_circ_frac_mean": 1.0519035066150557,
+            "peak_ratio_mean": 1.0094898152779426,
+            "mean_x_lev_family": 0.37817276101448283,
+            "mean_y_lev_family": -0.03832374273842979,
+            "mean_gamma_family": -0.1372901284556109,
+            "mean_x_lev_dns": 0.3304086687182617,
+            "mean_y_lev_dns": -0.03794565000158593,
+            "mean_gamma_dns": -0.15773364836520448
+          },
+          "H16": {
+            "n_both": 82,
+            "detection_rate_dns": 0.9651162790697675,
+            "detection_rate_family": 0.9534883720930233,
+            "centroid_dist_mean": 0.1464434963226288,
+            "centroid_dist_median": 0.02343211438444007,
+            "centroid_dist_ci": [
+              0.08786725842354573,
+              0.21709411466213147
+            ],
+            "gamma_abs_err_mean": 0.03129261182890864,
+            "gamma_abs_err_median": 0.004485428333282471,
+            "gamma_abs_err_ci": [
+              0.019835522010348876,
+              0.04586191588003689
+            ],
+            "retained_circ_frac_mean": 1.073345104889688,
+            "peak_ratio_mean": 1.065259543444787,
+            "mean_x_lev_family": 0.517640032453111,
+            "mean_y_lev_family": 0.1419275136987952,
+            "mean_gamma_family": -0.10001123405598308,
+            "mean_x_lev_dns": 0.49279695437044535,
+            "mean_y_lev_dns": 0.15295895810924298,
+            "mean_gamma_dns": -0.11079199550525717
+          }
+        },
+        "fukami": {
+          "impact": {
+            "n_both": 17,
+            "detection_rate_dns": 0.9534883720930233,
+            "detection_rate_family": 0.19767441860465115,
+            "centroid_dist_mean": 0.15536846534594634,
+            "centroid_dist_median": 0.08047416726970312,
+            "centroid_dist_ci": [
+              0.07261284111056152,
+              0.2942818569294783
+            ],
+            "gamma_abs_err_mean": 0.10918090602054316,
+            "gamma_abs_err_median": 0.06943869590759277,
+            "gamma_abs_err_ci": [
+              0.0597041885204175,
+              0.16595186384066063
+            ],
+            "retained_circ_frac_mean": 0.7633315025654808,
+            "peak_ratio_mean": 0.7840496705440944,
+            "mean_x_lev_family": -0.24532474686412897,
+            "mean_y_lev_family": 0.2759837593850131,
+            "mean_gamma_family": -0.3534590695053339,
+            "mean_x_lev_dns": -0.2076182505903315,
+            "mean_y_lev_dns": 0.27708794320133107,
+            "mean_gamma_dns": -0.43215167730608406
+          },
+          "H16": {
+            "n_both": 7,
+            "detection_rate_dns": 0.9651162790697675,
+            "detection_rate_family": 0.08139534883720931,
+            "centroid_dist_mean": 0.33075897910476015,
+            "centroid_dist_median": 0.21087645972884067,
+            "centroid_dist_ci": [
+              0.15100997906989927,
+              0.624013078167906
+            ],
+            "gamma_abs_err_mean": 0.15548989602497645,
+            "gamma_abs_err_median": 0.07991588115692139,
+            "gamma_abs_err_ci": [
+              0.04977605225784438,
+              0.31357800481574877
+            ],
+            "retained_circ_frac_mean": 0.4709789396242273,
+            "peak_ratio_mean": 0.7049321226818358,
+            "mean_x_lev_family": 0.23077086394014204,
+            "mean_y_lev_family": 0.00151091710980327,
+            "mean_gamma_family": -0.19919527428490774,
+            "mean_x_lev_dns": 0.0868625831852855,
+            "mean_y_lev_dns": 0.07524596118537012,
+            "mean_gamma_dns": -0.3502731834139143
+          }
+        },
+        "pod": {
+          "impact": {
+            "n_both": 82,
+            "detection_rate_dns": 0.9534883720930233,
+            "detection_rate_family": 0.9534883720930233,
+            "centroid_dist_mean": 0.11209074469277938,
+            "centroid_dist_median": 0.023178603176112384,
+            "centroid_dist_ci": [
+              0.06394869217020223,
+              0.17188336628181305
+            ],
+            "gamma_abs_err_mean": 0.038608530490863616,
+            "gamma_abs_err_median": 0.010094746947288513,
+            "gamma_abs_err_ci": [
+              0.025054364461343872,
+              0.054715675878460615
+            ],
+            "retained_circ_frac_mean": 0.9302201381729573,
+            "peak_ratio_mean": 0.8003711886135982,
+            "mean_x_lev_family": 0.3697025076287938,
+            "mean_y_lev_family": -0.03562584122781528,
+            "mean_gamma_family": -0.12583914633397375,
+            "mean_x_lev_dns": 0.3304086687182617,
+            "mean_y_lev_dns": -0.03794565000158593,
+            "mean_gamma_dns": -0.15773364836520448
+          },
+          "H16": {
+            "n_both": 77,
+            "detection_rate_dns": 0.9651162790697675,
+            "detection_rate_family": 0.8953488372093024,
+            "centroid_dist_mean": 0.17899388394568994,
+            "centroid_dist_median": 0.062182508855155666,
+            "centroid_dist_ci": [
+              0.12088446477887212,
+              0.24394137924182013
+            ],
+            "gamma_abs_err_mean": 0.054851361248013264,
+            "gamma_abs_err_median": 0.028638080693781376,
+            "gamma_abs_err_ci": [
+              0.03951411616547009,
+              0.07103923851723916
+            ],
+            "retained_circ_frac_mean": 0.6006550720284912,
+            "peak_ratio_mean": 0.6992195367287943,
+            "mean_x_lev_family": 0.5453399761627746,
+            "mean_y_lev_family": 0.07899259848453684,
+            "mean_gamma_family": -0.062175838263136905,
+            "mean_x_lev_dns": 0.501786417896575,
+            "mean_y_lev_dns": 0.15503677545354694,
+            "mean_gamma_dns": -0.11663857341121107
+          }
+        },
+        "jepa_d32": {
+          "impact": {
+            "n_both": 82,
+            "detection_rate_dns": 0.9534883720930233,
+            "detection_rate_family": 0.9651162790697675,
+            "centroid_dist_mean": 0.08782584507983145,
+            "centroid_dist_median": 0.02256345379153894,
+            "centroid_dist_ci": [
+              0.043129338168585794,
+              0.1478442556597573
+            ],
+            "gamma_abs_err_mean": 0.030420933841591384,
+            "gamma_abs_err_median": 0.006449928507208824,
+            "gamma_abs_err_ci": [
+              0.01916705246847237,
+              0.04466582561833159
+            ],
+            "retained_circ_frac_mean": 1.1012632657039656,
+            "peak_ratio_mean": 1.054735963332607,
+            "mean_x_lev_family": 0.3461824768838521,
+            "mean_y_lev_family": -0.00615265184972298,
+            "mean_gamma_family": -0.14191502632527817,
+            "mean_x_lev_dns": 0.3304086687182617,
+            "mean_y_lev_dns": -0.03794565000158593,
+            "mean_gamma_dns": -0.15773364836520448
+          },
+          "H16": {
+            "n_both": 82,
+            "detection_rate_dns": 0.9651162790697675,
+            "detection_rate_family": 0.9534883720930233,
+            "centroid_dist_mean": 0.1485232664091339,
+            "centroid_dist_median": 0.025173727566566995,
+            "centroid_dist_ci": [
+              0.09295898062818503,
+              0.21321330639794311
+            ],
+            "gamma_abs_err_mean": 0.021453481837652805,
+            "gamma_abs_err_median": 0.004860182525590062,
+            "gamma_abs_err_ci": [
+              0.014003270664770532,
+              0.031357249317345744
+            ],
+            "retained_circ_frac_mean": 0.9896384557683698,
+            "peak_ratio_mean": 1.0431861837168435,
+            "mean_x_lev_family": 0.5273640923123588,
+            "mean_y_lev_family": 0.09387624796167303,
+            "mean_gamma_family": -0.10305698273317297,
+            "mean_x_lev_dns": 0.49279695437044535,
+            "mean_y_lev_dns": 0.15295895810924298,
+            "mean_gamma_dns": -0.11079199550525717
+          }
+        }
+      }
+    },
+    "test_b": {
+      "n_enc": 42,
+      "metrics": {
+        "jepa_d64": {
+          "impact": {
+            "n_both": 39,
+            "detection_rate_dns": 0.9523809523809523,
+            "detection_rate_family": 0.9523809523809523,
+            "centroid_dist_mean": 0.23734597591096845,
+            "centroid_dist_median": 0.05765157833937413,
+            "centroid_dist_ci": [
+              0.127512517068395,
+              0.37212879994747394
+            ],
+            "gamma_abs_err_mean": 0.07435877736395177,
+            "gamma_abs_err_median": 0.02214767411351204,
+            "gamma_abs_err_ci": [
+              0.029225106046009714,
+              0.1378363921756271
+            ],
+            "retained_circ_frac_mean": 1.0034471002249972,
+            "peak_ratio_mean": 0.9903941975277536,
+            "mean_x_lev_family": 0.21954853060122576,
+            "mean_y_lev_family": -0.1185907573033587,
+            "mean_gamma_family": -0.18094260315410793,
+            "mean_x_lev_dns": 0.136891889175048,
+            "mean_y_lev_dns": -0.1769479523881154,
+            "mean_gamma_dns": -0.2406720525632875
+          },
+          "H16": {
+            "n_both": 42,
+            "detection_rate_dns": 1.0,
+            "detection_rate_family": 1.0,
+            "centroid_dist_mean": 0.3189566754393081,
+            "centroid_dist_median": 0.20406317284618325,
+            "centroid_dist_ci": [
+              0.21970368683193434,
+              0.4205055368775336
+            ],
+            "gamma_abs_err_mean": 0.050338067169789044,
+            "gamma_abs_err_median": 0.009859174489974976,
+            "gamma_abs_err_ci": [
+              0.020103791118959827,
+              0.09064876916166947
+            ],
+            "retained_circ_frac_mean": 1.0800703284272621,
+            "peak_ratio_mean": 1.0822990638127417,
+            "mean_x_lev_family": 0.45300750325669104,
+            "mean_y_lev_family": 0.09663392189138376,
+            "mean_gamma_family": -0.141378999127829,
+            "mean_x_lev_dns": 0.3785029468704709,
+            "mean_y_lev_dns": 0.0657720472738223,
+            "mean_gamma_dns": -0.17984443591974145
+          }
+        },
+        "fukami": {
+          "impact": {
+            "n_both": 10,
+            "detection_rate_dns": 0.9523809523809523,
+            "detection_rate_family": 0.23809523809523808,
+            "centroid_dist_mean": 0.1871377961827992,
+            "centroid_dist_median": 0.23711238201171253,
+            "centroid_dist_ci": [
+              0.11503887903951786,
+              0.2544928620100662
+            ],
+            "gamma_abs_err_mean": 0.209272288903594,
+            "gamma_abs_err_median": 0.08714040368795395,
+            "gamma_abs_err_ci": [
+              0.07727344274520875,
+              0.4183632917702198
+            ],
+            "retained_circ_frac_mean": 0.6389859206038406,
+            "peak_ratio_mean": 0.8334783685979555,
+            "mean_x_lev_family": -0.30923981975437076,
+            "mean_y_lev_family": -0.09495395429788718,
+            "mean_gamma_family": -0.3099446680396795,
+            "mean_x_lev_dns": -0.2899222804252338,
+            "mean_y_lev_dns": -0.20854886659593977,
+            "mean_gamma_dns": -0.5192169569432735
+          },
+          "H16": {
+            "n_both": 6,
+            "detection_rate_dns": 1.0,
+            "detection_rate_family": 0.14285714285714285,
+            "centroid_dist_mean": 0.3339186046527228,
+            "centroid_dist_median": 0.27484107424623744,
+            "centroid_dist_ci": [
+              0.23488705588417422,
+              0.46029963005837704
+            ],
+            "gamma_abs_err_mean": 0.29031655192375183,
+            "gamma_abs_err_median": 0.18883764743804932,
+            "gamma_abs_err_ci": [
+              0.17114504675070444,
+              0.4664984205116824
+            ],
+            "retained_circ_frac_mean": 0.4737946240078552,
+            "peak_ratio_mean": 0.5840808897617631,
+            "mean_x_lev_family": 0.3197862934551693,
+            "mean_y_lev_family": -0.3112148693890494,
+            "mean_gamma_family": -0.23706785341103873,
+            "mean_x_lev_dns": 0.26577604897810064,
+            "mean_y_lev_dns": -0.35663486872720956,
+            "mean_gamma_dns": -0.5273844053347906
+          }
+        },
+        "pod": {
+          "impact": {
+            "n_both": 39,
+            "detection_rate_dns": 0.9523809523809523,
+            "detection_rate_family": 0.9285714285714286,
+            "centroid_dist_mean": 0.08479792328496029,
+            "centroid_dist_median": 0.04077763101648676,
+            "centroid_dist_ci": [
+              0.04837483238715031,
+              0.13881906248028425
+            ],
+            "gamma_abs_err_mean": 0.05583017225114581,
+            "gamma_abs_err_median": 0.013297490775585175,
+            "gamma_abs_err_ci": [
+              0.026706879726873765,
+              0.09033983911041361
+            ],
+            "retained_circ_frac_mean": 0.8521362322058402,
+            "peak_ratio_mean": 0.7422842523262113,
+            "mean_x_lev_family": 0.16032848629363874,
+            "mean_y_lev_family": -0.18808862585453,
+            "mean_gamma_family": -0.18653891433794528,
+            "mean_x_lev_dns": 0.136891889175048,
+            "mean_y_lev_dns": -0.1769479523881154,
+            "mean_gamma_dns": -0.2406720525632875
+          },
+          "H16": {
+            "n_both": 42,
+            "detection_rate_dns": 1.0,
+            "detection_rate_family": 1.0,
+            "centroid_dist_mean": 0.22772719252178353,
+            "centroid_dist_median": 0.1399039737574372,
+            "centroid_dist_ci": [
+              0.151612360158358,
+              0.3067951555852926
+            ],
+            "gamma_abs_err_mean": 0.07458053457195915,
+            "gamma_abs_err_median": 0.034194549079984426,
+            "gamma_abs_err_ci": [
+              0.04420743253223401,
+              0.11146586105224693
+            ],
+            "retained_circ_frac_mean": 0.6196898260850002,
+            "peak_ratio_mean": 0.7692209701242009,
+            "mean_x_lev_family": 0.43658997558019114,
+            "mean_y_lev_family": -0.03388320925572833,
+            "mean_gamma_family": -0.10591768856448609,
+            "mean_x_lev_dns": 0.3785029468704709,
+            "mean_y_lev_dns": 0.0657720472738223,
+            "mean_gamma_dns": -0.17984443591974145
+          }
+        },
+        "jepa_d32": {
+          "impact": {
+            "n_both": 39,
+            "detection_rate_dns": 0.9523809523809523,
+            "detection_rate_family": 0.9285714285714286,
+            "centroid_dist_mean": 0.1942060124672473,
+            "centroid_dist_median": 0.06986722934196264,
+            "centroid_dist_ci": [
+              0.11205590920170033,
+              0.2897087143432104
+            ],
+            "gamma_abs_err_mean": 0.07673528153025426,
+            "gamma_abs_err_median": 0.01938682422041893,
+            "gamma_abs_err_ci": [
+              0.039561667891431194,
+              0.12568470669987922
+            ],
+            "retained_circ_frac_mean": 0.9694079564070963,
+            "peak_ratio_mean": 1.0183164838496226,
+            "mean_x_lev_family": 0.17586362365829777,
+            "mean_y_lev_family": -0.17115103795380265,
+            "mean_gamma_family": -0.18994284678513232,
+            "mean_x_lev_dns": 0.1288404038841219,
+            "mean_y_lev_dns": -0.17816354117059777,
+            "mean_gamma_dns": -0.24059359764363855
+          },
+          "H16": {
+            "n_both": 41,
+            "detection_rate_dns": 1.0,
+            "detection_rate_family": 0.9761904761904762,
+            "centroid_dist_mean": 0.3219242852149743,
+            "centroid_dist_median": 0.21336680699734034,
+            "centroid_dist_ci": [
+              0.21609108232061877,
+              0.4450099408708325
+            ],
+            "gamma_abs_err_mean": 0.06604356809360225,
+            "gamma_abs_err_median": 0.02957967296242714,
+            "gamma_abs_err_ci": [
+              0.03518789736951543,
+              0.10803368181478595
+            ],
+            "retained_circ_frac_mean": 0.7581611223177342,
+            "peak_ratio_mean": 0.9402408654950442,
+            "mean_x_lev_family": 0.47471444762810566,
+            "mean_y_lev_family": 0.0271180849036123,
+            "mean_gamma_family": -0.12317205123353477,
+            "mean_x_lev_dns": 0.3643627982869025,
+            "mean_y_lev_dns": 0.06787746878036896,
+            "mean_gamma_dns": -0.18409141191145087
+          }
+        }
+      }
+    },
+    "test_c": {
+      "n_enc": 24,
+      "metrics": {
+        "jepa_d64": {
+          "impact": {
+            "n_both": 24,
+            "detection_rate_dns": 1.0,
+            "detection_rate_family": 1.0,
+            "centroid_dist_mean": 0.3383746108191201,
+            "centroid_dist_median": 0.12589760069973396,
+            "centroid_dist_ci": [
+              0.1975543950097487,
+              0.5169945417562365
+            ],
+            "gamma_abs_err_mean": 0.12715693019951382,
+            "gamma_abs_err_median": 0.1284742271527648,
+            "gamma_abs_err_ci": [
+              0.09494907976089356,
+              0.1608081484349289
+            ],
+            "retained_circ_frac_mean": 0.5801244060056883,
+            "peak_ratio_mean": 0.930879668056233,
+            "mean_x_lev_family": 0.0003342188555155908,
+            "mean_y_lev_family": -0.36022336941422334,
+            "mean_gamma_family": -0.20303494560842714,
+            "mean_x_lev_dns": -0.257603160829797,
+            "mean_y_lev_dns": -0.41011250136639377,
+            "mean_gamma_dns": -0.32583565544337034
+          },
+          "H16": {
+            "n_both": 24,
+            "detection_rate_dns": 1.0,
+            "detection_rate_family": 1.0,
+            "centroid_dist_mean": 0.46186244480557925,
+            "centroid_dist_median": 0.23365524760668338,
+            "centroid_dist_ci": [
+              0.30540208342169506,
+              0.6361422563124994
+            ],
+            "gamma_abs_err_mean": 0.0650792521579812,
+            "gamma_abs_err_median": 0.060331979766488075,
+            "gamma_abs_err_ci": [
+              0.04484075836953707,
+              0.08773359952804942
+            ],
+            "retained_circ_frac_mean": 1.214526168434107,
+            "peak_ratio_mean": 1.0776032593946718,
+            "mean_x_lev_family": -0.016966566873528283,
+            "mean_y_lev_family": 0.3139401250335368,
+            "mean_gamma_family": -0.22237854443180063,
+            "mean_x_lev_dns": -0.18066158177813843,
+            "mean_y_lev_dns": 0.2513539692673582,
+            "mean_gamma_dns": -0.2529826026099424
+          }
+        },
+        "fukami": {
+          "impact": {
+            "n_both": 0,
+            "detection_rate_dns": 1.0,
+            "detection_rate_family": 0.0,
+            "centroid_dist_mean": NaN,
+            "centroid_dist_median": NaN,
+            "centroid_dist_ci": [
+              NaN,
+              NaN
+            ],
+            "gamma_abs_err_mean": NaN,
+            "gamma_abs_err_median": NaN,
+            "gamma_abs_err_ci": [
+              NaN,
+              NaN
+            ],
+            "retained_circ_frac_mean": NaN,
+            "peak_ratio_mean": NaN,
+            "mean_x_lev_family": NaN,
+            "mean_y_lev_family": NaN,
+            "mean_gamma_family": NaN,
+            "mean_x_lev_dns": NaN,
+            "mean_y_lev_dns": NaN,
+            "mean_gamma_dns": NaN
+          },
+          "H16": {
+            "n_both": 0,
+            "detection_rate_dns": 1.0,
+            "detection_rate_family": 0.0,
+            "centroid_dist_mean": NaN,
+            "centroid_dist_median": NaN,
+            "centroid_dist_ci": [
+              NaN,
+              NaN
+            ],
+            "gamma_abs_err_mean": NaN,
+            "gamma_abs_err_median": NaN,
+            "gamma_abs_err_ci": [
+              NaN,
+              NaN
+            ],
+            "retained_circ_frac_mean": NaN,
+            "peak_ratio_mean": NaN,
+            "mean_x_lev_family": NaN,
+            "mean_y_lev_family": NaN,
+            "mean_gamma_family": NaN,
+            "mean_x_lev_dns": NaN,
+            "mean_y_lev_dns": NaN,
+            "mean_gamma_dns": NaN
+          }
+        },
+        "pod": {
+          "impact": {
+            "n_both": 24,
+            "detection_rate_dns": 1.0,
+            "detection_rate_family": 1.0,
+            "centroid_dist_mean": 0.3138257382156334,
+            "centroid_dist_median": 0.2192091452252945,
+            "centroid_dist_ci": [
+              0.20157301312610082,
+              0.4416352051701633
+            ],
+            "gamma_abs_err_mean": 0.10801973504324754,
+            "gamma_abs_err_median": 0.06485725566744804,
+            "gamma_abs_err_ci": [
+              0.07168443209957331,
+              0.14627119807216024
+            ],
+            "retained_circ_frac_mean": 0.8335554055700959,
+            "peak_ratio_mean": 0.4218296489607363,
+            "mean_x_lev_family": -0.11015355003036853,
+            "mean_y_lev_family": -0.46217665039923866,
+            "mean_gamma_family": -0.2431073502327005,
+            "mean_x_lev_dns": -0.257603160829797,
+            "mean_y_lev_dns": -0.41011250136639377,
+            "mean_gamma_dns": -0.32583565544337034
+          },
+          "H16": {
+            "n_both": 23,
+            "detection_rate_dns": 1.0,
+            "detection_rate_family": 0.9583333333333334,
+            "centroid_dist_mean": 0.3877994345009871,
+            "centroid_dist_median": 0.10836355398813204,
+            "centroid_dist_ci": [
+              0.21837563204377436,
+              0.5738527563205454
+            ],
+            "gamma_abs_err_mean": 0.06594591859080222,
+            "gamma_abs_err_median": 0.061051905155181885,
+            "gamma_abs_err_ci": [
+              0.05030166763792058,
+              0.08327580539701991
+            ],
+            "retained_circ_frac_mean": 0.7206896297590334,
+            "peak_ratio_mean": 0.3729364194538824,
+            "mean_x_lev_family": -0.09584772626345109,
+            "mean_y_lev_family": 0.0830512766751585,
+            "mean_gamma_family": -0.2692047547468025,
+            "mean_x_lev_dns": -0.20529032086311694,
+            "mean_y_lev_dns": 0.2173335852200722,
+            "mean_gamma_dns": -0.26245786444000574
+          }
+        },
+        "jepa_d32": {
+          "impact": {
+            "n_both": 24,
+            "detection_rate_dns": 1.0,
+            "detection_rate_family": 1.0,
+            "centroid_dist_mean": 0.35403121734756526,
+            "centroid_dist_median": 0.21422500953947904,
+            "centroid_dist_ci": [
+              0.2350391567872837,
+              0.48787579932263947
+            ],
+            "gamma_abs_err_mean": 0.13280570833012462,
+            "gamma_abs_err_median": 0.09030696377158165,
+            "gamma_abs_err_ci": [
+              0.08735130125423894,
+              0.1831686623084048
+            ],
+            "retained_circ_frac_mean": 0.6605683893047866,
+            "peak_ratio_mean": 0.9057181907043965,
+            "mean_x_lev_family": -0.19305063691024205,
+            "mean_y_lev_family": -0.41690045770155876,
+            "mean_gamma_family": -0.20846347029631337,
+            "mean_x_lev_dns": -0.257603160829797,
+            "mean_y_lev_dns": -0.41011250136639377,
+            "mean_gamma_dns": -0.32583565544337034
+          },
+          "H16": {
+            "n_both": 24,
+            "detection_rate_dns": 1.0,
+            "detection_rate_family": 1.0,
+            "centroid_dist_mean": 0.3792253020087939,
+            "centroid_dist_median": 0.2416945878024209,
+            "centroid_dist_ci": [
+              0.26368728893963006,
+              0.5103869901361014
+            ],
+            "gamma_abs_err_mean": 0.0927253244832779,
+            "gamma_abs_err_median": 0.09059932641685009,
+            "gamma_abs_err_ci": [
+              0.07157764192961621,
+              0.11787784444168209
+            ],
+            "retained_circ_frac_mean": 1.1931651884766492,
+            "peak_ratio_mean": 1.1011069507609972,
+            "mean_x_lev_family": -0.09013191581041095,
+            "mean_y_lev_family": 0.4335599366568172,
+            "mean_gamma_family": -0.2020105003612116,
+            "mean_x_lev_dns": -0.18066158177813843,
+            "mean_y_lev_dns": 0.2513539692673582,
+            "mean_gamma_dns": -0.2529826026099424
+          }
+        }
+      }
+    }
+  },
+  "spearman_test_b": {
+    "rho": 0.5686397589605172,
+    "p_value": 1.2323595204577583e-16,
+    "n_points": 178,
+    "definition": "per-encounter |Omega_w - Omega_w_DNS| vs |Gamma_LEV - Gamma_LEV_DNS|, pooled over jepa_d64/fukami/pod and (impact, H=16), LEV-detected encounters"
+  },
+  "gate": {
+    "passed": true,
+    "centroid_smaller_than_fukami": true,
+    "circulation_smaller_than_fukami": true,
+    "spearman_positive": true,
+    "jepa_centroid_dist_H16": 0.31896,
+    "fukami_centroid_dist_H16": 0.33392,
+    "jepa_gamma_abs_err_H16": 0.05034,
+    "fukami_gamma_abs_err_H16": 0.29032,
+    "jepa_detection_rate_H16": 1.0,
+    "fukami_detection_rate_H16": 0.14286,
+    "spearman_rho": 0.56864,
+    "spearman_p": 0.0,
+    "diagnosis": ""
+  }
+}

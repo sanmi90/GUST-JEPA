@@ -546,7 +546,16 @@ forecast near the predict-the-mean floor, and only their combination closes it.
 Forward closure is a statement about numbers; the encounter is a statement about
 vortices. Decoded and reconstructed vorticity fields on held-out encounters
 (Figure~\ref{fig:recon}) connect the two, with one
-methodological caution and one new metric.
+methodological caution and one new metric. Two scoping points apply throughout
+this subsection. The fields are encode-decode reconstructions, the visualisation
+decoder applied to the simulation-encoded latent, so the quantitative comparisons
+report the decoder's ceiling on what each latent carries from a faithfully encoded
+field, not a forecast rollout, whose latent leaves the data manifold for the
+reconstructive baseline (\S\ref{sec:res_drift}). And every quantitative
+physical-space claim is made on the validated large-scale band ($\sigma/c = 0.05$);
+the visualisation decoder is blurry at small scale by construction, so the
+large-scale leading-edge vortex and shear layer are tracked meaningfully while
+full-resolution and small-scale field fidelity are not claimed.
 
 \begin{figure}[t]
   \centering
