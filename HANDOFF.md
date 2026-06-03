@@ -7736,3 +7736,20 @@ once in S5.4 (caution clause). Text-only, no new numbers. Build clean (latexmk e
 0 em-dashes; section_1 stays clean, section_5 stays at the pre-existing 4 flags; the S1 compression
 dropped the page count 42 -> 41). GATE 7 PASS.
 
+### D172: Session 26 Track 8 -- closed-loop pilot cut to an honest scope statement (default, no compute) (2026-06-03)
+
+Took the DEFAULT no-compute action; the optional open-loop GPU alternative stays gated behind explicit
+user approval and was NOT pursued (no training this session). The closed-loop pilot was undercutting the
+S4.7 observability result (a pressure-recoverable forecastable state whose control payoff is shown not to
+materialise). Compressed the S5.4 pilot paragraph (~17 lines) to a single honest sentence: the loop does
+not yet meet the C_L/I_y tolerance, the bottleneck is the rollout not the estimator (within-tolerance
+fraction unchanged with an oracle latent), so the representation and pressure observability are in place
+but the rollout needs reinforcement before a controller follows (detail in Appendix B). Removed the
+"deployment value" framing from S4.7 (now "the contribution of the predictive latent is the forecastable,
+observable state it hands to the predictor, not the instantaneous lift, which is read more accurately
+straight from the wall"). Retitled S5.4 from "Pathway to model-based control, and a pilot that does not
+yet close" to "Relation to model-based control." Appendix B already frames the pilot as a clearly-labelled
+limitation (feasibility study, not a closed controller; a pathway, not a result), left as the detail home.
+Text-only. Build clean (latexmk exit 0, 41 pp, 0 undefined, 0 em-dashes; section_4 unchanged at 46,
+section_5 dropped 4 -> 3 as the compression removed an R^2 prose line). GATE 8 PASS.
+
