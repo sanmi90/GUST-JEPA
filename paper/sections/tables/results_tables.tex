@@ -54,23 +54,23 @@
   full probe values with bootstrap CIs are in Appendix~\ref{app:reg}.}
   \label{tab:closure}
   \small
-  \begin{tabular}{l c c c c c c c}
-    \multicolumn{8}{c}{\textit{(a) Representational closure: mean absolute error}}\\
+  \begin{tabular}{l c c c c c c c c}
+    \multicolumn{9}{c}{\textit{(a) Representational closure: mean absolute error, and the wake-enstrophy $R^2$}}\\
     \toprule
-    Baseline & $d$ & $C_L$ & $C_D$ & $I_y$ & wake-enst.\ & circ.\ pos.\ & circ.\ neg.\ \\
+    Baseline & $d$ & $C_L$ & $C_D$ & $I_y$ & wake-enst.\ & circ.\ pos.\ & circ.\ neg.\ & wake $R^2$ \\
     \midrule
-    JEPA   & 64 & \textbf{0.624} & 0.301 & \textbf{1.901} & \textbf{29.83} & \textbf{0.801} & \textbf{0.715} \\
-    JEPA   & 32 & 0.675 & \textbf{0.246} & 2.976 & 37.99 & 1.084 & 1.061 \\
-    JEPA   & 16 & 0.627 & 0.267 & 2.883 & 50.09 & 0.939 & 1.322 \\
+    JEPA   & 64 & \textbf{0.624} & 0.301 & \textbf{1.901} & \textbf{29.83} & \textbf{0.801} & \textbf{0.715} & \textbf{0.75} \\
+    JEPA   & 32 & 0.675 & \textbf{0.246} & 2.976 & 37.99 & 1.084 & 1.061 & 0.74 \\
+    JEPA   & 16 & 0.627 & 0.267 & 2.883 & 50.09 & 0.939 & 1.322 & 0.55 \\
     \midrule
-    Fukami & 3  & 1.074 & 0.384 & 2.327 & 51.70 & 1.110 & 1.886 \\
-    Fukami & 32 & 1.038 & 0.368 & 2.195 & 63.94 & 0.946 & 1.789 \\
-    Fukami & 64 & 0.989 & 0.340 & 2.421 & 72.90 & 1.057 & 1.904 \\
-    Fukami & 16 & 1.133 & 0.421 & 2.424 & 77.26 & 1.158 & 1.837 \\
+    Fukami & 3  & 1.074 & 0.384 & 2.327 & 51.70 & 1.110 & 1.886 & 0.06 \\
+    Fukami & 32 & 1.038 & 0.368 & 2.195 & 63.94 & 0.946 & 1.789 & 0.06 \\
+    Fukami & 64 & 0.989 & 0.340 & 2.421 & 72.90 & 1.057 & 1.904 & $-0.41$ \\
+    Fukami & 16 & 1.133 & 0.421 & 2.424 & 77.26 & 1.158 & 1.837 & $-0.21$ \\
     \midrule
-    POD    & 16 & 1.168 & 0.317 & 2.235 & 89.14 & 1.645 & 1.681 \\
-    POD    & 32 & 0.937 & 0.269 & 2.608 & 81.82 & 1.650 & 1.617 \\
-    POD    & 64 & 0.872 & 0.291 & 2.245 & 89.31 & 1.660 & 1.800 \\
+    POD    & 16 & 1.168 & 0.317 & 2.235 & 89.14 & 1.645 & 1.681 & $-0.32$ \\
+    POD    & 32 & 0.937 & 0.269 & 2.608 & 81.82 & 1.650 & 1.617 & $-0.17$ \\
+    POD    & 64 & 0.872 & 0.291 & 2.245 & 89.31 & 1.660 & 1.800 & $-0.31$ \\
     \bottomrule
   \end{tabular}
 

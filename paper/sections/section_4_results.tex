@@ -16,9 +16,11 @@ field, carry each observable (representation quality,
 Table~\ref{tab:closure}(a))? And does the predictor, rolled out from the impact
 frame, forecast it (forecast quality, Table~\ref{tab:closure}(b))? The first
 isolates the encoder; the second tests the encoder and the learned dynamics
-together. The predictive latent leads on both, and the forecast is the
-load-bearing test (Figure~\ref{fig:b1_results}). On representation, the wake
-separation is widest. At $d = 64$ the predictive wake-enstrophy error is $29.83$,
+together. The predictive latent leads on both. The representation is where the
+advantage is established, and where it survives case-level clustering and a
+family-wide correction (Table~\ref{tab:paired_closure}); the forward forecast
+points the same way as consistent confirmation rather than the load-bearing test
+(Figure~\ref{fig:b1_results}). On representation, the wake separation is widest. At $d = 64$ the predictive wake-enstrophy error is $29.83$,
 against $72.90$ for the reconstructive autoencoder and $89.31$ for the linear
 basis, a factor of $2.4$ and $3.0$ lower. The predictive latent also carries the
 smallest positive and negative circulation errors. The gap narrows on the
@@ -380,7 +382,7 @@ rollout departs further: the median return-to-orbit distance on test\_b is
 smaller for the predictive latent at every horizon, and the separation is
 bootstrap-robust at $H = 64$ (predictive $8.70$ versus reconstructive $9.96$,
 $95\%$ confidence interval on the paired difference $[1.13, 3.25]$), marginal at
-$H = 32$. One caveat is load-bearing and we state it: the simulation gust
+$H = 32$. One caveat applies: the simulation gust
 trajectories do not themselves fully return to the baseline orbit within the
 $120$-frame window. That window is the gust-release period itself
 ($6\,t/c$ at $\Delta t = 0.05\,t/c$, with impact near $2\,t/c$), so only about
@@ -614,7 +616,7 @@ predictive decode), which would wrongly crown the energy-optimal reconstruction
 as the best, yet under transport it is no better than the blurry predictive
 decode and far better than the collapsed autoencoder, which is the physically
 correct ordering. We therefore lead with the transport distance and report
-similarity alongside for continuity. One honest boundary: on the OOD test\_c set
+similarity alongside for continuity. On the OOD test\_c set
 ($G = +4$) the transport ordering breaks (the reconstructive distance falls below
 the predictive one), so the transport advantage is an in-envelope result, of a
 piece with the three-dimensional observability boundary that degrades every

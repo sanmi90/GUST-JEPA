@@ -19,3 +19,4 @@ S4.6 LEV centroid 0.32c, circ within 5%, scale corr 0.91 = encode-decode CEILING
 Fukami forecast wake non-monotonic -0.082/-0.395/+0.007/-0.478 (d=3/16/32/64)	S4.1	from Table 4b	scripts/session20/exp_closure_r2.py	outputs/session23_closure/closure_r2_dimsweep_d16.csv
 recon CNN+ViT wake 0.16+-0.27 vs predictive 0.46+-0.03 (8x seed spread)	S4.1 + Table 7	0.16/0.46	scripts/session20/track_a_closure.py	outputs/session20/track_a/controls_2x2.json
 AE baseline config: ReLU+GroupNorm+future-lift head (best documented)	S3 fairness protocol	config	(CLAUDE.md locked config)	outputs/session20/track_a/controls_2x2.json
+Table 4(a) representational wake R^2 column: JEPA 0.75/0.74/0.55, Fukami 0.06/0.06/-0.41/-0.21, POD -0.32/-0.17/-0.31	Table 4(a)	see CSV	scripts/session20/exp_closure_r2.py	outputs/session20/closure_r2/closure_r2_heldout.csv + outputs/session23_closure/closure_r2_dimsweep_d16.csv

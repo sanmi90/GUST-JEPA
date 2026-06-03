@@ -7753,3 +7753,22 @@ limitation (feasibility study, not a closed controller; a pathway, not a result)
 Text-only. Build clean (latexmk exit 0, 41 pp, 0 undefined, 0 em-dashes; section_4 unchanged at 46,
 section_5 dropped 4 -> 3 as the compression removed an R^2 prose line). GATE 8 PASS.
 
+### D173: Session 26 Track 9 -- manuscript economy and internal consistency (2026-06-03)
+
+(1) Table 4(a) now carries a representational wake-enstrophy R^2 column so the abstract's headline
+0.75 appears in the table it references (JEPA 0.75/0.74/0.55 at d=64/32/16, Fukami 0.06/0.06/-0.41/-0.21
+at d=3/32/64/16, POD -0.32/-0.17/-0.31; from closure_r2_heldout.csv + closure_r2_dimsweep_d16.csv,
+z_dns test_b H=16; JEPA d64 0.754 verified == abstract). No overfull box from the added column.
+(2) Table 9 (training-fit R^2) was already in Appendix A; no move needed. Did NOT merge Table 4(a)/(b)
+(a "consider" item; merging after adding the column would be churn for no gain). (3) Register pass:
+trimmed the clearest meta-commentary ("One caveat is load-bearing and we state it" -> "One caveat
+applies"; "One honest boundary:" -> removed; "The honest claim is therefore" -> "The claim is therefore").
+(4) Internal-consistency sweep CAUGHT a contradiction left by the reframe: S4.1 still said "the forecast
+is the load-bearing test"; corrected to anchor on the representation (which survives case clustering +
+family-wide correction, Table 10) with the forecast as consistent confirmation. Verified the headline
+numbers are consistent across sections: repr wake 0.75/0.754 (abstract, S4.1, S5.1, Table 4a), forecast
+0.449 (6 places in S4), case-clustered +43/[13,77] (abstract, Table 10), floor 0.173/0.17 (S4.1). The
+remaining "decisive" usages are correct (the reframed "not decisive" sentences, the 2x2 controls
+experiment, sensor pairs), not the softened topology p. Build clean (latexmk exit 0, 41 pp, 0 undefined,
+0 em-dashes, 0 overfull; section_4 unchanged at 46, section_5 at 3). GATE 9 PASS.
+
