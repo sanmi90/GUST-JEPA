@@ -1,0 +1,91 @@
+### paper/sections/abstract.tex
+[FAIL] R² claim missing split coverage (D130)
+   L19: R² claim, paragraph missing split(s): val, test_b, test_c
+[FAIL] paper/sections/abstract.tex: 1 convention violation(s)
+
+### paper/sections/section_1_introduction.tex
+[OK] paper/sections/section_1_introduction.tex: clean (183 lines)
+
+### paper/sections/section_2_flow_and_data.tex
+[FAIL] R² claim missing split coverage (D130)
+   L26: R² claim, paragraph missing split(s): test_b, test_c
+[FAIL] paper/sections/section_2_flow_and_data.tex: 1 convention violation(s)
+
+### paper/sections/section_3_methods.tex
+[OK] paper/sections/section_3_methods.tex: clean (197 lines)
+
+### paper/sections/section_4_results.tex
+[FAIL] R² claim missing split coverage (D130)
+   L52: R² claim, paragraph missing split(s): test_b, test_c
+   L55: R² claim, paragraph missing split(s): test_b, test_c
+   L64: R² claim, paragraph missing split(s): test_b, test_c
+   L66: R² claim, paragraph missing split(s): test_b, test_c
+   L95: R² claim, paragraph missing split(s): test_b, test_c
+   L99: R² claim, paragraph missing split(s): test_b, test_c
+   L106: R² claim, paragraph missing split(s): test_b, test_c
+   L120: R² claim, paragraph missing split(s): test_b, test_c
+   L124: R² claim, paragraph missing split(s): test_b, test_c
+   L127: R² claim, paragraph missing split(s): test_b, test_c
+   L139: R² claim, paragraph missing split(s): test_b, test_c
+   L156: R² claim, paragraph missing split(s): train, test_b, test_c
+   L160: R² claim, paragraph missing split(s): train, test_b, test_c
+   L190: R² claim, paragraph missing split(s): train, val, test_b, test_c
+   L192: R² claim, paragraph missing split(s): train, val, test_b, test_c
+   L202: R² claim, paragraph missing split(s): train, val, test_b, test_c
+   L207: R² claim, paragraph missing split(s): train, val, test_b, test_c
+   L253: R² claim, paragraph missing split(s): val, test_b, test_c
+   L330: R² claim, paragraph missing split(s): val, test_b, test_c
+   L331: R² claim, paragraph missing split(s): val, test_b, test_c
+   ... 14 more
+[FAIL] R² point estimate without uncertainty (D130)
+   L55: R² point estimate without bootstrap/seed/CV within 5 lines: floor: $R^2 = 0.449$ at $d = 64$ ($0.214$ at $d = 32$), against $-0.478$ for the
+   L64: R² point estimate without bootstrap/seed/CV within 5 lines: ($R^2 = 0.33$ at $d = 64$, $0.45$ at $d = 32$) while every other family falls to
+   L66: R² point estimate without bootstrap/seed/CV within 5 lines: family forecasts well there ($R^2 = 0.79$), consistent with the
+   L124: R² point estimate without bootstrap/seed/CV within 5 lines: result, it is low (test\_b $R^2 = 0.17$), so the predictive forecast ($0.449$)
+   L156: R² point estimate without bootstrap/seed/CV within 5 lines: enstrophy is low (test\_b $R^2 = 0.17$, rising to $0.31$ only when a
+   L207: R² point estimate without bootstrap/seed/CV within 5 lines: $R^2 = 0.5$. The predictive latent holds wake-enstrophy above the floor to
+   L253: R² point estimate without bootstrap/seed/CV within 5 lines: latent recovers the impact $C_L$ at $R^2 = 0.683$ at every lead time, whereas
+   L330: R² point estimate without bootstrap/seed/CV within 5 lines: diameter $D$ ($R^2 = 0.46$ and $0.80$) but barely resolves the wall-normal
+   L331: R² point estimate without bootstrap/seed/CV within 5 lines: offset $Y$ ($R^2 = 0.10$). This is a property of the data rather than of the
+   L504: R² point estimate without bootstrap/seed/CV within 5 lines: ($R^2 = -0.07$) and the mean over observables halves to $0.17$, and $d = 4$ is
+   L522: R² point estimate without bootstrap/seed/CV within 5 lines: wake forecast ($R^2 = 0.33$) and a strong lift ($0.79$) while the unconditioned one
+   L667: R² point estimate without bootstrap/seed/CV within 5 lines: $R^2 = 0.91$ at $K = 2$, the highest of any family) yet routing the impact-lift
+[FAIL] paper/sections/section_4_results.tex: 46 convention violation(s)
+
+### paper/sections/section_5_discussion.tex
+[FAIL] R² claim missing split coverage (D130)
+   L97: R² claim, paragraph missing split(s): train, val, test_b, test_c
+   L105: R² claim, paragraph missing split(s): train, val, test_b, test_c
+   L111: R² claim, paragraph missing split(s): train, val, test_b, test_c
+   L211: R² claim, paragraph missing split(s): train, val, test_b, test_c
+[FAIL] paper/sections/section_5_discussion.tex: 4 convention violation(s)
+
+### paper/sections/section_6_conclusions.tex
+[OK] paper/sections/section_6_conclusions.tex: clean (23 lines)
+
+### paper/sections/appendix_a_regularisation.tex
+[FAIL] R² claim missing split coverage (D130)
+   L55: R² claim, paragraph missing split(s): val, test_b, test_c
+   L62: R² claim, paragraph missing split(s): test_b, test_c
+[FAIL] R² point estimate without uncertainty (D130)
+   L55: R² point estimate without bootstrap/seed/CV within 5 lines: highest training fit (mean $R^2 = 0.835$ at $d = 64$), but the ordering of the
+[FAIL] paper/sections/appendix_a_regularisation.tex: 3 convention violation(s)
+
+### paper/sections/appendix_b_sensing.tex
+[FAIL] R² claim missing split coverage (D130)
+   L3: R² claim, paragraph missing split(s): train, val, test_b, test_c
+   L4: R² claim, paragraph missing split(s): train, val, test_b, test_c
+   L38: R² claim, paragraph missing split(s): train, test_b, test_c
+   L39: R² claim, paragraph missing split(s): train, test_b, test_c
+   L63: R² claim, paragraph missing split(s): train, val, test_b, test_c
+   L66: R² claim, paragraph missing split(s): train, val, test_b, test_c
+   L78: R² claim, paragraph missing split(s): train, val, test_b, test_c
+   L106: R² claim, paragraph missing split(s): test_b, test_c
+   L109: R² claim, paragraph missing split(s): test_b, test_c
+   L113: R² claim, paragraph missing split(s): test_b, test_c
+   L122: R² claim, paragraph missing split(s): train, val, test_b, test_c
+[FAIL] R² point estimate without uncertainty (D130)
+   L38: R² point estimate without bootstrap/seed/CV within 5 lines: $R^2 = 0.80$ against $0.44$ for the target-blind one, but by $K \ge 4$ the wall
+   L113: R² point estimate without bootstrap/seed/CV within 5 lines: $0.45$; lift $R^2 = 0.89$ against $0.77$ at the impact frame), an advantage that
+[FAIL] paper/sections/appendix_b_sensing.tex: 13 convention violation(s)
+

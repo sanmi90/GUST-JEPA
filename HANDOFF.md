@@ -7534,3 +7534,50 @@ basis, and that the wake forecast draws on both the wake-vorticity and gust-forc
 (latexmk exit 0, 40 pp, no undefined refs/cites, no em-dashes). Numbers:
 outputs_causal/jepa_modes/{fig_corr_matrices,coord_groups,decoded_wake_mode}.*.
 
+-----
+
+# SESSION 26: Referee hardening of the JFM manuscript (2026-06-03)
+
+External JFM-referee-grade review of main.pdf. Re-analysis of cached outputs + rewriting +
+reproducibility-package prep. NO new model training in scope. Plan: `SESSION26 REFEREE HARDENING.md`.
+Operating rules: no em-dashes; do NOT fabricate/fill DNS resolution numbers (Table 1 [PENDING]
+rows untouched); paper runs on split v2 (CLAUDE.md stale on this); Test C never used for
+selection; build clean after every track; every new paper number traces to a committed file in
+outputs/session26/new_numbers_manifest.tsv; honesty over preservation (reword if a claim weakens).
+
+### D164: Session 26 Track 0 -- ground-truth audit and clean baseline build (2026-06-03)
+
+Established the pre-change state. Baseline build clean: `cd paper && latexmk -pdf` exit 0,
+**40 pages**, no undefined refs/citations, no rerun warnings; baseline PDF stashed at
+/tmp/s26_baseline_main.pdf. Source of truth is `paper/sections/*.tex` + `paper/main.tex` +
+`paper/sections/tables/*.tex` (the `.md` under sections/_v2_md_archive/ are ARCHIVED; the
+md->tex converter must NOT be run). Conventions checker located at
+`~/.claude/skills/academic-paper-writer-vortex-jepa/scripts/enforce_conventions.py`; baseline
+captured at outputs/session26/baseline_conventions.txt: **0 em-dashes anywhere**; the R^2
+coverage/uncertainty flags (abstract 1, sec2 1, sec4 46, sec5 4, appA 3, appB 13) are
+PRE-EXISTING heuristic false positives (CIs live in tables the line-checker cannot see;
+matches D159/D160). The load-bearing gate is em-dashes==0 + no forbidden phrasings.
+
+SPLIT CONFIRMED v2 (`configs/splits/split_v2.json`): 84 cases, 70 train / 10 test_b / 4 test_c;
+encounters train 226 / val 86 / **test_b 42 / test_c 24**. test_b has only **10 distinct cases**
+behind 42 encounters (9 run3 x 4 enc + 1 periodic x 6 enc; 5 interior + 5 boundary), so the
+within-case clustering Track 1 must correct for is real (most cases contribute 4 encounters).
+test_c = 4 G=+4 periodic cases x 6 enc. Case-to-encounter mapping committed at
+outputs/session26/split_v2_case_map.json.
+
+ARTIFACT MAP committed at outputs/session26/artifact_map.md. Compiled numbering (from main.aux)
+matches the plan exactly: T4=tab:closure, T5=tab:conditioning_floor, T6=tab:latent_drift,
+T7=tab:controls_2x2, T8=tab:jepa_dimsweep, T9=tab:b1_closure_train_r2, T10=tab:paired_closure;
+F8=fig:persistence, F12=fig:ot, F13=fig:scale_decomp, F14=fig:observability, F15=fig:wake_code.
+Each mapped to (generating script, cached output). Table 10 (the 12 paired tests) is produced by
+scripts/session21/session21_paired_closure_stats.py, which reuses scripts/session20/exp_closure_r2.py
+(LATENTS_ROOT outputs/session18/exp_b1, ROLLOUTS_ROOT outputs/session18/exp_b1_test3, DNS metrics
+outputs/session17/exp2/dns_physical_metrics.npz). VALIDATED: it reproduces the manuscript paired
+numbers exactly (repr wake 31/42 dErr +43.1 CI[+23.5,+66] sign p=1.4e-3; forecast wake 27/42
+dErr +32 CI[+10.8,+54.8] sign p=4.4e-2). The per-encounter abs-error arrays are not cached as
+standalone files but regenerate from this loader (no training, no GPU); the loader returns errors
+in canonical sorted (case_id, encounter) order, so Track 1 only needs to expose the case label per
+element to cluster. GATE 0 PASS (no blockers; all table/figure sources found).
+Outputs are gitignored; small .txt/.json/.tsv/.md summaries are force-added for traceability,
+following the established 17-file pattern.
+

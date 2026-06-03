@@ -1,0 +1,4 @@
+paper_number	where_in_paper	value	generating_script	committed_output_file
+# Session 26 traceability manifest. Every NEW number introduced into the manuscript this
+# session must appear here with a committed source. Tab-separated. Numbers that merely move
+# or are reworded (already traceable from prior sessions) are not re-listed.

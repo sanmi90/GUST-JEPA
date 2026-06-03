@@ -1,0 +1,226 @@
+{
+  "test_b": {
+    "G+0.50_D1.50_Y+0.00": {
+      "n_enc": 4,
+      "enc_indices": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "tier": "boundary",
+      "G": 0.5,
+      "D": 1.5,
+      "Y": 0.0,
+      "source": "run3",
+      "neighbors_d2": 2
+    },
+    "G+1.00_D0.50_Y+0.40": {
+      "n_enc": 4,
+      "enc_indices": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "tier": "boundary",
+      "G": 1.0,
+      "D": 0.5,
+      "Y": 0.4,
+      "source": "run3",
+      "neighbors_d2": 3
+    },
+    "G+1.50_D1.50_Y+0.10": {
+      "n_enc": 4,
+      "enc_indices": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "tier": "interior",
+      "G": 1.5,
+      "D": 1.5,
+      "Y": 0.1,
+      "source": "run3",
+      "neighbors_d2": 5
+    },
+    "G+2.00_D0.50_Y+0.10": {
+      "n_enc": 6,
+      "enc_indices": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "tier": "interior",
+      "G": 2.0,
+      "D": 0.5,
+      "Y": 0.1,
+      "source": "periodic",
+      "neighbors_d2": 6
+    },
+    "G+3.00_D1.00_Y+0.10": {
+      "n_enc": 4,
+      "enc_indices": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "tier": "interior",
+      "G": 3.0,
+      "D": 1.0,
+      "Y": 0.1,
+      "source": "run3",
+      "neighbors_d2": 4
+    },
+    "G-0.50_D1.00_Y-0.40": {
+      "n_enc": 4,
+      "enc_indices": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "tier": "boundary",
+      "G": -0.5,
+      "D": 1.0,
+      "Y": -0.4,
+      "source": "run3",
+      "neighbors_d2": 2
+    },
+    "G-1.00_D1.00_Y-0.20": {
+      "n_enc": 4,
+      "enc_indices": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "tier": "interior",
+      "G": -1.0,
+      "D": 1.0,
+      "Y": -0.2,
+      "source": "run3",
+      "neighbors_d2": 4
+    },
+    "G-1.50_D0.50_Y-0.20": {
+      "n_enc": 4,
+      "enc_indices": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "tier": "boundary",
+      "G": -1.5,
+      "D": 0.5,
+      "Y": -0.2,
+      "source": "run3",
+      "neighbors_d2": 3
+    },
+    "G-2.00_D1.00_Y-0.40": {
+      "n_enc": 4,
+      "enc_indices": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "tier": "interior",
+      "G": -2.0,
+      "D": 1.0,
+      "Y": -0.4,
+      "source": "run3",
+      "neighbors_d2": 4
+    },
+    "G-3.00_D1.50_Y-0.10": {
+      "n_enc": 4,
+      "enc_indices": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "tier": "boundary",
+      "G": -3.0,
+      "D": 1.5,
+      "Y": -0.1,
+      "source": "run3",
+      "neighbors_d2": 2
+    }
+  },
+  "test_c": {
+    "G+4.00_D0.50_Y+0.10": {
+      "n_enc": 6,
+      "enc_indices": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "tier": null,
+      "G": 4.0,
+      "D": 0.5,
+      "Y": 0.1,
+      "source": "periodic",
+      "neighbors_d2": null
+    },
+    "G+4.00_D0.50_Y-0.10": {
+      "n_enc": 6,
+      "enc_indices": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "tier": null,
+      "G": 4.0,
+      "D": 0.5,
+      "Y": -0.1,
+      "source": "periodic",
+      "neighbors_d2": null
+    },
+    "G+4.00_D1.00_Y+0.10": {
+      "n_enc": 6,
+      "enc_indices": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "tier": null,
+      "G": 4.0,
+      "D": 1.0,
+      "Y": 0.1,
+      "source": "periodic",
+      "neighbors_d2": null
+    },
+    "G+4.00_D1.00_Y-0.10": {
+      "n_enc": 6,
+      "enc_indices": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "tier": null,
+      "G": 4.0,
+      "D": 1.0,
+      "Y": -0.1,
+      "source": "periodic",
+      "neighbors_d2": null
+    }
+  }
+}
