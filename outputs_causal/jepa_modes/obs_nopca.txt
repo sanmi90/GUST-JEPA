@@ -1,0 +1,18 @@
+[data] train n=14464, test_b n=2688
+
+observable      kind    skill_te    var% |cosPC1| O_full_te
+-----------------------------------------------------------
+C_L             force      0.719    0.02    0.005     0.497
+C_D             force      0.762    0.03    0.010     0.438
+I_y             force      0.693    0.02    0.003     0.493
+wake_enstrophy  wake       0.835    0.06    0.009     0.447
+circulation_pos wake       0.936    0.09    0.020     0.448
+circulation_neg wake       0.938    0.10    0.022     0.416
+
+=== wake forecast direction asymmetry (train | test_b) ===
+  s -> future wake (raw)         0.850    0.835
+  s | forces                     0.820    0.827
+  s | forces + current wake      0.640    0.544
+  C_L | s                        0.087    0.024
+
+[done] wrote outputs_causal/jepa_modes/obs_nopca.json

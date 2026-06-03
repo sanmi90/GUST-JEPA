@@ -1,0 +1,27 @@
+[data] train n=14464, test_b n=2688
+
+=== forecast direction (ridge, basis-free; no PCA selection) ===
+variance share of the forecast direction: 0.1%  (random unit dir = 1.6%, PC1 = 68.4%, PC3 = 4.8%)
+|cos| with PC1..PC5: [0.01, 0.01, 0.07, 0.03, 0.04]
+effective # of PCs the direction spans (1/sum cos^4-ish proxy): 29824.9
+
+=== forecast asymmetry (train | test_b) ===
+  s -> future wake (raw)             0.850    0.835
+  s -> future wake | G,C_L,C_D       0.820    0.827
+  C_L -> future wake (raw)           0.364    0.245
+  C_L -> future wake | s             0.087    0.024
+
+=== what the forecast signal s tracks (|Spearman|, current frame, train) ===
+  G               0.382
+  C_L             0.378
+  C_D             0.386
+  centroid_x      0.475
+  centroid_y      0.364
+  wake_thickness  0.613
+  circulation_pos 0.711
+  circulation_neg 0.680
+  wake_enstrophy  0.756
+  Y               0.294
+  D               0.247
+
+[verdict] forecast-direction variance share = 0.1%; LOW (reconstruction-discards story holds basis-free)

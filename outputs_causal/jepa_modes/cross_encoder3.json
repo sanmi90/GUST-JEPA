@@ -1,0 +1,40 @@
+{
+  "JEPA": {
+    "combo": 0.8338954184053469,
+    "best_single": 0.43556385996470076,
+    "beyond_forces": 0.8260298387448745,
+    "n_strong": 0
+  },
+  "Fukami": {
+    "combo": 0.5988381673664885,
+    "best_single": 0.5379345164453982,
+    "beyond_forces": 0.6077516202047184,
+    "n_strong": 1
+  },
+  "POD": {
+    "combo": 0.5548649935818174,
+    "best_single": 0.5284679404864765,
+    "beyond_forces": 0.5320358563396546,
+    "n_strong": 1
+  },
+  "Fukami_seeds": [
+    {
+      "combo": 0.5734484359921935,
+      "best_single": 0.5212364460957574,
+      "beyond_forces": 0.5502524226130101,
+      "n_strong": 3
+    },
+    {
+      "combo": 0.40004890227554407,
+      "best_single": 0.5138656504413899,
+      "beyond_forces": 0.4211516931040572,
+      "n_strong": 2
+    },
+    {
+      "combo": 0.5257915406477688,
+      "best_single": 0.6050037730784151,
+      "beyond_forces": 0.5121171875341777,
+      "n_strong": 5
+    }
+  ]
+}

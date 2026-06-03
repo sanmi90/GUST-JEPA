@@ -61,6 +61,23 @@ unconstrained, which complicates any downstream task that relies on that
 geometry, including dynamics, interpolation, and comparison
 \cite{tran2026,kelshaw2024}.
 
+A parallel and fast-growing line reads these flows through the information their
+reduced states carry rather than their energy. Transfer-entropy causality among
+proper-orthogonal-decomposition modes ranks which modes drive the formation of
+coherent structures \cite{martinezsanchez2023}, and an informative/non-informative
+decomposition splits a field into the part that carries information about a
+target's future and a residual that carries none \cite{arranz2024}. This
+informative-decomposition idea has very recently been brought to extreme
+vortex-gust airfoil interactions of the present family, extracting the field
+structures informative about the future lift \cite{koshikawa2026,fukamiaraki2026},
+alongside time-dependent modal bases for the same interaction
+\cite{zhong2025,zamaniashtiani2025} and latent-causality attributions in physical
+space \cite{cremades2026xcal}. Our study is complementary: rather than mapping the
+informative or causal modes of a single representation, we ask which encoder
+objective produces a latent whose forward evolution closes the full set of
+observables, the wake included, and we use the information lens only as a held-out
+diagnostic of the resulting latent (\S\ref{sec:disc_mechanism}).
+
 A complementary route to a reduced state is to drop the reconstruction term
 altogether and to train the encoder and a predictor end to end on
 latent-space forecasting, with an explicit anti-collapse regulariser in place
@@ -83,9 +100,15 @@ compactness-versus-forecast tradeoff documented for controlled wake flows in a
 companion study under review \cite{solerarico_compactness_underreview}. We show
 this tradeoff is a consequence of the reconstruction objective: a predictive
 latent recovers nonlinear compactness without surrendering forecast stability.
+The division of labour with that companion study
+\cite{solerarico_compactness_underreview} is explicit: there, controlled
+canonical wakes and the compactness-versus-forecast tradeoff; here, the
+parametric vortex gust, the latent-drift mechanism we identify as the common
+cure, and its geometric and topological characterisation.
 
-This places the present model within the action-conditioned world-model
-framework articulated by \cite{lecun2022}: a system is observed through an
+The unconditional-encoder, conditioned-predictor split we adopt is motivated by
+the action-conditioned world-model framework articulated by \cite{lecun2022},
+which we use as an analogy and not as a property we claim: a system is observed through an
 encoder into an abstract state, an intervention is applied, and a predictor
 forecasts the outcome of that intervention in the representation space rather
 than in the space of the raw observation. The defining property of such a model

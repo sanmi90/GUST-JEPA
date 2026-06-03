@@ -84,14 +84,11 @@ data-driven subdomain of the source characterisation \cite{fukami2025prf}. The
 lift and drag coefficients are $C_L = F_L/(\tfrac12 \rho u_\infty^2 c)$ and
 $C_D = F_D/(\tfrac12 \rho u_\infty^2 c)$, obtained by integrating the pressure
 and viscous stresses over the airfoil surface.
-\pending{Authors to insert the DNS solver-resolution details: the free-stream
-Mach number of the low-Mach formulation (or confirmation that the incompressible
-limit was used); the full computational domain and spanwise extent $L_z/c$; the
-element and solution-point counts; the minimum wall-normal spacing
-$\Delta n_{\min}/c$ and the corresponding $\Delta n^+$ in the baseline wake; the
-time step $\Delta t\,u_\infty/c$ and maximum CFL; the gust release station
-$x_0/c$; and the grid and time-step sensitivity check. These DNS details are not
-yet filled in and will be added by the authors.} The dataset
+The remaining DNS solver-resolution details required for full reproducibility,
+the free-stream Mach number, the domain and spanwise extent, the element and
+solution-point counts, the near-wall spacing, the time step and CFL, the
+gust-release station, and the grid and time-step sensitivity, are listed as an
+author-fill checklist in Table~\ref{tab:dns_pending}. The dataset
 comprises $84$ cases partitioned into training, validation (the held-out
 encounters of the training cases, denoted test\_a), an
 in-distribution test set (test\_b), and an out-of-distribution test set
@@ -103,6 +100,38 @@ $120$ frames each, one per gust release: $226$ training, $86$ validation
 (test\_a, the held-out last encounters of the training cases), $42$ test\_b, and
 $24$ test\_c. The undisturbed reference case is retained in training. The
 partition is fixed once and used identically by every model and baseline.
+
+\begin{table}
+  \centering
+  {\small
+  \begin{tabular}{@{}p{0.29\textwidth}l p{0.43\textwidth}@{}}
+    \toprule
+    Quantity & Value & Why a referee needs it \\
+    \midrule
+    Free-stream Mach number (or incompressible-limit confirmation) & \pending{} &
+    Confirms the low-Mach formulation is effectively incompressible at
+    $\vRe = 5000$. \\
+    Computational domain and spanwise extent $L_z/c$ & \pending{} & Bounds domain
+    blockage and confirms the span resolves the three-dimensional wake. \\
+    Element and solution-point counts & \pending{} & Fixes the spatial resolution
+    of the spectral-element discretisation. \\
+    Minimum wall-normal spacing $\Delta n_{\min}/c$ and wall units $\Delta n^+$ &
+    \pending{} & Shows the near-wall layer is resolved without a wall model. \\
+    Time step $\Delta t\,u_\infty/c$ and maximum CFL & \pending{} & Establishes the
+    temporal resolution and stability of the integration. \\
+    Gust-release station $x_0/c$ & \pending{} & Sets the upstream distance over
+    which the Taylor vortex develops before impact. \\
+    Grid and time-step sensitivity check & \pending{} & Demonstrates that the
+    reported statistics are converged. \\
+    \bottomrule
+  \end{tabular}}
+  \caption{Author-fill checklist of the DNS solver-resolution details required for
+  full reproducibility (\S\ref{sec:flow_observables}). The data are direct
+  numerical simulations with no subgrid-scale model, so all scales are resolved
+  and no large-eddy closure is involved; the resolution values are to be supplied
+  by the simulation collaborators and are not yet filled in.}
+  \label{tab:dns_pending}
+\end{table}
 
 For each frame the cache stores the mid-plane spanwise vorticity
 $\omegaz(192, 96)$, the span-averaged wall pressure $p_{\mathrm{wall}}(192)$,

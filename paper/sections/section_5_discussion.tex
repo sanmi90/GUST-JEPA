@@ -36,6 +36,52 @@ that produces it, and the reconstructive latent does exactly that, recovering
 the impact lift poorly from its own oracle while the predictive latent recovers
 it well.
 
+A coordinate-level reading of the three latents makes the mechanism concrete and
+explains why the wake, and not the forces, separates the families. For each family
+we fit a linear probe of the future wake enstrophy on the $d = 64$ latent and ask
+how that forecast is distributed across the coordinates. The predictive latent
+forecasts the future wake at a held-out rank correlation of $0.83$ that no single
+coordinate approaches (the best one reaches $0.44$), so the information is a
+\emph{collective} code spread across many coordinates. Grouped by what they
+encode, these coordinates fall into a large wake-vorticity group (about fifty of
+the sixty-four, tracking the wake circulation and thickness) and a smaller
+gust-forcing group (about eleven, tracking the gust ratio and the forces), the
+remainder being near-silent; within each group the coordinates are strongly
+correlated rather than a disentangled basis, and on their own the wake-vorticity
+coordinates forecast the future wake at about $0.7$ and the forcing coordinates at
+$0.45$, neither matching the full latent's $0.83$, so the forecast draws on both
+groups together. The reconstructive and
+linear latents forecast it far less well ($0.60$ and $0.56$) and from no collective
+structure: their best single coordinate is already as informative as the whole
+latent, a near-zero gap that holds across three reconstructive-encoder seeds
+(Figure~\ref{fig:wake_code}). The forces, by contrast, are forecast redundantly in
+every family, with dozens of individual coordinates carrying them. An energy or
+reconstruction objective therefore retains the force signature, which is present in
+many coordinates, but not the distributed combination that forecasts the wake,
+which is exactly the observable on which the predictive latent leads. The
+predictive forecast direction also anticipates the wake beyond the gust parameters
+and the instantaneous forces (held-out rank-partial $0.83$), so it carries genuine
+forecast information and not merely the present forces. These are observational
+probes on the frozen encoders, a latent-space reading of the closure result of
+\S\ref{sec:res_closure} rather than a separate claim, and they sit alongside the
+information-theoretic modal analyses of related flows
+\cite{martinezsanchez2023,arranz2024,koshikawa2026}.
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.62\linewidth]{sections/figures/results/fig_wake_code.pdf}
+  \caption{The predictive objective builds a collective wake-forecast code that the
+  reconstructive and linear objectives do not. For each encoder family at matched
+  $d = 64$, the held-out forecast skill of the future wake enstrophy
+  $\Omega_w(t{+}H)$ at $H = 16$ from the best single latent coordinate (light) and
+  from the full latent combination (dark), on test\_b. The predictive (JEPA) latent
+  shows a large gap (combination $0.83$, best single $0.44$): the wake forecast is
+  distributed across many coordinates. The reconstructive (Fukami) and linear (POD)
+  latents show a near-zero gap and lower skill, so their wake forecast is no better
+  than a single coordinate. Observational probes on the frozen encoders.}
+  \label{fig:wake_code}
+\end{figure}
+
 This organisation survives a halving of the latent dimension, which is the basis
 for reading it as a low-dimensional predictive state rather than an artefact of
 capacity. The latent is in fact far lower-dimensional than its nominal budget:
@@ -108,10 +154,11 @@ Three limitations bound the claims. First, the wall-normal offset $Y$ is weakly
 resolved because the training mass concentrates near $Y \approx 0$; this is a
 data limitation, and $Y$-conditional statements should be read with it in mind.
 Second, the $|G| = 4$ extrapolation degrades for a physical reason, not merely a
-statistical one: the encoder observes a single mid-plane vorticity slice, and at
-$|G| = 4$ the true dynamics become three-dimensional \cite{fukami2025prf}, so
-test\_c is best read as the observability boundary of a mid-plane representation
-rather than as a parametric-generalisation claim. Third, the visualisation
+statistical one. As set out in \S\ref{sec:flow_physics}, the encoder observes a
+single mid-plane vorticity slice whose information no longer determines the
+three-dimensional $|G| = 4$ dynamics \cite{fukami2025prf}, so test\_c is the
+observability boundary of that representation, not a parametric-generalisation
+claim. Third, the visualisation
 decoder is a diagnostic on the frozen encoder, never part of the predictive
 loss; a reader expecting sharp reconstructions from a predictive latent will be
 disappointed, which is the explicit trade the objective makes. To these we add,
@@ -139,8 +186,9 @@ these flows \cite{fukami2024control}. In the action-conditioned
 reading of \S\ref{sec:introduction}, the present perturbation is the gust; an
 actuation channel would enter at the same point, the predictor conditioning, and
 the same forward-closure machinery would apply with the control as the action
-rather than the disturbance. We caution against over-reading this as an
-interventional world model. The conditioning is far from inert: removing it entirely
+rather than the disturbance. As anticipated, and consistent with our adopting the world-model view of
+\S\ref{sec:introduction} as motivation rather than a claim, we caution against
+over-reading this as an interventional world model. The conditioning is far from inert: removing it entirely
 collapses the held-out wake forecast to the predict-the-mean floor
 (\S\ref{sec:res_controls}), so the gust parameters carry forecast-relevant
 information, and what is at issue is the narrower question of whether the predictor

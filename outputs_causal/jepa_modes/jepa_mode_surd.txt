@@ -1,0 +1,26 @@
+[data] 226 train encounters, post-impact window, H=16, pooled n=14464 frames, latent d=64
+
+=== RAW JEPA modes (model-native axes, no rotation) ===
+top-3 raw dims by MI(z_k; future wake): [47, 4, 5]  MI(nats)=[0.298, 0.298, 0.285]
+MI spread over all 64 dims: max 0.298, #dims with MI>0.5*max = 43 (many informative dims => expect redundancy)
+  bins=4: MI=0.473b leak=0.764 | U=0.058 R=0.083 S=0.095  (R/MI*H share dominant?)
+  bins=6: MI=0.640b leak=0.752 | U=0.046 R=0.085 S=0.116  (R/MI*H share dominant?)
+  bins=8: MI=0.824b leak=0.725 | U=0.033 R=0.086 S=0.155  (R/MI*H share dominant?)
+  per-raw-dim observability O=I_deb/H (surrogate null, 80):
+    z[47]: O=0.107  p=0.0123  spread=0.154
+    z[4]: O=0.106  p=0.0123  spread=0.078
+    z[5]: O=0.103  p=0.0123  spread=0.149
+
+=== PCA modes of the JEPA latent (within-JEPA rotation; NO POD) ===
+PC variance fractions: [0.684, 0.066, 0.048]
+  bins=4: MI=0.515b leak=0.742 | U=0.048 R=0.085 S=0.125  top-unique=PC3 (0.047)
+  bins=6: MI=0.760b leak=0.706 | U=0.042 R=0.088 S=0.163  top-unique=PC3 (0.037)
+  bins=8: MI=1.031b leak=0.656 | U=0.035 R=0.089 S=0.219  top-unique=PC3 (0.031)
+  per-PC observability O=I_deb/H (surrogate null, 80):
+    PC1: O=0.114  p=0.0123  spread=0.153
+    PC2: O=0.049  p=0.0123  spread=0.107
+    PC3: O=0.122  p=0.0123  spread=0.114
+
+=== impact-frame only (n=226, manuscript regime; thin, bins=4) ===
+  RAW  top3 [47, 12, 18]: U=0.031 R=0.231 S=0.094 MI=0.712b
+  PCA  top3            : U=0.112 R=0.135 S=0.262 MI=1.019b

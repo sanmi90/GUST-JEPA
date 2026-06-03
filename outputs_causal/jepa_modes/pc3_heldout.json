@@ -1,0 +1,29 @@
+{
+  "train": {
+    "pc3_raw": 0.5444428164987579,
+    "pc3_par_forces": 0.40706073009362925,
+    "cl_raw": 0.3637405733938912,
+    "cl_par_pc3": 0.0748653468068949,
+    "geom_beyond_forces": {
+      "centroid_x": 0.5678675013631439,
+      "centroid_y": 0.45016821769028814,
+      "wake_thickness": 0.39420679374387807,
+      "circulation_pos": 0.36901438823240207,
+      "circulation_neg": 0.3686328141468186
+    }
+  },
+  "test_b": {
+    "pc3_raw": 0.5409694718447475,
+    "pc3_par_forces": 0.5002159092444226,
+    "cl_raw": 0.2452845744535193,
+    "cl_par_pc3": 0.03542951462198401,
+    "geom_beyond_forces": {
+      "centroid_x": 0.685974334141126,
+      "centroid_y": 0.5877869177363404,
+      "wake_thickness": 0.6138426948048632,
+      "circulation_pos": 0.5981809480023181,
+      "circulation_neg": 0.6084066443083858
+    }
+  },
+  "holds": true
+}

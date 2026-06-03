@@ -113,9 +113,29 @@ class CausalDesign:
 # loaders (SCHEMA HOOKS marked)
 # --------------------------------------------------------------------------- #
 def _wake_observables_path(cache_root: Path, partition: str = "v1") -> Path:
-    # SCHEMA HOOK: handoff shows ${VORTEX_JEPA_CACHE}/v1/wake_observables/ with
-    # one per-encounter file plus _manifest.json and _train_stats.json.
+    # Verified Session 25: wake-observable cache is
+    # ${VORTEX_JEPA_CACHE}/<partition>/wake_observables/<case_id>/encounter_XX.h5,
+    # each file holding enstrophy_scalar (120,1) plus the patch/pool wake modes.
     return cache_root / partition / "wake_observables"
+
+
+def _episode_path(cache_root: Path, partition: str = "v1") -> Path:
+    # Verified Session 25: per-encounter episode cache is
+    # ${VORTEX_JEPA_CACHE}/<partition>/<case_id>/encounter_XX.h5, each file holding
+    # C_L (120,), C_D (120,), omega_z, p_wall and the (G,D,Y, impact_frame_estimate)
+    # attrs.
+    return cache_root / partition
+
+
+def _encounter_file(root: Path, case_id: str, enc: int) -> Path:
+    return root / case_id / f"encounter_{enc:02d}.h5"
+
+
+# Observables sourced directly from the two on-disk caches. Iy / circ_pos /
+# circ_neg are not in these caches; they live in the per-frame descriptor export
+# (outputs/session16/exp2/per_frame_targets) and are attached for Block B/C, not
+# needed for the Block A de-risking gate.
+CACHE_OBSERVABLES = ("CL", "CD", "wake_enstrophy")
 
 
 def load_observables(
@@ -129,92 +149,122 @@ def load_observables(
     Read the cached per-encounter observables and build impact/future scalars.
 
     Returns a CausalDesign with sources_impact = {G, D, Y, wake_enstrophy_impact,
-    CL_impact, phase_impact} and targets_future = {<obs>_future at H}. Latents and
-    pressure are filled by the attach_* helpers below.
+    CL_impact, CD_impact, phase_impact} and targets_future = {CL_future, CD_future,
+    wake_enstrophy_future}. Latents and pressure are filled by the attach_* helpers.
 
-    SCHEMA HOOK: this assumes each encounter exposes the six observables as a
-    per-frame time series of length 120 with impact near frame index `impact_idx`
-    (handoff: impact ~2 t/c, dt=0.05, so impact_idx ~ 40). Adjust `impact_idx`,
-    the time-series key names, and the (G,D,Y) source if your writer differs.
+    Verified Session 25 schema. For each (case_id, encounter) carried by the split
+    partition map, read C_L / C_D and the (G,D,Y) + impact_frame_estimate attrs from
+    the episode cache and the per-frame wake enstrophy (enstrophy_scalar, normalised
+    omega) from the wake_observables cache, then sample the impact frame and the
+    impact+H frame. wake_enstrophy here is the enstrophy of the pipeline-normalised
+    vorticity (typical magnitude ~0.1..0.4), matching the wake_observables writer.
     """
     import h5py  # local import: only needed when actually reading the cache
 
-    obs_dir = _wake_observables_path(cache_root, partition)
-    manifest_path = obs_dir / "_manifest.json"
-    if not manifest_path.exists():
+    ep_root = _episode_path(cache_root, partition)
+    wo_root = _wake_observables_path(cache_root, partition)
+    if not ep_root.exists():
         raise FileNotFoundError(
-            f"{manifest_path} not found. Point cache_root at the processed cache "
-            "and confirm the wake_observables manifest name (SCHEMA HOOK)."
+            f"{ep_root} not found. Set VORTEX_JEPA_CACHE / PREVENT_ROOT so the "
+            "processed cache resolves (SCHEMA HOOK)."
         )
-    manifest = json.loads(manifest_path.read_text())
 
     # Map (case_id, encounter) -> partition from the split manifest.
     part_of = _build_partition_map(split)
 
     keys: list[tuple[str, int]] = []
     partition_labels: list[str] = []
-    src = {k: [] for k in ("G", "D", "Y", "wake_enstrophy_impact", "CL_impact", "phase_impact")}
-    tgt = {f"{o}_future": [] for o in OBSERVABLES}
+    src = {k: [] for k in ("G", "D", "Y", "wake_enstrophy_impact", "CL_impact",
+                           "CD_impact", "phase_impact")}
+    tgt = {f"{o}_future": [] for o in CACHE_OBSERVABLES}
+    impacts: list[int] = []
+    n_missing = 0
 
-    # SCHEMA HOOK: impact frame index inside the 120-frame encounter window.
-    impact_idx = int(manifest.get("impact_index", 40))
-    future_idx = impact_idx + horizon
-
-    for entry in manifest["encounters"]:                 # SCHEMA HOOK: key 'encounters'
-        case_id = entry["case_id"]                        # SCHEMA HOOK
-        enc = int(entry["encounter"])                     # SCHEMA HOOK
-        key = (case_id, enc)
-        if key not in part_of:
+    for (case_id, enc), plabel in sorted(part_of.items()):
+        ep_f = _encounter_file(ep_root, case_id, enc)
+        wo_f = _encounter_file(wo_root, case_id, enc)
+        if not ep_f.exists() or not wo_f.exists():
+            n_missing += 1
             continue
-        fpath = obs_dir / entry["file"]                   # SCHEMA HOOK: per-encounter file
-        with h5py.File(fpath, "r") as g:
-            # SCHEMA HOOK: the six observables as length-120 series under these keys
-            series = {o: np.asarray(g[o]) for o in OBSERVABLES}
-            gdy = (
-                float(g.attrs.get("G", entry.get("G"))),  # SCHEMA HOOK: params in attrs or manifest
-                float(g.attrs.get("D", entry.get("D"))),
-                float(g.attrs.get("Y", entry.get("Y"))),
-            )
-            phase = float(entry.get("phase_at_impact", np.nan))  # SCHEMA HOOK (optional)
+        with h5py.File(ep_f, "r") as g:
+            cl = np.asarray(g["C_L"], dtype=float).ravel()
+            cd = np.asarray(g["C_D"], dtype=float).ravel()
+            gval = float(g.attrs["G"]); dval = float(g.attrs["D"]); yval = float(g.attrs["Y"])
+            impact = int(g.attrs.get("impact_frame_estimate", 40))
+        with h5py.File(wo_f, "r") as g:
+            ens = np.asarray(g["enstrophy_scalar"], dtype=float).ravel()
 
-        if future_idx >= len(series["CL"]):
-            continue  # encounter too short for this horizon (clamped regime)
-        keys.append(key)
-        partition_labels.append(part_of[key])
-        src["G"].append(gdy[0]); src["D"].append(gdy[1]); src["Y"].append(gdy[2])
-        src["wake_enstrophy_impact"].append(series["wake_enstrophy"][impact_idx])
-        src["CL_impact"].append(series["CL"][impact_idx])
-        src["phase_impact"].append(phase)
-        for o in OBSERVABLES:
-            tgt[f"{o}_future"].append(series[o][future_idx])
+        n_frames = min(len(cl), len(cd), len(ens))
+        future = impact + horizon
+        if impact >= n_frames or future >= n_frames:
+            continue  # encounter too short for this horizon
+
+        keys.append((case_id, enc))
+        partition_labels.append(plabel)
+        src["G"].append(gval); src["D"].append(dval); src["Y"].append(yval)
+        src["wake_enstrophy_impact"].append(ens[impact])
+        src["CL_impact"].append(cl[impact])
+        src["CD_impact"].append(cd[impact])
+        src["phase_impact"].append(np.nan)  # no baseline-phase tag in the cache yet
+        series = {"CL": cl, "CD": cd, "wake_enstrophy": ens}
+        for o in CACHE_OBSERVABLES:
+            tgt[f"{o}_future"].append(series[o][future])
+        impacts.append(impact)
+
+    if not keys:
+        raise RuntimeError(
+            "no encounters loaded; check cache_root / partition / split alignment "
+            "(SCHEMA HOOK). part_of had "
+            f"{len(part_of)} entries, {n_missing} files missing on disk."
+        )
 
     design = CausalDesign(
         keys=keys,
         partition=np.array(partition_labels),
         sources_impact={k: np.asarray(v, float) for k, v in src.items()},
         targets_future={k: np.asarray(v, float) for k, v in tgt.items()},
-        meta={"horizon": horizon, "impact_idx": impact_idx, "partition": partition},
+        meta={
+            "horizon": horizon,
+            "partition": partition,
+            "impact_idx_mean": float(np.mean(impacts)),
+            "n_missing_files": n_missing,
+        },
     )
     return design
 
 
 def _build_partition_map(split: dict) -> dict[tuple[str, int], str]:
     """
-    Build (case_id, encounter) -> partition from split_v1.json.
+    Build (case_id, encounter) -> partition from configs/splits/split_v1.json.
 
-    SCHEMA HOOK: assumes split lists encounter ids per partition. If the split is
-    per-case, expand to per-encounter using the encounter count, or read the
-    EpisodeDataset index that the training pipeline already builds.
+    Verified Session 25 schema. split['cases'] maps case_id -> a dict carrying
+    'split' in {'train','test_b','test_c'} plus 'train_encounter_indices' and
+    'test_a_encounter_indices'. For a train case the two index lists separate the
+    in-case held-out (test_a) encounters from the training ones; for a test_b /
+    test_c case every encounter (listed under test_a_encounter_indices) inherits
+    the case split. NOTE: the per-file 'split' attr inside wake_observables is a
+    coarser, older labelling (train 318 / test_b 36) that disagrees with this
+    manifest (train 237 / test_a 89 / test_b 28); the manifest is authoritative.
     """
     part_of: dict[tuple[str, int], str] = {}
-    for partition_name, entries in split.get("partitions", split).items():
-        if not isinstance(entries, (list, tuple)):
-            continue
-        for e in entries:
-            if isinstance(e, dict):
-                part_of[(e["case_id"], int(e["encounter"]))] = partition_name
-            elif isinstance(e, (list, tuple)) and len(e) == 2:
-                part_of[(e[0], int(e[1]))] = partition_name
+    cases = split.get("cases", {})
+    if not cases:
+        raise ValueError(
+            "split has no 'cases' dict; expected configs/splits/split_v1.json "
+            "(SCHEMA HOOK)."
+        )
+    for case_id, c in cases.items():
+        case_split = c.get("split", "train")
+        train_idx = [int(e) for e in (c.get("train_encounter_indices") or [])]
+        test_a_idx = [int(e) for e in (c.get("test_a_encounter_indices") or [])]
+        if case_split == "train":
+            for e in train_idx:
+                part_of[(case_id, e)] = "train"
+            for e in test_a_idx:
+                part_of[(case_id, e)] = "test_a"
+        else:  # test_b / test_c case: every encounter carries the case split
+            for e in sorted(set(train_idx) | set(test_a_idx)):
+                part_of[(case_id, e)] = case_split
     return part_of
 
 

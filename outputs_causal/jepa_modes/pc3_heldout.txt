@@ -1,0 +1,24 @@
+'created' timestamp seems very low; regarding as unix timestamp
+'modified' timestamp seems very low; regarding as unix timestamp
+'created' timestamp seems very low; regarding as unix timestamp
+'modified' timestamp seems very low; regarding as unix timestamp
+'created' timestamp seems very low; regarding as unix timestamp
+'modified' timestamp seems very low; regarding as unix timestamp
+[data] train n=14464, test_b n=2688; PCA fit on train, applied to test_b
+
+quantity                              train   test_b
+----------------------------------------------------
+PC3 -> future wake (raw)              0.544    0.541
+PC3 -> future wake | G,C_L,C_D        0.407    0.500
+C_L -> future wake (raw)              0.364    0.245
+C_L -> future wake | PC3              0.075    0.035
+
+PC3 beyond forces (partial | G,C_L,C_D):
+  centroid_x      train 0.568   test_b 0.686
+  centroid_y      train 0.450   test_b 0.588
+  wake_thickness  train 0.394   test_b 0.614
+  circulation_pos train 0.369   test_b 0.598
+  circulation_neg train 0.369   test_b 0.608
+
+[gate] test_b PC3|forces=0.500 (>=0.25?), and > C_L|PC3=0.035?  -> HOLDS
+[fig] wrote paper/sections/figures/results/fig_pc3_forecast.pdf

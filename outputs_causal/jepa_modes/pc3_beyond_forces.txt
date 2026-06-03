@@ -1,0 +1,22 @@
+[data] pooled n=14464 post-impact frames, H=16
+
+=== PC3 vs FUTURE wake enstrophy ===
+  raw            |rho|(PC3, wake_fut)            = 0.544
+  control G      |rho|(PC3, wake_fut | G)        = 0.452
+  control G,CL,CD|rho|(PC3, wake_fut | G,CL,CD)  = 0.407
+  reference force-only predictors of the future wake:
+     |rho|(C_L, wake_fut) = 0.364   |rho|(G, wake_fut) = 0.340
+     |rho|(C_L, wake_fut | PC3) = 0.075
+
+=== what PC3 encodes BEYOND the force signature {G, C_L, C_D} ===
+  descriptor       raw|rho|  |rho| | forces
+  centroid_x          0.461           0.568
+  centroid_y          0.395           0.450
+  wake_thickness      0.320           0.394
+  circulation_pos     0.392           0.369
+  circulation_neg     0.307           0.369
+  wake_enstrophy      0.367           0.287
+  Y                   0.243           0.193
+  D                   0.125           0.160
+  peak_pos_omega      0.296           0.018
+  wake_enstrophy      0.367           0.287

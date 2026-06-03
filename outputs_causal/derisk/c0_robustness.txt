@@ -1,0 +1,25 @@
+[data] 237 train encounters loaded
+
+design                 bins       n  S_wake/H  S_lift/H   ratio  Uwake_G  Ulift_G  leak_w  leak_l
+-------------------------------------------------------------------------------------------------
+per_encounter             4     237     0.161     0.120    1.35    0.036    0.232   0.547   0.467
+per_encounter             5     237     0.180     0.145    1.24    0.067    0.205   0.495   0.437
+per_encounter             6     237     0.205     0.151    1.36    0.069    0.207   0.464   0.422
+per_encounter             8     237     0.227     0.213    1.06    0.085    0.145   0.422   0.380
+
+per_frame_full            4   24648     0.046     0.053    0.88    0.000    0.011   0.702   0.909
+per_frame_full            5   24648     0.045     0.051    0.89    0.000    0.015   0.720   0.905
+per_frame_full            6   24648     0.048     0.056    0.85    0.000    0.018   0.726   0.897
+per_frame_full            8   24648     0.058     0.064    0.90    0.000    0.020   0.734   0.885
+
+per_frame_postimpact      4   15168     0.057     0.043    1.31    0.000    0.048   0.627   0.864
+per_frame_postimpact      5   15168     0.053     0.050    1.06    0.000    0.051   0.649   0.845
+per_frame_postimpact      6   15168     0.054     0.055    0.97    0.000    0.054   0.661   0.836
+per_frame_postimpact      8   15168     0.066     0.069    0.96    0.001    0.052   0.669   0.827
+
+========================================================================
+GATE READOUT (criterion 1: S_wake/H >= ~2 x S_lift/H)
+========================================================================
+  per_encounter          median ratio=1.29  range=[1.06,1.36]  lift(U[G]>S) all-bins=False  leak<0.7 all-bins=True
+  per_frame_full         median ratio=0.88  range=[0.85,0.90]  lift(U[G]>S) all-bins=False  leak<0.7 all-bins=False
+  per_frame_postimpact   median ratio=1.02  range=[0.96,1.31]  lift(U[G]>S) all-bins=False  leak<0.7 all-bins=True

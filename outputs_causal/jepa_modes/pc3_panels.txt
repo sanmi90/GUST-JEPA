@@ -1,0 +1,13 @@
+'created' timestamp seems very low; regarding as unix timestamp
+'modified' timestamp seems very low; regarding as unix timestamp
+'created' timestamp seems very low; regarding as unix timestamp
+'modified' timestamp seems very low; regarding as unix timestamp
+'created' timestamp seems very low; regarding as unix timestamp
+'modified' timestamp seems very low; regarding as unix timestamp
+observability O (PC x future observable), train pooled:
+             C_L     C_D     I_y\Omega_w\Gamma^{+}\Gamma^{-}
+  PC1     0.176   0.210   0.126   0.114   0.199   0.201
+  PC2     0.103   0.101   0.077   0.049   0.123   0.135
+  PC3     0.113   0.133   0.073   0.122   0.139   0.143
+  PC4     0.081   0.075   0.064   0.062   0.098   0.108
+[fig] wrote paper/sections/figures/results/fig_pc3_forecast.pdf

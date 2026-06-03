@@ -1,0 +1,34 @@
+[data] pooled n=14464 frames; PC var fracs [0.684, 0.066, 0.048]
+
+descriptor       |rho|PC1 |rho|PC2 |rho|PC3
+-------------------------------------------
+G                   0.338    0.198    0.649
+D                   0.380    0.328    0.125
+Y                   0.064    0.023    0.243
+C_L                 0.291    0.250    0.574
+C_D                 0.275    0.301    0.540
+peak_pos_omega      0.020    0.240    0.296
+peak_neg_omega      0.404    0.261    0.175
+centroid_x          0.418    0.390    0.461
+centroid_y          0.067    0.152    0.395
+circulation_pos     0.534    0.213    0.392
+circulation_neg     0.602    0.297    0.307
+wake_length         0.002    0.091    0.071
+wake_thickness      0.474    0.303    0.320
+wake_enstrophy      0.409    0.011    0.367
+
+Top current-frame correlate per mode:
+  PC1: circulation_neg (0.602), circulation_pos (0.534), wake_thickness (0.474)
+  PC2: centroid_x (0.390), D (0.328), wake_thickness (0.303)
+  PC3: G (0.649), C_L (0.574), C_D (0.540)
+
+PC3 BEYOND gust strength: partial |Spearman(PC3, desc | G)|
+  centroid_x      0.496
+  centroid_y      0.450
+  wake_thickness  0.394
+  circulation_pos 0.358
+  C_L             0.347
+  circulation_neg 0.341
+
+sanity: |rho|(PC1, G) = 0.338   |rho|(PC3, G) = 0.649
+PC3 vs current wake_enstrophy |rho| = 0.367; PC3 vs future wake_enstrophy(t+H) |rho| = 0.544

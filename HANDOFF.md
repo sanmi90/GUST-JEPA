@@ -7281,3 +7281,256 @@ outputs/runs/session23/JEPA_d64_noc/checkpoint_iter020000.pt; metrics
 outputs/session23_closure/closure_r2_noc.csv. Build clean (latexmk exit 0), 37 pp,
 no undefined refs, no em-dashes.
 
+### D158: Session 25 Track C -- info-theory toolkit landed; the C0 SURD de-risking gate FAILS, Track C stopped (2026-06-02, Session 25)
+
+Reassembled the uploaded information-theory package (GitHub had flattened it into
+scripts/ with spaces in two filenames) into
+infotheory/{__init__,estimators,observability,surd,io_vortex}.py plus
+scripts/run_causal_analysis.py via git mv (history preserved). Wrote the missing
+tests/test_infotheory.py (8 gates: analytic Gaussian MI, independence null, CMI
+chain rule, Kozachenko-Leonenko entropy, SURD XOR=synergy / COPY=redundancy /
+UNIQUE=unique, and 3-source information conservation); all 8 pass. The synthetic
+smoke (run_causal_analysis.py --synthetic) runs Blocks A/B/C end to end and
+reproduces the designed pattern (JEPA highest future-wake observability; staged
+synergy rising 0.10 -> 0.13 -> 0.16 -> 0.17). Rewired the io_vortex SCHEMA HOOKs to
+the real cache after verifying it: the wake enstrophy is enstrophy_scalar (120,1,
+on pipeline-normalised omega) under v1/wake_observables/<case>/, C_L and the
+(G,D,Y) and impact_frame_estimate=40 attrs are in the episode cache v1/<case>/, and
+the partition comes from split_v1.json's per-case structure (cases dict plus
+train/test_a index lists; test_b and test_c cases list all encounters under
+test_a_encounter_indices). NOTE: the wake_observables per-file 'split' attr (train
+318 / test_b 36) DISAGREES with split_v1.json (train 237 / test_a 89 / test_b 28);
+the manifest is authoritative.
+
+C0 (pre-registered, no model in the loop): SURD of {wake_enstrophy_future,
+CL_future} from {G, wake_enstrophy_impact} on the 237-encounter train pool.
+  python scripts/run_causal_analysis.py --real --split configs/splits/split_v1.json
+  --source-a G --source-b wake_enstrophy_impact --targets wake_enstrophy_future
+  CL_future --bins 6 --surrogate 200 --out outputs_causal/derisk
+At the pre-registered command (bins=6): future-wake S[G+wake]/H = 0.205 against
+future-lift 0.151, ratio 1.36x (the gate wanted >= ~2x); future-lift U[G]/H = 0.207
+exceeds its synergy (OK); leaks 0.46 / 0.42 (< 0.7, OK). Criterion 1, the headline
+2x, FAILS. Robustness annex (scripts/session25_c0_robustness.py,
+outputs_causal/derisk/c0_robustness.txt) triangulates across designs x bins
+{4,5,6,8}: per-encounter (n=237) ratio 1.06-1.36; per-frame-full (n=24648, the
+README-recommended pooled estimate) 0.85-0.90; per-frame-postimpact (n=15168)
+0.96-1.31. The synergy ratio never approaches 2x and washes out to ~0.9 at proper
+sample size, so the per-encounter 1.36x was the small-n synergy inflation the
+README warns of. The direction matches the thesis (the future wake is more
+synergistic than the future lift, which is more unique to G) but the magnitude does
+not support a SURD-mechanism section. Per the brief, a failed C0 means record the
+negative result and STOP Track C: NO latent observability table (C2), NO staged
+SURD figure (C3), NO companion paper (C4), and NO causal content added to the
+manuscript. The infotheory package and its 8 passing gates remain as committed,
+validated infrastructure. Same discipline as the D154 interventional fail: a
+negative result, recorded, not buried.
+
+### D159: Session 25 Tracks M + D -- manuscript polish (retitle, world-model-as-motivation, data availability, companion boundary, refrain) and the DNS author-fill table (2026-06-02, Session 25)
+
+Text-only edits, no new numbers. M1 retitle: "Predictive versus reconstructive
+latent states for parametric vortex-gust airfoil interactions: forward physical
+closure at Re=5000" (contains "predictive" and "closure", no interventional or
+world-model promise). Two further candidates offered to Carlos in the session
+summary; this one applied, swap freely. M2 world-model-as-motivation: the S1 topic
+sentence is reframed ("...motivated by the action-conditioned world-model framework
+... which we use as an analogy and not as a property we claim"); S5.4 now opens "As
+anticipated, and consistent with our adopting the world-model view of S1 as
+motivation rather than a claim, we caution against over-reading this as an
+interventional world model"; the abstract gains the scope clause "The world-model
+framing is motivation, not a claim: a direct interventional test does not hold." M3
+data-availability consistency: Appendix B "in the released code" -> "in the code,
+available from the corresponding author on reasonable request" (matches the
+data-availability statement; no "released code" remains anywhere). M4 companion
+boundary: S1 adds "The division of labour with that companion study
+[solerarico_compactness_underreview] is explicit: there, controlled canonical wakes
+and the compactness-versus-forecast tradeoff; here, the parametric vortex gust, the
+latent-drift mechanism we identify as the common cure, and its geometric and
+topological characterisation." M5 observability-boundary refrain: the full statement
+stays canonical in S2.1 (sec:flow_physics); S5.3 now cross-references S2.1 instead
+of restating it; the S4.1 and S4.6 mentions already cross-reference it; one dense
+multi-number sentence in S4.1 is split into three shorter declaratives with all
+numbers preserved. M5 figure trim: the figures the brief named (15/16/18) are
+ALREADY in the appendices (Fig 15 = App A fig:appA_return; Figs 16/17/18 = App B
+sensor_placement / flow_recovery / leadtime), so no main-body figure is among them
+and the main-body count is unchanged at 14 (Figs 1-14). I did not move any
+main-body figure, since the brief named only already-appendix ones; if the main-body
+count is to be cut, Carlos should name which of Figs 1-14 are borderline.
+
+Track D-a: the S2.2 prose \pending{...} blob is converted to Table 1
+(tab:dns_pending), an author-fill checklist with one row per required DNS quantity
+(free-stream Mach / incompressible confirmation; domain and span Lz/c; element and
+solution-point counts; minimum wall-normal spacing and wall units; time step and
+max CFL; gust-release station x0/c; grid and time-step sensitivity), each value cell
+a visible \pending{}, each with a one-line "why a referee needs it" note. The
+DNS-no-subgrid (not LES) note is in S2.1 and reinforced in the caption, with no
+numeric claims. Abstract recount 249 words (<= 250). Build: latexmk exit 0, 38 pp,
+no undefined refs or citations, 0 overfull boxes, no em-dashes in any modified file.
+The enforce_conventions R^2-coverage and inline-CI flags across S2/S4/S5/App B and
+the abstract are PRE-EXISTING (the manuscript carries its CIs in tables, which the
+heuristic checker cannot see); git diff confirms my added lines introduce no new
+R^2 claim.
+
+### D160: Session 25 -- SURD re-purposed onto JEPA latent MODES; PCA + observability finds a low-variance forcing direction that forecasts the wake beyond the forces; landed as Fig 15 + a S5.1 paragraph (2026-06-03, Session 25)
+
+Follow-up after the D158 C0 fail, on the question of whether information decomposition
+can still say something about the JEPA latent's own modes (a different question from the
+failed physical-scalar mechanism gate). Three exploratory scripts, all on the canonical
+JEPA d=64 per-frame latents (outputs/session16/exp2/per_frame_targets/{train,test_b}.npz:
+z_full (n,120,64) aligned with the flow descriptors), pooled post-impact per-frame regime,
+target = future wake enstrophy at H=16:
+(1) scripts/session25_jepa_mode_surd.py -- SURD with the latent's own modes as sources
+(raw top-3 dims by MI, and the top-3 PCA modes; POD excluded per user). SURD synergy is
+NOT robust here (climbs with bin count, small-cell inflation), so no synergy claim; the
+robust signals are the redundancy/diffuseness of the raw encoding (43/64 dims informative)
+and the per-mode observability O=I_deb/H. PC3 (4.8% of the per-frame variance) is the top
+UNIQUE-info and top-O mode for the future wake (O=0.122, above PC1's 0.114).
+(2) scripts/session25_pc_physical_id.py -- physical identity of the modes (|Spearman| vs
+descriptors). In THIS pooled per-frame regime PC1 (68% var) = instantaneous wake state
+(circulation 0.60/0.53, wake thickness 0.47, enstrophy 0.41), and the gust forcing is
+demoted to PC3 (G 0.65, C_L 0.57, C_D 0.54). This differs from the manuscript's
+across-encounter / rollout PR statement in S5.1 (PC1 = gust strength); it is a regime
+difference (per-frame pooling lets within-encounter shedding dominate the variance), NOT a
+contradiction. Earlier I wrongly repeated "PC1 = gust strength" for this regime; corrected.
+(3) scripts/session25_pc3_beyond_forces.py + session25_pc3_heldout_fig.py -- the decisive,
+held-out test. PCA fit on train, applied to test_b. PC3 predicts the future wake AFTER the
+force signature {G, C_L, C_D} is partialled out: rank-partial Spearman rho = 0.41 (train) /
+0.50 (test_b), while the lift coefficient given PC3 collapses to 0.075 / 0.035. So PC3 is
+not the force signature: it subsumes the forces' forecast value and adds the wake
+impingement geometry (held-out partial rho centroid_x 0.69, centroid_y 0.59, wake_thickness
+0.61, circulation 0.60). Pre-registered held-out gate (test_b PC3|forces >= 0.25 AND >
+C_L|PC3): HOLDS. Interpretation: the forecast-relevant content is a LOW-variance
+forcing-and-geometry latent direction a reconstruction objective is under little pressure to
+keep, i.e. the drift/closure result read in the latent's own coordinates, and it needs no
+SURD.
+
+Landed (exploratory, clearly labelled as observational correlations on the frozen encoder,
+NOT a new claim): a ~6-sentence paragraph in S5.1 (after the "carry the lift signature
+without the vorticity redistribution" sentence) + fig:pc3_forecast
+(paper/sections/figures/results/fig_pc3_forecast.pdf, built with scripts/session21 figstyle).
+This is Figure 15 now, which shifts the appendix figures to 16-19 (was 15-18; all \ref auto-
+updated, build verified). NOTE this ADDS a main-body figure, in tension with the M5 polish
+goal of trimming the main body, but it was explicitly user-directed; if the main body must
+stay lean it can move to an appendix. Numbers cached at outputs_causal/jepa_modes/
+{jepa_mode_surd,pc_physical_id,pc3_beyond_forces,pc3_heldout}.txt and pc3_heldout.json.
+Build clean (latexmk exit 0), 39 pp, no undefined refs, no em-dashes; the section_5
+enforce_conventions R^2 flags are pre-existing (my paragraph uses rank correlations, not R^2).
+
+### D161: Session 25 -- literature check before closing causality; raw-vs-PCA settled, concurrent competitors cited (2026-06-03, Session 25)
+
+Reviewed two uploaded papers before finalising the causal close-out. (1)
+Martinez-Sanchez, Lopez, Le Clainche, Lozano-Duran, Srivastava, Vinuesa, JFM 967
+A1 (2023): transfer-entropy causality among POD modes of a ROM. Their "modes" are
+POD = PCA of the flow field (covariance eigenproblem, eq 5.3-5.4); they run TE on
+the raw POD temporal coefficients directly, no second rotation. This SETTLES the
+raw-vs-PCA question: PCA of the JEPA latent (the PC3 diagnostic) is the correct
+analogue of their POD-mode analysis, NOT the raw latent dims. The raw JEPA dims are
+the model's internal, non-energy-ranked, redundant axes (43/64 carry the future-wake
+signal), which is exactly why a rotation is needed to isolate the forecast
+direction, as POD does for the field. Their convergence study (Fig 13) needs ~120 x
+4000 samples for a 9-mode TE map; our n is far below that, so PC3 correctly stays
+framed as exploratory correlations and observability O (single-source MI + surrogate
+null) is the robust choice over a full conditioned TE map at our sample size. (2)
+Koshikawa, Araki, Liu, Fukami, arXiv:2601.19104 (May 2026): a DIRECT concurrent
+competitor. Informative-mode decomposition (aIND lens) of extreme vortex-gust
+NACA0012 interactions toward the FUTURE LIFT, d=3 latent, citing the Re=5000 config
+(fukami2025extreme); explicitly observational, not interventional (matches our
+D154). Confirms our pivot (observability/informative decomposition, not SURD
+synergy) is field-standard, and that stopping the SURD-synergy section (D158)
+stands: neither group makes a synergy-mechanism claim.
+
+Landed: 8 bib entries in refs_to_add.bib. VERIFIED from PDF: koshikawa2026,
+martinezsanchez2023 (incl. DOI). CONFIRM (transcribed from the koshikawa2026
+reference list, authors to verify before ship): arranz2024 (aIND, JFM 1000 A95),
+martinezsanchez2024surd (SURD, Nat Commun 15:9296), zhong2025 (JFM 1006 A18),
+zamaniashtiani2025 (arXiv:2512.09523), cremades2026xcal (arXiv:2601.03311),
+fukamiaraki2026 (AIAA J 64(2):605-613). A new S1 related-work paragraph introduces
+the information-lens cluster and states our complementary distinction (we compare
+encoder OBJECTIVES by forward closure of all observables incl. the wake, not the
+informative/causal modes of one representation). The S5.1 PC3 paragraph now grounds
+the diagnostic in martinezsanchez2023/arranz2024/koshikawa2026 and states the
+raw-vs-PCA clarification: the PC rotation is a diagnostic of the learned latent (the
+counterpart of POD modes for the field), distinct from the POD encoder baseline.
+Build clean (latexmk + bibtex, exit 0), 40 pp, all 7 cited new keys resolved in the
+bbl, no undefined cites/refs, no em-dashes. GRAPHICS assessment (not built, pending
+decision): the current bar Fig 15 is well-targeted for the partialling asymmetry;
+two optional enhancements were proposed, a mode x future-observable observability
+heatmap (Martinez-Sanchez causal-map idiom) and decoding the PC3 direction to a
+vorticity field (Fukami IMD spatial-mode idiom, blurry-decoder risk). UPDATE
+(same session): the observability heatmap was built and Fig 15 is now a 2-panel
+figure: (a) the partialling asymmetry, (b) PC1-PC4 x the six future observables,
+O=I/H surrogate-null debiased (I_y computed on the fly from the cached omega as
+sum_x x*sum_y omega). Finding: PC1 (dominant variance mode) is broadly informative,
+but the future wake enstrophy is most observable from PC3 (O=0.12) just above PC1
+(0.11), with PC2/PC4 weak. Caption + S5.1 body updated to (a)/(b). Script
+scripts/session25_fig_pc3_panels.py; numbers outputs_causal/jepa_modes/pc3_panels.txt.
+Build clean (latexmk exit 0), 40 pp, no undefined refs/cites, no em-dashes. The
+decode-PC3-to-field (Fukami) option was NOT built.
+
+### D162: Session 25 -- latent-mode story re-derived basis-free; the PC3 framing is REPLACED by a cross-encoder "collective vs redundant code" result; committed to S5.1 + new Fig 15 (2026-06-03, Session 25)
+
+The PC3 (PCA) framing of D160 was challenged (PCA of an already-reduced model). Worked
+through three successive basis-free re-derivations, recording what survived and what did
+not:
+(1) Supervised forecast direction (ridge on the latent, no PCA): the latent direction
+best predicting the future wake is held-out rho 0.835 (~10 sigma vs shuffle null 0.13),
+stable across ridge alpha 0.1-10, and survives partialling forces (0.83) and
+forces+current-wake (0.54). Scripts session25_forecast_direction.py. BUT the hypothesised
+wake-vs-force VARIANCE dichotomy FAILED: every observable's forecast direction is
+low-variance (0.02-0.10%, orthogonal to PC1), forces included (session25_obs_nopca.py).
+So "forecast info is low-variance" is general, not wake-specific; the low-variance /
+reconstruction-discards framing was DROPPED as a wake discriminator.
+(2) Coordinate-by-coordinate (session25_coord_by_coord.py): the wake-vs-force
+discriminator is REDUNDANT vs COLLECTIVE coding, not variance. Future forces are forecast
+by many individual coordinates (C_D: 45/64 single coords >0.3, 30 >0.5); future wake
+enstrophy by none (best single 0.44, 0 coords >0.5) though the combination reaches 0.84.
+(3) Cross-encoder test (session25_cross_encoder3.py, the committed result), B1 export
+latents_{jepa_d64,fukami_d64_noBN,pod_d64_noBN} at matched d=64, X standardised per family,
+ridge, held-out test_b, future wake: JEPA combo 0.83 / best-single 0.44 / gap +0.40 /
+beyond-forces 0.83; Fukami 0.60/0.54/+0.06/0.61; POD 0.56/0.53/+0.03/0.53. Only the
+PREDICTIVE latent has a collective wake-forecast code (large gap); reconstructive and
+linear latents have gap ~0 (combination no better than the best single coordinate) and
+lower skill. Robust: Fukami 3-seed (session24) gap -0.05+-0.07. This is the direct
+mechanism for the manuscript's wake-specific advantage and needs no PCA.
+
+COMMITTED (user chose "add POD then commit"): replaced the S5.1 PC3 paragraph + 2-panel
+fig:pc3_forecast with a basis-free cross-encoder paragraph + single-panel fig:wake_code
+(paper/sections/figures/results/fig_wake_code.pdf, scripts/session25_fig_wake_code.py),
+still Fig 15. All cited numbers from cross_encoder3.json. Cites
+martinezsanchez2023/arranz2024/koshikawa2026. Build clean (latexmk exit 0, 40 pp, no
+undefined refs/cites, no em-dashes). Old fig_pc3_forecast.pdf orphaned on disk
+(unreferenced). Caveat: representational probe (encoded latent -> future wake via ridge),
+held-out test_b. Numbers: outputs_causal/jepa_modes/{cross_encoder3,coord_by_coord,
+obs_nopca,forecast_direction}.{txt,json,npz}.
+
+### D163: Session 25 -- JEPA latent is entangled not disentangled; coordinates group into ~2 physical functions; decoder visualisation; one sentence added to S5.1 (2026-06-03, Session 25)
+
+Prompted by trying to interpret JEPA coordinates the way Solera-Rico et al. (solera2024,
+Nat Commun 15:1361) interpret their beta-VAE coordinates (decode each coordinate as a
+mode; Fig 1d/3; correlation matrix Fig 2). Findings:
+(a) ENTANGLEMENT. Latent coordinate correlation matrix mean |off-diagonal R|: JEPA 0.74
+(99% of pairs > 0.3), Fukami 0.57, POD 0.011 (orthogonal by construction). So the JEPA
+latent is heavily entangled, the OPPOSITE of a disentangled beta-VAE or an orthogonal POD
+basis. Per-coordinate interpretation a la Solera-Rico does NOT transfer: individual JEPA
+coordinates are correlated near-redundant projections, not independent modes. Consistent
+with PR ~2. fig_corr_matrices.pdf.
+(b) FUNCTIONAL GROUPING (scripts/session25_coord_groups.py, fig_coord_groups.pdf). Cluster
+the 64 coordinates by their |Spearman| profile against physical descriptors: ~51 form a
+wake-vorticity group (circulation +/-, wake thickness), ~11 a gust-forcing group (G, C_L,
+C_D), ~2 near-silent. Effectively ~2 physical functions replicated across 64 entangled
+coordinates. On their own the wake-vorticity coordinates forecast the future wake at ~0.7,
+the forcing coordinates at 0.45, neither matching the full latent's 0.83, so the forecast
+is collective ACROSS groups (matches the cross-encoder result D162).
+(c) DECODER VISUALISATION (Koshikawa-Fukami analogue, scripts/session25_decode_wake_mode.py,
+RTX 6000). Decoded the wake-forecast DIRECTION (the ridge combination, NOT a single
+coordinate) through the S12_E_d64 LapFiLM decoder by perturbing a reference impact latent
+along it; the mode localises to the LEV / suction-side near-wake (airfoil overlaid via
+figstyle.vort_panel). The visualisation decoder is blurry by design, so this is qualitative
+only and was NOT added to the paper.
+
+COMMITTED: two sentences in S5.1 (right after the collective-code sentence) stating the
+functional grouping, that the coordinates are strongly correlated rather than a disentangled
+basis, and that the wake forecast draws on both the wake-vorticity and gust-forcing groups
+(~0.7 and 0.45 alone vs 0.83 full). No new figure (complements fig:wake_code). Build clean
+(latexmk exit 0, 40 pp, no undefined refs/cites, no em-dashes). Numbers:
+outputs_causal/jepa_modes/{fig_corr_matrices,coord_groups,decoded_wake_mode}.*.
+

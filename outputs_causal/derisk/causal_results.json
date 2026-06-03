@@ -1,0 +1,58 @@
+{
+  "args": {
+    "synthetic": false,
+    "real": true,
+    "split": "configs/splits/split_v1.json",
+    "latent": [],
+    "pressure": [],
+    "partition": "v1",
+    "horizon": 16,
+    "skip_validation": false,
+    "targets": [
+      "wake_enstrophy_future",
+      "CL_future"
+    ],
+    "source_a": "G",
+    "source_b": "wake_enstrophy_impact",
+    "bins": 6,
+    "knn_k": 4,
+    "surrogate": 200,
+    "seed": 0,
+    "out": "outputs_causal/derisk"
+  },
+  "block_a_surd_observables": {
+    "wake_enstrophy_future": {
+      "pretty": "H(target)=2.5848 bits   I(target;all)=1.3867 bits   info_leak=0.464\ncomponent                         bits   frac H(T)\n--------------------------------------------------\nU[G]                            0.1775       0.069\nU[wake_enstrophy_impact]        0.1032       0.040\nR[G+wake_enstrophy_impact]      0.5757       0.223\nS[G+wake_enstrophy_impact]      0.5302       0.205",
+      "normalised": {
+        "info_leak": 0.46352899834835226,
+        "R(1, 2)": 0.22273053431384734,
+        "U(1,)": 0.06868046710837693,
+        "U(2,)": 0.039931607531454534,
+        "S(1, 2)": 0.20512839269817573
+      },
+      "info_leak": 0.46352899834835226,
+      "mi_total_bits": 1.3866954139248397,
+      "h_target_bits": 2.584846915592915
+    },
+    "CL_future": {
+      "pretty": "H(target)=2.5848 bits   I(target;all)=1.4928 bits   info_leak=0.422\ncomponent                         bits   frac H(T)\n--------------------------------------------------\nU[G]                            0.5363       0.207\nU[wake_enstrophy_impact]        0.0078       0.003\nR[G+wake_enstrophy_impact]      0.5590       0.216\nS[G+wake_enstrophy_impact]      0.3897       0.151",
+      "normalised": {
+        "info_leak": 0.422499346471911,
+        "R(1, 2)": 0.21626709014426634,
+        "U(1,)": 0.20745938566507766,
+        "U(2,)": 0.0030034315495069625,
+        "S(1, 2)": 0.15077074616946168
+      },
+      "info_leak": 0.422499346471911,
+      "mi_total_bits": 1.492750783025551,
+      "h_target_bits": 2.584846915592915
+    }
+  },
+  "block_b_observability": {
+    "pretty": "target                  source                O   I(T;S)    I_deb    H(T)        p   spread\n-------------------------------------------------------------------------------------------",
+    "rows": []
+  },
+  "block_c_staged_surd": {
+    "skipped": "no stage_index; provide phase_at_impact or a per-frame stage loader."
+  }
+}

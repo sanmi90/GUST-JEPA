@@ -1,0 +1,10 @@
+encoder             combo  best1    gap  >0.5  |forces
+------------------------------------------------------
+JEPA (predictive)   0.835  0.436  0.400     0    0.827
+Fukami seed0 (recon)  0.577  0.521  0.056     3    0.554
+Fukami seed1 (recon)  0.404  0.514 -0.110     2    0.425
+Fukami seed2 (recon)  0.523  0.605 -0.082     5    0.509
+------------------------------------------------------
+Fukami mean         0.501  0.547 -0.045   3.3    0.496
+
+[verdict] future-wake combination skill: JEPA 0.84 vs Fukami 0.50; beyond-forces: JEPA 0.83 vs Fukami 0.50
