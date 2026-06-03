@@ -1,0 +1,25 @@
+{
+  "title": "vortex-jepa: analysis and evaluation code for forward physical closure of predictive and reconstructive latents for vortex-gust airfoil interactions at Re=5000",
+  "upload_type": "software",
+  "access_right": "open",
+  "license": "MIT",
+  "description": "Reduced-order-model and evaluation code, configuration files, the v2 data-split manifest, and the committed analysis outputs that regenerate the tables and figures of the associated Journal of Fluid Mechanics manuscript. Compares a joint-embedding predictive architecture (JEPA), a reconstructive observable-augmented autoencoder, and a POD basis as reduced states for parametric vortex-gust airfoil interactions, judged by forward physical closure of six observables. The raw direct numerical simulation data (SOD2D solver) are owned by the simulation collaborators and are NOT included.",
+  "creators": [
+    {"name": "Solera-Rico, Alberto", "affiliation": "INTA; Universidad Carlos III de Madrid"},
+    {"name": "Miro, Arnau", "affiliation": "Universitat Politecnica de Catalunya; Barcelona Supercomputing Centre"},
+    {"name": "Lehmkuhl, Oriol", "affiliation": "Barcelona Supercomputing Centre"},
+    {"name": "Sanmiguel Vila, Carlos", "affiliation": "INTA; Universidad Carlos III de Madrid"}
+  ],
+  "keywords": [
+    "joint-embedding predictive architecture",
+    "reduced-order modelling",
+    "vortex-gust airfoil interaction",
+    "direct numerical simulation",
+    "latent dynamics",
+    "optimal transport",
+    "wall-pressure observability"
+  ],
+  "related_identifiers": [
+    {"relation": "isSupplementTo", "identifier": "10.xxxx/jfm.placeholder", "scheme": "doi", "resource_type": "publication-article"}
+  ]
+}

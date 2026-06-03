@@ -7772,3 +7772,22 @@ remaining "decisive" usages are correct (the reframed "not decisive" sentences, 
 experiment, sensor pairs), not the softened topology p. Build clean (latexmk exit 0, 41 pp, 0 undefined,
 0 em-dashes, 0 overfull; section_4 unchanged at 46, section_5 at 3). GATE 9 PASS.
 
+### D174: Session 26 Track 10 -- reproducibility package scaffolding + data-availability update (2026-06-03)
+
+Replaced "available from the corresponding author on reasonable request" (which JFM increasingly treats
+as a soft-rejection trigger) with a deposited analysis package at a clearly-marked DOI PLACEHOLDER.
+Created the release scaffolding: README.md (rewritten from a 2-line stub: what is and is not deposited,
+environment, the CPU-only session26 reproduction commands, build command, citation), LICENSE (MIT,
+covering the code/config/manifest/outputs only, with the raw DNS explicitly excluded and
+collaborator-owned; proposed pending author and institutional confirmation), CITATION.cff (four authors
+with affiliations, preferred-citation to the paper), and .zenodo.json (creators, title, keywords,
+isSupplementTo the paper DOI). Updated the main.tex data-availability statement to: code + eval pipeline
++ v2 manifest + analysis outputs deposited at \url{10.xxxx/zenodo.PLACEHOLDER} under MIT (DOI finalised on
+acceptance), processed per-encounter cache or a representative subset available from the corresponding
+author, raw DNS owned by the simulation collaborators; aligned the Appendix B "in the code, available on
+request" mention to "in the deposited code". Did NOT mint a DOI (needs the user's Zenodo account) and did
+NOT deposit raw DNS. Created the release-candidate tag v1.0.0-rc1. OPEN DECISION for the authors: confirm
+the MIT license choice (and any INTA/UC3M/UPC/BSC institutional requirement) before the actual deposit,
+and fill the real Zenodo DOI into the data-availability statement, .zenodo.json, CITATION.cff, and README.
+Build clean (latexmk exit 0, 41 pp, 0 undefined, 0 em-dashes in all new and edited files). GATE 10 PASS.
+
