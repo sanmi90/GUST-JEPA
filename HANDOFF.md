@@ -7791,3 +7791,22 @@ the MIT license choice (and any INTA/UC3M/UPC/BSC institutional requirement) bef
 and fill the real Zenodo DOI into the data-availability statement, .zenodo.json, CITATION.cff, and README.
 Build clean (latexmk exit 0, 41 pp, 0 undefined, 0 em-dashes in all new and edited files). GATE 10 PASS.
 
+### D175: Session 26 Track 11 -- final verification and handoff (2026-06-03)
+
+Clean-from-scratch build (latexmk -C then full): exit 0, **41 pages**, 0 undefined references or
+citations, 0 "rerun" warnings, 0 overfull boxes. EM-DASH SWEEP: 0 across the entire paper/ tree
+(sections + main.tex), and the enforce_conventions checker flags 0 em-dash violations in any section
+file. The residual enforce_conventions R^2-coverage/uncertainty flags are unchanged from the D164
+baseline (they are heuristic false positives; the manuscript carries its CIs in tables the line
+checker cannot see). TRACEABILITY SWEEP: every new number is in
+outputs/session26/new_numbers_manifest.tsv and all 13 cited source files are git-tracked (verified
+with git ls-files --error-unmatch). DE-STALED CLAUDE.md: added a prominent v2 note atop the Data
+locked-decisions section (paper runs on split_v2, 84 cases / 10 test_b / 4 test_c; v1 bullets kept as
+the historical Session-9-era partition, explicitly marked as not matching the paper). Wrote
+SESSION26_REPORT.md (gate table, the three claim changes led by the forecast-wake weakening, residual
+risks, and the collaborator TODO: Table 1 DNS numbers, the convergence study, the license/DOI
+decisions, the CRediT block). Committed the rebuilt main.pdf. Decision log now runs D164..D175, one
+entry per track. DEFINITION OF DONE met: all in-scope gates passed; the DNS [PENDING] rows are
+untouched; Test C was never used for selection; no GPU training was run (the Track 8 GPU alternative
+stayed gated behind explicit user approval). GATE 11 PASS.
+

@@ -51,6 +51,13 @@ Training
   Gradient clip 1.0. 80k iterations.
 
 Data
+- STALE-NOTE (Session 19+, HANDOFF D130/D131; reconfirmed Session 26 D164): the PAPER
+  runs on split **v2** (`configs/splits/split_v2.json`), NOT v1. v2 is 84 cases:
+  70 train (226 enc) / 10 test_b (42 enc, 5 interior + 5 boundary) / 4 test_c
+  (24 enc, |G|=4); val (the renamed test_a) is 86 enc. v1's `test_a` is renamed `val`
+  in v2. The v1 bullets below are the historical Session-9-era partition, preserved for
+  older-session reproducibility only; their case/encounter counts do NOT match the paper.
+  Use v2 for any paper-load-bearing work; regenerate v2 via `build_split_manifest_v2.py`.
 - Split is locked at `configs/splits/split_v1.json` (sha256-anchored to inventory).
 - 55 train cases (180 encounters), 6 Test B cases (28 enc), 4 Test C cases (24 enc).
   65 cases total in v1 (post-Session 12 absorption of 5 new run3 cases:
