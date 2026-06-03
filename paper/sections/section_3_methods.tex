@@ -105,7 +105,11 @@ predictive family is additionally swept to $d \in \{4, 8\}$ and ablated without 
 predictor conditioning in \S\ref{sec:res_controls}. This
 isolation is the only fair way to attribute forecast quality to the
 representation rather than to incidental differences in the predictor or its
-training.
+training. The reconstructive autoencoder uses its best-documented configuration,
+with ReLU activations, group normalisation, and a future-lift head at horizons
+$\{8, 16, 24\}$, rather than the strict published variant (tanh, no normalisation,
+a current-lift head), which we found gives a worse parametric probe; the
+comparison is therefore against a tuned baseline, not a hobbled one.
 
 \subsection{Forward physical closure}
 \label{sec:methods_closure}

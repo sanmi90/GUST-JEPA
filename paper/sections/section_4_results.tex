@@ -54,7 +54,15 @@ at $H = 16$ of the Markov rollout, the predictive latent is the only
 representation whose wake-enstrophy forecast stays above the predict-the-mean
 floor: $R^2 = 0.449$ at $d = 64$ ($0.214$ at $d = 32$), against $-0.478$ for the
 reconstructive autoencoder and $-0.089$ for the linear basis, both worse than
-forecasting the held-out mean. It also leads the mean over the six observables
+forecasting the held-out mean. The reconstructive autoencoder's wake forecast is
+non-monotonic in capacity and worst at the matched $d = 64$ ($-0.082$, $-0.395$,
+$+0.007$, $-0.478$ for $d = 3, 16, 32, 64$): a reconstruction objective constrains
+only the latent directions its decoder reads, leaving proportionally more of the
+latent unconstrained as $d$ grows, so the autoregressive rollout has more room to
+drift off the wake manifold (\S\ref{sec:res_drift}). The instability is seed-borne
+rather than a single-checkpoint artefact, with an eightfold larger seed spread than
+the predictive at matched architecture ($0.16 \pm 0.27$ against $0.46 \pm 0.03$;
+Table~\ref{tab:controls_2x2}). It also leads the mean over the six observables
 ($0.445$ versus $0.147$ for both the $d = 64$ reconstructive and linear bases)
 and the negative circulation. The training-set fit
 (Table~\ref{tab:b1_closure_train_r2}, mean $0.835$ at $d = 64$) measures

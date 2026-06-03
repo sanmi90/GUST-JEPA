@@ -16,3 +16,6 @@ r(dIy/dt, CL) ~ -0.05 test_b (Iy is not impulse-theorem lift)	S2.2	-0.0509	scrip
 omega_c collinearity pairwise Pearson > 0.90	S2.2	>0.90	scripts/session26/track3_physics_caveats.py	outputs/session26/physics_caveats/omega_c_sensitivity.json
 omega_c circ closure advantage: circ_neg +1.06..+1.10, circ_pos +0.44..+0.57	S2.2	stable	scripts/session26/track3_physics_caveats.py	outputs/session26/physics_caveats/omega_c_sensitivity.json
 S4.6 LEV centroid 0.32c, circ within 5%, scale corr 0.91 = encode-decode CEILING (not new; now sourced)	S4.6	0.319 / 0.050 / 0.91	scripts/session23/exp_lev_tracking.py + exp_scale_decomposition.py	outputs/session23/lev_tracking/lev.json + outputs/session20/scale_decomp/scale_decomp.json
+Fukami forecast wake non-monotonic -0.082/-0.395/+0.007/-0.478 (d=3/16/32/64)	S4.1	from Table 4b	scripts/session20/exp_closure_r2.py	outputs/session23_closure/closure_r2_dimsweep_d16.csv
+recon CNN+ViT wake 0.16+-0.27 vs predictive 0.46+-0.03 (8x seed spread)	S4.1 + Table 7	0.16/0.46	scripts/session20/track_a_closure.py	outputs/session20/track_a/controls_2x2.json
+AE baseline config: ReLU+GroupNorm+future-lift head (best documented)	S3 fairness protocol	config	(CLAUDE.md locked config)	outputs/session20/track_a/controls_2x2.json
