@@ -1,30 +1,29 @@
-% Abstract. Single paragraph, <=250 words. Leads with the geometric principle
-% (transport-consistent latent metric), anchors the wake claim on representation +
-% mechanism with the case-clustered paired CI (Session 26 Track 1), demotes the
-% forecast to consistent confirmation, ends on observability (positive). The
-% world-model reading is a mid-abstract clause, not the close.
+% Abstract. Replaced 2026-06-03 with user-provided text. Leads with the physical
+% problem (wake reorganisation governs the transient load), anchors the wake claim on
+% representation + case-clustered survival, reports the forecast as a secondary
+% descriptive point estimate (not a significance claim), mechanism is geometric,
+% ends on the positive observability result (the interventional caveat stays in S1 +
+% S5.4). "parameterised" harmonised to "parametrised" to match the body;
+% \vRe / NACA~0012 / math mode applied.
 
-We ask what geometric property a reduced-order state needs to forecast
-parametric vortex-gust airfoil interactions, and which encoder objectives confer
-it; the action-conditioned world-model view is motivation only, since a direct
-interventional test does not hold. The
-data are our own direct numerical simulations (SOD2D) of a NACA~0012 at
-$\alpha = 14^\circ$ and $\vRe = 5000$, perturbed by a discrete Taylor vortex
-parametrised by gust strength $G$, core diameter $D$, and wall-normal offset $Y$,
-across $84$ cases with held-out in-distribution and $|G| = 4$ extrapolation tests.
-We compare three encoders at matched latent dimension, a joint-embedding
-predictive architecture (JEPA), a reconstructive autoencoder after Fukami \&
-Taira, and a POD basis, under one shared predictor conditioned on $(G,D,Y)$ and one
-probe family, judging each by forward physical closure of six observables
-sixteen frames after impact, not by reconstruction. The predictive
-latent carries the wake structure the others do not: its representational
-wake-enstrophy $R^2$ is positive ($0.75$) where the baselines are negative, and the
-per-encounter improvement survives case-level clustering and a family-wide
-correction (paired mean $+43$, case-clustered $95\%$ interval $[13, 77]$). The
-mechanism is geometric: a reconstruction objective leaves the latent metric free, so
-its rollout drifts off the data manifold, fragments the topology, and leaves the
-optimal-transport geometry, whereas a predictive objective regularised against
-collapse keeps each step transport-consistent and stays on-manifold. Matched
-controls attribute the advantage to the predictive objective with wake supervision. The same
-predictive state is the most recoverable of the three from sparse wall pressure, so
-it is observable as well as forecastable.
+Extreme vortex-gust encounters challenge reduced-order models because the transient
+load is governed by wake reorganisation as well as by integrated forces. We ask which
+reduced state remains physically closed when propagated forward. Using direct
+numerical simulations of a NACA~0012 airfoil at $\alpha = 14^\circ$ and
+$\vRe = 5000$, perturbed by Taylor vortices parametrised by gust strength $G$, core
+diameter $D$, and wall-normal offset $Y$, we compare three latent states at matched
+dimension: an observable-augmented joint-embedding predictive architecture, a
+reconstructive autoencoder in the Fukami-Taira lineage, and a POD basis. All are
+evaluated with the same autoregressive predictor, the same conditioning on $(G,D,Y)$,
+and the same probes, using forward closure of six observables at sixteen frames after
+impact. The predictive latent carries wake information that the baselines lose: its
+representational wake-enstrophy $R^2$ is $0.75$ where the reconstructive and linear
+baselines are negative, and the paired wake-enstrophy improvement survives case-level
+clustering and family-wide correction. Its Markov rollout is also the only one with
+positive wake-enstrophy forecast $R^2$ at the same horizon. The mechanism is
+geometric: reconstructive rollouts leave their latent manifold, fragment the
+encounter topology, and lose alignment with the flow's transport geometry, whereas
+predictive rollouts remain close to the encoded manifold. Matched controls show that
+the advantage requires the predictive objective together with wake-observable
+supervision, not the ViT architecture alone. The resulting state is also the most
+recoverable from sparse wall pressure, making it observable as well as forecastable.

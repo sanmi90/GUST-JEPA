@@ -7810,3 +7810,20 @@ entry per track. DEFINITION OF DONE met: all in-scope gates passed; the DNS [PEN
 untouched; Test C was never used for selection; no GPU training was run (the Track 8 GPU alternative
 stayed gated behind explicit user approval). GATE 11 PASS.
 
+### D176: Session 26 post-session -- abstract replaced with user-provided text (2026-06-03)
+
+User supplied a new abstract and asked to swap it in. Applied verbatim except: "parameterised" ->
+"parametrised" (body consistency) and LaTeX-ification (\vRe, NACA~0012, math mode for symbols); then,
+on a follow-up user request, removed the closing sentence "The model is a conditional forward-closure
+model, not a validated counterfactual controller." so the abstract ends on the positive observability
+result (which realigns it with the Track 7 intent; the interventional/not-a-controller caveat remains
+fully reported in S1 and S5.4, so no negative result is softened). The new abstract leads with the
+physical problem (wake reorganisation governs the transient load), anchors the wake claim on the
+representational R^2=0.75 and the case-clustered + family-wide survival, and reports the forecast as a
+secondary descriptive point estimate ("the only one with positive wake-enstrophy forecast R^2"), which
+is true from Table 4b (JEPA 0.449 the only positive) and does NOT re-inflate the weakened forecast
+paired claim. 234 words (<=250). No new numbers (0.75 and the forecast R^2 already sourced in the
+manifest). Build clean (latexmk exit 0, 41 pp, 0 undefined, 0 em-dashes; the two residual abstract
+R^2-coverage flags are the known heuristic false positives). Provenance note: the abstract no longer
+states the data are "our own (SOD2D)"; that provenance stays in S2.
+
