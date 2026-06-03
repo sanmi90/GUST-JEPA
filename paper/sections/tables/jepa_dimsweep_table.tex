@@ -14,7 +14,7 @@
   predictor at matched $d = 64$, so the model never sees $(G,D,Y)$.}
   \label{tab:jepa_dimsweep}
   \small
-  \begin{tabular}{l l c c c c}
+  \fittab{\begin{tabular}{l l c c c c}
     \toprule
     $d$ & Configuration & Repr.\ wake MAE & $C_L$ $R^2$ & wake $R^2$ & mean $R^2$ \\
     \midrule
@@ -26,5 +26,5 @@
     64 & wake only & 35.44 & 0.542 & 0.313 & 0.276 \\
     64 & lift $+$ wake, no $\cvec$ & 34.21 & 0.392 & 0.038 & 0.309 \\
     \bottomrule
-  \end{tabular}
+  \end{tabular}}
 \end{table}

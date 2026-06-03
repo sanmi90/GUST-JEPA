@@ -4,8 +4,9 @@
 % (Tran et al. 2026) is used to explain *why* reconstruction leaves the geometry
 % free.
 
-\subsection{What the predictive latent retains, and why}
+\subsection{Interpretation and scope}
 \label{sec:disc_mechanism}
+\label{sec:disc_caveat}
 
 The central finding is geometric, and it concerns what the latent represents as
 much as how it evolves. Under a shared predictor, parametric conditioning, and probe
@@ -125,10 +126,8 @@ as at $d = 64$, while the core diameter and the wall-normal offset, the axes the
 data resolve least, are the ones whose recovery degrades when the dimension is
 halved, the same axes whose forward closure the extra dimensions sharpen.
 
-\subsection{What the comparison does and does not establish}
-\label{sec:disc_caveat}
-
-We are deliberate about the scope of the claim. The predictive encoder differs
+The mechanism above invites a strong reading, so we are deliberate about the
+scope of the claim. The predictive encoder differs
 from the reconstructive baseline in three respects at once: the training
 objective, the CNN$+$ViT architecture, and the wake supervision. The
 conditioning-only floor removes the shared parametric conditioning as an
@@ -150,8 +149,10 @@ integrated impulse and is amplitude-accurate in reconstruction, so the result is
 not that POD is obsolete but that it does not produce a latent whose rollout
 closes the wake observables.
 
-\subsection{Limitations}
+\subsection{Limitations and outlook}
 \label{sec:disc_limits}
+\label{sec:disc_control}
+\label{sec:disc_outlook}
 
 Three limitations bound the claims. First, the wall-normal offset $Y$ is weakly
 resolved because the training mass concentrates near $Y \approx 0$; this is a
@@ -170,10 +171,9 @@ as a fourth, the co-necessity of the wake supervision established in
 configuration tested, with the wake head as a necessary component, not as a
 property of the objective stripped of all auxiliary supervision.
 
-\subsection{Relation to model-based control}
-\label{sec:disc_control}
-
-The predictor is, by construction, the latent dynamics function a model-based
+These limitations come into sharpest focus against the use the architecture is
+ultimately meant for. The predictor is, by construction, the latent dynamics
+function a model-based
 controller would plan against, and three properties of the architecture are
 relevant to that use: closure holds out to the planning horizon relevant to the impact-instant
 load, the latent is two to three orders of magnitude cheaper to evolve than the
@@ -216,9 +216,6 @@ unchanged when an oracle latent replaces the estimated one, so the representatio
 the pressure observability are in place but the rollout needs reinforcement before a
 usable controller follows (estimator, sensor-placement, and loop details in
 Appendix~\ref{app:sensing}).
-
-\subsection{Outlook}
-\label{sec:disc_outlook}
 
 The contribution is narrow by design: a controlled comparison on a single
 parametric flow, anchored to forward physical closure rather than to

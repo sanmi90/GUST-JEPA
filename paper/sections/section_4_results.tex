@@ -1,13 +1,16 @@
-% Results, restructured by physical question. Order (JFM hardening pass): forward
-% closure -> objective/architecture/auxiliary-head controls (moved up, ahead of
-% the mechanism, because architecture and wake supervision are confounds) ->
-% horizon dependence -> mechanism (drift + topology + transport geometry) ->
-% parameter/phase dependence -> physical-space interpretation (OT metric + scale
-% decomposition) -> wall-pressure observability. Every result is populated.
+% Results, restructured by physical question. Five subsections (JFM structure
+% pass): (1) forward closure and conditioning floor; (2) objective/architecture/
+% auxiliary-head controls (kept ahead of the mechanism, because architecture and
+% wake supervision are confounds); (3) why the rollout works, folding horizon
+% dependence into the drift/topology/transport mechanism; (4) where closure
+% succeeds and fails in physical space, folding parameter/phase dependence into
+% the decoded-field interpretation; (5) wall-pressure observability. The seven
+% former run-in \paragraph labels are rewritten as prose. Every result is
+% populated.
 
 \input{sections/tables/results_tables.tex}
 
-\subsection{Forward physical closure across encoder families}
+\subsection{Forward closure and conditioning floor}
 \label{sec:res_closure}
 
 Table~\ref{tab:families} summarises the three encoder families and the protocol.
@@ -147,7 +150,7 @@ where the families separate consistently.
   }
   \label{tab:conditioning_floor}
   \small
-  \begin{tabular}{l c c c c c}
+  \fittab{\begin{tabular}{l c c c c c}
     \toprule
     Observable & $n_{\text{train}}$ & train $R^2$ & test\_b $R^2$ & test\_c $R^2$ & JEPA $d{=}64$ test\_b $R^2$ \\
     \midrule
@@ -158,7 +161,7 @@ where the families separate consistently.
     circ.\ pos.\   & 226 & 0.845 & 0.166  & -1.884 & 0.201 \\
     circ.\ neg.\   & 226 & 0.832 & 0.795  & 0.214  & 0.607 \\
     \bottomrule
-  \end{tabular}
+  \end{tabular}}
 \end{table}
 
 The conditioning-only floor (Table~\ref{tab:conditioning_floor}) confirms that
@@ -188,7 +191,7 @@ is reported with the other ablations in \S\ref{sec:res_controls}
 so the wake closure requires the latent and the parameters together, not either
 alone.
 
-\subsection{Isolating the cause: objective, architecture, and auxiliary-head controls}
+\subsection{Objective, architecture, and auxiliary-head controls}
 \label{sec:res_controls}
 
 The closure result of \S\ref{sec:res_closure} is established, but the predictive
@@ -197,8 +200,8 @@ reconstructive and linear families for reasons we have not yet separated: the
 predictive encoder differs from the reconstructive baseline not only in its
 training objective but also in its CNN$+$ViT architecture and its
 $80$-dimensional wake supervision. Because the architecture and the wake
-supervision are confounds, we isolate the cause here, before examining the
-horizon dependence (\S\ref{sec:res_horizon}) and the drift mechanism
+supervision are confounds, we isolate the cause here, before turning to why the
+rollout works, its horizon dependence and drift mechanism
 (\S\ref{sec:res_drift}). The wake supervision is the more pointed confound, since
 the largest part of the reported advantage is on the wake observables that the
 predictive encoder alone was supervised on. Isolating the objective requires the controls in
@@ -226,7 +229,7 @@ once the architecture and the wake supervision are held in common.
   driver.}
   \label{tab:controls_2x2}
   \small
-  \begin{tabular}{l l l c c}
+  \fittab{\begin{tabular}{l l l c c}
     \toprule
     Objective & Encoder & Aux.\ heads & wake-enst.\ $R^2$ & mean $R^2$ \\
     \midrule
@@ -237,7 +240,7 @@ once the architecture and the wake supervision are held in common.
     \midrule
     predictive     & CNN$+$ViT & lift only     & $-1.03 \pm 0.29$ & $0.09$ \\
     \bottomrule
-  \end{tabular}
+  \end{tabular}}
 \end{table}
 
 The controls (Table~\ref{tab:controls_2x2}, three encoder seeds per cell) give a
@@ -266,7 +269,7 @@ it. The large seed variance of the reconstructive CNN$+$ViT cell
 forward-predictable latent geometry, wake closure is unstable across
 initialisations.
 
-\paragraph{Latent capacity, the heads, and the conditioning.} Three further
+Beyond the decisive crossing, three further
 controls vary the latent dimension, the second auxiliary head, and the predictor
 conditioning (Table~\ref{tab:jepa_dimsweep}).
 Sweeping the predictive latent over $d \in \{4, 8, 16, 32, 64\}$ at fixed recipe,
@@ -300,8 +303,15 @@ forecast near the predict-the-mean floor, and only their combination closes it.
 
 \input{sections/tables/jepa_dimsweep_table.tex}
 
-\subsection{Horizon dependence}
+\subsection{Why the rollout works: horizon, drift, topology, and transport}
 \label{sec:res_horizon}
+\label{sec:res_drift}
+
+The controls attribute the wake advantage to the predictive objective trained
+with wake supervision, but they leave open why a predictive latent rolls out
+stably where a reconstructive one does not. That explanation is geometric, and it
+shows first in how closure decays with the forecast horizon and then in three
+coordinate-free diagnostics of the rollout itself.
 
 A dynamics paper should not rest on a single horizon. Comparing recursive
 (Markov) rollout against a one-shot prediction at horizon $H$, the two agree to
@@ -318,7 +328,7 @@ linear latents fail abruptly: their wake-enstrophy forecast $R^2$ is already bel
 $0.5$ at $H = 1$ and negative by $H = 16$, so they never hold a usable wake
 forecast. The force coefficient $C_L$, which all families carry, decays smoothly
 for all of them. The abrupt wake failure coincides with the rollout-drift onset
-of \S\ref{sec:res_drift}: the reconstructive latent leaves its manifold within a
+established next: the reconstructive latent leaves its manifold within a
 few steps, so its wake forecast collapses immediately rather than eroding.
 
 \begin{figure}[t]
@@ -335,11 +345,8 @@ few steps, so its wake forecast collapses immediately rather than eroding.
   \label{fig:horizon_sweep}
 \end{figure}
 
-\subsection{The drift mechanism: distance, topology, and transport geometry}
-\label{sec:res_drift}
-
-The closure gap is large enough that its mechanism deserves direct measurement. The
-mechanism is geometric, and this subsection establishes it three ways that do not
+The horizon behaviour points to a geometric cause, which the rest of this
+subsection establishes three ways that do not
 depend on the latent coordinates: a distance that shows whether the rollout leaves
 the training manifold, a topology that shows whether the encounter stays a single
 cycle, and an optimal-transport metric that shows whether latent distance tracks the
@@ -358,7 +365,7 @@ remains close to the encoded manifold.
   the rollout stays in distribution.}
   \label{tab:latent_drift}
   \small
-  \begin{tabular}{l c c c c}
+  \fittab{\begin{tabular}{l c c c c}
     \toprule
     Baseline & $d$ & $d_{\text{Mahal, ref}}$ & $d_{\text{Mahal, rollout}}$ & ratio $r$ \\
     \midrule
@@ -367,10 +374,10 @@ remains close to the encoded manifold.
     JEPA   & 32 & 5.43 & 4.65  & 0.86 \\
     POD    & 64 & 7.74 & 6.27  & 0.81 \\
     \bottomrule
-  \end{tabular}
+  \end{tabular}}
 \end{table}
 
-\paragraph{Distance.} The latent-drift diagnostic (Table~\ref{tab:latent_drift})
+First, the latent-drift diagnostic (Table~\ref{tab:latent_drift})
 measures how far each rollout leaves its training manifold. After $H = 16$ steps
 the reconstructive rollout sits an order of magnitude further from its training
 distribution than its simulation-encoded counterpart (ratio $9.90$), while the
@@ -391,8 +398,8 @@ through the predictor recovers about $0.60$ of that skill from five frames
 before impact and about $0.35$ from ten, several frames of usable forecast
 horizon beyond a direct wall-pressure read at the same lead times.
 
-\paragraph{Topology.} A single distance understates the geometric content of the
-result. A gust encounter departs the baseline limit cycle, executes the
+Distance alone understates the geometric content of the
+result, so we next examine the trajectory topology. A gust encounter departs the baseline limit cycle, executes the
 LEV-formation and shedding excursion, and relaxes back toward it without closing
 within the window (\S\ref{sec:res_param_phase}); in the encoded latent the
 excursion nonetheless has the topology of a single cycle \cite{smith2024}. We characterise this with persistent homology, which
@@ -441,8 +448,9 @@ is not (Appendix~\ref{app:reg}).
   \label{fig:persistence}
 \end{figure}
 
-\paragraph{Transport geometry.} The geometric reason the predictive rollout
-stays on the manifold can be made physical. Euclidean distance between vorticity
+The third test makes the geometry physical by comparing latent distances with the
+unbalanced optimal-transport distance between vorticity fields. Euclidean distance
+between vorticity
 fields is insensitive to the spatial transport of structures, whereas an
 unbalanced optimal-transport (OT) distance measures the cost of rearranging one
 field into another and so tracks advection of the LEV and shear layer
@@ -465,10 +473,13 @@ within-encounter geometry with a between-encounter latent-norm scale that the
 drift-prone reconstructive latent inflates, which reverses the pooled statistic
 and is itself a symptom of the same drift.
 
-\subsection{Where closure holds and fails: parameter and phase dependence}
+\subsection{Where closure succeeds and fails in physical space}
 \label{sec:res_param_phase}
+\label{sec:res_physical}
 
-\paragraph{Which gust axes the latent resolves.} Probing the predictive latent
+The mechanism explains why the predictive rollout stays on the manifold; we now
+ask where in the gust envelope, and where in the flow field, that closure holds.
+The parameter dependence reveals one clear weakness. Probing the predictive latent
 for the gust parameters on test\_b recovers the gust strength $G$ and the core
 diameter $D$ ($R^2 = 0.46$ and $0.80$) but barely resolves the wall-normal
 offset $Y$ ($R^2 = 0.10$). This is a property of the data rather than of the
@@ -477,7 +488,8 @@ at different offsets within the envelope are weakly separated along $Y$, and the
 latent inherits that weakness. Any deployment-time parameter estimate should
 treat $Y$ as a nuisance variable the encoder resolves only weakly.
 
-\paragraph{Phase relative to the baseline cycle.} Because the undisturbed wake
+The same latent can also be read relative to the undisturbed shedding cycle.
+Because the undisturbed wake
 is a limit cycle (\S\ref{sec:flow_physics}), an encounter is naturally described
 by its phase and amplitude relative to that cycle, the same reduction used to
 design gust-mitigation control for these flows \cite{fukami2024control}. Reading
@@ -515,8 +527,8 @@ object viewed dynamically and topologically.
   gust $(G, D, Y) = (-3.0, 1.5, -0.1)$. (a) Distance of the gust trajectory to the
   baseline orbit (full latent, in units of the orbit diameter; the grey band is
   the baseline orbit thickness): the encounter departs the baseline cycle and only
-  partially relaxes back, without closing within the inter-gust window
-  (\S\ref{sec:res_param_phase}); the single-cycle topology of the encoded latent
+  partially relaxes back, without closing within the inter-gust window;
+  the single-cycle topology of the encoded latent
   is established coordinate-free in Figure~\ref{fig:persistence}. (b) The orbit
   phase relative to the impact frame. (c) Mid-plane vorticity at the four stages
   (rows) for the simulation, the predictive decode, and the reconstructive decode
@@ -528,7 +540,8 @@ object viewed dynamically and topologically.
   \label{fig:phase_amplitude}
 \end{figure}
 
-\paragraph{Where the predictive advantage concentrates.} Rather than a
+We can also locate where in the envelope the predictive advantage concentrates.
+Rather than a
 per-stratum closure table, which the present test set is too small to populate,
 we read the per-encounter paired improvement
 $\Delta e = e_{\text{AE}} - e_{\text{JEPA}}$ in held-out wake-enstrophy error
@@ -562,10 +575,8 @@ impact phase would isolate.
   \label{fig:error_maps}
 \end{figure}
 
-\subsection{Physical-space interpretation}
-\label{sec:res_physical}
-
-Forward closure is a statement about numbers; the encounter is a statement about
+These parameter and phase readings are statements about numbers; the encounter is
+itself a statement about
 vortices. Decoded and reconstructed vorticity fields on held-out encounters
 (Figure~\ref{fig:recon}) connect the two, with one
 methodological caution and one new metric. Two scoping points apply throughout
@@ -591,8 +602,7 @@ full-resolution and small-scale field fidelity are not claimed.
   while the linear basis is amplitude-accurate. All families degrade in the
   $|G| = 4$ regime, reported as the observability boundary of
   \S\ref{sec:flow_physics} rather than as a generalisation claim. Field-space
-  similarity is reframed by the optimal-transport metric of
-  \S\ref{sec:res_physical}.}
+  similarity is reframed by the optimal-transport metric introduced below.}
   \label{fig:recon}
 \end{figure}
 
@@ -687,7 +697,7 @@ three-dimensional and the mid-plane decomposition is itself incomplete
   \label{fig:scale_decomp}
 \end{figure}
 
-\subsection{The predictive state is the most observable from the wall}
+\subsection{Wall-pressure observability}
 \label{sec:res_observability}
 
 At deployment the vorticity field is not available; only the wall pressure is.
