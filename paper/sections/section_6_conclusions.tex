@@ -1,23 +1,30 @@
 % Conclusions. Short, in the idiom of the reference papers' "Concluding remarks".
 
-We compared a predictive latent (JEPA), a reconstructive observable-augmented
-autoencoder, and a proper orthogonal decomposition basis as reduced states for
-parametric vortex-gust airfoil interactions at $\vRe = 5000$, under a protocol
-in which a single autoregressive predictor, conditioning, and probe family were
-held fixed so that only the encoder varied, and judged each by forward physical
-closure rather than by reconstruction. On held-out encounters the predictive
-latent kept the wake observables closest to the simulation, by a factor of two
-to three over the other families on wake enstrophy, while the linear basis
-remained most competitive on the integrated impulse. The mechanism is rollout
-drift: the reconstructive latent leaves its training manifold by an order of
-magnitude over the forecast horizon, so that the wake information hidden from a
-reconstruction objective becomes recoverable from a predictive one, whereas the
-predictive and linear latents stay in distribution. Because the predictive
-encoder also differs in architecture and auxiliary supervision, we attribute the
-result to the predictive latent family and set out the matched controls that
-would isolate the objective. The same predictive state is the most recoverable of the three from sparse wall
+We asked what makes a reduced-order state forecast parametric vortex-gust airfoil
+interactions, and reached a geometric answer: the state forecasts well when its
+latent metric is an isometry of the optimal-transport geometry of the flow, so that
+one predictor step is a transport-consistent move and iterating it stays on the data
+manifold. A reconstruction objective does not impose this property and its rollout
+drifts off the manifold; a predictive objective regularised against collapse does.
+We tested this by comparing a predictive latent (JEPA), a reconstructive
+observable-augmented autoencoder, and a proper orthogonal decomposition basis as
+reduced states at $\vRe = 5000$, under a protocol in which a single autoregressive
+predictor, conditioning, and probe family were held fixed so that only the encoder
+varied, judging each by forward physical closure rather than by reconstruction. On
+held-out cases the predictive latent carries the wake structure the others do not:
+its representational wake-enstrophy closure is positive where the reconstructive and
+linear baselines are negative, a factor of two to three closer to the simulation on
+wake enstrophy, and the per-encounter improvement survives case-level clustering and
+a family-wide correction, while the linear basis remains most competitive on the
+integrated impulse. The same separation appears coordinate-free in the rollout
+drift, the encounter topology, the optimal-transport geometry, and the large-scale
+leading-edge vortex. The forward forecast points the same way and is consistent with
+this, though at the case level it is not on its own decisive. Because the predictive
+encoder also differs in architecture and auxiliary supervision, matched controls
+attribute the advantage to the predictive objective trained with wake supervision.
+The same predictive state is the most recoverable of the three from sparse wall
 pressure, so it is observable as well as forecastable, the property a downstream
 estimator or controller would exploit. The remaining limitations are the weak
-resolution of the wall-normal offset, the three-dimensional observability
-boundary at $|G| = 4$, and a rollout error that still prevents a closed-loop
-control demonstration.
+resolution of the wall-normal offset, the three-dimensional observability boundary
+at $|G| = 4$, and a rollout error that still prevents a closed-loop control
+demonstration.

@@ -140,10 +140,13 @@ empirical consequence.
 The question this paper addresses is therefore not which encoder reconstructs
 the flow best, but which produces a reduced state that remains useful when
 propagated forward in time. We treat this as a fluid-mechanics question with a
-physical answer: a reduced state for gust-airfoil forecasting should be judged
-by whether its forward evolution keeps physically meaningful observables close
-to the simulation, and by whether the latent trajectory it generates stays on
-the manifold the model was trained on. We make three contributions.
+geometric answer: a reduced state forecasts these encounters well when its latent
+metric is an isometry of the optimal-transport geometry of the field, so that one
+predictor step is a transport-consistent move and iterating it stays on the data
+manifold. A reconstruction objective does not impose this property, so its rollout
+drifts off the manifold; a predictive objective regularised against collapse does.
+The joint-embedding predictive architecture is the instrument we use to realise the
+principle, not the subject of the paper. We make three contributions.
 
 First, we set up a controlled comparison in which a predictive encoder (JEPA),
 a reconstructive encoder in the Fukami lineage, and a POD basis are evaluated
@@ -152,9 +155,12 @@ training recipe, parametric conditioning on $\cvec = (G,D,Y)$, and probe
 family, so that forecast quality is attributable to the encoder alone
 (\S\ref{sec:methods}). The figure of merit is forward physical closure of the
 rollout to six observables at horizon $H = 16$ (\S\ref{sec:res_closure}). On
-held-out encounters the predictive latent closes the spatially distributed wake
-observables markedly better than the reconstructive and linear baselines, while
-the linear basis remains competitive on the integrated impulse.
+held-out cases the predictive latent carries the wake structure the others do not:
+its representational wake-enstrophy closure is positive where the reconstructive and
+linear baselines are negative, and the per-encounter improvement survives case-level
+clustering and a family-wide correction, while the linear basis remains competitive
+on the integrated impulse. The forward forecast points the same way and is
+consistent with this.
 
 Second, we identify the mechanism. A latent-drift diagnostic shows that the
 reconstructive rollout leaves its training manifold by an order of magnitude at

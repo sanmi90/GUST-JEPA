@@ -114,9 +114,12 @@ comparison is therefore against a tuned baseline, not a hobbled one.
 \subsection{Forward physical closure}
 \label{sec:methods_closure}
 
-The figure of merit is forward physical closure. Given a ground-truth $\cvec$
-and an initial latent, the predictor is rolled recursively to $H = 16$, and at
-each step the probe maps the predicted latent to each observable. A small
+The figure of merit is forward physical closure, the empirical test of the
+geometric criterion set out in the introduction: a latent whose metric stays
+transport-consistent under the predictor keeps each observable recoverable along the
+rollout, while one that drifts off the manifold loses it. Given a ground-truth
+$\cvec$ and an initial latent, the predictor is rolled recursively to $H = 16$, and
+at each step the probe maps the predicted latent to each observable. A small
 closure error means the encoder produces a latent whose dynamics, propagated by
 the shared predictor, retain the information the probe needs to recover the
 physical quantity; a large error means either that the encoder discarded that

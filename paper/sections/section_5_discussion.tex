@@ -7,12 +7,17 @@
 \subsection{What the predictive latent retains, and why}
 \label{sec:disc_mechanism}
 
-The central finding is about dynamic closure, not reconstruction. Under a shared
-predictor, parametric conditioning, and probe family, the predictive latent
-family keeps the forward evolution of six physical observables closer to the
-simulation than the reconstructive and linear families do, and the advantage is
-concentrated on the spatially distributed wake observables that integrate over
-the shedding region. The mechanism is geometric. A reconstruction objective
+The central finding is geometric, and it concerns what the latent represents as
+much as how it evolves. Under a shared predictor, parametric conditioning, and probe
+family, the predictive latent carries the wake structure the reconstructive and
+linear families do not, an advantage concentrated on the spatially distributed wake
+observables and established first at the representation level, where it survives
+case-level clustering and a family-wide correction; the forward rollout is
+consistent with the same ordering but is not, on its own, decisive at the case
+level. The mechanism is a property of the latent metric: it is, to a good
+approximation, an isometry of the optimal-transport geometry of the flow, so that
+one predictor step is a transport-consistent move and iterating it stays on the data
+manifold. A reconstruction objective
 fixes the latent only up to a diffeomorphism \cite{tran2026,kelshaw2024}, so the
 decoder is free to place codes anywhere it finds convenient and nothing
 constrains the latent geometry to be predictable in time; under autoregressive
@@ -20,10 +25,8 @@ rollout the reconstructive latent therefore leaves its own training manifold,
 and a probe queried on that drifted state fails for reasons unrelated to the
 predictor's one-step accuracy. The predictive objective, regularised against
 collapse, instead organises the latent so that the encounter is a recurrent cycle
-that survives rollout and so that latent distance tracks the physical transport
-geometry of the flow. Iterating the predictor therefore does not leave the
-manifold, the property that data-driven state-space and Koopman models of
-coherent-state dynamics on invariant manifolds rely on
+that survives rollout, the on-manifold property that data-driven state-space and
+Koopman models of coherent-state dynamics on invariant manifolds rely on
 \cite{constanteamores2024}. The manifold departure of the reconstructive rollout
 is the
 parametric-gust counterpart of the catastrophic-divergence tail reported for

@@ -224,7 +224,14 @@ few steps, so its wake forecast collapses immediately rather than eroding.
 \subsection{The drift mechanism: distance, topology, and transport geometry}
 \label{sec:res_drift}
 
-The closure gap is large enough that its mechanism deserves direct measurement.
+The closure gap is large enough that its mechanism deserves direct measurement. The
+mechanism is geometric, and this subsection establishes it three ways that do not
+depend on the latent coordinates: a distance that shows whether the rollout leaves
+the training manifold, a topology that shows whether the encounter stays a single
+cycle, and an optimal-transport metric that shows whether latent distance tracks the
+physical rearrangement of the flow. Together they test the one property a predictive
+objective confers and a reconstruction objective does not, that the latent metric is
+approximately an isometry of the transport geometry under the predictor step.
 
 \begin{table}[t]
   \centering

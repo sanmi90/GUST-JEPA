@@ -7700,3 +7700,24 @@ introduced (section_4 stays at the pre-existing 46, section_3 stays clean). Numb
 outputs/session23_closure/closure_r2_dimsweep_d16.csv and outputs/session20/track_a/controls_2x2.json.
 Build clean (latexmk exit 0, 41 pp, 0 undefined, 0 em-dashes). GATE 5 PASS.
 
+### D170: Session 26 Track 6 -- headline reframe to the transport-consistency principle (2026-06-03)
+
+Converted the paper from "a predictive model beats a reconstructive baseline" to a fluid-mechanics
+result: a reduced state forecasts these encounters well when its latent metric is (approximately) an
+isometry of the optimal-transport geometry of the flow, so one predictor step is a transport-consistent
+move and iterating it stays on the data manifold; a reconstruction objective does not impose this
+(drift), a predictive objective regularised against collapse does. JEPA is framed as the instrument,
+not the subject. Re-anchored the wake claim on REPRESENTATION + MECHANISM per Track 1: lead with the
+representational wake closure (R^2 0.75, positive where baselines negative) and the case-clustered
+paired improvement (+43, 95% CI [13,77], survives clustering + family-wide correction), plus the
+coordinate-free mechanism (drift, topology, transport, scale, all case-level robust); the forward
+forecast is presented as consistent confirmation that is not, on its own, decisive at the case level.
+Touched: abstract (full rewrite, leads with the principle, world-model demoted to a mid-abstract
+clause, ends on observability; trimmed to exactly 250 words), S1 intro frame + contribution 1 (carries
+the wake structure, forecast consistent), S3.4 closure connector, S4.3 drift-section framing (the three
+diagnostics test the one metric property), S5.1 opening (isometry statement + representation anchor), S6
+conclusion (principle-led, forecast not decisive). The abstract close (positive ending, world-model as
+clause) also satisfies Track 7's abstract ask; Track 7 handles the S1/S5.4 world-model demotion. No new
+numbers beyond Track 1's (already in the manifest). Build clean (latexmk exit 0, 42 pp, 0 undefined, 0
+em-dashes; flag counts unchanged: abstract 1, s1 0, s3 0, s4 46, s5 4, s6 0). GATE 6 PASS.
+

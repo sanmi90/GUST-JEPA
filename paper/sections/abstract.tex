@@ -1,28 +1,30 @@
-% Abstract. Single paragraph, <=250 words, held-out evidence first, ends on
-% observability + forecastability (not model-based control). Reports the
-% DNS/SOD2D provenance; the gain is attributed to the predictive objective
-% trained with wake supervision (per the matched-architecture controls).
+% Abstract. Single paragraph, <=250 words. Leads with the geometric principle
+% (transport-consistent latent metric), anchors the wake claim on representation +
+% mechanism with the case-clustered paired CI (Session 26 Track 1), demotes the
+% forecast to consistent confirmation, ends on observability (positive). The
+% world-model reading is a mid-abstract clause, not the close.
 
-We ask whether a predictive latent objective yields a reduced-order state for
-parametric vortex-gust airfoil interactions that forecasts better than a
-reconstructive one. The data are our own direct numerical simulations (SOD2D) of
-a NACA~0012 at $\alpha = 14^\circ$ and $\vRe = 5000$, perturbed by a discrete
-Taylor vortex parametrised by gust strength $G$, core diameter $D$, and
-wall-normal offset $Y$, across $84$ cases with held-out in-distribution and
-$|G| = 4$ extrapolation tests. Three encoders are compared at matched latent
-dimension, a joint-embedding predictive architecture (JEPA), a reconstructive
-autoencoder after Fukami \& Taira, and a POD basis, under one shared predictor,
-conditioning on $(G,D,Y)$, and probe family, so that only the encoder varies. We
-judge each state not by reconstruction but by \emph{forward physical closure} of
-six observables, sixteen frames after gust impact. The predictive latent leads on
-the wake observables: on held-out encounters its representational wake-enstrophy
-$R^2$ is positive ($0.75$) where the reconstructive and linear baselines are
-negative, and a per-encounter paired test favours it on the wake error for most
-held-out encounters. The mechanism is latent drift: under rollout the
-reconstructive latent leaves its training manifold by an order of magnitude while
-the predictive and linear latents stay within it. A conditioning-only floor and
-matched-architecture, matched-supervision controls attribute the gain to the
-predictive objective trained with wake supervision, not the architecture. The
-same predictive state is also the most recoverable from sparse wall pressure, so
-it is observable as well as forecastable. The world-model framing is motivation,
-not a claim: a direct interventional test does not hold.
+We ask what geometric property a reduced-order state needs to forecast
+parametric vortex-gust airfoil interactions, and which encoder objectives confer
+it; the action-conditioned world-model view is motivation only, since a direct
+interventional test does not hold. The
+data are our own direct numerical simulations (SOD2D) of a NACA~0012 at
+$\alpha = 14^\circ$ and $\vRe = 5000$, perturbed by a discrete Taylor vortex
+parametrised by gust strength $G$, core diameter $D$, and wall-normal offset $Y$,
+across $84$ cases with held-out in-distribution and $|G| = 4$ extrapolation tests.
+We compare three encoders at matched latent dimension, a joint-embedding
+predictive architecture (JEPA), a reconstructive autoencoder after Fukami \&
+Taira, and a POD basis, under one shared predictor conditioned on $(G,D,Y)$ and one
+probe family, judging each by forward physical closure of six observables
+sixteen frames after impact, not by reconstruction. The predictive
+latent carries the wake structure the others do not: its representational
+wake-enstrophy $R^2$ is positive ($0.75$) where the baselines are negative, and the
+per-encounter improvement survives case-level clustering and a family-wide
+correction (paired mean $+43$, case-clustered $95\%$ interval $[13, 77]$). The
+mechanism is geometric: a reconstruction objective leaves the latent metric free, so
+its rollout drifts off the data manifold, fragments the topology, and leaves the
+optimal-transport geometry, whereas a predictive objective regularised against
+collapse keeps each step transport-consistent and stays on-manifold. Matched
+controls attribute the advantage to the predictive objective with wake supervision. The same
+predictive state is the most recoverable of the three from sparse wall pressure, so
+it is observable as well as forecastable.
