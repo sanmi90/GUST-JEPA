@@ -7721,3 +7721,18 @@ clause) also satisfies Track 7's abstract ask; Track 7 handles the S1/S5.4 world
 numbers beyond Track 1's (already in the manifest). Build clean (latexmk exit 0, 42 pp, 0 undefined, 0
 em-dashes; flag counts unchanged: abstract 1, s1 0, s3 0, s4 46, s5 4, s6 0). GATE 6 PASS.
 
+### D171: Session 26 Track 7 -- world-model framing demoted to motivation (2026-06-03)
+
+The interventional/world-model reading fails (D154) and is disclaimed, so it must not frame the paper.
+Reduced the world-model MATERIAL to one sentence of motivation in S1 (compressed a ~30-line, three-mention
+passage to ~12 lines: one analogy-not-a-claim motivation sentence, the interventional-test-fails
+disclaimer, and the principle-connected point that reconstruction and POD are not constrained to be
+forward-predictable so the drift mechanism is the empirical consequence) and to one caution clause in
+S5.4 (merged two sentences, keeping the actuation/control connection and the r=-0.27 interventional test
+that follows). The abstract close was already handled in Track 6: the world-model is a single
+mid-abstract clause and the abstract ends on the positive observable-and-forecastable result, not the
+disclaimer. World-model now appears once in the abstract (clause), once in S1 (motivation sentence), and
+once in S5.4 (caution clause). Text-only, no new numbers. Build clean (latexmk exit 0, 41 pp, 0 undefined,
+0 em-dashes; section_1 stays clean, section_5 stays at the pre-existing 4 flags; the S1 compression
+dropped the page count 42 -> 41). GATE 7 PASS.
+
