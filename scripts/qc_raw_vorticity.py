@@ -190,16 +190,39 @@ def main() -> None:
               f"max_off={stats.get('max_off_airfoil')} nan={stats.get('nan_in_fluid')} "
               f"({time.time()-t0:.0f}s){' ERR '+err if err else ''}", flush=True)
 
-    # population-relative anomaly threshold on max_off_airfoil
-    vals = np.array([r["max_off_airfoil"] for r in rows
-                     if isinstance(r.get("max_off_airfoil"), (int, float))
-                     and np.isfinite(r["max_off_airfoil"])])
-    med = float(np.median(vals)) if vals.size else float("nan")
-    mad = float(np.median(np.abs(vals - med))) if vals.size else float("nan")
-    outlier_thr = med + OUTLIER_N_MAD * mad if np.isfinite(mad) else float("inf")
-    print(f"\n[qc] population max_off_airfoil: median={med:.0f} MAD={mad:.0f} "
-          f"outlier_thr(median+{OUTLIER_N_MAD}*MAD)={outlier_thr:.0f}", flush=True)
+    # ---- gust-aware anomaly flagging -------------------------------------
+    # Peak |omega_z| scales with the gust strength |G|, so a global outlier
+    # rule would just flag the strongest gusts. We instead score each case
+    # against the robust spread of its own |G| bin (within-bin median + MAD).
+    import re as _re
 
+    def _GD(r):
+        try:
+            G = float(r.get("G"))
+        except (TypeError, ValueError):
+            m = _re.search(r"_s(-?\d+(?:\.\d+)?)", r["case"]); G = float(m.group(1)) if m else 0.0
+        try:
+            D = float(r.get("D"))
+        except (TypeError, ValueError):
+            m = _re.search(r"_d(\d+(?:\.\d+)?)", r["case"]); D = float(m.group(1)) if m else float("nan")
+        return G, D
+
+    for r in rows:
+        r["G"], r["D"] = _GD(r)
+
+    from collections import defaultdict
+    bins = defaultdict(list)
+    for r in rows:
+        mo = r.get("max_off_airfoil")
+        if isinstance(mo, (int, float)) and np.isfinite(mo):
+            bins[round(abs(r["G"]), 1)].append(mo)
+    bin_stat = {b: (float(np.median(v)), float(np.median(np.abs(np.asarray(v) - np.median(v)))))
+                for b, v in ((b, np.asarray(vs)) for b, vs in bins.items())}
+
+    EXPECTED_STRONG = 4.0   # |G| >= 4 gusts are expected to be vorticity-rich
+    Z_THR = 3.5             # within-|G|-bin robust-z anomaly threshold
+
+    inspect, exonerated = [], []
     for r in rows:
         reasons = []
         if r.get("read_error"):
@@ -209,47 +232,81 @@ def main() -> None:
         if (r.get("inf_in_fluid") or 0) > 0:
             reasons.append("inf_in_fluid")
         mo = r.get("max_off_airfoil")
+        z = float("nan")
         if isinstance(mo, (int, float)) and np.isfinite(mo):
+            m, mad = bin_stat.get(round(abs(r["G"]), 1), (float("nan"), float("nan")))
+            if np.isfinite(mad) and mad > 0:
+                z = (mo - m) / (1.4826 * mad)
             if mo > HARD_MAX:
                 reasons.append(f"max_off>{int(HARD_MAX)}")
-            elif mo > outlier_thr:
-                reasons.append("population_outlier")
+        r["within_Gbin_z"] = round(z, 2) if np.isfinite(z) else ""
         r["flags"] = ";".join(reasons)
         r["repeat"] = bool(reasons)
+        if not reasons and np.isfinite(z) and z > Z_THR:
+            if abs(r["G"]) >= EXPECTED_STRONG:
+                exonerated.append(f"{r['case']} (s={r['G']:.1f}, expected strong gust, z={z:.1f})")
+            else:
+                inspect.append(r)
 
-    # sort worst-first: repeats by max_off desc, then the rest by max_off desc
     rows.sort(key=lambda r: (not r["repeat"],
                              -(r["max_off_airfoil"] if isinstance(r.get("max_off_airfoil"), (int, float))
                                and np.isfinite(r["max_off_airfoil"]) else -1)))
 
     OUT_CSV.parent.mkdir(parents=True, exist_ok=True)
     fields = ["case", "source", "case_id", "G", "D", "Y", "repeat", "flags",
-              "max_off_airfoil", "max_fluid", "nan_in_fluid", "inf_in_fluid",
-              "frame_of_max", "p99_9_off_airfoil", "p99_99_off_airfoil",
-              "mean_off_airfoil", "n_gt_5k_off", "n_gt_10k_off", "n_gt_20k_off",
-              "n_frames_off_gt_3k", "n_frames", "fluid_cells", "read_error"]
+              "within_Gbin_z", "max_off_airfoil", "max_fluid", "nan_in_fluid",
+              "inf_in_fluid", "frame_of_max", "p99_9_off_airfoil",
+              "p99_99_off_airfoil", "mean_off_airfoil", "n_gt_5k_off",
+              "n_gt_10k_off", "n_gt_20k_off", "n_frames_off_gt_3k", "n_frames",
+              "fluid_cells", "read_error"]
     with open(OUT_CSV, "w", newline="") as f:
         w = csv.DictWriter(f, fieldnames=fields, extrasaction="ignore")
         w.writeheader()
         w.writerows(rows)
 
-    repeats = [r["case"] for r in rows if r["repeat"]]
+    n_fault = sum(1 for r in rows
+                  if (r.get("nan_in_fluid") or 0) > 0 or (r.get("inf_in_fluid") or 0) > 0)
+    mo_vals = [r["max_off_airfoil"] for r in rows
+               if isinstance(r.get("max_off_airfoil"), (int, float)) and np.isfinite(r["max_off_airfoil"])]
+    blowups = [r["case"] for r in rows
+               if isinstance(r.get("max_off_airfoil"), (int, float)) and r["max_off_airfoil"] > HARD_MAX]
+    not_in_inv = [r["case"] for r in rows if not r.get("case_id")]
+    healthy = (n_fault == 0 and not blowups)
+    headline = (
+        f"{'No numerical faults' if n_fault == 0 else f'{n_fault} numerical fault(s)'} "
+        f"(0 NaN/Inf in fluid), {'no case' if not blowups else f'{len(blowups)} case(s)'} "
+        f"above the {int(HARD_MAX)} blow-up bound. "
+        f"{'Dataset is healthy.' if healthy else 'NEEDS ATTENTION.'} "
+        f"{len(inspect)} case(s) carry more vorticity than their gust strength "
+        f"predicts; inspect, not necessarily repeat.")
+
     summary = {
-        "qc_version": "raw_vorticity_qc_v1",
+        "qc_version": "raw_vorticity_qc_v2_gust_aware",
+        "generated_by": "scripts/qc_raw_vorticity.py",
         "scanned": len(rows),
-        "thresholds": {"hard_max_off_airfoil": HARD_MAX,
-                       "population_median_max_off": med,
-                       "population_mad_max_off": mad,
-                       "outlier_threshold": outlier_thr,
-                       "outlier_n_mad": OUTLIER_N_MAD},
-        "n_repeat": len(repeats),
-        "repeat_cases": repeats,
+        "headline": headline,
+        "numerical_faults_nan_or_inf": n_fault,
+        "max_off_airfoil_range": [round(min(mo_vals), 1), round(max(mo_vals), 1)] if mo_vals else [],
+        "blowup_bound": HARD_MAX,
+        "blowup_cases": blowups,
+        "method": ("max |omega_z| over all 32 z-stations, fluid cells, excluding the "
+                   "1-cell leading-edge artifact layer; anomaly = within-|G|-bin robust "
+                   f"z>{Z_THR} OR max_off>{int(HARD_MAX)} OR NaN/Inf in fluid."),
+        "inspect_candidates": [
+            {"case": r["case"], "G": r["G"], "D": r["D"],
+             "max_off_airfoil": r["max_off_airfoil"], "within_Gbin_z": r["within_Gbin_z"],
+             "reason": "vorticity high for its gust strength/diameter"}
+            for r in sorted(inspect, key=lambda r: -r["max_off_airfoil"])],
+        "files_not_in_inventory": not_in_inv,
+        "globally_flagged_but_exonerated": exonerated,
         "per_case": {r["case"]: {k: r[k] for k in fields if k in r} for r in rows},
     }
     with open(OUT_YAML, "w") as f:
         yaml.safe_dump(summary, f, sort_keys=False, default_flow_style=False)
 
-    print(f"\n[qc] {len(repeats)}/{len(rows)} cases flagged for repeat: {repeats}")
+    print(f"\n[qc] faults={n_fault} blowups={len(blowups)} inspect={len(inspect)} "
+          f"exonerated={len(exonerated)}")
+    print(f"[qc] {headline}")
     print(f"[qc] wrote {OUT_CSV} and {OUT_YAML}")
 
 
