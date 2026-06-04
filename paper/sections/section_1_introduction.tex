@@ -8,22 +8,22 @@
 Small uncrewed and micro air vehicles increasingly operate in airspace where
 the gust velocity is comparable to or larger than their flight speed, such as
 urban canyons, mountainous terrain, and the wakes of buildings and ships
-\cite{jones2022,mohamed2023gusts}. In this regime the gust ratio $G$, the ratio of
+\citep{jones2022,mohamed2023gusts}. In this regime the gust ratio $G$, the ratio of
 the characteristic gust velocity to the free-stream velocity, exceeds unity,
 and the interaction between a discrete vortex gust and a lifting surface
 produces large, fast transients in the aerodynamic loads that conventional
-gust models do not capture \cite{fukami2024control,fukami2025prf}. The response
+gust models do not capture \citep{fukami2024control,fukami2025prf}. The response
 is governed by the timing of the vortex impact relative to the airfoil's own
 shedding, by the wall-normal offset of the vortex core, and by the gust
 strength and core size. The load transient itself is produced by the formation,
 growth, and shedding of a leading-edge vortex, the dominant unsteady mechanism in
-these encounters \cite{eldredge2019leading}, together with the trailing-edge and
+these encounters \citep{eldredge2019leading}, together with the trailing-edge and
 wake structures it leaves behind. Even at the moderate chord Reynolds number
 $\vRe = 5000$, the post-stall flow at $\alpha = 14^\circ$ is massively
 separated, and the gust-induced disturbance interacts nonlinearly with the
-natural shedding cycle \cite{fukami2025prf}; the vortical organisation of the
+natural shedding cycle \citep{fukami2025prf}; the vortical organisation of the
 encounter is moreover similar across laminar and turbulent regimes
-\cite{odaka2026}, so this case is representative of the wider extreme-aerodynamic
+\citep{odaka2026}, so this case is representative of the wider extreme-aerodynamic
 family. Resolving the full parametric
 envelope by simulation is expensive, so reduced-order models (ROMs) of the
 encounter-to-encounter and case-to-case variability are an active line of work,
@@ -31,25 +31,25 @@ and a reduced model is also the object a controller would plan against.
 
 Reduced-order models of such flows form a ladder of increasing nonlinearity.
 Energy-optimal linear bases, proper orthogonal decomposition
-\cite{berkooz1993pod} and dynamic mode decomposition \cite{schmid2010dmd}, are
+\citep{berkooz1993pod} and dynamic mode decomposition \citep{schmid2010dmd}, are
 compact and interpretable but limited for strongly nonlinear separation; their
-Koopman-operator reading \cite{lusch2018deep} nonetheless makes a linear latent a
+Koopman-operator reading \citep{lusch2018deep} nonetheless makes a linear latent a
 principled comparator rather than a strawman. Nonlinear autoencoders compress
-further at matched latent dimension \cite{murata2020nonlinear,lee2020model}, and
+further at matched latent dimension \citep{murata2020nonlinear,lee2020model}, and
 coupling an
 autoencoder to a learned latent dynamics forecasts better than dynamics confined
-to a linear subspace \cite{linot2023dynamics}. The extreme-aerodynamic reduced
+to a linear subspace \citep{linot2023dynamics}. The extreme-aerodynamic reduced
 models we build on sit at the nonlinear, observable-augmented end of this ladder.
 
 Recent ROMs for separated and extreme-aerodynamic flows, increasingly built with
-machine learning \cite{brunton2020machine}, share a common
+machine learning \citep{brunton2020machine}, share a common
 ingredient: a reconstruction-trained autoencoder whose bottleneck is shaped by
-an auxiliary aerodynamic observable. Fukami \& Taira \cite{fukami2023} trained
+an auxiliary aerodynamic observable. Fukami \& Taira \citeyearpar{fukami2023} trained
 a convolutional autoencoder jointly with a lift-prediction head and found that
 the auxiliary loss reduced the intrinsic dimension of the discovered manifold
 for extreme vortex-gust flows from roughly ten to three. The same
 observable-augmentation idea was extended across multi-source turbulent data
-\cite{fukami2025}, and was used by Solera-Rico et al. \cite{solera2024} with a
+\citep{fukami2025}, and was used by Solera-Rico et al. \citeyearpar{solera2024} with a
 $\beta$-variational autoencoder and a transformer ROM on a vortex-gust airfoil
 dataset of the same family considered here. Across this lineage the
 reconstruction term anchors the latent geometry to the instantaneous flow
@@ -59,20 +59,20 @@ however, is that the latent coordinates of an autoencoder are unique only up to
 a diffeomorphism, so reconstruction leaves the geometry of the latent largely
 unconstrained, which complicates any downstream task that relies on that
 geometry, including dynamics, interpolation, and comparison
-\cite{tran2026,kelshaw2024}.
+\citep{tran2026,kelshaw2024}.
 
 A parallel and fast-growing line reads these flows through the information their
 reduced states carry rather than their energy. Transfer-entropy causality among
 proper-orthogonal-decomposition modes ranks which modes drive the formation of
-coherent structures \cite{martinezsanchez2023}, and an informative/non-informative
+coherent structures \citep{martinezsanchez2023}, and an informative/non-informative
 decomposition splits a field into the part that carries information about a
-target's future and a residual that carries none \cite{arranz2024}. This
+target's future and a residual that carries none \citep{arranz2024}. This
 informative-decomposition idea has very recently been brought to extreme
 vortex-gust airfoil interactions of the present family, extracting the field
-structures informative about the future lift \cite{koshikawa2026,fukamiaraki2026},
+structures informative about the future lift \citep{koshikawa2026,fukamiaraki2026},
 alongside time-dependent modal bases for the same interaction
-\cite{zhong2025,zamaniashtiani2025} and latent-causality attributions in physical
-space \cite{cremades2026xcal}. Our study is complementary: rather than mapping the
+\citep{zhong2025,zamaniashtiani2025} and latent-causality attributions in physical
+space \citep{cremades2026xcal}. Our study is complementary: rather than mapping the
 informative or causal modes of a single representation, we ask which encoder
 objective produces a latent whose forward evolution closes the full set of
 observables, the wake included, and we use the information lens only as a held-out
@@ -82,37 +82,37 @@ A complementary route to a reduced state is to drop the reconstruction term
 altogether and to train the encoder and a predictor end to end on
 latent-space forecasting, with an explicit anti-collapse regulariser in place
 of the decoder. This is the joint-embedding predictive architecture (JEPA)
-\cite{lecun2022}: an encoder maps the input to a representation, a predictor
+\citep{lecun2022}: an encoder maps the input to a representation, a predictor
 advances that representation in time, and the loss never reconstructs the
 field. Two consequences follow. The encoder is free to discard detail that is
 not predictive of the future, and the predictor cannot exploit pixel-level
 shortcuts because no field-space signal reaches it. The image and video
-instantiations \cite{ijepa,vjepa2} and the recent from-pixels variants that
+instantiations \citep{ijepa,vjepa2} and the recent from-pixels variants that
 remove the moving-target encoder in favour of a characteristic-function
-regulariser \cite{lewm,lejepa} or a variance-covariance objective
-\cite{pldm,vicreg} have so far been evaluated on gridworld and toy visual
+regulariser \citep{lewm,lejepa} or a variance-covariance objective
+\citep{pldm,vicreg} have so far been evaluated on gridworld and toy visual
 domains. Their behaviour on a low-intrinsic-dimension physics dataset, where
 the data sit on a roughly five- to ten-dimensional manifold, is uncharacterised.
 
 Reconstruction-trained nonlinear encoders compress aggressively but yield latent
 dynamics that are harder to forecast than an energy-optimal linear basis, a
 compactness-versus-forecast tradeoff documented for controlled wake flows in a
-companion study under review \cite{solerarico_compactness_underreview}. We show
+companion study under review \citep{solerarico_compactness_underreview}. We show
 this tradeoff is a consequence of the reconstruction objective: a predictive
 latent recovers nonlinear compactness without surrendering forecast stability.
 The division of labour with that companion study
-\cite{solerarico_compactness_underreview} is explicit: there, controlled
+\citep{solerarico_compactness_underreview} is explicit: there, controlled
 canonical wakes and the compactness-versus-forecast tradeoff; here, the
 parametric vortex gust, the latent-drift mechanism we identify as the common
 cure, and its geometric and topological characterisation.
 
 The unconditional-encoder, conditioned-predictor split we adopt is motivated, as
 an analogy and not a property we claim, by the action-conditioned world-model
-framework of \cite{lecun2022,ha2018world}: the gust $(G, D, Y)$ enters the predictor
+framework of \citet{lecun2022,ha2018world}: the gust $(G, D, Y)$ enters the predictor
 as an observed exogenous perturbation, not an agent's chosen action, so the model is
 a conditional forward model rather than a controller, and a recent gust-airfoil
 instance couples a physics-augmented autoencoder to a latent dynamics model
-\cite{liu2025modelbased}. A direct interventional test of the stronger reading does
+\citep{liu2025modelbased}. A direct interventional test of the stronger reading does
 not hold (\S\ref{sec:discussion}), so we forecast the consequences of the generative
 parameters without claiming an interventional or causal model. What this leaves is
 the property our principle turns on: a reconstruction-trained autoencoder and an
@@ -154,7 +154,7 @@ geometric and topological statement: the predictive latent organises the
 encounter as a single topological cycle, one persistent generator where the
 reconstructive latent fragments, and its
 latent metric tracks the physical transport geometry of the flow more
-faithfully than the reconstructive latent does, although, unlike \cite{tran2026},
+faithfully than the reconstructive latent does, although, unlike \citep{tran2026},
 it is not trained to do so.
 
 Third, we are explicit about what the comparison does and does not isolate. The

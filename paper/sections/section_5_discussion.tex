@@ -19,7 +19,7 @@ level. The mechanism is a property of the latent metric: it is, to a good
 approximation, aligned with the optimal-transport geometry of the flow in the
 empirical distance-matrix sense, so that the rollout stays close to the data
 manifold. A reconstruction objective
-fixes the latent only up to a diffeomorphism \cite{tran2026,kelshaw2024}, so the
+fixes the latent only up to a diffeomorphism \citep{tran2026,kelshaw2024}, so the
 decoder is free to place codes anywhere it finds convenient and nothing
 constrains the latent geometry to be predictable in time; under autoregressive
 rollout the reconstructive latent therefore leaves its own training manifold,
@@ -28,11 +28,11 @@ predictor's one-step accuracy. The predictive objective, regularised against
 collapse, instead organises the latent so that the encounter is a recurrent cycle
 that survives rollout, the on-manifold property that data-driven state-space and
 Koopman models of coherent-state dynamics on invariant manifolds rely on
-\cite{constanteamores2024}. The manifold departure of the reconstructive rollout
+\citep{constanteamores2024}. The manifold departure of the reconstructive rollout
 is the
 parametric-gust counterpart of the catastrophic-divergence tail reported for
 reconstruction-based latent dynamics in controlled wakes
-\cite{solerarico_compactness_underreview}; the predictive objective is the common
+\citep{solerarico_compactness_underreview}; the predictive objective is the common
 cure. The wake observables are the sharpest discriminator precisely because
 they can change while the scalar forces do not: a representation can carry the
 lift signature of an encounter without carrying the vorticity redistribution
@@ -69,7 +69,7 @@ forecast information and not merely the present forces. These are observational
 probes on the frozen encoders, a latent-space reading of the closure result of
 \S\ref{sec:res_closure} rather than a separate claim, and they sit alongside the
 information-theoretic modal analyses of related flows
-\cite{martinezsanchez2023,arranz2024,koshikawa2026}.
+\citep{martinezsanchez2023,arranz2024,koshikawa2026}.
 
 \begin{figure}
   \centering
@@ -160,7 +160,7 @@ data limitation, and $Y$-conditional statements should be read with it in mind.
 Second, the $|G| = 4$ extrapolation degrades for a physical reason, not merely a
 statistical one. As set out in \S\ref{sec:flow_physics}, the encoder observes a
 single mid-plane vorticity slice whose information no longer determines the
-three-dimensional $|G| = 4$ dynamics \cite{fukami2025prf}, so test\_c is the
+three-dimensional $|G| = 4$ dynamics \citep{fukami2025prf}, so test\_c is the
 observability boundary of that representation, not a parametric-generalisation
 claim. Third, the visualisation
 decoder is a diagnostic on the frozen encoder, never part of the predictive
@@ -187,7 +187,7 @@ gust parameters enter only the predictor; replacing the
 parametric conditioning with an actuation channel is a change of input rather
 than of architecture, and the phase-amplitude reading of \S\ref{sec:res_param_phase}
 connects the predictor directly to the sensitivity-function control designed for
-these flows \cite{fukami2024control}. An actuation channel would enter at the same point as the gust, the predictor
+these flows \citep{fukami2024control}. An actuation channel would enter at the same point as the gust, the predictor
 conditioning, so the same forward-closure machinery would apply with the control as
 the action; consistent with treating the world-model view of
 \S\ref{sec:introduction} as motivation only, we caution against over-reading this as

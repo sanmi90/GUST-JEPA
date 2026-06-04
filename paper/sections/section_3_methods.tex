@@ -71,9 +71,9 @@ The predictive encoder and predictor are trained jointly on a one-step
 latent-prediction term, a scheduled-sampling rollout term that exposes the
 predictor to its own errors, and an anti-collapse regulariser that prevents the
 encoder from collapsing to a constant. We use the characteristic-function
-regulariser of \cite{lejepa,lewm}, which matches the latent distribution to an
+regulariser of \citet{lejepa,lewm}, which matches the latent distribution to an
 isotropic Gaussian through a small number of random projections, with an
-automatic fall-back to a variance-covariance objective \cite{vicreg} should the
+automatic fall-back to a variance-covariance objective \citep{vicreg} should the
 participation ratio of the latent indicate collapse. Its configuration is given
 in Appendix~\ref{app:reg}.
 
@@ -82,7 +82,7 @@ training: a lift head that maps $\zvec_t$ to $C_L(t)$, and a wake head that maps
 $\zvec_t$ to an $80$-dimensional signed wake spectrum, both trained with small
 weights jointly with the representation and neither part of the latent-prediction
 loss. These heads are adopted from the observable-augmentation
-lineage \cite{fukami2023,fukami2025}. They are also, however, the reason the
+lineage \citep{fukami2023,fukami2025}. They are also, however, the reason the
 present predictive encoder is not a clean isolation of the training objective:
 the reconstructive baseline below carries a lift head but not a wake head, and
 the two encoders differ in architecture as well. We are explicit about this

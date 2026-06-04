@@ -402,9 +402,9 @@ Distance alone understates the geometric content of the
 result, so we next examine the trajectory topology. A gust encounter departs the baseline limit cycle, executes the
 LEV-formation and shedding excursion, and relaxes back toward it without closing
 within the window (\S\ref{sec:res_param_phase}); in the encoded latent the
-excursion nonetheless has the topology of a single cycle \cite{smith2024}. We characterise this with persistent homology, which
+excursion nonetheless has the topology of a single cycle \citep{smith2024}. We characterise this with persistent homology, which
 identifies the persistent one-dimensional cycle ($H_1$ generator) of a
-trajectory by a Vietoris--Rips filtration \cite{smith2024}, applied here to four
+trajectory by a Vietoris--Rips filtration \citep{smith2024}, applied here to four
 latent point clouds per encounter: the simulation-encoded predictive latent, its
 rollout, the simulation-encoded reconstructive latent, and its rollout
 (figure~\ref{fig:persistence}). The coordinate-free signature is not the survival
@@ -424,7 +424,7 @@ curvature minimum of the predictive trajectory, a smooth pass-through rather tha
 a sharp corner, so the cycle it traces is a single well-formed loop. The result
 at $d = 32$ is the same (single predictive loop versus reconstructive
 fragmentation). The separation is robust to the two free choices of the analysis,
-following the convergence protocol of \cite{smith2024}: across noise floors from
+following the convergence protocol of \citet{smith2024}: across noise floors from
 $2\%$ to $15\%$ of the cloud diameter and trajectory subsampling down to $60$
 points the predictive median stays at one generator and the Mann--Whitney
 separation holds at $p < 10^{-3}$, and it survives case-level clustering ($10$ of
@@ -454,7 +454,7 @@ between vorticity
 fields is insensitive to the spatial transport of structures, whereas an
 unbalanced optimal-transport (OT) distance measures the cost of rearranging one
 field into another and so tracks advection of the LEV and shear layer
-\cite{tran2026}. Computing the OT distance between simulation fields along an
+\citep{tran2026}. Computing the OT distance between simulation fields along an
 encounter gives a physical transport geometry against which the latent metric
 can be checked: the prediction is that distances in the predictive latent track
 the OT geodesic more faithfully than distances in the reconstructive latent, so
@@ -492,7 +492,7 @@ The same latent can also be read relative to the undisturbed shedding cycle.
 Because the undisturbed wake
 is a limit cycle (\S\ref{sec:flow_physics}), an encounter is naturally described
 by its phase and amplitude relative to that cycle, the same reduction used to
-design gust-mitigation control for these flows \cite{fukami2024control}. Reading
+design gust-mitigation control for these flows \citep{fukami2024control}. Reading
 the predictive latent this way makes ``recovery'' precise: it is the return of
 the latent trajectory to the baseline limit cycle. The predictive latent of the
 undisturbed case does trace a closed periodic orbit
@@ -555,7 +555,7 @@ moderate under forecast. The predictive advantage therefore concentrates away
 from the $Y \approx 0$ training mass and at the larger cores that most reorganise
 the wake, consistent with the weak $Y$ resolution of the probe above. The
 shedding phase at impact, the axis the gust-response literature emphasises
-\cite{fukami2024control}, is only weakly sampled by this dataset: impact is fixed
+\citep{fukami2024control}, is only weakly sampled by this dataset: impact is fixed
 near a single convective instant while the gust recurs about every two shedding
 periods, so the encounters fall into essentially two phase clusters and a
 phase-resolved trend is not identifiable here, which a design that varies the
@@ -619,7 +619,7 @@ its objective is amplitude-optimal.
 
 The new metric resolves the caution. An unbalanced optimal-transport distance
 between the reconstructed and the simulation fields, computed for the positive
-and negative vorticity separately and summed \cite{tran2026}
+and negative vorticity separately and summed \citep{tran2026}
 (Sinkhorn divergence, fields pooled to $48 \times 24$ for tractability),
 penalises the collapsed reconstruction correctly and reorders the comparison
 where structural similarity misleads (figure~\ref{fig:ot}). At the impact frame
@@ -651,7 +651,7 @@ metric there.
 
 Finally, the wake observables tie to the structures that carry the load. A
 Gaussian scale decomposition (large scale at filter width $\sigma/c = 0.05$,
-following \cite{odaka2026,motoori2019}) separates the large-scale vortical
+following \citep{odaka2026,motoori2019}) separates the large-scale vortical
 structures responsible for the lift peaks from the fine scale, applied to the
 simulation field and to each family's reconstruction
 (figure~\ref{fig:scale_decomp}). On test\_b the large-scale wake enstrophy of the

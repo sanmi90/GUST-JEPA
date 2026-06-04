@@ -41,11 +41,11 @@ Because the encoder and predictor are
 trained end to end on latent-space prediction with no decoder, the latent is held
 away from a collapsed solution by an explicit regulariser rather than by a
 reconstruction term. We use SIGReg, the characteristic-function (Epps--Pulley)
-regulariser of the from-pixels joint-embedding line \cite{lewm,lejepa}, with $M$
+regulariser of the from-pixels joint-embedding line \citep{lewm,lejepa}, with $M$
 random one-dimensional projections of the latent and a small weight ($0.01$) in
 the loss. As a safeguard the participation ratio of the latent is monitored every
 thousand iterations, with an automatic fall-back to a variance-covariance
-objective \cite{vicreg} if it indicates collapse while the parameter probe is
+objective \citep{vicreg} if it indicates collapse while the parameter probe is
 still uninformative; on the runs reported here the participation ratio stays
 healthy and the fall-back does not trigger.
 
@@ -157,7 +157,7 @@ The significant-$H_1$ generator count of
 \S\ref{sec:res_drift} declares a generator significant when its persistence exceeds
 a noise floor set at a fraction of the cloud diameter (the largest finite $H_0$
 death), the canonical analysis using $5\%$ of that diameter and all $120$
-trajectory frames. Following the convergence protocol of \cite{smith2024} we sweep
+trajectory frames. Following the convergence protocol of \citet{smith2024} we sweep
 the floor over $\{2, 5, 10, 15, 20\}\%$ and the points per encounter over
 $\{120, 60, 40, 30\}$ (uniform subsampling), $20$ settings in all. The predictive
 median is one generator in every setting. The predictive-versus-reconstructive
