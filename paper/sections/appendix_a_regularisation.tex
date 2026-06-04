@@ -4,7 +4,8 @@
 % held-out uncertainty signals. The SIGReg/VICReg/PLDM comparison was a smaller-
 % scale development study and is deliberately NOT claimed here.
 
-\paragraph{Architecture detail.} The encoder is a hybrid convolutional stem
+\subsubsection*{Architecture detail}
+The encoder is a hybrid convolutional stem
 followed by a small vision transformer. Three downsampling convolutional stages
 map the single-channel $192 \times 96$ vorticity field to a $24 \times 12$ feature
 map at $256$ channels, that is $288$ spatial tokens, which a six-layer
@@ -21,19 +22,35 @@ dynamics and the conditioning is learned as a modulation. Training minimises the
 one-step latent prediction loss plus a scheduled-sampling rollout term and the
 regulariser below, with AdamW and bf16 mixed precision.
 
-\paragraph{Anti-collapse regularisation.} Because the encoder and predictor are
+\begin{figure}
+  \centering
+  \includegraphics[width=0.95\linewidth]{sections/figures/tikz/fig2_predictive_vs_reconstructive.pdf}
+  \caption{Predictive versus reconstructive training. Left: the reconstructive
+  autoencoder encodes the field at $t$, decodes it, and incurs a field-space
+  error. Right: the predictive model encodes the fields at $t$ and $t+\Delta t$
+  with shared weights and incurs a latent-space error between the predicted and
+  observed target embeddings, with no field-space loss and no decoder during
+  training. This is the contrast the matched-predictor protocol of
+  \S\ref{sec:methods_protocol} evaluates; the visualisation decoder is trained
+  only afterwards, on the frozen encoder.}
+  \label{fig:predictive_vs_reconstructive}
+\end{figure}
+
+\subsubsection*{Anti-collapse regularisation}
+Because the encoder and predictor are
 trained end to end on latent-space prediction with no decoder, the latent is held
 away from a collapsed solution by an explicit regulariser rather than by a
 reconstruction term. We use SIGReg, the characteristic-function (Epps--Pulley)
-regulariser of the from-pixels joint-embedding line \cite{lewm,lejepa}, with $M$
+regulariser of the from-pixels joint-embedding line \citep{lewm,lejepa}, with $M$
 random one-dimensional projections of the latent and a small weight ($0.01$) in
 the loss. As a safeguard the participation ratio of the latent is monitored every
 thousand iterations, with an automatic fall-back to a variance-covariance
-objective \cite{vicreg} if it indicates collapse while the parameter probe is
+objective \citep{vicreg} if it indicates collapse while the parameter probe is
 still uninformative; on the runs reported here the participation ratio stays
 healthy and the fall-back does not trigger.
 
-\paragraph{Uncertainty quantification.} Every held-out coefficient of
+\subsubsection*{Uncertainty quantification}
+Every held-out coefficient of
 determination and mean absolute error in the paper carries three independent
 uncertainty signals, following the reporting protocol fixed with the split. The
 first is a bootstrap confidence interval from $2000$ resamples over the held-out
@@ -49,23 +66,24 @@ case-level cross-validation of the entire pipeline would buy, at a fraction of t
 training cost; a single split with bootstrap intervals is the community standard
 for this class of study.
 
-\paragraph{Training-set fit.} For reference, Table~\ref{tab:b1_closure_train_r2}
+\subsubsection*{Training-set fit}
+For reference, table~\ref{tab:b1_closure_train_r2}
 reports the in-distribution training fit that the held-out closure of
 \S\ref{sec:res_closure} must be read against. The predictive latent attains the
 highest training fit (mean $R^2 = 0.835$ at $d = 64$), but the ordering of the
-families is established by the held-out closure of Table~\ref{tab:closure}, not
+families is established by the held-out closure of table~\ref{tab:closure}, not
 by this in-distribution number.
 
-\begin{table}[t]
+\begin{table}
   \centering
   \caption{Training-set fit, for reference only. Coefficient of determination
   $R^2$ for predicting the six observables from the rolled-out latent ($H = 16$)
   evaluated \emph{on the training distribution}. This quantifies in-distribution
   fit and is \emph{not} the headline; held-out closure is in
-  Table~\ref{tab:closure}. Best per column in bold; row mean at right.}
+  table~\ref{tab:closure}. Best per column in bold; row mean at right.}
   \label{tab:b1_closure_train_r2}
   \small
-  \begin{tabular}{l c c c c c c c c}
+  \fittab{\begin{tabular}{l c c c c c c c c}
     \toprule
     Baseline & $d$ & $C_L$ & $C_D$ & $I_y$ & wake-enst.\ & circ.\ pos.\ & circ.\ neg.\ & mean \\
     \midrule
@@ -80,16 +98,17 @@ by this in-distribution number.
     POD    & 32 & 0.763 & 0.748 & 0.690 & 0.589 & 0.618 & 0.621 & 0.671 \\
     POD    & 64 & 0.641 & 0.656 & \textbf{0.799} & 0.373 & 0.388 & 0.506 & 0.561 \\
     \bottomrule
-  \end{tabular}
+  \end{tabular}}
 \end{table}
 
-\paragraph{Paired closure across all observables.} Table~\ref{tab:paired_closure}
+\subsubsection*{Paired closure across all observables}
+Table~\ref{tab:paired_closure}
 reports the per-encounter paired comparison of \S\ref{sec:res_closure} for all six
 observables in both modes, the source of the wake-enstrophy significance cited in
 the main text. Pairing cancels the encounter-to-encounter difficulty that widens
-the marginal intervals of Table~\ref{tab:closure}.
+the marginal intervals of table~\ref{tab:closure}.
 
-\begin{table}[t]
+\begin{table}
   \centering
   \caption{Paired held-out closure, predictive ($d = 64$) against reconstructive
   ($d = 64$) on the $n = 42$ test\_b encounters at $H = 16$, for the
@@ -112,7 +131,7 @@ the marginal intervals of Table~\ref{tab:closure}.
   neither. All six observables are shown, not a selected subset.}
   \label{tab:paired_closure}
   \small
-  \begin{tabular}{l l r c l r}
+  \fittab{\begin{tabular}{l l r c l r}
     \toprule
     Mode & Observable & $\Delta\mathrm{err}$ & $95\%$ CI & sign test & Holm $p$ \\
     \midrule
@@ -130,14 +149,15 @@ the marginal intervals of Table~\ref{tab:closure}.
     forecast & circ.\ pos.\ & $-0.018$ & $[-0.319, +0.297]$ & $19/42$, $p = 0.78$ & $1.00$ \\
     forecast & circ.\ neg.\ & $+0.555$ & $[+0.067, +1.11]$  & $18/42$, $p = 0.86$ & $1.00$ \\
     \bottomrule
-  \end{tabular}
+  \end{tabular}}
 \end{table}
 
-\paragraph{Topological robustness.} The significant-$H_1$ generator count of
+\subsubsection*{Topological robustness}
+The significant-$H_1$ generator count of
 \S\ref{sec:res_drift} declares a generator significant when its persistence exceeds
 a noise floor set at a fraction of the cloud diameter (the largest finite $H_0$
 death), the canonical analysis using $5\%$ of that diameter and all $120$
-trajectory frames. Following the convergence protocol of \cite{smith2024} we sweep
+trajectory frames. Following the convergence protocol of \citet{smith2024} we sweep
 the floor over $\{2, 5, 10, 15, 20\}\%$ and the points per encounter over
 $\{120, 60, 40, 30\}$ (uniform subsampling), $20$ settings in all. The predictive
 median is one generator in every setting. The predictive-versus-reconstructive
@@ -152,8 +172,8 @@ floor and sampling range, not the exact $p$; the case-clustered signed-rank test
 ($10$ of $10$ cases at the canonical setting) holds across the same range. The full
 grid is in the released analysis package.
 
-\paragraph{Return to the baseline orbit within the encounter window.} The
-load-bearing caveat of \S\ref{sec:res_drift}, that the simulation gust
+\subsubsection*{Return to the baseline orbit within the encounter window}
+The load-bearing caveat of \S\ref{sec:res_drift}, that the simulation gust
 trajectories do not fully return to the baseline orbit within the $120$-frame
 encounter, is a consequence of the gust-release cadence rather than a
 strength-dependent failure to recover. Figure~\ref{fig:appA_return} holds the
@@ -169,7 +189,7 @@ not by $|G|$. This window-truncated return is common to all three encoders and
 does not affect the relative drift comparison of \S\ref{sec:res_drift}, which
 contrasts the predictive and reconstructive rollouts over the same window.
 
-\begin{figure}[t]
+\begin{figure}
   \centering
   \includegraphics[width=0.82\linewidth]{sections/figures/results/appA_orbit_return.pdf}
   \caption{Diameter-controlled return to the baseline orbit. Distance of the

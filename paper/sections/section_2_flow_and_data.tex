@@ -15,10 +15,10 @@ Reynolds number $\vRe = 5000$, perturbed by a discrete vortex gust modelled as a
 spanwise-oriented Taylor vortex released upstream of the leading edge. The data
 analysed here are our own direct numerical simulations of this configuration,
 computed with the GPU-enabled spectral-element solver SOD2D
-\cite{gasparino2024sod2d} with no subgrid-scale model, so that all scales of the
+\citep{gasparino2024sod2d} with no subgrid-scale model, so that all scales of the
 separated wake are resolved at this Reynolds number. The solver is run in the
 low-Mach regime in which the flow is effectively incompressible. The configuration and its physical characterisation follow
-Fukami, Smith \& Taira \cite{fukami2025prf}, which is the reference for the
+Fukami, Smith \& Taira \citeyearpar{fukami2025prf}, which is the reference for the
 physics, not the source of the data.
 The vortex has the azimuthal velocity profile
 \begin{equation}
@@ -26,12 +26,12 @@ The vortex has the azimuthal velocity profile
   \exp\!\left[\tfrac12\!\left(1 - \frac{r^2}{R^2}\right)\right],
   \label{eq:taylor}
 \end{equation}
-which peaks at the core radius $r = R$ \cite{taylor1918}, and is parametrised by
+which peaks at the core radius $r = R$ \citep{taylor1918}, and is parametrised by
 three scalars: the signed gust ratio $G \equiv u_{\theta,\max}/u_\infty$, the
 core diameter $D \equiv 2R/c$, and the wall-normal offset $Y$ of the vortex
 centre, the displacement normal to the chord (the laboratory coordinates are
 rotated by the angle of attack to define $Y$). The profile and the $(G, D, Y)$
-sampling follow the configuration of \cite{fukami2025prf}. The training envelope spans $|G| \in \{0.5, 1.0, 1.5, 2.0,
+sampling follow the configuration of \citet{fukami2025prf}. The training envelope spans $|G| \in \{0.5, 1.0, 1.5, 2.0,
 3.0\}$ with $G = 0$ as the undisturbed reference, $D \in \{0.5, 1.0, 1.5\}$
 chords, and $Y \in [-0.4, +0.4]$; the value $|G| = 4$ is held out as an
 extrapolation boundary, for reasons that are physical and that we return to
@@ -42,7 +42,7 @@ Without a gust, the $\alpha = 14^\circ$ wake at this Reynolds number is
 massively separated and sheds periodically; in dynamical terms the undisturbed
 flow is a limit cycle. A gust encounter is then a transient excursion from this
 limit cycle and back, and it is helpful to read it in stages
-\cite{smith2024,fukami2025prf,odaka2026}. The vortex first induces a strong
+\citep{smith2024,fukami2025prf,odaka2026}. The vortex first induces a strong
 wall-normal vorticity flux at the leading edge, the airfoil experiences a sharp
 lift excursion as a leading-edge vortex (LEV) forms, the LEV rolls up and sheds
 together with a trailing-edge structure as the load reaches its extremum, and
@@ -54,7 +54,7 @@ which the disturbance arrives. The six observables defined in
 \S\ref{sec:flow_observables} are quantitative summaries of exactly this
 sequence.
 
-A consequence of the source characterisation \cite{fukami2025prf} is central to
+A consequence of the source characterisation \citep{fukami2025prf} is central to
 how we read the extrapolation case. For $|G| \le 3$ the encounter is primarily
 two-dimensional, so a mid-plane slice of the spanwise vorticity carries the
 relevant large-scale dynamics; for $|G| \ge 4$ the interaction becomes
@@ -80,7 +80,7 @@ simulations use a spectral-element discretisation of polynomial order $p = 4$,
 and the fields are cached on a structured grid of $192 \times 96 \times 32$
 points spanning $x/c \in [-1.5, 4.5]$ and $y/c \in [-1.5, 1.5]$ with a spanwise
 extent of approximately one chord; this analysis subdomain matches the
-data-driven subdomain of the source characterisation \cite{fukami2025prf}. The
+data-driven subdomain of the source characterisation \citep{fukami2025prf}. The
 lift and drag coefficients are $C_L = F_L/(\tfrac12 \rho u_\infty^2 c)$ and
 $C_D = F_D/(\tfrac12 \rho u_\infty^2 c)$, obtained by integrating the pressure
 and viscous stresses over the airfoil surface.
@@ -88,13 +88,13 @@ The remaining DNS solver-resolution details required for full reproducibility,
 the free-stream Mach number, the domain and spanwise extent, the element and
 solution-point counts, the near-wall spacing, the time step and CFL, the
 gust-release station, and the grid and time-step sensitivity, are listed as an
-author-fill checklist in Table~\ref{tab:dns_pending}. The dataset
+author-fill checklist in table~\ref{tab:dns_pending}. The dataset
 comprises $84$ cases partitioned into training, validation (the held-out
 encounters of the training cases, denoted test\_a), an
 in-distribution test set (test\_b), and an out-of-distribution test set
 (test\_c). The in-distribution test set is stratified to span the five gust
 strengths, the three core diameters, and the two source groups
-(Figure~\ref{fig:paramspace}); test\_c is the
+(figure~\ref{fig:paramspace}); test\_c is the
 $|G| = 4$ extrapolation set. These $84$ cases are separated in preprocessing into $378$ encounter windows of
 $120$ frames each, one per gust release: $226$ training, $86$ validation
 (test\_a, the held-out last encounters of the training cases), $42$ test\_b, and
@@ -111,7 +111,7 @@ partition is fixed once and used identically by every model and baseline.
 \begin{table}
   \centering
   {\small
-  \begin{tabular}{@{}p{0.29\textwidth}l p{0.43\textwidth}@{}}
+  \fittab{\begin{tabular}{@{}p{0.29\textwidth}l p{0.43\textwidth}@{}}
     \toprule
     Quantity & Value & Why a referee needs it \\
     \midrule
@@ -131,7 +131,7 @@ partition is fixed once and used identically by every model and baseline.
     Grid and time-step sensitivity check & \pending{} & Demonstrates that the
     reported statistics are converged. \\
     \bottomrule
-  \end{tabular}}
+  \end{tabular}}}
   \caption{Author-fill checklist of the DNS solver-resolution details required for
   full reproducibility (\S\ref{sec:flow_observables}). The data are direct
   numerical simulations with no subgrid-scale model, so all scales are resolved
@@ -215,7 +215,7 @@ diagnostics against three-dimensional forces, and the mid-plane proxy is weakest
 the $|G| = 4$ extrapolation boundary, where the out-of-plane fraction rises to about
 $0.56$.
 
-\begin{figure}[t]
+\begin{figure}
   \centering
   \includegraphics[width=\linewidth]{sections/figures/results/figB_paramspace.pdf}
   \caption{Parameter-space sampling of the $84$ cases in the $(G, D, Y)$ gust

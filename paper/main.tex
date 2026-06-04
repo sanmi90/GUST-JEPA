@@ -1,63 +1,38 @@
-% Manuscript: Predictive latent dynamics for parametric vortex-gust airfoil
-% interactions at Re = 5000.
-% Build: pdflatex main && bibtex main && pdflatex main && pdflatex main
-% Target venue: J. Fluid Mech. (Rapids-adjacent length) / Phys. Rev. Fluids.
+% Manuscript: Forward physical closure of predictive and reconstructive latents
+% for parametric vortex-gust airfoil interactions at Re = 5000.
+% Target venue: J. Fluid Mech. Typeset with the official JFM author class.
+% Build: latexmk -pdf main   (uses pdflatex + bibtex with bibliographystyle jfm)
 %
 % ----------------------------------------------------------------------------
-% REWRITE NOTE (read REWRITE_NOTES.md first):
-% This is a structural and stylistic rewrite of the original eight-section draft
-% into the six-section idiom of the Taira-group extreme-aerodynamics literature
-% (Smith et al. 2024 JFM; Fukami, Nakao & Taira 2024 JFM; Fukami & Taira 2025 JFM;
-% Tran, Yeh & Taira 2026 JFM; Odaka, Lopez-Doriga & Taira 2026 JFM). It removes
-% the implementation diary, demotes the SIGReg-vs-PLDM material to a single
-% methods paragraph plus an appendix, and reframes the headline onto held-out
-% evidence. Claims that require the not-yet-run controls are marked inline with
-% % PENDING. New analyses adapted from the references are scaffolded with their
-% method text written and their results marked % RESULT PENDING.
+% JFM FORMAT NOTE:
+% This file uses the official JFM author class JFM-FLM_Au.cls (provided by CUP),
+% with jfm.bst (natbib author-year) and lineno-FLM.sty (line numbers for review).
+% The class preloads graphicx, hyperref, booktabs, colortbl, color, caption,
+% amssymb, newtxtext/newtxmath, and natbib[authoryear]; those are NOT reloaded
+% here. Only amsmath (for \text, \tfrac) and subcaption (for the two-panel
+% method figure) are added. The previous article-class preamble is preserved in
+% main_article_backup.tex.
 % ----------------------------------------------------------------------------
 
-\documentclass[11pt,a4paper]{article}
+\documentclass[lineno,paper]{JFM-FLM_Au}
 
-\usepackage[utf8]{inputenc}
-\usepackage[T1]{fontenc}
-\usepackage{lmodern}
-\usepackage[margin=1in]{geometry}
-\usepackage{amsmath,amssymb,amsfonts}
-\usepackage{graphicx}
-\usepackage{booktabs}
-\usepackage{longtable}
-\usepackage{xcolor}
-\usepackage{hyperref}
-\usepackage{caption}
+\usepackage{amsmath}
 \usepackage{subcaption}
-\usepackage{authblk}
-\usepackage{microtype}
-\usepackage{enumitem}
-\usepackage[section]{placeins} % FloatBarrier at each \section so floats stay in-section
+
+% Let TeX absorb the few sub-2pt line-break overflows that the narrower JFM
+% Times measure produces in dense technical prose, without changing content.
+\emergencystretch=2em
 
 % Lightweight TODO macro so pending items are visible in the compiled PDF.
-% Set \pendingon to \pendingoff before submission to hide them.
+% The class loads the color package, so \color{red} is available.
 \newcommand{\pending}[1]{{\color{red}\textbf{[PENDING: #1]}}}
 
-\hypersetup{
-  colorlinks=true,
-  linkcolor=blue!50!black,
-  citecolor=blue!50!black,
-  urlcolor=blue!50!black
-}
+% Shrink a wide table to the JFM text measure (32pc) only when it would otherwise
+% overflow; tables that already fit are left at natural size. Keeps every number
+% intact while respecting the narrower JFM column.
+\newcommand{\fittab}[1]{\resizebox{\ifdim\width>\linewidth\linewidth\else\width\fi}{!}{#1}}
 
-\title{Forward physical closure of predictive and reconstructive latents for
-vortex-gust airfoil interactions at $\mathrm{Re}=5000$}
-\author[1,2]{Alberto Solera-Rico}
-\author[3,4]{Arnau Mir\'o}
-\author[4]{Oriol Lehmkuhl}
-\author[1,2]{Carlos Sanmiguel Vila\thanks{Corresponding author: \texttt{csanvil@inta.es}}}
-\affil[1]{Aerial Platforms Department, Spanish National Institute for Aerospace Technology (INTA), ROR: \url{https://ror.org/02m44ak47}, San Mart\'in de la Vega, 28330, Madrid, Spain}
-\affil[2]{Department of Aerospace Engineering, Universidad Carlos III de Madrid, ROR: \url{https://ror.org/03ths8210}, Legan\'es, 28911, Madrid, Spain}
-\affil[3]{TUAREG Research Group, Universitat Polit\`ecnica de Catalunya (UPC), Carrer Colom 11, 08222 Terrassa, Spain}
-\affil[4]{Barcelona Supercomputing Centre (BSC), CASE Large-Scale Computational Fluid Dynamics, Pla\c{c}a d'Eusebi G\"uell, 1-3, 08034 Barcelona, Spain}
-\date{}
-
+% Custom notation macros (none clash with the JFM class).
 \newcommand{\vRe}{\mathrm{Re}}
 \newcommand{\zvec}{\mathbf{z}}
 \newcommand{\xvec}{\mathbf{x}}
@@ -65,15 +40,44 @@ vortex-gust airfoil interactions at $\mathrm{Re}=5000$}
 \newcommand{\uvec}{\mathbf{u}}
 \newcommand{\omegaz}{\omega_z}
 
+\lefttitle{Solera-Rico, Mir\'o, Lehmkuhl and Sanmiguel Vila}
+\righttitle{Journal of Fluid Mechanics}
+
+\title{Forward physical closure of predictive and reconstructive latents for
+vortex-gust airfoil interactions at $\vRe = 5000$}
+
+\author{Alberto Solera-Rico\aff{1,2},
+        Arnau Mir\'o\aff{3,4},
+        Oriol Lehmkuhl\aff{4}
+  \and  Carlos Sanmiguel Vila\aff{1,2}}
+
+\affiliation{\aff{1}Aerial Platforms Department, Spanish National Institute for
+Aerospace Technology (INTA), San Mart\'in de la Vega, 28330, Madrid, Spain
+\aff{2}Department of Aerospace Engineering, Universidad Carlos III de Madrid,
+Legan\'es, 28911, Madrid, Spain
+\aff{3}TUAREG Research Group, Universitat Polit\`ecnica de Catalunya (UPC),
+Carrer Colom 11, 08222 Terrassa, Spain
+\aff{4}Barcelona Supercomputing Centre (BSC), CASE Large-Scale Computational
+Fluid Dynamics, Pla\c{c}a d'Eusebi G\"uell, 1-3, 08034 Barcelona, Spain}
+
+\corresau{Carlos Sanmiguel Vila, \email{csanvil@inta.es}}
+
 \begin{document}
 
+% Suppress line numbers across the title/abstract block (the JFM class does not
+% disable lineno-FLM's running numbers during \maketitle, which otherwise forces
+% a title-block page break); resume continuous numbering for the body.
+\nolinenumbers
 \maketitle
 
 \begin{abstract}
 \input{sections/abstract.tex}
 \end{abstract}
 
-\noindent\textit{Key words:} vortex shedding, low-dimensional models, machine learning
+\begin{keywords}
+vortex shedding, low-dimensional models, machine learning
+\end{keywords}
+\runninglinenumbers
 
 \section{Introduction}
 \label{sec:introduction}
@@ -99,33 +103,38 @@ vortex-gust airfoil interactions at $\mathrm{Re}=5000$}
 \label{sec:conclusions}
 \input{sections/section_6_conclusions.tex}
 
-\section*{Funding}
+\begin{bmhead}[Funding.]
 \textit{[Authors to insert funding sources and grant numbers.]}
+\end{bmhead}
 
-\section*{Declaration of interests}
+\begin{bmhead}[Declaration of interests.]
 The authors report no conflict of interest.
+\end{bmhead}
 
-\section*{Data availability statement}
+\begin{bmhead}[Data availability statement.]
 The reduced-order-model and evaluation code, the configuration files, the v2
 data-split manifest, and the analysis outputs that regenerate the tables and figures
 are deposited at \url{https://doi.org/10.xxxx/zenodo.PLACEHOLDER} under the MIT
 License (DOI to be finalised on acceptance). The processed per-encounter cache, or a
 representative subset sufficient to rerun the heavier steps, is available from the
 corresponding author. The raw direct numerical simulations were computed with the
-SOD2D solver \cite{gasparino2024sod2d} and are owned by the simulation
+SOD2D solver \citep{gasparino2024sod2d} and are owned by the simulation
 collaborators.
+\end{bmhead}
 
-\section*{Author contributions}
+\begin{bmhead}[Author contributions.]
 \textit{[Authors to insert contributions, for example in CRediT format.]}
+\end{bmhead}
 
-\section*{Use of generative-AI tools}
+\begin{bmhead}[Use of generative-AI tools.]
 Generative-AI assistance (Anthropic Claude, accessed through the Claude Code
 command-line interface) was used during 2026 to help with data analysis, figure
 generation, and manuscript drafting. All numerical results were computed by the
 authors' own code and verified against the underlying data, and the authors take
 full responsibility for the content of the article.
+\end{bmhead}
 
-\appendix
+\begin{appen}
 
 \section{Architecture, anti-collapse regularisation, and uncertainty quantification}
 \label{app:reg}
@@ -135,7 +144,9 @@ full responsibility for the content of the article.
 \label{app:sensing}
 \input{sections/appendix_b_sensing.tex}
 
-\bibliographystyle{abbrv}
+\end{appen}
+
+\bibliographystyle{jfm}
 \bibliography{refs,refs_to_add}
 
 \end{document}

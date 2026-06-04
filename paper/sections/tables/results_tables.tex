@@ -7,7 +7,7 @@
 % ---------------------------------------------------------------------------
 % TABLE: model families and objectives (new; standard JFM summary table).
 % ---------------------------------------------------------------------------
-\begin{table}[t]
+\begin{table}
   \centering
   \caption{Encoder families compared under the matched-predictor protocol of
   \S\ref{sec:methods_protocol}. All three share one autoregressive transformer
@@ -19,21 +19,21 @@
   \S\ref{sec:res_controls}.}
   \label{tab:families}
   \small
-  \begin{tabular}{l l l l l}
+  \fittab{\begin{tabular}{l l l l l}
     \toprule
     Family & Objective & Encoder & Latent dim.\ $d$ & Aux.\ heads \\
     \midrule
     JEPA (this work) & predictive (latent) & CNN $+$ ViT & $16,\,32,\,64$ & lift $+$ wake \\
     Reconstructive AE & reconstructive (field) & CNN & $3,\,16,\,32,\,64$ & lift \\
-    POD & linear projection & --- & $16,\,32,\,64$ & --- \\
+    POD & linear projection & none & $16,\,32,\,64$ & none \\
     \bottomrule
-  \end{tabular}
+  \end{tabular}}
 \end{table}
 
 % ---------------------------------------------------------------------------
 % TABLE: held-out closure (test_b MAE). THIS IS THE HEADLINE TABLE.
 % ---------------------------------------------------------------------------
-\begin{table}[t]
+\begin{table}
   \centering
   \caption{Held-out closure across encoder families at $H = 16$ on the $n = 42$
   test\_b encounters, in two modes. \emph{(a)} Representational closure: the mean
@@ -46,15 +46,15 @@
   forecast panel gives the row mean at right. The wake-enstrophy and circulation
   columns are in native units, the force coefficients dimensionless. This held-out
   forecast $R^2$, not the training-set fit of
-  Table~\ref{tab:b1_closure_train_r2}, is the reported closure quality. The
+  table~\ref{tab:b1_closure_train_r2}, is the reported closure quality. The
   predictive latent leads in both modes: its representational wake-enstrophy error
   is $2.4$ to $3.0$ times lower than the reconstructive and linear families, and
   its forecast wake-enstrophy $R^2$ is the only one above the predict-the-mean
-  floor; the paired per-encounter test is in Table~\ref{tab:paired_closure} and
+  floor; the paired per-encounter test is in table~\ref{tab:paired_closure} and
   full probe values with bootstrap CIs are in Appendix~\ref{app:reg}.}
   \label{tab:closure}
   \small
-  \begin{tabular}{l c c c c c c c c}
+  \fittab{\begin{tabular}{l c c c c c c c c}
     \multicolumn{9}{c}{\textit{(a) Representational closure: mean absolute error, and the wake-enstrophy $R^2$}}\\
     \toprule
     Baseline & $d$ & $C_L$ & $C_D$ & $I_y$ & wake-enst.\ & circ.\ pos.\ & circ.\ neg.\ & wake $R^2$ \\
@@ -72,11 +72,11 @@
     POD    & 32 & 0.937 & 0.269 & 2.608 & 81.82 & 1.650 & 1.617 & $-0.17$ \\
     POD    & 64 & 0.872 & 0.291 & 2.245 & 89.31 & 1.660 & 1.800 & $-0.31$ \\
     \bottomrule
-  \end{tabular}
+  \end{tabular}}
 
   \vspace{6pt}
 
-  \begin{tabular}{l c c c c c c c c}
+  \fittab{\begin{tabular}{l c c c c c c c c}
     \multicolumn{9}{c}{\textit{(b) Forecast closure: coefficient of determination $R^2$}}\\
     \toprule
     Baseline & $d$ & $C_L$ & $C_D$ & $I_y$ & wake-enst.\ & circ.\ pos.\ & circ.\ neg.\ & mean \\
@@ -94,5 +94,5 @@
     POD    & 32 & 0.714 & 0.558 & -0.256 & 0.042 & -0.066 & 0.394 & 0.231 \\
     POD    & 64 & 0.683 & 0.539 & -0.813 & -0.089 & 0.057 & 0.507 & 0.147 \\
     \bottomrule
-  \end{tabular}
+  \end{tabular}}
 \end{table}

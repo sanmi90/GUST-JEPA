@@ -4,8 +4,9 @@
 % (Tran et al. 2026) is used to explain *why* reconstruction leaves the geometry
 % free.
 
-\subsection{What the predictive latent retains, and why}
+\subsection{Interpretation and scope}
 \label{sec:disc_mechanism}
+\label{sec:disc_caveat}
 
 The central finding is geometric, and it concerns what the latent represents as
 much as how it evolves. Under a shared predictor, parametric conditioning, and probe
@@ -18,7 +19,7 @@ level. The mechanism is a property of the latent metric: it is, to a good
 approximation, aligned with the optimal-transport geometry of the flow in the
 empirical distance-matrix sense, so that the rollout stays close to the data
 manifold. A reconstruction objective
-fixes the latent only up to a diffeomorphism \cite{tran2026,kelshaw2024}, so the
+fixes the latent only up to a diffeomorphism \citep{tran2026,kelshaw2024}, so the
 decoder is free to place codes anywhere it finds convenient and nothing
 constrains the latent geometry to be predictable in time; under autoregressive
 rollout the reconstructive latent therefore leaves its own training manifold,
@@ -27,11 +28,11 @@ predictor's one-step accuracy. The predictive objective, regularised against
 collapse, instead organises the latent so that the encounter is a recurrent cycle
 that survives rollout, the on-manifold property that data-driven state-space and
 Koopman models of coherent-state dynamics on invariant manifolds rely on
-\cite{constanteamores2024}. The manifold departure of the reconstructive rollout
+\citep{constanteamores2024}. The manifold departure of the reconstructive rollout
 is the
 parametric-gust counterpart of the catastrophic-divergence tail reported for
 reconstruction-based latent dynamics in controlled wakes
-\cite{solerarico_compactness_underreview}; the predictive objective is the common
+\citep{solerarico_compactness_underreview}; the predictive objective is the common
 cure. The wake observables are the sharpest discriminator precisely because
 they can change while the scalar forces do not: a representation can carry the
 lift signature of an encounter without carrying the vorticity redistribution
@@ -57,7 +58,7 @@ groups together. The reconstructive and
 linear latents forecast it far less well ($0.60$ and $0.56$) and from no collective
 structure: their best single coordinate is already as informative as the whole
 latent, a near-zero gap that holds across three reconstructive-encoder seeds
-(Figure~\ref{fig:wake_code}). The forces, by contrast, are forecast redundantly in
+(figure~\ref{fig:wake_code}). The forces, by contrast, are forecast redundantly in
 every family, with dozens of individual coordinates carrying them. An energy or
 reconstruction objective therefore retains the force signature, which is present in
 many coordinates, but not the distributed combination that forecasts the wake,
@@ -68,9 +69,9 @@ forecast information and not merely the present forces. These are observational
 probes on the frozen encoders, a latent-space reading of the closure result of
 \S\ref{sec:res_closure} rather than a separate claim, and they sit alongside the
 information-theoretic modal analyses of related flows
-\cite{martinezsanchez2023,arranz2024,koshikawa2026}.
+\citep{martinezsanchez2023,arranz2024,koshikawa2026}.
 
-\begin{figure}[t]
+\begin{figure}
   \centering
   \includegraphics[width=0.62\linewidth]{sections/figures/results/fig_wake_code.pdf}
   \caption{The predictive objective builds a collective wake-forecast code that the
@@ -104,13 +105,13 @@ metric aligns with the physical transport geometry to within the $d = 64$ margin
 (rank correlation $0.61$ against $0.63$), it returns to the baseline limit cycle
 under rollout (\S\ref{sec:res_param_phase}), it retains the same large-scale wake
 structure (\S\ref{sec:res_physical}), and its rollout-drift ratio is $0.86$
-against $0.85$ (Table~\ref{tab:latent_drift}). The one quantity that degrades is
+against $0.85$ (table~\ref{tab:latent_drift}). The one quantity that degrades is
 the in-distribution wake forecast, where the $H = 16$ closure $R^2$ falls from
-$0.45$ to $0.21$ (Table~\ref{tab:closure}(b)): halving the dimension costs
+$0.45$ to $0.21$ (table~\ref{tab:closure}(b)): halving the dimension costs
 forecast sharpness on the wake observables while leaving the geometric mechanism
 intact. Halving once more to $d = 16$ keeps the qualitative ordering, the
 predictive latent still leads on wake enstrophy where the reconstructive and
-linear latents are negative (Table~\ref{tab:closure}), but its representational
+linear latents are negative (table~\ref{tab:closure}), but its representational
 wake $R^2$ now falls to $0.55$ (from $0.74$ at $d = 32$): the budget is
 approaching the effective dimensionality, and the extra dimensions buy precision
 rather than a qualitatively different representation. On the out-of-distribution test\_c set the $d = 32$ latent is in fact
@@ -125,10 +126,8 @@ as at $d = 64$, while the core diameter and the wall-normal offset, the axes the
 data resolve least, are the ones whose recovery degrades when the dimension is
 halved, the same axes whose forward closure the extra dimensions sharpen.
 
-\subsection{What the comparison does and does not establish}
-\label{sec:disc_caveat}
-
-We are deliberate about the scope of the claim. The predictive encoder differs
+The mechanism above invites a strong reading, so we are deliberate about the
+scope of the claim. The predictive encoder differs
 from the reconstructive baseline in three respects at once: the training
 objective, the CNN$+$ViT architecture, and the wake supervision. The
 conditioning-only floor removes the shared parametric conditioning as an
@@ -150,8 +149,10 @@ integrated impulse and is amplitude-accurate in reconstruction, so the result is
 not that POD is obsolete but that it does not produce a latent whose rollout
 closes the wake observables.
 
-\subsection{Limitations}
+\subsection{Limitations and outlook}
 \label{sec:disc_limits}
+\label{sec:disc_control}
+\label{sec:disc_outlook}
 
 Three limitations bound the claims. First, the wall-normal offset $Y$ is weakly
 resolved because the training mass concentrates near $Y \approx 0$; this is a
@@ -159,7 +160,7 @@ data limitation, and $Y$-conditional statements should be read with it in mind.
 Second, the $|G| = 4$ extrapolation degrades for a physical reason, not merely a
 statistical one. As set out in \S\ref{sec:flow_physics}, the encoder observes a
 single mid-plane vorticity slice whose information no longer determines the
-three-dimensional $|G| = 4$ dynamics \cite{fukami2025prf}, so test\_c is the
+three-dimensional $|G| = 4$ dynamics \citep{fukami2025prf}, so test\_c is the
 observability boundary of that representation, not a parametric-generalisation
 claim. Third, the visualisation
 decoder is a diagnostic on the frozen encoder, never part of the predictive
@@ -170,10 +171,9 @@ as a fourth, the co-necessity of the wake supervision established in
 configuration tested, with the wake head as a necessary component, not as a
 property of the objective stripped of all auxiliary supervision.
 
-\subsection{Relation to model-based control}
-\label{sec:disc_control}
-
-The predictor is, by construction, the latent dynamics function a model-based
+These limitations come into sharpest focus against the use the architecture is
+ultimately meant for. The predictor is, by construction, the latent dynamics
+function a model-based
 controller would plan against, and three properties of the architecture are
 relevant to that use: closure holds out to the planning horizon relevant to the impact-instant
 load, the latent is two to three orders of magnitude cheaper to evolve than the
@@ -187,7 +187,7 @@ gust parameters enter only the predictor; replacing the
 parametric conditioning with an actuation channel is a change of input rather
 than of architecture, and the phase-amplitude reading of \S\ref{sec:res_param_phase}
 connects the predictor directly to the sensitivity-function control designed for
-these flows \cite{fukami2024control}. An actuation channel would enter at the same point as the gust, the predictor
+these flows \citep{fukami2024control}. An actuation channel would enter at the same point as the gust, the predictor
 conditioning, so the same forward-closure machinery would apply with the control as
 the action; consistent with treating the world-model view of
 \S\ref{sec:introduction} as motivation only, we caution against over-reading this as
@@ -216,9 +216,6 @@ unchanged when an oracle latent replaces the estimated one, so the representatio
 the pressure observability are in place but the rollout needs reinforcement before a
 usable controller follows (estimator, sensor-placement, and loop details in
 Appendix~\ref{app:sensing}).
-
-\subsection{Outlook}
-\label{sec:disc_outlook}
 
 The contribution is narrow by design: a controlled comparison on a single
 parametric flow, anchored to forward physical closure rather than to
