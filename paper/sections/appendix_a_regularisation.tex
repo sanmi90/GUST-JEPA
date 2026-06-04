@@ -22,7 +22,7 @@ dynamics and the conditioning is learned as a modulation. Training minimises the
 one-step latent prediction loss plus a scheduled-sampling rollout term and the
 regulariser below, with AdamW and bf16 mixed precision.
 
-\begin{figure}[t]
+\begin{figure}
   \centering
   \includegraphics[width=0.95\linewidth]{sections/figures/tikz/fig2_predictive_vs_reconstructive.pdf}
   \caption{Predictive versus reconstructive training. Left: the reconstructive
@@ -67,20 +67,20 @@ training cost; a single split with bootstrap intervals is the community standard
 for this class of study.
 
 \subsubsection*{Training-set fit}
-For reference, Table~\ref{tab:b1_closure_train_r2}
+For reference, table~\ref{tab:b1_closure_train_r2}
 reports the in-distribution training fit that the held-out closure of
 \S\ref{sec:res_closure} must be read against. The predictive latent attains the
 highest training fit (mean $R^2 = 0.835$ at $d = 64$), but the ordering of the
-families is established by the held-out closure of Table~\ref{tab:closure}, not
+families is established by the held-out closure of table~\ref{tab:closure}, not
 by this in-distribution number.
 
-\begin{table}[t]
+\begin{table}
   \centering
   \caption{Training-set fit, for reference only. Coefficient of determination
   $R^2$ for predicting the six observables from the rolled-out latent ($H = 16$)
   evaluated \emph{on the training distribution}. This quantifies in-distribution
   fit and is \emph{not} the headline; held-out closure is in
-  Table~\ref{tab:closure}. Best per column in bold; row mean at right.}
+  table~\ref{tab:closure}. Best per column in bold; row mean at right.}
   \label{tab:b1_closure_train_r2}
   \small
   \fittab{\begin{tabular}{l c c c c c c c c}
@@ -106,9 +106,9 @@ Table~\ref{tab:paired_closure}
 reports the per-encounter paired comparison of \S\ref{sec:res_closure} for all six
 observables in both modes, the source of the wake-enstrophy significance cited in
 the main text. Pairing cancels the encounter-to-encounter difficulty that widens
-the marginal intervals of Table~\ref{tab:closure}.
+the marginal intervals of table~\ref{tab:closure}.
 
-\begin{table}[t]
+\begin{table}
   \centering
   \caption{Paired held-out closure, predictive ($d = 64$) against reconstructive
   ($d = 64$) on the $n = 42$ test\_b encounters at $H = 16$, for the
@@ -189,7 +189,7 @@ not by $|G|$. This window-truncated return is common to all three encoders and
 does not affect the relative drift comparison of \S\ref{sec:res_drift}, which
 contrasts the predictive and reconstructive rollouts over the same window.
 
-\begin{figure}[t]
+\begin{figure}
   \centering
   \includegraphics[width=0.82\linewidth]{sections/figures/results/appA_orbit_return.pdf}
   \caption{Diameter-controlled return to the baseline orbit. Distance of the

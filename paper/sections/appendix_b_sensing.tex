@@ -14,7 +14,7 @@ with a radial-basis kernel on the flattened $K$-sensor by pre-impact-window
 feature vector. Nonlinear estimators of this class (kernel ridge, a
 temporal-convolutional network, a regularised perceptron, and a cross-validated
 LSTM) perform comparably on the state; the recurrent model's advantage appears for
-the scalar lift at short lead (Figure~\ref{fig:leadtime}). We use kernel ridge
+the scalar lift at short lead (figure~\ref{fig:leadtime}). We use kernel ridge
 throughout the cross-family comparison for a uniform, low-variance estimator
 across families. This is a feasibility study, not a closed controller, and we report
 where it works and where it does not.
@@ -27,7 +27,7 @@ improves the recovery of the target, the leading principal component of the
 predictive latent, from the joint flattened window of the already-selected taps
 (the exact selection objective is in the deposited code). The picks are nested in
 $K$ and cluster on both surfaces near the leading edge, where the gust impinges
-(Figure~\ref{fig:sensor_placement}a). We compare it against the QR-pivot optimum
+(figure~\ref{fig:sensor_placement}a). We compare it against the QR-pivot optimum
 of the pressure modes (qDEIM) \cite{manohar2018sensors}, which is
 \emph{target-blind}: it places taps to reconstruct the pressure field, with no
 knowledge of the latent it is later asked to recover. The two differ in what they
@@ -36,7 +36,7 @@ placement quality alone, and that value is confined to the scarce-sensor regime.
 At $K = 2$ the target-aware placement recovers the predictive state at
 $R^2 = 0.80$ against $0.44$ for the target-blind one, but by $K \ge 4$ the wall
 pressure is information-rich enough that the two converge ($R^2 \approx 0.86$ to
-$0.89$; Figure~\ref{fig:sensor_placement}b). The cross-family recoverability
+$0.89$; figure~\ref{fig:sensor_placement}b). The cross-family recoverability
 result of \S\ref{sec:res_observability} is therefore not an artefact of a bespoke
 target-aware placement: with four or more taps a placement blind to the target
 recovers the predictive latent just as well. The target-aware selection is greedy
@@ -51,9 +51,9 @@ recovery and that the alternatives are no better.
 \subsubsection*{Cross-family recoverability (in the main text)}
 The headline cross-family result, that the predictive state is the most recoverable from the
 wall and that recoverability is not estimation quality, is reported in
-\S\ref{sec:res_observability} (Figure~\ref{fig:observability}). Decoding the
+\S\ref{sec:res_observability} (figure~\ref{fig:observability}). Decoding the
 pressure-estimated latent makes that recovery physical
-(Figure~\ref{fig:flow_recovery}): from eight taps the leading-edge vortex and
+(figure~\ref{fig:flow_recovery}): from eight taps the leading-edge vortex and
 shear layer are recovered close to the oracle decode, and even two taps capture
 the gross impingement.
 
@@ -66,7 +66,7 @@ negative state $R^2$ (between $-0.3$ and $-0.9$) and a large lift error, the sam
 three-dimensional observability boundary of \S\ref{sec:disc_limits} that bounds
 the rest of the model.
 
-\begin{figure}[t]
+\begin{figure}
   \centering
   \includegraphics[width=\linewidth]{sections/figures/results/figE_sensor_placement.pdf}
   \caption{Sparse-sensor placement. (a) The target-conditioned (TCSI) taps on the
@@ -82,9 +82,9 @@ the rest of the model.
   \label{fig:sensor_placement}
 \end{figure}
 
-% figF (cross-family observability) promoted to the main text, Figure~\ref{fig:observability} in \S\ref{sec:res_observability}.
+% figF (cross-family observability) promoted to the main text, figure~\ref{fig:observability} in \S\ref{sec:res_observability}.
 
-\begin{figure}[t]
+\begin{figure}
   \centering
   \includegraphics[width=\linewidth]{sections/figures/results/figG_flow_recovery.pdf}
   \caption{Flow recovered from sparse wall pressure on three held-out encounters
@@ -101,7 +101,7 @@ the rest of the model.
 The deployment target is the
 impact itself, ahead of time. Ending the pre-impact pressure window $\tau$ frames
 before impact and predicting the impact-frame state and lift
-(Figure~\ref{fig:leadtime}), the impact state stays recoverable to eight instants
+(figure~\ref{fig:leadtime}), the impact state stays recoverable to eight instants
 ahead with a gentle degradation, and kernel ridge and the LSTM are comparable
 across the lead (state $R^2$ between $0.80$ and $0.83$). The impact lift is read
 accurately to about six instants ahead before degrading. Both estimators are
@@ -116,7 +116,7 @@ of the approaching gust. The imminent impact is therefore predictable a handful 
 instants before it occurs, the regime a controller would act in, and degrades into
 the rollout-limited regime of the closed-loop pilot beyond that lead.
 
-\begin{figure}[t]
+\begin{figure}
   \centering
   \includegraphics[width=\linewidth]{sections/figures/results/figH_leadtime.pdf}
   \caption{Predicting the impact before it occurs. (a) Impact-state recovery $R^2$

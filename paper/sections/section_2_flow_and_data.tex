@@ -88,13 +88,13 @@ The remaining DNS solver-resolution details required for full reproducibility,
 the free-stream Mach number, the domain and spanwise extent, the element and
 solution-point counts, the near-wall spacing, the time step and CFL, the
 gust-release station, and the grid and time-step sensitivity, are listed as an
-author-fill checklist in Table~\ref{tab:dns_pending}. The dataset
+author-fill checklist in table~\ref{tab:dns_pending}. The dataset
 comprises $84$ cases partitioned into training, validation (the held-out
 encounters of the training cases, denoted test\_a), an
 in-distribution test set (test\_b), and an out-of-distribution test set
 (test\_c). The in-distribution test set is stratified to span the five gust
 strengths, the three core diameters, and the two source groups
-(Figure~\ref{fig:paramspace}); test\_c is the
+(figure~\ref{fig:paramspace}); test\_c is the
 $|G| = 4$ extrapolation set. These $84$ cases are separated in preprocessing into $378$ encounter windows of
 $120$ frames each, one per gust release: $226$ training, $86$ validation
 (test\_a, the held-out last encounters of the training cases), $42$ test\_b, and
@@ -215,7 +215,7 @@ diagnostics against three-dimensional forces, and the mid-plane proxy is weakest
 the $|G| = 4$ extrapolation boundary, where the out-of-plane fraction rises to about
 $0.56$.
 
-\begin{figure}[t]
+\begin{figure}
   \centering
   \includegraphics[width=\linewidth]{sections/figures/results/figB_paramspace.pdf}
   \caption{Parameter-space sampling of the $84$ cases in the $(G, D, Y)$ gust

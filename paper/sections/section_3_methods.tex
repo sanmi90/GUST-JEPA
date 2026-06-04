@@ -37,10 +37,10 @@ time $t$ through an encoder and a decoder and incurs a field-space error whereas
 the predictive model encodes the fields at $t$ and $t+\Delta t$ with shared
 weights and incurs a latent-space error between the predicted and observed target
 embeddings, with no field-space loss, is drawn in Appendix~\ref{app:reg}
-(Figure~\ref{fig:predictive_vs_reconstructive}).
+(figure~\ref{fig:predictive_vs_reconstructive}).
 Table~\ref{tab:architecture} summarises the two networks.
 
-\begin{table}[t]
+\begin{table}
   \centering
   \caption{Encoder and predictor configuration. The encoder is unconditional;
   the gust parameters $\cvec = (G,D,Y)$ enter only
@@ -91,7 +91,7 @@ throughout. The headline comparison is therefore between encoder
 are designed to separate the objective from the architecture and the wake
 supervision.
 
-\begin{figure}[t]
+\begin{figure}
   \centering
   \begin{subfigure}{\linewidth}
     \centering
@@ -131,7 +131,7 @@ three-stage pipeline, and only the encoder differs. Each encoder produces a
 latent trajectory $\zvec_{1:T}$ from the vorticity fields; an identical
 autoregressive transformer predictor rolls it forward one step at a time given
 $\cvec$; and an identical probe family maps the predicted latent to a physical
-observable for evaluation (Figure~\ref{fig:method}(b)). The predictor
+observable for evaluation (figure~\ref{fig:method}(b)). The predictor
 architecture, its training recipe, the parametric conditioning, and the probe
 family are held fixed across the three encoder families. The latent dimension
 is matched within each family: JEPA at $d \in \{16, 32, 64\}$, the reconstructive
@@ -164,13 +164,13 @@ determination $R^2$.
 %
 % HONESTY NOTE: the original draft headed the results with a *training-set* R^2
 % (mean 0.835). That number is retained only as a training-fit reference
-% (Table~\ref{tab:b1_closure_train_r2}); the headline is the held-out error.
+% (table~\ref{tab:b1_closure_train_r2}); the headline is the held-out error.
 % test_b / test_c R^2 computed from the same rollout predictions used for the
-% held-out MAE and reported in Table~\ref{tab:closure} panel (b) (forecast) and
+% held-out MAE and reported in table~\ref{tab:closure} panel (b) (forecast) and
 % panel (a) (representational closure).
 The held-out forecast $R^2$ (Markov rollout at $H = 16$) is reported in
-Table~\ref{tab:closure}(b), and the representational closure (probe on the
-simulation-encoded latent) in Table~\ref{tab:closure}(a).
+table~\ref{tab:closure}(b), and the representational closure (probe on the
+simulation-encoded latent) in table~\ref{tab:closure}(a).
 
 \subsection{Diagnostics, controls, and uncertainty}
 \label{sec:methods_diag}

@@ -58,7 +58,7 @@ groups together. The reconstructive and
 linear latents forecast it far less well ($0.60$ and $0.56$) and from no collective
 structure: their best single coordinate is already as informative as the whole
 latent, a near-zero gap that holds across three reconstructive-encoder seeds
-(Figure~\ref{fig:wake_code}). The forces, by contrast, are forecast redundantly in
+(figure~\ref{fig:wake_code}). The forces, by contrast, are forecast redundantly in
 every family, with dozens of individual coordinates carrying them. An energy or
 reconstruction objective therefore retains the force signature, which is present in
 many coordinates, but not the distributed combination that forecasts the wake,
@@ -71,7 +71,7 @@ probes on the frozen encoders, a latent-space reading of the closure result of
 information-theoretic modal analyses of related flows
 \cite{martinezsanchez2023,arranz2024,koshikawa2026}.
 
-\begin{figure}[t]
+\begin{figure}
   \centering
   \includegraphics[width=0.62\linewidth]{sections/figures/results/fig_wake_code.pdf}
   \caption{The predictive objective builds a collective wake-forecast code that the
@@ -105,13 +105,13 @@ metric aligns with the physical transport geometry to within the $d = 64$ margin
 (rank correlation $0.61$ against $0.63$), it returns to the baseline limit cycle
 under rollout (\S\ref{sec:res_param_phase}), it retains the same large-scale wake
 structure (\S\ref{sec:res_physical}), and its rollout-drift ratio is $0.86$
-against $0.85$ (Table~\ref{tab:latent_drift}). The one quantity that degrades is
+against $0.85$ (table~\ref{tab:latent_drift}). The one quantity that degrades is
 the in-distribution wake forecast, where the $H = 16$ closure $R^2$ falls from
-$0.45$ to $0.21$ (Table~\ref{tab:closure}(b)): halving the dimension costs
+$0.45$ to $0.21$ (table~\ref{tab:closure}(b)): halving the dimension costs
 forecast sharpness on the wake observables while leaving the geometric mechanism
 intact. Halving once more to $d = 16$ keeps the qualitative ordering, the
 predictive latent still leads on wake enstrophy where the reconstructive and
-linear latents are negative (Table~\ref{tab:closure}), but its representational
+linear latents are negative (table~\ref{tab:closure}), but its representational
 wake $R^2$ now falls to $0.55$ (from $0.74$ at $d = 32$): the budget is
 approaching the effective dimensionality, and the extra dimensions buy precision
 rather than a qualitatively different representation. On the out-of-distribution test\_c set the $d = 32$ latent is in fact
