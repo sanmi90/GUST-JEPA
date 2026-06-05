@@ -7827,3 +7827,52 @@ manifest). Build clean (latexmk exit 0, 41 pp, 0 undefined, 0 em-dashes; the two
 R^2-coverage flags are the known heuristic false positives). Provenance note: the abstract no longer
 states the data are "our own (SOD2D)"; that provenance stays in S2.
 
+### D177: Session 27 -- run3 v2.1 data refresh, frame-0 clip, dataset-dependent SSIM L; retrain DEFERRED for the Monday presentation (2026-06-05)
+
+A data-only session (no training). asolera's run3 finer-dt re-simulation plus the
+NaN fixes were treated as final (only Gust_027 = `G-2.0_D1.5_Y+0.1` still missing:
+its raw was permanently deleted, deliberately skipped per the user). Built
+**split v2.1** and refreshed the cache; everything pushed to `main`
+(`4588b95` data + `c17065e`/`e9e6806` SSIM).
+
+**Data** (`configs/splits/split_v2p1.json`, `build_split_manifest_v2p1.py`,
+inventory `raw_cases_inventory_v2p1.yaml` regenerated from the current PREVENT
+raw via the PREVENT-side generator): 85 cases (71 train / 10 test_b / 4 test_c),
+382 encounters (229 train / 87 val / 42 test_b / 24 test_c). **test_b/test_c
+frozen byte-identical to v2.** Added 069 (`G-1.5_D1.5_Y0.0`) and 070
+(`G+1.0_D1.5_Y-0.1`) to train (both near-midplane after the alpha=14 deg rotation,
+not off-midplane: the raw `y_file` is lab-frame). Dropped 027 (NaN enc3 + raw
+gone). **Net +7 usable encounters vs v2** (v2 discarded 3 NaN val encounters:
+017/038/027 enc3, all the run3 val slot). No per-case gain (run3 still 480 frames
+= 4 enc).
+
+**Frame-0 gust-release force artifact (new finding).** Re-release encounters
+(k>=1) of D=1.5 cases carry a single-frame |C_L|/|p_wall| spike (O(10-50)) at
+frame 0 (the impulsive gust reintroduction); `omega_z` and the impact window
+[25,55] are unaffected. The NaN-only audit missed it (027/enc1's 35.4 was the
+same benign artifact, NOT unique corruption: my mid-session claim that 027 "went
+unstable twice" was wrong, it failed once at enc3). Fix:
+`preprocess.py::clip_release_spike` backfills frame-0 `C_L`/`C_D`/`p_wall` from
+frame 1 (enc0 untouched, `release_spike_clipped` attr); 14 encounters clipped.
+`data_integrity_audit.py` gained a frame-aware `C_L`/`p_wall` check
+(`--cl-hard-cap 12`, `--pwall-hard-cap 15`); `qc_raw_vorticity.py` made
+gust-aware. Full re-cache of all 85 through the clip-aware pipeline -> split_v2p1
+audit **0-flagged of 382**.
+
+**SSIM data range L is now dataset-dependent and pinned, never hardcoded** (was
+8.31 literal). L = 2*global p99.9(|target_norm|) over val: 8.31 for split_v2,
+8.45 for split_v2p1 (train_std 3.6337 vs v2 3.6622).
+`build_omega_pipeline.py` computes+stores `ssim_data_range_L` in the manifest;
+`src.data.omega_pipeline.ssim_data_range(<manifest>)` resolves
+registry -> manifest -> compute; the four eval scripts call it. Pinned per
+version in the committed `configs/ssim_data_range.json` (manifests are gitignored)
+so SSIM stays comparable across reruns/versions and v2's value is preserved.
+
+**DECISION (user, 2026-06-05): the v2.1 retrain is DEFERRED.** The user has a
+presentation Monday (2026-06-08) and prefers to finish the v2-based manuscript
+first. **The next session (after /clear) is manuscript writing, NOT the retrain.**
+The paper on `main` still describes v2 (84 cases / 378 enc); v2.1 is the refreshed
+data staged for the eventual rerun (recipe in `RERUN_MANIFEST.md` "Split v2.1
+update": regenerate every figure/table from the v2.1 outputs saved with a `_v2p1`
+suffix, v2 figures kept as the frozen reference).
+

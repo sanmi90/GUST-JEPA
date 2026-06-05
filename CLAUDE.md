@@ -12,6 +12,20 @@ matched latent dimension.
 
 Lead researcher: Carlos Sanmiguel Vila (INTA, UC3M).
 
+## Current focus (read first, set 2026-06-05, HANDOFF D177)
+
+**The immediate task is finishing the v2-based manuscript for a presentation on
+Monday 2026-06-08, NOT retraining.** The next session after a `/clear` is
+manuscript writing. The paper on `main` describes split **v2** (84 cases / 378
+encounters) and that is what the figures/numbers reflect; keep writing against v2.
+
+A refreshed dataset **v2.1** (`configs/splits/split_v2p1.json`, 85 cases / 382
+encounters, +7 usable encounters) is built, cached, and audited 0-flagged, but
+the **v2.1 retrain is deliberately deferred**. Do not start it unless the user
+asks. When the rerun does happen, follow `RERUN_MANIFEST.md` "Split v2.1 update"
+(every figure/table regenerated from v2.1 outputs and saved with a `_v2p1`
+suffix; v2 figures kept as the frozen reference).
+
 ## What we are building
 
 End-to-end JEPA inspired by LeWM (Maes et al., arXiv:2603.19312, 2026) and LeJEPA
@@ -58,6 +72,12 @@ Data
   in v2. The v1 bullets below are the historical Session-9-era partition, preserved for
   older-session reproducibility only; their case/encounter counts do NOT match the paper.
   Use v2 for any paper-load-bearing work; regenerate v2 via `build_split_manifest_v2.py`.
+- v2.1 (HANDOFF D177, 2026-06-05): a refreshed split
+  `configs/splits/split_v2p1.json` (85 cases / 382 enc; +069/070 to train, -027
+  dropped, test_b/test_c frozen identical to v2; net +7 usable encounters) is
+  staged for the eventual rerun, but the retrain is DEFERRED (see "Current
+  focus"). The paper still runs on v2. Generator `build_split_manifest_v2p1.py`;
+  v2.1 omega pipeline `outputs/data_pipeline/v2p1/manifest.json` (train_std 3.6337).
 - Split is locked at `configs/splits/split_v1.json` (sha256-anchored to inventory).
 - 55 train cases (180 encounters), 6 Test B cases (28 enc), 4 Test C cases (24 enc).
   65 cases total in v1 (post-Session 12 absorption of 5 new run3 cases:
@@ -210,6 +230,21 @@ time. The Fukami-protocol partition `v1fuk` (50 cases pooled, 25% per-case
 encounter holdout; 6 v1 test_b cases retained for diagnostic) lives at
 `configs/splits/split_v1fuk.json`; cache directory symlinked
 `${VORTEX_JEPA_CACHE}/v1fuk -> v1`.
+
+Frame-0 gust-release clip (v2.1, HANDOFF D177): re-release encounters (k >= 1) of
+D = 1.5 cases carry a single-frame numerical |C_L| / |p_wall| spike at frame 0
+(the impulsive gust reintroduction); omega_z and the impact window [25, 55] are
+unaffected. `preprocess.py::clip_release_spike` backfills frame-0 C_L/C_D/p_wall
+from frame 1 (enc0 untouched; `release_spike_clipped` attr). The cache integrity
+audit `scripts/data_integrity_audit.py` now checks NaN + omega magnitude + a
+frame-aware C_L/p_wall release-spike flag (`--cl-hard-cap 12`, `--pwall-hard-cap 15`).
+
+SSIM data range L (Wang K1 = 0.01, K2 = 0.03 on pipeline-normalised omega) is
+dataset-dependent (L = 2 * global p99.9(|target_norm|) over val) and NOT
+hardcoded: pinned per version in `configs/ssim_data_range.json` (split_v2 = 8.31,
+split_v2p1 = 8.45) and read via `src.data.omega_pipeline.ssim_data_range`
+(registry -> manifest -> compute). Keep the per-version values so SSIM stays
+comparable across reruns. See also the ssim-convention memory.
 
 ## Baselines to implement (matched latent dimension)
 
