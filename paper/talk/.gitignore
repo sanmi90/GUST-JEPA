@@ -1,0 +1,4 @@
+# generated intermediate crops (rebuilt by make_talk.py from assets/)
+figs/_assetcache/
+# LibreOffice lock files from headless pdf conversion
+.~lock.*#

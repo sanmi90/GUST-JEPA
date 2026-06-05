@@ -130,6 +130,62 @@ def fig(s, name, l, t, w, h, halign="center", valign="middle"):
     s.shapes.add_picture(str(path), Inches(x), Inches(y), Inches(nw), Inches(nh))
 
 
+ASSET = HERE / "assets"
+_ASSET_CACHE = FIG / "_assetcache"
+ASSETS = {
+    "euromech": "IMG_2285.jpeg", "inta": "IMG_2286.png", "uc3m": "IMG_2289.png",
+    "bsc": "IMG_2287.png", "upc": "IMG_2288.png", "bbva": "IMG_2283.jpeg",
+    "redleonardo": "IMG_2282.png", "photo_solera": "IMG_2292.png",
+    "photo_miro": "IMG_2290.jpeg", "photo_lehmkuhl": "IMG_2291.jpeg",
+}
+
+
+def asset_path(key):
+    p = ASSET / ASSETS[key]
+    return p if p.exists() else None
+
+
+def place_image(s, path, l, t, w, h, halign="center", valign="middle"):
+    iw, ih = Image.open(path).size
+    box_ar, img_ar = w / h, iw / ih
+    if img_ar > box_ar:
+        nw, nh = w, w / img_ar
+    else:
+        nh, nw = h, h * img_ar
+    x = l + (w - nw) / 2 if halign == "center" else (l if halign == "left" else l + (w - nw))
+    y = t + (h - nh) / 2 if valign == "middle" else (t if valign == "top" else t + (h - nh))
+    s.shapes.add_picture(str(path), Inches(x), Inches(y), Inches(nw), Inches(nh))
+
+
+def logo(s, key, l, t, w, h, halign="center", valign="middle", crop=None):
+    """Aspect-fit a logo (by asset key) into a box; silently skip if missing."""
+    p = asset_path(key)
+    if p is None:
+        return
+    if crop is not None:
+        _ASSET_CACHE.mkdir(exist_ok=True)
+        p = _ASSET_CACHE / f"{key}_crop.png"
+        Image.open(asset_path(key)).crop(crop).save(p)
+    place_image(s, p, l, t, w, h, halign, valign)
+
+
+def square_photo(key, focus_x=0.5, focus_y=0.45):
+    """Center-crop a photo to a square (with focus bias), cache, return path or None."""
+    p = asset_path(key)
+    if p is None:
+        return None
+    _ASSET_CACHE.mkdir(exist_ok=True)
+    out = _ASSET_CACHE / f"{key}_sq.png"
+    im = Image.open(p).convert("RGB")
+    w, h = im.size
+    side = min(w, h)
+    cx, cy = int(w * focus_x), int(h * focus_y)
+    left = max(0, min(w - side, cx - side // 2))
+    top = max(0, min(h - side, cy - side // 2))
+    im.crop((left, top, left + side, top + side)).save(out)
+    return str(out)
+
+
 def caption(s, text, l, t, w):
     tf = textbox(s, l, t, w, 0.4)
     para(tf, text, size=11, color=MUTE, align=PP_ALIGN.CENTER, first=True)
@@ -169,8 +225,13 @@ def s_title():
          size=15, color=INK, first=True, space_after=12)
     para(tf2, "A. Solera-Rico, A. Miró, O. Lehmkuhl, C. Sanmiguel Vila",
          size=14, color=INK, space_after=3)
-    para(tf2, "INTA  ·  Universidad Carlos III de Madrid  ·  UPC  ·  Barcelona Supercomputing Center",
-         size=11.5, color=MUTE, space_after=0)
+    # conference logo (top-right) and institution logo strip (bottom)
+    logo(s, "euromech", 11.55, 0.42, 1.15, 0.72, crop=(0, 0, 460, 282))
+    _ly = 5.35
+    logo(s, "inta", 1.0, _ly, 0.66, 0.66, halign="left")
+    logo(s, "uc3m", 1.95, _ly + 0.08, 1.55, 0.5, halign="left")
+    logo(s, "bsc", 3.75, _ly, 0.74, 0.66, halign="left")
+    logo(s, "upc", 4.72, _ly, 0.66, 0.66, halign="left")
     tf3 = textbox(s, 1.0, 6.55, 11.5, 0.5)
     para(tf3, "EUROMECH Colloquium  ·  Data-driven active control in flows: from model-based to reinforcement learning",
          size=12, color=NAVY, bold=True, first=True)
@@ -695,22 +756,36 @@ s_bullets(
 # Acknowledgements
 _ack = slide()
 header(_ack, "Acknowledgements", "Thanks")
-_atf = textbox(_ack, 0.7, 1.8, 11.9, 0.5)
+_atf = textbox(_ack, 0.7, 1.5, 11.9, 0.5)
 para(_atf, "This work is a collaboration with:", size=18, color=INK, bold=True, first=True)
-bullets(_ack, [b0("**Alberto Solera-Rico** (INTA, Universidad Carlos III de Madrid)"),
-               b0("**Oriol Lehmkuhl** (Barcelona Supercomputing Center)"),
-               b0("**Arnau Miró** (UPC, Barcelona Supercomputing Center)")],
-        0.8, 2.45, 11.0, 1.7, base=17)
-rect(_ack, 0.7, 4.75, 11.9, 1.7, fill=RGBColor(0xF3, 0xF5, 0xF9))
-rect(_ack, 0.7, 4.75, 0.10, 1.7, fill=ACCENT)
-_ftf = textbox(_ack, 1.05, 4.95, 11.2, 1.45)
+
+# author photo tiles
+_people = [("photo_solera", "Alberto Solera-Rico", "INTA · UC3M", 0.50, 0.45),
+           ("photo_miro", "Arnau Miró", "UPC · BSC", 0.50, 0.45),
+           ("photo_lehmkuhl", "Oriol Lehmkuhl", "BSC", 0.33, 0.45)]
+_cols = [2.55, 6.65, 10.75]
+_ps = 1.7
+for (_key, _name, _aff, _fx, _fy), _cx in zip(_people, _cols):
+    _sp = square_photo(_key, focus_x=_fx, focus_y=_fy)
+    if _sp:
+        place_image(_ack, _sp, _cx - _ps / 2, 2.2, _ps, _ps)
+    _ntf = textbox(_ack, _cx - 1.85, 4.0, 3.7, 0.75)
+    para(_ntf, _name, size=15, color=NAVY, bold=True, align=PP_ALIGN.CENTER, first=True)
+    para(_ntf, _aff, size=12, color=MUTE, align=PP_ALIGN.CENTER)
+
+# funding (text left, BBVA + Red Leonardo logos right)
+rect(_ack, 0.7, 5.05, 11.9, 1.75, fill=RGBColor(0xF3, 0xF5, 0xF9))
+rect(_ack, 0.7, 5.05, 0.10, 1.75, fill=ACCENT)
+_ftf = textbox(_ack, 1.05, 5.22, 8.2, 1.5)
 para(_ftf, "Work produced with the support of a 2024 Leonardo Grant for Researchers and Cultural "
            "Creators, BBVA Foundation, project PREVENT (grant LEO24-2-15988). The Foundation takes "
            "no responsibility for the opinions, statements and contents of this project, which are "
-           "entirely the responsibility of its authors.", size=14, color=INK, first=True)
+           "entirely the responsibility of its authors.", size=13, color=INK, first=True)
+logo(_ack, "bbva", 9.55, 5.3, 2.7, 0.62)
+logo(_ack, "redleonardo", 9.55, 6.05, 2.7, 0.62)
 left_footer(_ack)
-notes(_ack, "Acknowledgements. Institution logos (INTA/UC3M, BSC) and author photos, plus the BBVA "
-            "Foundation / Red Leonardo logos, to be added once the image files are provided.")
+notes(_ack, "Acknowledgements: author photos (Solera-Rico, Miró, Lehmkuhl) and the BBVA Foundation / "
+            "Red Leonardo funding logos. Funding: 2024 Leonardo Grant, project PREVENT (LEO24-2-15988).")
 
 # ---- backups ----------------------------------------------------------------
 s_divider("Backup slides", "Supporting detail and ablations")
