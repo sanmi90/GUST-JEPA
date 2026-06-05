@@ -49,7 +49,7 @@ REPO = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO))
 
 from src.baselines.fukami_ae import FukamiAEWrapper  # noqa: E402
-from src.data.omega_pipeline import OmegaPipeline  # noqa: E402
+from src.data.omega_pipeline import OmegaPipeline, ssim_data_range  # noqa: E402
 from src.models.encoder import HybridCNNViTEncoder  # noqa: E402
 from src.models.lap_film_decoder import LapFiLMDecoder  # noqa: E402
 from src.models.predictor import AutoregressivePredictor  # noqa: E402
@@ -87,7 +87,7 @@ OUT_DIR.mkdir(parents=True, exist_ok=True)
 
 # Figure / display conventions (CLAUDE.md "Figure 3-style"):
 VLIM_NORM = 3.0
-SSIM_L = 8.31
+SSIM_L = ssim_data_range(PIPELINE_MANIFEST)  # dataset-dependent, from manifest
 
 # Physical extent for the omega image (192, 96).
 X_EXTENT = (-1.5, 4.5)

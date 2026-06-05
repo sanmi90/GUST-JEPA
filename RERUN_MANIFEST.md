@@ -48,6 +48,64 @@ for the v2 rerun. Every script that takes `--split` should be invoked with
 preprocessing cache and outputs paths should be `v2` (the v1 cache stays
 valid; only the split file changes).
 
+## Split v2.1 update (2026-06-05): refreshed data, supersedes v2 for the rerun
+
+**This rerun now targets `configs/splits/split_v2p1.json`, not split_v2.json.**
+After asolera's run3 finer-dt re-simulation and NaN fixes, v2.1 refreshes the data:
+
+- **+2 train cases**: 069 (`G-1.5_D1.5_Y0.0`) and 070 (`G+1.0_D1.5_Y-0.1`).
+- **-1 case dropped**: 027 (`G-2.0_D1.5_Y+0.1`) had a NaN enc3 and its raw is
+  permanently deleted, so it stays out rather than become a cache-only case.
+- **test_b/test_c frozen identical to v2** (same 10 + 4 case_ids) so the headline
+  comparison stays comparable.
+- **Frame-0 force clip**: `preprocess.py::clip_release_spike` backfills a
+  single-frame gust-release `C_L`/`C_D`/`p_wall` transient at frame 0 of
+  re-release encounters (D=1.5, 14 encounters); `omega_z` untouched, a
+  `release_spike_clipped` attr records it. `data_integrity_audit.py` gained a
+  frame-aware `C_L`/`p_wall` (`--cl-hard-cap 12`, `--pwall-hard-cap 15`) check.
+
+Final v2.1 summary (`build_split_manifest_v2p1.py`; integrity audit 0-flagged of 382):
+
+| Bucket | Cases | Encounters |
+|---|---|---|
+| Train | 71 | 229 |
+| Val (within-train-case) | -- | 87 |
+| Test B (interior+boundary) | 10 | 42 |
+| Test C (OOD G=+4) | 4 | 24 |
+| **Total** | 85 | 382 |
+
+Net **+7 usable encounters** vs v2 (recovers 017/038 NaN val encounters, adds
+069/070's 8, drops 027's 3). No per-case encounter gain (run3 still 480 frames = 4 enc).
+
+**Invocation changes for every stage below:**
+- `--split configs/splits/split_v2p1.json` everywhere v2 used split_v2.json.
+- `--omega-pipeline-manifest outputs/data_pipeline/v2p1/manifest.json` (rebuilt
+  for v2.1: train_std 3.6337, 3-sigma divisor 10.901; was 3.6622 for v2).
+- **SSIM data range L is dataset-dependent and read from the omega-pipeline
+  manifest**, never hardcoded. `build_omega_pipeline.py` computes and stores
+  `ssim_data_range_L = 2 * global p99.9(|target_norm|)` over the val set
+  (v2 = 8.31, v2.1 = 8.45); the four eval scripts
+  (`_oneoff_recon_4way{,_parametric}.py`,
+  `session20/{decode_reconstructions,exp_ot_field_and_alignment}.py`) call
+  `src.data.omega_pipeline.ssim_data_range(<manifest>)`, so L follows whatever
+  manifest is in use.
+- The cache is shared (`${VORTEX_JEPA_CACHE}/v2`,`/v2.1` symlink to `/v1`); it has
+  been fully re-extracted through the clip-aware pipeline (all 382 carry
+  `release_spike_clipped`).
+
+**Paper figures and tables (MANDATORY).** Every paper figure and table must be
+**regenerated from the v2.1 outputs and saved under its existing basename with a
+`_v2p1` suffix** (the filename-safe spelling of "v2.1"; a literal dot trips
+LaTeX `\includegraphics` extension parsing), e.g.
+`sections/figures/results/fig4_closure.pdf` -> `fig4_closure_v2p1.pdf`,
+`figA_traces.pdf` -> `figA_traces_v2p1.pdf`, etc. The v2 figures stay on disk
+untouched as the frozen reference. In the v2.1 manuscript, swap every
+`\includegraphics` path and table `\input` to the `_v2p1` artifact, and re-derive
+every quoted number (closure R^2/MAE, conditioning floor, controls, drift /
+topology / OT, parameter+phase probes, physical-space, wall-pressure
+observability, SSIM) from the v2.1 runs, reported with train+val+test_b+test_c +
+bootstrap CI + 3-seed encoder variance + 5-fold probe CV.
+
 ## Files you MUST NOT discard before rerun
 
 These are pure inputs (code + docs); the rerun produces everything else.

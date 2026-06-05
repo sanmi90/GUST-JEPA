@@ -34,7 +34,7 @@ import torch
 REPO = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(REPO))
 
-from src.data.omega_pipeline import OmegaPipeline  # noqa: E402
+from src.data.omega_pipeline import OmegaPipeline, ssim_data_range  # noqa: E402
 from src.models.encoder import HybridCNNViTEncoder  # noqa: E402
 from src.models.lap_film_decoder import LapFiLMDecoder  # noqa: E402
 
@@ -48,6 +48,7 @@ FUKAMI_CKPT = REPO / "outputs/session18/exp_b1/fukami_ae_d64/checkpoint_iter0060
 POD_BASIS = REPO / "outputs/session18/exp_b1/pod_d64/pod_basis.npz"
 PIPE = REPO / "outputs/data_pipeline/v1/manifest.json"
 SPLIT = REPO / "configs/splits/split_v2.json"
+SSIM_L = ssim_data_range(PIPE)  # dataset-dependent SSIM data range, from manifest
 
 OFFSETS = (-8, 0, 8, 16, 24, 32, 40)  # relative to impact frame
 
@@ -214,7 +215,7 @@ def main():
             cids.append(e["case_id"]); G[i] = e["G"]; D[i] = e["D"]; Y[i] = e["Y"]
             # self-check SSIM on the impact frame (offset 0 index)
             zi = OFFSETS.index(0)
-            ssim_acc.append(wang_ssim(tgt[i, zi], rj[i, zi], L=8.31))
+            ssim_acc.append(wang_ssim(tgt[i, zi], rj[i, zi], L=SSIM_L))
             if (i + 1) % 20 == 0 or i + 1 == n:
                 print(f"[decode] {split}: {i+1}/{n}", flush=True)
         outp = args.out / f"{split}.npz"
@@ -222,7 +223,7 @@ def main():
                  fukami_norm=rf, pod_norm=rp,
                  frames=frames, impact_frame=impact, case_ids=np.array(cids),
                  G=G, D=D, Y=Y, offsets=np.array(OFFSETS))
-        print(f"[decode] {split}: wrote {outp}  JEPA impact-frame Wang-SSIM(L=8.31) mean={np.mean(ssim_acc):.3f} "
+        print(f"[decode] {split}: wrote {outp}  JEPA impact-frame Wang-SSIM(L={SSIM_L:.2f}) mean={np.mean(ssim_acc):.3f} "
               f"(anchor ~0.71 on val)")
 
 

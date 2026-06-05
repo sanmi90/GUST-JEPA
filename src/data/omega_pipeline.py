@@ -222,3 +222,53 @@ class OmegaPipeline:
     ) -> ArrayLike:
         """Full pipeline: Stages 1 + 2 + 3."""
         return self.normalize(self.preprocess_raw(omega, case_id, encounter_index))
+
+
+def _ssim_L_from_val(pipe: "OmegaPipeline", split: dict, cache_root: Path) -> float:
+    """L = 2 * global p99.9(|target_norm|) over the split's val encounters."""
+    import h5py
+    abs_vals = []
+    for cid, c in split["cases"].items():
+        if c.get("split") != "train":
+            continue
+        for k in c.get("val_encounter_indices", []):
+            f = Path(cache_root) / cid / f"encounter_{int(k):02d}.h5"
+            if not f.exists():
+                continue
+            with h5py.File(f, "r") as h:
+                raw = np.asarray(h["omega_z"], dtype=np.float32)
+            tn = pipe.normalize(pipe.preprocess_raw(raw, cid, int(k)))
+            abs_vals.append(np.abs(tn).ravel())
+    if not abs_vals:
+        raise RuntimeError("no val encounters found to compute SSIM data range")
+    return 2.0 * float(np.percentile(np.concatenate(abs_vals), 99.9))
+
+
+def ssim_data_range(manifest_path, cache_root=None) -> float:
+    """Dataset-dependent SSIM data range L for the Wang/p99.9 convention.
+
+    L = 2 * global p99.9(|target_norm|) over the split's val encounters, where
+    target_norm = normalize(preprocess_raw(.)). Returns the cached
+    ``ssim_data_range_L`` stored in the omega-pipeline manifest by
+    ``build_omega_pipeline.py`` if present, otherwise computes it from the
+    manifest's ``split_manifest``. Never hardcode L: it depends on train_std and
+    the val omega distribution, both of which change with the dataset/split.
+    """
+    import json
+    import os
+    manifest_path = Path(manifest_path)
+    m = json.loads(manifest_path.read_text())
+    if m.get("ssim_data_range_L") is not None:
+        return float(m["ssim_data_range_L"])
+    repo = Path(__file__).resolve().parents[2]
+    split_path = Path(m.get("split_manifest", ""))
+    if not split_path.is_absolute():
+        split_path = repo / split_path
+    split = json.loads(split_path.read_text())
+    if cache_root is None:
+        env = os.environ.get("VORTEX_JEPA_CACHE")
+        base = (Path(env) if env else
+                Path(os.environ.get("PREVENT_ROOT", str(Path.home() / "PREVENT")))
+                / "data" / "processed" / "vortex-jepa")
+        cache_root = base / "v1"
+    return _ssim_L_from_val(OmegaPipeline.from_manifest(manifest_path), split, Path(cache_root))

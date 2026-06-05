@@ -45,7 +45,7 @@ REPO = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO))
 
 from src.baselines.fukami_ae import FukamiAEWrapper  # noqa: E402
-from src.data.omega_pipeline import OmegaPipeline  # noqa: E402
+from src.data.omega_pipeline import OmegaPipeline, ssim_data_range  # noqa: E402
 from src.models.encoder import HybridCNNViTEncoder  # noqa: E402
 from src.models.lap_film_decoder import LapFiLMDecoder  # noqa: E402
 
@@ -69,11 +69,12 @@ OUT_DIR.mkdir(parents=True, exist_ok=True)
 # Figure / display conventions (CLAUDE.md "Figure 3-style"):
 # vmin/vmax = +/-3 in pipeline-normalised space (3-sigma scale).
 # Display is in raw omega units so the convention says +/-3 * (3 * train_std).
-# train_std for v1 manifest = 3.6622, so vlim_raw = 3 * 3 * 3.6622 = 32.96.
-# SSIM is reported on pipeline-normalised target; data_range = L = 8.31
-# (= 2 * global p99.9(|target_norm|) for split_v2).
+# SSIM is reported on the pipeline-normalised target. The data range L is
+# dataset-dependent (L = 2 * global p99.9(|target_norm|) over the val set) and is
+# read from the omega-pipeline manifest, never hardcoded (8.31 for split_v2,
+# 8.45 for split_v2p1; recomputed by build_omega_pipeline whenever data changes).
 VLIM_NORM = 3.0
-SSIM_L = 8.31
+SSIM_L = ssim_data_range(PIPELINE_MANIFEST)
 
 # Physical extent for the omega image (192, 96) -> (W=192, H=96 px after .T).
 X_EXTENT = (-1.5, 4.5)
@@ -179,7 +180,7 @@ def pod_project_reconstruct(
 
 
 def compute_panel_metrics(target_norm: np.ndarray, pred_norm: np.ndarray) -> tuple[float, float, float]:
-    """SSIM (Wang K1=0.01, K2=0.03 default; data_range=L=8.31), relative L2 error,
+    """SSIM (Wang K1=0.01, K2=0.03 default; data_range=L from the pipeline manifest), relative L2 error,
     and mean squared error, all on pipeline-normalised fields."""
     ssim_val = float(
         ssim_skimage(

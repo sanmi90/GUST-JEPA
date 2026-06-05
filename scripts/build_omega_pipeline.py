@@ -170,18 +170,41 @@ def main() -> None:
     print(f"  train pixels (post-mask, unmasked-only): {n_pixels:,}", flush=True)
     print(f"  mean = {mean:.6f}, std = {std:.4f}", flush=True)
 
-    # Save the manifest
     pipeline = OmegaPipeline(
         mask=mask,
         thresholds=thresholds,
         train_stats=OmegaTrainStats(mean=mean, std=std, n_pixels=n_pixels),
         version=args.partition,
     )
+
+    # Stage D: SSIM data range L = 2 * global p99.9(|target_norm|) over the val
+    # set, so eval scripts read it from the manifest instead of hardcoding a
+    # dataset-specific constant (see src.data.omega_pipeline.ssim_data_range).
+    print("[build-pipeline] step 4/4: SSIM data range L (val p99.9)", flush=True)
+    val_abs = []
+    for cid, case in sorted(manifest["cases"].items()):
+        if case["split"] != "train":
+            continue
+        held = case.get("val_encounter_indices") or case.get("test_a_encounter_indices", [])
+        for k in held:
+            p = CACHE / args.partition / cid / f"encounter_{int(k):02d}.h5"
+            if not p.exists():
+                continue
+            with h5py.File(p, "r") as f:
+                omega = np.asarray(f["omega_z"], dtype=np.float32)
+            tn = pipeline.normalize(pipeline.preprocess_raw(omega, cid, int(k)))
+            val_abs.append(np.abs(tn).ravel())
+    ssim_L = 2.0 * float(np.percentile(np.concatenate(val_abs), 99.9)) if val_abs else None
+    print(f"  L = 2 * p99.9(|target_norm|) = {ssim_L:.4f} over {len(val_abs)} val encounters",
+          flush=True)
+
+    # Save the manifest
     manifest_dict = pipeline.to_dict(mask_path=mask_filename)
     manifest_dict["partition"] = args.partition
     manifest_dict["split_manifest"] = str(split_path.relative_to(REPO)) \
         if split_path.is_relative_to(REPO) else str(split_path)
     manifest_dict["clip_percentile"] = args.clip_percentile
+    manifest_dict["ssim_data_range_L"] = ssim_L
     manifest_dict["created_at"] = datetime.datetime.now().isoformat(timespec="seconds")
 
     manifest_path = out_dir / "manifest.json"

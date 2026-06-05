@@ -31,7 +31,7 @@ average-pool each field by a factor of 4 to 48x24 = 1152 points BEFORE building
 the 1152x1152 cost matrix. This preserves 8 pixels/chord, more than enough to
 resolve the leading-edge vortex (~1 chord across) and the transport geometry.
 
-We also report Wang-SSIM (L = 8.31) on the same decoded fields for continuity.
+We also report Wang-SSIM (L from the pipeline manifest) on the same decoded fields for continuity.
 
 D-i GATE: the OT field distance must rank the collapsed Fukami reconstruction
 WORSE (larger distance) than JEPA on test_b. If it does, OT replaces SSIM as the
@@ -94,7 +94,7 @@ import numpy as np  # noqa: E402
 import ot  # noqa: E402
 from scipy.stats import spearmanr  # noqa: E402
 
-from src.data.omega_pipeline import OmegaPipeline  # noqa: E402
+from src.data.omega_pipeline import OmegaPipeline, ssim_data_range  # noqa: E402
 
 REPO = Path(__file__).resolve().parents[2]
 DECODED_DIR = REPO / "outputs" / "session20" / "decoded"
@@ -139,9 +139,9 @@ OT_NUMITERMAX = 1000
 OT_STOPTHR = 1e-6
 MASS_EPS = 1e-12  # numerical floor so all-zero half-fields do not divide by zero
 
-# SSIM constants: Wang convention on pipeline-normalised omega, L = 8.31
+# SSIM constants: Wang convention on pipeline-normalised omega, L read from manifest
 # (= 2 * global p99.9 of |target_norm|; see CLAUDE.md SSIM convention).
-SSIM_L = 8.31
+SSIM_L = ssim_data_range(MANIFEST)  # dataset-dependent, from manifest
 SSIM_C1 = (0.01 * SSIM_L) ** 2
 SSIM_C2 = (0.03 * SSIM_L) ** 2
 
@@ -225,7 +225,7 @@ def d_field(f1: np.ndarray, f2: np.ndarray, cost: np.ndarray) -> float:
 # SSIM (Wang convention, global single-window form on full-resolution fields)
 # ----------------------------------------------------------------------------
 def ssim_global(x: np.ndarray, y: np.ndarray) -> float:
-    """Global Wang-SSIM between two fields with L = 8.31 constants.
+    """Global Wang-SSIM between two fields with the manifest's L constant.
 
     Single-window (whole-field) form: uses global means, variances, covariance.
     This matches the project SSIM-continuity convention used elsewhere in
