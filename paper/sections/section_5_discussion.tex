@@ -9,8 +9,8 @@
 \label{sec:disc_caveat}
 
 The central finding is geometric, and it concerns what the latent represents as
-much as how it evolves. Under a shared predictor, parametric conditioning, and probe
-family, the predictive latent carries the wake structure the reconstructive and
+much as how it evolves. Under a matched predictor architecture, parametric conditioning, and probe
+family, each trained or fitted separately per latent, the predictive latent carries the wake structure the reconstructive and
 linear families do not, an advantage concentrated on the spatially distributed wake
 observables and established first at the representation level, where it survives
 case-level clustering and a family-wide correction; the forward rollout is
@@ -173,9 +173,8 @@ property of the objective stripped of all auxiliary supervision.
 
 These limitations come into sharpest focus against the use the architecture is
 ultimately meant for. The predictor is, by construction, the latent dynamics
-function a model-based
-controller would plan against, and three properties of the architecture are
-relevant to that use: closure holds out to the planning horizon relevant to the impact-instant
+model that future model-based estimation or control would build on, and three
+properties of the architecture are relevant to that use: closure holds out to the planning horizon relevant to the impact-instant
 load, the latent is two to three orders of magnitude cheaper to evolve than the
 full field, and the rollout stays on the training manifold, which is the
 property that determines whether long-horizon plans remain meaningful since a

@@ -115,8 +115,9 @@ supervision.
   omitted from the schematic for clarity. The visualisation decoder is trained
   only after the encoder is frozen and is used solely for the diagnostic decodes
   of \S\ref{sec:res_physical}, never in the predictive loss. (b) Evaluation
-  applies the same predictor, conditioning, and probe family $g$ to every encoder
-  family: a probe on the simulation-encoded latent measures representation
+  applies the same predictor architecture, conditioning, and probe family $g$, each
+  trained or fitted separately per encoder family: a probe on the simulation-encoded
+  latent measures representation
   closure, and the same probe on the rolled-out latent $\widehat{\zvec}_{t+H}$
   measures forecast closure.}
   \label{fig:method}
@@ -154,7 +155,7 @@ recoverable along the rollout, while one that drifts off the manifold loses it. 
 $\cvec$ and an initial latent, the predictor is rolled recursively to $H = 16$, and
 at each step the probe maps the predicted latent to each observable. A small
 closure error means the encoder produces a latent whose dynamics, propagated by
-the shared predictor, retain the information the probe needs to recover the
+the predictor, retain the information the probe needs to recover the
 physical quantity; a large error means either that the encoder discarded that
 information or that the predictor lost it during rollout, a distinction the
 drift diagnostic below resolves. We report closure on the held-out test\_b and

@@ -27,7 +27,8 @@ encounter is moreover similar across laminar and turbulent regimes
 family. Resolving the full parametric
 envelope by simulation is expensive, so reduced-order models (ROMs) of the
 encounter-to-encounter and case-to-case variability are an active line of work,
-and a reduced model is also the object a controller would plan against.
+and such a reduced state is also a prerequisite for the model-based estimation and
+control that operating in this regime will eventually require.
 
 Reduced-order models of such flows form a ladder of increasing nonlinearity.
 Energy-optimal linear bases, proper orthogonal decomposition
@@ -134,9 +135,10 @@ principle, not the subject of the paper. We make three contributions.
 
 First, we set up a controlled comparison in which a predictive encoder (JEPA),
 a reconstructive encoder in the Fukami lineage, and a POD basis are evaluated
-at matched latent dimension under a single shared autoregressive predictor,
-training recipe, parametric conditioning on $\cvec = (G,D,Y)$, and probe
-family, so that forecast quality is attributable to the encoder alone
+at matched latent dimension under the same predictor architecture and training recipe,
+trained separately for each latent family, the same parametric conditioning on
+$\cvec = (G,D,Y)$, and the same probe family and fitting protocol, so that forecast
+quality is attributable to the encoder alone
 (\S\ref{sec:methods}). The figure of merit is forward physical closure of the
 rollout to six observables at horizon $H = 16$ (\S\ref{sec:res_closure}). On
 held-out cases the predictive latent carries the wake structure the others do not:
@@ -169,5 +171,6 @@ objective trained with wake-observable supervision, not to the architecture. We
 further show that the same predictive state is the most recoverable of the three
 from sparse wall pressure, so it is observable as well as forecastable
 (\S\ref{sec:res_observability}), and we relate the predictor to the latent
-dynamics function a controller would plan against, with a closed-loop pilot
-reported as a limitation rather than a result (\S\ref{sec:discussion}).
+dynamics model that future model-based estimation or control would build on, with a
+closed-loop pilot reported as a limitation rather than a result
+(\S\ref{sec:discussion}).

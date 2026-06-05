@@ -14,9 +14,9 @@ $\vRe = 5000$, perturbed by Taylor vortices parametrised by gust strength $G$, c
 diameter $D$, and wall-normal offset $Y$, we compare three latent states at matched
 dimension: an observable-augmented joint-embedding predictive architecture, a
 reconstructive autoencoder in the Fukami-Taira lineage, and a POD basis. All are
-evaluated with the same autoregressive predictor, the same conditioning on $(G,D,Y)$,
-and the same probes, using forward closure of six observables at sixteen frames after
-impact. The predictive latent carries wake information that the baselines lose: its
+evaluated with the same predictor architecture, conditioning on $(G,D,Y)$, and probe
+family, each trained or fitted separately for the three latent families, using forward
+closure of six observables at sixteen frames after impact. The predictive latent carries wake information that the baselines lose: its
 representational wake-enstrophy $R^2$ is $0.75$ where the reconstructive and linear
 baselines are negative, and the paired wake-enstrophy improvement survives case-level
 clustering and family-wide correction. Its Markov rollout is also the only one with
@@ -26,4 +26,5 @@ encounter topology, and lose alignment with the flow's transport geometry, where
 predictive rollouts remain close to the encoded manifold. Matched controls show that
 the advantage requires the predictive objective together with wake-observable
 supervision, not the ViT architecture alone. The resulting state is also the most
-recoverable from sparse wall pressure, making it observable as well as forecastable.
+recoverable from sparse wall pressure, a conditional forward-closure model that is
+observable as well as forecastable, not a validated counterfactual controller.

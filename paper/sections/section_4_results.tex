@@ -208,14 +208,14 @@ predictive encoder alone was supervised on. Isolating the objective requires the
 table~\ref{tab:controls_2x2}: a $2 \times 2$ crossing of objective
 \{predictive, reconstructive\} with architecture \{CNN, CNN$+$ViT\} at matched
 $d = 64$, with the auxiliary heads matched across all four cells, evaluated
-under the same predictor and probes; together with a predictive variant from
-which the wake head is removed. The decisive question is whether the predictive
+under the same predictor architecture and probe protocol; together with a predictive variant from
+which the wake head is removed. The question the controls answer is whether the predictive
 objective still closes the wake observables better than the reconstructive one
 once the architecture and the wake supervision are held in common.
 
 \begin{table}
   \centering
-  \caption{Objective $\times$ architecture controls (decisive experiment).
+  \caption{Objective $\times$ architecture controls.
   Held-out wake-enstrophy closure and mean closure ($R^2$ at $H = 16$, test\_b,
   Markov rollout, mean $\pm$ standard deviation over three encoder seeds) for the
   four cells crossing \{predictive, reconstructive\} with \{CNN, CNN$+$ViT\} at
@@ -269,7 +269,7 @@ it. The large seed variance of the reconstructive CNN$+$ViT cell
 forward-predictable latent geometry, wake closure is unstable across
 initialisations.
 
-Beyond the decisive crossing, three further
+Beyond this crossing, three further
 controls vary the latent dimension, the second auxiliary head, and the predictor
 conditioning (table~\ref{tab:jepa_dimsweep}).
 Sweeping the predictive latent over $d \in \{4, 8, 16, 32, 64\}$ at fixed recipe,
@@ -457,7 +457,7 @@ field into another and so tracks advection of the LEV and shear layer
 \citep{tran2026}. Computing the OT distance between simulation fields along an
 encounter gives a physical transport geometry against which the latent metric
 can be checked: the prediction is that distances in the predictive latent track
-the OT geodesic more faithfully than distances in the reconstructive latent, so
+the ordering of the OT distances more faithfully than distances in the reconstructive latent, so
 that iterating the predictor step keeps the rollout closer to the data manifold.
 The
 prediction holds: the per-encounter Spearman correlation between the latent
@@ -645,7 +645,7 @@ metric there.
   similarity but no transport advantage over the predictive decode, while the
   collapsed reconstructive field is correctly penalised. The Shepard panel shows
   the per-encounter alignment of latent distance with the simulation
-  OT-geodesic, predictive versus reconstructive.}
+  OT-distance matrix, predictive versus reconstructive.}
   \label{fig:ot}
 \end{figure}
 

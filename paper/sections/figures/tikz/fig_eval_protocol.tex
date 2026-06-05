@@ -1,6 +1,6 @@
 % Fig (method, panel c) - Evaluation protocol for vortex-jepa manuscript.
 %
-% Shows that the SAME predictor and probe family map every encoder family
+% Shows that the same predictor architecture and probe family map every encoder family
 % (JEPA, AE, POD) to the same observables, in two modes:
 %   representation closure: probe on the simulation-encoded latent z_t
 %   forecast closure:       probe on the rolled-out latent zhat_{t+H}
@@ -47,7 +47,7 @@
 
   % ---- bottom branch: forecast closure ----
   \node[predictor, below right=3mm and 5mm of zt] (pred)
-    {\textbf{shared predictor} $P$ \\[1pt] rollout to $H$};
+    {\textbf{predictor} $P$ \\[1pt] rollout to $H$};
   \node[state, right=5mm of pred] (zhat) {$\widehat{\mathbf{z}}_{t+H}$};
   \node[probe, right=5mm of zhat] (probeF) {same $g$};
   \node[obs, right=7mm of probeF] (obsF)
@@ -65,8 +65,9 @@
 
   % ---- annotation ----
   \node[align=center, font=\footnotesize\itshape, below=4mm of cond]
-    {The predictor, the conditioning $\mathbf{c}$, and the probe family $g$ are
-     held fixed across the three encoder families.};
+    {The predictor architecture, the conditioning $\mathbf{c}$, and the probe family
+     $g$ are identical across the three encoder families, each trained or fitted
+     separately per family.};
 
 \end{tikzpicture}
 

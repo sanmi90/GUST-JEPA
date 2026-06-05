@@ -4,8 +4,8 @@ Two panels, no "D-i"/"D-ii" sub-titles (the caption describes them):
  (a) OT field distance vs structural similarity at impact, one point per family:
      the linear basis has the highest SSIM but no transport advantage, and the
      collapsed reconstructive field is correctly penalised under transport.
- (b) Shepard alignment: per-pair latent distance vs simulation OT-geodesic
-     distance; the predictive latent is the better isometry (higher Spearman).
+ (b) Shepard alignment: per-pair latent distance vs the simulation OT-distance
+     matrix; the predictive latent preserves the distance ordering better (higher Spearman).
 Source: outputs/session20/ot/ot_results.json, ot/shepard_data.npz.
 """
 
@@ -58,7 +58,7 @@ def main() -> None:
     axa.annotate("similarity and transport\ndisagree", (0.55, 10.7),
                  fontsize=6, ha="center", color="0.4")
 
-    # (b) Shepard: latent vs OT geodesic, predictive vs reconstructive
+    # (b) Shepard: latent vs OT distance, predictive vs reconstructive
     rng = np.random.default_rng(0)
     for key, fam, lab in [("jepa_d64", "jepa", "predictive (JEPA)"),
                           ("fukami", "fukami", "reconstructive")]:
@@ -72,7 +72,7 @@ def main() -> None:
         axb.scatter(ot_n[idx], lat_n[idx], s=2.5, alpha=0.18,
                     color=fs.FAMILY_COLOR[fam], edgecolors="none", zorder=2,
                     label=fr"{lab}: $\rho={rho:.2f}$")
-    axb.set_xlabel("simulation OT-geodesic distance (norm.)")
+    axb.set_xlabel("simulation OT-distance (norm.)")
     axb.set_ylabel("latent distance (norm.)")
     leg = axb.legend(loc="upper left", markerscale=4, handletextpad=0.3,
                      borderpad=0.2)

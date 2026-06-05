@@ -32,6 +32,18 @@
 % intact while respecting the narrower JFM column.
 \newcommand{\fittab}[1]{\resizebox{\ifdim\width>\linewidth\linewidth\else\width\fi}{!}{#1}}
 
+% Suppress the JFM author-class template guidance footers (the abstract-overflow note
+% and the article page-length notes the class prints on the abstract page and on pages
+% 4 and 10). No class option toggles them, so we redefine the footer-flag macros from
+% JFM-FLM_Au.cls. The standard JFM volume/issue/page locator is preserved; only the
+% coloured guidance boxes are removed.
+\makeatletter
+\def\jfm@plainfoot{\hbox to \textwidth{{\cppagefont\ifx\@volume\undefined\else\textbf{\@volume}\fi\ \ifx\@issue\undefined\ifpaper A\else\ifrapid R\else\ifpersp P\else\iffof F\else X\fi\fi\fi\fi1-\else\ifpaper A\else\ifrapid R\else\ifpersp P\else\iffof F\else X\fi\fi\fi\fi\@issue-\fi\thepage}\hfill}}%
+\def\oddabsfooterflag{\jfm@plainfoot}%
+\def\evenabsfooterflag{\jfm@plainfoot}%
+\def\pagelimitfooter{\jfm@plainfoot}%
+\makeatother
+
 % Custom notation macros (none clash with the JFM class).
 \newcommand{\vRe}{\mathrm{Re}}
 \newcommand{\zvec}{\mathbf{z}}
