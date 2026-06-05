@@ -248,20 +248,31 @@ def ssim_data_range(manifest_path, cache_root=None) -> float:
     """Dataset-dependent SSIM data range L for the Wang/p99.9 convention.
 
     L = 2 * global p99.9(|target_norm|) over the split's val encounters, where
-    target_norm = normalize(preprocess_raw(.)). Returns the cached
-    ``ssim_data_range_L`` stored in the omega-pipeline manifest by
-    ``build_omega_pipeline.py`` if present, otherwise computes it from the
-    manifest's ``split_manifest``. Never hardcode L: it depends on train_std and
-    the val omega distribution, both of which change with the dataset/split.
+    target_norm = normalize(preprocess_raw(.)). Resolution order, so L is both
+    dataset-dependent and stable/comparable across reruns and versions:
+      1. the pinned per-version value in ``configs/ssim_data_range.json``
+         (keyed by split file stem; preserves e.g. v2=8.31 alongside v2.1=8.45),
+      2. the ``ssim_data_range_L`` stored in the omega-pipeline manifest by
+         ``build_omega_pipeline.py``,
+      3. computed from the manifest's ``split_manifest`` val set.
+    Never hardcode L: it depends on train_std and the val omega distribution.
     """
     import json
     import os
     manifest_path = Path(manifest_path)
     m = json.loads(manifest_path.read_text())
-    if m.get("ssim_data_range_L") is not None:
-        return float(m["ssim_data_range_L"])
     repo = Path(__file__).resolve().parents[2]
     split_path = Path(m.get("split_manifest", ""))
+    # 1) pinned canonical per-version value (durable, comparable across reruns)
+    registry = repo / "configs" / "ssim_data_range.json"
+    if registry.exists() and split_path.stem:
+        L = json.loads(registry.read_text()).get("L_by_split", {}).get(split_path.stem)
+        if L is not None:
+            return float(L)
+    # 2) value stored in the pipeline manifest
+    if m.get("ssim_data_range_L") is not None:
+        return float(m["ssim_data_range_L"])
+    # 3) compute from the val set
     if not split_path.is_absolute():
         split_path = repo / split_path
     split = json.loads(split_path.read_text())

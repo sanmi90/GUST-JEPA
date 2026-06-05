@@ -1,0 +1,8 @@
+{
+  "_doc": "Canonical Wang/p99.9 SSIM data range L = 2 * global p99.9(|target_norm|) over the val set, pinned per split/dataset version. Pinned (not recomputed per rerun) so SSIM is directly comparable across reruns of a version AND preserved across versions for v2-vs-v2.1 comparison. Each value was computed by build_omega_pipeline.py (also stored per-build in the pipeline manifest as ssim_data_range_L). Read by src.data.omega_pipeline.ssim_data_range, which prefers this registry, then the manifest, then computes. Add a new entry (keyed by the split file stem) when a new dataset version is finalized.",
+  "convention": "Wang et al. 2004, K1=0.01, K2=0.03, on pipeline-normalized omega (target_norm = preprocess_raw then /(3*train_std)).",
+  "L_by_split": {
+    "split_v2": 8.31,
+    "split_v2p1": 8.45
+  }
+}

@@ -81,14 +81,15 @@ Net **+7 usable encounters** vs v2 (recovers 017/038 NaN val encounters, adds
 - `--split configs/splits/split_v2p1.json` everywhere v2 used split_v2.json.
 - `--omega-pipeline-manifest outputs/data_pipeline/v2p1/manifest.json` (rebuilt
   for v2.1: train_std 3.6337, 3-sigma divisor 10.901; was 3.6622 for v2).
-- **SSIM data range L is dataset-dependent and read from the omega-pipeline
-  manifest**, never hardcoded. `build_omega_pipeline.py` computes and stores
-  `ssim_data_range_L = 2 * global p99.9(|target_norm|)` over the val set
-  (v2 = 8.31, v2.1 = 8.45); the four eval scripts
-  (`_oneoff_recon_4way{,_parametric}.py`,
-  `session20/{decode_reconstructions,exp_ot_field_and_alignment}.py`) call
-  `src.data.omega_pipeline.ssim_data_range(<manifest>)`, so L follows whatever
-  manifest is in use.
+- **SSIM data range L is dataset-dependent, never hardcoded, and pinned per
+  version** in `configs/ssim_data_range.json` (`L_by_split`: split_v2 = 8.31,
+  split_v2p1 = 8.45). The v2 value is kept alongside v2.1 so SSIM is comparable
+  across reruns of different dataset versions. `src.data.omega_pipeline.ssim_data_range(<manifest>)`
+  resolves L as registry -> manifest `ssim_data_range_L` (written by
+  `build_omega_pipeline.py` as `2 * global p99.9(|target_norm|)` over val) ->
+  compute. The four eval scripts (`_oneoff_recon_4way{,_parametric}.py`,
+  `session20/{decode_reconstructions,exp_ot_field_and_alignment}.py`) call it.
+  When a new dataset version is finalized, add its L to the registry.
 - The cache is shared (`${VORTEX_JEPA_CACHE}/v2`,`/v2.1` symlink to `/v1`); it has
   been fully re-extracted through the clip-aware pipeline (all 382 carry
   `release_spike_clipped`).
