@@ -221,10 +221,10 @@ def s_title():
     para(tf, "Toward model-based flow control", size=21, color=ACCENT, bold=True, space_after=0)
     rect(s, 1.0, 3.95, 3.0, 0.06, fill=ACCENT)
     tf2 = textbox(s, 1.0, 4.2, 11.5, 1.5)
-    para(tf2, "Forward physical closure of predictive vs reconstructive latents at Re = 5000",
-         size=15, color=INK, first=True, space_after=12)
-    para(tf2, "A. Solera-Rico, A. Miró, O. Lehmkuhl, C. Sanmiguel Vila",
-         size=14, color=INK, space_after=3)
+    para(tf2, "A. Solera-Rico, A. Miró, O. Lehmkuhl, **C. Sanmiguel Vila**",
+         size=15, color=INK, first=True, space_after=3)
+    para(tf2, "csanvil@inta.es",
+         size=12.5, color=ACCENT, space_after=0)
     # conference logo (top-right) and institution logo strip (bottom)
     logo(s, "euromech", 11.55, 0.42, 1.15, 0.72, crop=(0, 0, 460, 282))
     _ly = 5.35
