@@ -5,6 +5,10 @@ Scans every (case, encounter) pair listed in a split manifest and flags:
 - Missing cache files
 - Missing raw files
 - Anomalous omega_z magnitudes (above hard cap or near zero)
+- C_L / p_wall force spikes: a single-frame |C_L| or |p_wall| far above the
+  physical impact peak (O(5-12)). These are gust-release-boundary numerical
+  artifacts (typically frame 0 of post-first encounters), not flow loads; the
+  ``cl_peak_frame`` / ``pwall_peak_frame`` fields locate them.
 
 Emits a JSON integrity manifest plus, optionally, a *_clean.json companion split
 that excludes flagged encounters from train_encounter_indices,
@@ -64,6 +68,8 @@ def scan_encounter(
     prevent_root: Path,
     omega_hard_cap: float,
     omega_min_max: float,
+    cl_hard_cap: float = 12.0,
+    pwall_hard_cap: float = 15.0,
 ) -> dict:
     """Audit one (case_id, encounter_index) pair against its cache file.
 
@@ -80,6 +86,10 @@ def scan_encounter(
         "n_nan_p_wall": 0,
         "n_nan_omega_z": 0,
         "max_abs_omega": None,
+        "max_abs_CL": None,
+        "max_abs_p_wall": None,
+        "cl_peak_frame": None,
+        "pwall_peak_frame": None,
         "cache_present": False,
         "raw_present": False,
     }
@@ -111,6 +121,30 @@ def scan_encounter(
                     info["issues"].append(f"omega_above_cap_{info['max_abs_omega']:.0f}")
                 if info["max_abs_omega"] < omega_min_max:
                     info["issues"].append(f"omega_near_zero_{info['max_abs_omega']:.4f}")
+            # Force/pressure sanity. A physical gust-impact lift transient is a
+            # broad peak of O(5-12); single-frame |C_L|/|p_wall| values far above
+            # that are gust-release-boundary numerical spikes (typically frame 0
+            # of the post-first encounters), not flow loads. Record the peak frame
+            # so a frame-0 spike is identifiable.
+            finite_cl = cl[np.isfinite(cl)]
+            finite_pw = pw[np.isfinite(pw)]
+            info["max_abs_CL"] = float(np.abs(finite_cl).max()) if finite_cl.size else None
+            info["max_abs_p_wall"] = float(np.abs(finite_pw).max()) if finite_pw.size else None
+            if finite_cl.size:
+                info["cl_peak_frame"] = int(np.argmax(np.where(np.isfinite(cl), np.abs(cl), 0.0)))
+            if finite_pw.size:
+                pw_perframe = np.nanmax(np.where(np.isfinite(pw), np.abs(pw), 0.0), axis=1)
+                info["pwall_peak_frame"] = int(np.argmax(pw_perframe))
+            # A physical encounter peaks at the impact (~frame 40), never at
+            # frame 0, so only a large value whose peak is at the release
+            # boundary (frame 0) is the artifact; impact peaks of strong/extreme
+            # gusts (G=3, G=4) are physical and must not be flagged.
+            if (info["max_abs_CL"] is not None and info["cl_peak_frame"] == 0
+                    and info["max_abs_CL"] > cl_hard_cap):
+                info["issues"].append(f"cl_release_spike_{info['max_abs_CL']:.1f}")
+            if (info["max_abs_p_wall"] is not None and info["pwall_peak_frame"] == 0
+                    and info["max_abs_p_wall"] > pwall_hard_cap):
+                info["issues"].append(f"pwall_release_spike_{info['max_abs_p_wall']:.1f}")
         except Exception as e:
             info["issues"].append(f"cache_open_error_{type(e).__name__}")
     else:
@@ -129,6 +163,8 @@ def audit_split(
     prevent_root: Path,
     omega_hard_cap: float = 10000.0,
     omega_min_max: float = 1.0,
+    cl_hard_cap: float = 12.0,
+    pwall_hard_cap: float = 15.0,
 ) -> dict:
     """Run the integrity audit over every case in ``split_path``.
 
@@ -146,7 +182,8 @@ def audit_split(
         rows = []
         for k in range(n_enc):
             info = scan_encounter(
-                case_id, k, c, cache_root, prevent_root, omega_hard_cap, omega_min_max
+                case_id, k, c, cache_root, prevent_root, omega_hard_cap, omega_min_max,
+                cl_hard_cap, pwall_hard_cap,
             )
             rows.append(info)
             if info["issues"]:
@@ -175,7 +212,8 @@ def audit_split(
         "audit_tool": "scripts/data_integrity_audit.py",
         "split_audited": str(split_path.relative_to(REPO)) if split_path.is_absolute() else str(split_path),
         "split_manifest_version": split.get("manifest_version"),
-        "thresholds": {"omega_hard_cap": omega_hard_cap, "omega_min_max": omega_min_max},
+        "thresholds": {"omega_hard_cap": omega_hard_cap, "omega_min_max": omega_min_max,
+                       "cl_hard_cap": cl_hard_cap, "pwall_hard_cap": pwall_hard_cap},
         "n_encounters_total": n_total,
         "n_encounters_flagged": len(flagged),
         "n_encounters_clean": n_total - len(flagged),
@@ -274,6 +312,11 @@ def main(argv: Iterable[str] | None = None) -> None:
                    help="Override the cache root. Default: PREVENT_ROOT/data/processed/vortex-jepa/v1")
     p.add_argument("--omega-hard-cap", type=float, default=10000.0)
     p.add_argument("--omega-min-max", type=float, default=1.0)
+    p.add_argument("--cl-hard-cap", type=float, default=12.0,
+                   help="Flag an encounter whose max |C_L| exceeds this (gust-release "
+                        "frame-0 spike; physical impact peaks are O(5-12)). Default 15.")
+    p.add_argument("--pwall-hard-cap", type=float, default=15.0,
+                   help="Flag an encounter whose max |p_wall| exceeds this. Default 20.")
     args = p.parse_args(argv)
 
     cache_root = args.cache_root or (args.prevent_root / "data" / "processed" / "vortex-jepa" / "v1")
@@ -286,6 +329,7 @@ def main(argv: Iterable[str] | None = None) -> None:
     manifest = audit_split(
         args.split, cache_root, args.prevent_root,
         omega_hard_cap=args.omega_hard_cap, omega_min_max=args.omega_min_max,
+        cl_hard_cap=args.cl_hard_cap, pwall_hard_cap=args.pwall_hard_cap,
     )
     with out_manifest.open("w") as f:
         json.dump(manifest, f, indent=2)

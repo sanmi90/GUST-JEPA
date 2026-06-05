@@ -61,6 +61,32 @@ def encounter_out_path(cache_root: Path, case_id: str, k: int, config: dict) -> 
             / config["cache"]["encounter_file"].format(encounter_index=k))
 
 
+RELEASE_SPIKE_CL_CAP = 12.0  # |C_L| above this AT frame 0 (the gust-release
+# boundary of a re-release encounter) is a single-frame numerical force/pressure
+# transient, not a flow load; the omega_z field is unaffected. See the
+# cl_release_spike check in scripts/data_integrity_audit.py.
+
+
+def clip_release_spike(cl, cd, p_wall, k: int):
+    """Backfill a frame-0 gust-release force/pressure spike.
+
+    Re-release encounters (k >= 1) can carry a single-frame transient in
+    C_L / C_D / p_wall at frame 0 (the impulsive gust reintroduction): |C_L| of
+    O(10-50) dropping to baseline by frame 1, worst for large cores. Where frame
+    0 is the encounter's abnormal peak, replace frame-0 C_L/C_D/p_wall with their
+    frame-1 values; enc0, omega_z, and all later frames are untouched. Returns
+    (cl, cd, p_wall, clipped).
+    """
+    if k == 0 or cl.shape[0] < 2:
+        return cl, cd, p_wall, False
+    a0 = abs(float(cl[0]))
+    if a0 > RELEASE_SPIKE_CL_CAP and a0 >= float(np.abs(cl).max()) - 1e-6:
+        cl, cd, p_wall = cl.copy(), cd.copy(), p_wall.copy()
+        cl[0], cd[0], p_wall[0] = cl[1], cd[1], p_wall[1]
+        return cl, cd, p_wall, True
+    return cl, cd, p_wall, False
+
+
 def extract_encounter(raw: h5py.File, k: int, config: dict) -> dict:
     frames_per = config["encounter"]["frames_per_encounter"]
     f0, f1 = k * frames_per, (k + 1) * frames_per
@@ -78,9 +104,10 @@ def extract_encounter(raw: h5py.File, k: int, config: dict) -> dict:
 
     cl = raw[config["raw"]["forces_CL_path"]][f0:f1].astype(np.float32)
     cd = raw[config["raw"]["forces_CD_path"]][f0:f1].astype(np.float32)
+    cl, cd, p_wall, clipped = clip_release_spike(cl, cd, p_wall, k)
 
     return dict(omega_z=omega_z, p_wall=p_wall, C_L=cl, C_D=cd,
-                frame_start=f0, frame_end=f1)
+                frame_start=f0, frame_end=f1, release_spike_clipped=clipped)
 
 
 def write_encounter(out_path: Path, encoded: dict, case_meta: dict,
@@ -112,6 +139,7 @@ def write_encounter(out_path: Path, encoded: dict, case_meta: dict,
         g.attrs["preprocessing_version"] = config["preprocessing_version"]
         g.attrs["partition_version"] = config["partition_target"]
         g.attrs["raw_relative_path"] = case_meta["relative_path"]
+        g.attrs["release_spike_clipped"] = bool(encoded.get("release_spike_clipped", False))
 
 
 def process_case(case_meta: dict, prevent_root: Path, cache_root: Path,
