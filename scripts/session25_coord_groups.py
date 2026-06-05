@@ -116,20 +116,25 @@ def main():
     except Exception:
         W = 4.98
     row_order = np.concatenate([g[0] for g in groups])
-    fig, ax = plt.subplots(figsize=(0.5 * W, 0.62 * W))
+    fig, ax = plt.subplots(figsize=(0.64 * W, 0.6 * W))
     im = ax.imshow(prof[row_order], cmap="Greens", vmin=0, vmax=0.8, aspect="auto")
     ax.set_xticks(range(len(DESC))); ax.set_xticklabels([DLAB[d] for d in DESC], rotation=45, ha="right")
-    ax.set_yticks([]); ax.set_ylabel("64 latent coordinates, grouped by function")
-    b = 0
+    # Label each group as a proper y-tick (matplotlib reserves the left margin for
+    # these). The previous version drew them as free text in the same space as a
+    # rotated y-axis label, so the two overlapped; dropping the axis label and using
+    # tick labels removes the collision.
+    centres, ylabels, b = [], [], 0
     for gi, g in enumerate(groups):
-        b += len(g[0])
+        n = len(g[0]); centres.append(b + n / 2 - 0.5)
+        ylabels.append(f"G{gi+1}  ({n}c, wake {g[2]:.2f})")
+        b += n
         if b < len(row_order):
             ax.axhline(b - 0.5, color="k", lw=0.8)
-        ax.text(-0.7, b - len(g[0]) / 2 - 0.5, f"G{gi+1}\n(wake {g[2]:.2f})",
-                ha="right", va="center", fontsize=6)
-    ax.set_title("JEPA coordinates grouped by physical function", loc="left", fontsize=7.5)
+    ax.set_yticks(centres); ax.set_yticklabels(ylabels, fontsize=7, va="center")
+    ax.tick_params(axis="y", length=0)
+    ax.set_title("JEPA latent coordinates grouped by physical function", loc="left", fontsize=8)
     fig.colorbar(im, ax=ax, fraction=0.046, pad=0.04, label=r"$|\rho_s|$ with descriptor")
-    fig.tight_layout(pad=0.3)
+    fig.tight_layout(pad=0.4)
     fig.savefig("outputs_causal/jepa_modes/fig_coord_groups.pdf", bbox_inches="tight")
     print("[fig] wrote outputs_causal/jepa_modes/fig_coord_groups.pdf")
 

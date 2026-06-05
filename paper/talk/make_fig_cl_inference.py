@@ -24,7 +24,7 @@ plt.rcParams.update({"font.size": 11, "font.family": "DejaVu Sans"})
 fig, ax = plt.subplots(figsize=(5.4, 3.2))
 ax.axhline(0, color="0.85", lw=0.8, zorder=1)
 ax.plot(tau, oracle, "--", color=GRAY, lw=1.8, label="oracle (DNS latent)", zorder=2)
-ax.plot(tau, direct, "-o", color=STEEL, lw=2.0, ms=5, label="direct pressure sensing", zorder=3)
+ax.plot(tau, direct, "-o", color=STEEL, lw=2.0, ms=5, label="direct sensing", zorder=3)
 ax.plot(tau, ploop, "-o", color=ACCENT, lw=2.6, ms=6.5, label="predictor-in-loop (JEPA)", zorder=4)
 
 ax.set_xlim(31, 1)            # reversed: impact approaches to the right
@@ -35,9 +35,10 @@ ax.set_ylim(-0.25, 0.80)
 ax.annotate("0.35 vs 0.13\nat 10 frames", xy=(10, 0.35), xytext=(15, 0.56),
             fontsize=8.5, color=ACCENT,
             arrowprops=dict(arrowstyle="->", color=ACCENT, lw=1.1))
-ax.legend(frameon=False, fontsize=9, loc="lower left")
+ax.legend(frameon=False, fontsize=8.5, loc="lower center", bbox_to_anchor=(0.5, 1.0),
+          ncol=3, columnspacing=1.2, handlelength=1.8, handletextpad=0.5)
 ax.spines[["top", "right"]].set_visible(False)
 ax.grid(axis="y", color="0.93")
 fig.tight_layout()
-fig.savefig(OUT, dpi=200)
+fig.savefig(OUT, dpi=200, bbox_inches="tight")
 print("wrote", OUT)
