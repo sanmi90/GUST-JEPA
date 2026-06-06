@@ -684,16 +684,18 @@ s_fig_right(
 s_fig_right(
     "Diagnostic 3: transport geometry", "Mechanism",
     [b0("**Why:** Euclidean / pixel distance ignores **where structures move**; control cares about advection of the LEV and shear layer"),
-     b0("**Optimal-transport (OT) distance:** the least cost to rearrange one vorticity field into another, so it measures transport, not just intensity"),
-     b0("Per encounter, Spearman-correlate the **latent** distance matrix with the **OT** distance matrix (n = 42 test_b)"),
+     b0("**OT field distance** (after Tran, Yeh & Taira, JFM 2026): split vorticity into ± parts, transport each with **unbalanced Sinkhorn** OT and sum, the least work to rearrange one field into another"),
+     b0("We did **not** train the latent to match OT (that paper does); this is a **post-hoc test**: per encounter, Spearman-correlate the **latent** distance matrix with the **OT** matrix (n = 42)"),
      b0("**Within-encounter:** JEPA **0.63 ± 0.15** vs reconstructive **0.45**, order-preservation along the trajectory, **not** an isometry"),
-     b0("**Honest caveat:** *pooled across* encounters the ranking **reverses** (JEPA 0.38 vs 0.63), so this alignment is **trajectory-local**, not a global latent metric")],
+     b0("**Honest caveat:** *pooled across* encounters the ranking **reverses** (0.38 vs 0.63), so the alignment is **trajectory-local**, not a global latent metric")],
     "ot.png",
-    cap="Per-encounter latent-vs-OT distance alignment (Shepard). Headline is the within-encounter Spearman (0.63 vs 0.45); pooled over all encounters it does not hold (0.38 vs 0.63).",
-    note="Be critical: 0.63>0.45 is the per-encounter (within-trajectory) mean. Pooled over all encounters "
-         "the reconstructive latent is higher (0.63 vs 0.38), so the JEPA alignment is local to each "
-         "encounter, not a global isometry. Present strictly as trajectory-local transport consistency.",
-    base=14)
+    cap="Per-encounter latent-vs-OT distance alignment (Shepard). OT field distance after Tran, Yeh & Taira (JFM 2026). Within-encounter Spearman 0.63 vs 0.45; pooled it does not hold (0.38 vs 0.63).",
+    note="OT method = signed-vorticity split + unbalanced Sinkhorn (Tran, Yeh & Taira JFM 2026, their eq 5). "
+         "Our code uses the entropic transport cost, not the fully debiased Sinkhorn divergence, which does "
+         "not change orderings. We do NOT train the latent to match OT, this is a post-hoc diagnostic. Be "
+         "critical: 0.63>0.45 is within-encounter; pooled it reverses, so claim only trajectory-local "
+         "transport consistency.",
+    base=13)
 
 s_fig_below(
     "Decoded reconstructions", "Result, physical space",
