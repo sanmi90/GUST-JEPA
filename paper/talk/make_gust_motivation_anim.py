@@ -32,19 +32,25 @@ VLIM = 2.0; DT = 0.05; LO, HI = -12, 46     # frames relative to impact
 
 
 def pick_case():
-    """A moderate-G gust from the TRAIN set (not extrapolation) with a clear lift swing."""
+    """A representative moderate-G, Fukami-canonical-core (D = 0.5) TRAIN gust.
+
+    Fukami et al. (Re 5000) sweep the gust ratio at D = 0.5; pinning the core to
+    D = 0.5 keeps the lift transient in their recognisable range (peak C_L ~ +2 to
+    +5). We take the MEDIAN lift-swing case among moderate gusts (|G| in [1.5, 2.0]),
+    not the maximal one, so the example is representative rather than extreme.
+    """
     import json
     split = json.load(open(REPO / "configs/splits/split_v2.json"))["cases"]
     train = {k for k, c in split.items() if c["split"] == "train"}
-    best = (None, -1.0)
+    cand = []
     for d in sorted(CACHE.glob("G*_D*_Y*")):
         if d.name not in train:
             continue
         try:
-            G = float(d.name.split("_")[0][1:])
+            G = float(d.name.split("_")[0][1:]); D = float(d.name.split("_")[1][1:])
         except ValueError:
             continue
-        if not (1.5 <= abs(G) <= 2.0):   # moderate gust, in the training envelope
+        if not (1.5 <= abs(G) <= 2.0) or abs(D - 0.5) > 1e-6:   # moderate gust, canonical core
             continue
         f = d / "encounter_00.h5"
         if not f.exists():
@@ -53,10 +59,11 @@ def pick_case():
             cl = np.asarray(h["C_L"], float)
             imp = int(h.attrs.get("impact_frame_estimate", 40))
         w = cl[max(0, imp - 10):imp + 35]
-        swing = float(np.nanmax(w) - np.nanmin(w))
-        if swing > best[1]:
-            best = (d.name, swing)
-    return best[0]
+        cand.append((d.name, float(np.nanmax(w) - np.nanmin(w))))
+    if not cand:
+        raise SystemExit("no D=0.5 moderate-G train case found")
+    cand.sort(key=lambda t: t[1])
+    return cand[len(cand) // 2][0]   # representative = median swing
 
 
 def main():
