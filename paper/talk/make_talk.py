@@ -660,7 +660,7 @@ s_fig_right(
     [b0("**Why this question:** a planner / RL agent queries the model at states reached by its **own rollout**, one-step error is not enough"),
      b0("**Mahalanobis distance:** covariance-aware distance from a reference cloud, d = sqrt((z−μ)' S^-1 (z−μ)); ≈ 1 is one standard-deviation unit"),
      b0("We compare the **rolled-out** latent to the distribution of **DNS-encoded** latents (ratio = rollout / encoded)"),
-     b0("**Result:** the reconstructive rollout drifts **~10× off-manifold (9.9)**; JEPA 0.85 and POD 0.81 stay inside"),
+     b0("**Result:** the reconstructive rollout drifts **~10× off-manifold (9.9)**; JEPA 0.85 and POD 0.81 stay inside (a complementary **optimal-transport** check, in backup, likewise finds the predictive latent's distances track physical advection within an encounter)"),
      b0("The R² in the plot is **forward closure via a probe**: the predictor advances only the **latent**, and a fixed linear probe reads each observable off the rolled-out latent (no direct predictor of C_L or the wake)")],
     "horizon_sweep.png",
     cap="Forward-closure R² vs rollout horizon (test_b): the predictor advances the latent; a linear probe reads each observable off it.",
@@ -680,22 +680,6 @@ s_fig_right(
     note="Define persistent homology simply: count loops that survive over a range of scales. Numbers: "
          "JEPA median 1 vs Fukami 3.5 H1 generators on z_dns (encounter-level MWU p~4e-8; all 10 cases "
          "consistent). Snapshots are encode->decode reconstructions; no temporal predictor here.", base=14)
-
-s_fig_right(
-    "Diagnostic 3: transport geometry", "Mechanism",
-    [b0("**Why:** Euclidean / pixel distance ignores **where structures move**; control cares about advection of the LEV and shear layer"),
-     b0("**OT field distance** (after Tran, Yeh & Taira, JFM 2026): split vorticity into ± parts, transport each with **unbalanced Sinkhorn** OT and sum, the least work to rearrange one field into another"),
-     b0("We did **not** train the latent to match OT (that paper does); this is a **post-hoc test**: per encounter, Spearman-correlate the **latent** distance matrix with the **OT** matrix (n = 42)"),
-     b0("**Within-encounter:** JEPA **0.63 ± 0.15** vs reconstructive **0.45**, order-preservation along the trajectory, **not** an isometry"),
-     b0("**Honest caveat:** *pooled across* encounters the ranking **reverses** (0.38 vs 0.63), so the alignment is **trajectory-local**, not a global latent metric")],
-    "ot.png",
-    cap="Per-encounter latent-vs-OT distance alignment (Shepard). OT field distance after Tran, Yeh & Taira (JFM 2026). Within-encounter Spearman 0.63 vs 0.45; pooled it does not hold (0.38 vs 0.63).",
-    note="OT method = signed-vorticity split + unbalanced Sinkhorn (Tran, Yeh & Taira JFM 2026, their eq 5). "
-         "Our code uses the entropic transport cost, not the fully debiased Sinkhorn divergence, which does "
-         "not change orderings. We do NOT train the latent to match OT, this is a post-hoc diagnostic. Be "
-         "critical: 0.63>0.45 is within-encounter; pooled it reverses, so claim only trajectory-local "
-         "transport consistency.",
-    base=13)
 
 s_fig_below(
     "Decoded reconstructions", "Result, physical space",
@@ -757,7 +741,7 @@ s_fig_right(
 # VI. Conclusions
 s_bullets(
     "Conclusions", "Conclusions",
-    [b0("A **predictive objective + wake supervision** yields a latent dynamics model that is **forward-closed** (wake R² 0.75 representational / 0.84 mean), stays **on-manifold** under rollout, is a **single cycle**, and is **transport-aligned along each encounter**"),
+    [b0("A **predictive objective + wake supervision** yields a latent dynamics model that is **forward-closed** (wake R² 0.75 representational / 0.84 mean), stays **on-manifold** under rollout, and traces a **single clean cycle**"),
      b1("**compact** (d = 32 ≈ d = 64, participation ratio ≈ 1.7) and **observable** from sparse wall pressure"),
      b0("The discriminator throughout is the **wake**, which force-only and reconstruction-only states lose"),
      b0("It is a **conditional forward-closure model**, a substrate for model-based control and RL world-models, **not yet a validated controller**"),
@@ -802,6 +786,21 @@ notes(_ack, "Acknowledgements: author photos (Solera-Rico, Miró, Lehmkuhl) and 
 
 # ---- backups ----------------------------------------------------------------
 s_divider("Backup slides", "Supporting detail and ablations")
+
+s_fig_right(
+    "Transport geometry (optimal transport)", "Backup, mechanism",
+    [b0("**Why:** Euclidean / pixel distance ignores **where structures move**; control cares about advection of the LEV and shear layer"),
+     b0("**OT field distance** (after Tran, Yeh & Taira, JFM 2026): split vorticity into ± parts, transport each with **unbalanced Sinkhorn** OT and sum, the least work to rearrange one field into another"),
+     b0("We did **not** train the latent to match OT (that paper does); this is a **post-hoc test**: per encounter, Spearman-correlate the **latent** distance matrix with the **OT** matrix (n = 42)"),
+     b0("**Within-encounter:** JEPA **0.63 ± 0.15** vs reconstructive **0.45**, order-preservation along the trajectory, **not** an isometry"),
+     b0("**Honest caveat:** *pooled across* encounters the ranking **reverses** (0.38 vs 0.63), so the alignment is **trajectory-local**, not a global latent metric")],
+    "ot.png",
+    cap="Per-encounter latent-vs-OT distance alignment (Shepard). OT field distance after Tran, Yeh & Taira (JFM 2026). Within-encounter Spearman 0.63 vs 0.45; pooled it does not hold (0.38 vs 0.63).",
+    note="Moved to backup: real but the weakest mechanism diagnostic (post-hoc, trajectory-local, "
+         "pooled reverses). OT method = signed-vorticity split + unbalanced Sinkhorn (Tran, Yeh & Taira "
+         "JFM 2026, eq 5); our code uses the entropic transport cost, not the debiased divergence, which "
+         "does not change orderings.",
+    base=13)
 
 s_fig_right(
     "Dataset and protocol", "Backup",

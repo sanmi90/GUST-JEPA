@@ -9,8 +9,8 @@ Structure of the open: motivation (2), objective (3), prior work and the researc
 Delivery notes:
 - The JEPA primer is slides 6 and 7. The audience is mixed fluids and machine learning, so this is where you win or lose the room. Slow down.
 - Slides 9 and 10 are an illustrated alternative to the box diagrams on 6 to 8. They are optional. If short on time, skip from 8 to 11.
-- Four animations carry the story: slide 2 (DNS gust and lift, motivation), slide 15 (scalars tracking the rollout), slide 16 (the same forecast as decoded fields), slide 27 (state recovered from wall pressure). Let each loop once while you talk.
-- The three diagnostic slides (21 to 23) each define an unfamiliar metric, so slow down. On slide 23 (transport) be honest about the metric-dependent caveat.
+- Four animations carry the story: slide 2 (DNS gust and lift, motivation), slide 15 (scalars tracking the rollout), slide 16 (the same forecast as decoded fields), slide 26 (state recovered from wall pressure). Let each loop once while you talk.
+- The two diagnostic slides (21 and 22) each define an unfamiliar metric, so slow down. A third diagnostic, the optimal-transport alignment, is in the backup (slide 31); if asked, be honest about its metric-dependent caveat.
 - Pause on the headline numbers on slide 12.
 
 ---
@@ -93,49 +93,46 @@ A skeptic will say the predictive encoder differs from the reconstructive one in
 
 ## Slide 21, Diagnostic 1: latent drift [~1:15]
 
-Now three diagnostics that explain the mechanism, each with a metric you may not see every day. The first is latent drift. Why it matters: a planner or an RL agent does not query the model at nice training states, it queries it at the states its own rollout reaches, so one-step error is not enough. To measure it we use the Mahalanobis distance, a covariance-aware distance from a reference cloud; a value around one means one standard deviation away. We take the rolled-out latent and ask how far it sits from the distribution of latents encoded directly from the simulation, as a ratio. The result is striking: the reconstructive rollout drifts about ten times further out than its own encoded states, it leaves the manifold, whereas the predictive and the linear rollouts stay inside, ratios around zero point eight five. So the reconstructive failure is not a probe failure, it is the rollout walking off into a region where nothing is valid.
+Now two diagnostics that explain the mechanism, each with a metric you may not see every day; a third, an optimal-transport check, sits in the backup. The first is latent drift. Why it matters: a planner or an RL agent does not query the model at nice training states, it queries it at the states its own rollout reaches, so one-step error is not enough. To measure it we use the Mahalanobis distance, a covariance-aware distance from a reference cloud; a value around one means one standard deviation away. We take the rolled-out latent and ask how far it sits from the distribution of latents encoded directly from the simulation, as a ratio. The result is striking: the reconstructive rollout drifts about ten times further out than its own encoded states, it leaves the manifold, whereas the predictive and the linear rollouts stay inside, ratios around zero point eight five. So the reconstructive failure is not a probe failure, it is the rollout walking off into a region where nothing is valid. A complementary optimal-transport check, in the backup, makes the same point geometrically: within an encounter, the predictive latent's distances track the physical advection of the flow more faithfully than the reconstructive latent's.
 
 ## Slide 22, Diagnostic 2: topology of the encounter [~1:05]
 
 The second diagnostic is topological. Shedding and gust encounters are cyclic, so a faithful state should trace one loop per encounter, not a tangle. We quantify that with persistent homology, which grows a distance scale over the latent trajectory and counts the loops that survive over a long range of scales, the genuine cycles rather than noise. On the encoded latents of the forty-two test b encounters, the predictive latent has a median of one persistent loop, the reconstructive latent a median of three and a half, a Mann-Whitney p of about four times ten to the minus eight; and at case level all ten cases have fewer loops for the predictive latent. So the predictive state is a single clean cycle and the reconstructive one fragments. To be precise, this is the topological count; it is not a claim that the PCA picture visually closes, and in fact the orbit only partially returns within the window.
 
-## Slide 23, Diagnostic 3: transport geometry [~1:10]
-
-The third diagnostic asks whether motion in the latent corresponds to physically meaningful motion of the flow. A Euclidean or pixel distance between two vorticity fields ignores where the structures actually move, but control cares exactly about advection of the leading-edge vortex and the shear layer. So we use an optimal-transport field distance, following Tran, Yeh and Taira's Journal of Fluid Mechanics paper this year on separated flows: split the signed vorticity into positive and negative parts, transport each with unbalanced Sinkhorn optimal transport, and sum, the least work to rearrange one field into another. One important difference from that paper: they train an embedding to match transport, whereas we do not, this is a post-hoc test of an independently trained latent. Per encounter, we Spearman-correlate the latent distance matrix with the OT distance matrix. Within an encounter, the predictive latent reaches zero point six three against zero point four five for the reconstructive one, order-preservation along the trajectory, not an isometry. And here I want to be honest, because it is the kind of thing a referee should catch: if you pool all the encounters together the ranking actually reverses, so this alignment is a property local to each encounter, not a global latent metric. I present it as trajectory-local transport consistency, nothing stronger.
-
-## Slide 24, Decoded reconstructions [~0:35]
+## Slide 23, Decoded reconstructions [~0:35]
 
 Pulling the three families into physical space side by side: predictive, reconstructive, POD, against the simulation, across the held-out sets. The predictive decode is blurrier pixel by pixel, but it preserves the transported large-scale wake. The reconstructive decode is sharp at the instant yet drifts under rollout. That is the trade the predictive objective makes on purpose.
 
-## Slide 25, Sparse sensor placement [~0:35]
+## Slide 24, Sparse sensor placement [~0:35]
 
 Now to observability, which is what makes this deployable. We place sparse wall-pressure sensors on the airfoil and select them with two target-aware criteria, TCSI and qDEIM, against a uniform baseline, at two, four, eight and sixteen taps. The map from those sensors to the latent is a kernel ridge regression, cross-validated to guard against small-sample overfitting.
 
-## Slide 26, Flow recovered from sparse wall pressure [~0:55]
+## Slide 25, Flow recovered from sparse wall pressure [~0:55]
 
 And it works. The model here is a kernel-ridge regressor, with an RBF kernel, from the K wall-pressure taps over a pre-impact window to the impact-frame latent, which the frozen decoder then renders as a field. Eight taps already recover the leading-edge vortex and the shear layer; two taps coarsen it but keep the gross wake structure. We benchmark against the oracle decode, the decode of the simulation-encoded latent, so you see the ceiling alongside the estimate. So the predictive state is reconstructible from a few wall sensors, a deployment-relevant observability result.
 
-## Slide 27, Sparse-sensor state estimation in action [~0:50]
+## Slide 26, Sparse-sensor state estimation in action [~0:50]
 
 Here that is, animated, and note there is no predictor in this slide. This is a per-frame MLP that maps a causal six-frame window of sixteen wall-pressure taps to the latent, decoded to a field, frame by frame: simulation on the left with the taps marked, the field recovered from pressure alone on the right. On a held-out encounter, held out by whole encounter, the latent is recovered at R-squared about zero point seven two, structural similarity around zero point five. Wall pressure fixes the near-body leading-edge vortex and shear layer; the far wake is simply not observable from the surface, which is the honest limit. This is state estimation, not forecasting, the complement to the rollout.
 
-## Slide 28, Control relevance: observable and forecastable [~1:15]
+## Slide 27, Control relevance: observable and forecastable [~1:15]
 
 This is the part that speaks most directly to this audience, and it puts the two pieces together. First, the predictive state is observable from sparse wall pressure: from the latent we recover the gust strength and core diameter on held-out cases, R-squared around zero point four six and zero point eight. Second, the figure on the right, we can predict the impact lift ahead of time. If you roll the latent forward and then probe, the predictor-in-loop gives R-squared zero point three five a full ten frames before impact, where reading the pressure sensors directly gives essentially nothing, zero point one three; the oracle ceiling is zero point six eight. And the reconstructive latent's own oracle is negative, so it never had the pre-impact information; a representation failure, not a probe failure. So you get both ingredients a controller consumes: a state estimate from cheap sensors, and a short-horizon forecast.
 
-## Slide 29, Conclusions [~0:55]
+## Slide 28, Conclusions [~0:55]
 
-To bring it together. A predictive objective, trained with wake supervision, gives you a latent dynamics model that is forward-closed, with wake R-squared around zero point seven five at the representation level and zero point eight four in the mean; that stays on its manifold under rollout; that is a single clean cycle; and whose geometry is transport-aligned along each encounter. It is compact, dimension thirty-two is as good as sixty-four, and observable from sparse wall pressure. The thread through all of it is the wake, the thing that force-only and reconstruction-only states throw away. It is a conditional forward-closure model, a substrate for model-based control and RL world-models, but not yet a validated controller. Where it goes next: because the gust enters only as a conditioning channel, replacing it with an actuation channel is a change of input, not of architecture, so the same machinery applies to control inputs; from there, closing the loop, three-dimensional observability at the strong gusts, and carrying the recipe to other parametric flows.
+To bring it together. A predictive objective, trained with wake supervision, gives you a latent dynamics model that is forward-closed, with wake R-squared around zero point seven five at the representation level and zero point eight four in the mean; that stays on its manifold under rollout; and that traces a single clean cycle. It is compact, dimension thirty-two is as good as sixty-four, and observable from sparse wall pressure. The thread through all of it is the wake, the thing that force-only and reconstruction-only states throw away. It is a conditional forward-closure model, a substrate for model-based control and RL world-models, but not yet a validated controller. Where it goes next: because the gust enters only as a conditioning channel, replacing it with an actuation channel is a change of input, not of architecture, so the same machinery applies to control inputs; from there, closing the loop, three-dimensional observability at the strong gusts, and carrying the recipe to other parametric flows.
 
-## Slide 30, Acknowledgements [~0:15]
+## Slide 29, Acknowledgements [~0:15]
 
 Thank you to my collaborators and to the funders listed here, and thank you all for your attention. I would be glad to take questions.
 
 ---
 
-## Backups (slides 31 to 39), for questions
+## Backups (slides 30 to 39), for questions
 
-- Backup divider (31).
+- Backup divider (30).
+- Transport geometry, optimal transport (31): OT field distance after Tran, Yeh & Taira (JFM 2026), signed +/- vorticity split + unbalanced Sinkhorn; post-hoc within-encounter Spearman 0.63 (predictive) vs 0.45 (reconstructive); pooled across encounters it reverses, so trajectory-local only.
 - Dataset and protocol (32): split v2, eighty-four cases, 226 / 42 / 24 encounters, the omega pipeline, the reporting protocol.
 - d = 32 vs d = 64 (33): halving the latent keeps the representation and every mechanism diagnostic; only in-distribution forecast sharpness drops (wake closure 0.45 to 0.21).
 - Seed variance (34): the reconstructive transformer cell has large seed variance, consistent with the drift mechanism.
