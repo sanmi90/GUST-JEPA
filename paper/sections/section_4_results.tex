@@ -457,7 +457,7 @@ field into another and so tracks advection of the LEV and shear layer
 \citep{tran2026}. Computing the OT distance between simulation fields along an
 encounter gives a physical transport geometry against which the latent metric
 can be checked: the prediction is that distances in the predictive latent track
-the OT geodesic more faithfully than distances in the reconstructive latent, so
+the OT distances more faithfully than distances in the reconstructive latent, so
 that iterating the predictor step keeps the rollout closer to the data manifold.
 The
 prediction holds: the per-encounter Spearman correlation between the latent
@@ -620,7 +620,7 @@ its objective is amplitude-optimal.
 The new metric resolves the caution. An unbalanced optimal-transport distance
 between the reconstructed and the simulation fields, computed for the positive
 and negative vorticity separately and summed \citep{tran2026}
-(Sinkhorn divergence, fields pooled to $48 \times 24$ for tractability),
+(entropic unbalanced Sinkhorn transport cost with a KL marginal relaxation, fields pooled to $48 \times 24$ for tractability),
 penalises the collapsed reconstruction correctly and reorders the comparison
 where structural similarity misleads (figure~\ref{fig:ot}). At the impact frame
 on test\_b the transport distance is largest for the reconstructive autoencoder
@@ -645,7 +645,7 @@ metric there.
   similarity but no transport advantage over the predictive decode, while the
   collapsed reconstructive field is correctly penalised. The Shepard panel shows
   the per-encounter alignment of latent distance with the simulation
-  OT-geodesic, predictive versus reconstructive.}
+  OT distance, predictive versus reconstructive.}
   \label{fig:ot}
 \end{figure}
 
