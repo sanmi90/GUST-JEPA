@@ -447,7 +447,7 @@ _mot = slide()
 header(_mot, "The control problem: gusts are fast, strong, nonlinear", "Motivation")
 bullets(_mot,
         [b0("Small and micro air vehicles increasingly fly where the **gust speed is comparable to or above the flight speed** (urban canyons, building and ship wakes): gust ratio **G > 1** brings large, fast load transients classical models miss"),
-         b0("A vortex strikes the wing: a **leading-edge vortex** forms and sheds, and the lift swings violently (right: DNS, C_L from about -9 to +14)"),
+         b0("A vortex strikes the wing: a **leading-edge vortex** forms and sheds, and the lift swings strongly (right: DNS, a moderate **G = +2** gust, C_L from about -5 to +8)"),
          b0("Active control, model-based or RL, needs a **fast, faithful forward model** it can trust under rollout"),
          b0("**This talk: what reduced state is worth planning against?**")],
         0.7, 1.95, 5.0, 5.0, base=15)
@@ -455,9 +455,9 @@ _mot.shapes.add_movie(str(FIG / "gust_motivation_anim.mp4"), Inches(5.95), Inche
                       Inches(6.7), Inches(4.76),
                       poster_frame_image=str(FIG / "gust_motivation_poster.png"), mime_type="video/mp4")
 left_footer(_mot)
-notes(_mot, "Pure DNS, no model yet: motivate the difficulty. A strong gust; the lift swings by about 23 "
-            "in C_L through the encounter. Pitch to a control audience: the bottleneck for model-based "
-            "control / RL is a reduced dynamics model that stays trustworthy under rollout.")
+notes(_mot, "Pure DNS, no model yet: motivate the difficulty. A moderate in-envelope gust (G = +2, train "
+            "set); the lift swings by about 13 in C_L. Pitch to a control audience: the bottleneck for "
+            "model-based control / RL is a reduced dynamics model that stays trustworthy under rollout.")
 
 s_bullets(
     "Objective: a reduced state that keeps the wake", "Objective",

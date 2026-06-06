@@ -32,14 +32,19 @@ VLIM = 2.0; DT = 0.05; LO, HI = -12, 46     # frames relative to impact
 
 
 def pick_case():
-    """Strongest illustrative gust (|G| >= 3) with the largest lift swing near impact."""
+    """A moderate-G gust from the TRAIN set (not extrapolation) with a clear lift swing."""
+    import json
+    split = json.load(open(REPO / "configs/splits/split_v2.json"))["cases"]
+    train = {k for k, c in split.items() if c["split"] == "train"}
     best = (None, -1.0)
     for d in sorted(CACHE.glob("G*_D*_Y*")):
+        if d.name not in train:
+            continue
         try:
             G = float(d.name.split("_")[0][1:])
         except ValueError:
             continue
-        if abs(G) < 3.0:
+        if not (1.5 <= abs(G) <= 2.0):   # moderate gust, in the training envelope
             continue
         f = d / "encounter_00.h5"
         if not f.exists():
