@@ -107,6 +107,50 @@ topology / OT, parameter+phase probes, physical-space, wall-pressure
 observability, SSIM) from the v2.1 runs, reported with train+val+test_b+test_c +
 bootstrap CI + 3-seed encoder variance + 5-fold probe CV.
 
+## Unconditioned rerun (2026-06-08): models MUST be unconditioned, using temporal context
+
+**This rerun trains fully UNCONDITIONED models, superseding the conditioned recipe in
+Stage 4 below.** Built on the v2.1 data above. The gust parameters c = (G, D, Y) enter
+NOWHERE: not the encoder (already unconditional) and not the predictor. Rationale: a
+coauthor questioned whether feeding c to the predictor is "cheating"; the Session 27
+prototype (tf-no-c and lstm-no-c, end-to-end retrains with `--predictor-cond-dim 0`)
+showed the unconditioned latent still REPRESENTATIONALLY keeps the wake (held-out wake
+R^2 ~0.71 vs conditioned 0.75; reconstruction/POD ~0.06), is single-cycle,
+transport-consistent, and observable from wall pressure. The whole paper should be
+unconditioned, with no mixed conditioned controls.
+
+How to apply (changes to the recipes below):
+1. **Every `src.training.train_jepa` call** (Stage 4a production, 4b seeds, Stage 8 B1
+   predictors) gains `--predictor-cond-dim 0`. This makes the AdaLN-Zero conditioning on
+   c collapse to identity; the encoder architecture is unchanged.
+2. **Temporal context is the enabler, not a single-frame Markov seed.** The predictor
+   uses the latent HISTORY window (`--T 32`, already set), and closure / forecast /
+   animations use the FULL-CONTEXT (pre-impact history) rollout; markov single-frame
+   seeding underperforms unconditioned. Two validated predictor choices:
+   `--predictor-type transformer --predictor-cond-dim 0` (architecture-matched,
+   canonical) and `--predictor-type lstm --predictor-hidden 256 --predictor-layers 3`
+   (strongest in-envelope forecaster, ~12x cheaper predictor). Report both; lead with
+   tf-no-c.
+3. **Regenerate EVERY artifact from the unconditioned models** so nothing stays
+   conditioned-labeled: closure (Stage 8), mechanism (Stages 6-7: topology, OT,
+   coordinate grouping, drift), the 2x2 objective-x-architecture control, the d=32/64
+   dim-sweep, the seed-variance cell, and the sensing study (Appendix B). The current
+   manuscript ships some of these as conditioned-model controls (captioned as such)
+   only because just the d=64 unconditioned encoder exists; the rerun replaces them.
+4. **Headline is REPRESENTATIONAL closure** (encoded-latent z_dns probe keeps the wake,
+   ~0.71-0.75), with the rolled forecast shown but de-emphasized (held-out forecast
+   mean-over-6 ~0.36 unconditioned vs ~0.45 conditioned, both >> 0.15 baseline). Do NOT
+   headline a forward-forecast-closure R^2.
+5. Track-C causal/SURD stays OUT: its C0 gate is model-free (DNS scalars only), so it
+   fails identically for conditioned and unconditioned (synergy ratio ~1.1-1.4x vs the
+   2x bar); re-running on the unconditioned latents does not change it (verified
+   Session 27).
+
+Validated Session 27 prototype templates: encoders
+`outputs/session27/JEPA_d64_noc_{tf,lstm}/`, decoders
+`outputs/session27/decoder_noc_{tf,lstm}/`, adapted generators
+`scripts/session27_*_uncond.py`, figures `outputs/session27/figs_uncond{,_lstm}/`.
+
 ## Files you MUST NOT discard before rerun
 
 These are pure inputs (code + docs); the rerun produces everything else.
