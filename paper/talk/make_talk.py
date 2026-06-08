@@ -689,8 +689,8 @@ s_fig_right(
 s_fig_right(
     "Latent coordinates group by physical function", "Result",
     [b0("Profile each of the 64 unconditioned-latent coordinates by its |Spearman| correlation with nine descriptors (gust G, forces, wake enstrophy, circulations Γ±, wake thickness, centroid)"),
-     b0("Clustering the profiles recovers **functional groups**: **~51 wake-vorticity** coordinates (three wake-dominated clusters) and **11 gust-forcing** coordinates (one force cluster)"),
-     b0("Alone, the wake groups carry the wake at **≈ 0.7-0.8**, the forcing group at **0.45** (all 64 together: 0.84), the collective wake code seen earlier"),
+     b0("Clustering the profiles recovers **functional groups**: **59 wake-vorticity** coordinates (three wake-dominated clusters) and **5 gust-forcing** coordinates (one force cluster)"),
+     b0("Alone, the wake groups carry the wake at **≈ 0.5-0.8**, the forcing group at **0.16** (all 64 together: 0.84), the collective wake code seen earlier"),
      b0("Read **descriptively**, not as a causal claim")],
     "coord_groups.png",
     cap="Per-coordinate |ρ| with each descriptor; rows grouped into functional clusters (G1-G4), labelled with coord count and held-out wake skill.",
