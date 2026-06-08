@@ -141,7 +141,7 @@ def main():
     est = {K: krr(Xtr[:, :, PICKS[str(K)]].reshape(len(Xtr), -1), ztr) for K in (8, 2)}
 
     fig, axes = plt.subplots(len(CASES), 4, figsize=fs.figure_size(1.0, aspect=0.62))
-    cols = ["simulation", "oracle decode", "from 8 taps", "from 2 taps"]
+    cols = ["simulation", "best-case decode", "from 8 taps", "from 2 taps"]
     for r, case in enumerate(CASES):
         i = int(np.where(tcid == case)[0][0])
         di = int(np.where(dcid == case)[0][0])

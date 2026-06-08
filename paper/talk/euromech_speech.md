@@ -101,7 +101,7 @@ Now to observability, which is what makes this deployable. We place sparse wall-
 
 ## Slide 23, Flow recovered from sparse wall pressure [~0:55]
 
-And it works. A kernel-ridge regressor with an RBF kernel maps the K wall-pressure taps over a pre-impact window to the impact-frame latent, which the frozen decoder renders as a field. Eight taps already recover the leading-edge vortex and the shear layer; two taps coarsen it but keep the gross wake. We benchmark against the oracle decode, the decode of the simulation-encoded latent, so you see the ceiling alongside the estimate. Because the encoder is unconditional, this observability is unchanged by dropping the gust parameters: pressure-to-state R-squared peaks around zero point eight eight at eight taps. So the unconditioned state is reconstructible from a few wall sensors, a deployment-relevant result.
+And it works. A kernel-ridge regressor with an RBF kernel maps the K wall-pressure taps over a pre-impact window to the impact-frame latent, which the frozen decoder renders as a field. Eight taps already recover the leading-edge vortex and the shear layer; two taps coarsen it but keep the gross wake. We benchmark against the best-case decode, the decode of the true simulation-encoded latent, so you see the ceiling alongside the estimate. Because the encoder is unconditional, this observability is unchanged by dropping the gust parameters: pressure-to-state R-squared peaks around zero point eight eight at eight taps. So the unconditioned state is reconstructible from a few wall sensors, a deployment-relevant result.
 
 ## Slide 24, Sparse-sensor state estimation in action [~0:50]
 

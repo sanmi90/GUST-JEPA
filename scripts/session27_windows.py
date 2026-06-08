@@ -22,14 +22,21 @@ REPO = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO))
 sys.path.insert(0, str(REPO / "scripts" / "session17"))
 sys.path.insert(0, str(REPO / "scripts" / "session20"))
+sys.path.insert(0, str(REPO / "scripts" / "session21"))
 import exp2_rollout_decode_metrics as E2  # noqa: E402
 import exp_closure_r2 as cr  # noqa: E402
+import figstyle as fs  # noqa: E402  (shared deck/paper style: family colours, markers, fonts)
 from src.models.predictor import AutoregressivePredictor, LSTMLatentPredictor  # noqa: E402
+from src.utils.device import require_rtx6000  # noqa: E402
 
 LEADS = [1, 2, 4, 8, 12, 16]              # frames BEFORE impact (anticipation)
 HORIZONS = [1, 2, 4, 8, 12, 16]           # frames AFTER impact (forecast)
-DEVICE = torch.device("cuda:2")
+DEVICE = require_rtx6000(gpu_index=0)
 OBS = ["wake_enstrophy", "C_L"]
+# Match the rest of the deck: the navy/green/blue family palette + per-family markers.
+# tf-no-c -> JEPA green (predictive), lstm-no-c -> POD blue.
+STYLE = {"tf": (fs.FAMILY_COLOR["jepa"], fs.FAMILY_MARKER["jepa"]),
+         "lstm": (fs.FAMILY_COLOR["pod"], fs.FAMILY_MARKER["pod"])}
 
 
 def load_pred(tag):
@@ -96,18 +103,21 @@ def main():
             print(f"[{tag:4s} {obs:14s}] anticipation " + " ".join(f"-{L}:{ant[L]:+.2f}" for L in LEADS)
                   + " | forecast " + " ".join(f"+{H}:{fc[H]:+.2f}" for H in HORIZONS), flush=True)
 
-    fig, axes = plt.subplots(1, 2, figsize=(9.2, 3.4), sharey=True)
+    fs.use_style()
+    fig, axes = plt.subplots(1, 2, figsize=fs.figure_size(2.0, aspect=0.42), sharey=True)
     for ax, obs in zip(axes, OBS):
-        for tag, c in (("tf", "C0"), ("lstm", "C1")):
+        for tag in ("tf", "lstm"):
+            c, mk = STYLE[tag]
             ant, fc = curves[(tag, obs)]
             xs = [-L for L in LEADS][::-1] + [0] + HORIZONS
             ys = [ant[L] for L in LEADS][::-1] + [1.0] + [fc[H] for H in HORIZONS]
-            ax.plot(xs, ys, "-o", ms=3, color=c, label=f"{tag}-no-c")
+            ax.plot(xs, ys, "-", marker=mk, color=c, label=f"{tag}-no-c")
         ax.axvline(0, color="k", lw=0.8, ls="--", alpha=0.5); ax.axhline(0, color="k", lw=0.6, alpha=0.3)
-        ax.set_title(obs.replace("_", " "), fontsize=10); ax.set_xlabel("frames relative to impact\n(<0 anticipation, >0 forecast)")
+        ax.set_title(fs.METRIC_LABEL.get(obs, obs.replace("_", " ")))
+        ax.set_xlabel("frames relative to impact\n(<0 anticipation, >0 forecast)")
         ax.grid(alpha=0.25)
-    axes[0].set_ylabel("R² (test_b)"); axes[0].legend(fontsize=8); axes[0].set_ylim(-1.0, 1.05)
-    fig.suptitle("Unconditioned JEPA: anticipation (pre-impact) and forecast (post-impact) windows", fontsize=10)
+    axes[0].set_ylabel(r"$R^2$ (test_b)"); axes[0].legend(); axes[0].set_ylim(-1.0, 1.05)
+    fig.suptitle("Unconditioned JEPA: anticipation (pre-impact) and forecast (post-impact) windows")
     fig.tight_layout()
     out = REPO / "outputs/session27/forecast_windows.pdf"
     fig.savefig(out, bbox_inches="tight"); print(f"\n[windows] -> {out}")

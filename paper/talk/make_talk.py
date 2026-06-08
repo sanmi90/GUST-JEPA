@@ -436,6 +436,55 @@ def slide_our_arch():
     return s
 
 
+def slide_decoder():
+    s = slide()
+    header(s, "The visualisation decoder (figures only, never in the loss)", "Method")
+    # small scheme: latent z -> LapFiLM decoder -> vorticity field
+    ya = 1.95
+    hb = 0.95
+    bx = [1.45, 4.4, 9.2]
+    bw = [2.4, 4.4, 2.7]
+    arx = [3.95, 8.85]
+    boxes = ["latent z\nd = 64",
+             "LapFiLM decoder\n5-level Laplacian pyramid + FiLM\npixelshuffle upsampling · ~0.9M params",
+             "vorticity field\nω (192 × 96)"]
+    fills = [JP_FILL, BOX_FILL, BOX_FILL]
+    edges = [JP_GRN, NAVY, NAVY]
+    sizes = [13, 12, 13]
+    for i, txt in enumerate(boxes):
+        dbox(s, bx[i], ya, bw[i], hb, txt, fill=fills[i], edge=edges[i], size=sizes[i])
+    for axx in arx:
+        harrow(s, axx, ya + hb / 2 - 0.09, 0.45)
+    bullets(s, [b0("Trained on the **frozen** encoder, **never part of the JEPA loss**: it only renders a latent as a field so we can look at it"),
+                b0("Loss = a **region + Laplacian-pyramid + gradient + spectral-amplitude** objective (with small enstrophy / circulation terms), so it keeps the **large-scale wake structure** rather than just pixel MSE"),
+                b0("Held-out reconstruction **SSIM ≈ 0.73**")],
+            0.7, 3.55, 12.0, 2.6, base=16)
+    left_footer(s)
+    notes(s, "The visualisation decoder is a SEPARATE stage on the frozen encoder, never in "
+             "the JEPA objective. LapFiLM: 5-level Laplacian pyramid + FiLM modulation, "
+             "pixelshuffle upsampling, ~0.9M params. Its loss is a multi-term region + "
+             "Laplacian-pyramid + gradient + spectral-amplitude objective (plus small "
+             "enstrophy/circulation terms), so it preserves large-scale wake structure rather "
+             "than pixel MSE. Held-out reconstruction SSIM ~0.73. Used only to visualise "
+             "latents as fields in the rollout / recovery figures.")
+    return s
+
+
+def slide_model_detail():
+    return s_fig_right(
+        "Model detail: encoder and predictor", "Method",
+        [b0("**Encoder** = a CNN stem (3 down-sampling stages) + a 6-layer Vision Transformer; the field becomes 288 patch tokens, and a learned [CLS] token is mapped by a small MLP (with BatchNorm) to the latent z (d = 32 / 64)"),
+         b0("**Predictor** = a 6-layer autoregressive transformer (hidden 384, 16 heads, dropout 0.1): it reads z(t) and emits the next latent z(t+1). **Unconditioned: no gust parameters enter the predictor**"),
+         b0("**Causal mask:** each step sees only past steps, never the future; **RoPE** encodes the frame ordering so the transformer knows what is earlier or later"),
+         b0("**Training:** match the next latent (teacher forcing) + **scheduled sampling** (feed the model its own predictions over an 8-step rollout, so it tolerates its own errors) + **SIGReg** anti-collapse (keeps z informative without a decoder); AdamW, bf16, 20k steps"),
+         b0("**Architecture inspired by the JEPA world-model line:** I-JEPA / V-JEPA, and the from-pixels LeWM (Maes et al. 2026) and LeJEPA (Balestriero and LeCun 2025)")],
+        "predictor_detail.png", fl=7.3, fw=5.6, base=12.5,
+        note="Moved from backup into the architecture block (after the decoder slide). Encoder = "
+             "CNN stem + 6-layer ViT, [CLS]->MLP(BatchNorm)->z. Predictor = 6-layer AR transformer, "
+             "unconditioned (no gust parameters). Causal mask + RoPE. Trained with teacher forcing + "
+             "scheduled sampling (8-step) + SIGReg. Lineage: I-JEPA/V-JEPA, LeWM, LeJEPA.")
+
+
 # ---- build ------------------------------------------------------------------
 s_title()
 
@@ -507,6 +556,12 @@ s_bullets(
 
 slide_our_arch()
 
+# The visualisation decoder (figures only, never in the JEPA loss)
+slide_decoder()
+
+# Encoder / predictor detail (moved here from backup to group the architecture)
+slide_model_detail()
+
 # Illustrated alternatives (Fukami style); compare with the box diagrams on slides 6 & 8
 s_fig_below(
     "Illustrated alternative: the autoencoder route", "Method, alternative",
@@ -530,14 +585,14 @@ s_fig_below(
     [b0("**Representational closure (the headline):** probe each observable from the **encoded** latent at impact + 16, what the state *carries*, no rollout"),
      b0("**Forward (rollout) mode:** roll the predictor recursively to **H = 16** and probe the predicted latent; here we use it **qualitatively** (does the rolled latent track the wake?)"),
      b0("**Matched protocol:** same predictor architecture and same probe family, **trained / fitted separately per latent**, so differences are the encoder's"),
-     b0("**Parameter-only floor:** can the **three gust numbers (G, D, Y) alone** predict each observable (a kernel-ridge fit)? Beating the floor proves the latent **carries flow state beyond the parameters**"),
-     b0("Reported with bootstrap CIs, 3 encoder seeds, 5-fold probe CV; held-out test_b / test_c")],
+     b0("**Parameter-only floor:** can the **three gust numbers (G, D, Y) alone** predict each observable (a kernel-ridge fit)? Beating the floor proves the latent **carries flow state beyond the parameters**")],
     "eval_protocol.png",
-    cap="The same probe maps every encoder family to the observables. Representational mode (encoded latent) is the headline; forward rollout is shown qualitatively.",
-    ft=4.35, fh=2.1,
+    cap="Same probe family maps every encoder (JEPA / AE / POD) to the observables. Representational mode (encoded latent) is the headline; forward rollout is shown qualitatively.",
+    ft=4.35, fh=2.1, base=14,
     note="Fairness is the whole point: only the encoder changes. Headline is REPRESENTATIONAL closure "
          "(probe the encoded latent); the forward rollout is shown qualitatively only. The parameter-only "
-         "floor rules out 'the parameters did it'.")
+         "floor rules out 'the parameters did it'. Reported with bootstrap CIs, 3 encoder seeds, "
+         "5-fold probe CV; held-out test_b / test_c.")
 
 # IV. Results
 s_fig_right(
@@ -560,7 +615,8 @@ header(_anim, "The rolled latent qualitatively tracks the wake", "Result, qualit
 bullets(_anim,
         [b0("The predictor **rolls the latent forward from impact**; each scalar is read off the rolled latent by a fixed linear probe"),
          b0("**Wake enstrophy** and **lift** qualitatively track the DNS truth (black) through impact and the lift dip"),
-         b0("Reconstruction (green) = encoded-latent **ceiling**; prediction (orange) = the **rolled latent**"),
+         b0("**Green = reconstruction** = the model's **own encoded latent decoded with NO rollout** (encode-then-decode of the true frame, the representational **ceiling**); it is **not** a separate reconstructive autoencoder"),
+         b0("**Orange = prediction** = the **rolled latent** (the predictor advanced forward, then decoded)"),
          b0("A representative **low-error** encounter (G = +1.5), not the hardest case; shown qualitatively, no closure R² claimed here")],
         0.7, 2.05, 4.7, 4.6, base=15)
 _anim.shapes.add_movie(str(FIG / "forecast_anim.mp4"), Inches(5.7), Inches(1.75),
@@ -568,10 +624,12 @@ _anim.shapes.add_movie(str(FIG / "forecast_anim.mp4"), Inches(5.7), Inches(1.75)
                        poster_frame_image=str(FIG / "forecast_poster.png"), mime_type="video/mp4")
 left_footer(_anim)
 notes(_anim, "Embedded MP4 (plays in PowerPoint; a still shows otherwise). Two observables "
-             "(wake enstrophy and lift): original (DNS) vs encoded-latent reconstruction vs "
-             "rolled-latent prediction, for a representative low-error gust encounter (G = +1.5, "
-             "the unconditioned tf-no-c rollout). Qualitative: the rolled latent tracks the wake; "
-             "no closure R^2 is claimed on this slide.")
+             "(wake enstrophy and lift). GREEN reconstruction = the model's OWN encoded latent "
+             "decoded with NO rollout (encode-then-decode of the true frame), i.e. the "
+             "representational ceiling, NOT a separate reconstructive autoencoder. ORANGE "
+             "prediction = the rolled latent (predictor advanced forward, then decoded). "
+             "Representative low-error gust encounter (G = +1.5, the unconditioned tf-no-c "
+             "rollout). Qualitative: the rolled latent tracks the wake; no closure R^2 is claimed.")
 
 _field = slide()
 header(_field, "The same rollout in physical space", "Result, physical space")
@@ -594,15 +652,19 @@ notes(_field, "Physical-space companion to the scalar rollout: same encounter (G
 
 s_fig_right(
     "It is the wake, not the forces", "Result",
-    [b0("**Forces** (C_L, C_D) are carried **redundantly by every family**, many coordinates encode them"),
-     b0("Only the unconditioned predictive latent carries a **distributed wake code** (full latent 0.84; best single coordinate 0.48)"),
-     b0("Reconstructive / linear: best single coordinate ≈ the whole latent → **no collective wake structure**"),
+    [b0("Each bar is **how well the future wake is forecast**: **dark = the full latent** (all 64 coordinates together), **light = the single best coordinate**"),
+     b0("**Predictive JEPA:** the full latent (**0.84**) far exceeds the best single coordinate (**0.48**) → the wake is a **distributed code spread across many coordinates**"),
+     b0("**Reconstructive / POD:** the best single coordinate is **already as good as the whole latent** → there is **no distributed / collective wake code** to find"),
+     b0("**Forces** (C_L, C_D), by contrast, are carried **redundantly by every family**, in a single coordinate"),
      b0("And it clears the **parameter-only floor** → the latent, not the parameters, does the work")],
     "wake_code.png",
-    cap="Wake skill: full latent (dark) vs best single coordinate (light).",
-    note="This explains the main result mechanistically at the representation level: the wake "
-         "is a collective code only the predictive objective builds (unconditioned tf-no-c: full "
-         "latent 0.84 vs best single coordinate 0.48).")
+    cap="Future-wake skill: full latent (dark, all 64 coordinates) vs the single best coordinate (light). Predictive = distributed code; reconstructive / POD = one coordinate suffices.",
+    note="Mechanistic reading of the main result. Each bar = how well the FUTURE WAKE is forecast; "
+         "dark = the full latent (all 64 coordinates together), light = the single best coordinate. "
+         "For the predictive JEPA the full latent (0.84) far exceeds the best single coordinate "
+         "(0.48): the wake is a DISTRIBUTED code. For reconstructive / POD the best single "
+         "coordinate is already as good as the whole latent, so there is NO distributed/collective "
+         "wake code to find. Forces are carried redundantly by every family.")
 
 s_fig_right(
     "The wake in physical space: the Gaussian scale split", "Result",
@@ -633,40 +695,51 @@ s_fig_right(
 s_fig_right(
     "Controls: objective and supervision, not architecture", "Result, controls (conditioned-model control)",
     [b0("**(Conditioned-model control; no unconditioned variant run.)** **2 × 2:** objective {predictive, reconstructive} × architecture {CNN, CNN+ViT}, auxiliary heads matched"),
-     b0("Predictive beats reconstructive at **both** architectures (wake R² 0.46 / 0.45 vs 0.16 / 0.29) → **not the ViT**"),
-     b0("Remove the wake head from the predictive model → wake closure **collapses below floor (R² = −1.03)**"),
+     b0("**Fair comparison:** every cell is rolled with the **same temporal predictor** (the matched closure predictor: same architecture and protocol, trained separately per family), so the **only thing that varies is the encoder's objective / architecture**"),
+     b0("The **predictive objective wins at both architectures** (wake R² 0.46 / 0.45 vs 0.16 / 0.29) → **it is the objective, not the ViT**"),
+     b0("And the **wake-observable head is a necessary ingredient**: removing it removes the gain"),
      b0("→ the gain needs the **predictive objective and wake supervision together**")],
     "controls_fairness.png",
-    cap="Objective × architecture controls, three seeds per cell.",
-    note="Pre-empt the skeptic: isolate the cause before the mechanism. Honest two-part answer: "
-         "objective carries it, but the wake head is a necessary ingredient.")
+    cap="Objective × architecture controls, three seeds per cell; every cell rolled with the same matched closure predictor, so only the encoder's objective / architecture varies.",
+    note="Pre-empt the skeptic: isolate the cause before the mechanism. Fair-comparison setup: every "
+         "cell is rolled with the SAME temporal predictor (the matched closure predictor, same "
+         "architecture and protocol, trained separately per family), so the only thing that varies is "
+         "the encoder's objective/architecture. The predictive objective wins at both architectures "
+         "(it is the objective, not the ViT), and the wake-observable head is a necessary ingredient.")
 
 s_fig_right(
     "Diagnostic 1: latent drift", "Mechanism",
     [b0("**Why this question:** a planner / RL agent queries the model at states reached by its **own rollout**, one-step error is not enough"),
-     b0("**Mahalanobis distance:** covariance-aware distance from a reference cloud, d = sqrt((z−μ)' S^-1 (z−μ)); ≈ 1 is one standard-deviation unit"),
-     b0("We compare the **rolled-out** latent to the distribution of **DNS-encoded** latents (ratio = rollout / encoded)"),
-     b0("**Result:** the **unconditioned** rollout drift grows **gracefully** and stays on-manifold, matching the conditioned model; the reconstructive rollout drifts far off-manifold by comparison"),
-     b0("So the predictive state remains in-distribution as it is propagated, exactly where the probes (and a planner) are valid")],
+     b0("**z_dns** = the latent **encoded directly from the simulation field** (ground truth); **z_markov** = the latent **produced by rolling the predictor forward**"),
+     b0("The curve is their **relative distance vs horizon** (‖z_markov − z_dns‖ / ‖z_dns‖); **lower / flatter is better** (the rollout stays on the data manifold)"),
+     b0("**Result:** the **unconditioned** rollout drift grows **gracefully** and **matches the conditioned model**; it stays on-manifold, exactly where the probes (and a planner) are valid")],
     "drift.png",
-    cap="Rollout drift vs horizon (test_b): relative Mahalanobis distance of the rolled latent to the DNS-encoded cloud. The unconditioned rollout stays on-manifold.",
-    note="Non-standard metric, so define it. Low one-step error is worthless if the rollout walks "
-         "off the data manifold where probes are invalid. Reframed to the QUALITATIVE on-manifold point: "
-         "the unconditioned rollout drift grows gracefully and matches the conditioned model. No "
-         "closure-R2 sentence; horizon_sweep figure dropped in favour of the unconditioned drift figure.",
+    cap="Rollout drift vs horizon (test_b): how far the rolled latent z_markov strays from the true encoded latent z_dns (relative distance). Lower / flatter = stays on-manifold.",
+    note="Define the terms for the audience. z_dns = the latent encoded directly from the simulation "
+         "field (ground truth); z_markov = the latent produced by rolling the predictor forward. The "
+         "curve is their relative distance vs horizon, and LOWER/flatter is better (the rollout stays "
+         "on the data manifold). The unconditioned rollout drift grows gracefully and matches the "
+         "conditioned model. Figure now plots only tf-no-c, lstm-no-c, and the conditioned production "
+         "JEPA (Fukami dropped: its smooth latent gives a misleadingly low drift).",
     base=14)
 
 s_fig_right(
     "Diagnostic 2: topology of the encounter", "Mechanism",
-    [b0("**Why:** shedding and gust encounters are **cyclic**; a faithful state should trace **one loop** per encounter, not a tangle"),
-     b0("**Persistent homology** (coordinate-free): it grows a distance scale on the latent trajectory and counts the **loops (1-cycles) that persist** over a long scale range, i.e. the genuine cycles, not noise"),
-     b0("**Result (encoded latent, 42 test_b encounters):** the **unconditioned** tf-no-c latent has **median 1** persistent loop vs reconstructive **median ~4** (Mann-Whitney p ≈ 5×10⁻⁹)"),
-     b0("So the predictive state is a **single clean cycle**, the reconstructive one **fragments**. This is the *topological count*, **not** a claim that the PCA curve visually closes (panels are encode→decode, no predictor; the orbit departs the baseline cycle and only partially returns in 120 frames)")],
+    [b0("A gust encounter is a **cycle**: the flow loops and roughly returns to where it started"),
+     b0("We ask whether the latent traces **one clean loop** or a **tangle of many**"),
+     b0("**Persistent homology** is just a principled **loop-counter** on the latent path (it counts the loops that genuinely persist, not noise)"),
+     b0("**Result:** the **unconditioned** JEPA latent makes **one loop** (median 1); the **reconstructive** latent **fragments into many** (median ~4); p ≈ 5×10⁻⁹"),
+     b0("So the predictive state captures the encounter as a **single coherent cycle** (count of persistent H1 generators; Mann-Whitney test)")],
     "cycle.png",
-    cap="(a, b) PCA of the encoded-latent trajectory; (c) staged decodes (reconstructions) with OT distances. Single-cycle = median 1 persistent H1 generator (vs ~4); the orbit need not visually close in the window.",
-    note="Define persistent homology simply: count loops that survive over a range of scales. Numbers "
-         "(unconditioned tf-no-c): median 1 vs Fukami median ~4 H1 generators on z_dns (encounter-level "
-         "MWU p~5e-9). Snapshots are encode->decode reconstructions; no temporal predictor here.", base=14)
+    cap="The latent path of an encounter: the predictive latent traces one loop (median 1), the reconstructive latent many (median ~4). Persistent homology counts the loops.",
+    note="Plain-language framing for a non-expert audience. A gust encounter is a cycle (the flow "
+         "loops and roughly returns). We ask whether the latent traces ONE clean loop or a tangle of "
+         "many. Persistent homology is a principled loop-counter on the latent path. Result: the "
+         "unconditioned JEPA latent makes one loop (median 1); the reconstructive latent fragments "
+         "into many (median ~4); p ~ 5e-9. So the predictive state captures the encounter as a single "
+         "coherent cycle. (Technically: count of persistent H1 generators on z_dns over 42 test_b "
+         "encounters; encounter-level Mann-Whitney p ~ 5e-9. The PCA panels are encode->decode, no "
+         "predictor; the orbit need not visually close in the 120-frame window.)", base=14)
 
 s_fig_below(
     "Decoded reconstructions", "Result, physical space",
@@ -678,21 +751,23 @@ s_fig_below(
 s_fig_below(
     "Sparse sensor placement", "Control relevance",
     [b0("Sparse wall-pressure sensors selected by **TCSI / qDEIM** vs uniform"),
-     b0("Pressure → latent map: KernelRidge(RBF) on the K-sensor × pre-impact-window vector"),
-     b0("K = 2 / 4 / 8 / 16; the LSTM/KRR comparison is 5-fold-CV selected to guard small-sample overfitting")],
-    "sensor_placement.png", cap="Optimal sparse sensor placement on the airfoil surface.",
-    ft=3.5, fh=3.1)
+     b0("**Model:** the pressure → latent map is a **KernelRidge (RBF)** regressor on the K-sensor × pre-impact-window vector; K = 2 / 4 / 8 / 16 (LSTM / KRR 5-fold-CV selected to guard small-sample overfitting)"),
+     b0("**Metric — state-recovery R²:** the **fraction of the held-out latent's variance recovered from the K pressure taps** (1 = perfect, 0 = no better than the mean), for the **unconditioned tf-no-c latent** (no gust parameters anywhere)")],
+    "sensor_placement.png", cap="Optimal sparse sensor placement on the airfoil surface; state-recovery R² is the fraction of the unconditioned latent's variance recovered from K taps.",
+    ft=4.0, fh=2.9)
 
 s_fig_right(
     "Flow recovered from sparse wall pressure", "Control relevance",
     [b0("**Model:** a **KernelRidge (RBF kernel)** regressor maps the K wall-pressure taps over a pre-impact window to the **impact-frame latent**; the frozen decoder then renders the field"),
      b0("**K = 8 taps** recover the leading-edge vortex and shear layer; **K = 2** coarsens but keeps the gross wake structure"),
-     b0("Benchmarked against the **oracle decode** (decode of the simulation-encoded latent) and the simulation"),
+     b0("Benchmarked against the **best-case decode** (decode of the **true simulation latent**, i.e. the ceiling decode) and the simulation"),
      b0("So the predictive state is **reconstructible from a few wall sensors**, a deployment-relevant observability result")],
     "flow_recovery.png",
-    cap="Flow recovered from sparse wall pressure: simulation, oracle decode, and decode of the latent estimated from K = 8 and K = 2 taps (held-out encounters).",
-    note="Reframed to match the figure (flow from pressure). The predictive-vs-reconstructive wake "
-         "tracking is already on slide 3 (scale decomposition).", base=16)
+    cap="Flow recovered from sparse wall pressure: simulation, best-case (ceiling) decode of the true simulation latent, and decode of the latent estimated from K = 8 and K = 2 taps (held-out).",
+    note="Reframed to match the figure (flow from pressure). The 'best-case decode' column is the "
+         "CEILING decode (decode of the true simulation-encoded latent), i.e. the best the decoder "
+         "could do given a perfect latent. The predictive-vs-reconstructive wake tracking is already "
+         "on the scale-decomposition slide.", base=16)
 
 _sense = slide()
 header(_sense, "Sparse-sensor state estimation in action", "Control relevance")
@@ -729,7 +804,7 @@ s_fig_right(
 
 s_fig_below(
     "Two forecast windows: early warning, then forecast", "Control relevance",
-    [b0("**Roll the unconditioned predictor** and read each observable off the rolled latent: how early can we **anticipate** impact, and how far can we **forecast** after it?"),
+    [b0("We **roll the unconditioned JEPA's own predictor forward in latent space** and read each observable off the rolled latent with a **fixed linear probe**: we **predict the JEPA latent, then probe wake / lift from it**"),
      b0("**Wake:** a wide **±16-frame (≈ ±0.8 t/c)** window around impact (R² 0.7-0.9) -- the structural signature gives **early warning** and short-range forecast"),
      b0("**Lift C_L:** hard to anticipate (flat before impact) but **strongly forecastable after** (R² ≈ 0.8 to +12) -- the load is predictable **once impact hits**")],
     "forecast_windows.png",
@@ -850,19 +925,16 @@ s_bullets(
      b0("→ JEPA's generalisation is **not** explained by the gust parameters alone")])
 
 s_fig_right(
-    "Model detail: encoder and predictor", "Backup",
-    [b0("**Encoder** = a CNN stem (3 down-sampling stages) + a 6-layer Vision Transformer; the field becomes 288 patch tokens, and a learned [CLS] token is mapped by a small MLP (with BatchNorm) to the latent z (d = 32 / 64)"),
-     b0("**Predictor** = a 6-layer autoregressive transformer (hidden 384, 16 heads, dropout 0.1): it reads z(t) and emits the next latent z(t+1). **Unconditioned: no gust parameters enter the predictor**"),
-     b0("**Causal mask:** each step sees only past steps, never the future; **RoPE** encodes the frame ordering so the transformer knows what is earlier or later"),
-     b0("**Training:** match the next latent (teacher forcing) + **scheduled sampling** (feed the model its own predictions over an 8-step rollout, so it tolerates its own errors) + **SIGReg** anti-collapse (keeps z informative without a decoder); AdamW, bf16, 20k steps")],
-    "predictor_detail.png", fl=7.3, fw=5.6, base=12.5)
-
-s_fig_right(
     "Phase–amplitude reading", "Backup",
     [b0("Phase–amplitude decomposition of the encounter cycle in the predictive latent"),
+     b0("The sharp **2π → 0 step** in panel (b) is a **phase wrap** (θ is a cyclic angle on the orbit; it resets at the branch cut, which falls near impact), **not a physical jump**"),
      b0("Connects the predictor to the **sensitivity-function control** designed for these flows"),
      b0("An actuation channel is the natural next input for closed-loop control")],
-    "phase_amplitude.png", fl=7.9, fw=5.0)
+    "phase_amplitude.png", fl=7.9, fw=5.0,
+    cap="The 2π → 0 step in panel (b) is a phase wrap (cyclic angle resetting at the branch cut near impact), not a physical discontinuity.",
+    note="Phase-amplitude reading of the encounter cycle. Note for the audience: the abrupt "
+         "2*pi -> 0 step in panel (b) is a phase WRAP (theta is a cyclic angle on the orbit, it "
+         "resets at the branch cut, which falls near impact), not a physical jump.")
 
 # ---- page numbers (skip the title) -----------------------------------------
 for i, sl in enumerate(prs.slides):

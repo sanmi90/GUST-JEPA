@@ -47,7 +47,7 @@
 
   % ---- bottom branch: forecast closure ----
   \node[predictor, below right=3mm and 5mm of zt] (pred)
-    {\textbf{shared predictor} $P$ \\[1pt] unconditional, rollout to $H$};
+    {\textbf{matched predictor} $P$ \\[1pt] unconditional, rollout to $H$};
   \node[state, right=5mm of pred] (zhat) {$\widehat{\mathbf{z}}_{t+H}$};
   \node[probe, right=5mm of zhat] (probeF) {same $g$};
   \node[obs, right=7mm of probeF] (obsF)
@@ -59,8 +59,8 @@
 
   % ---- annotation (unconditional: no gust parameters anywhere) ----
   \node[align=center, font=\footnotesize\itshape, below=7mm of pred]
-    {The predictor (unconditional, no gust parameters) and the probe family $g$
-     are held fixed across the three encoder families.};
+    {The predictor (unconditional, no gust parameters) and probe family $g$ use the
+     same architecture and protocol, trained separately for each encoder family.};
 
 \end{tikzpicture}
 

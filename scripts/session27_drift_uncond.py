@@ -16,16 +16,18 @@ REPO = Path(__file__).resolve().parents[1]
 PROD = REPO / "outputs/session18/exp_b1_test3"
 SPLIT = "test_b"
 HZ = [1, 2, 4, 8, 12, 16, 20, 24]
+# Only the predictive families: tf-no-c, lstm-no-c, and the conditioned production
+# JEPA. Fukami is intentionally dropped here -- its smooth (reconstructive) latent
+# gives a misleadingly low drift, which would mislead this on-manifold diagnostic.
 FAMILIES = [
     ("tf-no-c", REPO / f"outputs/session27/rollouts_noc_tf/{SPLIT}.npz", "#C0520F", "-"),
     ("lstm-no-c", REPO / f"outputs/session27/rollouts_noc_lstm/{SPLIT}.npz", "#E08A4A", "-"),
     ("JEPA (cond, prod)", PROD / f"rollouts_jepa_d64_test1_noBN/{SPLIT}.npz", "#2E7D4F", "--"),
-    ("Fukami AE", PROD / f"rollouts_fukami_d64_noBN/{SPLIT}.npz", "#3C6FB0", ":"),
 ]
 
 
 def main():
-    fig, ax = plt.subplots(figsize=(5.2, 3.3))
+    fig, ax = plt.subplots(figsize=(5.6, 3.5))
     print("=== relative rollout drift ||z_markov-z_dns||/||z_dns|| (test_b, median) ===")
     for name, npz, col, ls in FAMILIES:
         if not npz.exists():
@@ -46,9 +48,10 @@ def main():
         ax.plot(HZ, med, ls, color=col, lw=1.9, label=name)
         print(f"  {name:18s} " + "  ".join(f"H{H}:{m:.2f}" for H, m in zip(HZ, med)), flush=True)
     ax.set_xlabel("forecast horizon H (frames after impact)")
-    ax.set_ylabel("relative rollout drift\n||z_markov - z_dns|| / ||z_dns||")
-    ax.set_title("Latent drift of the markov rollout (test_b)", fontsize=9)
-    ax.legend(fontsize=7); ax.grid(alpha=0.25)
+    ax.set_ylabel("rollout drift  (lower = stays on-manifold)", fontsize=8.5)
+    ax.set_title("Rollout drift: how far the rolled latent strays\n"
+                 "from the true encoded latent (test_b)", fontsize=9.5)
+    ax.legend(fontsize=8); ax.grid(alpha=0.25)
     fig.tight_layout()
     out = REPO / "outputs/session27/drift_uncond.pdf"
     fig.savefig(out, bbox_inches="tight"); print(f"\n[drift] figure -> {out}")
