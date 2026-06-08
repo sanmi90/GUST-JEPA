@@ -303,6 +303,42 @@ class AutoregressivePredictor(nn.Module):
         return z_full
 
 
+class LSTMLatentPredictor(nn.Module):
+    """Recurrent latent predictor with the same API as AutoregressivePredictor.
+
+    A stateful LSTM over the latent sequence that predicts the next latent from
+    the causal history. Used as the JEPA predictor to test whether temporal
+    memory in the predictor lets the encoder learn a forecastable representation
+    without the gust conditioning. ``cond`` (when ``cond_dim > 0``) is broadcast
+    over time and concatenated to the latent input; with ``cond_dim = 0`` the
+    predictor never sees it. Output head is a plain Linear (no BatchNorm), to
+    match the closure ``--no-output-bn`` setting.
+    """
+
+    def __init__(self, latent_dim: int, cond_dim: int = 0, hidden_dim: int = 256,
+                 num_layers: int = 3, dropout: float = 0.1, max_seq_len: int = 32) -> None:
+        super().__init__()
+        self.latent_dim = latent_dim
+        self.cond_dim = cond_dim
+        self.max_seq_len = max_seq_len
+        self.rnn = nn.LSTM(latent_dim + cond_dim, hidden_dim, num_layers,
+                           batch_first=True, dropout=dropout if num_layers > 1 else 0.0)
+        self.head = nn.Linear(hidden_dim, latent_dim)
+
+    def forward(self, z: Tensor, cond: Tensor | None = None) -> Tensor:
+        x = z
+        if self.cond_dim > 0 and cond is not None:
+            x = torch.cat([z, cond.unsqueeze(1).expand(-1, z.shape[1], -1)], dim=-1)
+        out, _ = self.rnn(x)
+        return self.head(out)
+
+    def rollout(self, z_init: Tensor, cond: Tensor, steps: int) -> Tensor:
+        z_full = z_init
+        for _ in range(steps):
+            z_full = torch.cat([z_full, self.forward(z_full, cond)[:, -1:, :]], dim=1)
+        return z_full
+
+
 class ReversePredictor(nn.Module):
     """Reverse-factorisation transformer: forces -> encoder latents.
 

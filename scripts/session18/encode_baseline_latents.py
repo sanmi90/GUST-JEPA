@@ -275,6 +275,8 @@ def parse_args() -> argparse.Namespace:
         default=["train", "test_a", "test_b", "test_c"],
     )
     p.add_argument("--gpu", type=int, default=0)
+    p.add_argument("--device", type=str, default=None,
+                   help="Explicit torch device (e.g. cuda:0 for an L40S); bypasses require_rtx6000.")
     return p.parse_args()
 
 
@@ -307,7 +309,7 @@ def main() -> None:
     else:
         from src.utils.device import require_rtx6000
 
-        device = require_rtx6000(gpu_index=args.gpu)
+        device = torch.device(args.device) if args.device else require_rtx6000(gpu_index=args.gpu)
         encode_fn, d_ckpt = _load_jepa_encoder(args.checkpoint, pipeline, device)
 
     if d_ckpt != args.d:

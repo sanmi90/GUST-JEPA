@@ -1,29 +1,31 @@
-% Abstract. Replaced 2026-06-03 with user-provided text. Leads with the physical
-% problem (wake reorganisation governs the transient load), anchors the wake claim on
-% representation + case-clustered survival, reports the forecast as a secondary
-% descriptive point estimate (not a significance claim), mechanism is geometric,
-% ends on the positive observability result (the interventional caveat stays in S1 +
-% S5.4). "parameterised" harmonised to "parametrised" to match the body;
-% \vRe / NACA~0012 / math mode applied.
+% Abstract. Reframed 2026-06-08 for the fully UNCONDITIONED model: no gust
+% parameters enter the encoder or the predictor. Leads with the physical problem
+% (wake reorganisation governs the transient load), headlines the REPRESENTATIONAL
+% wake closure (the latent keeps the wake reconstruction loses), de-emphasises the
+% rollout (shown, not headlined as forward-closure), mechanism is geometric, ends
+% on the positive observability result. No em-dashes; bounded claims (no isometry,
+% no validated controller). The interventional caveat stays in S1 + S5.
 
 Extreme vortex-gust encounters challenge reduced-order models because the transient
 load is governed by wake reorganisation as well as by integrated forces. We ask which
-reduced state remains physically closed when propagated forward. Using direct
-numerical simulations of a NACA~0012 airfoil at $\alpha = 14^\circ$ and
-$\vRe = 5000$, perturbed by Taylor vortices parametrised by gust strength $G$, core
-diameter $D$, and wall-normal offset $Y$, we compare three latent states at matched
-dimension: an observable-augmented joint-embedding predictive architecture, a
+reduced state faithfully keeps the wake that reconstruction discards and that remains
+recoverable from sensors. Using direct numerical simulations of a NACA~0012 airfoil
+at $\alpha = 14^\circ$ and $\vRe = 5000$, perturbed by Taylor vortices parametrised
+by gust strength $G$, core diameter $D$, and wall-normal offset $Y$, we compare three
+latent states at matched dimension: a fully unconditioned joint-embedding predictive
+architecture, in which no gust parameters enter the encoder or the predictor, a
 reconstructive autoencoder in the Fukami-Taira lineage, and a POD basis. All are
-evaluated with the same autoregressive predictor, the same conditioning on $(G,D,Y)$,
-and the same probes, using forward closure of six observables at sixteen frames after
-impact. The predictive latent carries wake information that the baselines lose: its
-representational wake-enstrophy $R^2$ is $0.75$ where the reconstructive and linear
-baselines are negative, and the paired wake-enstrophy improvement survives case-level
-clustering and family-wide correction. Its Markov rollout is also the only one with
-positive wake-enstrophy forecast $R^2$ at the same horizon. The mechanism is
-geometric: reconstructive rollouts leave their latent manifold, fragment the
-encounter topology, and lose alignment with the flow's transport geometry, whereas
-predictive rollouts remain close to the encoded manifold. Matched controls show that
-the advantage requires the predictive objective together with wake-observable
-supervision, not the ViT architecture alone. The resulting state is also the most
-recoverable from sparse wall pressure, making it observable as well as forecastable.
+evaluated with the same probes, using the held-out closure of six observables.
+The predictive latent encodes wake information that the baselines lose: probed
+directly from the held-out field, its representational wake-enstrophy $R^2$ is $0.71$,
+essentially the $0.75$ of a model that does receive the gust parameters, while the
+reconstructive and linear baselines are at $0.06$ and below. The latent is single
+cycle and its metric stays aligned with the flow's transport geometry in a
+trajectory-local sense, whereas the reconstructive rollout leaves its latent manifold
+and fragments the encounter topology. Rolled forward, the unconditioned predictor
+tracks the wake through the encounter, which we show but do not present as a validated
+forecast. Matched controls show that the advantage requires the predictive objective
+together with wake-observable supervision, not the ViT architecture alone, and that
+removing the gust parameters costs almost nothing in what the latent encodes. The
+resulting state is also the most recoverable from sparse wall pressure, making it
+observable as well as a faithful carrier of the wake.

@@ -47,7 +47,7 @@
 
   % ---- bottom branch: forecast closure ----
   \node[predictor, below right=3mm and 5mm of zt] (pred)
-    {\textbf{shared predictor} $P$ \\[1pt] rollout to $H$};
+    {\textbf{shared predictor} $P$ \\[1pt] unconditional, rollout to $H$};
   \node[state, right=5mm of pred] (zhat) {$\widehat{\mathbf{z}}_{t+H}$};
   \node[probe, right=5mm of zhat] (probeF) {same $g$};
   \node[obs, right=7mm of probeF] (obsF)
@@ -57,16 +57,10 @@
   \draw[arr] (zhat) -- (probeF);
   \draw[arr] (probeF) -- (obsF);
 
-  % ---- conditioning into the predictor ----
-  \node[align=center, font=\footnotesize, fill=yellow!18, rounded corners=2pt,
-        inner sep=3pt, below=5mm of pred] (cond)
-    {$\mathbf{c}=(G,D,Y)$};
-  \draw[arr] (cond.north) -- (pred.south);
-
-  % ---- annotation ----
-  \node[align=center, font=\footnotesize\itshape, below=4mm of cond]
-    {The predictor, the conditioning $\mathbf{c}$, and the probe family $g$ are
-     held fixed across the three encoder families.};
+  % ---- annotation (unconditional: no gust parameters anywhere) ----
+  \node[align=center, font=\footnotesize\itshape, below=7mm of pred]
+    {The predictor (unconditional, no gust parameters) and the probe family $g$
+     are held fixed across the three encoder families.};
 
 \end{tikzpicture}
 

@@ -1,11 +1,12 @@
 % Fig 1 - JEPA architecture for vortex-jepa manuscript.
 %
-% Layout (v5): losses placed NEXT to their targets so arrows are short
+% UNCONDITIONED model: no gust parameters enter the encoder or the predictor.
+% The c=(G,D,Y) -> predictor arrow and the AdaLN-Zero conditioning have been
+% removed; the predictor advances the latent from its own history alone.
+%
+% Layout (v6): losses placed NEXT to their targets so arrows are short
 % and never cross other boxes.
-%   LEFT column:       L_obs and L_wake (aux-head losses), next to cl/wake
-%   MIDDLE-LEFT:       aux observable heads (cl, wake)
 %   CENTER:            input -> encoder -> z_t -> predictor -> zhat -> decoder -> xhat
-%   RIGHT column:      L_sigreg, c=(G,D,Y), L_pred, L_roll (one per spine box)
 %
 % Standalone-compilable: pdflatex fig1_jepa_architecture.tex
 
@@ -43,9 +44,9 @@
      BatchNorm projection};
   \node[state, below=12mm of enc] (zt) {$\mathbf{z}_t \in \mathbb{R}^{d}$};
   \node[predictor, below=12mm of zt] (pred)
-    {\textbf{Predictor} $P_{\phi}$ \\[2pt]
+    {\textbf{Predictor} $P_{\phi}$ (unconditional) \\[2pt]
      AR transformer (6 layers, hidden 384) \\[1pt]
-     AdaLN-Zero conditioning, RoPE on $Q,K$};
+     RoPE on $Q,K$, causal mask};
   \node[state, below=12mm of pred] (zhat) {$\widehat{\mathbf{z}}_{t+\Delta t}$};
   \node[decoder, below=16mm of zhat] (dec)
     {\textbf{Visualization decoder} $D_{\psi}$ \\[2pt]
@@ -61,11 +62,10 @@
   \draw[arr, dashed] (zhat) -- (dec);
   \draw[arr, dashed] (dec)  -- (xhat);
 
-  % ===== conditioning enters the predictor only =====
-  \node[cond, right=22mm of pred]  (c)
-    {$\mathbf{c}=(G, D, Y)$ \\[1pt] gust parameters \\[1pt]
-     \emph{enters predictor only}};
-  \draw[arr] (c.west) -- (pred.east);
+  % ===== unconditional predictor: no gust parameters enter the model =====
+  \node[align=center, font=\footnotesize\itshape, text width=34mm,
+        right=22mm of pred] (c)
+    {No gust parameters: \\ encoder and predictor \\ are both unconditional};
 
   % ===== background frames =====
   \begin{scope}[on background layer]

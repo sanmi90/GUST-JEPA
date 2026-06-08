@@ -4,8 +4,8 @@
 % Two explicit blocks shown, an ellipsis in between, and the last block.
 % Each block exposes:
 %   - Multi-head self-attention (16 heads) with RoPE on Q,K and a causal mask
-%   - FFN with AdaLN-Zero modulation conditioned on c = (G, D, Y)
-% Inputs: sequence z_{t-T+1} ... z_t, time embeddings dt, conditioning c.
+%   - FFN blocks
+% Inputs: sequence z_{t-T+1} ... z_t, time embeddings dt.
 % Output: zhat_{t+1}.
 %
 % Standalone-compilable: pdflatex fig3_predictor_detail.tex
@@ -43,9 +43,7 @@
 
   \draw[arr] (dtemb) -- (zseq);
 
-  % conditioning c to the right
-  \node[cond, right=24mm of zseq] (cond)
-    {$\mathbf{c} = (G, D, Y)$ \\[1pt] gust parameters};
+  % (no extra input node)
 
   % ========= Block 1 (explicit, two submodules with ample spacing) =========
   % Place attention then FFN, then fit a frame around them.
@@ -53,15 +51,14 @@
     {Multi-head self-attention (16 heads, $d_{\text{model}}{=}384$) \\
      RoPE on $Q,K$; causal mask};
   \node[submod, below=4mm of b1a] (b1f)
-    {FFN (hidden $1536$, dropout $0.1$) \\
-     AdaLN-Zero modulation by $\mathbf{c}$};
+    {FFN (hidden $1536$, dropout $0.1$)};
   \draw[arrshort] (b1a.south) -- (b1f.north);
 
   % ========= Block 2 (explicit) =========
   \node[submod, below=16mm of b1f] (b2a)
     {Multi-head self-attention (16 heads) \\ RoPE on $Q,K$; causal mask};
   \node[submod, below=4mm of b2a] (b2f)
-    {FFN (hidden $1536$, dropout $0.1$) \\ AdaLN-Zero modulation by $\mathbf{c}$};
+    {FFN (hidden $1536$, dropout $0.1$)};
   \draw[arrshort] (b2a.south) -- (b2f.north);
 
   % ========= ellipsis =========
@@ -71,7 +68,7 @@
   \node[submod, below=8mm of dots] (b6a)
     {Multi-head self-attention (16 heads) \\ RoPE on $Q,K$; causal mask};
   \node[submod, below=4mm of b6a] (b6f)
-    {FFN (hidden $1536$, dropout $0.1$) \\ AdaLN-Zero modulation by $\mathbf{c}$};
+    {FFN (hidden $1536$, dropout $0.1$)};
   \draw[arrshort] (b6a.south) -- (b6f.north);
 
   % ========= output =========
@@ -98,13 +95,10 @@
           label={[orange!60!black,font=\footnotesize\bfseries]left:Block 6}] (b6) {};
   \end{scope}
 
-  % ========= conditioning arrows (yellow dashed) -- to each block =========
-  \draw[arrcond] (cond.south) to[out=-90,in=0] (b1.east);
-  \draw[arrcond] (cond.south) to[out=-90,in=0] (b2.east);
-  \draw[arrcond] (cond.south) to[out=-90,in=0] (b6.east);
+  % (no extra input arrows)
 
   % ========= causal mask indicator on the right side =========
-  % Placed FAR right so the conditioning arrows from c to each block route
+  % Placed FAR right so it routes
   % cleanly along the right edge of the spine without crossing the mask widget
   % or the hyperparameter summary.
   \node[draw, fill=white, inner sep=2pt, right=44mm of b2,
@@ -137,7 +131,7 @@
   % ========= background frame =========
   \begin{scope}[on background layer]
     \node[draw=orange!50, rounded corners=4pt, dashed, inner sep=6mm,
-          fit=(dtemb)(zseq)(cond)(b1)(b2)(dots)(b6)(zout)(mask)(hp),
+          fit=(dtemb)(zseq)(b1)(b2)(dots)(b6)(zout)(mask)(hp),
           label={[orange!60!black,font=\small]above:Autoregressive transformer predictor $P_{\phi}$ (causal, 6 blocks)}] {};
   \end{scope}
 

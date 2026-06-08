@@ -43,7 +43,7 @@ from src.models.encoder import CNNOnlyEncoder, HybridCNNViTEncoder
 from src.models.jepa import JEPA
 from src.models.observable_head import ObservableHead, WakeObservableHead
 from src.data.wake_observables import mode_output_dim
-from src.models.predictor import AutoregressivePredictor
+from src.models.predictor import AutoregressivePredictor, LSTMLatentPredictor
 from src.models.sigreg import SIGReg
 from src.models.total_correlation import off_diagonal_covariance_loss
 from src.models.vicreg import VICReg
@@ -210,6 +210,16 @@ def parse_args() -> argparse.Namespace:
         ),
     )
     p.add_argument(
+        "--predictor-type", type=str, default="transformer",
+        choices=["transformer", "lstm"],
+        help="Predictor architecture: the default AdaLN-Zero transformer, or a "
+             "recurrent LSTM latent predictor (session 27 history-context test).",
+    )
+    p.add_argument("--predictor-hidden", type=int, default=256,
+                   help="LSTM hidden size (only used when --predictor-type lstm).")
+    p.add_argument("--predictor-layers", type=int, default=3,
+                   help="LSTM layers (only used when --predictor-type lstm).")
+    p.add_argument(
         "--observable-head",
         type=str,
         choices=["none", "cl_future"],
@@ -259,6 +269,11 @@ def parse_args() -> argparse.Namespace:
             "6000s visible, --gpu 0 picks the first card and --gpu 1 picks the "
             "second one. Default None picks the first one (single-card behaviour)."
         ),
+    )
+    p.add_argument(
+        "--device", type=str, default=None,
+        help="Explicit torch device (e.g. cuda:0 for an L40S), bypassing the "
+             "require_rtx6000 guard. For exploratory non-paper runs only.",
     )
     p.add_argument(
         "--omega-pipeline-manifest",
@@ -583,7 +598,7 @@ def run_diagnostics(
 def main() -> None:
     args = parse_args()
     args.cases = resolve_cases(args)
-    device = require_rtx6000(gpu_index=args.gpu)
+    device = torch.device(args.device) if getattr(args, "device", None) else require_rtx6000(gpu_index=args.gpu)
     set_all_seeds(args.seed)
 
     output_dir = Path(args.output_dir)
@@ -703,11 +718,20 @@ def main() -> None:
         )
     else:
         encoder = HybridCNNViTEncoder(latent_dim=args.d, projection_norm=args.projection_norm)
-    predictor = AutoregressivePredictor(
-        latent_dim=args.d,
-        cond_dim=args.predictor_cond_dim,
-        max_seq_len=args.T,
-    )
+    if args.predictor_type == "lstm":
+        predictor = LSTMLatentPredictor(
+            latent_dim=args.d,
+            cond_dim=args.predictor_cond_dim,
+            hidden_dim=args.predictor_hidden,
+            num_layers=args.predictor_layers,
+            max_seq_len=args.T,
+        )
+    else:
+        predictor = AutoregressivePredictor(
+            latent_dim=args.d,
+            cond_dim=args.predictor_cond_dim,
+            max_seq_len=args.T,
+        )
     anticollapse: nn.Module = (
         SIGReg(dim=args.d) if args.anticollapse == "sigreg" else VICReg(d=args.d)
     )

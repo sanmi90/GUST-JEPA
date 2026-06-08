@@ -138,11 +138,7 @@ ax.add_patch(FancyBboxPatch((85, 13), 20, 20, boxstyle="round,pad=0.2,rounding_s
              fc="#FDEFE3", ec=ORANGE, lw=1.6, zorder=5))
 ax.text(95, 23, "Predictor\n(transformer)", ha="center", va="center", fontsize=12,
         color=NAVY, fontweight="bold", zorder=6)
-# gust conditioning into predictor
-ax.add_patch(FancyBboxPatch((85, 2.5), 20, 6, boxstyle="round,pad=0.2,rounding_size=1.0",
-             fc="#FDF0D9", ec=ORANGE, lw=1.2, zorder=5))
-ax.text(95, 5.5, "gust  c = (G, D, Y)", ha="center", va="center", fontsize=10.5, color=NAVY, zorder=6)
-ax.annotate("", xy=(95, 12.5), xytext=(95, 8.7), arrowprops=dict(arrowstyle="-|>", color=ORANGE, lw=2.2))
+# (predictor input row)
 arrow(ax, 105, 111, 22.5)
 zp = neurons(ax, 115, np.linspace(13, 33, 6), GREENN, ec=GREEN)
 ax.text(115, 9.5, "predicted z(t+1)", ha="center", fontsize=10.5, color=GREEN)

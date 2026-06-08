@@ -341,6 +341,9 @@ def parse_args() -> argparse.Namespace:
 
     p.add_argument("--output-dir", required=True, type=str)
     p.add_argument("--gpu", type=int, default=0)
+    p.add_argument("--device", type=str, default=None,
+                   help="Explicit torch device (e.g. cuda:0). Overrides require_rtx6000; "
+                        "use only for sanctioned off-paper L40S runs.")
     p.add_argument("--seed", type=int, default=0)
     p.add_argument("--B", type=int, default=16)
     p.add_argument("--T", type=int, default=32)
@@ -633,7 +636,7 @@ def compute_decoder_loss(
 
 def main() -> None:
     args = parse_args()
-    device = require_rtx6000(gpu_index=args.gpu)
+    device = torch.device(args.device) if getattr(args, "device", None) else require_rtx6000(gpu_index=args.gpu)
 
     out_dir = Path(args.output_dir)
     out_dir.mkdir(parents=True, exist_ok=True)

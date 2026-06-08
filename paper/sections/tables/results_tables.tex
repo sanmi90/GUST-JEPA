@@ -10,13 +10,13 @@
 \begin{table}
   \centering
   \caption{Encoder families compared under the matched-predictor protocol of
-  \S\ref{sec:methods_protocol}. All three share one autoregressive transformer
-  predictor, training recipe, conditioning on $\cvec=(G,D,Y)$, and probe family;
-  only the encoder differs. ``Aux.\ heads'' lists the observable supervision
-  attached to the encoder. The architecture and auxiliary-head columns differ
-  across families, which is why the headline result is attributed to the
-  predictive \emph{family} and isolated only by the controls of
-  \S\ref{sec:res_controls}.}
+  \S\ref{sec:methods_protocol}. The model is fully unconditioned: no gust
+  parameters enter the encoder or the predictor. All three families share one
+  autoregressive transformer predictor, training recipe, and probe family; only
+  the encoder differs. ``Aux.\ heads'' lists the observable supervision attached
+  to the encoder. The architecture and auxiliary-head columns differ across
+  families, which is why the headline result is attributed to the predictive
+  \emph{family} and isolated only by the controls of \S\ref{sec:res_controls}.}
   \label{tab:families}
   \small
   \fittab{\begin{tabular}{l l l l l}
@@ -35,64 +35,50 @@
 % ---------------------------------------------------------------------------
 \begin{table}
   \centering
-  \caption{Held-out closure across encoder families at $H = 16$ on the $n = 42$
-  test\_b encounters, in two modes. \emph{(a)} Representational closure: the mean
-  absolute error when each family's per-frame probe is applied to the
-  simulation-encoded latent (the latent encoded directly from the held-out field),
-  smaller is better. \emph{(b)} Forecast closure: the coefficient of determination
-  $R^2$ of the Markov rollout from the impact frame against the simulation
-  observable, larger is better (the variance baseline is the held-out split mean,
-  so $R^2 < 0$ is worse than predicting that mean). Best per column in bold; the
-  forecast panel gives the row mean at right. The wake-enstrophy and circulation
-  columns are in native units, the force coefficients dimensionless. This held-out
-  forecast $R^2$, not the training-set fit of
-  table~\ref{tab:b1_closure_train_r2}, is the reported closure quality. The
-  predictive latent leads in both modes: its representational wake-enstrophy error
-  is $2.4$ to $3.0$ times lower than the reconstructive and linear families, and
-  its forecast wake-enstrophy $R^2$ is the only one above the predict-the-mean
-  floor; the paired per-encounter test is in table~\ref{tab:paired_closure} and
-  full probe values with bootstrap CIs are in Appendix~\ref{app:reg}.}
+  \caption{Held-out closure of the unconditioned model at $H = 16$ on the
+  $n = 42$ test\_b encounters, in two modes. \emph{(a)} Representational closure,
+  the headline: the coefficient of determination $R^2$ when a fixed linear probe
+  is applied to the simulation-encoded latent (the latent encoded directly from
+  the held-out field), larger is better, with the per-observable mean absolute
+  error of the predictive latent given alongside in native units. \emph{(b)}
+  Forecast closure, reported as confirmatory: the $R^2$ of the Markov rollout from
+  the impact frame against the simulation observable (the variance baseline is the
+  held-out split mean, so $R^2 < 0$ is worse than predicting that mean). The
+  predictive entry is the fully unconditioned model (tf-no-c, $d = 64$); the
+  reconstructive (Fukami) and linear (POD) wake $R^2$ are each family's least-bad
+  value across $d$, to be maximally fair. The representation is where the families
+  separate: the unconditioned predictive latent encodes the wake enstrophy at
+  $R^2 = 0.71$, essentially the conditioned model's $0.75$ (\S\ref{sec:res_controls}),
+  while the reconstructive and linear latents are at $0.06$ and below. The forecast
+  panel points the same way and is read as secondary; the per-encounter paired test
+  is in table~\ref{tab:paired_closure}, the latent-dimension sweep and the
+  conditioned reference in table~\ref{tab:jepa_dimsweep}, and full probe values with
+  bootstrap CIs in Appendix~\ref{app:reg}.}
   \label{tab:closure}
   \small
-  \fittab{\begin{tabular}{l c c c c c c c c}
-    \multicolumn{9}{c}{\textit{(a) Representational closure: mean absolute error, and the wake-enstrophy $R^2$}}\\
+  \fittab{\begin{tabular}{l c c c c c c c}
+    \multicolumn{8}{c}{\textit{(a) Representational closure: held-out $R^2$ (and predictive-latent MAE, native units)}}\\
     \toprule
-    Baseline & $d$ & $C_L$ & $C_D$ & $I_y$ & wake-enst.\ & circ.\ pos.\ & circ.\ neg.\ & wake $R^2$ \\
+    & $C_L$ & $C_D$ & $I_y$ & wake-enst.\ & circ.\ pos.\ & circ.\ neg.\ & mean \\
     \midrule
-    JEPA   & 64 & \textbf{0.624} & 0.301 & \textbf{1.901} & \textbf{29.83} & \textbf{0.801} & \textbf{0.715} & \textbf{0.75} \\
-    JEPA   & 32 & 0.675 & \textbf{0.246} & 2.976 & 37.99 & 1.084 & 1.061 & 0.74 \\
-    JEPA   & 16 & 0.627 & 0.267 & 2.883 & 50.09 & 0.939 & 1.322 & 0.55 \\
+    predictive (uncond.), $d{=}64$ & \textbf{0.88} & \textbf{0.69} & $-0.86$ & \textbf{0.71} & \textbf{0.78} & \textbf{0.85} & \textbf{0.51} \\
+    \quad MAE & 0.50 & 0.25 & 2.68 & 35.1 & 0.79 & 0.76 & \\
     \midrule
-    Fukami & 3  & 1.074 & 0.384 & 2.327 & 51.70 & 1.110 & 1.886 & 0.06 \\
-    Fukami & 32 & 1.038 & 0.368 & 2.195 & 63.94 & 0.946 & 1.789 & 0.06 \\
-    Fukami & 64 & 0.989 & 0.340 & 2.421 & 72.90 & 1.057 & 1.904 & $-0.41$ \\
-    Fukami & 16 & 1.133 & 0.421 & 2.424 & 77.26 & 1.158 & 1.837 & $-0.21$ \\
-    \midrule
-    POD    & 16 & 1.168 & 0.317 & 2.235 & 89.14 & 1.645 & 1.681 & $-0.32$ \\
-    POD    & 32 & 0.937 & 0.269 & 2.608 & 81.82 & 1.650 & 1.617 & $-0.17$ \\
-    POD    & 64 & 0.872 & 0.291 & 2.245 & 89.31 & 1.660 & 1.800 & $-0.31$ \\
+    reconstructive (Fukami), wake $R^2$ & & & & 0.06 & & & \\
+    linear (POD), wake $R^2$ & & & & $-0.17$ & & & \\
     \bottomrule
   \end{tabular}}
 
   \vspace{6pt}
 
-  \fittab{\begin{tabular}{l c c c c c c c c}
-    \multicolumn{9}{c}{\textit{(b) Forecast closure: coefficient of determination $R^2$}}\\
+  \fittab{\begin{tabular}{l c c c c c c c}
+    \multicolumn{8}{c}{\textit{(b) Forecast closure (secondary): coefficient of determination $R^2$ of the Markov rollout}}\\
     \toprule
-    Baseline & $d$ & $C_L$ & $C_D$ & $I_y$ & wake-enst.\ & circ.\ pos.\ & circ.\ neg.\ & mean \\
+    & $C_L$ & $C_D$ & $I_y$ & wake-enst.\ & circ.\ pos.\ & circ.\ neg.\ & mean \\
     \midrule
-    JEPA   & 64 & 0.723 & 0.634 & 0.056 & \textbf{0.449} & 0.201 & \textbf{0.607} & \textbf{0.445} \\
-    JEPA   & 32 & \textbf{0.751} & \textbf{0.648} & -0.082 & 0.214 & 0.087 & 0.552 & 0.362 \\
-    JEPA   & 16 & 0.642 & 0.465 & 0.002 & 0.265 & 0.250 & 0.557 & 0.363 \\
-    \midrule
-    Fukami & 3  & 0.632 & 0.226 & 0.115 & -0.082 & 0.258 & -0.048 & 0.184 \\
-    Fukami & 32 & 0.641 & 0.239 & \textbf{0.205} & 0.007 & \textbf{0.420} & 0.161 & 0.279 \\
-    Fukami & 64 & 0.729 & 0.406 & 0.043 & -0.478 & 0.182 & 0.003 & 0.147 \\
-    Fukami & 16 & 0.565 & 0.125 & -0.216 & -0.395 & 0.237 & 0.225 & 0.090 \\
-    \midrule
-    POD    & 16 & 0.499 & 0.364 & -0.515 & -0.129 & -0.230 & 0.340 & 0.055 \\
-    POD    & 32 & 0.714 & 0.558 & -0.256 & 0.042 & -0.066 & 0.394 & 0.231 \\
-    POD    & 64 & 0.683 & 0.539 & -0.813 & -0.089 & 0.057 & 0.507 & 0.147 \\
+    predictive (uncond.), $d{=}64$ & 0.60 & 0.35 & $-0.39$ & \textbf{0.56} & \textbf{0.24} & \textbf{0.79} & \textbf{0.36} \\
+    reconstructive (Fukami), $d{=}64$ & \textbf{0.73} & 0.41 & \textbf{0.04} & $-0.48$ & 0.18 & 0.00 & 0.15 \\
+    linear (POD), $d{=}64$ & 0.68 & \textbf{0.54} & $-0.81$ & $-0.09$ & 0.06 & 0.51 & 0.15 \\
     \bottomrule
   \end{tabular}}
 \end{table}

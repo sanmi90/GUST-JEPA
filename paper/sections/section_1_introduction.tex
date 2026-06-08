@@ -1,9 +1,11 @@
 % Introduction. Related work (former Section 2) is folded in here, in the JFM
 % idiom (no standalone "Related work" section). The SIGReg-vs-PLDM "second paper"
 % that headed Section 1.2 of the original draft has been removed; the regulariser
-% choice is now a methods detail (Sec. 3) and an appendix. Contributions are
-% reframed around forward physical closure, with the objective-isolation claim
-% explicitly deferred to the controls.
+% choice is now a methods detail (Sec. 3) and an appendix. Reframed 2026-06-08 for
+% the fully UNCONDITIONED model: no gust parameters enter the encoder or the
+% predictor. Contributions are reframed around the representational wake closure
+% the predictive objective produces, with the rollout shown but not headlined as
+% forward closure, and the world-model reading kept as motivation only.
 
 Small uncrewed and micro air vehicles increasingly operate in airspace where
 the gust velocity is comparable to or larger than their flight speed, such as
@@ -106,68 +108,72 @@ canonical wakes and the compactness-versus-forecast tradeoff; here, the
 parametric vortex gust, the latent-drift mechanism we identify as the common
 cure, and its geometric and topological characterisation.
 
-The unconditional-encoder, conditioned-predictor split we adopt is motivated, as
-an analogy and not a property we claim, by the action-conditioned world-model
-framework of \citet{lecun2022,ha2018world}: the gust $(G, D, Y)$ enters the predictor
-as an observed exogenous perturbation, not an agent's chosen action, so the model is
-a conditional forward model rather than a controller, and a recent gust-airfoil
-instance couples a physics-augmented autoencoder to a latent dynamics model
-\citep{liu2025modelbased}. A direct interventional test of the stronger reading does
-not hold (\S\ref{sec:discussion}), so we forecast the consequences of the generative
-parameters without claiming an interventional or causal model. What this leaves is
-the property our principle turns on: a reconstruction-trained autoencoder and an
-energy-optimal proper orthogonal decomposition basis are not constrained to make the
-latent state forward-predictable, and the drift mechanism of \S\ref{sec:res_drift}
-is the empirical consequence.
+The model we adopt is fully unconditioned: the gust parameters $(G, D, Y)$ enter
+neither the encoder nor the predictor. The encoder is a pure state map and the
+predictor advances the latent from its own history alone. The world-model framework
+of \citet{lecun2022,ha2018world} motivates this split as an analogy and not a
+property we claim, since the latent dynamics function is the object a controller
+would plan against, and a recent gust-airfoil instance couples a physics-augmented
+autoencoder to a latent dynamics model \citep{liu2025modelbased}. We are deliberate
+about scope: we do not claim an interventional or causal model
+(\S\ref{sec:discussion}), and the rollout is shown but not advanced as a validated
+forecast. What this leaves is the property our principle turns on: a
+reconstruction-trained autoencoder and an energy-optimal proper orthogonal
+decomposition basis are not constrained to keep the dynamically relevant wake
+structure in the latent, and the drift mechanism of \S\ref{sec:res_drift} is the
+empirical consequence.
 
 The question this paper addresses is therefore not which encoder reconstructs
-the flow best, but which produces a reduced state that remains useful when
-propagated forward in time. We treat this as a fluid-mechanics question with a
-geometric answer: a reduced state forecasts these encounters well when its latent
-metric stays well aligned with the optimal-transport geometry of the field, in the
-empirical sense that latent distances preserve the ordering of the transport
-distances, so that iterating the predictor step keeps the rollout close to the data
-manifold. A reconstruction objective does not impose this property, so its rollout
-drifts off the manifold; a predictive objective regularised against collapse does.
-The joint-embedding predictive architecture is the instrument we use to realise the
-principle, not the subject of the paper. We make three contributions.
+the flow best, but which produces a reduced state that keeps the dynamically
+relevant wake. We treat this as a fluid-mechanics question with a geometric answer:
+a predictive objective regularised against collapse organises the latent so that the
+encounter is a single recurrent cycle whose metric stays aligned with the
+optimal-transport geometry of the field, in the empirical, trajectory-local sense
+that latent distances preserve the ordering of the transport distances, and the wake
+is carried as a distributed code. A reconstruction objective does not impose this,
+so it smooths the wake away and its rollout drifts off the manifold. The
+joint-embedding predictive architecture is the instrument we use to realise the
+principle, not the subject of the paper, and we use it in a fully unconditioned form
+so that no gust parameters enter the model. We make three contributions.
 
 First, we set up a controlled comparison in which a predictive encoder (JEPA),
 a reconstructive encoder in the Fukami lineage, and a POD basis are evaluated
 at matched latent dimension under a single shared autoregressive predictor,
-training recipe, parametric conditioning on $\cvec = (G,D,Y)$, and probe
-family, so that forecast quality is attributable to the encoder alone
-(\S\ref{sec:methods}). The figure of merit is forward physical closure of the
-rollout to six observables at horizon $H = 16$ (\S\ref{sec:res_closure}). On
-held-out cases the predictive latent carries the wake structure the others do not:
-its representational wake-enstrophy closure is positive where the reconstructive and
-linear baselines are negative, and the per-encounter improvement survives case-level
-clustering and a family-wide correction, while the linear basis remains competitive
-on the integrated impulse. The forward forecast points the same way and is
-consistent with this.
+training recipe, and probe family, so that representation quality is attributable to
+the encoder alone (\S\ref{sec:methods}). The headline figure of merit is
+representational closure, whether a fixed probe reads each of six observables off the
+simulation-encoded latent, the wake in particular (\S\ref{sec:res_closure}). On
+held-out cases the unconditioned predictive latent encodes the wake structure the
+others do not: its representational wake-enstrophy $R^2$ is $0.71$, essentially the
+$0.75$ of a model that does receive the gust parameters, where the reconstructive and
+linear baselines are near zero, and the per-encounter improvement survives
+case-level clustering and a family-wide correction. The predictor rollout points the
+same way, which we show but do not advance as a validated forecast.
 
 Second, we identify the mechanism. A latent-drift diagnostic shows that the
 reconstructive rollout leaves its training manifold by an order of magnitude at
-$H = 16$, whereas the predictive and linear rollouts remain within it
+$H = 16$, whereas the predictive and linear rollouts remain within it, and the
+unconditioned predictor drifts no more than the conditioned one
 (\S\ref{sec:res_drift}). We strengthen this from a single distance into a
 geometric and topological statement: the predictive latent organises the
 encounter as a single topological cycle, one persistent generator where the
 reconstructive latent fragments, and its
 latent metric tracks the physical transport geometry of the flow more
-faithfully than the reconstructive latent does, although, unlike \citep{tran2026},
-it is not trained to do so.
+faithfully than the reconstructive latent does, in a trajectory-local sense,
+although, unlike \citep{tran2026}, it is not trained to do so.
 
 Third, we are explicit about what the comparison does and does not isolate. The
 predictive encoder differs from the reconstructive baseline not only in its
 objective but also in its architecture and in its auxiliary observable
 supervision. We therefore phrase the result as a property of the
-\emph{predictive latent family}, report a conditioning-only floor that rules
-out the shared parametric conditioning as the explanation (\S\ref{sec:res_closure}),
+\emph{predictive latent family}, report a parameter-only floor that rules
+out the gust parameters as the explanation (\S\ref{sec:res_closure}),
 and perform matched-architecture and matched-auxiliary controls
 (\S\ref{sec:res_controls}) that attribute the wake gain to the predictive
-objective trained with wake-observable supervision, not to the architecture. We
-further show that the same predictive state is the most recoverable of the three
-from sparse wall pressure, so it is observable as well as forecastable
-(\S\ref{sec:res_observability}), and we relate the predictor to the latent
-dynamics function a controller would plan against, with a closed-loop pilot
-reported as a limitation rather than a result (\S\ref{sec:discussion}).
+objective trained with wake-observable supervision, not to the architecture, and
+that show removing the gust parameters costs almost nothing in what the latent
+encodes. We further show that the same predictive state is the most recoverable of
+the three from sparse wall pressure, so it is observable as well as a faithful
+carrier of the wake (\S\ref{sec:res_observability}), and we relate the predictor to
+the latent dynamics function a controller would plan against, with a closed-loop
+pilot reported as a limitation rather than a result (\S\ref{sec:discussion}).
