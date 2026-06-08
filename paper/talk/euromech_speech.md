@@ -33,7 +33,7 @@ Why is this not already solved. Most reduced-order models for flows, from POD an
 
 ## Slide 5, Data [~0:50]
 
-The testbed is direct numerical simulation, with the SOD2D solver and no subgrid-scale model, of a NACA 0012 at fourteen degrees and Reynolds number five thousand. We perturb it with Taylor vortices parametrised by three numbers: the gust strength G, the core diameter D, and the wall-normal offset Y. The figure shows that envelope in three dimensions: eighty-four cases, with two held-out sets, test b for interpolation inside the cloud, and test c, the strong gusts at G equal to four, which you can see sitting well outside the training cloud, for extrapolation. From each impact-centred encounter we read six physical observables: lift, drag, the impulse, the wake enstrophy, and the positive and negative circulation.
+The testbed is direct numerical simulation, with the SOD2D solver and no subgrid-scale model, of a NACA 0012 at fourteen degrees and Reynolds number five thousand. We perturb it with Taylor vortices parametrised by three numbers: the gust strength G, the core diameter D, and the wall-normal offset Y. The figure shows that envelope in three dimensions: eighty-four cases, with two held-out sets, test b for interpolation inside the cloud, and test c, the strong gusts at G equal to four, which you can see sitting well outside the training cloud, for extrapolation. From each impact-centred encounter we read five physical observables: lift, drag, the wake enstrophy, and the positive and negative circulation.
 
 ## Slide 6, What is a JEPA (1 of 2) [~1:00]
 
@@ -57,7 +57,7 @@ How do we compare the states fairly. The primary measure is representational: ta
 
 ## Slide 12, Main result: the latent keeps the wake [~1:20]
 
-This is the headline, and it is about what the unconditioned state carries. We probe the encoded latent, no rollout, for each observable sixteen frames after impact. On wake enstrophy, the discriminator, the unconditioned predictive latent reaches R-squared zero point seven one, essentially matching the conditioned model at zero point seven five, while the reconstructive autoencoder and POD are far lower, around zero point zero six and below. Forces and circulations are read off cleanly too, lift at zero point eight eight, the circulations around zero point eight. So removing the gust parameters entirely costs almost nothing in what the latent encodes: the predictive objective alone builds a state that keeps the wake, the load-bearing structure reconstruction smooths away. The one weak observable is the impulse, a quantity even POD captures, which is why we track it separately.
+This is the headline, and it is about what the unconditioned state carries. We probe the encoded latent, no rollout, for each observable sixteen frames after impact. On wake enstrophy, the discriminator, the unconditioned predictive latent reaches R-squared zero point seven one, essentially matching the conditioned model at zero point seven five, while the reconstructive autoencoder and POD are far lower, around zero point zero six and below. Forces and circulations are read off cleanly too, lift at zero point eight eight, the circulations around zero point eight. So removing the gust parameters entirely costs almost nothing in what the latent encodes: the predictive objective alone builds a state that keeps the wake, the load-bearing structure reconstruction smooths away.
 
 ## Slide 13, The rollout tracks the encounter [~0:55]
 

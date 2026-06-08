@@ -455,18 +455,24 @@ def slide_decoder():
         dbox(s, bx[i], ya, bw[i], hb, txt, fill=fills[i], edge=edges[i], size=sizes[i])
     for axx in arx:
         harrow(s, axx, ya + hb / 2 - 0.09, 0.45)
-    bullets(s, [b0("Trained on the **frozen** encoder, **never part of the JEPA loss**: it only renders a latent as a field so we can look at it"),
-                b0("Loss = a **region + Laplacian-pyramid + gradient + spectral-amplitude** objective (with small enstrophy / circulation terms), so it keeps the **large-scale wake structure** rather than just pixel MSE"),
-                b0("Held-out reconstruction **SSIM ≈ 0.73**")],
-            0.7, 3.55, 12.0, 2.6, base=16)
+    bullets(s, [b0("Trained on the **frozen** encoder, **never in the JEPA loss**: it only renders a latent as a field so we can look at it"),
+                b0("**Why not a plain CNN or ViT decoder?** A transposed-conv CNN under a pixel objective **blurs the wake** and leaves checkerboard artefacts; a ViT decoder is heavier and patch-blocky. The **Laplacian pyramid** builds the field coarse-to-fine (large-scale wake first), **FiLM** lets the 64-D latent steer every scale at just ~0.9M params, and **pixelshuffle** upsamples without checkerboards"),
+                b0("**Loss** = region + Laplacian-pyramid + gradient + **spectral-amplitude** (small enstrophy / circulation terms): it matches structure **across scales and in the Fourier spectrum**, not pixelwise"),
+                b0("**Why SSIM, not MSE?** MSE is pointwise and **rewards blur** (a smoothed field scores well but loses the vortices); **SSIM** compares local contrast and structure, crediting a correct wake *pattern*. Held-out **SSIM ≈ 0.73**")],
+            0.7, 3.35, 12.0, 3.25, base=14)
     left_footer(s)
     notes(s, "The visualisation decoder is a SEPARATE stage on the frozen encoder, never in "
-             "the JEPA objective. LapFiLM: 5-level Laplacian pyramid + FiLM modulation, "
-             "pixelshuffle upsampling, ~0.9M params. Its loss is a multi-term region + "
-             "Laplacian-pyramid + gradient + spectral-amplitude objective (plus small "
-             "enstrophy/circulation terms), so it preserves large-scale wake structure rather "
-             "than pixel MSE. Held-out reconstruction SSIM ~0.73. Used only to visualise "
-             "latents as fields in the rollout / recovery figures.")
+             "the JEPA objective. LapFiLM = 5-level Laplacian pyramid + FiLM modulation + "
+             "pixelshuffle upsampling, ~0.9M params. Why this and not a plain CNN/ViT decoder: a "
+             "transposed-conv CNN under pixel MSE blurs the wake and adds checkerboard artefacts, "
+             "and a ViT decoder is heavier and patch-blocky; the pyramid synthesises coarse-to-fine "
+             "(large-scale wake first), FiLM lets the 64-D latent modulate every scale cheaply, and "
+             "pixelshuffle (sub-pixel conv) upsamples without checkerboards. Loss is a multi-term "
+             "region + Laplacian-pyramid + gradient + spectral-amplitude objective (plus small "
+             "enstrophy/circulation terms). Why SSIM not MSE: MSE is pointwise and rewards a blurred "
+             "mean field, whereas SSIM scores local luminance/contrast/structure, so it tracks "
+             "whether the wake PATTERN is right. Held-out SSIM ~0.73. Used only to visualise latents "
+             "as fields in the rollout / recovery figures.")
     return s
 
 
@@ -533,7 +539,7 @@ s_fig_right(
     "Data", "Data",
     [b0("**DNS** (SOD2D, no subgrid-scale model), NACA 0012, α = 14°, **Re = 5000**"),
      b0("Taylor-vortex gusts parametrised by strength **G**, core diameter **D**, wall-normal offset **Y** (right: the 84-case envelope, isometric)"),
-     b0("Impact-centred encounters; six observables: C_L, C_D, impulse I_y, **wake enstrophy**, ±circulation"),
+     b0("Impact-centred encounters; five observables: C_L, C_D, **wake enstrophy**, ±circulation"),
      b0("Held-out **test_b** (interpolation) and **test_c** (|G| = 4 extrapolation)")],
     "paramspace3d.png",
     cap="Training envelope in (G, D, Y): train, test_b interpolation, test_c |G| = 4 extrapolation, baseline.",
@@ -600,13 +606,14 @@ s_fig_right(
     [b0("**Representational closure:** probe the **encoded** latent (no rollout) for each observable at impact + 16; the question is what the unconditioned state *carries*"),
      b0("**Wake enstrophy is the discriminator: tf-no-c R² = 0.71** (the conditioned model 0.75; reconstructive and POD far lower, 0.06 and below)"),
      b0("So the **unconditioned** latent (no gust parameters anywhere) **encodes the wake that reconstruction smooths away**"),
-     b0("Forces and circulations are read off cleanly too (C_L 0.88, Γ± 0.85 / 0.78, C_D 0.69); the **mean over six is 0.51**, with the transport impulse I_y the weak observable"),
+     b0("Forces and circulations are read off cleanly too (C_L 0.88, Γ± 0.85 / 0.78, C_D 0.69)"),
      b0("**Wake enstrophy** E_w = ∫ ω_z² over the wake (x/c ∈ [0.5, 4], |y/c| ≤ 1): the **intensity of the wake's rotational structures** (LEV + shed vortices) that set the future load, the part reconstruction-only states lose")],
     "repr_closure.png",
     cap="Held-out representational R² at impact + 16 from the encoded latent (test_b). Left: per observable (tf-no-c). Right: wake-enstrophy R² across families.",
     note="Headline, reframed to REPRESENTATIONAL closure of the unconditioned tf-no-c latent. "
          "Probe the ENCODED latent (z_dns), no rollout: wake-enstrophy R^2 = 0.71 (conditioned 0.75), "
-         "vs Fukami 0.06 / POD negative. Mean over six = 0.51, I_y the weak observable. No 'rolled-out "
+         "vs Fukami 0.06 / POD negative. I_y is excluded (the latent does not encode it; not "
+         "comparable to the others). No 'rolled-out "
          "0.84/0.93' claim; the rollout is shown only qualitatively on the next slides.",
     fl=7.6, fw=5.4, base=16)
 
@@ -906,7 +913,7 @@ s_bullets(
 s_fig_below(
     "Parameter observability from the latent", "Backup",
     [b0("z → (G, D, Y) probe R² from the rolled-out latent, K = 8 pre-impact sensors"),
-     b0("test_b: **G 0.46 · D 0.80 · Y 0.10**, gust impulse and depth recoverable; cross-stream offset Y is marginal"),
+     b0("test_b: **G 0.46 · D 0.80 · Y 0.10**, gust strength and core diameter recoverable; cross-stream offset Y is marginal"),
      b0("test_c (|G| = 4): negative, the 3D observability boundary of a single mid-plane slice")],
     "pressure_observability.png", cap="Gust parameters implicit in the latent on held-out cases.",
     ft=3.7, fh=2.6)

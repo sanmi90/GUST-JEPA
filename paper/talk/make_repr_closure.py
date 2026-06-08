@@ -7,8 +7,8 @@ held-out test_b. Two panels:
   (left)  per-observable held-out R^2 for tf-no-c (the unconditioned predictive
           latent) from z_dns at impact+16. Numbers are read from
           outputs/session27/closure6_noc.json (mode label "dns"), so the figure
-          stays in sync with the closure script. The dashed line marks the
-          mean-over-6.
+          stays in sync with the closure script. I_y is excluded: the latent
+          does not encode it and it is not comparable to the other observables.
   (right) the wake-enstrophy R^2 across families: tf-no-c (unconditioned z_dns)
           vs the reconstructive AE (Fukami) and POD. Baseline wake R^2 are the
           panel-(a) "wake R^2" column of paper/sections/tables/results_tables.tex
@@ -44,10 +44,9 @@ METRIC_LABEL = {
     "wake_enstrophy": "wake\nenstrophy",
     "circulation_pos": r"$\Gamma_+$",
     "circulation_neg": r"$\Gamma_-$",
-    "I_y": r"$I_y$",
 }
-# left-panel order: wake first (the point), then the two circulations, forces, I_y last
-ORDER = ["wake_enstrophy", "circulation_pos", "circulation_neg", "C_L", "C_D", "I_y"]
+# left-panel order: wake first (the point), then the two circulations, then forces
+ORDER = ["wake_enstrophy", "circulation_pos", "circulation_neg", "C_L", "C_D"]
 
 # Panel-(a) wake-enstrophy R^2 (results_tables.tex). Use each baseline's best
 # (least-bad) value across d; tf-no-c is the UNCONDITIONED z_dns wake number.
@@ -61,7 +60,6 @@ WAKE_R2 = {
 def main() -> None:
     blob = json.loads(CLOSURE_JSON.read_text())
     per = blob["headline"]["tf-no-c"]["test_b"]["16"]["dns"]["per_metric"]
-    mean6 = blob["headline"]["tf-no-c"]["test_b"]["16"]["dns"]["mean_over_6"]
     WAKE_R2["tf-no-c"] = float(per["wake_enstrophy"])
 
     plt.rcParams.update({"font.family": "DejaVu Sans", "font.size": 11,
@@ -78,9 +76,6 @@ def main() -> None:
         if per[m] < 0:
             b.set_color("#9bbf9e")
     axL.axhline(0.0, color="#000000", lw=0.8)
-    axL.axhline(mean6, color=MUTE, lw=1.2, ls="--")
-    axL.text(len(ORDER) - 0.5, mean6 + 0.03, f"mean over six = {mean6:.2f}",
-             ha="right", va="bottom", fontsize=10.5, color=MUTE, style="italic")
     for x, m in zip(xs, ORDER):
         v = per[m]
         axL.text(x, v + (0.03 if v >= 0 else -0.03), f"{v:+.2f}",
@@ -89,7 +84,7 @@ def main() -> None:
     axL.set_xticks(list(xs))
     axL.set_xticklabels([METRIC_LABEL[m] for m in ORDER], fontsize=10.5)
     axL.set_ylabel("held-out $R^2$  (impact + 16)", fontsize=11)
-    axL.set_ylim(-1.05, 1.05)
+    axL.set_ylim(-0.06, 1.08)
     axL.set_title("Unconditioned latent encodes each observable",
                   fontsize=12, color=INK, pad=8)
     axL.spines[["top", "right"]].set_visible(False)
@@ -118,7 +113,6 @@ def main() -> None:
     print(f"wrote {OUT}")
     print(f"  tf-no-c per-observable z_dns R^2 (impact+16, test_b): "
           + ", ".join(f"{m}={per[m]:+.3f}" for m in ORDER))
-    print(f"  mean over six = {mean6:.3f}")
     print(f"  wake R^2: tf-no-c {WAKE_R2['tf-no-c']:+.2f} vs Fukami {WAKE_R2['Fukami']:+.2f} "
           f"vs POD {WAKE_R2['POD']:+.2f}")
 
