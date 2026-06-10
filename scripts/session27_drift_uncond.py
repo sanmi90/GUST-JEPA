@@ -19,17 +19,20 @@ HZ = [1, 2, 4, 8, 12, 16, 20, 24]
 # Only the predictive families: tf-no-c, lstm-no-c, and the conditioned production
 # JEPA. Fukami is intentionally dropped here -- its smooth (reconstructive) latent
 # gives a misleadingly low drift, which would mislead this on-manifold diagnostic.
+# Deck palette (matches the forecast-windows slide): tf-no-c green, lstm-no-c blue,
+# and the conditioned production JEPA as a neutral grey dashed reference.
 FAMILIES = [
-    ("tf-no-c", REPO / f"outputs/session27/rollouts_noc_tf/{SPLIT}.npz", "#C0520F", "-"),
-    ("lstm-no-c", REPO / f"outputs/session27/rollouts_noc_lstm/{SPLIT}.npz", "#E08A4A", "-"),
-    ("JEPA (cond, prod)", PROD / f"rollouts_jepa_d64_test1_noBN/{SPLIT}.npz", "#2E7D4F", "--"),
+    ("tf-no-c", REPO / f"outputs/session27/rollouts_noc_tf/{SPLIT}.npz", "#1b7837", "-", "o"),
+    ("lstm-no-c", REPO / f"outputs/session27/rollouts_noc_lstm/{SPLIT}.npz", "#2166ac", "-", "^"),
+    ("JEPA (cond, prod)", PROD / f"rollouts_jepa_d64_test1_noBN/{SPLIT}.npz", "#6b7280", "--", None),
 ]
 
 
 def main():
-    fig, ax = plt.subplots(figsize=(5.6, 3.5))
+    plt.rcParams.update({"font.size": 12})
+    fig, ax = plt.subplots(figsize=(5.8, 3.6))
     print("=== relative rollout drift ||z_markov-z_dns||/||z_dns|| (test_b, median) ===")
-    for name, npz, col, ls in FAMILIES:
+    for name, npz, col, ls, mk in FAMILIES:
         if not npz.exists():
             print(f"  {name}: MISSING {npz}"); continue
         b = np.load(npz, allow_pickle=True)
@@ -45,13 +48,13 @@ def main():
                 num = np.linalg.norm(zm[i, te] - zd[i, te]); den = np.linalg.norm(zd[i, te])
                 d.append(num / max(den, 1e-9))
             med.append(np.median(d))
-        ax.plot(HZ, med, ls, color=col, lw=1.9, label=name)
+        ax.plot(HZ, med, ls, color=col, lw=2.3, marker=mk, markersize=6, label=name)
         print(f"  {name:18s} " + "  ".join(f"H{H}:{m:.2f}" for H, m in zip(HZ, med)), flush=True)
-    ax.set_xlabel("forecast horizon H (frames after impact)")
-    ax.set_ylabel("rollout drift  (lower = stays on-manifold)", fontsize=8.5)
+    ax.set_xlabel("forecast horizon H (frames after impact)", fontsize=12)
+    ax.set_ylabel("rollout drift  (lower = stays on-manifold)", fontsize=11)
     ax.set_title("Rollout drift: how far the rolled latent strays\n"
-                 "from the true encoded latent (test_b)", fontsize=9.5)
-    ax.legend(fontsize=8); ax.grid(alpha=0.25)
+                 "from the true encoded latent (test_b)", fontsize=12.5)
+    ax.legend(fontsize=11); ax.grid(alpha=0.25); ax.tick_params(labelsize=11)
     fig.tight_layout()
     out = REPO / "outputs/session27/drift_uncond.pdf"
     fig.savefig(out, bbox_inches="tight"); print(f"\n[drift] figure -> {out}")

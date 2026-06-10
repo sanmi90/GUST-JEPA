@@ -104,7 +104,14 @@ def main():
                   + " | forecast " + " ".join(f"+{H}:{fc[H]:+.2f}" for H in HORIZONS), flush=True)
 
     fs.use_style()
-    fig, axes = plt.subplots(1, 2, figsize=fs.figure_size(2.0, aspect=0.42), sharey=True)
+    # Larger type + thicker lines + a flatter, wider figure so it fills the slide box and
+    # stays legible when projected (figstyle is tuned for the 5in paper column).
+    plt.rcParams.update({
+        "font.size": 15, "axes.titlesize": 18, "axes.labelsize": 16,
+        "xtick.labelsize": 14, "ytick.labelsize": 14, "legend.fontsize": 15,
+        "lines.linewidth": 2.4, "lines.markersize": 9,
+    })
+    fig, axes = plt.subplots(1, 2, figsize=fs.figure_size(2.0, aspect=0.30), sharey=True)
     for ax, obs in zip(axes, OBS):
         for tag in ("tf", "lstm"):
             c, mk = STYLE[tag]
@@ -116,8 +123,7 @@ def main():
         ax.set_title(fs.METRIC_LABEL.get(obs, obs.replace("_", " ")))
         ax.set_xlabel("frames relative to impact\n(<0 anticipation, >0 forecast)")
         ax.grid(alpha=0.25)
-    axes[0].set_ylabel(r"$R^2$ (test_b)"); axes[0].legend(); axes[0].set_ylim(-1.0, 1.05)
-    fig.suptitle("Unconditioned JEPA: anticipation (pre-impact) and forecast (post-impact) windows")
+    axes[0].set_ylabel(r"$R^2$ (test_b)"); axes[0].legend(); axes[0].set_ylim(-0.35, 1.05)
     fig.tight_layout()
     out = REPO / "outputs/session27/forecast_windows.pdf"
     fig.savefig(out, bbox_inches="tight"); print(f"\n[windows] -> {out}")

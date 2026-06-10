@@ -719,15 +719,17 @@ s_fig_right(
     [b0("**Why this question:** a planner / RL agent queries the model at states reached by its **own rollout**, one-step error is not enough"),
      b0("**z_dns** = the latent **encoded directly from the simulation field** (ground truth); **z_markov** = the latent **produced by rolling the predictor forward**"),
      b0("The curve is their **relative distance vs horizon** (‖z_markov − z_dns‖ / ‖z_dns‖); **lower / flatter is better** (the rollout stays on the data manifold)"),
-     b0("**Result:** the **unconditioned** rollout drift grows **gracefully** and **matches the conditioned model**; it stays on-manifold, exactly where the probes (and a planner) are valid")],
+     b0("**Result:** removing the gust parameters **does not destabilise the rollout**. Through the **+16** horizon we forecast, the unconditioned latents drift on the **same trajectory as the conditioned model** (≈ 0.4, within 0.04); **lstm-no-c stays matched to +24** (0.51 vs 0.52), while **tf-no-c** drifts a little more at the long tail (0.61)")],
     "drift.png",
-    cap="Rollout drift vs horizon (test_b): how far the rolled latent z_markov strays from the true encoded latent z_dns (relative distance). Lower / flatter = stays on-manifold.",
+    cap="Rollout drift vs horizon (test_b): relative distance ‖z_markov − z_dns‖ / ‖z_dns‖. The drift grows steadily; the unconditioned families track the conditioned model through the +16 forecast horizon.",
     note="Define the terms for the audience. z_dns = the latent encoded directly from the simulation "
          "field (ground truth); z_markov = the latent produced by rolling the predictor forward. The "
-         "curve is their relative distance vs horizon, and LOWER/flatter is better (the rollout stays "
-         "on the data manifold). The unconditioned rollout drift grows gracefully and matches the "
-         "conditioned model. Figure now plots only tf-no-c, lstm-no-c, and the conditioned production "
-         "JEPA (Fukami dropped: its smooth latent gives a misleadingly low drift).",
+         "curve is their relative distance vs horizon, LOWER/flatter is better. The drift grows steadily "
+         "(not a blow-up): all three families track each other through the +16 horizon we forecast "
+         "(~0.4, within 0.04); lstm-no-c stays matched to the conditioned model out to +24 (0.51 vs "
+         "0.52), tf-no-c drifts a little more at the long tail (0.61). So removing c does not "
+         "destabilise the rollout. Figure plots tf-no-c (green), lstm-no-c (blue), conditioned "
+         "production JEPA (grey dashed); Fukami dropped (its smooth latent gives a misleadingly low drift).",
     base=14)
 
 s_fig_right(
@@ -820,7 +822,7 @@ s_fig_below(
          "the rolled latent): wake is predictable in a roughly symmetric +/-16-frame window around impact "
          "(early warning); lift is asymmetric -- hard to anticipate (flat pre-impact) but strongly "
          "forecastable post-impact.",
-    ft=3.7, fh=2.8, base=14)
+    ft=3.7, fh=3.0, base=14)
 
 # VI. Conclusions
 s_bullets(
