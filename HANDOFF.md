@@ -8156,3 +8156,34 @@ Wang, Tirelli, Discetti and Ianiro (UC3M), arXiv:2604.18059, KL-decomposed
 VAE on NACA 0012 with strong vortex gusts; add to the S1 related-work
 paragraph (D161 list).
 
+**Model-free physics prep (P1/P2/P3 machinery pulled forward from Phase C;
+2026-06-11).** `scripts/session28/physics_prep.py` (+ 24 synthetic tests)
+computes, from the cache alone, the per-encounter impact phase (own
+pre-impact Hilbert, linear detrend, interior phase fit), both Delta C_L peak
+variants, large-scale (sigma/c = 0.05) wake-enstrophy excursions, the frozen
+P2 tau_rec rule, and the pre-registered scaling candidates s1-s4 (Taylor
+profile pinned from PRF 2025 Eq. (1); numeric prefactor matches the analytic
+2 pi e^-1/2 to 1e-4; s3 exactly proportional to s2 as the plan anticipated).
+Outputs: `outputs/session28/physics/per_encounter_physics.npz` (382 x 29) +
+`physics_summary.json`. Three findings that BIND Phase C:
+(1) P3 coverage is BROADER than the D148 expectation: 12/12 phase bins
+occupied pooled (resultant R = 0.105; clean subset n = 139 still 12/12,
+R = 0.20), and the estimator self-validates (Baseline phase walks +0.3
+rad/encounter = exactly 120 frames at St 0.675). The PRC ambition is
+potentially IN scope, BUT strong-gust (|G| >= 2) pre-impact phases are
+untrustworthy (vortex-induced lift ramp inflates pre-impact amplitude 2-5x);
+Phase C must gate on pre_cl_amp or use a baseline-orbit phase for those.
+(2) The frozen P2 rule is miscalibrated as an absolute measure: the
+undisturbed Baseline itself "recovers" in only 2/6 encounters (the St ~ 0.04
+modulation walks enstrophy out of the narrow pre-impact envelope, and the
+56-frame dwell is only certifiable for re-entry within 1.2 t/c of impact in
+a 120-frame window). Recovered fractions (train 15%, val 18%, test_b 12%,
+test_c 25%) therefore mostly measure rule strictness; (G, D, Y) CONTRASTS
+remain usable, re-release encounters can "recover" at tau = 0 into their own
+disturbed pre-envelope, and the Phase-C latent-side analysis must lead with
+the phase-matched BASELINE envelope, not the own-pre-impact envelope.
+(3) Enc-0 impact phases differ across cases even for weak clean gusts,
+suggesting per-case baseline branch points; question appended to the DNS
+collaborator package (do not assume a shared baseline timeline in any
+phase-matched analysis until answered).
+

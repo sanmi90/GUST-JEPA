@@ -55,6 +55,14 @@ are inserted from outputs/session28/undisturbed_stats.json once computed.]
 We will not paraphrase: the rows go into the paper as you write them, with you
 as the corresponding authors for the solver section.
 
+One additional question that surfaced in our phase analysis (2026-06-11): were
+the gusted cases branched from a single common snapshot of the undisturbed
+baseline run, or from different baseline instants per case? The shedding phase
+at the first gust release appears to differ across cases even for weak gusts,
+which matters for how we phase-reference the encounter analysis. A one-line
+answer (single restart file vs per-case restart, and which instant) is all we
+need.
+
 Thank you, and best regards,
 Carlos
 
