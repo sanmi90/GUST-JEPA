@@ -159,9 +159,9 @@ def main() -> None:
     ap.add_argument("--out", default=str(OUT))
     ap.add_argument("--partition", default=PARTITION)
     a = ap.parse_args()
-    SPLIT_MANIFEST = Path(a.split_manifest)
-    LATENTS_DIR = Path(a.latents_dir)
-    OUT = Path(a.out)
+    SPLIT_MANIFEST = Path(a.split_manifest).resolve()
+    LATENTS_DIR = Path(a.latents_dir).resolve()
+    OUT = Path(a.out).resolve()
     PARTITION = a.partition
     OUT.mkdir(parents=True, exist_ok=True)
     for split in ("train", "test_a", "test_b", "test_c"):
@@ -170,9 +170,14 @@ def main() -> None:
             continue
         latents_path = LATENTS_DIR / f"{split}.npz"
         latents = np.load(latents_path, allow_pickle=True)
-        # Build a lookup case_id+encounter_index -> latent row index
-        lat_case = latents["case_id"]
-        lat_idx = latents["encounter_index"]
+        # Build a lookup case_id+encounter_index -> latent row index.
+        # session14 latents use singular keys, session18/28 extractions plural.
+        lat_case = latents["case_id"] if "case_id" in latents else latents["case_ids"]
+        lat_idx = (
+            latents["encounter_index"]
+            if "encounter_index" in latents
+            else latents["encounter_indices"]
+        )
         lookup = {(str(lat_case[i]), int(lat_idx[i])): i for i in range(len(lat_case))}
 
         n = len(encs)
