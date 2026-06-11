@@ -18,6 +18,7 @@ Output:
 
 from __future__ import annotations
 
+import argparse
 import json
 import os
 import sys
@@ -109,6 +110,20 @@ def compute_metrics_for_omega(omega_raw: np.ndarray) -> dict:
 
 
 def main() -> None:
+    # Defaults preserve the v2 behaviour; the v2p1 rerun (Session 28 Phase B
+    # prep) overrides all four.
+    global SPLIT_MANIFEST, PARTITION, OMEGA_MANIFEST, OUT
+    ap = argparse.ArgumentParser(description=__doc__)
+    ap.add_argument("--split-manifest", default=str(SPLIT_MANIFEST))
+    ap.add_argument("--partition", default=PARTITION)
+    ap.add_argument("--omega-manifest", default=str(OMEGA_MANIFEST))
+    ap.add_argument("--out", default=str(OUT))
+    a = ap.parse_args()
+    SPLIT_MANIFEST = Path(a.split_manifest)
+    PARTITION = a.partition
+    OMEGA_MANIFEST = Path(a.omega_manifest)
+    OUT = Path(a.out)
+    OUT.mkdir(parents=True, exist_ok=True)
     pipeline = OmegaPipeline.from_manifest(OMEGA_MANIFEST)
 
     all_per_split = {}

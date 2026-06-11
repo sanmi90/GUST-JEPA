@@ -23,6 +23,7 @@ Output:
 
 from __future__ import annotations
 
+import argparse
 import json
 import os
 import sys
@@ -148,6 +149,21 @@ def gather_encounters_for_split(split: str) -> list[dict]:
 
 
 def main() -> None:
+    # Defaults preserve the v2 behaviour; the v2p1 rerun (Session 28 Phase B
+    # prep) overrides all four and mirrors z_full from the session28
+    # production latents instead of the session14 S12_E_d64 set.
+    global SPLIT_MANIFEST, LATENTS_DIR, OUT, PARTITION
+    ap = argparse.ArgumentParser(description=__doc__)
+    ap.add_argument("--split-manifest", default=str(SPLIT_MANIFEST))
+    ap.add_argument("--latents-dir", default=str(LATENTS_DIR))
+    ap.add_argument("--out", default=str(OUT))
+    ap.add_argument("--partition", default=PARTITION)
+    a = ap.parse_args()
+    SPLIT_MANIFEST = Path(a.split_manifest)
+    LATENTS_DIR = Path(a.latents_dir)
+    OUT = Path(a.out)
+    PARTITION = a.partition
+    OUT.mkdir(parents=True, exist_ok=True)
     for split in ("train", "test_a", "test_b", "test_c"):
         encs = gather_encounters_for_split(split)
         if not encs:
