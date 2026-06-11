@@ -8187,3 +8187,37 @@ suggesting per-case baseline branch points; question appended to the DNS
 collaborator package (do not assume a shared baseline timeline in any
 phase-matched analysis until answered).
 
+**P2 rule v2 + phase ladder (author-directed redesign, 2026-06-11 later
+session).** The recovery clock was recalibrated to be rigorous but practical
+(Carlos's directive): reference band = [q005, q995] of the large-scale wake
+enstrophy over the SETTLED Baseline record (global frame >= 400, 320
+frames), occupancy dwell theta = 0.80 over W = 56 frames (>= 28 with a
+short-window flag), theta chosen by NULL-CASE calibration (largest theta
+recovering all 6 Baseline encounters within 8 frames; achieved, taus
+0/0/2/0/0/0; the binding constraint is the startup-transient Baseline
+encounter 1; a settled-only calibration would support theta = 0.95 on the
+[q01, q99] band; all 8 calibration steps recorded in physics_summary.json).
+Headline corrections vs v1: test_c recovered fraction drops 0.25 -> 0.04
+(v1's extrapolation-split recoveries were judged against gust-inflated
+pre-windows); the strong-gust re-release tau = 0 artifact vanishes (16/31
+-> 0/10); recovery vs D becomes MONOTONE decreasing (0.385 / 0.043 / 0.011
+at D = 0.5 / 1.0 / 1.5; consistent with the lineage's larger-D-recovers-
+slower, caveat: D levels not G-balanced). v1 columns retained.
+
+**Phase ladder verdict: cadence-based phase ASSIGNMENT is dead; the failure
+is the P3 finding.** Baseline consecutive releases reproduce the cadence to
+0.055 rad sd (settled cadence +0.2027 rad/enc, carrier 29.76 frames =
+St 0.672, sharper than the spectral resolution), but ANY gust decorrelates
+the phase between releases (offset-1 pair sd 1.10 rad already at
+|G| = 0.25): THE GUST RESETS THE SHEDDING PHASE, which is itself the
+phase-response observable. PRC-by-assignment (Delta phi vs phi_imp with
+inferred phases) is out of scope; the measurable Phase-C observable is the
+G-DEPENDENT MEAN PHASE STEP from clean consecutive-release pairs (mean
+offset-1 step drifts monotonically with |G|: +0.211 / +0.119 / -0.047 vs
+the +0.203 undisturbed cadence; `prc_precursor_offset1_steps_by_absG` in
+the summary). P3 in Phase C should be scoped to (i) the coverage audit,
+(ii) the phase-reset result, (iii) the mean-step-vs-G trend. Quality gates
+added: fitted-period gate [0.7, 1.4] x dominant period on clean/anchor
+encounters (Baseline enc 2 locks onto a wrong line at R2 = 0.94 without
+it). 42 tests green.
+

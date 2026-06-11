@@ -3,8 +3,10 @@
 No cache, no torch, no GPU: every test builds its own signal or field. Covers the
 Hilbert impact-phase extraction (known sinusoid + drift), the phase-matched Delta C_L
 reference, the tau_rec re-entry / dwell / censoring logic, the mean +- 2 sd envelope
-rule, the Gaussian-filter scale separation, and the numeric Taylor-circulation and
-Martinez-Muriel & Flores velocity-ratio candidates against their analytic values.
+rule, the Gaussian-filter scale separation, the numeric Taylor-circulation and
+Martinez-Muriel & Flores velocity-ratio candidates against their analytic values, the
+v2 occupancy-dwell recovery rule and its null-case theta calibration, the circular
+arithmetic helpers, and the within-case phase ladder construction.
 
 Run targeted:  timeout 120 pytest tests/test_physics_prep.py -q
 """
@@ -170,6 +172,255 @@ class TestTauRec:
         status, tau = pp.first_sustained_reentry(e, 40, self.LO, self.HI, dwell=56)
         assert status == "recovered"
         assert tau == 40
+
+
+# ----------------------------------------------------------------------------------
+# v2 occupancy recovery rule
+# ----------------------------------------------------------------------------------
+class TestOccupancyRecovery:
+    LO, HI = 8.0, 12.0
+    IMPACT = 40
+
+    def trace(self, n: int = 120, outside_frames=()) -> np.ndarray:
+        e = np.full(n, 10.0)
+        for f in outside_frames:
+            e[f] = 30.0
+        return e
+
+    def test_clean_reentry_recovers_at_reentry_frame(self):
+        e = self.trace(outside_frames=range(40, 60))
+        status, tau = pp.occupancy_recovery(e, 40, self.LO, self.HI, theta=0.95, window=56)
+        assert status == "recovered"
+        assert tau == 60
+
+    def test_single_frame_excursion_inside_window_is_tolerated(self):
+        """theta = 0.95 over W = 56 tolerates up to 3 outside frames: a single later
+        excursion must not delay tau."""
+        e = self.trace(outside_frames=[80])
+        status, tau = pp.occupancy_recovery(e, 40, self.LO, self.HI, theta=0.95, window=56)
+        assert status == "recovered"
+        assert tau == 40
+
+    def test_candidate_frame_itself_must_be_inside(self):
+        """An excursion AT the candidate frame moves tau to the next inside frame even
+        when the occupancy over the window would already pass."""
+        e = self.trace(outside_frames=[40, 41])
+        status, tau = pp.occupancy_recovery(e, 40, self.LO, self.HI, theta=0.95, window=56)
+        assert status == "recovered"
+        assert tau == 42
+
+    def test_short_window_flagged(self):
+        """Re-entry with >= min_window but < window frames left: recovered_short_window."""
+        e = self.trace(outside_frames=range(40, 70))  # 50 frames remain at t* = 70
+        status, tau = pp.occupancy_recovery(
+            e, 40, self.LO, self.HI, theta=0.95, window=56, min_window=28
+        )
+        assert status == "recovered_short_window"
+        assert tau == 70
+
+    def test_reentry_too_late_to_judge_is_censored(self):
+        e = self.trace(outside_frames=range(40, 95))  # 25 frames remain < min_window
+        status, tau = pp.occupancy_recovery(
+            e, 40, self.LO, self.HI, theta=0.95, window=56, min_window=28
+        )
+        assert status == "censored"
+        assert tau is None
+
+    def test_never_reenters_is_censored(self):
+        e = self.trace(outside_frames=range(40, 120))
+        status, tau = pp.occupancy_recovery(e, 40, self.LO, self.HI, theta=0.95, window=56)
+        assert status == "censored"
+        assert tau is None
+
+    def test_theta_controls_the_verdict(self):
+        """8 outside frames inside the first window: occ = 48/56 = 0.857. theta = 0.85
+        recovers immediately; theta = 0.9 must wait until the window clears them."""
+        e = self.trace(outside_frames=range(45, 53))
+        status85, tau85 = pp.occupancy_recovery(e, 40, self.LO, self.HI, theta=0.85, window=56)
+        status90, tau90 = pp.occupancy_recovery(e, 40, self.LO, self.HI, theta=0.90, window=56)
+        assert (status85, tau85) == ("recovered", 40)
+        assert (status90, tau90) == ("recovered", 53)
+
+
+# ----------------------------------------------------------------------------------
+# v2 theta calibration on a synthetic null set
+# ----------------------------------------------------------------------------------
+class TestCalibrationV2:
+    """Six synthetic null encounters at frame_start = 120 k; the settled band comes
+    from global frames >= 400 (encounters 3-5), so excursions injected into encounter
+    0 (fully transient) perturb the calibration verdict without moving the band."""
+
+    def records(self, enc0_outside=()):
+        rng = np.random.default_rng(5)
+        recs = []
+        for k in range(6):
+            ens = 10.0 + 0.5 * np.sin(2 * np.pi * np.arange(120) / 56.0)
+            ens += 0.05 * rng.standard_normal(120)
+            if k == 0:
+                for f in enc0_outside:
+                    ens[f] = 100.0
+            recs.append(
+                {"encounter_index": k, "impact_frame": 40, "frame_start": 120 * k, "ens": ens}
+            )
+        return recs
+
+    def test_clean_null_calibrates_at_largest_theta_primary_band(self):
+        rule = pp.calibrate_recovery_v2(self.records())
+        assert rule.theta == 0.95
+        assert rule.band_quantiles == pp.BAND_QUANTILES_PRIMARY
+        steps = rule.calibration["steps"]
+        assert len(steps) == 1 and steps[0]["pass"]
+        assert all(e["tau_frames"] == 0 for e in steps[0]["per_encounter"])
+        assert rule.calibration["null_6of6"] is True
+
+    def test_dirty_transient_encounter_lowers_theta_with_provenance(self):
+        """8 excursions in encounter 0's first window: occ 0.857 fails 0.95 and 0.90,
+        passes 0.85; the two failed steps must be recorded."""
+        rule = pp.calibrate_recovery_v2(self.records(enc0_outside=range(45, 53)))
+        assert rule.theta == 0.85
+        assert rule.band_quantiles == pp.BAND_QUANTILES_PRIMARY
+        steps = rule.calibration["steps"]
+        assert [s["pass"] for s in steps] == [False, False, True]
+        assert [s["theta"] for s in steps] == [0.95, 0.90, 0.85]
+
+    def test_unrecoverable_null_raises_with_step_record(self):
+        """Alternating excursions from impact on: occupancy ~0.5 at every t*, below
+        every theta at both bands. The hard 6/6 requirement must raise."""
+        with pytest.raises(RuntimeError) as exc:
+            pp.calibrate_recovery_v2(self.records(enc0_outside=range(40, 120, 2)))
+        steps = exc.value.args[1]
+        assert len(steps) == 8  # 2 bands x 4 thetas, all recorded
+
+    def test_tau_cap_is_enforced(self):
+        """Encounter 0 outside for [40, 49]: recovery at tau = 10 > 8 fails calibration
+        even at theta = 0.8 and the wide band."""
+        with pytest.raises(RuntimeError):
+            pp.calibrate_recovery_v2(self.records(enc0_outside=range(40, 50)))
+
+
+# ----------------------------------------------------------------------------------
+# Circular arithmetic helpers
+# ----------------------------------------------------------------------------------
+class TestCircularHelpers:
+    def test_wrap_pm_pi_known_values(self):
+        assert pp.wrap_pm_pi(0.0) == pytest.approx(0.0)
+        assert pp.wrap_pm_pi(math.pi) == pytest.approx(-math.pi)
+        assert pp.wrap_pm_pi(-math.pi) == pytest.approx(-math.pi)
+        assert pp.wrap_pm_pi(1.5 * math.pi) == pytest.approx(-0.5 * math.pi)
+        assert pp.wrap_pm_pi(-1.5 * math.pi) == pytest.approx(0.5 * math.pi)
+        out = pp.wrap_pm_pi(np.array([0.1, TWO_PI + 0.1, -TWO_PI + 0.1]))
+        assert np.allclose(out, 0.1)
+
+    def test_circ_residual_across_the_wrap(self):
+        assert pp.circ_residual(0.1, TWO_PI - 0.1) == pytest.approx(0.2)
+        assert pp.circ_residual(TWO_PI - 0.1, 0.1) == pytest.approx(-0.2)
+
+    def test_residual_stats_cluster_straddling_the_boundary(self):
+        """Residuals tightly clustered around +-pi must yield a small circular sd, not
+        the ~pi a linear sd would report."""
+        res = np.array([math.pi - 0.05, -math.pi + 0.05, math.pi - 0.02, -math.pi + 0.03])
+        stats = pp.circ_residual_stats(res)
+        assert stats["circ_std"] < 0.1
+        assert abs(abs(stats["mean"]) - math.pi) < 0.1
+
+    def test_fit_ladder_cadence_recovers_known_step(self):
+        k = np.arange(6)
+        phi = (0.4 + 0.7 * k) % TWO_PI
+        step, resultant = pp.fit_ladder_cadence(k, phi)
+        assert step == pytest.approx(0.7, abs=1e-3)
+        assert resultant > 0.999
+
+    def test_fit_ladder_cadence_with_gaps_and_nan(self):
+        k = np.array([0, 2, 3, 5])
+        phi = (1.0 - 0.3 * k) % TWO_PI
+        step, _ = pp.fit_ladder_cadence(k, phi)
+        assert step == pytest.approx(-0.3, abs=1e-3)
+        step2, _ = pp.fit_ladder_cadence(np.arange(3), np.array([0.1, np.nan, 0.5]))
+        assert math.isnan(step2)  # < 3 finite points
+
+
+# ----------------------------------------------------------------------------------
+# Phase ladder construction on synthetic rows
+# ----------------------------------------------------------------------------------
+class TestBuildPhaseLadder:
+    STEP_TRUE = 0.21
+
+    def row(self, case_id, k, phi, r2=0.99, amp=0.15, period=33.0, G=0.25, split="train"):
+        return {
+            "case_id": case_id,
+            "encounter_index": k,
+            "split": split,
+            "G": G,
+            "D": 0.5 if G else 0.0,
+            "Y": 0.1 if G else 0.0,
+            "phi_imp": phi % TWO_PI,
+            "phase_fit_r2": r2,
+            "pre_cl_amp": amp,
+            "phase_period_frames": period,
+        }
+
+    def rows(self):
+        rows = []
+        # Synthetic Baseline: perfect ladder at STEP_TRUE (drives the fit clock).
+        for k in range(6):
+            rows.append(self.row("Baseline", k, 0.6 + self.STEP_TRUE * k, amp=0.12, G=0.0))
+        # Case A: ladder at STEP_TRUE from 1.0; anchor must be k = 1 (lowest amp);
+        # k = 3 is contaminated (amp 2.0) -> predicted but excluded from the pool.
+        amps = [0.20, 0.10, 0.30, 2.00]
+        for k in range(4):
+            rows.append(self.row("G+0.25_D0.50_Y+0.10", k, 1.0 + self.STEP_TRUE * k, amp=amps[k]))
+        # Case B: all phase fits bad -> unanchored.
+        for k in range(4):
+            rows.append(self.row("G+3.00_D0.50_Y+0.10", k, 2.0 + 0.5 * k, r2=0.5, G=3.0))
+        # Case C: clean but wrong-line lock (period 16) -> period gate must exclude,
+        # case unanchored.
+        for k in range(4):
+            rows.append(self.row("G+0.50_D0.50_Y+0.10", k, 1.0 + 0.4 * k, period=16.0, G=0.5))
+        return rows
+
+    def test_ladder_flags_predictions_and_residuals(self):
+        clocks = pp.CadenceClocks()
+        arrays, summary = pp.build_phase_ladder(self.rows(), pp.PrepParams(), clocks)
+        case = arrays["case_id"]
+        # Fit clock measured from the synthetic Baseline ladder (k >= 3 subset).
+        assert summary["clocks"]["step_fit_rad_per_enc"] == pytest.approx(self.STEP_TRUE, abs=2e-3)
+        # Anchors: Baseline k = 0 (amp 0.12 uniform, first minimum) and case A k = 1.
+        a = case == "G+0.25_D0.50_Y+0.10"
+        assert arrays["anchor"][a].tolist() == [False, True, False, False]
+        assert arrays["case_anchored"][a].all()
+        # Contaminated k = 3 still gets a prediction but is not clean.
+        assert np.isfinite(arrays["phi_pred_fit"][a]).all()
+        assert not arrays["clean"][a][3]
+        # Residuals at the fit clock are ~0 for the clean ladder encounters.
+        clean_resid = arrays["resid_fit"][a & arrays["clean"]]
+        assert np.max(np.abs(clean_resid)) < 0.02
+        # Unanchored cases: NaN predictions, flag off.
+        b = case == "G+3.00_D0.50_Y+0.10"
+        assert not arrays["case_anchored"][b].any()
+        assert np.isnan(arrays["phi_pred_dom"][b]).all()
+        # Period gate kills the wrong-line case entirely.
+        c = case == "G+0.50_D0.50_Y+0.10"
+        assert not arrays["period_gate_ok"][c].any()
+        assert not arrays["case_anchored"][c].any()
+        assert summary["anchoring"]["n_anchored"] == 2
+        # Pooled verdict: the fit clock matches the generative step -> small sd, usable.
+        assert summary["verdict"]["winning_clock"] == "fit"
+        assert summary["verdict"]["winning_pooled_sd_rad"] < 0.05
+        assert summary["verdict"]["usable_for_phase_assignment"] is True
+        # The dom clock (0.322 rad/enc) misfits the 0.21 ladder by ~0.11 rad/enc offset.
+        assert (
+            summary["pooled_residuals"]["dom"]["circ_std"]
+            > summary["pooled_residuals"]["fit"]["circ_std"]
+        )
+
+    def test_anchor_residual_excluded_from_pool(self):
+        clocks = pp.CadenceClocks()
+        arrays, summary = pp.build_phase_ladder(self.rows(), pp.PrepParams(), clocks)
+        n_clean_nonanchor = int(
+            (arrays["clean"] & arrays["case_anchored"] & ~arrays["anchor"]).sum()
+        )
+        assert summary["anchoring"]["n_pooled_residuals"] == n_clean_nonanchor
+        assert arrays["resid_fit"][arrays["anchor"]] == pytest.approx(0.0, abs=1e-12)
 
 
 # ----------------------------------------------------------------------------------
