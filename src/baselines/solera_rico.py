@@ -23,10 +23,17 @@ objective axis. The Solera-Rico-faithful element is the beta-VAE objective:
       + beta * KL( q(z|omega) || N(0, I) )
       [+ lambda_lift * MSE(C_L) + lambda_wake * wake]   (cell-dependent heads)
 
-KL is summed over latent dimensions and averaged over batch x time frames
-(the Nat. Commun. convention); beta is linearly warmed up over
-``beta_warmup_steps`` training forwards (KL annealing), final value pinned
-per the L5 literature check before any T8 cell launches.
+KL convention (L5 literature check + author confirmation, 2026-06-11): we
+use the CANONICAL beta-VAE objective (Higgins et al. 2017; the paper's
+Eq. (4)): KL summed over latent dimensions, averaged over batch x time
+frames (:func:`kl_divergence`). The released KTH-FlowAI code instead
+averages the KL over dimensions as well; that is a known typo
+(author-confirmed; Carlos is the second author of the 2024 paper), NOT the
+intended objective. Beta values must therefore be mapped before reuse: the
+published production beta = 0.05 under the code's mean convention at d = 20
+corresponds to 0.05/20 = 2.5e-3 canonical. Linear beta warmup from
+``beta_init`` over ``beta_warmup_steps`` training forwards (KL annealing,
+matching the released schedule shape).
 
 `BetaVAEEncoder.forward` returns MU, so every downstream consumer (the
 final_eval path, latent-encoding scripts, probes) sees the deterministic
@@ -46,15 +53,28 @@ from src.baselines.fukami_ae import (
 )
 
 
+def kl_divergence(mu: Tensor, logvar: Tensor) -> Tensor:
+    """KL(q(z|x) || N(0, I)) in the CANONICAL beta-VAE convention.
+
+    Per-sample KL summed over latent dimensions, averaged over all leading
+    (batch, time) axes: the Higgins et al. (ICLR 2017) form, the Nat. Commun.
+    paper's Eq. (4), and the user's in-house reference implementation. The
+    RELEASED KTH-FlowAI code instead averages over latent dimensions too (a
+    known typo, author-confirmed 2026-06-11); the two differ by a factor of
+    d in effective beta, so the published beta = 0.05 (mean convention,
+    d = 20) corresponds to beta = 0.05/20 = 2.5e-3 in THIS convention.
+    """
+    kl = -0.5 * (1.0 + logvar - mu.pow(2) - logvar.exp())
+    return kl.sum(dim=-1).mean()
+
+
 class BetaVAEEncoder(nn.Module):
     """Fukami CNN body emitting (mu, logvar); plain forward returns mu."""
 
-    def __init__(self, latent_dim: int, activation: str = "relu",
-                 use_norm: bool = True) -> None:
+    def __init__(self, latent_dim: int, activation: str = "relu", use_norm: bool = True) -> None:
         super().__init__()
         self.latent_dim = latent_dim
-        self.body = FukamiCNNEncoder(2 * latent_dim, activation=activation,
-                                     use_norm=use_norm)
+        self.body = FukamiCNNEncoder(2 * latent_dim, activation=activation, use_norm=use_norm)
 
     def forward_dist(self, x: Tensor) -> tuple[Tensor, Tensor]:
         h = self.body(x)
@@ -76,31 +96,35 @@ class BetaVAEWrapper(FukamiAEWrapper):
     the 2x2 control, not here).
     """
 
-    def __init__(self, *args, beta: float = 1e-3, beta_warmup_steps: int = 0,
-                 **kwargs) -> None:
+    def __init__(
+        self,
+        *args,
+        beta: float = 2.5e-3,
+        beta_init: float = 0.0,
+        beta_warmup_steps: int = 0,
+        **kwargs,
+    ) -> None:
         if kwargs.get("encoder_kind", "cnn") != "cnn":
             raise ValueError("BetaVAEWrapper supports encoder_kind='cnn' only")
         super().__init__(*args, **kwargs)
         latent_dim = self.latent_dim
         activation = kwargs.get("activation", "relu")
         use_norm = kwargs.get("use_conv_norm", True)
-        self.encoder = BetaVAEEncoder(latent_dim, activation=activation,
-                                      use_norm=use_norm)
+        self.encoder = BetaVAEEncoder(latent_dim, activation=activation, use_norm=use_norm)
         # decoder / lift head / wake head from the parent are reused as-is;
         # rebuild the decoder only to keep init RNG ordering deterministic
         # under the seeded constructor (parent built one already).
-        self.decoder = FukamiCNNDecoder(latent_dim, activation=activation,
-                                        use_norm=use_norm)
+        self.decoder = FukamiCNNDecoder(latent_dim, activation=activation, use_norm=use_norm)
         self.beta = float(beta)
+        self.beta_init = float(beta_init)
         self.beta_warmup_steps = int(beta_warmup_steps)
-        self.register_buffer("_train_forwards", torch.zeros((), dtype=torch.long),
-                             persistent=True)
+        self.register_buffer("_train_forwards", torch.zeros((), dtype=torch.long), persistent=True)
 
     def current_beta(self) -> float:
         if self.beta_warmup_steps <= 0:
             return self.beta
         frac = min(1.0, float(self._train_forwards.item()) / self.beta_warmup_steps)
-        return self.beta * frac
+        return self.beta_init + frac * (self.beta - self.beta_init)
 
     def forward(self, batch: dict) -> dict:
         omega = batch.get("omega", batch.get("omega_z"))
@@ -121,9 +145,7 @@ class BetaVAEWrapper(FukamiAEWrapper):
             z = mu
         omega_hat_norm = self.decoder(z)
         L_recon = self._recon_loss(omega_norm, omega_hat_norm)
-        # KL per frame: sum over latent dims, mean over (B, T) frames.
-        kl = -0.5 * (1.0 + logvar - mu.pow(2) - logvar.exp()).sum(dim=-1)
-        L_kl = kl.mean()
+        L_kl = kl_divergence(mu, logvar)
         beta_now = self.current_beta()
 
         if "cl_future" in batch and self.lambda_lift > 0:

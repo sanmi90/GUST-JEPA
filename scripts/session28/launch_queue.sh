@@ -55,11 +55,21 @@ WAVES_GPU1=(
   "fukami_d64_s42,fukami_d64_s0"
   "fukami_d64_s1,fukami_d64_s2"
   "ctrl_recon_cnnvit_s0,ctrl_recon_cnnvit_s1"
-  "ctrl_recon_cnnvit_s2,bvae_faith_d64_s42"
-  "bvae_faith_d64_s0,bvae_faith_d64_s1"
-  "bvae_match_d64_s42,bvae_match_d64_s0"
-  "bvae_match_d64_s1"
+  "ctrl_recon_cnnvit_s2,bvae_lcurve_b5em4"
+  "bvae_lcurve_b1em3,bvae_lcurve_b2p5em3"
+  "bvae_lcurve_b5em3,bvae_lcurve_b1em2"
+  "bvae_faith_d64_s42,bvae_faith_d64_s0"
+  "bvae_faith_d64_s1,bvae_match_d64_s42"
+  "bvae_match_d64_s0,bvae_match_d64_s1"
 )
+# T8 ordering note (2026-06-11): the bvae L-curve sweep waves precede the
+# production bvae cells, and the production cells fail fast until
+# outputs/session28/bvae_beta_pin.json exists (written by pick_bvae_beta.py
+# from the sweep). The queue drivers launched at 10:40 on 2026-06-11 hold the
+# PRE-sweep wave list in memory, so their bvae production cells fail fast
+# harmlessly; scripts/session28/bvae_sweep_runner.sh waits for that queue to
+# complete, re-invokes this launcher for GPU 1 (idempotent SKIPs), pins the
+# elbow, and re-invokes once more for the production cells.
 
 drain() {  # drain <gpu> <wave...>
     local gpu=$1; shift
@@ -81,12 +91,12 @@ drain() {  # drain <gpu> <wave...>
 }
 
 if [[ -z "$ONLY" || "$ONLY" == "0" ]]; then
-    drain 0 "${WAVES_GPU0[@]}" > "$ROOT/queue_gpu0.log" 2>&1 &
+    drain 0 "${WAVES_GPU0[@]}" >> "$ROOT/queue_gpu0.log" 2>&1 &
     P0=$!
     echo "[queue] gpu0 driver pid $P0 -> $ROOT/queue_gpu0.log"
 fi
 if [[ -z "$ONLY" || "$ONLY" == "1" ]]; then
-    drain 1 "${WAVES_GPU1[@]}" > "$ROOT/queue_gpu1.log" 2>&1 &
+    drain 1 "${WAVES_GPU1[@]}" >> "$ROOT/queue_gpu1.log" 2>&1 &
     P1=$!
     echo "[queue] gpu1 driver pid $P1 -> $ROOT/queue_gpu1.log"
 fi

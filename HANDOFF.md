@@ -8085,3 +8085,74 @@ x_0/c = -2 per PRF Sec. II) is at
 `scripts/session28/DNS_COLLABORATOR_PACKAGE.md` ready for Carlos to send (log
 the send date here when it goes out).
 
+### D182 addendum: A6 literature checks resolved; T8 beta protocol replaced (2026-06-11, Session 28)
+
+**L5 (beta-VAE recipe) and the typo Carlos flagged.** The released KTH-FlowAI
+code behind Solera-Rico et al. 2024 computes the KL as
+`-0.5 * torch.mean(...)` over batch AND latent dimensions, while the paper's
+Eq. (4) sums over dimensions; Carlos (second author) confirms the code's
+mean-over-dims KL is a TYPO. The port therefore uses the CANONICAL beta-VAE
+objective (Higgins 2017; sum over dims, mean over batch x frames), implemented
+as `kl_divergence()` in `src/baselines/solera_rico.py` with the convention
+pinned by `tests/test_solera_rico.py` (8 tests). Mapping: their production
+beta = 0.05 (chaotic Re = 100 case, d = 20, mean convention) corresponds to
+0.05/20 = 2.5e-3 canonical. Their released schedule shape (linear KL warmup
+over the first 2 percent of training, OneCycle Adam, batch 256) is mirrored
+via `--beta-warmup-frac 0.02`. Their transformer predictor (T = 64 context,
+d_model 64, 4 heads, 4 blocks) is noted for the record; T8 uses the shared B1
+predictor-on-top protocol instead (fairness convention).
+
+**T8 protocol replaced (author decision, AskUserQuestion 2026-06-11): L-curve
+sweep, not a fixed transfer.** Five short cells `bvae_lcurve_b{5em4,1em3,
+2p5em3,5em3,1em2}` (faith recipe, d = 64, seed 42, 8k iters, candidates
+bracketing 2.5e-3) feed `scripts/session28/pick_bvae_beta.py`, which writes
+the rate-distortion table (`outputs/session28/bvae_lcurve.json`) and pins the
+knee (`bvae_beta_pin.json`; rule: max chord distance on the normalised
+(KL, held-out recon) curve, ties toward larger beta; 4 tests). The production
+bvae cells now FAIL FAST until the pin exists, so the queue drivers launched
+at 10:40 (which hold the pre-sweep wave list in memory) cannot train at an
+unverified beta; `scripts/session28/bvae_sweep_runner.sh` (detached) waits for
+the GPU-1 queue to complete, runs the sweep via the idempotent launcher, pins
+the elbow, and re-launches the production cells. Review `bvae_lcurve.json`
+when it lands; re-running the picker and the cells is cheap by design.
+
+**L1 (similarity scalings) verdict: a collapse EXISTS at low Re; P1 is
+amended, not killed.** Martinez-Muriel and Flores, J. Fluids Struct. 99,
+103138 (2020): Taylor-vortex gusts on airfoils at Re = 1000, lift change
+roughly proportional to vortex circulation, and scaling by the induced
+vertical-velocity ratio collapses C_l(t) across intensity, size, and offset
+in the INITIAL interaction phase. Nobody has published a peak-amplitude
+collapse in the extreme regime (|G| >= 1, Re ~ 5000); Fukami/Lopez-Doriga/
+Odaka parametrise without collapsing, and Hao and Breuer (arXiv:2512.09184)
+collapse periodic wake encounters only. P1 AMENDMENT (pre-registered BEFORE
+any fitting): add candidate s4 = the Martinez-Muriel induced-velocity ratio
+(it folds in Y, which s1-s3 do not); frame P1 as the extreme-regime peak
+amplitude extension + latent inheritance, citing the Re = 1000 collapse as
+prior art. Supporting set: Qian, Wang and Gursul, Exp. Fluids 63(8) 2022
+(peak lift proportional to circulation); Sedky/Jones Kussner-type line (Biler
+et al. AIAA J 2019; Sedky et al. PRF 5, 074701, 2020; Biler et al. AIAA J
+2021; Sedky et al. PRF 8, 064701, 2023; Jones, Cetiner and Smith, Annu. Rev.
+Fluid Mech. 54, 2022). CORRECTION: Smith, Fukami, Sedky, Jones and Taira,
+JFM 980, A18 (2024) is a TRANSVERSE-gust persistent-homology paper, not a
+vortex-gust parametric study; fix any citation framing that implies
+otherwise.
+
+**L2/L3 confirmed:** Feydy, Sejourne, Vialard, Amari, Trouve and Peyre,
+AISTATS 2019 (PMLR 89:2681-2690) for the debiased Sinkhorn divergence;
+Drmac and Gugercin, SIAM J. Sci. Comput. 38(2), A631-A648 (2016) for qDEIM.
+
+**L4 competitor refresh (since 2026-06):** Yan and Franck, arXiv:2606.06766
+(free-flying airfoil vortex-gust response; no collapse). Context updates:
+Zamani Ashtiani and Fukami, arXiv:2512.09523 (time-dependent bases, extreme
+gust at Re = 5000; closest to our regime); Taira, arXiv:2511.12889 (Extreme
+Aerodynamics perspective; intro cite); Kim, Yawata, Nakao and Taira,
+arXiv:2604.11745; Koshikawa, Araki, Liu and Fukami, arXiv:2601.19104
+(convolutional causal learning on gust interactions). JEPA axis: AeroJEPA
+(arXiv:2605.05586) is still the only JEPA-in-aerodynamics paper and is a
+STEADY geometry-to-field surrogate, so the temporal-forecasting claim remains
+uncontested; UR-JEPA (arXiv:2606.01443) critiques SIGReg's isotropic target
+(useful for the S5 SIGReg discussion). NEW disentanglement-axis competitor:
+Wang, Tirelli, Discetti and Ianiro (UC3M), arXiv:2604.18059, KL-decomposed
+VAE on NACA 0012 with strong vortex gusts; add to the S1 related-work
+paragraph (D161 list).
+

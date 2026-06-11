@@ -76,6 +76,7 @@ run_fukami() {  # run_fukami <tag> <recipe-array-name> <extra flags...>
     local out="$ROOT/$tag"
     local final_ckpt="checkpoint_iter020000.pt"
     [[ "$tag" == *i30k* ]] && final_ckpt="checkpoint_iter030000.pt"
+    [[ "$tag" == bvae_lcurve* ]] && final_ckpt="checkpoint_iter008000.pt"
     if [[ -f "$out/$final_ckpt" ]]; then
         echo "[s28][gpu$gpu] SKIP $tag (ckpt exists)"; return 0
     fi
@@ -87,6 +88,17 @@ run_fukami() {  # run_fukami <tag> <recipe-array-name> <extra flags...>
     local rc=$?
     echo "[s28][gpu$gpu] DONE $tag rc=$rc at $(date -Iseconds)"
     return $rc
+}
+
+bvae_pinned_beta() {  # echoes the pinned canonical beta; fails if unpinned
+    local pin="$REPO/outputs/session28/bvae_beta_pin.json"
+    if [[ ! -f "$pin" ]]; then
+        echo "[s28][gpu$gpu] FATAL: bvae beta pin missing ($pin)." >&2
+        echo "[s28][gpu$gpu] Run the bvae_lcurve_* sweep, then scripts/session28/pick_bvae_beta.py" >&2
+        echo "[s28][gpu$gpu] (author decision 2026-06-11: canonical sum-KL + L-curve elbow; see HANDOFF)." >&2
+        return 1
+    fi
+    python -c "import json,sys; print(json.load(open(sys.argv[1]))['beta'])" "$pin"
 }
 
 case "$cell" in
@@ -153,16 +165,28 @@ case "$cell" in
   fukami_budget_lr3e4_i30k) run_fukami "$cell" fuk_b1 --d 64 --seed 42 --lr 3e-4 --max-iters 30000 ;;
   fukami_budget_lr3e4_i20k) run_fukami "$cell" fuk_b1 --d 64 --seed 42 --lr 3e-4 ;;
 
-  # ---- T8 beta-VAE (AD3; src/baselines/solera_rico.py). BETA: verify the value
-  # against the Nat. Commun. 2024 recipe (literature check L5) BEFORE launching
-  # these cells; 1e-3 is the placeholder default. faithful = lift head only
-  # (parallel to the Fukami B1 recipe); matched = lift + wake (parallel to T4). ----
-  bvae_faith_d64_s42) run_fukami "$cell" fuk_b1 --vae --beta 1e-3 --recon-loss-type mse --d 64 --seed 42 ;;
-  bvae_faith_d64_s0)  run_fukami "$cell" fuk_b1 --vae --beta 1e-3 --recon-loss-type mse --d 64 --seed 0 ;;
-  bvae_faith_d64_s1)  run_fukami "$cell" fuk_b1 --vae --beta 1e-3 --recon-loss-type mse --d 64 --seed 1 ;;
-  bvae_match_d64_s42) run_fukami "$cell" fuk_matched --vae --beta 1e-3 --encoder cnn --d 64 --seed 42 ;;
-  bvae_match_d64_s0)  run_fukami "$cell" fuk_matched --vae --beta 1e-3 --encoder cnn --d 64 --seed 0 ;;
-  bvae_match_d64_s1)  run_fukami "$cell" fuk_matched --vae --beta 1e-3 --encoder cnn --d 64 --seed 1 ;;
+  # ---- T8 beta-VAE L-curve sweep (L5 resolved 2026-06-11: CANONICAL sum-KL
+  # convention; the released KTH code's mean-over-dims KL is a known typo,
+  # author-confirmed. Candidates bracket 2.5e-3 = published 0.05 (mean-KL,
+  # d=20) mapped to canonical. Short runs (8k iters), faith recipe, d=64
+  # seed 42; elbow picked by scripts/session28/pick_bvae_beta.py which writes
+  # outputs/session28/bvae_beta_pin.json. Orchestrated by bvae_sweep_runner.sh ----
+  bvae_lcurve_b5em4)   run_fukami "$cell" fuk_b1 --vae --beta 5e-4   --beta-warmup-frac 0.02 --recon-loss-type mse --d 64 --seed 42 --max-iters 8000 ;;
+  bvae_lcurve_b1em3)   run_fukami "$cell" fuk_b1 --vae --beta 1e-3   --beta-warmup-frac 0.02 --recon-loss-type mse --d 64 --seed 42 --max-iters 8000 ;;
+  bvae_lcurve_b2p5em3) run_fukami "$cell" fuk_b1 --vae --beta 2.5e-3 --beta-warmup-frac 0.02 --recon-loss-type mse --d 64 --seed 42 --max-iters 8000 ;;
+  bvae_lcurve_b5em3)   run_fukami "$cell" fuk_b1 --vae --beta 5e-3   --beta-warmup-frac 0.02 --recon-loss-type mse --d 64 --seed 42 --max-iters 8000 ;;
+  bvae_lcurve_b1em2)   run_fukami "$cell" fuk_b1 --vae --beta 1e-2   --beta-warmup-frac 0.02 --recon-loss-type mse --d 64 --seed 42 --max-iters 8000 ;;
+
+  # ---- T8 beta-VAE production (beta from the L-curve pin; fail fast if
+  # unpinned so the running queue cannot train at an unverified value).
+  # faithful = lift head only (parallel to the Fukami B1 recipe);
+  # matched = lift + wake (parallel to T4). ----
+  bvae_faith_d64_s42) b=$(bvae_pinned_beta) || exit 3; run_fukami "$cell" fuk_b1 --vae --beta "$b" --beta-warmup-frac 0.02 --recon-loss-type mse --d 64 --seed 42 ;;
+  bvae_faith_d64_s0)  b=$(bvae_pinned_beta) || exit 3; run_fukami "$cell" fuk_b1 --vae --beta "$b" --beta-warmup-frac 0.02 --recon-loss-type mse --d 64 --seed 0 ;;
+  bvae_faith_d64_s1)  b=$(bvae_pinned_beta) || exit 3; run_fukami "$cell" fuk_b1 --vae --beta "$b" --beta-warmup-frac 0.02 --recon-loss-type mse --d 64 --seed 1 ;;
+  bvae_match_d64_s42) b=$(bvae_pinned_beta) || exit 3; run_fukami "$cell" fuk_matched --vae --beta "$b" --beta-warmup-frac 0.02 --encoder cnn --d 64 --seed 42 ;;
+  bvae_match_d64_s0)  b=$(bvae_pinned_beta) || exit 3; run_fukami "$cell" fuk_matched --vae --beta "$b" --beta-warmup-frac 0.02 --encoder cnn --d 64 --seed 0 ;;
+  bvae_match_d64_s1)  b=$(bvae_pinned_beta) || exit 3; run_fukami "$cell" fuk_matched --vae --beta "$b" --beta-warmup-frac 0.02 --encoder cnn --d 64 --seed 1 ;;
 
   *) echo "[s28] unknown cell '$cell'"; exit 2 ;;
 esac
