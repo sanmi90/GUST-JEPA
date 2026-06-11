@@ -1,0 +1,80 @@
+# Frozen evaluation protocol for the v2.1 unconditioned rebuild (Sessions 28-31).
+# Written BEFORE any v2p1 evaluation run (Phase A, Track A4; HANDOFF D181).
+# scripts/session28/eval_all.py reads its parameters from THIS file so that code
+# and paper cannot diverge. The same text lives in scripts/session28/PROTOCOL.md
+# (human-readable) and paper/sections/protocol_box.tex (the boxed appendix
+# paragraph). Any change after the first held-out evaluation is a protocol
+# violation and must be logged in HANDOFF.md with its own D-number.
+
+protocol_version: eval_protocol_v2p1.0
+frozen_iso: "2026-06-10"
+anchored_to:
+  decision_log: [D130, D165, D181]
+  note: >
+    Primary endpoint and uncertainty conventions were fixed in HANDOFF D130
+    (split v2 design, 2026-05-28) and D165 (statistics hardening, 2026-06-03),
+    before any v2.1 model existed. The repository commit that froze this file
+    is recorded by eval_all.py into numbers.json as protocol_commit and
+    rendered into the manuscript as \CommitHash.
+
+data:
+  split: configs/splits/split_v2p1.json
+  partition: v2p1
+  omega_pipeline_manifest: outputs/data_pipeline/v2p1/manifest.json
+  ssim_data_range_registry: configs/ssim_data_range.json   # split_v2p1 = 8.45
+  splits_reported: [train, val, test_b, test_c]
+  test_b_tiers: [interior, boundary, pooled]
+  source_groups:
+    periodic: 800-frame cases, 6 encounters per case
+    run3: 480-frame cases, 4 encounters per case
+    test_b_policy: pooled (locked; do not stratify test_b by source group)
+
+rollout:
+  mode: full_context            # the ONLY forecast mode; markov single-frame seeding is RETIRED
+  context: all encoded frames up to and including the per-encounter impact frame
+  context_window_max: 32        # the predictor attends to at most T = 32 latent history frames
+  autoregressive_from: impact_frame + 1
+  teacher_forcing_after_impact: false
+  identical_for_all_families: true
+  horizons_reported: [4, 8, 16, 32]
+  primary_horizon: 16
+
+endpoints:
+  representational: z_dns       # probe applied to encoder latents of held-out DNS frames
+  forecast: z_full              # probe applied to the full-context autoregressive rollout
+  both_reported_everywhere: true
+
+observables:
+  list: [C_L, C_D, I_y, wake_enstrophy, circulation_pos, circulation_neg]
+  primary: wake_enstrophy
+  caveats:
+    I_y: non-impulse proxy (D167); reported in the matrix, never headlined
+
+probes:
+  classes: [ridge, krr_rbf, mlp_reg]   # ridge is the linear PRIMARY; the other two are the probe-class robustness axis (Gate GD)
+  fit_on: train per-frame latents (z_full key of the train split) only
+  readout_cv: 5-fold, case-level folds
+  regime_note: >
+    Parameter probes (G, D, Y) use IMPACT-frame z; state-descriptor probes use
+    PER-frame z (CLAUDE.md probe methodology; declare the regime in every probe
+    script docstring).
+
+r2:
+  estimator: "1 - SSE/SST with SST about the held-out split's own mean"
+  paired_collection: per-encounter (y_pred, y_true) at impact_frame + H
+
+uncertainty:
+  bootstrap_n: 2000
+  bootstrap_unit: encounter
+  cluster_unit: case            # case-clustered CIs mandatory for every wake claim
+  multiplicity: Holm over the 12-test family (6 observables x 2 endpoints, JEPA vs reconstructive AE, test_b, H = 16)
+  seed_variance: mean +- sd over encoder seeds (lead family n = 4: seeds 42/0/1/2; others n = 3)
+
+primary_endpoint:
+  statement: representational wake_enstrophy R^2 at H = 16 on test_b (pooled tiers)
+  preregistered_in: [D130, D165]
+
+selection_convention:
+  headline: fixed d = 64, seed mean +- sd
+  full_matrix: family x d x observable x endpoint x probe class, appendix table
+  retired_phrases: ["least-bad"]

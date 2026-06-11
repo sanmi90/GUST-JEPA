@@ -12,19 +12,21 @@ matched latent dimension.
 
 Lead researcher: Carlos Sanmiguel Vila (INTA, UC3M).
 
-## Current focus (read first, set 2026-06-05, HANDOFF D177)
+## Current focus (read first, set 2026-06-10, Session 28 / HANDOFF D178+)
 
-**The immediate task is finishing the v2-based manuscript for a presentation on
-Monday 2026-06-08, NOT retraining.** The next session after a `/clear` is
-manuscript writing. The paper on `main` describes split **v2** (84 cases / 378
-encounters) and that is what the figures/numbers reflect; keep writing against v2.
-
-A refreshed dataset **v2.1** (`configs/splits/split_v2p1.json`, 85 cases / 382
-encounters, +7 usable encounters) is built, cached, and audited 0-flagged, but
-the **v2.1 retrain is deliberately deferred**. Do not start it unless the user
-asks. When the rerun does happen, follow `RERUN_MANIFEST.md` "Split v2.1 update"
-(every figure/table regenerated from v2.1 outputs and saved with a `_v2p1`
-suffix; v2 figures kept as the frozen reference).
+**The v2.1 UNCONDITIONED rebuild is LIVE.** The deferred-retrain note from
+D177 is obsolete: the 2026-06-08 presentation is done and the paper target is
+now the **v2.1 unconditioned manuscript**. The campaign is governed by
+`SESSION28 31 MASTER V2P1 UNCOND PHYSICS.md` (one master plan, four sessions:
+Phase A = Session 28 training launch through Phase D = Session 31 manuscript),
+which merges the v2.1 rerun (`RERUN_MANIFEST.md` "Split v2.1 update" +
+"Unconditioned rerun"), the referee remediation, and four new physics tracks.
+Key invariants: every `train_jepa` run gets `--predictor-cond-dim 0`, split
+`configs/splits/split_v2p1.json`, pipeline manifest
+`outputs/data_pipeline/v2p1/manifest.json`, `--partition v2p1` (W&B group
+`partition_v2p1`); every regenerated figure/table saved under its existing
+basename with a `_v2p1` suffix; v2 figures kept as the frozen reference; the
+paper on `main` still describes v2 until Phase D swaps it.
 
 ## What we are building
 

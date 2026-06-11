@@ -94,8 +94,15 @@ def load_encoder(ckpt_path: Path, device: torch.device) -> tuple[HybridCNNViTEnc
     return enc, int(args["d"])
 
 
+# Split manifest + cache partition used by the gather helpers. Defaults keep the
+# historical v2 behaviour; main() overrides them from --split / --partition
+# (Session 28: split_v2p1.json + the v2p1 cache symlink).
+SPLIT_PATH = REPO / "configs" / "splits" / "split_v2.json"
+CACHE_PARTITION = "v1"
+
+
 def gather_train_encounters() -> list[dict]:
-    with open(REPO / "configs" / "splits" / "split_v2.json") as f:
+    with open(SPLIT_PATH) as f:
         manifest = json.load(f)
     out = []
     for cid, case in manifest["cases"].items():
@@ -106,7 +113,7 @@ def gather_train_encounters() -> list[dict]:
         for k in range(case["n_encounters_full"]):
             if k in test_a_idx:
                 continue
-            path = CACHE / "v1" / cid / f"encounter_{k:02d}.h5"
+            path = CACHE / CACHE_PARTITION / cid / f"encounter_{k:02d}.h5"
             if not path.exists():
                 continue
             out.append({"case_id": cid, "k": int(k), "path": str(path)})
@@ -114,7 +121,7 @@ def gather_train_encounters() -> list[dict]:
 
 
 def gather_eval_encounters(split: str) -> list[dict]:
-    with open(REPO / "configs" / "splits" / "split_v2.json") as f:
+    with open(SPLIT_PATH) as f:
         manifest = json.load(f)
     out = []
     for cid, case in manifest["cases"].items():
@@ -127,7 +134,7 @@ def gather_eval_encounters(split: str) -> list[dict]:
         else:
             continue
         for k in ks:
-            path = CACHE / "v1" / cid / f"encounter_{k:02d}.h5"
+            path = CACHE / CACHE_PARTITION / cid / f"encounter_{k:02d}.h5"
             if not path.exists():
                 continue
             out.append({"case_id": cid, "k": int(k), "path": str(path)})
@@ -339,6 +346,10 @@ def parse_args() -> argparse.Namespace:
         ),
     )
 
+    p.add_argument("--split", type=str, default="configs/splits/split_v2.json",
+                   help="Split manifest path (Session 28: configs/splits/split_v2p1.json).")
+    p.add_argument("--partition", type=str, default="v1",
+                   help="Cache partition subdir under VORTEX_JEPA_CACHE.")
     p.add_argument("--output-dir", required=True, type=str)
     p.add_argument("--gpu", type=int, default=0)
     p.add_argument("--device", type=str, default=None,
@@ -636,6 +647,9 @@ def compute_decoder_loss(
 
 def main() -> None:
     args = parse_args()
+    global SPLIT_PATH, CACHE_PARTITION
+    SPLIT_PATH = Path(args.split) if Path(args.split).is_absolute() else REPO / args.split
+    CACHE_PARTITION = args.partition
     device = torch.device(args.device) if getattr(args, "device", None) else require_rtx6000(gpu_index=args.gpu)
 
     out_dir = Path(args.output_dir)

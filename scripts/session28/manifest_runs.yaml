@@ -1,0 +1,112 @@
+_doc: Session 28 training matrix manifest (gate GA1). Regenerate with scripts/session28/build_manifest_runs.py;
+  do not edit by hand.
+n_runs: 6
+runs:
+  jepa_lstm_noc_d64_s0:
+    output_dir: outputs/runs/session28/jepa_lstm_noc_d64_s0/encoder
+    final_checkpoint: null
+    status: running
+    wandb_run_id: drpuqiwb
+    gpu_name: NVIDIA RTX PRO 6000 Blackwell Max-Q Workstation Edition
+    seed: 0
+    d: 64
+    max_iters: 20000
+    split_sha256: f83f1af3ba68f8310316984358f3dcca932fdc79ca644e2164125068492def18
+    inventory_sha256: ff7763067a6991192ef507f7172e869dcb21ff5aa8d1c46a9c7bf0134b39e0e6
+    code_sha256: 405adf8d5a4a06d93196f1d4268c589c25816381
+    partition_version: v2p1
+    lambda_sigreg: 0.01
+    predictor_cond_dim: 0
+    lambda_wake: 1.0
+    observable_head: cl_future
+    auto_fallback_triggered: false
+  jepa_lstm_noc_d64_s42:
+    output_dir: outputs/runs/session28/jepa_lstm_noc_d64_s42/encoder
+    final_checkpoint: null
+    status: running
+    wandb_run_id: eon5m86u
+    gpu_name: NVIDIA RTX PRO 6000 Blackwell Max-Q Workstation Edition
+    seed: 42
+    d: 64
+    max_iters: 20000
+    split_sha256: f83f1af3ba68f8310316984358f3dcca932fdc79ca644e2164125068492def18
+    inventory_sha256: ff7763067a6991192ef507f7172e869dcb21ff5aa8d1c46a9c7bf0134b39e0e6
+    code_sha256: 405adf8d5a4a06d93196f1d4268c589c25816381
+    partition_version: v2p1
+    lambda_sigreg: 0.01
+    predictor_cond_dim: 0
+    lambda_wake: 1.0
+    observable_head: cl_future
+    auto_fallback_triggered: false
+  jepa_tf_noc_d64_s0:
+    output_dir: outputs/runs/session28/jepa_tf_noc_d64_s0/encoder
+    final_checkpoint: null
+    status: running
+    wandb_run_id: 174a6ozv
+    gpu_name: NVIDIA RTX PRO 6000 Blackwell Max-Q Workstation Edition
+    seed: 0
+    d: 64
+    max_iters: 20000
+    split_sha256: f83f1af3ba68f8310316984358f3dcca932fdc79ca644e2164125068492def18
+    inventory_sha256: ff7763067a6991192ef507f7172e869dcb21ff5aa8d1c46a9c7bf0134b39e0e6
+    code_sha256: 405adf8d5a4a06d93196f1d4268c589c25816381
+    partition_version: v2p1
+    lambda_sigreg: 0.01
+    predictor_cond_dim: 0
+    lambda_wake: 1.0
+    observable_head: cl_future
+    auto_fallback_triggered: false
+  jepa_tf_noc_d64_s1:
+    output_dir: outputs/runs/session28/jepa_tf_noc_d64_s1/encoder
+    final_checkpoint: null
+    status: running
+    wandb_run_id: 64o0c42m
+    gpu_name: NVIDIA RTX PRO 6000 Blackwell Max-Q Workstation Edition
+    seed: 1
+    d: 64
+    max_iters: 20000
+    split_sha256: f83f1af3ba68f8310316984358f3dcca932fdc79ca644e2164125068492def18
+    inventory_sha256: ff7763067a6991192ef507f7172e869dcb21ff5aa8d1c46a9c7bf0134b39e0e6
+    code_sha256: 405adf8d5a4a06d93196f1d4268c589c25816381
+    partition_version: v2p1
+    lambda_sigreg: 0.01
+    predictor_cond_dim: 0
+    lambda_wake: 1.0
+    observable_head: cl_future
+    auto_fallback_triggered: false
+  jepa_tf_noc_d64_s2:
+    output_dir: outputs/runs/session28/jepa_tf_noc_d64_s2/encoder
+    final_checkpoint: null
+    status: running
+    wandb_run_id: aj412xmm
+    gpu_name: NVIDIA RTX PRO 6000 Blackwell Max-Q Workstation Edition
+    seed: 2
+    d: 64
+    max_iters: 20000
+    split_sha256: f83f1af3ba68f8310316984358f3dcca932fdc79ca644e2164125068492def18
+    inventory_sha256: ff7763067a6991192ef507f7172e869dcb21ff5aa8d1c46a9c7bf0134b39e0e6
+    code_sha256: 405adf8d5a4a06d93196f1d4268c589c25816381
+    partition_version: v2p1
+    lambda_sigreg: 0.01
+    predictor_cond_dim: 0
+    lambda_wake: 1.0
+    observable_head: cl_future
+    auto_fallback_triggered: false
+  jepa_tf_noc_d64_s42:
+    output_dir: outputs/runs/session28/jepa_tf_noc_d64_s42/encoder
+    final_checkpoint: null
+    status: running
+    wandb_run_id: urn0w9x7
+    gpu_name: NVIDIA RTX PRO 6000 Blackwell Max-Q Workstation Edition
+    seed: 42
+    d: 64
+    max_iters: 20000
+    split_sha256: f83f1af3ba68f8310316984358f3dcca932fdc79ca644e2164125068492def18
+    inventory_sha256: ff7763067a6991192ef507f7172e869dcb21ff5aa8d1c46a9c7bf0134b39e0e6
+    code_sha256: 405adf8d5a4a06d93196f1d4268c589c25816381
+    partition_version: v2p1
+    lambda_sigreg: 0.01
+    predictor_cond_dim: 0
+    lambda_wake: 1.0
+    observable_head: cl_future
+    auto_fallback_triggered: false

@@ -7876,3 +7876,212 @@ data staged for the eventual rerun (recipe in `RERUN_MANIFEST.md` "Split v2.1
 update": regenerate every figure/table from the v2.1 outputs saved with a `_v2p1`
 suffix, v2 figures kept as the frozen reference).
 
+# SESSIONS 28-31: v2.1 unconditioned rebuild + referee remediation + physics elevation
+
+Master plan: `SESSION28 31 MASTER V2P1 UNCOND PHYSICS.md` (Phase A = Session 28
+training launch, B = closure/statistics, C = mechanism + physics tracks, D =
+manuscript). Operating rules inherited; every gate has a written weak branch.
+
+### D178: Session 28 pre-flight -- AD decisions, reuse verdicts, v2p1 stays the split (2026-06-10, Session 28)
+
+Live HANDOFF head at session start was D177, so the master plan's provisional
+stubs D178+ apply unrenumbered.
+
+**PF-A1 (split + cache integrity).** `configs/splits/split_v2p1.json` verified:
+85 cases (71 train / 10 test_b / 4 test_c), 382 encounters
+(`n_encounters_total_in_splits`); v2p1 omega pipeline manifest present with
+train_std 3.63368 (plan said 3.6337) and `ssim_data_range_L` 8.4458;
+`configs/ssim_data_range.json` carries split_v2p1 = 8.45. The full
+`data_integrity_audit.py` re-run is queued with the launch block (the cache was
+already 0-flagged of 382 at D177 build time).
+
+**PF-A2 (prototype reuse verdicts): RETRAIN EVERYTHING; one structural reuse.**
+The session27 end-to-end prototypes `JEPA_d64_noc_{tf,lstm}` ran on the v2
+pipeline (manifest std 3.6622, 378 encounter thresholds) and, decisively, on
+`gpu_name = NVIDIA L40S`, which makes them untraceable for the paper under the
+hardware rule; their decoders inherit the same taint. So T1 trains all 4 seeds,
+T2 all 3, T9 all decoders. The prototype CONFIG, however, matches the locked
+Direction-E recipe exactly (predictor_cond_dim 0, observable cl_future at 0.01
+with deltas [0], patch_signed_spectrum wake at 1.00, lr 1.5e-4/5e-4, wd 0.05,
+sigreg 0.01, batchnorm projection), validating the planned T1 command verbatim.
+Structural reuse that DOES hold: the session20 Track-A 2x2 recipe is the
+Direction-E hyperparameter set with only encoder/objective swapped, so the T4
+predictive-CNN+ViT cell IS the T1 production family at seeds 0/1/2 (3 runs
+saved); only the other three 2x2 cells train their own.
+
+**PF-A3 / AD1: MOOT.** All 64 run3 raw files (Gust_002-070 minus the
+never-generated 018/029/059/063 and the deleted 027) are ALREADY in
+split_v2p1; the plan's premise of 16 unused run3 cases was stale (v2 absorbed
+Gust_048-068 at the 2026-05-28 build, D130). No absorption, no `test_d`, no
+v2p2: the campaign runs on split_v2p1 as built, test_b/test_c byte-identical
+to v2.
+
+**Author decisions adopted (plan defaults, user pre-authorised):** AD2 IN (T6
+conditioned tf reference, d=64, seeds 42/0/1, one table row + one sentence);
+AD3 IN (beta-VAE port landed, see D182); AD4 lstm-no-c at 3 seeds; AD5 title
+option (a) tracked for Phase D; AD7 PLDM stays retired.
+
+**PF-A4 (measured timings, replacing the A8 estimates):** JEPA d=64 20k-iter
+on one RTX 6000 solo = 1.50-1.56 h (session14 thrust6 queue); JEPA cells pack
+3/card safely; Fukami-class cells (full-field decoder) must NOT pack 3/card
+(both session20 3-pack attempts OOM-killed, rc=137 on the 102 GB cards) and
+are queued at most 2/card; SL decoder 30k iters ~2.6 h (session27 checkpoint
+mtimes, RTX). Queue projection ~45 cells excl. T8/T9, ~2-2.5 days wall on two
+cards.
+
+**Wake-observable cache is NOT v2p1-ready (new pre-launch blocker, enforced in
+the launcher):** the two new train cases 069/070 have no wake-observable
+files, `_train_stats.json` is the v2-era recompute, and the per-encounter
+targets were computed under the v2 normalisation (std 3.6622 vs v2p1 3.6337).
+Plan: back up `_train_stats.json` as `_train_stats_v2_backup.json` (the
+established Session-12 pattern), then re-run
+`session11_precompute_wake_observables.py --force` with the v2p1 split +
+v2p1 pipeline manifest so all 382 encounters carry v2p1-normalised targets and
+stats. `launch_queue.sh` hard-gates on a `"v2p1"` marker in the wake
+`_manifest.json`. A `v2p1 -> v1` cache symlink is also required
+(`train_jepa --partition v2p1` gives the W&B group `partition_v2p1`).
+
+**PF-A5:** CLAUDE.md "Current focus" updated (rerun live, master-plan pointer,
+v2p1 invariants). Local talk/paper `*.BACKUP_*` snapshots and
+`paper_BACKUP_precond/` gitignored to restore a clean tree.
+
+### D179: Session 28 training matrix launched (GA1) (2026-06-11, Session 28)
+
+Queue launched 2026-06-11 10:40 on both RTX 6000 cards via
+`scripts/session28/launch_queue.sh` (11 serial waves per card, T1/T2 first,
+~45 cells covering T1-T8; T9 decoders launch after the encoders freeze).
+Pre-launch blockers cleared in order: (1) wake-observable cache recomputed for
+v2p1 (`session11_precompute_wake_observables.py --force`, all 382 encounters,
+5 modes, train stats pooled over 229 train encounters / 27480 frames; v2-era
+stats backed up as `_train_stats_v2_backup.json`; the wake `_manifest.json`
+now carries the `v2p1` marker the launcher gates on); (2) `v2p1 -> v1` cache
+symlink created; (3) `data_integrity_audit.py` on split_v2p1: 0 flagged of
+382 encounters (closes the PF-A1 remainder).
+
+`manifest_runs.yaml` (GA1) generated by `build_manifest_runs.py` and
+committed: wave-1 runs all carry the full W&B key set (split_sha256
+f83f1af3..., inventory_sha256 ff776306..., code_sha256 405adf8,
+partition_version v2p1, lambda_sigreg 0.01, predictor_cond_dim 0, gpu_name
+"NVIDIA RTX PRO 6000 Blackwell Max-Q Workstation Edition"). W&B runs in
+OFFLINE mode (`--wandb-mode offline`); sync to the cloud project after
+convergence. Regenerate the manifest as waves complete; do not edit by hand.
+
+Wave-1 health at ~8k/20k iterations (~70 min in, 3 cells per card): losses
+declining on all six T1/T2 runs, no NaN, no SIGReg auto-fallback. PR(z) sits
+at 3.3-4.8 for d=64 with c-probe r2 ~ 0.99; the low PR is the documented
+concentrated-code property (the P5 energy-information curve quantifies it),
+and the fallback rule stays unarmed because it requires probe r2 < 0.7 as
+well. The bvae cells at the tail of the GPU-1 queue still carry the
+placeholder beta = 1e-3 pending the L5 literature pin (D182 note).
+
+### D180: Session 28 undisturbed validation (A2) + DNS package status (2026-06-11, Session 28)
+
+`undisturbed_validation.py` run on the raw Baseline series and debugged
+before its numbers entered the provenance chain. Two defects found by the
+first run and fixed with tests (`tests/test_undisturbed_validation.py`, 7
+tests): the spectral peak picker could emit a negative Strouhal number
+(argmax on a suppressed-window edge slope + unclamped log-parabolic
+interpolation; now local-maxima-only with the shift clamped to half a bin),
+and the moment statistics included the startup transient (block means of
+C_L reach 0.92-0.99 over t/c [5, 15] before settling to 0.64-0.83; the
+validation row now uses the stationary window t/c [20, 40], with the
+full-record values kept alongside for transparency).
+
+Validation numbers (stationary window, vs PRF 2025 fine 20M grid): mean C_L
+0.761 (+3.3%), rms C_L' 0.127 (+9.6%), mean C_D 0.253 (+1.7%), rms C_D'
+0.0231 (+21.5%, but inside PRF's own grid-to-grid scatter 0.0183-0.0224).
+Cached Baseline C_L reproduces the raw series to 0.0. Lift spectrum carries
+three distinct features: the dominant shedding line at St = 0.675, its
+subharmonic at 0.338, and a low-frequency modulation of the separated flow
+at St = 0.044. M13 resolution: the manuscript's "Strouhal number near 0.36"
+is the FULL-CYCLE clock (the latent orbit period, 56 frames = 2.8 t/c,
+1/2.8 = 0.357), i.e. the subharmonic line, consistent within the spectral
+resolution (df = 0.029 for the 35 t/c record); the dominant lift line is
+twice that. Phase D must quote both lines with their meanings rather than a
+single "St". Outputs: `outputs/session28/undisturbed_stats.json`,
+`undisturbed_spectrum.npz`, numbers part `numbers_parts/undisturbed.json`
+(macros NumUndistCLmean/CLrms/CDmean/CDrms/St/StSub/StMod).
+
+DNS collaborator package (A3): drafted at
+`scripts/session28/DNS_COLLABORATOR_PACKAGE.md`, ready to send; SEND DATE
+PENDING (Carlos sends; log the date here when it goes out).
+
+### D181: Session 28 protocol freeze (GA2) -- one rollout, one estimator, one selection rule (2026-06-10, Session 28)
+
+Frozen BEFORE any v2p1 evaluation, in three byte-aligned artifacts:
+`configs/eval_protocol_v2p1.yaml` (machine-readable; `eval_all.py` reads it),
+`scripts/session28/PROTOCOL.md` (human-readable), and
+`paper/sections/protocol_box.tex` (the boxed appendix paragraph, mounted in
+Phase D). Content: (1) ONE rollout convention everywhere -- full pre-impact
+context (all encoded frames through the per-encounter impact frame, predictor
+window at most T = 32), autoregressive after impact, no teacher forcing,
+horizons counted from impact, H in {4, 8, 16, 32} with 16 primary; Markov
+single-frame seeding RETIRED (referee B3). (2) Held-out R^2 = 1 - SSE/SST
+about the held-out split's own mean; probes fitted on train latents only;
+5-fold case-level CV; bootstrap unit encounter (n = 2000); case-clustered CI
+mandatory on every wake claim; Holm over the 12-test family (6 observables x
+2 endpoints); PRIMARY endpoint = representational wake-enstrophy R^2 at
+H = 16 on test_b, pre-registered in D130/D165; the freezing commit is stamped
+into numbers.json and rendered as \CommitHash (referee M9). (3) Probe classes
+ridge (primary) / KRR-RBF / MLP for BOTH endpoints (Gate GD axis). (4)
+Selection convention: headline at fixed d = 64, seed mean +- sd; "least-bad"
+retired. (5) Source groups defined (periodic 800-frame/6-enc, run3
+480-frame/4-enc, pooled test_b; closes M13).
+
+### D182: Session 28 infrastructure -- provenance harness, stats library, beta-VAE port, queue (2026-06-10, Session 28)
+
+**Provenance harness (A5, referee Track 0):** `scripts/session28/eval_all.py`
+merges per-track part files (`outputs/session28/numbers_parts/*.json`) into
+`outputs/session28/numbers.json` with validation (duplicate names/macros
+rejected) and provenance (git commit, protocol sha256, manifest sha256);
+`scripts/session28/emit_macros.py` renders `paper/macros.tex` (one
+\providecommand per macro-bound number, lo/hi variants for CIs). Phase D
+replaces every hand-typed manuscript number with these macros.
+
+**Statistics library (A7):** `scripts/session28/stats_lib.py` ports the D165
+machinery (case-clustered block bootstrap, encounter bootstrap, sign tests,
+case-level Wilcoxon, mixed-effects intercept, Holm) verbatim as importable
+functions plus a new case-permutation p for the Fig-8-style trends.
+`tests/test_stats_lib.py` replays the exact global-RNG draw sequence of the
+v2 run and asserts every cell of the committed
+`outputs/session26/stats/wake_paired.json` reproduces exactly (plus a pure
+Holm regression against holm.json).
+
+**Beta-VAE port (T8, AD3):** `src/baselines/solera_rico.py` lands
+`BetaVAEWrapper` (Solera-Rico et al. 2024 objective on the Fukami CNN body at
+matched d: variational head, reparameterised latent, KL summed over dims and
+averaged over frames, linear beta warmup; plain `encoder.forward` returns mu
+so every downstream encode path is deterministic and unchanged).
+`scripts/session9_train_fukami.py` gains `--vae --beta --beta-warmup-frac`
+and dispatches the wrapper; run_config records `baseline =
+solera_rico_bvae` + beta keys. Loss form and schedule cross-validated
+against the user's own in-house beta-VAE (`~/MAGELLAN/magellan/betavae.py`:
+identical KL convention, identical linear beta warm-up), so only the beta
+VALUE awaits the L5 check. Deviation from the plan's "behind
+train_baseline" wording, recorded: `train_baseline.py` is PLDM-specific and
+lacks the omega-pipeline + wake plumbing; the maintained AE trainer is the
+correct host. The placeholder beta = 1e-3 must be pinned against the Nat.
+Commun. 2024 recipe (literature check L5) BEFORE the bvae cells launch (they
+sit at the tail of the GPU-1 queue).
+
+**Queue (A1):** `scripts/session28/_run_one.sh` (every T1-T8 cell as an
+idempotent case arm; v2p1 split/manifest/partition baked in) +
+`scripts/session28/launch_queue.sh` (two per-GPU serial wave queues, 3
+JEPA/card, max 2 Fukami-class/card, T1/T2 first; hard pre-flight gates on the
+split, pipeline manifest, v2p1 cache symlink, and the v2p1 wake-stats marker).
+`scripts/session28/build_manifest_runs.py` generates the GA1
+`manifest_runs.yaml` (tag -> dir -> wandb id -> gpu_name -> status) from the
+run tree. `scripts/session9_train_decoder.py` gained `--split/--partition`
+(was hardcoded to split_v2.json; required for T9 on v2p1).
+
+**A2/A3 staged:** `scripts/session28/undisturbed_validation.py` computes mean/
+rms C_L, mean/rms C_D and the lift-spectrum Strouhal peaks of the raw Baseline
+series against the PRF 2025 Fig. 2(b) table (fine grid 0.737/0.116/0.249,
+Rolandi et al. 2025 LES 0.734/0.246, Gupta et al. 2023 experiment 0.763/0.223,
+extracted from the local FukamiGustRe5000.pdf) and writes both the JSON and a
+numbers part; the DNS collaborator package draft (exact Table-1 row list,
+DNS-bar note, span + release-station request; Fukami's own station is
+x_0/c = -2 per PRF Sec. II) is at
+`scripts/session28/DNS_COLLABORATOR_PACKAGE.md` ready for Carlos to send (log
+the send date here when it goes out).
+

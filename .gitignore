@@ -40,6 +40,14 @@ logs/
 checkpoints/
 runs/
 
+# Exception: the session-28 provenance ledger is git-tracked (every manuscript
+# number traces to it via paper/macros.tex; master plan Track 0 / gate GI).
+!outputs/
+outputs/*
+!outputs/session28/
+outputs/session28/*
+!outputs/session28/numbers.json
+
 # Exception: paper manuscript figures live under paper/sections/figures/results/
 # even though the top-level results/ folder is ignored.
 !paper/sections/figures/results/
@@ -52,6 +60,10 @@ runs/
 
 # Claude Code local state (settings overrides, schedule locks)
 .claude/
+
+# Local pre-pivot backups (talk + paper snapshots kept on disk, not in history)
+*.BACKUP_*
+paper_BACKUP_precond/
 
 # OS
 .DS_Store

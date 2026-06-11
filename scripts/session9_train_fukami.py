@@ -212,6 +212,16 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--wake-loss-beta", type=float, default=0.5)
     p.add_argument("--wake-head-hidden", type=int, default=128)
     p.add_argument("--wake-observables-root", type=str, default=None)
+    # Session 28 T8 (AD3): Solera-Rico 2024 beta-VAE baseline. --vae swaps the
+    # FukamiAEWrapper for src.baselines.solera_rico.BetaVAEWrapper (same CNN
+    # body, variational head, + beta * KL with linear warmup). Requires
+    # --encoder cnn.
+    p.add_argument("--vae", action="store_true",
+                   help="Train the Solera-Rico beta-VAE baseline instead of the AE.")
+    p.add_argument("--beta", type=float, default=1e-3,
+                   help="beta-VAE KL weight (final value after warmup).")
+    p.add_argument("--beta-warmup-frac", type=float, default=0.1,
+                   help="Fraction of max-iters over which beta ramps 0 -> beta.")
     return p.parse_args()
 
 
@@ -399,7 +409,9 @@ def main() -> None:
     run_config = {
         "preprocessing_version": preprocessing_cfg["preprocessing_version"],
         "partition_version": args.partition,
-        "baseline": "fukami_ae",
+        "baseline": "solera_rico_bvae" if args.vae else "fukami_ae",
+        "beta_vae": float(args.beta) if args.vae else None,
+        "beta_warmup_frac": float(args.beta_warmup_frac) if args.vae else None,
         "lambda_sigreg": None,
         "lambda_recon": args.lambda_recon,
         "lambda_lift": args.lambda_lift,
@@ -424,7 +436,8 @@ def main() -> None:
     }
 
     import wandb
-    wandb_tags = ["fukami_ae", "section7_a11"]
+    wandb_tags = (["solera_rico_bvae", "none"] if args.vae
+                  else ["fukami_ae", "section7_a11"])
     if args.tag_suffix:
         wandb_tags.append(f"run:{args.tag_suffix}")
     wandb.init(
@@ -522,7 +535,7 @@ def main() -> None:
         log(f"[fukami-train] wake observable head: type={args.wake_observable_type} "
             f"out_dim={wake_dim} lambda_wake={args.lambda_wake}")
 
-    wrapper = FukamiAEWrapper(
+    wrapper_kwargs = dict(
         latent_dim=args.d, n_deltas=len(args.observable_head_deltas),
         lambda_recon=args.lambda_recon, lambda_lift=args.lambda_lift,
         omega_scale=args.omega_scale,
@@ -541,7 +554,16 @@ def main() -> None:
         wake_loss_kind=args.wake_loss,
         wake_loss_beta=args.wake_loss_beta,
         encoder_kind=args.encoder,
-    ).to(device)
+    )
+    if args.vae:
+        from src.baselines.solera_rico import BetaVAEWrapper
+        wrapper = BetaVAEWrapper(
+            beta=args.beta,
+            beta_warmup_steps=int(args.beta_warmup_frac * args.max_iters),
+            **wrapper_kwargs,
+        ).to(device)
+    else:
+        wrapper = FukamiAEWrapper(**wrapper_kwargs).to(device)
     n_params = sum(p.numel() for p in wrapper.parameters())
     log(f"[fukami-train] params={n_params:,} ({n_params/1e6:.2f}M)")
 
@@ -572,17 +594,23 @@ def main() -> None:
 
         if iteration % args.log_every == 0:
             l_wake_val = float(out.get("L_wake", torch.zeros(())).item())
-            _log_metrics({
+            payload = {
                 "iter": iteration,
                 "loss_total": float(L_total.item()),
                 "L_recon": float(out["L_recon"].item()),
                 "L_lift": float(out["L_lift"].item()),
                 "L_wake": l_wake_val,
                 "lr": optimizer.param_groups[0]["lr"],
-            }, step=iteration)
+            }
+            extra = ""
+            if "L_kl" in out:
+                payload["L_kl"] = float(out["L_kl"].item())
+                payload["beta_now"] = float(out["beta_now"].item())
+                extra = f", kl={payload['L_kl']:.4f}, beta={payload['beta_now']:.2e}"
+            _log_metrics(payload, step=iteration)
             log(f"[iter {iteration}/{args.max_iters}] L={L_total.item():.4f} "
                 f"(recon={out['L_recon'].item():.4f}, lift={out['L_lift'].item():.4f}, "
-                f"wake={l_wake_val:.4f})")
+                f"wake={l_wake_val:.4f}{extra})")
 
         if iteration % args.diagnostic_every == 0 and iteration > 0:
             wrapper.eval()
