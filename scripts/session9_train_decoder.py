@@ -26,6 +26,14 @@ Usage:
         --output-dir outputs/runs/session9/decoder \\
         --gpu 0 --max-iters 10000
 
+Post-hoc mode on frozen latents from ANY family (Session 28 T9 fairness:
+matched decoders on Fukami d=64 / POD d=64; referee M2/C5):
+    python scripts/session9_train_decoder.py \\
+        --latents-npz outputs/session28/latents/pod_d64 \\
+        --split configs/splits/split_v2p1.json --partition v2p1 \\
+        --omega-pipeline-manifest outputs/data_pipeline/v2p1/manifest.json \\
+        --output-dir outputs/session28/decoders/pod_d64 --gpu 0
+
 Hardware: RTX 6000 Blackwell only (require_rtx6000 at entry).
 """
 
@@ -141,20 +149,170 @@ def gather_eval_encounters(split: str) -> list[dict]:
     return out
 
 
+def _npz_key(npz: "np.lib.npyio.NpzFile", candidates: tuple[str, ...], path: Path) -> np.ndarray:
+    """Return the first present key among ``candidates`` from an open NpzFile.
+
+    Args:
+        npz: Open NpzFile handle.
+        candidates: Key names in priority order (plural session18/28 style
+            first, singular session14 style second).
+        path: NPZ path, used only for the error message.
+
+    Raises:
+        KeyError: if none of the candidate keys is present.
+    """
+    for key in candidates:
+        if key in npz.files:
+            return np.asarray(npz[key])
+    raise KeyError(f"{path}: none of the keys {candidates} found (available: {npz.files})")
+
+
+class LatentStore:
+    """Frozen per-frame latents for one split, loaded from a ``{split}.npz`` file.
+
+    The NPZ must hold ``z_full`` of shape ``(n_encounters, n_frames, d)`` plus
+    case identification arrays under EITHER the singular session14 convention
+    (``case_id``, ``encounter_index``) or the plural session18/28 convention
+    (``case_ids``, ``encounter_indices``).
+
+    All arrays are materialised once at construction time, in the parent
+    process. The resulting numpy arrays are read-only after that, so
+    DataLoader workers (``num_workers > 0``) share them safely via fork
+    without copies or locks.
+
+    Args:
+        npz_path: Path to the ``{split}.npz`` file.
+
+    Raises:
+        FileNotFoundError: if ``npz_path`` does not exist.
+        KeyError: if ``z_full`` or both case-identification conventions are missing.
+        ValueError: if ``z_full`` is not 3-dimensional or an
+            ``(case_id, encounter_index)`` pair appears twice.
+    """
+
+    def __init__(self, npz_path: Path) -> None:
+        npz_path = Path(npz_path)
+        if not npz_path.exists():
+            raise FileNotFoundError(
+                f"--latents-npz: {npz_path} not found (the directory must hold "
+                f"train/test_a/test_b/test_c .npz files with key z_full)"
+            )
+        with np.load(npz_path) as npz:
+            if "z_full" not in npz.files:
+                raise KeyError(f"{npz_path}: no 'z_full' key (available: {npz.files})")
+            self.z_full: np.ndarray = np.asarray(npz["z_full"], dtype=np.float32)
+            case_ids = _npz_key(npz, ("case_ids", "case_id"), npz_path)
+            enc_indices = _npz_key(npz, ("encounter_indices", "encounter_index"), npz_path)
+        if self.z_full.ndim != 3:
+            raise ValueError(
+                f"{npz_path}: z_full must be (n_encounters, n_frames, d), "
+                f"got shape {self.z_full.shape}"
+            )
+        self.path = npz_path
+        self.row: dict[tuple[str, int], int] = {}
+        for i, (c, k) in enumerate(zip(case_ids, enc_indices)):
+            cid = c.decode() if isinstance(c, bytes) else str(c)
+            key = (cid, int(k))
+            if key in self.row:
+                raise ValueError(f"{npz_path}: duplicate (case_id, encounter) row {key}")
+            self.row[key] = i
+
+    @property
+    def d(self) -> int:
+        """Latent dimension read from the z_full shape."""
+        return int(self.z_full.shape[2])
+
+    @property
+    def n_frames(self) -> int:
+        """Frames per encounter row (120 for the standard cache)."""
+        return int(self.z_full.shape[1])
+
+    def row_index(self, case_id: str, k: int) -> int:
+        """Return the z_full row for encounter ``(case_id, k)``.
+
+        Raises:
+            KeyError: if the encounter has no latent row in this NPZ.
+        """
+        key = (case_id, int(k))
+        if key not in self.row:
+            raise KeyError(
+                f"{self.path}: no latent row for case_id={case_id!r} encounter={k} "
+                f"({len(self.row)} rows available; check --split/--partition match "
+                f"the NPZ provenance)"
+            )
+        return self.row[key]
+
+    def frames(self, case_id: str, k: int, start: int, n: int) -> np.ndarray:
+        """Return ``z_full[row, start:start + n]`` for encounter ``(case_id, k)``.
+
+        The slice is a copy so the shared read-only array is never aliased
+        into a writable tensor.
+
+        Raises:
+            ValueError: if the frame slice is out of range.
+        """
+        i = self.row_index(case_id, k)
+        if start < 0 or start + n > self.n_frames:
+            raise ValueError(
+                f"{self.path}: frame slice [{start}, {start + n}) out of range for "
+                f"n_frames={self.n_frames} (case_id={case_id!r}, encounter={k})"
+            )
+        return self.z_full[i, start : start + n].copy()
+
+
+def check_latents_npz_conflicts(args: argparse.Namespace) -> None:
+    """Reject flag combinations that conflict with --latents-npz.
+
+    --jepa-checkpoint / --encoder-run conflicts are already rejected at the
+    argparse level (shared mutually exclusive group); the omega_direct input
+    mode is checked here because --input-mode always carries a default.
+
+    Raises:
+        SystemExit: if --latents-npz is combined with --input-mode omega_direct.
+    """
+    if args.latents_npz is None:
+        return
+    if args.input_mode == "omega_direct":
+        raise SystemExit(
+            "error: --latents-npz is mutually exclusive with --input-mode omega_direct "
+            "(frozen NPZ latents replace any encoder; omega_direct trains one)"
+        )
+
+
+def check_store_coverage(store: LatentStore, encs: list[dict], name: str) -> None:
+    """Fail fast if any gathered encounter has no latent row in the store.
+
+    Raises:
+        SystemExit: listing up to five missing (case_id, encounter) pairs.
+    """
+    missing = [
+        (e["case_id"], int(e["k"]))
+        for e in encs
+        if (e["case_id"], int(e["k"])) not in store.row
+    ]
+    if missing:
+        raise SystemExit(
+            f"error: --latents-npz {store.path} is missing {len(missing)}/{len(encs)} "
+            f"{name} encounters, e.g. {missing[:5]} (check --split/--partition match "
+            f"the NPZ provenance)"
+        )
+
+
 class EncounterFrameDataset(torch.utils.data.Dataset):
     """Yields a random T-frame sub-trajectory of omega_z for one encounter."""
 
     def __init__(self, encs: list[dict], T: int = 32, seed: int = 0,
-                 omega_pipeline=None) -> None:
+                 omega_pipeline=None, latent_store: Optional[LatentStore] = None) -> None:
         self.encs = encs
         self.T = T
         self.rng = np.random.default_rng(seed)
         self.omega_pipeline = omega_pipeline
+        self.latent_store = latent_store
 
     def __len__(self) -> int:
         return len(self.encs)
 
-    def __getitem__(self, idx: int) -> torch.Tensor:
+    def __getitem__(self, idx: int):
         e = self.encs[idx]
         with h5py.File(e["path"], "r") as f:
             omega = np.asarray(f["omega_z"], dtype=np.float32)
@@ -164,14 +322,31 @@ class EncounterFrameDataset(torch.utils.data.Dataset):
         else:
             start = int(self.rng.integers(0, T_full - self.T + 1))
         x = omega[start : start + self.T]
+        n = x.shape[0]
         if self.omega_pipeline is not None:
             x = self.omega_pipeline.preprocess_raw(x, e["case_id"], int(e["k"]))
             x = self.omega_pipeline.normalize(x)
-        return torch.from_numpy(x)  # (T, H, W), normalized if pipeline set
+        x_t = torch.from_numpy(x)  # (T, H, W), normalized if pipeline set
+        if self.latent_store is None:
+            return x_t
+        # Frozen-latent mode: the SAME start index slices both omega (the
+        # target, frames start..start+n of this encounter's cache file) and
+        # z_full (the conditioning, looked up by (case_id, encounter_index)),
+        # so frame t of the target is paired with z_full[row, start + t].
+        z = self.latent_store.frames(e["case_id"], int(e["k"]), start, n)
+        return x_t, torch.from_numpy(z)  # ((T, H, W), (T, d))
 
 
 def collate(batch: list[torch.Tensor]) -> torch.Tensor:
     return torch.stack(batch, dim=0)  # (B, T, H, W)
+
+
+def collate_with_latents(
+    batch: list[tuple[torch.Tensor, torch.Tensor]],
+) -> tuple[torch.Tensor, torch.Tensor]:
+    """Stack (omega, z) pairs into ((B, T, H, W), (B, T, d))."""
+    xs, zs = zip(*batch)
+    return torch.stack(xs, dim=0), torch.stack(zs, dim=0)
 
 
 def encode_batch(
@@ -233,12 +408,13 @@ def _l2_relative_error(q: np.ndarray, q_hat: np.ndarray, eps: float = 1.0) -> fl
 
 
 def evaluate_split(
-    enc: HybridCNNViTEncoder,
+    enc: Optional[HybridCNNViTEncoder],
     dec: HybridViTConvDecoder,
     encs: list[dict],
     device: torch.device,
     omega_scale: float = 1.0,
     omega_pipeline=None,
+    latent_store: Optional[LatentStore] = None,
 ) -> dict:
     """Per-encounter reconstruction MSE + SSIM on a split + case-mean noise floor.
 
@@ -247,6 +423,10 @@ def evaluate_split(
     decoder output is unnormalized back to raw scale and metrics are
     computed against the pipeline-preprocessed target (the cleaned omega,
     NOT the artifact-laden raw — matches the training target).
+
+    When ``latent_store`` is provided (--latents-npz mode), ``enc`` may be
+    None: z comes from the store row for each (case_id, encounter) instead
+    of an encoder forward. The omega target side is unchanged.
     """
     case_to_arr: dict[str, list[np.ndarray]] = {}
     for e in encs:
@@ -270,12 +450,16 @@ def evaluate_split(
             if omega_pipeline is not None:
                 omega = omega_pipeline.preprocess_raw(omega, e["case_id"], int(e["k"]))
             T = omega.shape[0]
-            x = torch.from_numpy(omega).unsqueeze(0).unsqueeze(2).to(device)  # (1, T, 1, H, W)
-            if omega_pipeline is not None:
-                x = omega_pipeline.normalize(x)
+            if latent_store is not None:
+                z_np = latent_store.frames(e["case_id"], int(e["k"]), 0, T)
+                z_in = torch.from_numpy(z_np).unsqueeze(0).to(device)  # (1, T, d)
+            else:
+                x = torch.from_numpy(omega).unsqueeze(0).unsqueeze(2).to(device)  # (1,T,1,H,W)
+                if omega_pipeline is not None:
+                    x = omega_pipeline.normalize(x)
             with torch.autocast(device_type=device.type, dtype=torch.bfloat16,
                                 enabled=device.type == "cuda"):
-                z = enc(x)
+                z = z_in if latent_store is not None else enc(x)
                 dec_out = dec(z)
                 if isinstance(dec_out, dict):
                     x_hat = dec_out["pred"]
@@ -332,6 +516,16 @@ def parse_args() -> argparse.Namespace:
         "--encoder-run", type=str,
         help="Path to a JEPA run directory; the script picks the largest-iter "
              "checkpoint inside (matches the Session 10 plan launch commands).")
+    enc_group.add_argument(
+        "--latents-npz", type=str,
+        help="Directory of frozen per-frame latents: {split}.npz files (train, "
+             "test_a, test_b, test_c) with key z_full (n_encounters, 120, d) plus "
+             "case identification under either the singular session14 convention "
+             "(case_id, encounter_index) or the plural session18/28 convention "
+             "(case_ids, encounter_indices). Trains the SAME decoder recipe "
+             "post-hoc on any latent family (Fukami AE, POD) with no encoder "
+             "forward and no gradient into z. Mutually exclusive with "
+             "--jepa-checkpoint, --encoder-run, and --input-mode omega_direct.")
     p.add_argument(
         "--input-mode", type=str, default="latent",
         choices=["latent", "omega_direct"],
@@ -664,12 +858,21 @@ def main() -> None:
 
     log(f"[decoder-train] device={device} gpu={torch.cuda.get_device_name(device.index)}")
     log(f"[decoder-train] input_mode={args.input_mode}")
-    if args.input_mode == "latent":
+    check_latents_npz_conflicts(args)
+    npz_mode = args.latents_npz is not None
+    if npz_mode:
+        ckpt_path: Optional[Path] = None
+        latents_dir = Path(args.latents_npz)
+        if not latents_dir.is_absolute():
+            latents_dir = REPO / latents_dir
+        log(f"[decoder-train] latents_npz={latents_dir} (frozen NPZ latents; no encoder)")
+    elif args.input_mode == "latent":
         if args.jepa_checkpoint is None and args.encoder_run is None:
             raise SystemExit(
-                "error: --input-mode latent requires --jepa-checkpoint or --encoder-run"
+                "error: --input-mode latent requires --jepa-checkpoint, --encoder-run, "
+                "or --latents-npz"
             )
-        ckpt_path: Optional[Path] = resolve_encoder_checkpoint(args, log)
+        ckpt_path = resolve_encoder_checkpoint(args, log)
         log(f"[decoder-train] jepa_checkpoint={ckpt_path}")
         log(f"[decoder-train] jepa_checkpoint sha256={file_sha256(ckpt_path)}")
     else:
@@ -704,6 +907,7 @@ def main() -> None:
     torch.manual_seed(args.seed)
     np.random.seed(args.seed)
 
+    eval_stores: dict[str, LatentStore] = {}
     if args.input_mode == "omega_direct":
         bc = args.decoder_base_ch
         enc = PatchPoolEncoder(in_channels=1, out_channels=bc).to(device)
@@ -711,6 +915,21 @@ def main() -> None:
         enc.train()
         log(f"[decoder-train] PatchPoolEncoder built: out_channels={bc}, d={d}, "
             f"params={sum(p.numel() for p in enc.parameters()):,} (TRAINABLE)")
+    elif npz_mode:
+        enc = None
+        train_store = LatentStore(latents_dir / "train.npz")
+        eval_stores = {s: LatentStore(latents_dir / f"{s}.npz")
+                       for s in ("test_a", "test_b", "test_c")}
+        d = train_store.d
+        for s, store in eval_stores.items():
+            if store.d != d:
+                raise SystemExit(
+                    f"error: --latents-npz latent dim mismatch: train.npz d={d} "
+                    f"but {s}.npz d={store.d}"
+                )
+        log(f"[decoder-train] latent store loaded, d={d} (read from z_full shape), "
+            f"n_frames={train_store.n_frames}, train rows={len(train_store.row)} "
+            f"(FROZEN, no gradient into z)")
     else:
         enc, d = load_encoder(ckpt_path, device)
         log(f"[decoder-train] encoder loaded, d={d}, params="
@@ -756,11 +975,20 @@ def main() -> None:
     log(f"[decoder-train] train={len(train_encs)} encs, "
         f"test_a={len(test_a_encs)}, test_b={len(test_b_encs)}, test_c={len(test_c_encs)}")
 
-    ds = EncounterFrameDataset(train_encs, T=args.T, seed=args.seed,
-                                omega_pipeline=omega_pipeline)
+    if npz_mode:
+        check_store_coverage(train_store, train_encs, "train")
+        check_store_coverage(eval_stores["test_a"], test_a_encs, "test_a")
+        check_store_coverage(eval_stores["test_b"], test_b_encs, "test_b")
+        check_store_coverage(eval_stores["test_c"], test_c_encs, "test_c")
+
+    ds = EncounterFrameDataset(
+        train_encs, T=args.T, seed=args.seed, omega_pipeline=omega_pipeline,
+        latent_store=train_store if npz_mode else None,
+    )
     loader = torch.utils.data.DataLoader(
         ds, batch_size=args.B, shuffle=True, num_workers=args.num_workers,
-        collate_fn=collate, pin_memory=True, drop_last=True,
+        collate_fn=collate_with_latents if npz_mode else collate,
+        pin_memory=True, drop_last=True,
         persistent_workers=args.num_workers > 0,
     )
     it = iter(loader)
@@ -780,13 +1008,21 @@ def main() -> None:
 
     for step in range(args.max_iters + 1):
         try:
-            x = next(it)
+            batch = next(it)
         except StopIteration:
             it = iter(loader)
-            x = next(it)
+            batch = next(it)
 
-        train_encoder = args.input_mode == "omega_direct"
-        z = encode_batch(enc, x, device, train_encoder=train_encoder)  # (B, T, d)
+        if npz_mode:
+            # Frozen NPZ latents: z came from the dataset, aligned to the
+            # same (encounter, start) slice as the omega target. No encoder
+            # forward; z carries no grad.
+            x, z_cpu = batch
+            z = z_cpu.to(device).float()  # (B, T, d)
+        else:
+            x = batch
+            train_encoder = args.input_mode == "omega_direct"
+            z = encode_batch(enc, x, device, train_encoder=train_encoder)  # (B, T, d)
         # Target. When pipeline is set, x is already normalized; otherwise
         # divide by --omega-scale. Loss is computed in this normalized space.
         if omega_pipeline is not None:
@@ -825,7 +1061,8 @@ def main() -> None:
                 enc.eval()
             ev_a = evaluate_split(enc, dec, test_a_encs[:8], device,
                                   omega_scale=args.omega_scale,
-                                  omega_pipeline=omega_pipeline)
+                                  omega_pipeline=omega_pipeline,
+                                  latent_store=eval_stores.get("test_a"))
             log(f"[eval iter {step}] test_a (subset 8): "
                 f"mse_mean={ev_a['mse_mean']:.4f} floor_mean={ev_a['floor_mean']:.4f} "
                 f"ratio={ev_a['ratio_mean']:.3f}")
@@ -859,11 +1096,14 @@ def main() -> None:
     if args.input_mode == "omega_direct":
         enc.eval()
     ev_a = evaluate_split(enc, dec, test_a_encs, device,
-                          omega_scale=args.omega_scale, omega_pipeline=omega_pipeline)
+                          omega_scale=args.omega_scale, omega_pipeline=omega_pipeline,
+                          latent_store=eval_stores.get("test_a"))
     ev_b = evaluate_split(enc, dec, test_b_encs, device,
-                          omega_scale=args.omega_scale, omega_pipeline=omega_pipeline)
+                          omega_scale=args.omega_scale, omega_pipeline=omega_pipeline,
+                          latent_store=eval_stores.get("test_b"))
     ev_c = evaluate_split(enc, dec, test_c_encs, device,
-                          omega_scale=args.omega_scale, omega_pipeline=omega_pipeline)
+                          omega_scale=args.omega_scale, omega_pipeline=omega_pipeline,
+                          latent_store=eval_stores.get("test_c"))
 
     summary = {
         "input_mode": args.input_mode,
@@ -876,6 +1116,9 @@ def main() -> None:
         "test_c": ev_c,
         "pass_test_a_within_2x_floor": ev_a["ratio_mean"] < 2.0,
     }
+    if npz_mode:
+        summary["latents_npz"] = str(latents_dir)
+        summary["latents_npz_train_sha256"] = file_sha256(latents_dir / "train.npz")
     summary_path = out_dir / "decoder_summary.json"
     with open(summary_path, "w") as f:
         json.dump(summary, f, indent=2)
