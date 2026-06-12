@@ -8165,6 +8165,29 @@ Follow-up launched on its ref [53] = Zamani Ashtiani and Fukami,
 arXiv:2512.09523 (time-dependent bases, turbulent gust-wake), the one
 remaining paper that could plausibly touch P2.
 
+**Deep-read of arXiv:2512.09523 (Zamani Ashtiani and Fukami): PARTIAL P2
+overlap; P2 framing changes (2026-06-12).** It IS the same Re = 5000
+NACA 0012 gust family (their data is the PRF 2025 LES; ours is DNS of the
+same configuration, per the provenance rule): four cases (G, D) in
+{(2,0.5), (-2,0.5), (2,1.5), (4,0.5)} at fixed Y = 0.1, including a near
+twin of our test_c regime. Method = data-driven time-dependent bases
+(dynamically bi-orthonormal decomposition), streaming compression/modal
+analysis, NO forecasting (basis evolution consumes instantaneous data
+derivatives), no phase or attractor claims, window only t in [-2, 3.5] t/c.
+They OWN the qualitative trend on this flow: "a larger leading-mode energy
+gap implies coherent structure and faster recovery; a smaller gap with
+slower decay indicates richer multiscale activity and delayed
+re-stabilization", read off singular-value traces; no quantitative recovery
+time, no baseline reference band, no censoring, and their window cannot
+reach actual recovery. BINDING P2 POSITIONING: cite them as concurrent
+qualitative evidence (especially for any G = 4 delayed-relaxation
+statement, which must NOT be presented as novel); our claim is the FIRST
+QUANTITATIVE, null-calibrated, censoring-honest recovery time with
+parametric (G, D, Y) coverage, plus the latent-clock correlation they do
+not attempt. S1 line: descriptive streaming modal analysis on four cases of
+the same family, qualitative coherence-vs-gust-intensity trend, no
+forecasting, no held-out evaluation; preprint, unpublished as of 2026-06.
+
 **L4 competitor refresh (since 2026-06):** Yan and Franck, arXiv:2606.06766
 (free-flying airfoil vortex-gust response; no collapse). Context updates:
 Zamani Ashtiani and Fukami, arXiv:2512.09523 (time-dependent bases, extreme
