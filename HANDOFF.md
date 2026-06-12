@@ -8141,6 +8141,30 @@ otherwise.
 AISTATS 2019 (PMLR 89:2681-2690) for the debiased Sinkhorn divergence;
 Drmac and Gugercin, SIAM J. Sci. Comput. 38(2), A631-A648 (2016) for qDEIM.
 
+**Deep-read of arXiv:2601.19104 v2 (Koshikawa, Araki, Liu, Fukami;
+2026-06-12, user-flagged as newly JFM).** Verdict: NO overlap with P1/P2/P3,
+narrative-only partial overlap with P4. The paper is "informative mode
+decomposition", a convolutional lagged-mutual-information extraction of
+lift-informative structures (deep sigmoidal flow, H(C_L|q_I) = 0 target),
+demonstrated on the OLDER Re = 100 / alpha = 40 deg gust family (single
+(G, D) = (2, 0.5), one sign, no Y), an experimental Re = 20k transverse
+gust, and a Re = 20k turbulent wake; NOT the PRF 2025 Re = 5000 family. No
+amplitude scaling, no recovery time, no phase analysis, no circulation
+budget anywhere. Its vortex-split "two types of lift generation processes"
+observation is qualitative corroboration for our P4 two-pathway mechanism
+story (cite as such). On causality it explicitly declines formal causal
+inference ("does not consider any manipulations or perturbations"; calls
+causality "rather ambiguous" for vortex-induced force problems) and performs
+no SURD-style decomposition: this SUPPORTS the D158 stop, citable in the
+discussion as external support for our caution. v2 (2026-05-18) adds
+referee-driven robustness (L-curve for beta, MI snapshot sensitivity, Q-R
+plane analysis); journal-ref now "To appear in J. Fluid Mech." (no volume
+yet): update the S1 entry venue + describe it as adjacent interpretability
+work from the Fukami group, not a forecasting/latent-dynamics competitor.
+Follow-up launched on its ref [53] = Zamani Ashtiani and Fukami,
+arXiv:2512.09523 (time-dependent bases, turbulent gust-wake), the one
+remaining paper that could plausibly touch P2.
+
 **L4 competitor refresh (since 2026-06):** Yan and Franck, arXiv:2606.06766
 (free-flying airfoil vortex-gust response; no collapse). Context updates:
 Zamani Ashtiani and Fukami, arXiv:2512.09523 (time-dependent bases, extreme
