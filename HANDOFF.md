@@ -8006,6 +8006,41 @@ DNS collaborator package (A3): drafted at
 `scripts/session28/DNS_COLLABORATOR_PACKAGE.md`, ready to send; SEND DATE
 PENDING (Carlos sends; log the date here when it goes out).
 
+### Phase B opened early (author go 2026-06-12 22:52); B2 closure machinery landed; protocol YAML defect fixed
+
+Training matrix completed 2026-06-12 night (GPU-0 queue 22:05, last bvae
+wave ~23:20; ~45 cells, zero training failures). Author-directed early
+Phase B start: `scripts/session28/phase_b_runner.sh` (GPU 1, overnight)
+chains B0 latent extraction for all remaining checkpoints (encode script
+gained a BetaVAEWrapper arm), the 11 B1 matched predictors
+(SESSION18_B1_PROTOCOL + the two frozen amendments --cond-dim 0 and
+--no-output-bn), and full-context rollouts on test_b/test_c.
+
+`scripts/session28/closure_matrix.py` + `families_closure.yaml` +
+9 tests landed (agent-drafted, reviewed, merged): the B2 engine reading
+the frozen protocol YAML, probing through stats_lib (fixed-SST bootstrap
+mapping; encounter + case-clustered CIs), val naming tolerated from
+test_a files, z_markov never read, Gate GD verdict block per the master
+plan text (jepa_tf_cond excluded from the gate). PRELIMINARY first
+numbers over the 10 then-extracted members (repr wake_enstrophy H=16
+test_b pooled, ridge): jepa_tf_noc +0.79, jepa_lstm_noc +0.66, fukami
++0.05, pod -0.16: the v2 ordering reproduces on v2.1. NOT yet
+paper-grade (partial families, full probe-class x CI run launched
+overnight; GD/D183 verdict only after all probe classes complete).
+
+DEFECT FOUND AND FIXED before any consumer existed: the frozen
+eval_protocol_v2p1.yaml was INVALID YAML from its creation (unquoted
+": " inside uncertainty.seed_variance; eval_all.py only sha-hashes the
+file so it never parsed it). One scalar quoted, semantics unchanged,
+pre-evaluation; the protocol sha256 recorded into numbers.json changes
+accordingly (provenance commits: freeze 4e83efe, fix 95a33e0). Two
+closure conventions fixed at implementation (documented in the module):
+SST held fixed under bootstrap resampling (protocol wording), and
+5-fold case-level CV means out-of-fold predictions on train rows with
+full-train refit for held-out splits. Interior-tier R^2 can be strongly
+negative by construction (tier-own-mean SST baseline); one sentence
+needed when tiers are written up.
+
 ### D181: Session 28 protocol freeze (GA2) -- one rollout, one estimator, one selection rule (2026-06-10, Session 28)
 
 Frozen BEFORE any v2p1 evaluation, in three byte-aligned artifacts:
