@@ -14,6 +14,10 @@ cd "$(git -C "$(dirname "$0")/../.." rev-parse --show-toplevel)"
 source .venv/bin/activate
 export PREVENT_ROOT="${PREVENT_ROOT:-$HOME/PREVENT}"
 export WANDB_PROJECT="${WANDB_PROJECT:-vortex-jepa}"
+# Shared-workstation hygiene (2026-06-12): cap torch CPU threads, stop OMP
+# idle spinning, and yield priority; see the matching block in _run_one.sh.
+export OMP_NUM_THREADS=8 MKL_NUM_THREADS=8 OPENBLAS_NUM_THREADS=8
+export OMP_WAIT_POLICY=PASSIVE
 GPU=0
 LOG=outputs/runs/session28/queue_gpu0.log
 SPLIT="configs/splits/split_v2p1.json"

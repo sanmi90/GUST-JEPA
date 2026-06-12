@@ -16,6 +16,14 @@ source "$REPO/.venv/bin/activate"
 export PREVENT_ROOT="${PREVENT_ROOT:-$HOME/PREVENT}"
 export WANDB_PROJECT="${WANDB_PROJECT:-vortex-jepa}"
 export PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
+# Shared-workstation hygiene (2026-06-12, after a colleague hit CPU saturation):
+# torch defaults intra-op threads to all 96 cores PER PROCESS and OpenMP
+# spin-waits, so 3-4 concurrent trainers monopolised the box while GPU-bound.
+# 8 threads is ample for these GPU-bound cells (dataloader workers do the
+# heavy preprocessing); PASSIVE wait stops the idle spinning; nice 10 in the
+# launch line below yields interactive priority to other users.
+export OMP_NUM_THREADS=8 MKL_NUM_THREADS=8 OPENBLAS_NUM_THREADS=8
+export OMP_WAIT_POLICY=PASSIVE
 
 ROOT="outputs/runs/session28"
 SPLIT="configs/splits/split_v2p1.json"
@@ -64,7 +72,7 @@ run_jepa() {  # run_jepa <tag> <extra flags...>
     fi
     mkdir -p "$out"
     echo "[s28][gpu$gpu] START $tag at $(date -Iseconds)"
-    python -u -m src.training.train_jepa "${jepa_common[@]}" "$@" \
+    nice -n 10 python -u -m src.training.train_jepa "${jepa_common[@]}" "$@" \
         --tag-suffix "s28_${tag}" --output-dir "$out" > "$out/train.log" 2>&1
     local rc=$?
     echo "[s28][gpu$gpu] DONE $tag rc=$rc at $(date -Iseconds)"
@@ -83,7 +91,7 @@ run_fukami() {  # run_fukami <tag> <recipe-array-name> <extra flags...>
     mkdir -p "$out"
     local -n rec="$recipe"
     echo "[s28][gpu$gpu] START $tag at $(date -Iseconds)"
-    python -u scripts/session9_train_fukami.py "${rec[@]}" "$@" \
+    nice -n 10 python -u scripts/session9_train_fukami.py "${rec[@]}" "$@" \
         --tag-suffix "s28_${tag}" --output-dir "$out" > "$out/train.log" 2>&1
     local rc=$?
     echo "[s28][gpu$gpu] DONE $tag rc=$rc at $(date -Iseconds)"
