@@ -51,3 +51,19 @@ with the explicit note that this selection favours the baselines.
 480-frame campaign, 4 encounters per case. test_b pools both (locked rule; no
 stratification by source group). The two groups are defined once in Section 2.2
 of the manuscript and referred to by these names everywhere (closes M13).
+
+## 6. Visualization decoders (amendment 2026-06-12, pre-evaluation)
+
+Every T9 decoder (production tf-no-c and lstm-no-c, post-hoc fukami and pod via
+--latents-npz) uses the identical LapFiLM + region_pyr_specloss recipe and
+30k-iteration budget. Operating point: per family, the saved checkpoint (every
+2000 iterations) with maximum val (test_a) SSIM_mean; the same rule for every
+family, no reuse of another family's iteration number. Caveat carried into the
+manuscript decode section: the spectral-amplitude term matches amplitude
+spectra only and is phase-blind, so decoded fields can show plausible wake
+texture displaced from its true location; decoded fields support visualization
+and the labelled decode-ceiling comparison only, and no quantitative
+localization claim rests on them (those probe latents directly). Two ablation
+decoders on the production family quantify the loss terms: dec_ablate_nophys
+(lambda_enstrophy = lambda_circulation = 0) and dec_ablate_nospecamp
+(lambda_spectral_amp = 0).

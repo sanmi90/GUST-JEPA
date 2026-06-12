@@ -6,8 +6,9 @@
 # paragraph). Any change after the first held-out evaluation is a protocol
 # violation and must be logged in HANDOFF.md with its own D-number.
 
-protocol_version: eval_protocol_v2p1.0
+protocol_version: eval_protocol_v2p1.1
 frozen_iso: "2026-06-10"
+amended_iso: "2026-06-12"   # decoder conventions added BEFORE any held-out evaluation ran
 anchored_to:
   decision_log: [D130, D165, D181]
   note: >
@@ -78,3 +79,23 @@ selection_convention:
   headline: fixed d = 64, seed mean +- sd
   full_matrix: family x d x observable x endpoint x probe class, appendix table
   retired_phrases: ["least-bad"]
+
+decoders:   # amendment 2026-06-12 (pre-evaluation; author-approved); T9 visualization decoders
+  recipe: >
+    Identical LapFiLM + region_pyr_specloss recipe and 30k-iteration budget for
+    every family (production tf-no-c, lstm-no-c, post-hoc fukami, post-hoc pod).
+  operating_point:
+    rule: >
+      Per family, the saved checkpoint (every 2000 iterations) with maximum
+      val (test_a) SSIM_mean; the SAME rule for all families. No family reuses
+      another family's iteration number.
+  caveats:
+    spectral_amplitude_phase_blind: >
+      The spectral-amplitude loss term matches amplitude spectra only and is
+      blind to phase: decoded fields can carry plausible wake texture displaced
+      from its true location. Decoded fields therefore support visualization
+      and the labelled decode-ceiling comparison only; no quantitative
+      localization claim may rest on them (such claims probe latents directly).
+  ablations:
+    - dec_ablate_nophys: lambda_enstrophy = lambda_circulation = 0 (are the physics nudges load-bearing?)
+    - dec_ablate_nospecamp: lambda_spectral_amp = 0 (re-evidence the D98 spectral-bias finding on v2.1)

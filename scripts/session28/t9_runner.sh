@@ -29,16 +29,18 @@ SL_FLAGS=(--omega-pipeline-manifest "$MANIFEST" --split "$SPLIT" --partition v2p
     --max-iters 30000 --B 16 --T 32 --seed 42 --gpu "$GPU" --num-workers 3
     --eval-every 2000 --checkpoint-every 2000 --log-every 200)
 
-sl_decoder() {  # sl_decoder <tag> <source-flag> <source-path>
-    local tag=$1 src_flag=$2 src=$3
+sl_decoder() {  # sl_decoder <tag> <source-flag> <source-path> [override flags...]
+    local tag=$1 src_flag=$2 src=$3; shift 3
     local out="outputs/runs/session28/$tag"
     if [[ -f "$out/decoder_iter030000.pt" ]]; then
         echo "[t9] SKIP $tag"; return 0
     fi
     mkdir -p "$out"
     echo "[t9] START $tag at $(date -Iseconds)"
+    # overrides come AFTER SL_FLAGS; argparse last-wins, so a repeated flag
+    # replaces the recipe value (used by the loss-term ablation cells)
     python -u scripts/session9_train_decoder.py \
-        "$src_flag" "$src" "${SL_FLAGS[@]}" \
+        "$src_flag" "$src" "${SL_FLAGS[@]}" "$@" \
         --output-dir "$out" > "$out/train.log" 2>&1
     echo "[t9] DONE $tag rc=$? at $(date -Iseconds)"
 }
@@ -74,4 +76,15 @@ P3=$!
 sl_decoder dec_posthoc_pod_d64 --latents-npz outputs/session28/latents/pod_d64 &
 P4=$!
 wait $P3; wait $P4
-echo "[t9] T9 COMPLETE at $(date -Iseconds)"
+
+echo "[t9] block 3: loss-term ablation decoders (protocol amendment 2026-06-12)"
+sl_decoder dec_ablate_nophys_tf_s42 \
+    --encoder-run outputs/runs/session28/jepa_tf_noc_d64_s42/encoder \
+    --lambda-enstrophy 0.0 --lambda-circulation 0.0 &
+P5=$!
+sl_decoder dec_ablate_nospecamp_tf_s42 \
+    --encoder-run outputs/runs/session28/jepa_tf_noc_d64_s42/encoder \
+    --lambda-spectral-amp 0.0 &
+P6=$!
+wait $P5; wait $P6
+echo "[t9] T9 COMPLETE (incl. ablations) at $(date -Iseconds)"

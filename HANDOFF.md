@@ -8221,3 +8221,23 @@ added: fitted-period gate [0.7, 1.4] x dominant period on clean/anchor
 encounters (Baseline enc 2 locks onto a wrong line at R2 = 0.94 without
 it). 42 tests green.
 
+**Protocol amendment v2p1.1 (2026-06-12, BEFORE any held-out evaluation;
+author-approved): decoder conventions.** Added to all three protocol
+artifacts (yaml + PROTOCOL.md Section 6 + protocol_box.tex): (1) one decoder
+recipe and 30k budget for every T9 family; (2) operating point = per-family
+checkpoint with maximum val (test_a) SSIM_mean, SAME rule for all families
+(the v2-era practice of reusing iteration 12000 across families is retired);
+(3) the phase-blindness caveat: the spectral-amplitude loss term matches
+amplitude spectra only, so decoded fields can carry plausible wake texture
+displaced from its true location; decoded fields support visualization and
+the labelled decode-ceiling comparison only, and Phase D must carry this
+sentence into the S4.6 decode section. Two loss-term ablation decoders added
+to the T9 tail (production tf-no-c family, same budget):
+`dec_ablate_nophys_tf_s42` (lambda_enstrophy = lambda_circulation = 0; are
+the physics nudges load-bearing or decorative?) and
+`dec_ablate_nospecamp_tf_s42` (lambda_spectral_amp = 0; re-evidences the D98
+spectral-bias finding on v2.1). Rationale (decoder-design review,
+2026-06-12): the 6-term decoder loss is rhetorically exposed next to the
+paper's own 2-term-vs-5-term methodological contrast; the ablation rows plus
+the diagnostic-instrument framing close that gap.
+
