@@ -123,7 +123,16 @@ def _load_fukami_encoder(
         v = train_args.get(key)
         return default if v is None else v
 
-    wrapper = FukamiAEWrapper(
+    # T8 beta-VAE cells (--vae) carry a BetaVAEEncoder (FC head emits 2d for
+    # mu/logvar); BetaVAEWrapper subclasses FukamiAEWrapper and its plain
+    # encoder.forward returns mu, so the encode path below is unchanged.
+    wrapper_cls = FukamiAEWrapper
+    if bool(_opt("vae", False)):
+        from src.baselines.solera_rico import BetaVAEWrapper
+
+        wrapper_cls = BetaVAEWrapper
+
+    wrapper = wrapper_cls(
         latent_dim=int(train_args["d"]),
         n_deltas=len(_opt("observable_head_deltas", [8, 16, 24])),
         lambda_recon=float(_opt("lambda_recon", 1.0)),
