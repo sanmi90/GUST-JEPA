@@ -69,7 +69,7 @@ uncertainty:
   bootstrap_unit: encounter
   cluster_unit: case            # case-clustered CIs mandatory for every wake claim
   multiplicity: Holm over the 12-test family (6 observables x 2 endpoints, JEPA vs reconstructive AE, test_b, H = 16)
-  seed_variance: mean +- sd over encoder seeds (lead family n = 4: seeds 42/0/1/2; others n = 3)
+  seed_variance: "mean +- sd over encoder seeds (lead family n = 4: seeds 42/0/1/2; others n = 3)"
 
 primary_endpoint:
   statement: representational wake_enstrophy R^2 at H = 16 on test_b (pooled tiers)

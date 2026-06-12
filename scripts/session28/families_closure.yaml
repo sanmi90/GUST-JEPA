@@ -1,0 +1,124 @@
+# Families manifest for scripts/session28/closure_matrix.py (master plan B2).
+#
+# One entry per FAMILY. Each family declares:
+#   objective:     predictive | reconstructive  (drives the Gate GD verdict)
+#   macro_family:  alphabetic suffix for the headline macros (NumReprWake<macro_family>)
+#   tag_template:  how (family, d, seed) maps to a latents directory name under
+#                  the latents root (default "{family}_d{d}_s{seed}"; POD has no
+#                  seed, the 2x2 controls carry no _d in their training tags)
+#   dims:          map d -> list of encoder seeds. An EMPTY list means the family
+#                  is deterministic (one member, no seed; seed recorded as -1).
+#   rollouts:      forecast endpoint coverage (master plan B1: ONE matched
+#                  predictor per (family, d), trained on the s42/canonical
+#                  latents; rollout NPZs live at <rollouts_root>/<key>/<split>.npz).
+#                  "seed" names the member whose latents fed the matched
+#                  predictor; "keys" maps d -> rollout directory key. Families
+#                  without a matched predictor have no rollouts entry and are
+#                  evaluated at the representational endpoint only. Native
+#                  (jointly trained) JEPA predictor rollouts can be added later
+#                  as extra keys without touching the script.
+#   gate:          include in the Gate GD family-ordering verdict (default true;
+#                  the conditioned reference is excluded: it is a one-row B4
+#                  reference, not part of the predictive-vs-reconstructive
+#                  family-ordering claim).
+#
+# Members whose latents directory does not exist yet are SKIPPED with a logged
+# line (the Phase B extraction chain back-fills them; re-run the script as
+# artifacts land).
+
+defaults:
+  latents_root: outputs/session28/latents
+  rollouts_root: outputs/session28/rollouts
+  tag_template: "{family}_d{d}_s{seed}"
+
+families:
+  jepa_tf_noc: # T1 + T3 ladder rungs with seed variance
+    objective: predictive
+    macro_family: JepaTf
+    dims:
+      16: [42, 0, 1]
+      32: [42, 0, 1]
+      64: [42, 0, 1, 2]
+    rollouts:
+      seed: 42
+      keys: { 16: jepa_d16, 32: jepa_d32, 64: jepa_d64 }
+
+  jepa_lstm_noc: # T2
+    objective: predictive
+    macro_family: JepaLstm
+    dims:
+      64: [42, 0, 1]
+
+  jepa_tf_cond: # T6 conditioned reference (B4: one table row + one sentence)
+    objective: predictive
+    macro_family: JepaTfCond
+    gate: false
+    dims:
+      64: [42, 0, 1]
+
+  fukami: # T7 (B1-recipe AE; budget-parity variants live in the GC dossier, not here)
+    objective: reconstructive
+    macro_family: Fukami
+    dims:
+      3: [42]
+      16: [42]
+      32: [42]
+      64: [42, 0, 1, 2]
+    rollouts:
+      seed: 42
+      keys: { 3: fukami_d3, 16: fukami_d16, 32: fukami_d32, 64: fukami_d64 }
+
+  pod: # linear floor; deterministic (no seed)
+    objective: reconstructive
+    macro_family: Pod
+    tag_template: "{family}_d{d}"
+    dims:
+      16: []
+      32: []
+      64: []
+    rollouts:
+      seed: null
+      keys: { 16: pod_d16, 32: pod_d32, 64: pod_d64 }
+
+  bvae_faith: # T8 faithful Solera-Rico variant (lift head)
+    objective: reconstructive
+    macro_family: BvaeFaith
+    dims:
+      64: [42, 0, 1]
+    rollouts:
+      seed: 42
+      keys: { 64: bvae_d64 }
+
+  bvae_match: # T8 matched-head variant (lift + wake)
+    objective: reconstructive
+    macro_family: BvaeMatch
+    dims:
+      64: [42, 0, 1]
+
+  ctrl_pred_cnn: # T4 2x2 control: predictive objective, CNN encoder
+    objective: predictive
+    macro_family: CtrlPredCnn
+    tag_template: "{family}_s{seed}"
+    dims:
+      64: [0, 1, 2]
+
+  ctrl_recon_cnn: # T4 2x2 control: reconstructive objective, CNN encoder
+    objective: reconstructive
+    macro_family: CtrlReconCnn
+    tag_template: "{family}_s{seed}"
+    dims:
+      64: [0, 1, 2]
+
+  ctrl_recon_cnnvit: # T4 2x2 control: reconstructive objective, CNN+ViT encoder
+    objective: reconstructive
+    macro_family: CtrlReconCnnVit
+    tag_template: "{family}_s{seed}"
+    dims:
+      64: [0, 1, 2]
+
+  ctrl_pred_vit_nowake: # T5 wake-head-removed cell (co-necessity row)
+    objective: predictive
+    macro_family: CtrlPredVitNowake
+    tag_template: "{family}_s{seed}"
+    dims:
+      64: [0, 1, 2]
