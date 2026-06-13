@@ -8230,15 +8230,23 @@ limited wake-enstrophy information at this configuration. test_c (|G|=4) goes
 negative for every family (reported). pressure->Y R2 = 0.51 (M11 softening: Y is
 sparsely wall-observable). causal-clip delta +0.0009 (negligible, M12).
 
-**SUPPORTABLE MANUSCRIPT PHRASING (author to choose):** headline sensing as
-STATE recovery -- "the predictive latent is the most recoverable state from
-sparse wall pressure (R2 0.78 at 8 taps, leading every matched representation
-and seed-robust), and recovers the wake at least as well as any matched
-representation" -- NOT "sparse pressure recovers the wake". The state-recovery
-lead is a legitimate co-headline with the closure result; the wake-from-pressure
-deployment punchline is NOT there at this config and must not be claimed.
-AUTHOR CALIBRATION NEEDED: is state-recovery-as-main-result strong enough for
-the emphasis you wanted, or do we frame sensing as a strong secondary result?
+**REFRAMED (author 2026-06-13): sensing is NOT a pressure->wake recovery claim.**
+The purpose is a CROSS-METHOD COMPARISON of which representation, estimated from
+sparse wall pressure, best recovers (i) the STATE and (ii) the FLOW FIELD. The
+pressure->wake-enstrophy panel is DROPPED entirely (it was never the goal; this
+removes the weak result rather than scoping it). Two comparisons stand:
+(i) STATE recovery -- DONE, the quantitative headline: predictive latent most
+recoverable, jepa 0.78 > fukami 0.66 > bvae 0.51 > pod 0.34 at K=8 test_b,
+seed-robust 0.75 +- 0.09. (ii) FLOW-FIELD recovery -- pressure(K taps) ->
+estimated latent z_hat (per family KRR map) -> that family's DECODER (at its
+frozen operating point, from the decode pass D-decode) -> omega field, scored
+vs DNS (SSIM / MSE / eps_volume) per family. This is the physical-space version
++ a figure (fields recovered from pressure, per method, vs DNS). NOTE the likely
+decoder confound: POD's linear decoder has the best raw decode-ceiling SSIM
+(0.676 vs fukami 0.499), so field-from-pressure may be partly decoder-quality,
+not state-recovery; report both the field scores AND the clean state-recovery
+number so the comparison is honest. Wake-via-latent / lift-via-latent panels
+retired with the pressure->wake drop.
 
 ### D189 (Gate GE3, transport, M5): the v2 "JEPA tracks transport geometry best" claim is DEAD; keep only the norm-variance mechanism (2026-06-13)
 
