@@ -63,17 +63,20 @@ modal analyses of related flows
 
 \begin{figure}
   \centering
-  \includegraphics[width=0.62\linewidth]{sections/figures/results/fig_wake_code.pdf}
-  \caption{The predictive objective builds a collective wake code that the
-  reconstructive and linear objectives do not. For each encoder family at matched
-  $d = 64$, the held-out skill of the future wake enstrophy at $H = 16$ from the
-  best single latent coordinate (light) and from the full latent combination
-  (dark), on test\_b. The predictive (JEPA) latent shows a large gap
-  ($\NumPfiveCollectiveGapJepa$): the wake is a distributed code across many
-  coordinates. The reconstructive (Fukami) and linear (POD) latents show a near-zero
-  gap ($\NumPfiveCollectiveGapFukami$, $\NumPfiveCollectiveGapPod$), so their wake
-  reading is no better than a single coordinate. Observational probes on the frozen
-  encoders.}
+  \includegraphics[width=\linewidth]{sections/figures/results/fig_wake_code_v2p1.pdf}
+  \caption{The wake is a distributed latent code, on test\_b. Left: the gap between
+  the held-out wake readability of the full latent and that of its single most
+  informative coordinate, by family; the predictive (JEPA) latent shows a large gap
+  ($\NumPfiveCollectiveGapJepa$) where the reconstructive (Fukami,
+  $\NumPfiveCollectiveGapFukami$) and linear (POD, $\NumPfiveCollectiveGapPod$)
+  latents do not, so no single predictive coordinate carries the wake. Centre: the
+  held-out wake skill versus the number of leading principal components, which knees
+  at about $\NumPfiveEnergyKneeJepa$ components for the predictive latent against
+  $\NumPfiveEnergyKneeFukami$ and $\NumPfiveEnergyKneePod$ for the baselines. Right:
+  the gradient-saliency footprint of the wake-forecast direction overlaps the
+  high-vorticity cores and Q-criterion vortices below the permutation chance band,
+  so the distributed code is not spatially localised. Observational probes on the
+  frozen encoders.}
   \label{fig:wake_code}
 \end{figure}
 

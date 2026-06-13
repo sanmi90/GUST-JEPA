@@ -398,6 +398,23 @@ margin of $\ForecastWakeJepaMinusDmd$. The predictive latent therefore preserves
 the shedding spectrum that a linear basis also carries, while its nonlinear
 dynamics forecast the gusted wake that a linear operator cannot.
 
+\begin{figure}
+  \centering
+  \includegraphics[width=\linewidth]{sections/figures/results/fig_latent_spectrum_v2p1.pdf}
+  \caption{The latent dynamics carry the shedding spectrum but are not a linear
+  operator. Left: dynamic-mode-decomposition eigenvalues of the encoded
+  limit-cycle trajectory in the complex plane, by family, against the unit circle
+  and the measured shedding-frequency ray; the predictive (JEPA) and linear (POD)
+  latents place a marginally stable oscillatory pair at the shedding Strouhal
+  number ($\SpecDmdStJepaTf$ and $\SpecDmdStPod$, moduli $\SpecDmdModJepaTf$ and
+  $\SpecDmdModPod$) while the reconstructive (Fukami) pair is damped and
+  off-frequency ($\SpecDmdStFukami$). Right: the wake-enstrophy forecast skill of a
+  best-fit linear operator on the linear basis (dynamic mode decomposition as a
+  forecaster, $\ForecastWakePodDmd$) against the learned predictor
+  ($\NumCloFcstWakeJepaTf$), a margin of $\ForecastWakeJepaMinusDmd$.}
+  \label{fig:spectrum}
+\end{figure}
+
 Second, the wake response scales with gust strength. The peak large-scale
 wake-enstrophy excursion grows monotonically with $|G|$, a trend that is robust to
 the scale band (Spearman $\NumEfourWakeGtrendSigmaEfive$ at $\sigma/c = 0.05$,
