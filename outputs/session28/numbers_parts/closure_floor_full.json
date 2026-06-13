@@ -1,0 +1,306 @@
+{
+  "part": "closure_floor_full",
+  "numbers": {
+    "clo_repr_cl_jepatf": {
+      "macro": "NumCloReprCLJepaTf",
+      "value": 0.86,
+      "fmt": "%.2f",
+      "split": "test_b",
+      "source": "emit_closure_floor_part.py (matrix.csv seed-mean)"
+    },
+    "clo_fcst_cl_jepatf": {
+      "macro": "NumCloFcstCLJepaTf",
+      "value": 0.45,
+      "fmt": "%.2f",
+      "split": "test_b",
+      "source": "emit_closure_floor_part.py (matrix.csv seed-mean)"
+    },
+    "clo_repr_cl_fukami": {
+      "macro": "NumCloReprCLFukami",
+      "value": 0.56,
+      "fmt": "%.2f",
+      "split": "test_b",
+      "source": "emit_closure_floor_part.py (matrix.csv seed-mean)"
+    },
+    "clo_fcst_cl_fukami": {
+      "macro": "NumCloFcstCLFukami",
+      "value": 0.56,
+      "fmt": "%.2f",
+      "split": "test_b",
+      "source": "emit_closure_floor_part.py (matrix.csv seed-mean)"
+    },
+    "clo_repr_cl_pod": {
+      "macro": "NumCloReprCLPod",
+      "value": 0.68,
+      "fmt": "%.2f",
+      "split": "test_b",
+      "source": "emit_closure_floor_part.py (matrix.csv seed-mean)"
+    },
+    "clo_fcst_cl_pod": {
+      "macro": "NumCloFcstCLPod",
+      "value": 0.83,
+      "fmt": "%.2f",
+      "split": "test_b",
+      "source": "emit_closure_floor_part.py (matrix.csv seed-mean)"
+    },
+    "clo_repr_cd_jepatf": {
+      "macro": "NumCloReprCDJepaTf",
+      "value": 0.69,
+      "fmt": "%.2f",
+      "split": "test_b",
+      "source": "emit_closure_floor_part.py (matrix.csv seed-mean)"
+    },
+    "clo_fcst_cd_jepatf": {
+      "macro": "NumCloFcstCDJepaTf",
+      "value": 0.41,
+      "fmt": "%.2f",
+      "split": "test_b",
+      "source": "emit_closure_floor_part.py (matrix.csv seed-mean)"
+    },
+    "clo_repr_cd_fukami": {
+      "macro": "NumCloReprCDFukami",
+      "value": 0.23,
+      "fmt": "%.2f",
+      "split": "test_b",
+      "source": "emit_closure_floor_part.py (matrix.csv seed-mean)"
+    },
+    "clo_fcst_cd_fukami": {
+      "macro": "NumCloFcstCDFukami",
+      "value": 0.12,
+      "fmt": "%.2f",
+      "split": "test_b",
+      "source": "emit_closure_floor_part.py (matrix.csv seed-mean)"
+    },
+    "clo_repr_cd_pod": {
+      "macro": "NumCloReprCDPod",
+      "value": 0.64,
+      "fmt": "%.2f",
+      "split": "test_b",
+      "source": "emit_closure_floor_part.py (matrix.csv seed-mean)"
+    },
+    "clo_fcst_cd_pod": {
+      "macro": "NumCloFcstCDPod",
+      "value": 0.72,
+      "fmt": "%.2f",
+      "split": "test_b",
+      "source": "emit_closure_floor_part.py (matrix.csv seed-mean)"
+    },
+    "clo_repr_iy_jepatf": {
+      "macro": "NumCloReprIyJepaTf",
+      "value": -0.21,
+      "fmt": "%.2f",
+      "split": "test_b",
+      "source": "emit_closure_floor_part.py (matrix.csv seed-mean)"
+    },
+    "clo_fcst_iy_jepatf": {
+      "macro": "NumCloFcstIyJepaTf",
+      "value": 0.25,
+      "fmt": "%.2f",
+      "split": "test_b",
+      "source": "emit_closure_floor_part.py (matrix.csv seed-mean)"
+    },
+    "clo_repr_iy_fukami": {
+      "macro": "NumCloReprIyFukami",
+      "value": 0.13,
+      "fmt": "%.2f",
+      "split": "test_b",
+      "source": "emit_closure_floor_part.py (matrix.csv seed-mean)"
+    },
+    "clo_fcst_iy_fukami": {
+      "macro": "NumCloFcstIyFukami",
+      "value": 0.08,
+      "fmt": "%.2f",
+      "split": "test_b",
+      "source": "emit_closure_floor_part.py (matrix.csv seed-mean)"
+    },
+    "clo_repr_iy_pod": {
+      "macro": "NumCloReprIyPod",
+      "value": -0.69,
+      "fmt": "%.2f",
+      "split": "test_b",
+      "source": "emit_closure_floor_part.py (matrix.csv seed-mean)"
+    },
+    "clo_fcst_iy_pod": {
+      "macro": "NumCloFcstIyPod",
+      "value": -0.02,
+      "fmt": "%.2f",
+      "split": "test_b",
+      "source": "emit_closure_floor_part.py (matrix.csv seed-mean)"
+    },
+    "clo_repr_wake_jepatf": {
+      "macro": "NumCloReprWakeJepaTf",
+      "value": 0.79,
+      "fmt": "%.2f",
+      "split": "test_b",
+      "source": "emit_closure_floor_part.py (matrix.csv seed-mean)"
+    },
+    "clo_fcst_wake_jepatf": {
+      "macro": "NumCloFcstWakeJepaTf",
+      "value": 0.43,
+      "fmt": "%.2f",
+      "split": "test_b",
+      "source": "emit_closure_floor_part.py (matrix.csv seed-mean)"
+    },
+    "clo_repr_wake_fukami": {
+      "macro": "NumCloReprWakeFukami",
+      "value": -0.25,
+      "fmt": "%.2f",
+      "split": "test_b",
+      "source": "emit_closure_floor_part.py (matrix.csv seed-mean)"
+    },
+    "clo_fcst_wake_fukami": {
+      "macro": "NumCloFcstWakeFukami",
+      "value": 0.22,
+      "fmt": "%.2f",
+      "split": "test_b",
+      "source": "emit_closure_floor_part.py (matrix.csv seed-mean)"
+    },
+    "clo_repr_wake_pod": {
+      "macro": "NumCloReprWakePod",
+      "value": -0.16,
+      "fmt": "%.2f",
+      "split": "test_b",
+      "source": "emit_closure_floor_part.py (matrix.csv seed-mean)"
+    },
+    "clo_fcst_wake_pod": {
+      "macro": "NumCloFcstWakePod",
+      "value": -0.6,
+      "fmt": "%.2f",
+      "split": "test_b",
+      "source": "emit_closure_floor_part.py (matrix.csv seed-mean)"
+    },
+    "clo_repr_circpos_jepatf": {
+      "macro": "NumCloReprCircPosJepaTf",
+      "value": 0.72,
+      "fmt": "%.2f",
+      "split": "test_b",
+      "source": "emit_closure_floor_part.py (matrix.csv seed-mean)"
+    },
+    "clo_fcst_circpos_jepatf": {
+      "macro": "NumCloFcstCircPosJepaTf",
+      "value": 0.39,
+      "fmt": "%.2f",
+      "split": "test_b",
+      "source": "emit_closure_floor_part.py (matrix.csv seed-mean)"
+    },
+    "clo_repr_circpos_fukami": {
+      "macro": "NumCloReprCircPosFukami",
+      "value": 0.25,
+      "fmt": "%.2f",
+      "split": "test_b",
+      "source": "emit_closure_floor_part.py (matrix.csv seed-mean)"
+    },
+    "clo_fcst_circpos_fukami": {
+      "macro": "NumCloFcstCircPosFukami",
+      "value": 0.57,
+      "fmt": "%.2f",
+      "split": "test_b",
+      "source": "emit_closure_floor_part.py (matrix.csv seed-mean)"
+    },
+    "clo_repr_circpos_pod": {
+      "macro": "NumCloReprCircPosPod",
+      "value": -0.15,
+      "fmt": "%.2f",
+      "split": "test_b",
+      "source": "emit_closure_floor_part.py (matrix.csv seed-mean)"
+    },
+    "clo_fcst_circpos_pod": {
+      "macro": "NumCloFcstCircPosPod",
+      "value": -0.18,
+      "fmt": "%.2f",
+      "split": "test_b",
+      "source": "emit_closure_floor_part.py (matrix.csv seed-mean)"
+    },
+    "clo_repr_circneg_jepatf": {
+      "macro": "NumCloReprCircNegJepaTf",
+      "value": 0.78,
+      "fmt": "%.2f",
+      "split": "test_b",
+      "source": "emit_closure_floor_part.py (matrix.csv seed-mean)"
+    },
+    "clo_fcst_circneg_jepatf": {
+      "macro": "NumCloFcstCircNegJepaTf",
+      "value": 0.74,
+      "fmt": "%.2f",
+      "split": "test_b",
+      "source": "emit_closure_floor_part.py (matrix.csv seed-mean)"
+    },
+    "clo_repr_circneg_fukami": {
+      "macro": "NumCloReprCircNegFukami",
+      "value": 0.03,
+      "fmt": "%.2f",
+      "split": "test_b",
+      "source": "emit_closure_floor_part.py (matrix.csv seed-mean)"
+    },
+    "clo_fcst_circneg_fukami": {
+      "macro": "NumCloFcstCircNegFukami",
+      "value": 0.22,
+      "fmt": "%.2f",
+      "split": "test_b",
+      "source": "emit_closure_floor_part.py (matrix.csv seed-mean)"
+    },
+    "clo_repr_circneg_pod": {
+      "macro": "NumCloReprCircNegPod",
+      "value": 0.32,
+      "fmt": "%.2f",
+      "split": "test_b",
+      "source": "emit_closure_floor_part.py (matrix.csv seed-mean)"
+    },
+    "clo_fcst_circneg_pod": {
+      "macro": "NumCloFcstCircNegPod",
+      "value": 0.45,
+      "fmt": "%.2f",
+      "split": "test_b",
+      "source": "emit_closure_floor_part.py (matrix.csv seed-mean)"
+    },
+    "clo_repr_meansix_jepatf": {
+      "macro": "NumCloReprMeanSixJepaTf",
+      "value": 0.61,
+      "fmt": "%.2f",
+      "split": "test_b",
+      "source": "emit_closure_floor_part.py"
+    },
+    "floor_cl": {
+      "macro": "NumFloorCL",
+      "value": 0.61,
+      "fmt": "%.2f",
+      "split": "test_b",
+      "source": "emit_closure_floor_part.py (parametric_floor ridge)"
+    },
+    "floor_cd": {
+      "macro": "NumFloorCD",
+      "value": 0.54,
+      "fmt": "%.2f",
+      "split": "test_b",
+      "source": "emit_closure_floor_part.py (parametric_floor ridge)"
+    },
+    "floor_iy": {
+      "macro": "NumFloorIy",
+      "value": 0.25,
+      "fmt": "%.2f",
+      "split": "test_b",
+      "source": "emit_closure_floor_part.py (parametric_floor ridge)"
+    },
+    "floor_wake": {
+      "macro": "NumFloorWake",
+      "value": -0.18,
+      "fmt": "%.2f",
+      "split": "test_b",
+      "source": "emit_closure_floor_part.py (parametric_floor ridge)"
+    },
+    "floor_circpos": {
+      "macro": "NumFloorCircPos",
+      "value": -0.05,
+      "fmt": "%.2f",
+      "split": "test_b",
+      "source": "emit_closure_floor_part.py (parametric_floor ridge)"
+    },
+    "floor_circneg": {
+      "macro": "NumFloorCircNeg",
+      "value": 0.23,
+      "fmt": "%.2f",
+      "split": "test_b",
+      "source": "emit_closure_floor_part.py (parametric_floor ridge)"
+    }
+  }
+}
