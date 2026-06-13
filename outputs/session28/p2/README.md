@@ -11,7 +11,7 @@ it with the physical one (Gate GP2). NOT git-committed; left for review.
 - Baseline case: Baseline; settled orbit points: 80 (effective dim 3.6 of 64).
 - Mahalanobis tube radius (q95): 7.846.
 - Euclidean cross-check radius (q95): 0.284.
-- Dwell: 59 frames (2.95 t/c) = one subharmonic period. one subharmonic shedding period = round(1/(St_sub*dt_tc)) = 59 frames (St_sub=0.3383); physics_prep enstrophy clock uses 56 (the St_sub rounding)
+- Recovery rule: occupancy window 56 frames (2.80 t/c), theta 0.8, min-window 28. Latent recovery uses physics_prep.occupancy_recovery on the tube-membership signal, MATCHED to the physical v2 clock (theta=0.8, window=56, min_window=28). The subharmonic shedding period is 1/(St_sub*dt_tc)~=59 frames (St_sub=0.3383); the physical clock rounds this to a 56-frame occupancy window and we keep that window for parity.
 - The orbit is very low-rank, so the Mahalanobis whitening is ill-conditioned (see
   s46_regen). The gate statistic is a RANK correlation (insensitive to whitening
   magnitude) and a well-conditioned Euclidean tube is carried as a cross-check.
@@ -21,13 +21,34 @@ it with the physical one (Gate GP2). NOT git-committed; left for review.
 - HEADLINE (Mahalanobis tube): Spearman rho = nan (n = 0; fewer than 3 recovered-in-both pairs; Spearman undefined).
 - Euclidean cross-check: Spearman rho = nan (n = 0; fewer than 3 recovered-in-both pairs; Spearman undefined).
 
-GP2 threshold = 0.7. **VERDICT: BELOW 0.7**.
+GP2 threshold = 0.7. **VERDICT: NOT EVALUABLE (too few recovered-in-both encounters)**.
 
-latent-clock sentence DROPPED; physical DNS maps stand as the contribution.
+latent-clock sentence DROPPED; the latent clock recovers too few encounters for a meaningful Spearman (recovered-in-both n=0). Physical DNS maps stand as the contribution.
 
-Stated plainly: the latent recovery clock does NOT track the physical recovery
-clock at the GP2 bar on test_b. The latent-clock sentence is DROPPED from S4.4.
-The physical tau_rec(G, D, Y) maps stand as DNS physics and remain a contribution.
+Stated plainly: the latent recovery clock recovers too few test_b encounters
+(0 recovered-in-both with the physical clock) for a
+meaningful Spearman, so GP2 is not evaluable as a correlation. The
+latent-clock sentence is DROPPED from S4.4. The physical tau_rec(G, D, Y) maps
+stand as DNS physics and remain a contribution. See the diagnostic below for
+the mechanism (the latent never re-enters the tight baseline tube).
+
+## Latent closest-approach diagnostic (test_b)
+
+Why the latent clock recovers as it does: the settled-Baseline orbit is a thin,
+low-rank tube (Euclidean diameter 1.63 latent units; the
+q95-self-spread tube radius is 0.17 orbit-diameters
+Euclidean). The gusted test_b latents approach it only weakly:
+
+- median minimum post-impact distance to the orbit: 5.32 orbit-diameters (closest any encounter gets: 0.70).
+- median minimum post-impact Mahalanobis-to-distribution: 510.4 (tube radius 7.8); the
+  whitening inflates off-orbit directions, so the Mahalanobis tube is unreachable.
+- median relaxation ratio (last-frame / impact-frame distance): 0.86 (the latent barely drifts back).
+- encounters reaching within 1 / 2 orbit-diameters at any post-impact frame: 4 / 5 of 42.
+
+This is the honest mechanism, not a coding artefact: the latent does not return to
+the baseline limit-cycle tube within the 120-frame window, consistent with the short
+release cadence (D153) that censors most of the PHYSICAL clock too, and with the s46
+Q2 finding that the predictive latent does not sit close to the baseline orbit.
 
 ## Recovered vs censored fractions (test_b)
 

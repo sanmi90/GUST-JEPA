@@ -1,7 +1,7 @@
 {
   "_provenance": {
-    "generated_iso": "2026-06-13T20:26:28.547317+00:00",
-    "git_commit": "19c7f546f6328d2a1c554ec8cbdf6689b6990077",
+    "generated_iso": "2026-06-13T20:36:15.434638+00:00",
+    "git_commit": "4386912a26218a742235ad341b68e8f982d72738",
     "manifest_runs_sha256": "aa07e687f2080e7e7f0dea8d75f3b2af40a86fa68c19f828ae3ec98422e60bbe",
     "n_parts": 16,
     "parts": [
@@ -1284,22 +1284,20 @@
     "p2_gp2_branch": {
       "fmt": "%.0f",
       "macro": "NumPtwoGPtwoBranch",
-      "note": "latent-clock sentence DROPPED; physical DNS maps stand as the contribution",
+      "note": "latent-clock sentence DROPPED; the latent clock recovers too few encounters for a meaningful Spearman (recovered-in-both n=0). Physical DNS maps stand as the contribution.",
       "source": "p2_latent_clock.py",
       "split": "test_b",
       "value": 0.0
     },
     "p2_gp2_latent_phys_spearman": {
-      "ci_hi": NaN,
-      "ci_lo": NaN,
-      "fmt": "%.2f",
+      "fmt": "%s",
       "macro": "NumPtwoGPtwoSpearman",
       "n": 0,
-      "note": "case-permutation one-sided p = nan; GP2 threshold 0.7; passes=False; recovered-in-both n=0 over NA cases; Euclidean cross-check rho=nan",
+      "note": "GP2 not evaluable: latent recovers too few test_b encounters (recovered-in-both n=0) for a meaningful Spearman; GP2 threshold 0.7; passes=False. Latent-clock claim dropped; physical maps stand. See results.json latent_return_diagnostic.",
       "observable": "latent tau_rec vs physical tau_rec (Mahalanobis tube)",
       "source": "p2_latent_clock.py",
       "split": "test_b",
-      "value": NaN
+      "value": "n/a"
     },
     "p4_gp4_pearson_r": {
       "ci_hi": 0.882266128842341,
@@ -1517,7 +1515,7 @@
       "fmt": "%s",
       "macro": "CommitHash",
       "source": "eval_all.py",
-      "value": "19c7f546f632"
+      "value": "4386912a2621"
     },
     "s46_orbit_return_fukami": {
       "fmt": "%.2f",

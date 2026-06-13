@@ -92,6 +92,53 @@ def test_tube_return_full_window_preferred_over_short():
     assert t == 50
 
 
+def test_strict_dwell_equals_occupancy_at_theta_one():
+    """tube_return_clock equals physics_prep.occupancy_recovery at theta = 1.0 (the rule the
+    production latent clock reuses, so the two are the same in the strict limit)."""
+    import physics_prep as pp_mod
+
+    rng = np.random.default_rng(11)
+    for _ in range(20):
+        inside = rng.random(120) < 0.6
+        dwell = int(rng.integers(10, 40))
+        s_strict, t_strict = p2.tube_return_clock(inside, start=40, dwell=dwell)
+        # occupancy on a 0/1 distance trace with band [-inf, 0.5]: inside iff value 0.
+        dist = np.where(inside, 0.0, 1.0)
+        s_occ, t_occ = pp_mod.occupancy_recovery(
+            dist, 40, -np.inf, 0.5, theta=1.0, window=dwell, min_window=dwell
+        )
+        # With min_window == dwell, occupancy has no short-window slack below dwell, while
+        # tube_return_clock flags short windows; compare only the full-recovery branch.
+        if s_strict == "recovered":
+            assert s_occ == "recovered" and t_strict == t_occ
+        elif s_occ == "recovered":
+            assert s_strict == "recovered" and t_strict == t_occ
+
+
+def test_latent_recovery_uses_occupancy_semantics():
+    """latent_recovery_for_encounter tolerates isolated excursions (occupancy theta<1), so a
+    trajectory with a single off-tube frame inside the window still recovers."""
+    rng = np.random.default_rng(12)
+    d = 5
+    # Tiny tube at the orbit mean; a trajectory that returns to the mean with one blip.
+    orbit = rng.standard_normal((100, d)) * 0.1
+    train = {
+        "z_full": orbit[None, :, :].copy(),
+        "case_ids": np.array(["Baseline"]),
+        "encounter_indices": np.array([4], dtype=int),
+    }
+    tube = p2.build_latent_tube(train, "Baseline", radius_pctl=95.0)
+    z = np.zeros((120, d))
+    z[:40] = 10.0  # far outside the tube pre-impact
+    z[40:] = orbit.mean(axis=0)  # snaps back to the tube centre at impact
+    z[70] = 10.0  # a single off-tube blip well inside the dwell window
+    status, t, _ = p2.latent_recovery_for_encounter(
+        z, impact=40, tube=tube, metric="maha", window=56, theta=0.8, min_window=28
+    )
+    assert status in ("recovered", "recovered_short_window")
+    assert t == 40  # the single blip is tolerated at theta = 0.8
+
+
 # ----------------------------------------------------- 2. Mahalanobis on a known cloud
 def test_mahalanobis_to_distribution_known_cloud():
     """Anisotropic Gaussian cloud: whitened distance is isotropic, so equal Maha for

@@ -3,15 +3,13 @@
   "numbers": {
     "p2_gp2_latent_phys_spearman": {
       "macro": "NumPtwoGPtwoSpearman",
-      "value": NaN,
-      "fmt": "%.2f",
-      "ci_lo": NaN,
-      "ci_hi": NaN,
       "n": 0,
       "split": "test_b",
       "observable": "latent tau_rec vs physical tau_rec (Mahalanobis tube)",
       "source": "p2_latent_clock.py",
-      "note": "case-permutation one-sided p = nan; GP2 threshold 0.7; passes=False; recovered-in-both n=0 over NA cases; Euclidean cross-check rho=nan"
+      "value": "n/a",
+      "fmt": "%s",
+      "note": "GP2 not evaluable: latent recovers too few test_b encounters (recovered-in-both n=0) for a meaningful Spearman; GP2 threshold 0.7; passes=False. Latent-clock claim dropped; physical maps stand. See results.json latent_return_diagnostic."
     },
     "p2_gp2_branch": {
       "macro": "NumPtwoGPtwoBranch",
@@ -19,7 +17,7 @@
       "fmt": "%.0f",
       "split": "test_b",
       "source": "p2_latent_clock.py",
-      "note": "latent-clock sentence DROPPED; physical DNS maps stand as the contribution"
+      "note": "latent-clock sentence DROPPED; the latent clock recovers too few encounters for a meaningful Spearman (recovered-in-both n=0). Physical DNS maps stand as the contribution."
     },
     "p2_frac_recovered_physical": {
       "macro": "NumPtwoFracRecoveredPhysical",

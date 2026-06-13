@@ -25,15 +25,20 @@ Latent clock (computed here)
     described by the orbit mean + ridged covariance whitening (s46_regen geometry, reused);
     the tube RADIUS is q95 of the baseline orbit's OWN Mahalanobis spread (the 95th
     percentile of the Mahalanobis distance of each settled-Baseline frame to the orbit
-    distribution). Latent tau_rec = the first post-impact frame t* at which the latent z is
-    inside the tube (Mahalanobis-to-orbit <= q95 tube radius) AND stays inside for one full
-    shedding period (default LATENT_DWELL_FRAMES = 59, the subharmonic period
-    1/(St_sub * dt_tc) ~= 59 frames; physics_prep uses 56 for the enstrophy clock, the
-    difference is the St_sub rounding, parameterized via --latent-dwell-frames). Encounters
-    whose latent never returns-and-dwells within the 120-frame window are CENSORED, the same
-    convention as the physical clock; if a return is observed but the dwell runs into the
-    end of the record (< dwell frames remain but the latent stays inside until the end), the
-    status is "recovered_short_window" and counts as recovered (mirrors the physical rule).
+    distribution). The latent recovery rule is physics_prep.occupancy_recovery applied to the
+    tube-membership signal, MATCHED to the physical v2 enstrophy clock so the gate compares
+    like with like (only the underlying signal differs): latent tau_rec = the first
+    post-impact frame t* that is itself inside the tube AND whose [t*, t*+W) window has
+    occupancy (fraction of frames inside) >= theta. Defaults are matched to the physical
+    clock's null-calibrated rule (W = 56 frames ~ the subharmonic shedding period
+    1/(St_sub*dt_tc) ~= 59, theta = 0.8, min_window = 28); all parameterized on the CLI.
+    Encounters whose latent never returns-and-dwells within the 120-frame window are
+    CENSORED, the same convention as the physical clock; if a return is observed but < W but
+    >= min_window frames remain, the status is "recovered_short_window" and counts as
+    recovered (mirrors the physical rule). Using the SAME occupancy semantics as the physical
+    clock (rather than a strict dwell) is load-bearing: a strict every-frame dwell censors
+    the whole test_b set because the latent never holds the tight tube for 56 consecutive
+    frames in the 80-frame post-impact window, which would make the gate vacuous.
 
     The orbit cloud is small (~80 frames) and very low-rank (effective dim ~3.6 of 64), so
     the Mahalanobis whitening is ill-conditioned exactly as s46_regen documents. We follow
@@ -196,12 +201,16 @@ def build_latent_tube(
 
 # ------------------------------------------------------------------- tube-return clock rule
 def tube_return_clock(inside: np.ndarray, start: int, dwell: int) -> tuple[str, int | None]:
-    """First t* >= start that is inside the tube AND dwells inside for >= dwell frames.
+    """STRICT-dwell tube-return reference: first t* inside the tube that dwells >= dwell.
 
-    `inside` is a boolean per-frame trace (True = latent is inside the tube). The rule
-    mirrors physics_prep.occupancy_recovery with theta = 1.0 (a STRICT dwell: every frame of
-    the dwell window must be inside; the master-plan phrase is "sustained one period"). t*
-    itself must be inside. Returns (status, t*):
+    This is the theta = 1.0 limit (every frame of the dwell window must be inside). The
+    PRODUCTION latent clock instead reuses physics_prep.occupancy_recovery (theta < 1) so its
+    recovery semantics are byte-identical to the physical v2 enstrophy clock it is compared
+    against in the gate; this strict variant is kept as the readable reference and is
+    exercised by the unit tests (it equals occupancy_recovery at theta = 1.0).
+
+    `inside` is a boolean per-frame trace (True = latent is inside the tube). t* itself must
+    be inside. Returns (status, t*):
         ("recovered", t*)               a full `dwell`-frame run inside was observed at t*;
         ("recovered_short_window", t*)  the latent re-enters at t* and stays inside until the
                                         record ends, but fewer than `dwell` frames remain
@@ -291,9 +300,7 @@ def phys_is_recovered(status: str) -> bool:
 
 
 # ---------------------------------------------------------------- latent clock over a split
-def latent_clock_for_split(
-    family: str, split: str, tube: LatentTube, cfg: "Config"
-) -> list[dict]:
+def latent_clock_for_split(family: str, split: str, tube: LatentTube, cfg: "Config") -> list[dict]:
     """Per-encounter latent recovery rows for one split (maha headline + euclid cross-check)."""
     data = s46.load_family_split(family, split)
     z = data["z_full"]
@@ -415,6 +422,46 @@ def fraction_block(statuses: list[str], recovered_predicate) -> dict:
     }
 
 
+def latent_return_diagnostic(family: str, tube: LatentTube, split: str = "test_b") -> dict:
+    """Closest-approach diagnostic: how near does the gusted latent get to the tube?
+
+    For each encounter of `split`, the minimum post-impact Euclidean distance to the orbit
+    cloud (in orbit-diameter units) and the minimum post-impact Mahalanobis-to-distribution
+    are recorded, plus the relaxation ratio (last-frame / impact-frame Euclidean distance).
+    This explains a 0-recovery latent clock without hand-waving: if the closest approach is
+    many orbit-diameters away, the tube (q95 of the orbit's OWN spread) is simply unreachable
+    within the window, which is the honest mechanism, not a coding artefact.
+    """
+    data = s46.load_family_split(family, split)
+    z = data["z_full"]
+    imp = data["impact_frame"]
+    euclid_diam = tube.geom.euclid_diameter
+    min_euclid_diam, min_maha, relax = [], [], []
+    for i in range(z.shape[0]):
+        impact = int(np.clip(imp[i], 0, z.shape[1] - 1))
+        de = s46._min_dist_to_cloud(z[i], tube.orbit)[impact:]
+        dm = mahalanobis_to_distribution(z[i], tube.geom)[impact:]
+        min_euclid_diam.append(float(de.min()) / euclid_diam)
+        min_maha.append(float(dm.min()))
+        relax.append(float(de[-1] / max(de[0], 1e-9)))
+    min_euclid_diam = np.array(min_euclid_diam)
+    min_maha = np.array(min_maha)
+    relax = np.array(relax)
+    return {
+        "split": split,
+        "n": int(z.shape[0]),
+        "orbit_euclid_diameter": euclid_diam,
+        "euclid_tube_radius_in_diam": tube.euclid_radius / euclid_diam,
+        "maha_tube_radius": tube.maha_radius,
+        "median_min_euclid_dist_in_diam": float(np.median(min_euclid_diam)),
+        "min_min_euclid_dist_in_diam": float(min_euclid_diam.min()),
+        "median_min_maha_dist": float(np.median(min_maha)),
+        "median_relaxation_ratio": float(np.median(relax)),
+        "n_reaching_within_1_diam": int((min_euclid_diam <= 1.0).sum()),
+        "n_reaching_within_2_diam": int((min_euclid_diam <= 2.0).sum()),
+    }
+
+
 def physical_map_data(phys_rows: dict, split: str) -> dict:
     """tau_rec(G, D, Y) map data + tau_rec vs |G| for one split (physical v2 clock)."""
     recs = [r for r in phys_rows.values() if str(r["split"]) == split]
@@ -526,11 +573,17 @@ def run_p2(cfg: Config, physics_npz: Path, split_manifest: Path) -> dict:
 
     headline = gates["maha"]
     gp2_pass = bool(headline.get("passes_gp2", False))
-    branch = (
-        "latent-clock claim ENTERS S4.4 with the tau_rec map (Spearman >= 0.7)"
-        if gp2_pass
-        else "latent-clock sentence DROPPED; physical DNS maps stand as the contribution"
-    )
+    n_pairs = headline["n_encounters"]
+    if gp2_pass:
+        branch = "latent-clock claim ENTERS S4.4 with the tau_rec map (Spearman >= 0.7)"
+    elif n_pairs < 3:
+        branch = (
+            "latent-clock sentence DROPPED; the latent clock recovers too few encounters for "
+            f"a meaningful Spearman (recovered-in-both n={n_pairs}). Physical DNS maps stand "
+            "as the contribution."
+        )
+    else:
+        branch = "latent-clock sentence DROPPED; physical DNS maps stand as the contribution"
 
     # ---- Fractions for both clocks (test_b; the gate split). ----
     fractions_tb = {
@@ -538,6 +591,9 @@ def run_p2(cfg: Config, physics_npz: Path, split_manifest: Path) -> dict:
         "latent_maha": fraction_block(lat_status_maha_tb, phys_is_recovered),
         "latent_euclid": fraction_block(lat_status_euclid_tb, phys_is_recovered),
     }
+
+    # ---- Latent closest-approach diagnostic (explains a 0-recovery latent clock). ----
+    return_diag = latent_return_diagnostic(cfg.family, tube, "test_b")
 
     # ---- Map data (physical clock) over the envelope, per split. ----
     maps = {split: physical_map_data(phys_rows, split) for split in ("test_b", "test_c")}
@@ -547,10 +603,15 @@ def run_p2(cfg: Config, physics_npz: Path, split_manifest: Path) -> dict:
             "family": cfg.family,
             "latent_dwell_frames": cfg.latent_dwell,
             "latent_dwell_tc": cfg.latent_dwell * pp.DT_TC,
+            "latent_occ_theta": cfg.occ_theta,
+            "latent_occ_min_window": cfg.occ_min_window,
             "latent_dwell_note": (
-                "one subharmonic shedding period = round(1/(St_sub*dt_tc)) "
-                f"= {LATENT_DWELL_FRAMES_DEFAULT} frames (St_sub={pp.ST_SUB_FALLBACK:.4f}); "
-                "physics_prep enstrophy clock uses 56 (the St_sub rounding)"
+                "Latent recovery uses physics_prep.occupancy_recovery on the tube-membership "
+                f"signal, MATCHED to the physical v2 clock (theta={cfg.occ_theta}, "
+                f"window={cfg.latent_dwell}, min_window={cfg.occ_min_window}). The subharmonic "
+                f"shedding period is 1/(St_sub*dt_tc)~={SUBHARMONIC_PERIOD_FRAMES} frames "
+                f"(St_sub={pp.ST_SUB_FALLBACK:.4f}); the physical clock rounds this to a "
+                "56-frame occupancy window and we keep that window for parity."
             ),
             "tube_radius_pctl": cfg.radius_pctl,
             "gp2_threshold": GP2_THRESHOLD,
@@ -590,6 +651,7 @@ def run_p2(cfg: Config, physics_npz: Path, split_manifest: Path) -> dict:
             "branch": branch,
         },
         "fractions_test_b": fractions_tb,
+        "latent_return_diagnostic": return_diag,
         "per_encounter_test_b": per_encounter,
         "physical_map_data": maps,
     }
@@ -604,25 +666,49 @@ def build_numbers_part(results: dict) -> dict:
     fr = results["fractions_test_b"]
     perm_p = h.get("case_permutation_p_one_sided_greater", float("nan"))
     e_rho = e.get("spearman_rho", float("nan"))
+    evaluable = h["n_encounters"] >= 3 and np.isfinite(h["spearman_rho"])
     numbers: dict[str, dict] = {}
 
-    numbers["p2_gp2_latent_phys_spearman"] = {
+    # When the gate is not evaluable (latent recovers too few encounters), the Spearman is
+    # undefined: emit a clean "n/a" string macro (NaN/None would render badly in LaTeX or
+    # fail emit_macros' printf formatting) and omit the CI keys. The branch/fraction macros
+    # below carry the honest verdict numerically.
+    spearman_rec = {
         "macro": "NumPtwoGPtwoSpearman",
-        "value": h["spearman_rho"],
-        "fmt": "%.2f",
-        "ci_lo": h.get("ci_lo", float("nan")),
-        "ci_hi": h.get("ci_hi", float("nan")),
         "n": h["n_encounters"],
         "split": "test_b",
         "observable": "latent tau_rec vs physical tau_rec (Mahalanobis tube)",
         "source": "p2_latent_clock.py",
-        "note": (
-            f"case-permutation one-sided p = {perm_p:.4g}; "
-            f"GP2 threshold {GP2_THRESHOLD}; passes={h['passes_gp2']}; "
-            f"recovered-in-both n={h['n_encounters']} over {h.get('n_cases', 'NA')} cases; "
-            f"Euclidean cross-check rho={e_rho:.2f}"
-        ),
     }
+    if evaluable:
+        spearman_rec.update(
+            {
+                "value": h["spearman_rho"],
+                "fmt": "%.2f",
+                "ci_lo": h.get("ci_lo", float("nan")),
+                "ci_hi": h.get("ci_hi", float("nan")),
+                "note": (
+                    f"case-permutation one-sided p = {perm_p:.4g}; "
+                    f"GP2 threshold {GP2_THRESHOLD}; passes={h['passes_gp2']}; "
+                    f"recovered-in-both n={h['n_encounters']} over "
+                    f"{h.get('n_cases', 'NA')} cases; Euclidean cross-check rho={e_rho:.2f}"
+                ),
+            }
+        )
+    else:
+        spearman_rec.update(
+            {
+                "value": "n/a",
+                "fmt": "%s",
+                "note": (
+                    f"GP2 not evaluable: latent recovers too few test_b encounters "
+                    f"(recovered-in-both n={h['n_encounters']}) for a meaningful Spearman; "
+                    f"GP2 threshold {GP2_THRESHOLD}; passes=False. Latent-clock claim dropped; "
+                    "physical maps stand. See results.json latent_return_diagnostic."
+                ),
+            }
+        )
+    numbers["p2_gp2_latent_phys_spearman"] = spearman_rec
     numbers["p2_gp2_branch"] = {
         "macro": "NumPtwoGPtwoBranch",
         "value": 1.0 if g["passes_gp2"] else 0.0,
@@ -705,6 +791,7 @@ def make_figure(results: dict, out_dir: Path) -> None:
     fig, (axm, axs) = plt.subplots(1, 2, figsize=(fig_w, fig_h))
 
     # ---- Left: physical tau_rec over the (|G|, D) envelope, test_b + test_c, |Y| as size.
+    sc = None
     for split, marker, label in (("test_b", "o", "test B"), ("test_c", "^", r"test C ($|G|=4$)")):
         m = results["physical_map_data"][split]
         absg = np.array(m["abs_G"], dtype=float)
@@ -742,7 +829,7 @@ def make_figure(results: dict, out_dir: Path) -> None:
     axm.set_xlabel(r"$|G|$")
     axm.set_ylabel(r"$D$")
     axm.set_title(r"physical $\tau_{\rm rec}$ over the envelope")
-    if "sc" in dir():
+    if sc is not None:
         cb = fig.colorbar(sc, ax=axm, fraction=0.046, pad=0.03)
         cb.set_label(r"$\tau_{\rm rec}$ ($t/c$ since impact)")
     axm.legend(loc="best", fontsize=6)
@@ -757,25 +844,45 @@ def make_figure(results: dict, out_dir: Path) -> None:
     xp = np.array(xp, dtype=float)
     yl = np.array(yl, dtype=float)
     h = results["gate_gp2"]["headline"]
+    rho = h.get("spearman_rho", float("nan"))
+    p = h.get("case_permutation_p_one_sided_greater", float("nan"))
+    verdict = _verdict_word(results["gate_gp2"])
     if xp.size:
         axs.scatter(xp, yl, color=jepa_c, s=24, edgecolors="k", linewidths=0.4, zorder=3)
-        lims = [
-            min(xp.min(), yl.min()) - 0.2,
-            max(xp.max(), yl.max()) + 0.2,
-        ]
+        lims = [min(xp.min(), yl.min()) - 0.2, max(xp.max(), yl.max()) + 0.2]
         axs.plot(lims, lims, color=oracle_c, lw=0.8, ls="--", zorder=1, label=r"$y=x$")
         axs.set_xlim(lims)
         axs.set_ylim(lims)
-    axs.set_xlabel(r"physical $\tau_{\rm rec}$ ($t/c$)")
-    axs.set_ylabel(r"latent $\tau_{\rm rec}$ ($t/c$)")
-    rho = h.get("spearman_rho", float("nan"))
-    p = h.get("case_permutation_p_one_sided_greater", float("nan"))
-    verdict = "PASS" if results["gate_gp2"]["passes_gp2"] else "below 0.7"
-    axs.set_title(
-        "latent vs physical clock\n"
-        + rf"Spearman $\rho={rho:.2f}$ (n={h['n_encounters']}, {verdict})"
-    )
-    txt = f"GP2 {GP2_THRESHOLD}: {verdict}\np={p:.3g}"
+        axs.set_xlabel(r"physical $\tau_{\rm rec}$ ($t/c$)")
+        axs.set_ylabel(r"latent $\tau_{\rm rec}$ ($t/c$)")
+        axs.set_title(
+            "latent vs physical clock\n"
+            + rf"Spearman $\rho={rho:.2f}$ (n={h['n_encounters']}, {verdict})"
+        )
+        txt = f"GP2 {GP2_THRESHOLD}: {verdict}\np={p:.3g}"
+    else:
+        # Degenerate gate: the latent recovers no test_b encounter. Show the honest
+        # mechanism (closest-approach distribution) instead of an empty scatter.
+        rd = results["latent_return_diagnostic"]
+        vals = np.array([rd["median_min_euclid_dist_in_diam"], rd["min_min_euclid_dist_in_diam"]])
+        axs.bar(["median", "closest"], vals, color=jepa_c, edgecolor="k", linewidth=0.4, width=0.6)
+        axs.axhline(
+            rd["euclid_tube_radius_in_diam"],
+            color=oracle_c,
+            ls="--",
+            lw=0.9,
+            label="tube radius (q95)",
+        )
+        axs.set_ylabel("min post-impact distance\nto orbit (orbit-diameters)")
+        axs.set_title(
+            "latent never re-enters the tube\n"
+            + rf"GP2 not evaluable (recovered-in-both n={h['n_encounters']})"
+        )
+        axs.legend(loc="best", fontsize=6)
+        txt = (
+            f"GP2 {GP2_THRESHOLD}: dropped\nlatent recovers 0/{rd['n']}\n"
+            f"closest {rd['min_min_euclid_dist_in_diam']:.1f} diam"
+        )
     axs.text(
         0.04,
         0.96,
@@ -794,6 +901,15 @@ def make_figure(results: dict, out_dir: Path) -> None:
 
 
 # -------------------------------------------------------------------------------- README
+def _verdict_word(g: dict) -> str:
+    """Verdict word for the README: PASS, BELOW 0.7, or NOT EVALUABLE (too few pairs)."""
+    if g["passes_gp2"]:
+        return "PASS"
+    if g["headline"]["n_encounters"] < 3:
+        return "NOT EVALUABLE (too few recovered-in-both encounters)"
+    return "BELOW 0.7"
+
+
 def write_readme(results: dict, out_dir: Path) -> None:
     """Human-readable P2 summary; the gate verdict is stated plainly."""
     g = results["gate_gp2"]
@@ -823,8 +939,9 @@ def write_readme(results: dict, out_dir: Path) -> None:
         f"{tube['maha_radius_q95']:.3f}.",
         f"- Euclidean cross-check radius (q{cfg['tube_radius_pctl']:.0f}): "
         f"{tube['euclid_radius_q95']:.3f}.",
-        f"- Dwell: {cfg['latent_dwell_frames']} frames "
-        f"({cfg['latent_dwell_tc']:.2f} t/c) = one subharmonic period. {cfg['latent_dwell_note']}",
+        f"- Recovery rule: occupancy window {cfg['latent_dwell_frames']} frames "
+        f"({cfg['latent_dwell_tc']:.2f} t/c), theta {cfg['latent_occ_theta']}, min-window "
+        f"{cfg['latent_occ_min_window']}. {cfg['latent_dwell_note']}",
         "- The orbit is very low-rank, so the Mahalanobis whitening is ill-conditioned (see",
         "  s46_regen). The gate statistic is a RANK correlation (insensitive to whitening",
         "  magnitude) and a well-conditioned Euclidean tube is carried as a cross-check.",
@@ -847,20 +964,56 @@ def write_readme(results: dict, out_dir: Path) -> None:
             else f" (n = {e['n_encounters']}; {e.get('note', '')})."
         ),
         "",
-        f"GP2 threshold = {GP2_THRESHOLD}. **VERDICT: "
-        + ("PASS" if g["passes_gp2"] else "BELOW 0.7")
-        + "**.",
+        f"GP2 threshold = {GP2_THRESHOLD}. **VERDICT: " + _verdict_word(g) + "**.",
         "",
-        g["branch"] + ".",
+        g["branch"].rstrip(".") + ".",
         "",
     ]
     if not g["passes_gp2"]:
-        lines += [
-            "Stated plainly: the latent recovery clock does NOT track the physical recovery",
-            "clock at the GP2 bar on test_b. The latent-clock sentence is DROPPED from S4.4.",
-            "The physical tau_rec(G, D, Y) maps stand as DNS physics and remain a contribution.",
-            "",
-        ]
+        if h["n_encounters"] < 3:
+            lines += [
+                "Stated plainly: the latent recovery clock recovers too few test_b encounters",
+                f"({h['n_encounters']} recovered-in-both with the physical clock) for a",
+                "meaningful Spearman, so GP2 is not evaluable as a correlation. The",
+                "latent-clock sentence is DROPPED from S4.4. The physical tau_rec(G, D, Y) maps",
+                "stand as DNS physics and remain a contribution. See the diagnostic below for",
+                "the mechanism (the latent never re-enters the tight baseline tube).",
+                "",
+            ]
+        else:
+            lines += [
+                "Stated plainly: the latent recovery clock does NOT track the physical recovery",
+                "clock at the GP2 bar on test_b. The latent-clock sentence is DROPPED from S4.4.",
+                "The physical tau_rec(G, D, Y) maps stand as DNS physics and remain a",
+                "contribution.",
+                "",
+            ]
+    rd = results["latent_return_diagnostic"]
+    lines += [
+        "## Latent closest-approach diagnostic (test_b)",
+        "",
+        "Why the latent clock recovers as it does: the settled-Baseline orbit is a thin,",
+        f"low-rank tube (Euclidean diameter {rd['orbit_euclid_diameter']:.2f} latent units; the",
+        f"q95-self-spread tube radius is {rd['euclid_tube_radius_in_diam']:.2f} orbit-diameters",
+        "Euclidean). The gusted test_b latents approach it only weakly:",
+        "",
+        f"- median minimum post-impact distance to the orbit: "
+        f"{rd['median_min_euclid_dist_in_diam']:.2f} orbit-diameters "
+        f"(closest any encounter gets: {rd['min_min_euclid_dist_in_diam']:.2f}).",
+        f"- median minimum post-impact Mahalanobis-to-distribution: "
+        f"{rd['median_min_maha_dist']:.1f} (tube radius {rd['maha_tube_radius']:.1f}); the",
+        "  whitening inflates off-orbit directions, so the Mahalanobis tube is unreachable.",
+        f"- median relaxation ratio (last-frame / impact-frame distance): "
+        f"{rd['median_relaxation_ratio']:.2f} (the latent barely drifts back).",
+        f"- encounters reaching within 1 / 2 orbit-diameters at any post-impact frame: "
+        f"{rd['n_reaching_within_1_diam']} / {rd['n_reaching_within_2_diam']} of {rd['n']}.",
+        "",
+        "This is the honest mechanism, not a coding artefact: the latent does not return to",
+        "the baseline limit-cycle tube within the 120-frame window, consistent with the short",
+        "release cadence (D153) that censors most of the PHYSICAL clock too, and with the s46",
+        "Q2 finding that the predictive latent does not sit close to the baseline orbit.",
+        "",
+    ]
     lines += [
         "## Recovered vs censored fractions (test_b)",
         "",
@@ -907,7 +1060,20 @@ def main(argv: list[str] | None = None) -> None:
         "--latent-dwell-frames",
         type=int,
         default=LATENT_DWELL_FRAMES_DEFAULT,
-        help="Dwell frames for the latent tube-return rule (one subharmonic period ~ 59).",
+        help="Occupancy window for the latent recovery rule (subharmonic period ~ 59; "
+        "default 56, matched to the physical clock).",
+    )
+    parser.add_argument(
+        "--occ-theta",
+        type=float,
+        default=LATENT_OCC_THETA_DEFAULT,
+        help="Occupancy threshold (matched to the physical v2 clock; default 0.8).",
+    )
+    parser.add_argument(
+        "--occ-min-window",
+        type=int,
+        default=LATENT_OCC_MIN_WINDOW_DEFAULT,
+        help="Shortest remainder window that can certify recovery (default 28).",
     )
     parser.add_argument("--radius-pctl", type=float, default=TUBE_RADIUS_PCTL)
     parser.add_argument("--n-boot-case", type=int, default=stats_lib.N_BOOT_CASE)
@@ -920,6 +1086,8 @@ def main(argv: list[str] | None = None) -> None:
     cfg = Config(
         family=args.family,
         latent_dwell=args.latent_dwell_frames,
+        occ_theta=args.occ_theta,
+        occ_min_window=args.occ_min_window,
         radius_pctl=args.radius_pctl,
         boot_seed=args.boot_seed,
         perm_seed=args.perm_seed,
