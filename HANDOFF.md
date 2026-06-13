@@ -8202,6 +8202,31 @@ wrongly attributed fragmentation to the reconstructive ROLLOUT; Phase D must
 fix this regardless. numbers part topology_ce2.json (macros incl. the two
 deciding gaps + branch code 2).
 
+### NEW track (author 2026-06-13): DMD/linear-dynamics rung + JEPA latent spectrum ("eigenvalues of JEPA")
+
+Motivated by the author's "isn't JEPA a DMD?" question. JEPA's dynamics are a
+learned NONLINEAR predictor (no single operator), but its spectrum is estimable
+two ways, both validated against the DNS shedding Strouhal
+(undisturbed_stats.json: dominant 0.675, subharmonic 0.34):
+1. DATA-DRIVEN DMD on the latent trajectories: fit the best linear operator
+   z_{t+1} ~ A z_t (exact/companion DMD) on POD-d AND JEPA-d encoded latents
+   (baseline limit cycle + pooled); eigenvalues -> continuous growth/frequency
+   (log lambda / dt_tc, dt_tc=0.05); compare the recovered St to the DNS lines.
+   This IS DMD applied in JEPA coordinates and gives the directly-comparable
+   "eigenvalues of JEPA's linearized latent dynamics".
+2. INTRINSIC predictor Jacobian / FLOQUET: linearize the learned tf-no-c (and
+   lstm-no-c) predictor along the baseline orbit (autograd Jacobian of the
+   one-step delay-embedded map), monodromy over one period -> Floquet
+   multipliers; report leading-multiplier modulus (~1 => marginally stable
+   limit cycle, the on-manifold story) and its argument (=> frequency).
+Also builds the DMD/linear-dynamics BASELINE RUNG the author agreed to: roll
+the fitted linear operator on POD-d latents as a forecaster and score it in the
+closure/forecast framework as "POD + linear dynamics", the rung between POD
+(static subspace) and the learned predictors, directly answering "isn't this
+just DMD?" with a number. Outputs outputs/session28/spectrum/. NOT in the
+master plan; strengthens S4 flow-physics (spectral validation) + the
+related-work DMD/Koopman contrast (intro already cites Schmid/Lusch).
+
 ### D195 (C-F wall-pressure sensing, now a MAIN result): STATE-recovery headline HOLDS, seed-robust; "recover the wake from the wall" does NOT (2026-06-13)
 
 `scripts/session28/sensing_cf.py` (+17 tests) rebuilt on v2p1: qDEIM primary
