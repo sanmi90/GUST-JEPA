@@ -1,0 +1,213 @@
+{
+  "config": {
+    "norm_divisor": 10.901049731324797,
+    "omega_iso_level": 0.5,
+    "sigma_px": 1.6,
+    "sigma_over_c": 0.05,
+    "window_frames": [
+      25,
+      55
+    ],
+    "impact_frame": 40,
+    "dt_tc": 0.05,
+    "te_x_index": 80,
+    "track_corr_threshold": 0.5,
+    "gp4_threshold": 0.6,
+    "peak_dcl_source": "dcl_peak_simple (headline) from per_encounter_physics.npz",
+    "lev_machinery": "scripts/session23/exp_lev_tracking.py (lev_from_field, large_scale)",
+    "splits": [
+      "test_b",
+      "test_c"
+    ],
+    "seed": 0
+  },
+  "no_impulse_claim_note": "D167 stands: we report ONLY the direct correlation between peak |Delta C_L| and peak |Gamma_LEV|. No impulse-theorem argument; we do NOT claim the LEV circulation explains lift.",
+  "gp4_gate": {
+    "n": 66,
+    "n_cases": 14,
+    "pearson_r": 0.5295368232850542,
+    "pearson_p_raw": 4.835749771423146e-06,
+    "pearson_ci": [
+      0.2675209868970489,
+      0.882266128842341
+    ],
+    "pearson_perm_p": 0.044495550444955505,
+    "spearman_r": 0.7507149566851061,
+    "spearman_p_raw": 3.9254831485790233e-13,
+    "spearman_ci": [
+      0.4121919789454406,
+      0.8870000669583701
+    ],
+    "spearman_perm_p": 0.0007999200079992001,
+    "gp4_threshold": 0.6,
+    "abs_corr_headline": 0.5295368232850542,
+    "branch": "appendix",
+    "headline_metric": "abs(pearson_r) of dcl_peak_simple vs peak |Gamma_LEV|"
+  },
+  "gsign_asymmetry": {
+    "matched_absG": [
+      0.5,
+      1.0,
+      1.5,
+      2.0,
+      3.0
+    ],
+    "n_pos": 22,
+    "n_neg": 20,
+    "peak_gamma_abs": {
+      "pos_mean": 0.15493952921427082,
+      "neg_mean": 0.3954236533006331,
+      "pos_median": 0.0837819478477572,
+      "neg_median": 0.23353291748949137,
+      "asymmetry_pos_minus_neg": -0.2404841240863623,
+      "mannwhitney_u": 145.0,
+      "mannwhitney_p_two_sided": 0.06062355375477688,
+      "n_pos": 22,
+      "n_neg": 20
+    },
+    "detach_tc": {
+      "pos_mean": 0.11500000000000002,
+      "neg_mean": 0.35000000000000003,
+      "pos_median": 0.025,
+      "neg_median": 0.35000000000000003,
+      "asymmetry_pos_minus_neg": -0.23500000000000001,
+      "mannwhitney_u": 25.5,
+      "mannwhitney_p_two_sided": 0.02403341130318597,
+      "n_pos": 10,
+      "n_neg": 12
+    },
+    "matched_paired_peak_gamma_diff_mean": -0.2329199957609851,
+    "matched_paired_peak_gamma_diff_ci": [
+      -0.513037511436556,
+      0.009786095610095533
+    ],
+    "n_matched_buckets": 5
+  },
+  "y_modulation": {
+    "by_absY": {
+      "0.00": {
+        "n": 4,
+        "mean_peak_gamma": 0.03606054891461065,
+        "corr_dcl_gamma": 0.9854141592506859
+      },
+      "0.10": {
+        "n": 42,
+        "mean_peak_gamma": 0.49057511628582934,
+        "corr_dcl_gamma": 0.28073041262856274
+      },
+      "0.20": {
+        "n": 8,
+        "mean_peak_gamma": 0.15423850676754342,
+        "corr_dcl_gamma": -0.315814575605594
+      },
+      "0.40": {
+        "n": 12,
+        "mean_peak_gamma": 0.19117353784836275,
+        "corr_dcl_gamma": 0.9453258834654398
+      }
+    },
+    "by_Ysign": {
+      "Y_pos": {
+        "n": 30,
+        "mean_peak_gamma": 0.31330666678219393,
+        "corr_dcl_gamma": 0.6742530150305638
+      },
+      "Y_neg": {
+        "n": 32,
+        "mean_peak_gamma": 0.46040454340186593,
+        "corr_dcl_gamma": 0.4327812764363975
+      },
+      "Y_zero": {
+        "n": 4,
+        "mean_peak_gamma": 0.03606054891461065,
+        "corr_dcl_gamma": 0.9854141592506859
+      }
+    }
+  },
+  "latent_tracking": {
+    "endpoints": {
+      "recon": {
+        "tf_noc": {
+          "n_encounters": 66,
+          "n_dns_lev_present": 66,
+          "n_tracked": 19,
+          "tracking_fraction": 0.2878787878787879,
+          "tracking_fraction_str": "19/66",
+          "mean_corr": 0.29613813722935145,
+          "median_corr": 0.368196068305752,
+          "track_corr_threshold": 0.5
+        },
+        "fukami": {
+          "n_encounters": 66,
+          "n_dns_lev_present": 66,
+          "n_tracked": 18,
+          "tracking_fraction": 0.2727272727272727,
+          "tracking_fraction_str": "18/66",
+          "mean_corr": 0.24568601102259924,
+          "median_corr": 0.29706468696735866,
+          "track_corr_threshold": 0.5
+        },
+        "pod": {
+          "n_encounters": 66,
+          "n_dns_lev_present": 66,
+          "n_tracked": 32,
+          "tracking_fraction": 0.48484848484848486,
+          "tracking_fraction_str": "32/66",
+          "mean_corr": 0.4148796525741619,
+          "median_corr": 0.40381037931428554,
+          "track_corr_threshold": 0.5
+        }
+      },
+      "forecast": {
+        "tf_noc": {
+          "n_encounters": 66,
+          "n_dns_lev_present": 66,
+          "n_tracked": 25,
+          "tracking_fraction": 0.3787878787878788,
+          "tracking_fraction_str": "25/66",
+          "mean_corr": 0.3348048704003867,
+          "median_corr": 0.35100297591089413,
+          "track_corr_threshold": 0.5
+        },
+        "fukami": {
+          "n_encounters": 66,
+          "n_dns_lev_present": 66,
+          "n_tracked": 13,
+          "tracking_fraction": 0.19696969696969696,
+          "tracking_fraction_str": "13/66",
+          "mean_corr": 0.12378458668014015,
+          "median_corr": 0.1326306426864098,
+          "track_corr_threshold": 0.5
+        },
+        "pod": {
+          "n_encounters": 66,
+          "n_dns_lev_present": 66,
+          "n_tracked": 21,
+          "tracking_fraction": 0.3181818181818182,
+          "tracking_fraction_str": "21/66",
+          "mean_corr": 0.2973114637158343,
+          "median_corr": 0.3664263152903968,
+          "track_corr_threshold": 0.5
+        }
+      }
+    },
+    "recon_paired_tf_vs_fukami": {
+      "n": 66,
+      "fam_a": "tf_noc",
+      "fam_b": "fukami",
+      "a_higher_corr_count": 37,
+      "n_effective": 66,
+      "sign_p_one_sided": 0.1945262302738964,
+      "mean_delta_corr": 0.050452126206752275,
+      "case_cluster_ci": [
+        -0.05614021719874016,
+        0.1610303208461143
+      ],
+      "case_cluster_case_mean_ci": [
+        -0.05896101607655137,
+        0.17572287025340133
+      ]
+    }
+  },
+  "n_encounters": 66
+}

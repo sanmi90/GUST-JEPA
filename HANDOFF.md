@@ -8202,6 +8202,43 @@ wrongly attributed fragmentation to the reconstructive ROLLOUT; Phase D must
 fix this regardless. numbers part topology_ce2.json (macros incl. the two
 deciding gaps + branch code 2).
 
+### D193 (Physics Track P4, LEV budget + gust-sign asymmetry): one clean DNS result, GP4 borderline->appendix, D146 latent-tracking DEAD on matched decoders (2026-06-13)
+
+`scripts/session28/p4_lev_budget.py` (+9 tests; LEV-ID imported verbatim from
+session23/exp_lev_tracking.py; raw fields /10.901 to match the iso-level; 22 s).
+NO impulse claim (D167). n=66 over 14 cases test_b+test_c.
+- GATE GP4 (peak |Delta C_L| vs peak Gamma_LEV): Pearson r 0.53 (case-clustered
+  CI [0.27,0.88], perm p 0.045) -> BELOW 0.6 -> APPENDIX (keyed on Pearson, the
+  stricter coeff, not gamed). Spearman rho 0.75 (CI [0.41,0.89], p 0.0008) ->
+  the association is MONOTONIC but NONLINEAR; report as a monotonic association
+  in the appendix, not a linear main-text correlation.
+- G-SIGN ASYMMETRY (the keepable, clean, model-free DNS result): negative gusts
+  produce a larger, longer-lived LEV; detachment time G>0 0.115 vs G<0 0.350
+  t/c (Mann-Whitney p 0.024, significant), peak |Gamma_LEV| 0.155 vs 0.395
+  (p 0.061 marginal). Quantifies the split-and-merge the PRF describes only
+  qualitatively. This is a defensible S4.4 physics line.
+- PART B, D146 regenerated on MATCHED decoders: the "predictive decode tracks
+  the LEV, reconstructive loses it" claim (old 42/42 vs 36/42) DOES NOT SURVIVE.
+  recon-decode LEV tracking (corr>0.5): tf_noc 19/66, fukami 18/66, POD 32/66
+  (POD tracks HIGHEST); tf-vs-fukami paired sign p 0.19 n.s. Same decoder
+  confound as field-recovery: POD's linear decoder reconstructs the large-scale
+  LEV best. DROP the D146 latent-LEV-tracking claim.
+
+**META-PATTERN (2026-06-13, important for the paper's spine):** across drift,
+topology, transport, field-recovery, and P4, the LATENT-IMAGE claims ("JEPA's
+latent specifically images/tracks physical structure X better") mostly DO NOT
+survive fair scrutiny -- decoder confounds (POD's linear decoder keeps winning
+field/LEV reconstruction) or metric artefacts (anisotropic-scale topology,
+norm-scaling transport). What HOLDS robustly: (1) the closure result -- the wake
+is LINEARLY READABLE from the predictive latent, baselines negative under every
+probe, beats the parametric floor; (2) STATE recovery from sparse wall pressure
+(JEPA best, clean, seed-robust); (3) the spectrum/limit-cycle (JEPA preserves
+the shedding St, marginally stable orbit, beats the DMD rung by +0.82); (4)
+model-free DNS physics (|G| degradation rho -0.56; phase reset; G-sign LEV
+asymmetry). The paper's defensible spine is (1)-(4); the decode/latent-image
+mechanism claims are appendix-or-cut. This is the honest core to build Phase D
+around.
+
 ### NEW track (author 2026-06-13): DMD/linear-dynamics rung + JEPA latent spectrum ("eigenvalues of JEPA")
 
 Motivated by the author's "isn't JEPA a DMD?" question. JEPA's dynamics are a
