@@ -1,30 +1,31 @@
 % Conclusions. Short, in the idiom of the reference papers' "Concluding remarks".
 
-We asked which reduced-order state keeps the wake that governs the transient load
-in parametric vortex-gust airfoil interactions, and reached a representational
-answer with a geometric mechanism: a predictive objective regularised against
-collapse builds a latent that keeps the wake and whose metric stays aligned with the
-optimal-transport geometry of the flow, in a trajectory-local sense, so that the
-rollout stays close to the data manifold, whereas a reconstruction objective smooths
-the wake away and its rollout drifts off the manifold. We tested this by comparing a
-fully unconditioned predictive latent (JEPA), in which no gust parameters enter the
-encoder or the predictor, a reconstructive observable-augmented autoencoder, and a
-proper orthogonal decomposition basis as reduced states at $\vRe = 5000$, under a
-protocol in which a single probe family was held fixed so that only the encoder
-varied, judging each first by the representational closure of the wake. On held-out
-cases the unconditioned predictive latent encodes the wake structure the others do
-not: its representational wake-enstrophy $R^2$ is $0.71$, essentially the $0.75$ of a
-model that does receive the gust parameters, where the reconstructive and linear
-baselines are near zero, and the per-encounter improvement survives case-level
-clustering and a family-wide correction, while the linear basis remains most
-competitive on the integrated impulse. The same separation appears coordinate-free
-in the rollout drift, the encounter topology, the optimal-transport geometry, and
-the large-scale leading-edge vortex. Rolled forward, the unconditioned predictor
-tracks the encounter, which we show but do not present as a validated forecast.
-Because the predictive encoder also differs in architecture and auxiliary
-supervision, matched controls attribute the advantage to the predictive objective
-trained with wake supervision, and show that removing the gust parameters costs
-almost nothing in what the latent encodes. The same predictive state is the most
+We asked which reduced-order state renders the wake that governs the transient load
+linearly readable in parametric vortex-gust airfoil interactions, and reached a
+representational answer with a geometric mechanism: a predictive objective
+regularised against collapse builds a latent from which the wake is linearly
+decodable and whose rollout stays on the encoded manifold, whereas a reconstruction
+objective smooths the wake away and its rollout drifts off the manifold along
+directions of negligible encoded variance. We tested this by comparing a predictive
+latent (JEPA, which takes no gust parameters), a reconstructive observable-augmented
+autoencoder, and a proper orthogonal decomposition basis as reduced states at
+$\vRe = 5000$, under a protocol in which a single probe family was held fixed so
+that only the encoder varied, judging each first by the representational closure of
+the wake. On held-out cases the predictive latent renders the wake linearly readable
+where the others do not: its representational wake-enstrophy $R^2$ is
+$\NumReprWakeJepaTf$ against the reconstructive and linear baselines at or below
+zero, the per-encounter advantage survives the pre-registered encounter-level
+multiplicity correction (though not the stricter case-level one), and the gust
+parameters alone do not supply the wake state (the parametric floor is negative),
+while the linear basis remains most competitive on the integrated impulse. The same
+separation appears coordinate-free in the rollout drift and in the topology of the
+encoded no-gust limit cycle. The latent also carries the flow's own clocks: its
+spectrum recovers the shedding frequency as a marginally stable orbit, the wake
+response scales with gust strength, and the gust resets the shedding phase. Rolled
+forward, the predictor tracks the encounter, which we show but do not present as a
+validated forecast. Because the predictive encoder also differs in architecture and
+auxiliary supervision, matched controls attribute the advantage to the predictive
+objective trained with wake supervision. The same predictive state is the most
 recoverable of the three from sparse wall pressure, so it is observable as well as a
 faithful carrier of the wake, the property a downstream estimator or controller
 would exploit. We do not claim a validated forecast, a controller, or a

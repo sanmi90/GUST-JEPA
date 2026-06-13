@@ -15,13 +15,10 @@ BatchNorm, the layer the characteristic-function regulariser below requires. The
 encoder is unconditional and carries no information about the gust parameters. The
 predictor is a six-layer autoregressive transformer of width $384$ with sixteen
 heads and dropout $0.1$, with a causal mask and rotary temporal positions. The
-predictor is also unconditional: it advances the latent from its own history alone,
-with no gust input, so the gust parameters $\cvec = (G, D, Y)$ enter nowhere in the
-model. A conditioned variant, in which $\cvec$ enters the predictor through adaptive
-layer normalisation initialised to the identity (AdaLN-Zero), is reported only as a
-control (\S\ref{sec:res_controls}). Training minimises the one-step latent
-prediction loss plus a scheduled-sampling rollout term and the regulariser below,
-with AdamW and bf16 mixed precision.
+predictor advances the latent from its own history alone, with no gust input, so
+the gust parameters $\cvec = (G, D, Y)$ enter nowhere in the model. Training
+minimises the one-step latent prediction loss plus a scheduled-sampling rollout
+term and the regulariser below, with AdamW and bf16 mixed precision.
 
 \begin{figure}
   \centering
@@ -69,13 +66,12 @@ for this class of study.
 
 \subsubsection*{Training-set fit}
 For reference, table~\ref{tab:b1_closure_train_r2}
-reports the in-distribution training fit of the forecast rollout (conditioned model)
-that the held-out closure of \S\ref{sec:res_closure} must be read against. The
-predictive latent attains the highest training fit (mean $R^2 = 0.835$ at $d = 64$),
-but this is an in-distribution number, not the held-out result: the ordering of the
-families is established by the representational closure of table~\ref{tab:closure}(a),
-and the unconditioned held-out forecast mean is markedly lower
-($0.36$, table~\ref{tab:closure}(b)), as it must be.
+reports the in-distribution training fit of the forecast rollout that the held-out
+closure of \S\ref{sec:res_closure} must be read against. The predictive latent
+attains the highest training fit, but this is an in-distribution number, not the
+held-out result: the ordering of the families is established by the representational
+closure of table~\ref{tab:closure}(a), and the held-out forecast mean is markedly
+lower, as it must be.
 
 \begin{table}
   \centering

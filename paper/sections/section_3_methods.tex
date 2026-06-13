@@ -10,8 +10,8 @@
 \label{sec:methods_arch}
 \label{sec:methods_loss}
 
-The model is fully unconditioned: no gust parameters enter the encoder or the
-predictor. The predictive encoder $E_\theta$ maps the mid-plane vorticity field
+The model takes no gust parameters: neither the encoder nor the predictor receives
+$(G, D, Y)$. The predictive encoder $E_\theta$ maps the mid-plane vorticity field
 $\omegaz(192,96)$ to a latent $\zvec \in \mathbb{R}^d$ at $d \in \{16, 32, 64\}$. It
 is a hybrid network: three convolutional downsampling stages produce a
 $24 \times 12 \times 256$ feature map, a six-layer vision transformer processes
@@ -25,12 +25,9 @@ priori (\S\ref{sec:discussion}).
 
 The predictor $P_\phi$ advances the latent in time. It is a six-layer
 autoregressive transformer with rotary positional embeddings and a causal mask,
-and it is unconditional: it advances the latent from its own history alone, with no
-gust input, so the gust parameters enter nowhere in the model. Its internal
-structure is given in Appendix~\ref{app:reg}. We report a conditioned variant, in
-which $\cvec$ enters the predictor through adaptive layer-norm modulation, only as a
-control (\S\ref{sec:res_controls}); it sharpens the in-distribution forecast but
-leaves the representation essentially unchanged. Figure~\ref{fig:method}(a) shows
+and it advances the latent from its own history alone, with no gust input, so the
+gust parameters enter nowhere in the model. Its internal structure is given in
+Appendix~\ref{app:reg}. Figure~\ref{fig:method}(a) shows
 the encoder and predictor, and panel~(b) sets out the matched-predictor evaluation
 protocol used throughout; the contrast between the predictive training signal and
 the reconstructive one, in which the reconstructive autoencoder passes the field at
@@ -106,7 +103,7 @@ supervision.
     \caption{}
     \label{fig:method_eval}
   \end{subfigure}
-  \caption{The unconditioned predictive model and how it is evaluated. (a) The
+  \caption{The predictive model and how it is evaluated. (a) The
   encoder maps the mid-plane vorticity field to a latent $\zvec_t$, and the
   autoregressive predictor advances the latent from its own history; no gust
   parameters enter the encoder or the predictor. The two auxiliary observable heads
@@ -130,7 +127,7 @@ pipeline, and only the encoder differs. Each encoder produces a latent
 trajectory $\zvec_{1:T}$ from the vorticity fields, and an identical probe family
 maps a latent to a physical observable for evaluation
 (figure~\ref{fig:method}(b)). The probe family is held fixed across the three
-encoder families, and the unconditioned predictor is shared by all of them. The
+encoder families, and the predictor is shared by all of them. The
 latent dimension is matched within each family: JEPA at $d \in \{16, 32, 64\}$, the
 reconstructive autoencoder at $d \in \{3, 32, 64\}$ to include both the published
 $d = 3$ recipe and matched-capacity variants, and POD at $d \in \{16, 32, 64\}$. The
@@ -150,8 +147,8 @@ recovers each of the six observables, the wake in particular. This isolates what
 encoder carries, with no rollout. We report it as the held-out coefficient of
 determination $R^2$ on test\_b and test\_c, with the per-observable mean absolute
 error alongside, and bootstrap $95\%$ confidence intervals over encounters. As a
-secondary, confirmatory measure we also report forecast closure: the unconditioned
-predictor is rolled recursively from the impact frame to $H = 16$, and the same
+secondary, confirmatory measure we also report forecast closure: the
+predictor is rolled recursively from the pre-impact context to $H = 16$, and the same
 probe maps the predicted latent to each observable. A small forecast error means the
 encoder produces a latent whose dynamics, propagated by the predictor, retain the
 information the probe needs; a large error means either that the encoder discarded
@@ -182,7 +179,7 @@ parameters alone could explain, so that any closure above it is genuinely suppli
 by the latent state. We compute it with a kernel-ridge regressor that maps
 $\cvec = (G,D,Y)$ directly to each observable at $H = 16$, with no latent input, fit
 on training and evaluated on the held-out splits. On wake enstrophy this floor is
-low, so the unconditioned latent's wake closure is not something the parameters
+low, so the latent's wake closure is not something the parameters
 could have supplied. At the impact frame the same parameter floor is high, because
 the just-released gust nearly determines the instantaneous state; the gap opens as
 the wake evolves (\S\ref{sec:res_closure}).
