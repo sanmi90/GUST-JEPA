@@ -45,7 +45,7 @@ latent. The same ordering holds on the training, validation, and extrapolation
 
 \begin{figure}
   \centering
-  \includegraphics[width=\linewidth]{sections/figures/results/fig4_closure.pdf}
+  \includegraphics[width=\linewidth]{sections/figures/results/fig4_closure_v2p1.pdf}
   \caption{Representational closure of the predictive latent at $H = 16$ after gust
   impact, the headline result. (a) Held-out $R^2$ of a fixed linear probe applied to
   the simulation-encoded latent (no rollout) for each of the six observables, on the
@@ -78,7 +78,7 @@ forces collapse, consistent with the three-dimensional observability boundary of
 
 \begin{figure}
   \centering
-  \includegraphics[width=\linewidth]{sections/figures/results/figA_traces.pdf}
+  \includegraphics[width=\linewidth]{sections/figures/results/figA_traces_v2p1.pdf}
   \caption{The predictive rollout tracks the encounter, shown qualitatively.
   Predicted observables through representative held-out encounters (rows), for the
   lift coefficient, the wake enstrophy, and the negative circulation (columns). The
@@ -274,13 +274,13 @@ the encounter through impact before drifting only at long times.
 
 \begin{figure}
   \centering
-  \includegraphics[width=0.7\linewidth]{sections/figures/results/fig_horizon_sweep.pdf}
+  \includegraphics[width=0.7\linewidth]{sections/figures/results/fig_horizon_sweep_v2p1.pdf}
   \caption{Relative drift of the predictive rollout on test\_b versus forecast
   horizon $H$, measured as the deviation of the rolled latent from the
   simulation-encoded latent normalised by the encoded-latent scale,
   $\lVert \widehat{\zvec}_{\text{rollout}} - \zvec_{\text{DNS}}\rVert /
-  \lVert \zvec_{\text{DNS}}\rVert$. The transformer predictor (tf-no-c) and a
-  recurrent variant (lstm-no-c) drift gradually and stay bounded. This relative
+  \lVert \zvec_{\text{DNS}}\rVert$. The transformer predictor (tf-no-c)
+  drifts gradually and stays bounded. This relative
   deviation understates the family separation, which is the Mahalanobis
   manifold-departure of table~\ref{tab:latent_drift}: the reconstructive rollout
   exits along low-variance directions, small in this norm but large in Mahalanobis.}
@@ -358,7 +358,7 @@ encoding property, distinct from the rollout manifold departure above and comput
 on the simulation-encoded latents.
 \begin{figure}
   \centering
-  \includegraphics[width=0.98\linewidth]{sections/figures/results/fig_persistence.pdf}
+  \includegraphics[width=0.98\linewidth]{sections/figures/results/fig_persistence_v2p1.pdf}
   \caption{Persistent homology of the encoded no-gust limit cycle on test\_b, under
   the per-family whitened metric that removes anisotropic coordinate scale. Left and
   centre: representative Vietoris--Rips $H_1$ persistence diagrams of the encoded
@@ -505,7 +505,7 @@ coordinate a controller would use, and do not draw a family comparison from the
 incompletely-observed return.
 \begin{figure}
   \centering
-  \includegraphics[width=\linewidth]{sections/figures/results/figC_cycle.pdf}
+  \includegraphics[width=\linewidth]{sections/figures/results/figC_cycle_v2p1.pdf}
   \caption{The gust encounter in the predictive latent. (a) Distance of the gust
   trajectory to the baseline orbit (full latent, in units of the orbit diameter;
   the grey band is the baseline orbit thickness): the encounter departs the baseline
@@ -524,12 +524,11 @@ $\Delta e = e_{\text{AE}} - e_{\text{JEPA}}$ in held-out wake-enstrophy error
 directly against each gust axis with a locally weighted regression and a
 bootstrapped band (figure~\ref{fig:error_maps}). The advantage is not uniform
 across the envelope. It grows with the gust core diameter $D$ (Spearman
-$\rho = 0.42$ on the encoded latent, $0.53$ under forecast) and toward
-off-midplane wall-normal offset $Y$ ($\rho = 0.49$ and $0.45$), both significant,
-while its dependence on the gust strength $G$ is weak on the encoded latent and
-moderate under forecast. The predictive advantage therefore concentrates away
-from the $Y \approx 0$ training mass and at the larger cores that most reorganise
-the wake, consistent with the weak $Y$ resolution of the probe above. The
+$\rho = 0.36$ on the encoded latent, significant), while its dependence on the gust
+strength $G$ and the wall-normal offset $Y$ is weak and not significant
+($\rho = -0.13$ and $+0.03$). The predictive advantage therefore concentrates at
+the larger cores that most reorganise the wake; we do not read a $Y$ trend, in
+keeping with the weak $Y$ resolution of the probe above. The
 shedding phase at impact, the axis the gust-response literature emphasises
 \citep{fukami2024control}, is only weakly sampled by this dataset: impact is fixed
 near a single convective instant while the gust recurs about every two shedding
@@ -538,16 +537,16 @@ phase-resolved trend is not identifiable here, which a design that varies the
 impact phase would isolate.
 \begin{figure}
   \centering
-  \includegraphics[width=\linewidth]{sections/figures/results/fig_error_maps.png}
+  \includegraphics[width=\linewidth]{sections/figures/results/fig_error_maps_v2p1.png}
   \caption{Per-encounter paired improvement
   $\Delta e = e_{\text{AE}} - e_{\text{JEPA}}$ in held-out wake-enstrophy error
   against the gust strength $G$, core diameter $D$, wall-normal offset $Y$, and
   the baseline shedding phase at impact $\phi$ (test\_b, $n = 42$); positive
   $\Delta e$ means the predictive latent carries the smaller error. Each panel
   shows the per-encounter values, a locally weighted (LOWESS) trend, and a
-  bootstrap band over encounters. The predictive advantage grows with $D$ and
-  toward off-midplane $Y$; the shedding-phase axis falls into two clusters because
-  impact is fixed near a single convective instant.}
+  bootstrap band over encounters. The predictive advantage grows with $D$
+  (significant) but shows no significant $G$ or $Y$ trend; the shedding-phase axis
+  falls into two clusters because impact is fixed near a single convective instant.}
   \label{fig:error_maps}
 \end{figure}
 
@@ -568,17 +567,16 @@ full-resolution and small-scale field fidelity are not claimed.
 
 \begin{figure}
   \centering
-  \includegraphics[width=\linewidth]{sections/figures/results/figD_reconstructions.pdf}
-  \caption{Decoded vorticity at the impact frame on held-out encounters from the
-  three splits (rows: a trained-gust test\_a encounter, an interpolation test\_b
-  encounter, and a $|G| = 4$ test\_c encounter) for the simulation and the
-  predictive, reconstructive, and POD decodes (columns). The predictive decoder is
-  blurry by design but localises the impingement; the reconstructive autoencoder
-  collapses toward a near-uniform field on the held-out interpolation condition,
-  while the linear basis is amplitude-accurate. All families degrade in the
-  $|G| = 4$ regime, reported as the observability boundary of
-  \S\ref{sec:flow_physics} rather than as a generalisation claim. Field-space
-  similarity is reframed by the optimal-transport metric introduced below.}
+  \includegraphics[width=\linewidth]{sections/figures/results/figD_reconstructions_v2p1.pdf}
+  \caption{Decoded vorticity at the impact frame on held-out encounters (rows: an
+  interpolation test\_b encounter and a $|G| = 4$ test\_c encounter) for the
+  simulation and the predictive, reconstructive, and POD decodes (columns). The
+  predictive decoder is blurry by design but localises the impingement; the
+  reconstructive autoencoder collapses toward a near-uniform field on the held-out
+  interpolation condition, while the linear basis is amplitude-accurate. All
+  families degrade in the $|G| = 4$ regime, reported as the observability boundary
+  of \S\ref{sec:flow_physics} rather than as a generalisation claim. Field-space
+  similarity is read only as a labelled decode ceiling (\S\ref{sec:res_physical}).}
   \label{fig:recon}
 \end{figure}
 
@@ -639,7 +637,7 @@ rests on the representational closure and the scale-resolved enstrophy tracking
 above, not on per-family decode fidelity.
 \begin{figure}
   \centering
-  \includegraphics[width=0.98\linewidth]{sections/figures/results/fig_scale_decomp.pdf}
+  \includegraphics[width=0.98\linewidth]{sections/figures/results/fig_scale_decomp_v2p1.pdf}
   \caption{Gaussian scale decomposition ($\sigma/c = 0.05$) of the held-out
   reconstructions. Top: large-scale vorticity for the simulation, the predictive
   decode, and the reconstructive autoencoder at $H = 16$; the predictive latent
@@ -690,7 +688,7 @@ pressure, and recovers the field at least as well as any matched representation.
 
 \begin{figure}
   \centering
-  \includegraphics[width=\linewidth]{sections/figures/results/figF_observability.pdf}
+  \includegraphics[width=\linewidth]{sections/figures/results/figF_observability_v2p1.pdf}
   \caption{Cross-family pressure observability under the target-blind qDEIM sensor
   placement. (a) Latent-state recovery $R^2$ versus sensor count $K$: the
   predictive (JEPA) state is the most recoverable, the linear basis the least.
