@@ -475,62 +475,44 @@ ask where in the gust envelope, and where in the flow field, the latent renders 
 wake readable. The parameter dependence reveals one clear weakness, and it is worth
 noting that the latent encodes these parameters despite never being trained on them.
 Probing the predictive latent for the gust parameters on test\_b recovers the gust
-strength $G$ and the core diameter $D$ ($R^2 = 0.46$ and $0.80$) but barely resolves
-the wall-normal offset $Y$ ($R^2 = 0.10$). This is a property of the data rather than of the
+strength $G$ and the core diameter $D$ ($R^2 = \NumProbeG$ and $\NumProbeD$) but
+does not resolve the wall-normal offset $Y$ ($R^2 = \NumProbeY$, the confidence
+interval straddling zero). This is a property of the data rather than of the
 architecture: the training mass concentrates near $Y \approx 0$, so encounters
 at different offsets within the envelope are weakly separated along $Y$, and the
 latent inherits that weakness. Any deployment-time parameter estimate should
-treat $Y$ as a nuisance variable the encoder resolves only weakly.
+treat $Y$ as a nuisance variable the encoder does not resolve.
 
 The same latent can also be read relative to the undisturbed shedding cycle.
-Because the undisturbed wake
-is a limit cycle (\S\ref{sec:flow_physics}), an encounter is naturally described
-by its phase and amplitude relative to that cycle, the same reduction used to
-design gust-mitigation control for these flows \citep{fukami2024control}. Reading
-the predictive latent this way makes ``recovery'' precise: it is the return of
-the latent trajectory to the baseline limit cycle. The predictive latent of the
-undisturbed case does trace a closed periodic orbit
-(figure~\ref{fig:phase_amplitude}): concatenating the four no-gust episodes, the
-return distance is $1.0\%$ of the orbit diameter, and the four episodes overlap
-the same loop, with a shedding period of about $56$ frames ($2.8$ convective
-times, Strouhal number near $0.36$). A phase advances monotonically along it
-(via the Hilbert analytic signal of the two leading latent principal components),
-though the orbit lives in more than two dimensions, so the phase is a reduction
-rather than a complete coordinate. A gust encounter departs this orbit and is
-carried back toward it under the predictive rollout while the reconstructive
-rollout departs further: the median return-to-orbit distance on test\_b is
-smaller for the predictive latent at every horizon, and the separation is
-bootstrap-robust at $H = 64$ (predictive $8.70$ versus reconstructive $9.96$,
-$95\%$ confidence interval on the paired difference $[1.13, 3.25]$), marginal at
-$H = 32$. One caveat applies: the simulation gust
-trajectories do not themselves fully return to the baseline orbit within the
-$120$-frame window. That window is the gust-release period itself
-($6\,t/c$ at $\Delta t = 0.05\,t/c$, with impact near $2\,t/c$), so only about
-$4\,t/c$ of post-impact relaxation is ever observed before the next gust is
-released, short of a full return; this is a window-length limitation set by the
-gust-release cadence, and at fixed core diameter it is not strength-dependent.
-The comparison therefore measures the relative drift direction (the predictive
-rollout contracts toward the orbit, the reconstructive one expands away), not a
-completed physical recovery. The result is the same at $d = 32$.
-This limit cycle and the persistent cycle of the previous subsection are the same
-object viewed dynamically and topologically.
+Because the undisturbed wake is a limit cycle (\S\ref{sec:res_flow_physics}), an
+encounter is naturally described by its phase and amplitude relative to that cycle,
+the same reduction used to design gust-mitigation control for these flows
+\citep{fukami2024control}. The predictive latent of the undisturbed case traces a
+closed periodic orbit (figure~\ref{fig:phase_amplitude}): concatenating the no-gust
+episodes, the return distance is $1.0\%$ of the orbit diameter and the episodes
+overlap the same loop, with a shedding period near the full-cycle Strouhal number
+$\NumUndistStSub$ (\S\ref{sec:res_flow_physics}), and a phase advances monotonically
+along it via the Hilbert analytic signal of the two leading principal components.
+This is the same object the spectrum of \S\ref{sec:res_flow_physics} identifies as a
+marginally stable orbit and the topology of \S\ref{sec:res_drift} identifies as a
+single persistent cycle. A gust encounter departs this orbit and only partially
+relaxes back: the simulation trajectories do not fully return within the $120$-frame
+window, which is the gust-release period itself ($6\,t/c$ at
+$\Delta t = 0.05\,t/c$, impact near $2\,t/c$), so only about $4\,t/c$ of post-impact
+relaxation is observed before the next release, a window-length limitation of the
+fixed gust cadence. We therefore read the latent cycle as the phase-amplitude
+coordinate a controller would use, and do not draw a family comparison from the
+incompletely-observed return.
 \begin{figure}
   \centering
   \includegraphics[width=\linewidth]{sections/figures/results/figC_cycle.pdf}
-  \caption{The gust encounter in the predictive latent, for a strong negative
-  gust $(G, D, Y) = (-3.0, 1.5, -0.1)$. (a) Distance of the gust trajectory to the
-  baseline orbit (full latent, in units of the orbit diameter; the grey band is
-  the baseline orbit thickness): the encounter departs the baseline cycle and only
-  partially relaxes back, without closing within the inter-gust window;
-  the single-cycle topology of the encoded latent
-  is established coordinate-free in figure~\ref{fig:persistence}. (b) The orbit
-  phase relative to the impact frame. (c) Mid-plane vorticity at the four stages
-  (rows) for the simulation, the predictive decode, and the reconstructive decode
-  (columns); the predictive decode localises the impingement while the
-  reconstructive decode collapses, with the optimal-transport field distance
-  between each decode and the simulation annotated at each stage (largest for the
-  reconstructive decode near impact). The numbered stages are those of
-  figure~\ref{fig:traces}.}
+  \caption{The gust encounter in the predictive latent. (a) Distance of the gust
+  trajectory to the baseline orbit (full latent, in units of the orbit diameter;
+  the grey band is the baseline orbit thickness): the encounter departs the baseline
+  cycle and only partially relaxes back within the inter-gust window; the
+  single-cycle topology of the encoded latent is established coordinate-free in
+  figure~\ref{fig:persistence}. (b) The orbit phase relative to the impact frame.
+  The numbered stages are those of figure~\ref{fig:traces}.}
   \label{fig:phase_amplitude}
 \end{figure}
 
@@ -600,16 +582,15 @@ full-resolution and small-scale field fidelity are not claimed.
   \label{fig:recon}
 \end{figure}
 
-The caution is that field-space similarity scores are misleading here. On a
-held-out interpolation encounter the reconstructive autoencoder attains a high
-structural similarity yet a peak reconstructed vorticity magnitude of only
-$0.36$ against a target peak near $9.7$: it has collapsed to a near-uniform mean
-field and lost the vortex-impingement signature, and the high similarity merely
-reflects bulk agreement with a field that is itself mostly quiescent away from
-the impact region. The predictive latent localises the impingement at the right
-position and sign (peak magnitude $5.31$) but its visualisation decoder is blurry
-by construction, and the linear basis is amplitude-accurate (peak $4.10$) since
-its objective is amplitude-optimal.
+The caution is that field-space similarity scores are misleading here. On held-out
+interpolation encounters the reconstructive autoencoder can attain a high structural
+similarity while collapsing to a near-uniform mean field that has lost the
+vortex-impingement signature, the high similarity merely reflecting bulk agreement
+with a field that is mostly quiescent away from the impact region. The predictive
+decode localises the impingement at the right position and sign but is blurry by
+construction, and the linear basis is amplitude-accurate since its objective is
+amplitude-optimal. Field-space similarity therefore cannot rank the latents, which
+is why we read it as a decode ceiling below.
 
 This is why field-space scores cannot rank the latents here, and we are explicit
 about it. Decoding each family's faithfully encoded latent to a field and scoring
@@ -632,19 +613,16 @@ following \citep{odaka2026,motoori2019}) separates the large-scale vortical
 structures responsible for the lift peaks from the fine scale, applied to the
 simulation field and to each family's reconstruction
 (figure~\ref{fig:scale_decomp}). On test\_b the large-scale wake enstrophy of the
-predictive reconstruction tracks the simulation closely (Pearson correlation
-$0.89$ at impact and $0.91$ at $H = 16$, relative error $0.22$), while the
-reconstructive autoencoder collapses it (correlation $0.23$ and $0.61$, relative
-error near $0.8$, retaining only $16$ to $20\%$ of the large-scale amplitude and
-almost none of the small-scale energy): it smooths the leading-edge vortex and
-shear layer away. The linear basis has comparable large-scale correlation to the
-predictive latent but worse amplitude (relative error $0.34$ to $0.38$), so the
-claim is specific: the predictive latent tracks the simulation's large-scale
-wake structure better than the reconstructive autoencoder on both correlation and
-amplitude, and better than the linear basis on amplitude. Across the staged
-encounter the simulation large-scale enstrophy rises from the gust-induced
-leading-edge flux through the LEV roll-up and peak-load shedding; the predictive
-reconstruction follows that rise while the reconstructive one stays flat. This is
+predictive decode tracks the simulation better than the reconstructive autoencoder,
+on both correlation (Pearson $\NumScaleDecodeCorrJepaTf$ against
+$\NumScaleDecodeCorrFukami$ at $H = 16$) and amplitude (relative error $0.12$
+against $0.71$): the reconstructive decode smooths the leading-edge vortex and
+shear layer away. The linear basis tracks the correlation comparably
+($\NumScaleDecodeCorrPod$), the same decoder confound as the decode ceiling above,
+its linear decoder reconstructing the smooth large-scale field well, so the specific
+claim is that the predictive decode tracks the large-scale wake better than the
+reconstructive autoencoder, while field-space decode correlation does not separate
+it from the linear basis. This is
 where the wake-enstrophy advantage of \S\ref{sec:res_closure} becomes a statement
 about the leading-edge vortex and shear layer rather than about a scalar. We are
 deliberately careful about the converse question, whether a family's \emph{decode}

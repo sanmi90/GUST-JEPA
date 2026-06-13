@@ -1,0 +1,186 @@
+{
+  "generated_iso": "2026-06-13T19:43:03.323101+00:00",
+  "split_manifest": "/home/carlos/GUST-JEPA/configs/splits/split_v2p1.json",
+  "omega_manifest": "/home/carlos/GUST-JEPA/outputs/data_pipeline/v2p1/manifest.json",
+  "cache_root": "/home/carlos/PREVENT/data/processed/vortex-jepa",
+  "config": {
+    "n_folds": 5,
+    "cv_seed": 0,
+    "boot_seed": 0,
+    "n_boot_case": 10000,
+    "sigma_c": 0.05
+  },
+  "q1_parameter_probe": {
+    "family": "jepa_tf_noc_d64_s42",
+    "regime": "IMPACT-frame z (parameter probe; CLAUDE.md)",
+    "probe": "krr_rbf",
+    "split": "test_b",
+    "n_train_enc": 229,
+    "n_test_b_enc": 42,
+    "n_folds": 5,
+    "per_param": {
+      "G": {
+        "r2_test_b": 0.8260311482331958,
+        "ci_lo": 0.6084752599984634,
+        "ci_hi": 0.9496645177993706,
+        "old_v2": 0.46
+      },
+      "D": {
+        "r2_test_b": 0.651757578233563,
+        "ci_lo": 0.5427084368546691,
+        "ci_hi": 0.7642210099050022,
+        "old_v2": 0.8
+      },
+      "Y": {
+        "r2_test_b": -0.03420173330505305,
+        "ci_lo": -0.876648476201733,
+        "ci_hi": 0.6305253899906645,
+        "old_v2": 0.1
+      }
+    },
+    "weakest_param": "Y",
+    "y_is_weakest": true
+  },
+  "q2_limit_cycle_return": {
+    "horizon_cap": 24,
+    "horizon_used_pred": 24,
+    "horizon_used_recon": 24,
+    "orbit_definition": "settled undisturbed Baseline predictive-latent orbit (global raw frame >= 400, t/c >= 20; D180), per family in its own latent space",
+    "distance_metric": "HEADLINE: min EUCLIDEAN distance to the orbit cloud in units of the 95th-pctl pairwise orbit distance (diameter). Mahalanobis is an ill-conditioned cross-check (orbit effective dim ~3 of 64).",
+    "pred_family": "jepa_tf_noc_d64_s42",
+    "recon_family": "fukami_d64_s42",
+    "n_test_b_enc": 42,
+    "pred_median_return": 6.402751751877306,
+    "recon_median_return": 2.290536135424368,
+    "paired_delta_recon_minus_pred": {
+      "enc_mean": -2.8774441790206717,
+      "enc_mean_ci": [
+        -5.047486144574793,
+        -0.8059875736405624
+      ],
+      "case_mean": -2.8952954318881474,
+      "case_mean_ci": [
+        -5.146753471029134,
+        -0.7192514711060396
+      ],
+      "median_delta": -3.0566600724841617
+    },
+    "sign_test_pred_closer": {
+      "k_pred_closer": 10,
+      "n_eff": 42,
+      "p_one_sided": 0.9998642303828547
+    },
+    "case_level_paired": {
+      "n_cases": 10,
+      "cases_jepa_better": 4,
+      "wilcoxon_stat": 10.0,
+      "wilcoxon_p_one_sided": 0.9677734375,
+      "sign_p_one_sided": 0.828125,
+      "median_case_mean_delta": -2.852105350352968
+    },
+    "predictive_closer": false,
+    "maha_crosscheck": {
+      "pred_median_return": 79.73316129072819,
+      "recon_median_return": 6.726930355854057,
+      "paired_delta_recon_minus_pred": {
+        "enc_mean": -57.387208825331605,
+        "enc_mean_ci": [
+          -74.23161489511315,
+          -39.51783487441568
+        ],
+        "case_mean": -58.18495528056235,
+        "case_mean_ci": [
+          -74.7197943697575,
+          -39.422039881420126
+        ],
+        "median_delta": -62.88175777436466
+      },
+      "sign_test_pred_closer": {
+        "k_pred_closer": 2,
+        "n_eff": 42,
+        "p_one_sided": 0.9999999999902229
+      },
+      "case_level_paired": {
+        "n_cases": 10,
+        "cases_jepa_better": 1,
+        "wilcoxon_stat": 1.0,
+        "wilcoxon_p_one_sided": 0.9990234375,
+        "sign_p_one_sided": 0.9990234375,
+        "median_case_mean_delta": -61.80436594058539
+      },
+      "predictive_closer": false
+    },
+    "pred_geometry": {
+      "orbit_n_points": 80,
+      "orbit_effective_dim": 3.5726348559801386,
+      "orbit_diameter_euclid": 1.630781414708099,
+      "orbit_diameter_maha": 11.202535618569753,
+      "horizon_used": 24
+    },
+    "recon_geometry": {
+      "orbit_n_points": 80,
+      "orbit_effective_dim": 2.4108233262592655,
+      "orbit_diameter_euclid": 1.0487482251710425,
+      "orbit_diameter_maha": 5.994006402891919,
+      "horizon_used": 24
+    },
+    "old_v2": {
+      "pred": 8.7,
+      "recon": 9.96,
+      "horizon": 64,
+      "note": "old v2 distances are in raw latent units at H=64; not directly comparable"
+    }
+  },
+  "q3_scale_decode_tracking": {
+    "split": "test_b",
+    "sigma_c": 0.05,
+    "scale": "large (Gaussian sigma/c=0.05)",
+    "metric": "Pearson corr of decoded vs DNS large-scale wake enstrophy over [25,55]",
+    "dns_truth": "cache omega_z, v2p1 pipeline mask+clip (preprocess_raw, raw scale)",
+    "per_family": {
+      "jepa_tf_noc": {
+        "n_enc": 42,
+        "n_finite_corr": 42,
+        "median_corr": 0.5571508913438834,
+        "mean_corr": 0.5411738487217684,
+        "corr_case_clustered_ci": [
+          0.40462606706183657,
+          0.6813984648223042
+        ],
+        "median_rel_amp_err": 0.11850867943202681,
+        "mean_rel_amp_err": 0.2727378999634561
+      },
+      "fukami": {
+        "n_enc": 42,
+        "n_finite_corr": 42,
+        "median_corr": 0.46760978834883615,
+        "mean_corr": 0.4066669210089876,
+        "corr_case_clustered_ci": [
+          0.27364853596406447,
+          0.5570126696592399
+        ],
+        "median_rel_amp_err": 0.7088308943589505,
+        "mean_rel_amp_err": 1.1454222410381694
+      },
+      "pod": {
+        "n_enc": 42,
+        "n_finite_corr": 42,
+        "median_corr": 0.6881514117512245,
+        "mean_corr": 0.5770961503431418,
+        "corr_case_clustered_ci": [
+          0.46865550531664296,
+          0.6809560603870475
+        ],
+        "median_rel_amp_err": 0.15918086266645493,
+        "mean_rel_amp_err": 0.2796753456081082
+      }
+    },
+    "old_v2": {
+      "pred_corr_range": [
+        0.89,
+        0.91
+      ],
+      "note": "old v2: predictive tracks 0.89-0.91, reconstructive collapses"
+    }
+  }
+}

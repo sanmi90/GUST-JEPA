@@ -1,0 +1,131 @@
+{
+  "part": "s46",
+  "numbers": {
+    "s46_probe_G": {
+      "macro": "NumProbeG",
+      "value": 0.8260311482331958,
+      "fmt": "%.2f",
+      "ci_lo": 0.6084752599984634,
+      "ci_hi": 0.9496645177993706,
+      "n": 42,
+      "split": "test_b",
+      "endpoint": "representational",
+      "probe": "krr_rbf",
+      "observable": "G",
+      "run_tags": [
+        "jepa_tf_noc_d64_s42"
+      ],
+      "source": "s46_regen.py",
+      "note": "impact-frame parameter probe; 5-fold case-CV; case-clustered CI; old v2 = 0.46"
+    },
+    "s46_probe_D": {
+      "macro": "NumProbeD",
+      "value": 0.651757578233563,
+      "fmt": "%.2f",
+      "ci_lo": 0.5427084368546691,
+      "ci_hi": 0.7642210099050022,
+      "n": 42,
+      "split": "test_b",
+      "endpoint": "representational",
+      "probe": "krr_rbf",
+      "observable": "D",
+      "run_tags": [
+        "jepa_tf_noc_d64_s42"
+      ],
+      "source": "s46_regen.py",
+      "note": "impact-frame parameter probe; 5-fold case-CV; case-clustered CI; old v2 = 0.80"
+    },
+    "s46_probe_Y": {
+      "macro": "NumProbeY",
+      "value": -0.03420173330505305,
+      "fmt": "%.2f",
+      "ci_lo": -0.876648476201733,
+      "ci_hi": 0.6305253899906645,
+      "n": 42,
+      "split": "test_b",
+      "endpoint": "representational",
+      "probe": "krr_rbf",
+      "observable": "Y",
+      "run_tags": [
+        "jepa_tf_noc_d64_s42"
+      ],
+      "source": "s46_regen.py",
+      "note": "impact-frame parameter probe; 5-fold case-CV; case-clustered CI; old v2 = 0.10"
+    },
+    "s46_orbit_return_jepa_tf": {
+      "macro": "NumOrbitReturnJepaTf",
+      "value": 6.402751751877306,
+      "fmt": "%.2f",
+      "n": 42,
+      "split": "test_b",
+      "run_tags": [
+        "jepa_tf_noc_d64_s42"
+      ],
+      "source": "s46_regen.py",
+      "note": "median test_b return distance to settled Baseline orbit, orbit-diameter units, H=24"
+    },
+    "s46_orbit_return_fukami": {
+      "macro": "NumOrbitReturnFukami",
+      "value": 2.290536135424368,
+      "fmt": "%.2f",
+      "n": 42,
+      "split": "test_b",
+      "run_tags": [
+        "fukami_d64_s42"
+      ],
+      "source": "s46_regen.py",
+      "note": "median test_b return distance to settled Baseline orbit, orbit-diameter units, H=24"
+    },
+    "s46_orbit_return_paired_diff": {
+      "macro": "NumOrbitReturnPairedDiff",
+      "value": -2.8774441790206717,
+      "fmt": "%.3f",
+      "ci_lo": -5.047486144574793,
+      "ci_hi": -0.8059875736405624,
+      "n": 42,
+      "split": "test_b",
+      "run_tags": [
+        "jepa_tf_noc_d64_s42",
+        "fukami_d64_s42"
+      ],
+      "source": "s46_regen.py",
+      "note": "paired delta = recon - pred (>0 = predictive closer); case-clustered CI; sign-test p=0.9999 (k=10/42); NOT case_permutation_p (B6 lesson)"
+    },
+    "s46_scale_decode_corr_jepa_tf_noc": {
+      "macro": "NumScaleDecodeCorrJepaTf",
+      "value": 0.5411738487217684,
+      "fmt": "%.2f",
+      "ci_lo": 0.40462606706183657,
+      "ci_hi": 0.6813984648223042,
+      "n": 42,
+      "split": "test_b",
+      "observable": "wake_enstrophy",
+      "source": "s46_regen.py",
+      "note": "mean decoded-vs-DNS large-scale wake-enstrophy Pearson corr over [25,55] (median 0.56); median rel amp err +0.12; case-clustered CI on the mean"
+    },
+    "s46_scale_decode_corr_fukami": {
+      "macro": "NumScaleDecodeCorrFukami",
+      "value": 0.4066669210089876,
+      "fmt": "%.2f",
+      "ci_lo": 0.27364853596406447,
+      "ci_hi": 0.5570126696592399,
+      "n": 42,
+      "split": "test_b",
+      "observable": "wake_enstrophy",
+      "source": "s46_regen.py",
+      "note": "mean decoded-vs-DNS large-scale wake-enstrophy Pearson corr over [25,55] (median 0.47); median rel amp err +0.71; case-clustered CI on the mean"
+    },
+    "s46_scale_decode_corr_pod": {
+      "macro": "NumScaleDecodeCorrPod",
+      "value": 0.5770961503431418,
+      "fmt": "%.2f",
+      "ci_lo": 0.46865550531664296,
+      "ci_hi": 0.6809560603870475,
+      "n": 42,
+      "split": "test_b",
+      "observable": "wake_enstrophy",
+      "source": "s46_regen.py",
+      "note": "mean decoded-vs-DNS large-scale wake-enstrophy Pearson corr over [25,55] (median 0.69); median rel amp err +0.16; case-clustered CI on the mean"
+    }
+  }
+}

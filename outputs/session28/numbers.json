@@ -1,9 +1,9 @@
 {
   "_provenance": {
-    "generated_iso": "2026-06-13T16:50:00.346264+00:00",
-    "git_commit": "d74e26d581b5990c2c108df107565ebc06aba070",
+    "generated_iso": "2026-06-13T19:44:39.476061+00:00",
+    "git_commit": "fd8160669c74130925d242a00c0aef52667a12fe",
     "manifest_runs_sha256": "aa07e687f2080e7e7f0dea8d75f3b2af40a86fa68c19f828ae3ec98422e60bbe",
-    "n_parts": 13,
+    "n_parts": 14,
     "parts": [
       "closure_floor_full.json",
       "closure_headline.json",
@@ -12,6 +12,7 @@
       "e4_floor.json",
       "p4_lev.json",
       "p5_code.json",
+      "s46.json",
       "sensing_cf.json",
       "sensing_field_cf.json",
       "spectrum_dmd.json",
@@ -1394,7 +1395,133 @@
       "fmt": "%s",
       "macro": "CommitHash",
       "source": "eval_all.py",
-      "value": "d74e26d581b5"
+      "value": "fd8160669c74"
+    },
+    "s46_orbit_return_fukami": {
+      "fmt": "%.2f",
+      "macro": "NumOrbitReturnFukami",
+      "n": 42,
+      "note": "median test_b return distance to settled Baseline orbit, orbit-diameter units, H=24",
+      "run_tags": [
+        "fukami_d64_s42"
+      ],
+      "source": "s46_regen.py",
+      "split": "test_b",
+      "value": 2.290536135424368
+    },
+    "s46_orbit_return_jepa_tf": {
+      "fmt": "%.2f",
+      "macro": "NumOrbitReturnJepaTf",
+      "n": 42,
+      "note": "median test_b return distance to settled Baseline orbit, orbit-diameter units, H=24",
+      "run_tags": [
+        "jepa_tf_noc_d64_s42"
+      ],
+      "source": "s46_regen.py",
+      "split": "test_b",
+      "value": 6.402751751877306
+    },
+    "s46_orbit_return_paired_diff": {
+      "ci_hi": -0.8059875736405624,
+      "ci_lo": -5.047486144574793,
+      "fmt": "%.3f",
+      "macro": "NumOrbitReturnPairedDiff",
+      "n": 42,
+      "note": "paired delta = recon - pred (>0 = predictive closer); case-clustered CI; sign-test p=0.9999 (k=10/42); NOT case_permutation_p (B6 lesson)",
+      "run_tags": [
+        "jepa_tf_noc_d64_s42",
+        "fukami_d64_s42"
+      ],
+      "source": "s46_regen.py",
+      "split": "test_b",
+      "value": -2.8774441790206717
+    },
+    "s46_probe_D": {
+      "ci_hi": 0.7642210099050022,
+      "ci_lo": 0.5427084368546691,
+      "endpoint": "representational",
+      "fmt": "%.2f",
+      "macro": "NumProbeD",
+      "n": 42,
+      "note": "impact-frame parameter probe; 5-fold case-CV; case-clustered CI; old v2 = 0.80",
+      "observable": "D",
+      "probe": "krr_rbf",
+      "run_tags": [
+        "jepa_tf_noc_d64_s42"
+      ],
+      "source": "s46_regen.py",
+      "split": "test_b",
+      "value": 0.651757578233563
+    },
+    "s46_probe_G": {
+      "ci_hi": 0.9496645177993706,
+      "ci_lo": 0.6084752599984634,
+      "endpoint": "representational",
+      "fmt": "%.2f",
+      "macro": "NumProbeG",
+      "n": 42,
+      "note": "impact-frame parameter probe; 5-fold case-CV; case-clustered CI; old v2 = 0.46",
+      "observable": "G",
+      "probe": "krr_rbf",
+      "run_tags": [
+        "jepa_tf_noc_d64_s42"
+      ],
+      "source": "s46_regen.py",
+      "split": "test_b",
+      "value": 0.8260311482331958
+    },
+    "s46_probe_Y": {
+      "ci_hi": 0.6305253899906645,
+      "ci_lo": -0.876648476201733,
+      "endpoint": "representational",
+      "fmt": "%.2f",
+      "macro": "NumProbeY",
+      "n": 42,
+      "note": "impact-frame parameter probe; 5-fold case-CV; case-clustered CI; old v2 = 0.10",
+      "observable": "Y",
+      "probe": "krr_rbf",
+      "run_tags": [
+        "jepa_tf_noc_d64_s42"
+      ],
+      "source": "s46_regen.py",
+      "split": "test_b",
+      "value": -0.03420173330505305
+    },
+    "s46_scale_decode_corr_fukami": {
+      "ci_hi": 0.5570126696592399,
+      "ci_lo": 0.27364853596406447,
+      "fmt": "%.2f",
+      "macro": "NumScaleDecodeCorrFukami",
+      "n": 42,
+      "note": "mean decoded-vs-DNS large-scale wake-enstrophy Pearson corr over [25,55] (median 0.47); median rel amp err +0.71; case-clustered CI on the mean",
+      "observable": "wake_enstrophy",
+      "source": "s46_regen.py",
+      "split": "test_b",
+      "value": 0.4066669210089876
+    },
+    "s46_scale_decode_corr_jepa_tf_noc": {
+      "ci_hi": 0.6813984648223042,
+      "ci_lo": 0.40462606706183657,
+      "fmt": "%.2f",
+      "macro": "NumScaleDecodeCorrJepaTf",
+      "n": 42,
+      "note": "mean decoded-vs-DNS large-scale wake-enstrophy Pearson corr over [25,55] (median 0.56); median rel amp err +0.12; case-clustered CI on the mean",
+      "observable": "wake_enstrophy",
+      "source": "s46_regen.py",
+      "split": "test_b",
+      "value": 0.5411738487217684
+    },
+    "s46_scale_decode_corr_pod": {
+      "ci_hi": 0.6809560603870475,
+      "ci_lo": 0.46865550531664296,
+      "fmt": "%.2f",
+      "macro": "NumScaleDecodeCorrPod",
+      "n": 42,
+      "note": "mean decoded-vs-DNS large-scale wake-enstrophy Pearson corr over [25,55] (median 0.69); median rel amp err +0.16; case-clustered CI on the mean",
+      "observable": "wake_enstrophy",
+      "source": "s46_regen.py",
+      "split": "test_b",
+      "value": 0.5770961503431418
     },
     "sensing_causal_clip_delta": {
       "endpoint": "deployment",
