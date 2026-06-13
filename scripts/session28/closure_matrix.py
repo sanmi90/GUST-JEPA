@@ -142,6 +142,15 @@ class Config:
     min_pairs: int = 3
     family_filter: list[str] | None = None
     dim_filter: list[int] | None = None
+    # Per-encounter dump (B6 input; OPT-IN, leaves summary outputs untouched). When
+    # dump_per_encounter is True the cells matching the dump filter below also stash
+    # their per-encounter (y_pred, y_true, case_id, encounter_index) vectors so the
+    # paired tests in stats_harvest.py can be computed without re-deriving them.
+    dump_per_encounter: bool = False
+    dump_splits: tuple[str, ...] = ("test_b", "test_c")
+    dump_horizons: tuple[int, ...] = (16,)
+    dump_dims: tuple[int, ...] = (64,)
+    dump_tiers: tuple[str, ...] = ("pooled", "all")
 
 
 @dataclass
@@ -166,6 +175,7 @@ class SplitData:
     z: np.ndarray  # (n, T, d) float32
     case_ids: np.ndarray  # (n,) str
     impact: np.ndarray  # (n,) int64
+    enc_idx: np.ndarray  # (n,) int64 encounter index (for the per-encounter dump)
     y: dict[str, np.ndarray] = field(default_factory=dict)  # obs -> (n, T) float64
 
 
@@ -311,7 +321,7 @@ def load_split_data(
     keep = di >= 0
     if not keep.all():
         print(f"[closure] {label} {split}: {int((~keep).sum())} encounters dropped (no DNS row)")
-    z, cids, impact, di = z[keep], cids[keep], impact[keep], di[keep]
+    z, cids, impact, eis, di = z[keep], cids[keep], impact[keep], eis[keep], di[keep]
 
     dns_impact = dns_split_array(dns, split, "impact_frame").astype(np.int64)[di]
     n_mismatch = int((dns_impact != impact).sum())
@@ -322,7 +332,7 @@ def load_split_data(
             "(the rollout was seeded from it)"
         )
     y = {obs: dns_split_array(dns, split, obs)[di].astype(np.float64) for obs in observables}
-    return SplitData(z=z, case_ids=cids, impact=impact, y=y)
+    return SplitData(z=z, case_ids=cids, impact=impact, enc_idx=eis, y=y)
 
 
 # ------------------------------------------------------ probes (verbatim v2-era ports)
@@ -577,13 +587,42 @@ def tier_iter(
             yield tier, np.array([tier_map.get(str(c)) == tier for c in case_ids])
 
 
+def dump_match(member: Member, endpoint: str, split: str, tier: str, h: int, cfg: Config) -> bool:
+    """True when this cell should also have its per-encounter vectors dumped.
+
+    Targeted (NOT the full matrix) at the cells the B6 harvest consumes: the
+    Holm family (6 observables x both endpoints, test_b, H = primary, d = 64,
+    every probe class), the per-family primary-cell verdicts, the Gate-GD
+    nonlinear-probe hardening, and the Fig-8 trend (test_c too). The dump never
+    touches the summary outputs or the gate logic; it is pure side-channel.
+    """
+    if not cfg.dump_per_encounter:
+        return False
+    if member.d not in cfg.dump_dims:
+        return False
+    if split not in cfg.dump_splits:
+        return False
+    if h not in cfg.dump_horizons:
+        return False
+    if tier not in cfg.dump_tiers:
+        return False
+    _ = endpoint  # both endpoints are dumped; kept explicit for readability
+    return True
+
+
 def evaluate_member(
     member: Member,
     dns: np.lib.npyio.NpzFile,
     tier_map: dict[str, str | None],
     cfg: Config,
+    dump: list[dict] | None = None,
 ) -> tuple[list[dict], list[str]]:
     """All closure-matrix rows for one (family, d, seed) member.
+
+    Args:
+        dump: when not None and cfg.dump_per_encounter, per-encounter
+            (y_pred, y_true, case_id, encounter_index) vectors for the cells
+            selected by dump_match are appended as records (B6 side-channel).
 
     Returns:
         (rows, skip_log). Missing latents skip the member; missing rollout dirs
@@ -670,6 +709,28 @@ def evaluate_member(
                                     "cc_ci_hi": cc[1],
                                 }
                             )
+                            if dump is not None and dump_match(
+                                member, endpoint, split, tier, int(h), cfg
+                            ):
+                                dump.append(
+                                    {
+                                        "tag": member.tag,
+                                        "family": member.family,
+                                        "objective": member.objective,
+                                        "d": member.d,
+                                        "seed": member.seed,
+                                        "observable": obs,
+                                        "endpoint": endpoint,
+                                        "probe": cls,
+                                        "split": split,
+                                        "tier": tier,
+                                        "H": int(h),
+                                        "y_pred": preds[sel, hi].astype(np.float64),
+                                        "y_true": y_h[sel, hi].astype(np.float64),
+                                        "case_id": data.case_ids[sel].astype(str),
+                                        "encounter_index": data.enc_idx[sel].astype(np.int64),
+                                    }
+                                )
             print(
                 f"[closure] {member.tag} {endpoint}/{split}: "
                 f"{sum(1 for r in rows if r['endpoint'] == endpoint and r['split'] == split)} rows"
@@ -699,8 +760,9 @@ def run_matrix(cfg: Config) -> dict:
     skips: list[str] = []
     evaluated: list[str] = []
     gate_membership: dict[str, bool] = {}
+    dump: list[dict] | None = [] if cfg.dump_per_encounter else None
     for member in members:
-        m_rows, m_skips = evaluate_member(member, dns, tier_map, cfg)
+        m_rows, m_skips = evaluate_member(member, dns, tier_map, cfg, dump=dump)
         rows.extend(m_rows)
         skips.extend(m_skips)
         gate_membership[member.tag] = member.in_gate
@@ -709,7 +771,11 @@ def run_matrix(cfg: Config) -> dict:
     for r in rows:
         r["in_gate"] = gate_membership[r["tag"]]
     print(f"[closure] total {len(rows)} cells from {len(evaluated)} members")
-    return {"rows": rows, "skips": skips, "members": evaluated}
+    result = {"rows": rows, "skips": skips, "members": evaluated}
+    if dump is not None:
+        result["dump"] = dump
+        print(f"[closure] captured {len(dump)} per-encounter dump cells")
+    return result
 
 
 # --------------------------------------------------------------------------- outputs
@@ -764,6 +830,63 @@ def write_matrix(rows: list[dict], out_dir: Path) -> None:
         print(f"[closure] wrote {out_dir / 'matrix.parquet'}")
     except Exception as exc:  # no pandas / no parquet engine: npz + csv suffice
         print(f"[closure] parquet not written ({exc}); npz + csv are canonical")
+
+
+def dump_cell_key(rec: dict) -> str:
+    """Stable, filename-safe key identifying one per-encounter dump cell."""
+    return "|".join(
+        [
+            rec["tag"],
+            rec["observable"],
+            rec["endpoint"],
+            rec["probe"],
+            rec["split"],
+            rec["tier"],
+            f"H{rec['H']}",
+        ]
+    )
+
+
+def write_per_encounter_dump(dump: list[dict], out_dir: Path) -> None:
+    """Write the B6 per-encounter side-channel (one consolidated NPZ + index).
+
+    Each dump cell contributes four arrays under ``<cellkey>__{y_pred,y_true,
+    case_id,encounter_index}`` to ``per_encounter/dump.npz``; a sibling
+    ``per_encounter/index.json`` maps cell key -> {metadata, n} for discovery.
+    This is additive and never touches matrix.{csv,npz,parquet}, the gate, or
+    the numbers part.
+    """
+    pe_dir = out_dir / "per_encounter"
+    pe_dir.mkdir(parents=True, exist_ok=True)
+    arrays: dict[str, np.ndarray] = {}
+    index: dict[str, dict] = {}
+    for rec in dump:
+        key = dump_cell_key(rec)
+        if key in index:
+            # A cell key collision means two members share every dump-identifying
+            # field; that should be impossible (tag is unique). Fail loudly.
+            raise ValueError(f"duplicate dump cell key {key!r}")
+        arrays[f"{key}__y_pred"] = rec["y_pred"]
+        arrays[f"{key}__y_true"] = rec["y_true"]
+        arrays[f"{key}__case_id"] = rec["case_id"]
+        arrays[f"{key}__encounter_index"] = rec["encounter_index"]
+        index[key] = {
+            "tag": rec["tag"],
+            "family": rec["family"],
+            "objective": rec["objective"],
+            "d": int(rec["d"]),
+            "seed": int(rec["seed"]),
+            "observable": rec["observable"],
+            "endpoint": rec["endpoint"],
+            "probe": rec["probe"],
+            "split": rec["split"],
+            "tier": rec["tier"],
+            "H": int(rec["H"]),
+            "n": int(rec["y_pred"].size),
+        }
+    np.savez(pe_dir / "dump.npz", **arrays)
+    (pe_dir / "index.json").write_text(json.dumps(index, indent=2, sort_keys=True))
+    print(f"[closure] wrote {len(index)} dump cells -> {pe_dir / 'dump.npz'}")
 
 
 def headline_rows(rows: list[dict], cfg: Config) -> list[dict]:
@@ -1018,6 +1141,32 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     p.add_argument("--cv-seed", type=int, default=0, help="Case-fold construction seed.")
     p.add_argument("--boot-seed", type=int, default=0, help="Per-cell bootstrap seed.")
     p.add_argument("--ridge-alpha", type=float, default=1.0)
+    p.add_argument(
+        "--dump-per-encounter",
+        action="store_true",
+        help=(
+            "ALSO write outputs/.../per_encounter/dump.npz with per-encounter "
+            "(y_pred, y_true, case_id, encounter_index) for the B6-harvest cells "
+            "(default targeting: d=64, splits test_b+test_c, H=16, tier pooled/all, "
+            "all observables x endpoints x probe classes). Summary outputs unchanged."
+        ),
+    )
+    p.add_argument(
+        "--dump-splits",
+        nargs="+",
+        default=None,
+        help="Override dump splits (default test_b test_c).",
+    )
+    p.add_argument(
+        "--dump-horizons",
+        nargs="+",
+        type=int,
+        default=None,
+        help="Override dump horizons (def 16).",
+    )
+    p.add_argument(
+        "--dump-dims", nargs="+", type=int, default=None, help="Override dump dims (default 64)."
+    )
     return p.parse_args(argv)
 
 
@@ -1055,6 +1204,10 @@ def build_config(args: argparse.Namespace) -> Config:
         ridge_alpha=args.ridge_alpha,
         family_filter=args.families,
         dim_filter=args.dims,
+        dump_per_encounter=bool(args.dump_per_encounter),
+        dump_splits=tuple(args.dump_splits) if args.dump_splits else ("test_b", "test_c"),
+        dump_horizons=tuple(args.dump_horizons) if args.dump_horizons else (16,),
+        dump_dims=tuple(args.dump_dims) if args.dump_dims else (64,),
     )
 
 
@@ -1069,6 +1222,9 @@ def main(argv: list[str] | None = None) -> None:
         return
 
     write_matrix(rows, cfg.out_dir)
+
+    if cfg.dump_per_encounter and result.get("dump"):
+        write_per_encounter_dump(result["dump"], cfg.out_dir)
 
     members = load_families(
         cfg.families_manifest,
