@@ -1,0 +1,187 @@
+{
+  "part": "sensing_cf",
+  "numbers": {
+    "sensing_state_K8_testb_jepa_tf_noc": {
+      "macro": "SenseStateJepaTf",
+      "value": 0.781531949701702,
+      "fmt": "%.2f",
+      "split": "test_b",
+      "endpoint": "deployment",
+      "probe": "krr_rbf",
+      "observable": "state_recovery",
+      "note": "variance-weighted state-recovery R^2, 8 qDEIM taps, d=64 lead seed; readout at impact+16"
+    },
+    "sensing_cc_K8_testb_jepa_tf_noc": {
+      "macro": "SenseCcJepaTf",
+      "value": 0.5614317344184845,
+      "fmt": "%.2f",
+      "split": "test_b",
+      "endpoint": "deployment",
+      "observable": "canonical_correlation",
+      "note": "mean canonical correlation over min(d,K*W) dirs, 8 qDEIM taps; reported WITH the vw-R^2 to expose anisotropy"
+    },
+    "sensing_state_K8_testb_fukami": {
+      "macro": "SenseStateFukami",
+      "value": 0.6637394962542553,
+      "fmt": "%.2f",
+      "split": "test_b",
+      "endpoint": "deployment",
+      "probe": "krr_rbf",
+      "observable": "state_recovery",
+      "note": "variance-weighted state-recovery R^2, 8 qDEIM taps, d=64 lead seed; readout at impact+16"
+    },
+    "sensing_cc_K8_testb_fukami": {
+      "macro": "SenseCcFukami",
+      "value": 0.14626717269612133,
+      "fmt": "%.2f",
+      "split": "test_b",
+      "endpoint": "deployment",
+      "observable": "canonical_correlation",
+      "note": "mean canonical correlation over min(d,K*W) dirs, 8 qDEIM taps; reported WITH the vw-R^2 to expose anisotropy"
+    },
+    "sensing_state_K8_testb_pod": {
+      "macro": "SenseStatePod",
+      "value": 0.34021441102362493,
+      "fmt": "%.2f",
+      "split": "test_b",
+      "endpoint": "deployment",
+      "probe": "krr_rbf",
+      "observable": "state_recovery",
+      "note": "variance-weighted state-recovery R^2, 8 qDEIM taps, d=64 lead seed; readout at impact+16"
+    },
+    "sensing_cc_K8_testb_pod": {
+      "macro": "SenseCcPod",
+      "value": 0.6355488501102181,
+      "fmt": "%.2f",
+      "split": "test_b",
+      "endpoint": "deployment",
+      "observable": "canonical_correlation",
+      "note": "mean canonical correlation over min(d,K*W) dirs, 8 qDEIM taps; reported WITH the vw-R^2 to expose anisotropy"
+    },
+    "sensing_state_K8_testb_bvae": {
+      "macro": "SenseStateBvae",
+      "value": 0.5113826126749275,
+      "fmt": "%.2f",
+      "split": "test_b",
+      "endpoint": "deployment",
+      "probe": "krr_rbf",
+      "observable": "state_recovery",
+      "note": "variance-weighted state-recovery R^2, 8 qDEIM taps, d=64 lead seed; readout at impact+16"
+    },
+    "sensing_cc_K8_testb_bvae": {
+      "macro": "SenseCcBvae",
+      "value": 0.13450866364762623,
+      "fmt": "%.2f",
+      "split": "test_b",
+      "endpoint": "deployment",
+      "observable": "canonical_correlation",
+      "note": "mean canonical correlation over min(d,K*W) dirs, 8 qDEIM taps; reported WITH the vw-R^2 to expose anisotropy"
+    },
+    "sensing_pwake_K8_testb_jepa_tf_noc": {
+      "macro": "SensePWakeJepaTf",
+      "value": 0.1826220195195637,
+      "fmt": "%.2f",
+      "ci_lo": -1.1936205176427612,
+      "ci_hi": 0.6404499223722391,
+      "n": 42,
+      "split": "test_b",
+      "endpoint": "deployment",
+      "probe": "krr_rbf->ridge",
+      "observable": "wake_enstrophy",
+      "note": "pressure(8 qDEIM taps,W=30)->z(impact+16)->frozen wake probe; case-clustered CI; d=64 lead seed"
+    },
+    "sensing_pwake_K8_testb_fukami": {
+      "macro": "SensePWakeFukami",
+      "value": -0.003882020198217706,
+      "fmt": "%.2f",
+      "ci_lo": -4.581354712584991,
+      "ci_hi": 0.11296710408804624,
+      "n": 42,
+      "split": "test_b",
+      "endpoint": "deployment",
+      "probe": "krr_rbf->ridge",
+      "observable": "wake_enstrophy",
+      "note": "pressure(8 qDEIM taps,W=30)->z(impact+16)->frozen wake probe; case-clustered CI; d=64 lead seed"
+    },
+    "sensing_pwake_K8_testb_pod": {
+      "macro": "SensePWakePod",
+      "value": -0.5053735160307329,
+      "fmt": "%.2f",
+      "ci_lo": -15.259582867284713,
+      "ci_hi": -0.05083153830337883,
+      "n": 42,
+      "split": "test_b",
+      "endpoint": "deployment",
+      "probe": "krr_rbf->ridge",
+      "observable": "wake_enstrophy",
+      "note": "pressure(8 qDEIM taps,W=30)->z(impact+16)->frozen wake probe; case-clustered CI; d=64 lead seed"
+    },
+    "sensing_pwake_K8_testb_bvae": {
+      "macro": "SensePWakeBvae",
+      "value": 0.13328833524924777,
+      "fmt": "%.2f",
+      "ci_lo": -2.1605605627982936,
+      "ci_hi": 0.5568346068058307,
+      "n": 42,
+      "split": "test_b",
+      "endpoint": "deployment",
+      "probe": "krr_rbf->ridge",
+      "observable": "wake_enstrophy",
+      "note": "pressure(8 qDEIM taps,W=30)->z(impact+16)->frozen wake probe; case-clustered CI; d=64 lead seed"
+    },
+    "sensing_pwake_direct_K8_testb": {
+      "macro": "SensePWakeDirect",
+      "value": 0.1708725201003498,
+      "fmt": "%.2f",
+      "split": "test_b",
+      "endpoint": "deployment",
+      "observable": "wake_enstrophy",
+      "note": "direct pressure(8 qDEIM taps)->wake regression, no latent"
+    },
+    "sensing_state_qdeim_K8_testb_jepa_tf_noc": {
+      "macro": "SenseStateQdeim",
+      "value": 0.781531949701702,
+      "fmt": "%.2f",
+      "split": "test_b",
+      "endpoint": "deployment",
+      "observable": "state_recovery",
+      "note": "variance-weighted state recovery R^2, 8 target-blind qDEIM taps (primary placement), JEPA; TCSI picks in sensor_picks_v2p1.json"
+    },
+    "sensing_pY_K8_testb_jepa_tf_noc": {
+      "macro": "SensePY",
+      "value": 0.5103801249324093,
+      "fmt": "%.2f",
+      "split": "test_b",
+      "endpoint": "deployment",
+      "observable": "Y",
+      "note": "pressure(8 qDEIM taps)->Y R^2; M11 Y-attribution softening"
+    },
+    "sensing_pcl_via_K8_testb_jepa_tf_noc": {
+      "macro": "SensePClVia",
+      "value": 0.4300158838759016,
+      "fmt": "%.2f",
+      "split": "test_b",
+      "endpoint": "deployment",
+      "observable": "C_L",
+      "note": "pressure(8 qDEIM taps)->z(impact+16)->C_L probe R^2, JEPA; direct=0.443"
+    },
+    "sensing_causal_clip_delta": {
+      "macro": "SenseCausalDelta",
+      "value": 0.0008781150039733898,
+      "fmt": "%.3f",
+      "split": "test_b",
+      "endpoint": "deployment",
+      "observable": "wake_enstrophy",
+      "note": "R^2 delta (causal-clip - base) on JEPA pressure->wake at K=8; base=0.183 causal=0.184"
+    },
+    "sensing_pwake_jepa_vs_best_recon_signp": {
+      "macro": "SensePWakeSignP",
+      "value": 0.13997811926446957,
+      "fmt": "%.3f",
+      "split": "test_b",
+      "endpoint": "deployment",
+      "observable": "wake_enstrophy",
+      "note": "max over recon families of one-sided sign-test p (JEPA pressure->wake error < recon), jepa_tf_noc_vs_bvae, K=8"
+    }
+  }
+}

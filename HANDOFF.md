@@ -8202,6 +8202,44 @@ wrongly attributed fragmentation to the reconstructive ROLLOUT; Phase D must
 fix this regardless. numbers part topology_ce2.json (macros incl. the two
 deciding gaps + branch code 2).
 
+### D195 (C-F wall-pressure sensing, now a MAIN result): STATE-recovery headline HOLDS, seed-robust; "recover the wake from the wall" does NOT (2026-06-13)
+
+`scripts/session28/sensing_cf.py` (+17 tests) rebuilt on v2p1: qDEIM primary
+placement (TCSI secondary), variance-weighted state R2 + mean canonical
+correlation (W=30 pre-impact window), deployment chain pressure(K taps)->
+z(impact+16)->FROZEN closure wake probe->wake enstrophy, three-panel figure
+ALL four families + dashed direct baselines, causal-clip variant, pressure->Y.
+5-fold case CV, case-clustered CI, sign tests (not case_permutation_p). Closes
+B5/M7/M11/M12. ~183 s.
+
+**HEADLINE THAT HOLDS (strong, seed-robust, main-result-grade):** the predictive
+latent is the most pressure-recoverable STATE. State-recovery R2 at K=8 test_b:
+jepa 0.78 > fukami 0.66 > bvae 0.51 > pod 0.34; seed-robust jepa 0.75 +- 0.09
+(4 seeds, range 0.61-0.83) vs fukami 0.66 +- 0.04. Dual metric earns its place:
+POD has the highest canonical correlation (0.64) but the lowest variance-weighted
+R2 (0.34) -> real anisotropy, exposed not hidden.
+
+**WHAT DOES NOT HOLD (scoped honestly, NOT overclaimed):** "sparse wall pressure
+recovers the WAKE" is not supportable. pressure->wake R2 at K=8: jepa +0.18 (the
+only positive family, beats fukami sign p=0.022 and pod p<0.001) BUT it only
+marginally exceeds the direct no-latent pressure->wake baseline (+0.17), and
+jepa-vs-bvae is n.s. (p=0.14). Physics diagnosis (honest, not a model failure):
+the wake-bearing latent directions are low-variance and weakly pressure-observable
+(latent-to-wake-direction corr ~0.39); pre/at-readout wall pressure carries
+limited wake-enstrophy information at this configuration. test_c (|G|=4) goes
+negative for every family (reported). pressure->Y R2 = 0.51 (M11 softening: Y is
+sparsely wall-observable). causal-clip delta +0.0009 (negligible, M12).
+
+**SUPPORTABLE MANUSCRIPT PHRASING (author to choose):** headline sensing as
+STATE recovery -- "the predictive latent is the most recoverable state from
+sparse wall pressure (R2 0.78 at 8 taps, leading every matched representation
+and seed-robust), and recovers the wake at least as well as any matched
+representation" -- NOT "sparse pressure recovers the wake". The state-recovery
+lead is a legitimate co-headline with the closure result; the wake-from-pressure
+deployment punchline is NOT there at this config and must not be claimed.
+AUTHOR CALIBRATION NEEDED: is state-recovery-as-main-result strong enough for
+the emphasis you wanted, or do we frame sensing as a strong secondary result?
+
 ### D189 (Gate GE3, transport, M5): the v2 "JEPA tracks transport geometry best" claim is DEAD; keep only the norm-variance mechanism (2026-06-13)
 
 `scripts/session28/transport_ce3.py` (+ 13 tests) to the Tran standard:
