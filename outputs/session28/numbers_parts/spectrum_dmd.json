@@ -1,0 +1,157 @@
+{
+  "part": "spectrum_dmd",
+  "numbers": {
+    "dmd_St_baseline_pod": {
+      "macro": "SpecDmdStPod",
+      "value": 0.6822523948710314,
+      "fmt": "%.2f",
+      "split": "baseline",
+      "observable": "leading_oscillatory_St",
+      "source": "spectrum_dmd.py",
+      "note": "data-driven DMD leading-pair St on Baseline limit cycle (pod_d64)"
+    },
+    "dmd_modulus_baseline_pod": {
+      "macro": "SpecDmdModPod",
+      "value": 0.9955932038392336,
+      "fmt": "%.3f",
+      "split": "baseline",
+      "observable": "leading_oscillatory_modulus",
+      "source": "spectrum_dmd.py",
+      "note": "leading-pair |lambda| (~1 = marginally stable limit cycle)"
+    },
+    "dmd_St_baseline_jepa_tf_noc": {
+      "macro": "SpecDmdStJepaTf",
+      "value": 0.6617479576312852,
+      "fmt": "%.2f",
+      "split": "baseline",
+      "observable": "leading_oscillatory_St",
+      "source": "spectrum_dmd.py",
+      "note": "data-driven DMD leading-pair St on Baseline limit cycle (jepa_tf_noc_d64_s42)"
+    },
+    "dmd_modulus_baseline_jepa_tf_noc": {
+      "macro": "SpecDmdModJepaTf",
+      "value": 0.9913539953143484,
+      "fmt": "%.3f",
+      "split": "baseline",
+      "observable": "leading_oscillatory_modulus",
+      "source": "spectrum_dmd.py",
+      "note": "leading-pair |lambda| (~1 = marginally stable limit cycle)"
+    },
+    "dmd_St_baseline_fukami": {
+      "macro": "SpecDmdStFukami",
+      "value": 0.5028220479718974,
+      "fmt": "%.2f",
+      "split": "baseline",
+      "observable": "leading_oscillatory_St",
+      "source": "spectrum_dmd.py",
+      "note": "data-driven DMD leading-pair St on Baseline limit cycle (fukami_d64_s42)"
+    },
+    "dmd_modulus_baseline_fukami": {
+      "macro": "SpecDmdModFukami",
+      "value": 0.9391353878699854,
+      "fmt": "%.3f",
+      "split": "baseline",
+      "observable": "leading_oscillatory_modulus",
+      "source": "spectrum_dmd.py",
+      "note": "leading-pair |lambda| (~1 = marginally stable limit cycle)"
+    },
+    "dmd_best_st_recovery_family": {
+      "value": "pod",
+      "fmt": "%s",
+      "split": "baseline",
+      "source": "spectrum_dmd.py",
+      "note": "family whose DMD leading St (0.682) is closest to a DNS shedding line (matched dominant, |err|=0.007)"
+    },
+    "floquet_leading_modulus": {
+      "macro": "SpecFloqMod",
+      "value": 1.0041725569280693,
+      "fmt": "%.3f",
+      "split": "baseline",
+      "endpoint": "forecast",
+      "observable": "floquet_leading_per_step_modulus",
+      "source": "spectrum_dmd.py",
+      "note": "per-step Floquet multiplier modulus of the transformer predictor over the 59-frame Baseline cycle (W=16); ~1 = marginally stable orbit (the on-manifold property)"
+    },
+    "floquet_markov_St": {
+      "macro": "SpecFloqSt",
+      "value": 0.1937080266024367,
+      "fmt": "%.2f",
+      "split": "baseline",
+      "endpoint": "forecast",
+      "observable": "markov_jacobian_leading_St",
+      "source": "spectrum_dmd.py",
+      "note": "intrinsic frequency from the Markov one-step predictor-Jacobian leading eigenvalue (mean over the Baseline cycle); the over-damped oscillatory Floquet sub-mode is NOT used for frequency (README HONEST READ). The well-resolved shedding line is the Part-1 data-driven DMD St."
+    },
+    "forecast_wake_H16_testb_pod_dmd": {
+      "macro": "ForecastWakePodDmd",
+      "value": -0.3926999629501797,
+      "fmt": "%.2f",
+      "split": "test_b",
+      "endpoint": "forecast",
+      "observable": "wake_enstrophy",
+      "horizon": 16,
+      "probe": "ridge",
+      "n": 42,
+      "source": "spectrum_dmd.py",
+      "note": "forecast-endpoint wake R^2 of the pod_dmd rollout on its own coords",
+      "ci_lo": -1.403547580154354,
+      "ci_hi": 0.33841446694327804
+    },
+    "forecast_wake_H16_testb_pod": {
+      "macro": "ForecastWakePod",
+      "value": -0.5971388551905414,
+      "fmt": "%.2f",
+      "split": "test_b",
+      "endpoint": "forecast",
+      "observable": "wake_enstrophy",
+      "horizon": 16,
+      "probe": "ridge",
+      "n": 42,
+      "source": "spectrum_dmd.py",
+      "note": "forecast-endpoint wake R^2 of the pod rollout on its own coords",
+      "ci_lo": -1.6689666425584613,
+      "ci_hi": 0.2990642075104728
+    },
+    "forecast_wake_H16_testb_jepa_tf_noc": {
+      "macro": "ForecastWakeJepaTf",
+      "value": 0.4322001569984707,
+      "fmt": "%.2f",
+      "split": "test_b",
+      "endpoint": "forecast",
+      "observable": "wake_enstrophy",
+      "horizon": 16,
+      "probe": "ridge",
+      "n": 42,
+      "source": "spectrum_dmd.py",
+      "note": "forecast-endpoint wake R^2 of the jepa_tf_noc rollout on its own coords",
+      "ci_lo": -0.3209741277502407,
+      "ci_hi": 0.8511766759151022
+    },
+    "forecast_wake_H16_testb_fukami": {
+      "macro": "ForecastWakeFukami",
+      "value": 0.2211479863140079,
+      "fmt": "%.2f",
+      "split": "test_b",
+      "endpoint": "forecast",
+      "observable": "wake_enstrophy",
+      "horizon": 16,
+      "probe": "ridge",
+      "n": 42,
+      "source": "spectrum_dmd.py",
+      "note": "forecast-endpoint wake R^2 of the fukami rollout on its own coords",
+      "ci_lo": -0.44769565784708454,
+      "ci_hi": 0.6893826723831462
+    },
+    "forecast_wake_jepa_minus_dmd": {
+      "macro": "ForecastWakeJepaMinusDmd",
+      "value": 0.8249001199486504,
+      "fmt": "%.2f",
+      "split": "test_b",
+      "endpoint": "forecast",
+      "observable": "wake_enstrophy",
+      "horizon": 16,
+      "source": "spectrum_dmd.py",
+      "note": "learned tf-no-c JEPA forecast wake R^2 minus the POD+linear-dynamics (DMD) rung; >0 => the learned nonlinear predictor beats DMD"
+    }
+  }
+}

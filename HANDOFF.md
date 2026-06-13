@@ -8227,6 +8227,31 @@ just DMD?" with a number. Outputs outputs/session28/spectrum/. NOT in the
 master plan; strengthens S4 flow-physics (spectral validation) + the
 related-work DMD/Koopman contrast (intro already cites Schmid/Lusch).
 
+**RESULTS (spectrum_dmd.py, 13 tests; DMD numpy + Floquet on RTX6000 gpu1, 64 s):**
+- Part 1 (data-driven DMD, Baseline limit cycle): leading shedding St -- POD
+  0.682 (|lambda| 0.996), JEPA tf-no-c 0.662 (|lambda| 0.991), fukami 0.503
+  (|lambda| 0.939). DNS truth 0.675. JEPA coordinates carry the shedding
+  frequency essentially as cleanly as POD (do NOT overclaim JEPA beats POD on
+  frequency -- POD is marginally closer; the point is JEPA PRESERVES the
+  spectrum, and all sit near the unit circle = clean limit cycle). Fukami is
+  damped + off-frequency.
+- Part 2 (intrinsic Jacobian/Floquet of the learned predictor): tf-no-c leading
+  Floquet multiplier modulus = 1.004 -> MARGINALLY STABLE orbit (the
+  on-manifold property, quantified). CAVEAT (surfaced): monodromy dominated by
+  one neutral direction (2nd multiplier 0.22), so the Floquet FREQUENCY is not
+  well-resolved; frequency is taken from the data-driven DMD, not Floquet.
+  LSTM predictor is strongly CONTRACTIVE (per-step 0.943) -- a real tf-vs-lstm
+  dynamics difference, preserved in the JSON.
+- Part 3 (DMD forecasting rung = "isn't JEPA just DMD?"): the learned tf-no-c
+  JEPA BEATS POD+linear-dynamics (DMD) on matched-forecast wake R2 @ H=16
+  test_b: +0.43 (JEPA) vs -0.39 (POD-DMD), delta +0.82; POD+matched-LEARNED-
+  predictor -0.60, fukami +0.22. QUANTITATIVE ANSWER: JEPA is NOT just DMD --
+  a best-fit linear operator on POD coords cannot capture the nonlinear latent
+  dynamics. This +0.82 also answers the Koopman-AE question (linear vs
+  nonlinear latent dynamics on learned coords); a TRAINED Koopman-AE is NOT
+  needed -- the DMD rung settles the axis. closure-compatible rollout at
+  outputs/session28/rollouts/pod_dmd_d64/ (optional families_closure.yaml add).
+
 ### D195 (C-F wall-pressure sensing, now a MAIN result): STATE-recovery headline HOLDS, seed-robust; "recover the wake from the wall" does NOT (2026-06-13)
 
 `scripts/session28/sensing_cf.py` (+17 tests) rebuilt on v2p1: qDEIM primary
