@@ -453,9 +453,9 @@ field, and we report it as such.
 \label{sec:res_physical}
 
 The mechanism explains why the predictive rollout stays on the manifold; we now
-ask where in the gust envelope, and where in the flow field, the latent keeps the
-wake. The parameter dependence reveals one clear weakness, and it is worth noting
-that the latent encodes these parameters despite never being trained on them.
+ask where in the gust envelope, and where in the flow field, the latent renders the
+wake readable. The parameter dependence reveals one clear weakness, and it is worth
+noting that the latent encodes these parameters despite never being trained on them.
 Probing the predictive latent for the gust parameters on test\_b recovers the gust
 strength $G$ and the core diameter $D$ ($R^2 = 0.46$ and $0.80$) but barely resolves
 the wall-normal offset $Y$ ($R^2 = 0.10$). This is a property of the data rather than of the
@@ -593,37 +593,20 @@ position and sign (peak magnitude $5.31$) but its visualisation decoder is blurr
 by construction, and the linear basis is amplitude-accurate (peak $4.10$) since
 its objective is amplitude-optimal.
 
-The new metric resolves the caution. An unbalanced optimal-transport distance
-between the reconstructed and the simulation fields, computed for the positive
-and negative vorticity separately and summed \citep{tran2026}
-(entropic unbalanced Sinkhorn transport cost with a KL marginal relaxation, fields pooled to $48 \times 24$ for tractability),
-penalises the collapsed reconstruction correctly and reorders the comparison
-where structural similarity misleads (figure~\ref{fig:ot}). At the impact frame
-on test\_b the transport distance is largest for the reconstructive autoencoder
-($11.25$) and smaller and comparable for the predictive decode ($9.90$) and the
-linear basis ($9.95$). The instructive case is the linear basis: it carries the
-\emph{highest} structural similarity of the three ($0.69$ against $0.65$ for the
-predictive decode), which would wrongly crown the energy-optimal reconstruction
-as the best, yet under transport it is no better than the blurry predictive
-decode and far better than the collapsed autoencoder, which is the physically
-correct ordering. We therefore lead with the transport distance and report
-similarity alongside for continuity. On the OOD test\_c set
-($G = +4$) the transport ordering breaks (the reconstructive distance falls below
-the predictive one), so the transport advantage is an in-envelope result, of a
-piece with the three-dimensional observability boundary that degrades every
-metric there.
-\begin{figure}
-  \centering
-  \includegraphics[width=0.9\linewidth]{sections/figures/results/fig_ot.pdf}
-  \caption{Optimal-transport reconstruction comparison (Tran et al., JFM 2026)
-  on test\_b. Unbalanced OT field distance by family at the impact frame, with the
-  structural-similarity ranking shown alongside; the linear basis has the highest
-  similarity but no transport advantage over the predictive decode, while the
-  collapsed reconstructive field is correctly penalised. The Shepard panel shows
-  the per-encounter alignment of latent distance with the simulation
-  OT distance, predictive versus reconstructive.}
-  \label{fig:ot}
-\end{figure}
+This is why field-space scores cannot rank the latents here, and we are explicit
+about it. Decoding each family's faithfully encoded latent to a field and scoring
+the large-scale similarity against the simulation gives a decode \emph{ceiling}
+(the best each decoder can do from a true latent): on test\_b that ceiling is
+highest for the linear basis ($\FieldCeilSsimPod$), then the predictive decode
+($\FieldCeilSsimJepaTf$), then the reconstructive autoencoder
+($\FieldCeilSsimFukami$). The linear basis leading this ranking is a decoder
+property, not a state-content one: its linear decoder reconstructs a smooth
+large-scale field well regardless of what the latent encodes, exactly the
+confound that the collapsed-reconstruction example above illustrates. Field decode
+fidelity is therefore reported as a labelled ceiling, with the explicit caveat that
+it conflates decoder reconstruction quality with latent state content; the latent
+comparison rests on the representational closure of \S\ref{sec:res_closure}, which
+has no decoder in the loop, not on these field scores.
 
 Finally, the wake observables tie to the structures that carry the load. A
 Gaussian scale decomposition (large scale at filter width $\sigma/c = 0.05$,
@@ -645,22 +628,19 @@ encounter the simulation large-scale enstrophy rises from the gust-induced
 leading-edge flux through the LEV roll-up and peak-load shedding; the predictive
 reconstruction follows that rise while the reconstructive one stays flat. This is
 where the wake-enstrophy advantage of \S\ref{sec:res_closure} becomes a statement
-about the leading-edge vortex and shear layer rather than about a scalar.
-Tracking the large-scale leading-edge vortex directly makes this quantitative.
-Extracting the dominant suction-side vortex from the same $\sigma/c = 0.05$
-field, the predictive decode places a coherent leading-edge vortex in all $42$
-held-out encounters at $H = 16$, within $0.32$ chords of the simulation centroid
-and recovering its circulation to within $5\%$, whereas the reconstructive decode
-has smoothed the vortex below detection in $36$ of the $42$ (its large-scale
-leading-edge amplitude falls to about a tenth of the simulation), and where it
-survives its circulation error is six times larger. Per encounter the
-wake-enstrophy error and the leading-edge-vortex circulation error co-vary
-(Spearman $0.57$), so the scalar wake observable stands in for the position and
-strength of the leading-edge vortex that produces the lift transient. The
-result holds at $d = 32$; on the OOD test\_c set the predictive tracking degrades
-($0.91$ to $0.65$ from impact to $H = 16$), as expected where the flow becomes
-three-dimensional and the mid-plane decomposition is itself incomplete
-(\S\ref{sec:flow_physics}).
+about the leading-edge vortex and shear layer rather than about a scalar. We are
+deliberately careful about the converse question, whether a family's \emph{decode}
+tracks the leading-edge-vortex circulation per frame, because that test is confounded
+by decoder quality rather than by what the latent carries. Under the matched
+post-hoc decoders, the fraction of held-out encounters whose decoded circulation
+tracks the simulation is comparable across families and modest
+($\NumPfourTrackTfNocRecon$ for the predictive decode, $\NumPfourTrackFukamiRecon$
+for the reconstructive, and highest for the linear basis at
+$\NumPfourTrackPodRecon$, whose linear decoder reconstructs the large-scale field
+best regardless of state content). We therefore do not claim that the predictive
+decode tracks the leading-edge vortex better than the alternatives; the wake result
+rests on the representational closure and the scale-resolved enstrophy tracking
+above, not on per-family decode fidelity.
 \begin{figure}
   \centering
   \includegraphics[width=0.98\linewidth]{sections/figures/results/fig_scale_decomp.pdf}
