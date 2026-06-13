@@ -8202,6 +8202,53 @@ wrongly attributed fragmentation to the reconstructive ROLLOUT; Phase D must
 fix this regardless. numbers part topology_ce2.json (macros incl. the two
 deciding gaps + branch code 2).
 
+### D189 (Gate GE3, transport, M5): the v2 "JEPA tracks transport geometry best" claim is DEAD; keep only the norm-variance mechanism (2026-06-13)
+
+`scripts/session28/transport_ce3.py` (+ 13 tests) to the Tran standard:
+DEBIASED Sinkhorn S_eps = OT_eps(a,b) - 0.5 OT_eps(a,a) - 0.5 OT_eps(b,b)
+(POT linear cost; matches ot.bregman.empirical_sinkhorn_divergence to 1e-6;
+S_eps(a,a)=0), m+/m- normalised + transported separately (Tran B6-B8),
+balanced-on-normalised-parts (NO unstated rho, fixing the v2 under-specification),
+eps = 0.05 x median sq-dist = 0.254 chord^2 STATED, eps sensitivity
+{eps/3,eps,3eps} reported. Phase-matched settled-Baseline reference. Run 841 s.
+
+**THE NEGATIVE (real, verified, overturns a v2 claim):** the corrected
+per-encounter alignment (Spearman of latent-distance-from-phase-matched-baseline
+vs field S_eps) is jepa 0.204, pod 0.073, **fukami 0.579** on test_b. The
+RECONSTRUCTIVE AE has the HIGHEST alignment; jepa-fukami paired delta -0.307,
+case-clustered CI [-0.566, -0.035] (excludes zero; per-case sign p 0.79 ns).
+So "the JEPA latent tracks the optimal-transport geometry of the flow in a
+trajectory-local sense" (v2 abstract + Sec 4.3 + title option c) is NOT
+defensible under the debiased statistic. WHY (the valid case_permutation_p
+trend use): alignment-vs-|G| rho = POD 0.72 (p 6e-4), Fukami 0.47 (p 0.03),
+JEPA flat 0.15 (p 0.56): the AE/POD "alignment" rides on latent-norm scaling
+with gust strength (both latent-distance and field-OT grow with |G|), NOT
+trajectory-local geometry. VERIFICATION the negative is trustworthy: the field
+S_eps sequence is on DNS fields, IDENTICAL across families, so the ordering is
+pure latent geometry, not a Sinkhorn/zero-mass-floor artifact; and the
+norm-variance below is independently reconfirmed.
+
+**WHAT SURVIVES (strong, keep):** the norm-variance mechanism that closes the
+M5(iv) incoherence complaint. Between-encounter variance of ||z_impact|| (indep.
+recompute, n=66): fukami 479, jepa 6.5, pod 153 (~74x fukami/jepa). The v2
+"pooled reversal" is an ENCODING-SCALE artifact (Fukami's huge norm spread),
+NOT drift of "the drift-prone reconstructive latent" (the incoherent v2 sentence,
+since the pooled statistic is on ENCODED latents that do not drift). This is the
+one-line variance decomposition M5(iv) asked for.
+
+**MANUSCRIPT IMPACT (per [[feedback-paper-not-lab-report]]: drop the dead claim,
+do NOT parade the negative):** (1) DELETE the abstract sentence "...whose metric
+tracks the optimal-transport geometry of the flow in a trajectory-local sense";
+(2) TITLE option (c) "Transport-consistent latent dynamics..." is DEAD, use (a);
+(3) the transport track is NOT a JEPA-advantage headline; S4.3 mechanism leads
+on DRIFT (robust departure-spectrum) + the no-gust TOPOLOGY limit-cycle result;
+transport appears, if at all, only as the norm-variance mechanism sentence (R2
+rewrite, M5) + one honest line that no latent cleanly tracks trajectory-local
+transport (the apparent alignment encodes disturbance magnitude). Do NOT attempt
+the referee-bait rescue "the AE wins but its win is an artifact"; just do not
+claim transport tracking. AUTHOR editorial call: cut transport entirely vs keep
+the norm-variance mechanism sentence.
+
 ### C-E1 drift reconciliation (M6): both metrics reconciled; "9x" is estimator-fragile (2026-06-13)
 
 `scripts/session28/drift_ce1.py` (+ 10 tests; the M6 mechanism shipped as a
