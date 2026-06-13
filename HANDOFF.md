@@ -8041,6 +8041,49 @@ full-train refit for held-out splits. Interior-tier R^2 can be strongly
 negative by construction (tier-own-mean SST baseline); one sentence
 needed when tiers are written up.
 
+### Closure matrix complete (44 members, both endpoints) + Gate GD provisional WEAK (2026-06-13)
+
+Full v2p1 closure matrix ran overnight: 22176 cells from 44 members,
+representational AND forecast endpoints, all in
+`outputs/session28/closure_matrix/{matrix.csv,matrix.npz}` (gitignored;
+small `gate_gd.json`, `matrix_meta.json`, `closure_headline.json`
+committed). PRIMARY endpoint (representational wake_enstrophy R^2, H=16,
+test_b pooled, d=64, ridge, seed means):
+
+  jepa_tf_noc      +0.794 (n=4)   <- lead, unconditioned
+  jepa_tf_cond     +0.775 (n=3)   <- AD2 reference: unconditioned LOSES NOTHING
+  ctrl_pred_cnn    +0.789 (n=3)
+  jepa_lstm_noc    +0.690 (n=3)
+  bvae_match       +0.532 (n=3)
+  ctrl_recon_cnn   +0.346 (n=3)
+  ctrl_recon_cnnvit +0.127       ctrl_pred_vit_nowake +0.105 (wake-head removed)
+  pod -0.157   bvae_faith -0.187   fukami -0.253
+
+Capacity ladder (repr wake, ridge, jepa_tf_noc): d16 +0.547, d32 +0.599,
+d64 +0.794 (monotone). Forecast endpoint (ridge, d64, wake H16 test_b):
+jepa_tf_noc +0.432 > fukami +0.221 > bvae_faith -0.068 > pod -0.597: the
+predictive advantage PERSISTS into forecast but compressed (v2 pattern).
+
+**Gate GD (D183): provisional WEAK branch** (the pre-registered outcome
+if a nonlinear probe recovers the reconstructive wake within 0.15 of the
+predictive one). Under MLP, ctrl_recon_cnn reaches +0.782 vs predictive
+floor; under KRR +0.714. Therefore: carries/encodes claims become LINEAR
+DECODABILITY, the title drops any possession verb, the "no probe can
+recover" sentence is rewritten to "no probe in the evaluated class". The
+redeeming structure (citable): the PUBLISHED-RECIPE baselines (fukami,
+bvae_faith, pod) stay negative under ALL THREE probe classes; only
+wake-head-supervised reconstructive CNN cells recover the wake, and only
+at the CNN architecture (recon CNN+ViT stays +0.13 even under MLP). So
+the attribution narrows cleanly: the wake head puts the information in,
+the predictive objective makes it linearly + architecture-robustly
+readable. PROVISIONAL because the per-seed case-clustered CIs at n=10
+test_b cases are wide; D183 is FINALIZED only after B6 (paired
+case-clustered + case-permutation + Holm) decides whether the
+weak-branch trigger is statistically supported or a point-estimate
+artifact. B6 launched (needs a per-encounter residual dump the matrix
+did not persist; agent adding it). Note: closure_headline.json + gate
+are pre-B6 point estimates, NOT yet paper-grade.
+
 ### D181: Session 28 protocol freeze (GA2) -- one rollout, one estimator, one selection rule (2026-06-10, Session 28)
 
 Frozen BEFORE any v2p1 evaluation, in three byte-aligned artifacts:

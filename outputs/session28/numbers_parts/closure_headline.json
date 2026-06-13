@@ -1,0 +1,247 @@
+{
+  "part": "closure_headline",
+  "numbers": {
+    "closure_repr_wake_H16_testb_bvae_faith": {
+      "macro": "NumReprWakeBvaeFaith",
+      "value": -0.1869152340357341,
+      "fmt": "%.2f",
+      "seed_mean": -0.1869152340357341,
+      "seed_sd": 0.4829922926460755,
+      "n": 3,
+      "split": "test_b",
+      "endpoint": "representational",
+      "probe": "ridge",
+      "observable": "wake_enstrophy",
+      "horizon": 16,
+      "run_tags": [
+        "bvae_faith_d64_s42",
+        "bvae_faith_d64_s0",
+        "bvae_faith_d64_s1"
+      ],
+      "source": "closure_matrix.py",
+      "note": "d=64, tier pooled, seeds [42, 0, 1], n_enc=42; ci = case-clustered CI of lead seed 42",
+      "ci_lo": -1.0732139216371706,
+      "ci_hi": 0.7307180907839248
+    },
+    "closure_repr_wake_H16_testb_bvae_match": {
+      "macro": "NumReprWakeBvaeMatch",
+      "value": 0.5321602933558306,
+      "fmt": "%.2f",
+      "seed_mean": 0.5321602933558306,
+      "seed_sd": 0.19632638908540231,
+      "n": 3,
+      "split": "test_b",
+      "endpoint": "representational",
+      "probe": "ridge",
+      "observable": "wake_enstrophy",
+      "horizon": 16,
+      "run_tags": [
+        "bvae_match_d64_s42",
+        "bvae_match_d64_s0",
+        "bvae_match_d64_s1"
+      ],
+      "source": "closure_matrix.py",
+      "note": "d=64, tier pooled, seeds [42, 0, 1], n_enc=42; ci = case-clustered CI of lead seed 42",
+      "ci_lo": 0.29489796470699847,
+      "ci_hi": 0.9287691338808112
+    },
+    "closure_repr_wake_H16_testb_ctrl_pred_cnn": {
+      "macro": "NumReprWakeCtrlPredCnn",
+      "value": 0.7888080627356135,
+      "fmt": "%.2f",
+      "seed_mean": 0.7888080627356135,
+      "seed_sd": 0.06194602878212117,
+      "n": 3,
+      "split": "test_b",
+      "endpoint": "representational",
+      "probe": "ridge",
+      "observable": "wake_enstrophy",
+      "horizon": 16,
+      "run_tags": [
+        "ctrl_pred_cnn_s0",
+        "ctrl_pred_cnn_s1",
+        "ctrl_pred_cnn_s2"
+      ],
+      "source": "closure_matrix.py",
+      "note": "d=64, tier pooled, seeds [0, 1, 2], n_enc=42; ci = case-clustered CI of lead seed 0",
+      "ci_lo": 0.5672320089636258,
+      "ci_hi": 0.9607042922153765
+    },
+    "closure_repr_wake_H16_testb_ctrl_pred_vit_nowake": {
+      "macro": "NumReprWakeCtrlPredVitNowake",
+      "value": 0.10509330262802792,
+      "fmt": "%.2f",
+      "seed_mean": 0.10509330262802792,
+      "seed_sd": 0.13346034624014563,
+      "n": 3,
+      "split": "test_b",
+      "endpoint": "representational",
+      "probe": "ridge",
+      "observable": "wake_enstrophy",
+      "horizon": 16,
+      "run_tags": [
+        "ctrl_pred_vit_nowake_s0",
+        "ctrl_pred_vit_nowake_s1",
+        "ctrl_pred_vit_nowake_s2"
+      ],
+      "source": "closure_matrix.py",
+      "note": "d=64, tier pooled, seeds [0, 1, 2], n_enc=42; ci = case-clustered CI of lead seed 0",
+      "ci_lo": -0.5298054175756954,
+      "ci_hi": 0.7562026803218438
+    },
+    "closure_repr_wake_H16_testb_ctrl_recon_cnn": {
+      "macro": "NumReprWakeCtrlReconCnn",
+      "value": 0.3455286182782658,
+      "fmt": "%.2f",
+      "seed_mean": 0.3455286182782658,
+      "seed_sd": 0.4540477614819047,
+      "n": 3,
+      "split": "test_b",
+      "endpoint": "representational",
+      "probe": "ridge",
+      "observable": "wake_enstrophy",
+      "horizon": 16,
+      "run_tags": [
+        "ctrl_recon_cnn_s0",
+        "ctrl_recon_cnn_s1",
+        "ctrl_recon_cnn_s2"
+      ],
+      "source": "closure_matrix.py",
+      "note": "d=64, tier pooled, seeds [0, 1, 2], n_enc=42; ci = case-clustered CI of lead seed 0",
+      "ci_lo": -0.3294158325313943,
+      "ci_hi": 0.7987799061440362
+    },
+    "closure_repr_wake_H16_testb_ctrl_recon_cnnvit": {
+      "macro": "NumReprWakeCtrlReconCnnVit",
+      "value": 0.1266884606260161,
+      "fmt": "%.2f",
+      "seed_mean": 0.1266884606260161,
+      "seed_sd": 0.5540897454217013,
+      "n": 3,
+      "split": "test_b",
+      "endpoint": "representational",
+      "probe": "ridge",
+      "observable": "wake_enstrophy",
+      "horizon": 16,
+      "run_tags": [
+        "ctrl_recon_cnnvit_s0",
+        "ctrl_recon_cnnvit_s1",
+        "ctrl_recon_cnnvit_s2"
+      ],
+      "source": "closure_matrix.py",
+      "note": "d=64, tier pooled, seeds [0, 1, 2], n_enc=42; ci = case-clustered CI of lead seed 0",
+      "ci_lo": -0.6993144659344701,
+      "ci_hi": 0.5794602748288787
+    },
+    "closure_repr_wake_H16_testb_fukami": {
+      "macro": "NumReprWakeFukami",
+      "value": -0.2530461048796958,
+      "fmt": "%.2f",
+      "seed_mean": -0.2530461048796958,
+      "seed_sd": 0.2734062680697433,
+      "n": 4,
+      "split": "test_b",
+      "endpoint": "representational",
+      "probe": "ridge",
+      "observable": "wake_enstrophy",
+      "horizon": 16,
+      "run_tags": [
+        "fukami_d64_s42",
+        "fukami_d64_s0",
+        "fukami_d64_s1",
+        "fukami_d64_s2"
+      ],
+      "source": "closure_matrix.py",
+      "note": "d=64, tier pooled, seeds [42, 0, 1, 2], n_enc=42; ci = case-clustered CI of lead seed 42",
+      "ci_lo": -0.9212825727942862,
+      "ci_hi": 0.6721846208600768
+    },
+    "closure_repr_wake_H16_testb_jepa_lstm_noc": {
+      "macro": "NumReprWakeJepaLstm",
+      "value": 0.6903201606519872,
+      "fmt": "%.2f",
+      "seed_mean": 0.6903201606519872,
+      "seed_sd": 0.05193460648298572,
+      "n": 3,
+      "split": "test_b",
+      "endpoint": "representational",
+      "probe": "ridge",
+      "observable": "wake_enstrophy",
+      "horizon": 16,
+      "run_tags": [
+        "jepa_lstm_noc_d64_s42",
+        "jepa_lstm_noc_d64_s0",
+        "jepa_lstm_noc_d64_s1"
+      ],
+      "source": "closure_matrix.py",
+      "note": "d=64, tier pooled, seeds [42, 0, 1], n_enc=42; ci = case-clustered CI of lead seed 42",
+      "ci_lo": 0.24142003087244812,
+      "ci_hi": 0.9057928180602406
+    },
+    "closure_repr_wake_H16_testb_jepa_tf_cond": {
+      "macro": "NumReprWakeJepaTfCond",
+      "value": 0.7745660661279171,
+      "fmt": "%.2f",
+      "seed_mean": 0.7745660661279171,
+      "seed_sd": 0.07386053106561871,
+      "n": 3,
+      "split": "test_b",
+      "endpoint": "representational",
+      "probe": "ridge",
+      "observable": "wake_enstrophy",
+      "horizon": 16,
+      "run_tags": [
+        "jepa_tf_cond_d64_s42",
+        "jepa_tf_cond_d64_s0",
+        "jepa_tf_cond_d64_s1"
+      ],
+      "source": "closure_matrix.py",
+      "note": "d=64, tier pooled, seeds [42, 0, 1], n_enc=42; ci = case-clustered CI of lead seed 42",
+      "ci_lo": 0.5268250671365433,
+      "ci_hi": 0.9260950356619007
+    },
+    "closure_repr_wake_H16_testb_jepa_tf_noc": {
+      "macro": "NumReprWakeJepaTf",
+      "value": 0.7940275861967386,
+      "fmt": "%.2f",
+      "seed_mean": 0.7940275861967386,
+      "seed_sd": 0.05534878853105978,
+      "n": 4,
+      "split": "test_b",
+      "endpoint": "representational",
+      "probe": "ridge",
+      "observable": "wake_enstrophy",
+      "horizon": 16,
+      "run_tags": [
+        "jepa_tf_noc_d64_s42",
+        "jepa_tf_noc_d64_s0",
+        "jepa_tf_noc_d64_s1",
+        "jepa_tf_noc_d64_s2"
+      ],
+      "source": "closure_matrix.py",
+      "note": "d=64, tier pooled, seeds [42, 0, 1, 2], n_enc=42; ci = case-clustered CI of lead seed 42",
+      "ci_lo": 0.6167194054492413,
+      "ci_hi": 0.908162588691939
+    },
+    "closure_repr_wake_H16_testb_pod": {
+      "macro": "NumReprWakePod",
+      "value": -0.15687236649391667,
+      "fmt": "%.2f",
+      "seed_mean": -0.15687236649391667,
+      "seed_sd": 0.0,
+      "n": 1,
+      "split": "test_b",
+      "endpoint": "representational",
+      "probe": "ridge",
+      "observable": "wake_enstrophy",
+      "horizon": 16,
+      "run_tags": [
+        "pod_d64"
+      ],
+      "source": "closure_matrix.py",
+      "note": "d=64, tier pooled, seeds [-1], n_enc=42; ci = case-clustered CI of lead seed -1",
+      "ci_lo": -0.7788510145680616,
+      "ci_hi": 0.4228526696573668
+    }
+  }
+}

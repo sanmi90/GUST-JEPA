@@ -1,0 +1,118 @@
+{
+  "gate": "GD",
+  "cell": "representational wake_enstrophy R^2, H=16, test_b pooled, d=64, seed means",
+  "probe_classes_evaluated": [
+    "krr_rbf",
+    "mlp_reg",
+    "ridge"
+  ],
+  "probe_classes_required": [
+    "krr_rbf",
+    "mlp_reg",
+    "ridge"
+  ],
+  "rankings_identical": false,
+  "per_probe": {
+    "krr_rbf": {
+      "ranking": [
+        "jepa_lstm_noc",
+        "jepa_tf_noc",
+        "ctrl_pred_cnn",
+        "ctrl_recon_cnn",
+        "bvae_match",
+        "ctrl_recon_cnnvit",
+        "ctrl_pred_vit_nowake",
+        "pod",
+        "fukami",
+        "bvae_faith"
+      ],
+      "family_seed_mean": {
+        "bvae_faith": -0.5386596748384948,
+        "bvae_match": 0.6106320940811486,
+        "ctrl_pred_cnn": 0.7237802842151426,
+        "ctrl_pred_vit_nowake": 0.05090402535552122,
+        "ctrl_recon_cnn": 0.7137989865918802,
+        "ctrl_recon_cnnvit": 0.1195627187704218,
+        "fukami": -0.47444414911262073,
+        "jepa_lstm_noc": 0.8241699624213155,
+        "jepa_tf_noc": 0.8002021652829447,
+        "pod": -0.05042302306242852
+      },
+      "n_predictive": 4,
+      "n_reconstructive": 6,
+      "predictive_floor": 0.05090402535552122,
+      "reconstructive_ceiling": 0.7137989865918802,
+      "predictive_above_reconstructive": false,
+      "case_ci_separated": false,
+      "weak_trigger": true
+    },
+    "mlp_reg": {
+      "ranking": [
+        "jepa_lstm_noc",
+        "ctrl_pred_cnn",
+        "jepa_tf_noc",
+        "ctrl_recon_cnn",
+        "bvae_match",
+        "pod",
+        "ctrl_recon_cnnvit",
+        "ctrl_pred_vit_nowake",
+        "fukami",
+        "bvae_faith"
+      ],
+      "family_seed_mean": {
+        "bvae_faith": -0.6529039731131073,
+        "bvae_match": 0.7036883276239569,
+        "ctrl_pred_cnn": 0.8280511882286145,
+        "ctrl_pred_vit_nowake": -0.19070387352966078,
+        "ctrl_recon_cnn": 0.7819301812593237,
+        "ctrl_recon_cnnvit": 0.23222930742934808,
+        "fukami": -0.24170345443859875,
+        "jepa_lstm_noc": 0.8639414819515712,
+        "jepa_tf_noc": 0.7950912816751248,
+        "pod": 0.3488555088067574
+      },
+      "n_predictive": 4,
+      "n_reconstructive": 6,
+      "predictive_floor": -0.19070387352966078,
+      "reconstructive_ceiling": 0.7819301812593237,
+      "predictive_above_reconstructive": false,
+      "case_ci_separated": false,
+      "weak_trigger": true
+    },
+    "ridge": {
+      "ranking": [
+        "jepa_tf_noc",
+        "ctrl_pred_cnn",
+        "jepa_lstm_noc",
+        "bvae_match",
+        "ctrl_recon_cnn",
+        "ctrl_recon_cnnvit",
+        "ctrl_pred_vit_nowake",
+        "pod",
+        "bvae_faith",
+        "fukami"
+      ],
+      "family_seed_mean": {
+        "bvae_faith": -0.1869152340357341,
+        "bvae_match": 0.5321602933558306,
+        "ctrl_pred_cnn": 0.7888080627356135,
+        "ctrl_pred_vit_nowake": 0.10509330262802792,
+        "ctrl_recon_cnn": 0.3455286182782658,
+        "ctrl_recon_cnnvit": 0.1266884606260161,
+        "fukami": -0.2530461048796958,
+        "jepa_lstm_noc": 0.6903201606519872,
+        "jepa_tf_noc": 0.7940275861967386,
+        "pod": -0.15687236649391667
+      },
+      "n_predictive": 4,
+      "n_reconstructive": 6,
+      "predictive_floor": 0.10509330262802792,
+      "reconstructive_ceiling": 0.5321602933558306,
+      "predictive_above_reconstructive": false,
+      "case_ci_separated": false
+    }
+  },
+  "required_rewrite_either_branch": "rewrite 'no probe can recover information the latent does not carry' as 'no probe in the evaluated class recovers ...' (B2, D183)",
+  "branch": "weak",
+  "reason": "a nonlinear probe recovers the reconstructive wake within 0.15 of the predictive one: rewrite carries/encodes claims as LINEAR DECODABILITY"
+}
