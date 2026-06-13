@@ -8249,6 +8249,23 @@ the referee-bait rescue "the AE wins but its win is an artifact"; just do not
 claim transport tracking. AUTHOR editorial call: cut transport entirely vs keep
 the norm-variance mechanism sentence.
 
+**AUTHOR DECISION 2026-06-13: CUT TRANSPORT ENTIRELY + ELEVATE WALL-PRESSURE
+SENSING TO A MAIN RESULT.** Transport is removed from the paper completely (no
+section, not even the norm-variance sentence); C-E3 code + results stay as
+internal tested artifacts. This DISSOLVES referee M5 (no transport claim -> no
+under-specified-transport complaint; the incoherent pooled-reversal paragraph
+is deleted with the section). The norm-variance finding remains in this HANDOFF
+as internal knowledge only. In exchange, the sparse wall-pressure OBSERVABILITY
+result is PROMOTED from the S4.7 deployment-tail to a MAIN result: the same
+predictive latent that makes the wake linearly readable is also the state most
+recoverable from a few wall-pressure taps. This is the paper's "so what" and
+becomes a headline alongside the closure result. S4.3 mechanism now leads on
+DRIFT + the no-gust TOPOLOGY limit cycle only (transport gone); the sensing
+section moves up and the abstract's closing sensing sentence is strengthened,
+not hedged as deployment. C-F observability rebuild (qDEIM primary, all
+families, three-panel, direct pressure->wake baseline) is now high-priority and
+runs on v2p1 unconditioned latents + the cache p_wall (120,192).
+
 ### C-E1 drift reconciliation (M6): both metrics reconciled; "9x" is estimator-fragile (2026-06-13)
 
 `scripts/session28/drift_ce1.py` (+ 10 tests; the M6 mechanism shipped as a
