@@ -1,0 +1,94 @@
+{
+  "part": "p5_code",
+  "numbers": {
+    "p5_collective_gap_jepa": {
+      "macro": "NumPfiveCollectiveGapJepa",
+      "value": 0.35892282341806303,
+      "fmt": "%.2f",
+      "n": 2688,
+      "split": "test_b",
+      "endpoint": "representational",
+      "probe": "ridge",
+      "observable": "wake_enstrophy@H16",
+      "note": "combo 0.80 minus best-single 0.44; n_strong(>0.5)=0; seed mean 0.40+-0.09 over 4 seeds; D163 collective-code gap regenerated on v2.1 unconditioned latents."
+    },
+    "p5_collective_gap_fukami": {
+      "macro": "NumPfiveCollectiveGapFukami",
+      "value": 0.04707282696626014,
+      "fmt": "%.2f",
+      "n": 2688,
+      "split": "test_b",
+      "observable": "wake_enstrophy@H16",
+      "note": "combo 0.60 - best-single 0.55"
+    },
+    "p5_collective_gap_pod": {
+      "macro": "NumPfiveCollectiveGapPod",
+      "value": 0.039840012983269,
+      "fmt": "%.2f",
+      "n": 2688,
+      "split": "test_b",
+      "observable": "wake_enstrophy@H16",
+      "note": "combo 0.57 - best-single 0.53"
+    },
+    "p5_energy_knee_jepa_tf_noc": {
+      "macro": "NumPfiveEnergyKneeJepa",
+      "value": 32,
+      "fmt": "%d",
+      "unit": "PCs",
+      "split": "test_b",
+      "observable": "wake_enstrophy@H16",
+      "note": "knee at 90% of asymptotic R^2 0.29"
+    },
+    "p5_energy_knee_fukami": {
+      "macro": "NumPfiveEnergyKneeFukami",
+      "value": 12,
+      "fmt": "%d",
+      "unit": "PCs",
+      "split": "test_b",
+      "observable": "wake_enstrophy@H16",
+      "note": "knee at 90% of asymptotic R^2 0.25"
+    },
+    "p5_energy_knee_pod": {
+      "macro": "NumPfiveEnergyKneePod",
+      "value": 1,
+      "fmt": "%d",
+      "unit": "PCs",
+      "split": "test_b",
+      "observable": "wake_enstrophy@H16",
+      "note": "knee at 90% of asymptotic R^2 0.09; retained energy 10.30%"
+    },
+    "p5_paired_jepa_vs_fukami_wake": {
+      "macro": "NumPfivePairedJepaWake",
+      "value": -0.001296635896957864,
+      "fmt": "%.3f",
+      "ci_lo": -0.06088990756705734,
+      "ci_hi": 0.05979077714073353,
+      "n": 2688,
+      "split": "test_b",
+      "observable": "wake_enstrophy@H16 readout |error| (fukami - jepa)",
+      "note": "jepa errs less in 1323/2688 rows, one-sided sign p = 0.797; case-clustered CI over 10 cases; sign test + case-clustered CI, NOT case_permutation_p (B6)."
+    },
+    "p5_footprint_omega_overlap": {
+      "macro": "NumPfiveFootprintOmegaOverlap",
+      "value": 0.07041922696196133,
+      "fmt": "%.3f",
+      "ci_lo": 0.09639408324492951,
+      "ci_hi": 0.10228293183220381,
+      "n": 66,
+      "split": "test_b+test_c",
+      "observable": "wake-forecast saliency overlap with omega mask",
+      "note": "chance mean 0.099 (95% null [0.096, 0.102]); z=-18.90; BELOW chance (saliency AVOIDS this structure); Q from raw /u: True."
+    },
+    "p5_footprint_q_overlap": {
+      "macro": "NumPfiveFootprintQOverlap",
+      "value": 0.00955988513771463,
+      "fmt": "%.3f",
+      "ci_lo": 0.010689921820149379,
+      "ci_hi": 0.011883564720711148,
+      "n": 66,
+      "split": "test_b+test_c",
+      "observable": "wake-forecast saliency overlap with q mask",
+      "note": "chance mean 0.011 (95% null [0.011, 0.012]); z=-5.69; BELOW chance (saliency AVOIDS this structure); Q from raw /u: True."
+    }
+  }
+}

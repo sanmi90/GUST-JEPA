@@ -1,0 +1,169 @@
+{
+  "deliverable": "parametric / model-free floor on v2p1 (B4 / D145; RENAMED 2026-06-13 from 'conditioning floor' to 'parametric / model-free floor')",
+  "definition": "regress each observable on the gust parameters (G, D, Y) ALONE -- no latent, no model -- as the model-free baseline: how much of each observable do the parameters explain?",
+  "regressors": {
+    "ridge": "linear (closure fit_ridge, alpha=1)",
+    "krr_rbf": "KRR-RBF"
+  },
+  "protocol": "fit on TRAIN cases, read out at impact + 16 on test_b (pooled tiers); held-out R^2 = 1 - SSE/SST about the held-out split's OWN mean (closure_matrix estimator); case-clustered CI (stats_lib.case_cluster_bootstrap, n=10000); train_oof_r2 is the 5-fold case-level CV (no case straddles folds) OOF R^2 on TRAIN.",
+  "observable_source": "/home/carlos/GUST-JEPA/outputs/session28/exp2/dns_physical_metrics.npz",
+  "parameter_source": "/home/carlos/GUST-JEPA/configs/splits/split_v2p1.json",
+  "horizon": 16,
+  "split": "test_b",
+  "n_folds": 5,
+  "floor": {
+    "C_L": {
+      "ridge": {
+        "regressor": "ridge",
+        "n": 42,
+        "n_cases": 10,
+        "value": 0.6130024343113982,
+        "ci_lo": 0.3103718618664989,
+        "ci_hi": 0.8112111866114878,
+        "cc_ci_lo": 0.2208043183959738,
+        "cc_ci_hi": 0.8504394772952895,
+        "train_oof_r2_5fold_case_cv": 0.43166739187208236
+      },
+      "krr_rbf": {
+        "regressor": "krr_rbf",
+        "n": 42,
+        "n_cases": 10,
+        "value": 0.6058733976193074,
+        "ci_lo": 0.2612814177991404,
+        "ci_hi": 0.8356681962451762,
+        "cc_ci_lo": 0.12873990816173597,
+        "cc_ci_hi": 0.8761612091662683,
+        "train_oof_r2_5fold_case_cv": 0.46336098939520365
+      }
+    },
+    "C_D": {
+      "ridge": {
+        "regressor": "ridge",
+        "n": 42,
+        "n_cases": 10,
+        "value": 0.5395866337203702,
+        "ci_lo": 0.16103206918870405,
+        "ci_hi": 0.8205732495079199,
+        "cc_ci_lo": 0.0007418893158309681,
+        "cc_ci_hi": 0.921495204989891,
+        "train_oof_r2_5fold_case_cv": 0.4621590868258023
+      },
+      "krr_rbf": {
+        "regressor": "krr_rbf",
+        "n": 42,
+        "n_cases": 10,
+        "value": 0.507728668504268,
+        "ci_lo": 0.0571860041761475,
+        "ci_hi": 0.8315288053657973,
+        "cc_ci_lo": -0.13697526381674563,
+        "cc_ci_hi": 0.953269517168796,
+        "train_oof_r2_5fold_case_cv": 0.4807076358236315
+      }
+    },
+    "I_y": {
+      "ridge": {
+        "regressor": "ridge",
+        "n": 42,
+        "n_cases": 10,
+        "value": 0.24632781576932505,
+        "ci_lo": -0.5137457529580303,
+        "ci_hi": 0.7709211496171982,
+        "cc_ci_lo": -0.6656397961425691,
+        "cc_ci_hi": 0.8086435125578617,
+        "train_oof_r2_5fold_case_cv": 0.29437501626353524
+      },
+      "krr_rbf": {
+        "regressor": "krr_rbf",
+        "n": 42,
+        "n_cases": 10,
+        "value": 0.2193476662685354,
+        "ci_lo": -0.574838907543689,
+        "ci_hi": 0.7682114437706381,
+        "cc_ci_lo": -0.7404674233353434,
+        "cc_ci_hi": 0.8109685299988663,
+        "train_oof_r2_5fold_case_cv": 0.31054297771592376
+      }
+    },
+    "wake_enstrophy": {
+      "ridge": {
+        "regressor": "ridge",
+        "n": 42,
+        "n_cases": 10,
+        "value": -0.17650674313663717,
+        "ci_lo": -1.3677702296717995,
+        "ci_hi": 0.6690254017110933,
+        "cc_ci_lo": -1.8314248738808798,
+        "cc_ci_hi": 0.7686773844726301,
+        "train_oof_r2_5fold_case_cv": -0.20853734375878608
+      },
+      "krr_rbf": {
+        "regressor": "krr_rbf",
+        "n": 42,
+        "n_cases": 10,
+        "value": -0.12003573750454644,
+        "ci_lo": -1.318545215242001,
+        "ci_hi": 0.7236893848175412,
+        "cc_ci_lo": -1.7852053173863167,
+        "cc_ci_hi": 0.8111297178010983,
+        "train_oof_r2_5fold_case_cv": -0.12876924849959748
+      }
+    },
+    "circulation_pos": {
+      "ridge": {
+        "regressor": "ridge",
+        "n": 42,
+        "n_cases": 10,
+        "value": -0.04814791334390689,
+        "ci_lo": -1.1981095329714084,
+        "ci_hi": 0.700947040117939,
+        "cc_ci_lo": -1.5849187172495944,
+        "cc_ci_hi": 0.8124188033821558,
+        "train_oof_r2_5fold_case_cv": 0.014792021846599779
+      },
+      "krr_rbf": {
+        "regressor": "krr_rbf",
+        "n": 42,
+        "n_cases": 10,
+        "value": -0.01820115008279455,
+        "ci_lo": -1.1433696400868216,
+        "ci_hi": 0.7093418348684017,
+        "cc_ci_lo": -1.5170725624854162,
+        "cc_ci_hi": 0.8110213777787392,
+        "train_oof_r2_5fold_case_cv": 0.06689624079431888
+      }
+    },
+    "circulation_neg": {
+      "ridge": {
+        "regressor": "ridge",
+        "n": 42,
+        "n_cases": 10,
+        "value": 0.2304995212447173,
+        "ci_lo": -0.5439309380082105,
+        "ci_hi": 0.7437291136335331,
+        "cc_ci_lo": -0.9086730126598472,
+        "cc_ci_hi": 0.8551663366546872,
+        "train_oof_r2_5fold_case_cv": -0.040402012508666596
+      },
+      "krr_rbf": {
+        "regressor": "krr_rbf",
+        "n": 42,
+        "n_cases": 10,
+        "value": 0.2243552328333871,
+        "ci_lo": -0.6097570629466982,
+        "ci_hi": 0.7763242043142066,
+        "cc_ci_lo": -1.0121091918402527,
+        "cc_ci_hi": 0.890761360377082,
+        "train_oof_r2_5fold_case_cv": 0.008097040999296867
+      }
+    }
+  },
+  "framing": {
+    "closure_jepa_wake_repr_r2": 0.794,
+    "wake_floor_ridge": -0.17650674313663717,
+    "wake_floor_krr": -0.12003573750454644,
+    "wake_floor_best": -0.12003573750454644,
+    "latent_minus_floor": 0.9140357375045465,
+    "latent_beats_floor": true,
+    "sentence": "On the wake enstrophy, the gust parameters alone explain R^2 = -0.18 (linear) / -0.12 (KRR-RBF) of the held-out test_b variance at impact + 16; the predictive latent recovers R^2 = 0.79, clearing the model-free parametric floor by +0.91, so the representation carries flow state beyond the gust parameters."
+  }
+}

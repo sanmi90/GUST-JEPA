@@ -1,14 +1,16 @@
 {
   "_provenance": {
-    "generated_iso": "2026-06-13T14:34:15.573391+00:00",
-    "git_commit": "e246847887069d64ea78bd08f60c60e749cec76c",
+    "generated_iso": "2026-06-13T14:57:42.474638+00:00",
+    "git_commit": "e12a2b7d40399673cc1f011d79525584dd98baa5",
     "manifest_runs_sha256": "aa07e687f2080e7e7f0dea8d75f3b2af40a86fa68c19f828ae3ec98422e60bbe",
-    "n_parts": 10,
+    "n_parts": 12,
     "parts": [
       "closure_headline.json",
       "decode_operating_points.json",
       "drift_ce1.json",
+      "e4_floor.json",
       "p4_lev.json",
+      "p5_code.json",
       "sensing_cf.json",
       "sensing_field_cf.json",
       "spectrum_dmd.json",
@@ -489,6 +491,36 @@
       "split": "test_b",
       "value": 0.8825952227058818
     },
+    "e4_wake_gtrend_sigmac_0p01": {
+      "fmt": "%.2f",
+      "macro": "NumEfourWakeGtrendSigmaEone",
+      "n": 42,
+      "note": "sigma/c = 0.01 (0.32 px); E4 scale-band sensitivity; Spearman p = 0.00052; robust across bands = True",
+      "observable": "peak large-scale wake-enstrophy excursion vs |G| (Spearman rho)",
+      "source": "e4_floor",
+      "split": "test_b",
+      "value": 0.5122475858672811
+    },
+    "e4_wake_gtrend_sigmac_0p03": {
+      "fmt": "%.2f",
+      "macro": "NumEfourWakeGtrendSigmaEthree",
+      "n": 42,
+      "note": "sigma/c = 0.03 (0.96 px); E4 scale-band sensitivity; Spearman p = 2.4e-07; robust across bands = True",
+      "observable": "peak large-scale wake-enstrophy excursion vs |G| (Spearman rho)",
+      "source": "e4_floor",
+      "split": "test_b",
+      "value": 0.7005349736957583
+    },
+    "e4_wake_gtrend_sigmac_0p05": {
+      "fmt": "%.2f",
+      "macro": "NumEfourWakeGtrendSigmaEfive",
+      "n": 42,
+      "note": "sigma/c = 0.05 (1.60 px); E4 scale-band sensitivity; Spearman p = 2.1e-08; robust across bands = True",
+      "observable": "peak large-scale wake-enstrophy excursion vs |G| (Spearman rho)",
+      "source": "e4_floor",
+      "split": "test_b",
+      "value": 0.7405749981724644
+    },
     "field_ceiling_ssim_K8_testb_fukami": {
       "ci_hi": 0.6077247128737465,
       "ci_lo": 0.47139204395728235,
@@ -890,6 +922,104 @@
       "split": "test_b+test_c",
       "value": 0.2878787878787879
     },
+    "p5_collective_gap_fukami": {
+      "fmt": "%.2f",
+      "macro": "NumPfiveCollectiveGapFukami",
+      "n": 2688,
+      "note": "combo 0.60 - best-single 0.55",
+      "observable": "wake_enstrophy@H16",
+      "source": "p5_code",
+      "split": "test_b",
+      "value": 0.04707282696626014
+    },
+    "p5_collective_gap_jepa": {
+      "endpoint": "representational",
+      "fmt": "%.2f",
+      "macro": "NumPfiveCollectiveGapJepa",
+      "n": 2688,
+      "note": "combo 0.80 minus best-single 0.44; n_strong(>0.5)=0; seed mean 0.40+-0.09 over 4 seeds; D163 collective-code gap regenerated on v2.1 unconditioned latents.",
+      "observable": "wake_enstrophy@H16",
+      "probe": "ridge",
+      "source": "p5_code",
+      "split": "test_b",
+      "value": 0.35892282341806303
+    },
+    "p5_collective_gap_pod": {
+      "fmt": "%.2f",
+      "macro": "NumPfiveCollectiveGapPod",
+      "n": 2688,
+      "note": "combo 0.57 - best-single 0.53",
+      "observable": "wake_enstrophy@H16",
+      "source": "p5_code",
+      "split": "test_b",
+      "value": 0.039840012983269
+    },
+    "p5_energy_knee_fukami": {
+      "fmt": "%d",
+      "macro": "NumPfiveEnergyKneeFukami",
+      "note": "knee at 90% of asymptotic R^2 0.25",
+      "observable": "wake_enstrophy@H16",
+      "source": "p5_code",
+      "split": "test_b",
+      "unit": "PCs",
+      "value": 12
+    },
+    "p5_energy_knee_jepa_tf_noc": {
+      "fmt": "%d",
+      "macro": "NumPfiveEnergyKneeJepa",
+      "note": "knee at 90% of asymptotic R^2 0.29",
+      "observable": "wake_enstrophy@H16",
+      "source": "p5_code",
+      "split": "test_b",
+      "unit": "PCs",
+      "value": 32
+    },
+    "p5_energy_knee_pod": {
+      "fmt": "%d",
+      "macro": "NumPfiveEnergyKneePod",
+      "note": "knee at 90% of asymptotic R^2 0.09; retained energy 10.30%",
+      "observable": "wake_enstrophy@H16",
+      "source": "p5_code",
+      "split": "test_b",
+      "unit": "PCs",
+      "value": 1
+    },
+    "p5_footprint_omega_overlap": {
+      "ci_hi": 0.10228293183220381,
+      "ci_lo": 0.09639408324492951,
+      "fmt": "%.3f",
+      "macro": "NumPfiveFootprintOmegaOverlap",
+      "n": 66,
+      "note": "chance mean 0.099 (95% null [0.096, 0.102]); z=-18.90; BELOW chance (saliency AVOIDS this structure); Q from raw /u: True.",
+      "observable": "wake-forecast saliency overlap with omega mask",
+      "source": "p5_code",
+      "split": "test_b+test_c",
+      "value": 0.07041922696196133
+    },
+    "p5_footprint_q_overlap": {
+      "ci_hi": 0.011883564720711148,
+      "ci_lo": 0.010689921820149379,
+      "fmt": "%.3f",
+      "macro": "NumPfiveFootprintQOverlap",
+      "n": 66,
+      "note": "chance mean 0.011 (95% null [0.011, 0.012]); z=-5.69; BELOW chance (saliency AVOIDS this structure); Q from raw /u: True.",
+      "observable": "wake-forecast saliency overlap with q mask",
+      "source": "p5_code",
+      "split": "test_b+test_c",
+      "value": 0.00955988513771463
+    },
+    "p5_paired_jepa_vs_fukami_wake": {
+      "ci_hi": 0.05979077714073353,
+      "ci_lo": -0.06088990756705734,
+      "fmt": "%.3f",
+      "macro": "NumPfivePairedJepaWake",
+      "n": 2688,
+      "note": "jepa errs less in 1323/2688 rows, one-sided sign p = 0.797; case-clustered CI over 10 cases; sign test + case-clustered CI, NOT case_permutation_p (B6).",
+      "observable": "wake_enstrophy@H16 readout |error| (fukami - jepa)",
+      "source": "p5_code",
+      "split": "test_b",
+      "value": -0.001296635896957864
+    },
     "paired_repr_wake_pred_minus_fukami": {
       "ci_hi": 58.720187312181125,
       "ci_lo": 7.790913520984917,
@@ -909,11 +1039,39 @@
       "split": "test_b",
       "value": 33.56333489551835
     },
+    "param_floor_wake_krr_rbf_H16_testb": {
+      "ci_hi": 0.8111297178010983,
+      "ci_lo": -1.7852053173863167,
+      "fmt": "%.2f",
+      "horizon": 16,
+      "macro": "NumParamFloorWakeKrr",
+      "n": 42,
+      "note": "parametric / model-free floor ((G,D,Y) -> wake_enstrophy, KRR-RBF); case-clustered CI; closure latent (repr wake, JEPA tf-no-c) = 0.79 clears it by +0.91.",
+      "observable": "wake_enstrophy",
+      "probe": "krr_rbf",
+      "source": "e4_floor",
+      "split": "test_b",
+      "value": -0.12003573750454644
+    },
+    "param_floor_wake_ridge_H16_testb": {
+      "ci_hi": 0.7686773844726301,
+      "ci_lo": -1.8314248738808798,
+      "fmt": "%.2f",
+      "horizon": 16,
+      "macro": "NumParamFloorWakeLinear",
+      "n": 42,
+      "note": "parametric / model-free floor ((G,D,Y) -> wake_enstrophy, linear ridge); case-clustered CI; closure latent (repr wake, JEPA tf-no-c) = 0.79 clears it by +0.97.",
+      "observable": "wake_enstrophy",
+      "probe": "ridge",
+      "source": "e4_floor",
+      "split": "test_b",
+      "value": -0.17650674313663717
+    },
     "protocol_commit": {
       "fmt": "%s",
       "macro": "CommitHash",
       "source": "eval_all.py",
-      "value": "e24684788706"
+      "value": "e12a2b7d4039"
     },
     "sensing_causal_clip_delta": {
       "endpoint": "deployment",

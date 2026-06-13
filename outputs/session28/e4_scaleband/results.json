@@ -1,0 +1,173 @@
+{
+  "deliverable": "E4 scale-band sensitivity (closes referee S4)",
+  "headline_metric": "peak post-impact large-scale wake-enstrophy excursion denstrophy_peak_post = max_t |E(t) - mean(E pre-impact)|",
+  "headline_finding": "monotone increase of the peak excursion with gust strength |G| (Spearman rho on test_b)",
+  "sigma_c_grid": [
+    0.01,
+    0.03,
+    0.05
+  ],
+  "headline_sigma_c": 0.05,
+  "filter": "scipy.ndimage.gaussian_filter, sigma=(0, sigma_px, sigma_px), sigma_px = sigma_c / dx, dx = 0.03125 c; wake box x in [0.5, 4], |y| <= 1",
+  "cache_root": "/home/carlos/PREVENT/data/processed/vortex-jepa/v2p1",
+  "split_manifest": "/home/carlos/GUST-JEPA/configs/splits/split_v2p1.json",
+  "n_encounters": 382,
+  "bands": {
+    "train": {
+      "0.01": {
+        "sigma_c": 0.01,
+        "sigma_px": 0.32,
+        "split": "train",
+        "n": 229,
+        "median_peak": 168.9473378339431,
+        "mean_peak": 389.3999663056171,
+        "g_spearman_rho": 0.6253776524023699,
+        "g_spearman_p": 2.955262051259629e-26
+      },
+      "0.03": {
+        "sigma_c": 0.03,
+        "sigma_px": 0.96,
+        "split": "train",
+        "n": 229,
+        "median_peak": 57.43643815991305,
+        "mean_peak": 88.7248507987722,
+        "g_spearman_rho": 0.7576160942507034,
+        "g_spearman_p": 6.062593790949992e-44
+      },
+      "0.05": {
+        "sigma_c": 0.05,
+        "sigma_px": 1.6,
+        "split": "train",
+        "n": 229,
+        "median_peak": 42.0952713106281,
+        "mean_peak": 60.68594328907614,
+        "g_spearman_rho": 0.7755779688055813,
+        "g_spearman_p": 3.010026022982974e-47
+      }
+    },
+    "val": {
+      "0.01": {
+        "sigma_c": 0.01,
+        "sigma_px": 0.32,
+        "split": "val",
+        "n": 87,
+        "median_peak": 165.0712742968734,
+        "mean_peak": 405.84574515634836,
+        "g_spearman_rho": 0.6797269006055702,
+        "g_spearman_p": 4.521142417692453e-13
+      },
+      "0.03": {
+        "sigma_c": 0.03,
+        "sigma_px": 0.96,
+        "split": "val",
+        "n": 87,
+        "median_peak": 59.67107006857564,
+        "mean_peak": 87.42608667330438,
+        "g_spearman_rho": 0.7906906273029841,
+        "g_spearman_p": 8.354013695035479e-20
+      },
+      "0.05": {
+        "sigma_c": 0.05,
+        "sigma_px": 1.6,
+        "split": "val",
+        "n": 87,
+        "median_peak": 44.292830946146324,
+        "mean_peak": 60.417065876705564,
+        "g_spearman_rho": 0.7990888332537981,
+        "g_spearman_p": 1.77004767758232e-20
+      }
+    },
+    "test_b": {
+      "0.01": {
+        "sigma_c": 0.01,
+        "sigma_px": 0.32,
+        "split": "test_b",
+        "n": 42,
+        "median_peak": 204.862361019451,
+        "mean_peak": 306.0317331922989,
+        "g_spearman_rho": 0.5122475858672811,
+        "g_spearman_p": 0.0005244511274142325
+      },
+      "0.03": {
+        "sigma_c": 0.03,
+        "sigma_px": 0.96,
+        "split": "test_b",
+        "n": 42,
+        "median_peak": 61.48443985098862,
+        "mean_peak": 69.91248020055606,
+        "g_spearman_rho": 0.7005349736957583,
+        "g_spearman_p": 2.405670118680099e-07
+      },
+      "0.05": {
+        "sigma_c": 0.05,
+        "sigma_px": 1.6,
+        "split": "test_b",
+        "n": 42,
+        "median_peak": 46.88740876345012,
+        "mean_peak": 54.672917391210184,
+        "g_spearman_rho": 0.7405749981724644,
+        "g_spearman_p": 2.0633295909203318e-08
+      }
+    },
+    "test_c": {
+      "0.01": {
+        "sigma_c": 0.01,
+        "sigma_px": 0.32,
+        "split": "test_c",
+        "n": 24,
+        "median_peak": 801.9062583337527,
+        "mean_peak": 792.2778702103924,
+        "g_spearman_rho": NaN,
+        "g_spearman_p": NaN
+      },
+      "0.03": {
+        "sigma_c": 0.03,
+        "sigma_px": 0.96,
+        "split": "test_c",
+        "n": 24,
+        "median_peak": 142.5667853369966,
+        "mean_peak": 176.5624637225889,
+        "g_spearman_rho": NaN,
+        "g_spearman_p": NaN
+      },
+      "0.05": {
+        "sigma_c": 0.05,
+        "sigma_px": 1.6,
+        "split": "test_c",
+        "n": 24,
+        "median_peak": 112.80861476625122,
+        "mean_peak": 109.82651050659206,
+        "g_spearman_rho": NaN,
+        "g_spearman_p": NaN
+      }
+    }
+  },
+  "verdict": {
+    "split": "test_b",
+    "criterion": "|G| Spearman trend positive and significant (p<0.05) at all three bands",
+    "headline_g_spearman_rho": 0.7405749981724644,
+    "headline_g_spearman_p": 2.0633295909203318e-08,
+    "g_spearman_by_band": {
+      "0.01": {
+        "rho": 0.5122475858672811,
+        "p": 0.0005244511274142325
+      },
+      "0.03": {
+        "rho": 0.7005349736957583,
+        "p": 2.405670118680099e-07
+      },
+      "0.05": {
+        "rho": 0.7405749981724644,
+        "p": 2.0633295909203318e-08
+      }
+    },
+    "all_bands_positive_significant": true,
+    "per_encounter_rank_corr_vs_headline": {
+      "0.01": 0.8133052426869785,
+      "0.03": 0.9737460497528565
+    },
+    "rank_corr_note": "diagnostic only, NOT a robustness gate: the per-encounter ordering at the sub-pixel 0.01 band shifts (rho ~ 0.81) because it is essentially unsmoothed; the 0.03 band tracks the headline closely (rho ~ 0.97)",
+    "robust": true,
+    "sentence": "Recomputing the peak large-scale wake-enstrophy excursion at sigma/c in {0.01, 0.03, 0.05} leaves the headline finding intact: the excursion increases monotonically with gust strength on the held-out test_b cases at every filter scale (Spearman 0.01: rho=0.51, 0.03: rho=0.70, 0.05: rho=0.74, all p < 0.05), so the |G| trend does not depend on the choice of filter scale (the absolute excursion magnitude naturally grows as the band narrows and smooths less)."
+  }
+}

@@ -29,6 +29,12 @@ report ([[feedback-paper-not-lab-report]]).
    stable orbit (Floquet leading multiplier 1.004), and BEATS the DMD/linear-
    dynamics rung on forecast wake R2 by +0.82 (jepa +0.43 vs POD-DMD -0.39).
    Koopman-AE NOT needed: the DMD rung settles the linear-latent-dynamics axis.
+3b. **Distributed wake code (P5).** The wake forecast is a collective/distributed
+   JEPA code (combo-minus-best-single gap +0.36 vs baselines ~0.04; energy-info
+   knee 32 PCs vs POD's 1), beating the model-free parametric floor (wake floor
+   NEGATIVE, -0.18; latent +0.79 clears it by +0.91; forces floors high C_L
+   +0.61 sharpen the wake-vs-forces distinction). Footprint-localization claim
+   CUT (saliency below chance). Scale-band trend robust (S4 closed).
 4. **Model-free DNS physics.** |G| degradation of wake closure (Spearman -0.56,
    p 0.0022); shedding-phase RESET by the gust (decorrelates at |G|>=0.25,
    G-monotone mean phase step); G-sign LEV asymmetry (negative gusts ->
@@ -45,7 +51,7 @@ report ([[feedback-paper-not-lab-report]]).
 |S4.3 Mechanism: topology|GUSTED fragmentation = metric artefact (CUT as topology); no-gust limit-cycle survives (fukami fragments clean cycle)|limit-cycle result MAIN-or-appendix; gusted claim CUT; fix abstract (fragmentation=ENCODING)|
 |S4.3 Mechanism: transport|v2 "JEPA tracks transport geometry" DEAD|CUT ENTIRELY (dissolves M5)|
 |S4.4 Flow physics|P1 (|G| trend), P3 (phase reset), P4 G-sign LEV asymmetry|MAIN; P4 GP4 corr + P1 collapse-fit -> APPENDIX|
-|S4.5 Latent code (P5)|NOT YET RUN|pending; expect decoder/latent-image claims to face the same scrutiny|
+|S4.5 Latent code (P5)|collective/distributed code REPRODUCES (gap +0.36 vs ~0.04; energy-info knee jepa 32 PC vs pod 1); saliency FOOTPRINT reverses (below chance, D163 dropped)|distributed-code + energy-info MAIN/appendix; footprint-localization CUT|
 |S4.6 Physical-space decode|decode-ceiling + matched post-hoc decoders exist; LEV-tracking-by-family (D146) DEAD on matched decoders (POD wins via decoder)|decode-ceiling figure kept; latent-LEV-tracking claim CUT|
 |S4.7 Sensing|promoted to spine #2|MOVED UP to MAIN|
 

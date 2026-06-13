@@ -1,0 +1,381 @@
+{
+  "config": {
+    "horizon": 16,
+    "wake_observable": "wake_enstrophy",
+    "strong_threshold": 0.5,
+    "knee_fraction": 0.9,
+    "n_group": 2,
+    "norm_divisor": 10.901049731324797,
+    "jepa_ckpt": "outputs/runs/session28/jepa_tf_noc_d64_s42/encoder/checkpoint_iter020000.pt",
+    "splits_footprint": [
+      "test_b",
+      "test_c"
+    ],
+    "device_requested": "rtx6000:1",
+    "families": [
+      "jepa_tf_noc",
+      "fukami",
+      "pod"
+    ]
+  },
+  "collective_code": {
+    "per_family": {
+      "jepa_tf_noc": {
+        "combo": 0.8010980091681661,
+        "best_single": 0.44217518575010306,
+        "gap": 0.35892282341806303,
+        "n_strong": 0,
+        "beyond_forces": 0.7913653859305416,
+        "grouping": {
+          "n_active": 12,
+          "active_coords": [
+            12,
+            17,
+            20,
+            22,
+            26,
+            29,
+            32,
+            34,
+            35,
+            37,
+            38,
+            39
+          ],
+          "grouped": true,
+          "activity_threshold": 0.22108759287505153,
+          "best_single": 0.44217518575010306,
+          "n_group": 2,
+          "group_sizes": [
+            3,
+            9
+          ],
+          "groups": [
+            [
+              29,
+              32,
+              39
+            ],
+            [
+              12,
+              17,
+              20,
+              22,
+              26,
+              34,
+              35,
+              37,
+              38
+            ]
+          ],
+          "pairwise_cos2_leadPC": 0.0,
+          "subspace_null_K_over_d": 0.015625,
+          "K": 1,
+          "d": 64,
+          "overlap_above_null": false,
+          "note": "groups are disjoint coordinate sets, so axis-aligned overlap is 0 by construction; the reported cos^2 is between each group's leading data PC embedded in the d-dim ambient, scored against the K/d null."
+        },
+        "n_rows_train": 14656,
+        "n_rows_test_b": 2688
+      },
+      "fukami": {
+        "combo": 0.6005256249475928,
+        "best_single": 0.5534527979813326,
+        "gap": 0.04707282696626014,
+        "n_strong": 1,
+        "beyond_forces": 0.5708568730349833,
+        "grouping": {
+          "n_active": 29,
+          "active_coords": [
+            0,
+            5,
+            7,
+            10,
+            14,
+            16,
+            18,
+            19,
+            22,
+            26,
+            27,
+            28,
+            29,
+            32,
+            35,
+            36,
+            38,
+            39,
+            40,
+            41,
+            43,
+            45,
+            48,
+            49,
+            50,
+            54,
+            55,
+            57,
+            62
+          ],
+          "grouped": true,
+          "activity_threshold": 0.2767263989906663,
+          "best_single": 0.5534527979813326,
+          "n_group": 2,
+          "group_sizes": [
+            16,
+            13
+          ],
+          "groups": [
+            [
+              0,
+              7,
+              10,
+              14,
+              22,
+              27,
+              28,
+              32,
+              35,
+              36,
+              39,
+              43,
+              48,
+              50,
+              54,
+              62
+            ],
+            [
+              5,
+              16,
+              18,
+              19,
+              26,
+              29,
+              38,
+              40,
+              41,
+              45,
+              49,
+              55,
+              57
+            ]
+          ],
+          "pairwise_cos2_leadPC": 0.0,
+          "subspace_null_K_over_d": 0.015625,
+          "K": 1,
+          "d": 64,
+          "overlap_above_null": false,
+          "note": "groups are disjoint coordinate sets, so axis-aligned overlap is 0 by construction; the reported cos^2 is between each group's leading data PC embedded in the d-dim ambient, scored against the K/d null."
+        },
+        "n_rows_train": 14656,
+        "n_rows_test_b": 2688
+      },
+      "pod": {
+        "combo": 0.5651729909965125,
+        "best_single": 0.5253329780132435,
+        "gap": 0.039840012983269,
+        "n_strong": 1,
+        "beyond_forces": 0.5505189428111978,
+        "grouping": {
+          "n_active": 3,
+          "active_coords": [
+            0,
+            5,
+            9
+          ],
+          "grouped": false,
+          "activity_threshold": 0.26266648900662176,
+          "best_single": 0.5253329780132435,
+          "reason": "fewer than 2*n_group coordinates above the relative activity threshold 0.263 (best single 0.525); no grouping"
+        },
+        "n_rows_train": 14656,
+        "n_rows_test_b": 2688
+      }
+    },
+    "jepa_seed_gap_mean": 0.4016545100145933,
+    "jepa_seed_gap_sd": 0.09093531336969171,
+    "jepa_seed_n": 4,
+    "paired_jepa_vs_fukami": {
+      "fam_a": "jepa_tf_noc_d64_s42",
+      "fam_b": "fukami_d64_s42",
+      "n": 2688,
+      "n_cases": 10,
+      "a_better_count": 1323,
+      "n_effective": 2688,
+      "sign_p_one_sided": 0.7965531618391594,
+      "mean_delta_abserr": -0.001296635896957864,
+      "case_cluster_enc_mean_ci": [
+        -0.06088990756705734,
+        0.05979077714073353
+      ],
+      "case_cluster_case_mean_ci": [
+        -0.06131427582511965,
+        0.05688386650540601
+      ],
+      "note": "delta = err_fukami - err_jepa (>0 => jepa forecasts the wake better); sign test + case-clustered CI, NOT case_permutation_p (B6)."
+    }
+  },
+  "energy_information": {
+    "ks": [
+      1,
+      2,
+      3,
+      4,
+      6,
+      8,
+      12,
+      16,
+      24,
+      32,
+      48,
+      64
+    ],
+    "per_family": {
+      "jepa_tf_noc": {
+        "ks": [
+          1,
+          2,
+          3,
+          4,
+          6,
+          8,
+          12,
+          16,
+          24,
+          32,
+          48,
+          64
+        ],
+        "skill": {
+          "1": -0.06525294822971905,
+          "2": 0.008931743893619615,
+          "3": 0.12106267744425903,
+          "4": 0.11779920145146017,
+          "6": 0.01784808544730454,
+          "8": 0.0008253785500235145,
+          "12": 0.11598025561262071,
+          "16": 0.17877765253469902,
+          "24": 0.20785826908953997,
+          "32": 0.29021132572048636,
+          "48": 0.20520070450965944,
+          "64": 0.21748974642351104
+        },
+        "knee_k": 32,
+        "asymptotic_skill": 0.29021132572048636
+      },
+      "fukami": {
+        "ks": [
+          1,
+          2,
+          3,
+          4,
+          6,
+          8,
+          12,
+          16,
+          24,
+          32,
+          48,
+          64
+        ],
+        "skill": {
+          "1": -0.0034840807137952456,
+          "2": 0.01334226940459382,
+          "3": -0.004835996338109938,
+          "4": -0.02156198357308714,
+          "6": 0.12541986734397859,
+          "8": 0.1151356378387397,
+          "12": 0.25389070303275296,
+          "16": 0.1768038374921831,
+          "24": 0.1880350764948362,
+          "32": 0.18989623424436197,
+          "48": 0.14508985066172564,
+          "64": 0.14085853210990074
+        },
+        "knee_k": 12,
+        "asymptotic_skill": 0.25389070303275296
+      },
+      "pod": {
+        "ks": [
+          1,
+          2,
+          3,
+          4,
+          6,
+          8,
+          12,
+          16,
+          24,
+          32,
+          48,
+          64
+        ],
+        "skill": {
+          "1": 0.08702210391871112,
+          "2": -0.0761126793184086,
+          "3": -0.012780782423331472,
+          "4": -0.1659923087717663,
+          "6": -0.18125257451759436,
+          "8": -0.29531734773882223,
+          "12": -0.35394754187930166,
+          "16": -0.3003409635247354,
+          "24": -0.3844570195690642,
+          "32": -0.32548037284083287,
+          "48": -0.34164158340689554,
+          "64": -0.9106328867256557
+        },
+        "knee_k": 1,
+        "asymptotic_skill": 0.08702210391871112,
+        "energy_fraction": {
+          "1": 0.10300265882522712,
+          "2": 0.17305382671254366,
+          "3": 0.22262032207220508,
+          "4": 0.26489072967025273,
+          "6": 0.34139872442179514,
+          "8": 0.4056075818138192,
+          "12": 0.5047490538985899,
+          "16": 0.5834814243657058,
+          "24": 0.7083484627803057,
+          "32": 0.8020543769029009,
+          "48": 0.9352601119606747,
+          "64": 1.0
+        },
+        "knee_energy_fraction": 0.10300265882522712
+      }
+    }
+  },
+  "footprint": {
+    "device": "NVIDIA RTX PRO 6000 Blackwell Max-Q Workstation Edition",
+    "n_impact_frames": 66,
+    "q_from_raw_u": true,
+    "mask_info": {
+      "n_omega": 66,
+      "n_q": 66,
+      "q_from_raw_u": true,
+      "omega_thresh_pct": 90,
+      "q_thresh_pct": 90,
+      "q_fallback_used": false
+    },
+    "omega_overlap": {
+      "overlap": 0.07041922696196133,
+      "chance_mean": 0.09928071964901589,
+      "chance_lo": 0.09639408324492951,
+      "chance_hi": 0.10228293183220381,
+      "chance_sd": 0.0015274156925019252,
+      "z": -18.895637139735733,
+      "localized": false,
+      "n_perm": 2000
+    },
+    "q_overlap": {
+      "overlap": 0.00955988513771463,
+      "chance_mean": 0.011289843901406454,
+      "chance_lo": 0.010689921820149379,
+      "chance_hi": 0.011883564720711148,
+      "chance_sd": 0.0003039646647682952,
+      "z": -5.691315354074226,
+      "localized": false,
+      "n_perm": 2000
+    }
+  },
+  "subspace_null_note": "Random mean cos^2 for two K-dim subspaces in d-dim ambient is K/d (~0.047 for K=3, d=64). Any pairwise cos^2 within ~0.01 of K/d is NOT overlap; reported via is_overlap_above_null (CLAUDE.md caveat)."
+}

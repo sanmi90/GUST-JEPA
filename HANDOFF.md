@@ -8202,6 +8202,46 @@ wrongly attributed fragmentation to the reconstructive ROLLOUT; Phase D must
 fix this regardless. numbers part topology_ce2.json (macros incl. the two
 deciding gaps + branch code 2).
 
+### D194 (Physics Track P5, wake-code) + E4 scale-band + parametric floor (2026-06-13)
+
+**P5 (`p5_wake_code.py`, 11 tests; collective-code reused from cross_encoder3,
+Q from raw /u, saliency on RTX6000 gpu1, 10 s):**
+- (i) COLLECTIVE CODE REPRODUCES (keepable, structural): JEPA wake-forecast
+  combo-minus-best-single gap +0.359 (combo 0.801, best-single 0.442, zero
+  coords above 0.5; seed mean +0.402 +- 0.091) vs fukami +0.047, pod +0.040.
+  The wake code is genuinely DISTRIBUTED/collective in JEPA. ~2 functional
+  groups (leading-PC cos^2 0.000 vs K/d null 0.0156 -> distinct). CAVEAT: the
+  paired jepa-vs-fukami RAW readout-error is null (sign p 0.80); families differ
+  in the GAP/organization statistic, not raw error. So the claim is about code
+  STRUCTURE (distributed), not "JEPA forecasts better" (that is closure).
+- (ii) ENERGY-INFORMATION CURVE (new, keepable): wake R2 vs #leading PCs knee
+  -- JEPA 32 PCs (asymp 0.29), fukami 12 (0.25), POD 1 (0.087, ~89% energy).
+  Resolves the participation-ratio-vs-distributed tension: JEPA spreads the wake
+  across many coordinates (why it is linearly readable + robust; ties to SIGReg
+  isotropisation).
+- (iii) FOOTPRINT REVERSES D163 (another latent-image claim down): wake-forecast
+  saliency overlaps |omega| at 0.070 (z -18.9) and Q-vortex at 0.010 (z -5.7),
+  BOTH BELOW the permutation chance band -- the footprint is NOT structure-
+  localized (reads OFF the high-|omega| cores). DROP D163's "reads the LEV /
+  shear layer" claim. Consistent with the meta-pattern.
+
+**E4 scale-band (`e4_floor_regen.py`, closes S4): ROBUST.** Peak large-scale
+wake-enstrophy excursion |G| trend significant at sigma/c {0.01,0.03,0.05}
+(Spearman 0.51/0.70/0.74 test_b); per-encounter ordering 0.03-vs-0.05 rho 0.97
+(0.01 sub-pixel shifts to 0.81, diagnostic). One appendix sentence: trend
+band-independent.
+
+**Parametric (model-free) floor on v2p1 (B4/D145, RENAMED): the wake floor is
+NEGATIVE.** Regress each observable on (G,D,Y) alone, closure-matched
+(train->test_b, SST about held-out mean, H=16): wake_enstrophy floor R2 = -0.18
+(ridge) / -0.12 (KRR) -- parameters alone do WORSE than the test_b mean. The
+closure latent (+0.79) clears the floor by +0.91: the representation carries
+wake flow state FAR beyond the gust parameters. Forces floors higher (C_L
++0.61, C_D +0.54) -- sharpens the wake-vs-forces distinction (integrated forces
+are more parameter-determined; the spatial wake is not). NOTE: stricter than the
+old D145 (~0.48, which fit+evaluated on the same split at impact); the
+closure-matched protocol is the apples-to-apples number (documented).
+
 ### D193 (Physics Track P4, LEV budget + gust-sign asymmetry): one clean DNS result, GP4 borderline->appendix, D146 latent-tracking DEAD on matched decoders (2026-06-13)
 
 `scripts/session28/p4_lev_budget.py` (+9 tests; LEV-ID imported verbatim from

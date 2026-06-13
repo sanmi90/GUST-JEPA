@@ -1,0 +1,58 @@
+{
+  "part": "e4_floor",
+  "numbers": {
+    "e4_wake_gtrend_sigmac_0p01": {
+      "macro": "NumEfourWakeGtrendSigmaEone",
+      "value": 0.5122475858672811,
+      "fmt": "%.2f",
+      "n": 42,
+      "split": "test_b",
+      "observable": "peak large-scale wake-enstrophy excursion vs |G| (Spearman rho)",
+      "note": "sigma/c = 0.01 (0.32 px); E4 scale-band sensitivity; Spearman p = 0.00052; robust across bands = True"
+    },
+    "e4_wake_gtrend_sigmac_0p03": {
+      "macro": "NumEfourWakeGtrendSigmaEthree",
+      "value": 0.7005349736957583,
+      "fmt": "%.2f",
+      "n": 42,
+      "split": "test_b",
+      "observable": "peak large-scale wake-enstrophy excursion vs |G| (Spearman rho)",
+      "note": "sigma/c = 0.03 (0.96 px); E4 scale-band sensitivity; Spearman p = 2.4e-07; robust across bands = True"
+    },
+    "e4_wake_gtrend_sigmac_0p05": {
+      "macro": "NumEfourWakeGtrendSigmaEfive",
+      "value": 0.7405749981724644,
+      "fmt": "%.2f",
+      "n": 42,
+      "split": "test_b",
+      "observable": "peak large-scale wake-enstrophy excursion vs |G| (Spearman rho)",
+      "note": "sigma/c = 0.05 (1.60 px); E4 scale-band sensitivity; Spearman p = 2.1e-08; robust across bands = True"
+    },
+    "param_floor_wake_ridge_H16_testb": {
+      "macro": "NumParamFloorWakeLinear",
+      "value": -0.17650674313663717,
+      "fmt": "%.2f",
+      "ci_lo": -1.8314248738808798,
+      "ci_hi": 0.7686773844726301,
+      "n": 42,
+      "split": "test_b",
+      "probe": "ridge",
+      "observable": "wake_enstrophy",
+      "horizon": 16,
+      "note": "parametric / model-free floor ((G,D,Y) -> wake_enstrophy, linear ridge); case-clustered CI; closure latent (repr wake, JEPA tf-no-c) = 0.79 clears it by +0.97."
+    },
+    "param_floor_wake_krr_rbf_H16_testb": {
+      "macro": "NumParamFloorWakeKrr",
+      "value": -0.12003573750454644,
+      "fmt": "%.2f",
+      "ci_lo": -1.7852053173863167,
+      "ci_hi": 0.8111297178010983,
+      "n": 42,
+      "split": "test_b",
+      "probe": "krr_rbf",
+      "observable": "wake_enstrophy",
+      "horizon": 16,
+      "note": "parametric / model-free floor ((G,D,Y) -> wake_enstrophy, KRR-RBF); case-clustered CI; closure latent (repr wake, JEPA tf-no-c) = 0.79 clears it by +0.91."
+    }
+  }
+}
