@@ -1,7 +1,7 @@
 {
   "_provenance": {
-    "generated_iso": "2026-06-13T16:04:42.264454+00:00",
-    "git_commit": "3915161fdae89603aae6dde56967a68917e899ef",
+    "generated_iso": "2026-06-13T16:50:00.346264+00:00",
+    "git_commit": "d74e26d581b5990c2c108df107565ebc06aba070",
     "manifest_runs_sha256": "aa07e687f2080e7e7f0dea8d75f3b2af40a86fa68c19f828ae3ec98422e60bbe",
     "n_parts": 13,
     "parts": [
@@ -272,6 +272,27 @@
       "fmt": "%.2f",
       "macro": "NumCloReprWakeJepaTf",
       "source": "emit_closure_floor_part.py (matrix.csv seed-mean)",
+      "split": "test_b",
+      "value": 0.79
+    },
+    "clo_repr_wake_jepatf_d16": {
+      "fmt": "%.2f",
+      "macro": "NumCloReprWakeJepaTfDSixteen",
+      "source": "emit_closure_floor_part.py (capacity ladder)",
+      "split": "test_b",
+      "value": 0.55
+    },
+    "clo_repr_wake_jepatf_d32": {
+      "fmt": "%.2f",
+      "macro": "NumCloReprWakeJepaTfDThirtytwo",
+      "source": "emit_closure_floor_part.py (capacity ladder)",
+      "split": "test_b",
+      "value": 0.6
+    },
+    "clo_repr_wake_jepatf_d64": {
+      "fmt": "%.2f",
+      "macro": "NumCloReprWakeJepaTfDSixtyfour",
+      "source": "emit_closure_floor_part.py (capacity ladder)",
       "split": "test_b",
       "value": 0.79
     },
@@ -1373,7 +1394,7 @@
       "fmt": "%s",
       "macro": "CommitHash",
       "source": "eval_all.py",
-      "value": "3915161fdae8"
+      "value": "d74e26d581b5"
     },
     "sensing_causal_clip_delta": {
       "endpoint": "deployment",

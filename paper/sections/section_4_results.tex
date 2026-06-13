@@ -166,117 +166,78 @@ wake state the latent encodes.
 \label{sec:res_controls}
 
 The representational result of \S\ref{sec:res_closure} is established, but the
-predictive latent \emph{family} as configured keeps the wake better than the
-reconstructive and linear families for reasons we have not yet separated: the
-predictive encoder differs from the reconstructive baseline not only in its
-training objective but also in its CNN$+$ViT architecture and its
-$80$-dimensional wake supervision. Because the architecture and the wake
+predictive latent \emph{family} as configured renders the wake readable for reasons
+we have not yet separated: the predictive encoder differs from the reconstructive
+baseline not only in its training objective but also in its CNN$+$ViT architecture
+and its $80$-dimensional wake supervision. Because the architecture and the wake
 supervision are confounds, we isolate the cause here, before turning to why the
-rollout stays on the manifold (\S\ref{sec:res_drift}). The wake supervision is the
-more pointed confound, since the largest part of the reported advantage is on the
-wake observables that the predictive encoder alone was supervised on. Isolating the
-objective requires the controls in table~\ref{tab:controls_2x2}, which were run on
-the conditioned model as the most direct objective-versus-architecture crossing: a
+rollout stays on the manifold (\S\ref{sec:res_drift}). The controls in
+table~\ref{tab:controls_2x2} are the decisive crossing, run directly on the same
+models the paper reports and scored at the representational endpoint: a
 $2 \times 2$ crossing of objective \{predictive, reconstructive\} with architecture
 \{CNN, CNN$+$ViT\} at matched $d = 64$, with the auxiliary heads matched across all
-four cells; together with a predictive variant from which the wake head is removed.
-The decisive question is whether the predictive objective keeps the wake better than
-the reconstructive one once the architecture and the wake supervision are held in
-common; the unconditioned model the paper reports inherits this attribution, since
-the conditioning leaves the representation essentially unchanged (third control
-below).
+four cells, together with a predictive variant from which the wake head is removed.
+The decisive question is whether the predictive objective renders the wake readable
+more than the reconstructive one once the architecture and the wake supervision are
+held in common.
 
 \begin{table}
   \centering
-  \caption{Objective $\times$ architecture controls (decisive experiment), run on
-  the conditioned model as a control. Held-out wake-enstrophy closure and mean
-  closure ($R^2$ at $H = 16$, test\_b, Markov rollout, mean $\pm$ standard
-  deviation over three encoder seeds) for the four cells crossing \{predictive,
-  reconstructive\} with \{CNN, CNN$+$ViT\} at $d = 64$, with the auxiliary heads
-  (the instantaneous lift plus the $80$-dimensional wake head) matched across all
-  four cells, plus a predictive variant with the wake head removed. Predictive
-  beats reconstructive on wake closure at both architectures (predictive versus
-  reconstructive at CNN$+$ViT, and again at CNN), so the objective is not a confound
-  of the architecture; removing the wake head from the predictive model collapses
-  wake closure below the floor, so the wake supervision is also necessary. The CNN
-  and CNN$+$ViT columns do not separate, so the ViT is not the driver. These cells
-  isolate the objective and the supervision; the unconditioned configuration the
-  paper reports inherits the same attribution.}
+  \caption{Objective $\times$ architecture controls (decisive experiment), scored
+  at the representational endpoint on the in-distribution test split. Held-out
+  representational wake-enstrophy $R^2$ at $H = 16$ (test\_b, fixed linear probe on
+  the simulation-encoded latent, seed mean) for the four cells crossing
+  \{predictive, reconstructive\} with \{CNN, CNN$+$ViT\} at $d = 64$, with the
+  auxiliary heads (the instantaneous lift plus the $80$-dimensional wake head)
+  matched across all four cells, plus a predictive variant with the wake head
+  removed. Predictive renders the wake readable at both architectures, while both
+  reconstructive cells stay low; removing the wake head from the predictive model
+  collapses wake readability to the floor, so the wake supervision is also
+  necessary. The CNN and CNN$+$ViT predictive columns do not separate, so the ViT
+  is not the driver.}
   \label{tab:controls_2x2}
   \small
-  \fittab{\begin{tabular}{l l l c c}
+  \fittab{\begin{tabular}{l l l c}
     \toprule
-    Objective & Encoder & Aux.\ heads & wake-enst.\ $R^2$ & mean $R^2$ \\
+    Objective & Encoder & Aux.\ heads & repr.\ wake-enst.\ $R^2$ \\
     \midrule
-    predictive     & CNN$+$ViT & lift $+$ wake & $\mathbf{0.46 \pm 0.03}$ & $0.45$ \\
-    predictive     & CNN       & lift $+$ wake & $0.45 \pm 0.06$ & $\mathbf{0.52}$ \\
-    reconstructive & CNN$+$ViT & lift $+$ wake & $0.16 \pm 0.27$ & $0.23$ \\
-    reconstructive & CNN       & lift $+$ wake & $0.29 \pm 0.05$ & $0.42$ \\
+    predictive     & CNN$+$ViT & lift $+$ wake & $\mathbf{\NumReprWakeJepaTf}$ \\
+    predictive     & CNN       & lift $+$ wake & $\NumReprWakeCtrlPredCnn$ \\
+    reconstructive & CNN$+$ViT & lift $+$ wake & $\NumReprWakeCtrlReconCnnVit$ \\
+    reconstructive & CNN       & lift $+$ wake & $\NumReprWakeCtrlReconCnn$ \\
     \midrule
-    predictive     & CNN$+$ViT & lift only     & $-1.03 \pm 0.29$ & $0.09$ \\
+    predictive     & CNN$+$ViT & lift only     & $\NumReprWakeCtrlPredVitNowake$ \\
     \bottomrule
   \end{tabular}}
 \end{table}
 
-The controls (table~\ref{tab:controls_2x2}, three encoder seeds per cell) give a
-two-part answer, and we state both. First, the predictive objective improves wake
-closure at \emph{both} architectures with the auxiliary heads matched: the
-held-out wake-enstrophy $R^2$ is $0.46 \pm 0.03$ for the predictive CNN$+$ViT
-against $0.16 \pm 0.27$ for the reconstructive CNN$+$ViT, and $0.45 \pm 0.06$ for
-the predictive CNN against $0.29 \pm 0.05$ for the reconstructive CNN. The
-objective, not the architecture, carries the wake advantage: the CNN and
-CNN$+$ViT columns do not separate (the predictive CNN even leads on the
-mean-over-observables $R^2$, $0.52$ against $0.45$), so the ViT is not the driver.
-Second, and equally important, the wake-observable supervision is necessary: the
-predictive model with the wake head removed collapses to a wake-enstrophy
-$R^2$ of $-1.03 \pm 0.29$, far below the floor and below every reconstructive
-cell. The wake-closure result therefore requires the predictive objective
-\emph{and} the wake supervision together; it is not a property of the objective
-in isolation, nor of the architecture, nor of the wake head attached to an
-arbitrary objective (the reconstructive cells carry the same wake head and do not
-reach the predictive closure). We claim, accordingly, that the predictive
-objective improves forward wake closure over the reconstructive objective at
-matched architecture and matched supervision, while being explicit that the
-auxiliary wake head is a necessary component of the configuration that achieves
-it. The large seed variance of the reconstructive CNN$+$ViT cell
-($\pm 0.27$) is itself consistent with the rollout-drift mechanism
-(\S\ref{sec:res_drift}): without a
-forward-predictable latent geometry, wake closure is unstable across
-initialisations.
+The controls (table~\ref{tab:controls_2x2}) give a two-part answer, and we state
+both. First, the predictive objective renders the wake readable at \emph{both}
+architectures with the auxiliary heads matched: the representational
+wake-enstrophy $R^2$ is $\NumReprWakeJepaTf$ for the predictive CNN$+$ViT and
+$\NumReprWakeCtrlPredCnn$ for the predictive CNN, while both reconstructive cells
+stay low ($\NumReprWakeCtrlReconCnnVit$ at CNN$+$ViT, $\NumReprWakeCtrlReconCnn$ at
+CNN). The objective, not the architecture, carries the advantage: the two
+predictive columns do not separate, so the ViT is not the driver. Second, and
+equally important, the wake-observable supervision is necessary: the predictive
+model with the wake head removed collapses to a representational wake $R^2$ of
+$\NumReprWakeCtrlPredVitNowake$, at the floor and below every other predictive
+cell. The result therefore requires the predictive objective \emph{and} the wake
+supervision together; it is not a property of the objective in isolation, nor of
+the architecture, nor of the wake head attached to an arbitrary objective (the
+reconstructive cells carry the same wake head and do not reach the predictive
+readability). We claim, accordingly, that the predictive objective renders the
+wake linearly readable over the reconstructive objective at matched architecture
+and matched supervision, with the auxiliary wake head a necessary component of the
+configuration that achieves it.
 
-Beyond the decisive crossing, three further
-controls vary the latent dimension, the second auxiliary head, and the predictor
-conditioning (table~\ref{tab:jepa_dimsweep}).
-Sweeping the predictive latent over $d \in \{4, 8, 16, 32, 64\}$ at fixed recipe,
-the held-out forecast holds on a plateau down to $d = 16$, with mean closure $R^2$
-of $0.45$, $0.36$, and $0.36$ at $d = 64$, $32$, and $16$, and then falls off: at
-$d = 8$ the wake-enstrophy forecast drops below the predict-the-mean floor
-($R^2 = -0.07$) and the mean over observables halves to $0.17$, and $d = 4$ is
-lower still ($0.14$). The reported $d = 32$ and $d = 64$ thus sit on the plateau of
-this curve, and the wake forecast is not recoverable below roughly $d = 16$ on this
-dataset. The instantaneous-lift head, removed while the wake head is kept (last
-row, the complement of the wake-removal control above), is load-bearing but less so
-than the wake head: at $d = 64$ its removal lowers the lift forecast $R^2$ from
-$0.72$ to $0.54$ and, through the shared latent dynamics, the wake forecast from
-$0.45$ to $0.31$ and the mean from $0.45$ to $0.28$, so the lift supervision
-improves even the channel it does not directly supervise. The two head ablations are
-therefore asymmetric: removing the wake head collapses the wake forecast below the
-floor (table~\ref{tab:controls_2x2}), whereas removing the lift head degrades every
-channel without collapsing any. The third control is the one the paper turns on: it
-removes the gust-parameter conditioning from the predictor (last row), so the model
-sees no $\cvec$ anywhere. This is the unconditioned configuration reported
-throughout. It leaves the representation essentially intact, because the encoder is
-unconditional in either case: the representational wake MAE is $34.21$ against
-$29.83$, and the representational wake $R^2$ is $0.71$ against $0.75$. What the
-conditioning buys is in-distribution forecast sharpness, not representation: the
-in-distribution forecast wake $R^2$ is lower without it, and the conditioned model
-extrapolates the forecast to the unseen $|G| = 4$ gust strength more robustly. The
-trade is therefore favourable for the central claim: removing the parameters costs
-almost nothing in what the latent encodes, so the unconditioned predictive objective
-alone produces a state that keeps the wake, which is the property a downstream
-estimator reads.
-
-\input{sections/tables/jepa_dimsweep_table.tex}
+The latent dimension is the remaining control. The representational wake closure
+holds on a plateau from $d = 64$ down to $d = 16$ ($R^2 = \NumCloReprWakeJepaTfDSixtyfour$,
+$\NumCloReprWakeJepaTfDThirtytwo$, and $\NumCloReprWakeJepaTfDSixteen$ at $d = 64$, $32$,
+and $16$) and falls off below, so the reported $d = 64$ sits on the plateau and the
+wake is not recoverable at the smallest dimensions on this dataset. The latent code
+is correspondingly distributed rather than concentrated in a few coordinates, which
+\S\ref{sec:res_code} makes quantitative.
 
 \subsection{Why the latent stays on the manifold: drift, topology, and transport}
 \label{sec:res_horizon}

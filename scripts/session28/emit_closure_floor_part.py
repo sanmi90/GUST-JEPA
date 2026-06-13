@@ -70,6 +70,31 @@ def main() -> None:
                     "split": "test_b",
                     "source": "emit_closure_floor_part.py (matrix.csv seed-mean)",
                 }
+    # capacity ladder: jepa_tf_noc representational wake at each d (seed mean).
+    # Macro names must be alphabetic (LaTeX), so spell the dimension.
+    dword = {"4": "Four", "8": "Eight", "16": "Sixteen", "32": "Thirtytwo", "64": "Sixtyfour"}
+    for dval in ("4", "8", "16", "32", "64"):
+        vals = [
+            float(r["value"])
+            for r in rows
+            if r["family"] == "jepa_tf_noc"
+            and r["observable"] == "wake_enstrophy"
+            and r["endpoint"] == "representational"
+            and r["split"] == "test_b"
+            and r["tier"] == "pooled"
+            and r["H"] == "16"
+            and r["probe"] == "ridge"
+            and r["d"] == dval
+        ]
+        if vals:
+            numbers[f"clo_repr_wake_jepatf_d{dval}"] = {
+                "macro": f"NumCloReprWakeJepaTfD{dword[dval]}",
+                "value": round(statistics.mean(vals), 2),
+                "fmt": "%.2f",
+                "split": "test_b",
+                "source": "emit_closure_floor_part.py (capacity ladder)",
+            }
+
     # mean over the six observables, jepa repr
     six = [
         seed_mean(rows, "jepa_tf_noc", o, "representational")

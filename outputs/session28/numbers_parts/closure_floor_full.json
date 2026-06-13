@@ -253,6 +253,27 @@
       "split": "test_b",
       "source": "emit_closure_floor_part.py (matrix.csv seed-mean)"
     },
+    "clo_repr_wake_jepatf_d16": {
+      "macro": "NumCloReprWakeJepaTfDSixteen",
+      "value": 0.55,
+      "fmt": "%.2f",
+      "split": "test_b",
+      "source": "emit_closure_floor_part.py (capacity ladder)"
+    },
+    "clo_repr_wake_jepatf_d32": {
+      "macro": "NumCloReprWakeJepaTfDThirtytwo",
+      "value": 0.6,
+      "fmt": "%.2f",
+      "split": "test_b",
+      "source": "emit_closure_floor_part.py (capacity ladder)"
+    },
+    "clo_repr_wake_jepatf_d64": {
+      "macro": "NumCloReprWakeJepaTfDSixtyfour",
+      "value": 0.79,
+      "fmt": "%.2f",
+      "split": "test_b",
+      "source": "emit_closure_floor_part.py (capacity ladder)"
+    },
     "clo_repr_meansix_jepatf": {
       "macro": "NumCloReprMeanSixJepaTf",
       "value": 0.61,
