@@ -524,9 +524,9 @@ $\Delta e = e_{\text{AE}} - e_{\text{JEPA}}$ in held-out wake-enstrophy error
 directly against each gust axis with a locally weighted regression and a
 bootstrapped band (figure~\ref{fig:error_maps}). The advantage is not uniform
 across the envelope. It grows with the gust core diameter $D$ (Spearman
-$\rho = 0.36$ on the encoded latent, significant), while its dependence on the gust
-strength $G$ and the wall-normal offset $Y$ is weak and not significant
-($\rho = -0.13$ and $+0.03$). The predictive advantage therefore concentrates at
+$\rho = \ErrMapRhoD$ on the encoded latent, significant), while its dependence on
+the gust strength $G$ and the wall-normal offset $Y$ is weak and not significant
+($\rho = \ErrMapRhoG$ and $\ErrMapRhoY$). The predictive advantage therefore concentrates at
 the larger cores that most reorganise the wake; we do not read a $Y$ trend, in
 keeping with the weak $Y$ resolution of the probe above. The
 shedding phase at impact, the axis the gust-response literature emphasises
@@ -613,8 +613,9 @@ simulation field and to each family's reconstruction
 (figure~\ref{fig:scale_decomp}). On test\_b the large-scale wake enstrophy of the
 predictive decode tracks the simulation better than the reconstructive autoencoder,
 on both correlation (Pearson $\NumScaleDecodeCorrJepaTf$ against
-$\NumScaleDecodeCorrFukami$ at $H = 16$) and amplitude (relative error $0.12$
-against $0.71$): the reconstructive decode smooths the leading-edge vortex and
+$\NumScaleDecodeCorrFukami$ at $H = 16$) and amplitude (relative error
+$\NumScaleDecodeRelErrJepaTf$ against $\NumScaleDecodeRelErrFukami$): the
+reconstructive decode smooths the leading-edge vortex and
 shear layer away. The linear basis tracks the correlation comparably
 ($\NumScaleDecodeCorrPod$), the same decoder confound as the decode ceiling above,
 its linear decoder reconstructing the smooth large-scale field well, so the specific

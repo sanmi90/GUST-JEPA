@@ -1,15 +1,16 @@
 {
   "_provenance": {
-    "generated_iso": "2026-06-13T21:25:21.365346+00:00",
-    "git_commit": "0e7a7605f0b312c66bc2b050729c9c404d5103a3",
+    "generated_iso": "2026-06-13T21:30:22.769538+00:00",
+    "git_commit": "75e03969f152979a36de0a88a5988b27417e5c57",
     "manifest_runs_sha256": "aa07e687f2080e7e7f0dea8d75f3b2af40a86fa68c19f828ae3ec98422e60bbe",
-    "n_parts": 17,
+    "n_parts": 18,
     "parts": [
       "closure_floor_full.json",
       "closure_headline.json",
       "decode_operating_points.json",
       "drift_ce1.json",
       "e4_floor.json",
+      "error_maps.json",
       "orbit_return.json",
       "p1.json",
       "p2.json",
@@ -806,6 +807,36 @@
       "split": "test_b",
       "value": 0.7405749981724644
     },
+    "errmap_spearman_d": {
+      "fmt": "%+.2f",
+      "macro": "ErrMapRhoD",
+      "n": 42,
+      "note": "Spearman rho of the per-encounter representational wake-enstrophy advantage (e_AE - e_JEPA) against D on test_b (p=0.019); only D is significant at 0.05",
+      "observable": "wake_enstrophy",
+      "source": "make_fig_error_maps_v2p1.py",
+      "split": "test_b",
+      "value": 0.36058921131331784
+    },
+    "errmap_spearman_g": {
+      "fmt": "%+.2f",
+      "macro": "ErrMapRhoG",
+      "n": 42,
+      "note": "Spearman rho of the per-encounter representational wake-enstrophy advantage (e_AE - e_JEPA) against G on test_b (p=0.411); only D is significant at 0.05",
+      "observable": "wake_enstrophy",
+      "source": "make_fig_error_maps_v2p1.py",
+      "split": "test_b",
+      "value": -0.13014787657998034
+    },
+    "errmap_spearman_y": {
+      "fmt": "%+.2f",
+      "macro": "ErrMapRhoY",
+      "n": 42,
+      "note": "Spearman rho of the per-encounter representational wake-enstrophy advantage (e_AE - e_JEPA) against Y on test_b (p=0.836); only D is significant at 0.05",
+      "observable": "wake_enstrophy",
+      "source": "make_fig_error_maps_v2p1.py",
+      "split": "test_b",
+      "value": 0.032972350538530364
+    },
     "field_ceiling_ssim_K8_testb_fukami": {
       "ci_hi": 0.6077247128737465,
       "ci_lo": 0.47139204395728235,
@@ -1534,7 +1565,7 @@
       "fmt": "%s",
       "macro": "CommitHash",
       "source": "eval_all.py",
-      "value": "0e7a7605f0b3"
+      "value": "75e03969f152"
     },
     "s46_orbit_return_fukami": {
       "fmt": "%.2f",
@@ -1661,6 +1692,36 @@
       "source": "s46_regen.py",
       "split": "test_b",
       "value": 0.5770961503431418
+    },
+    "s46_scale_decode_rel_amp_err_fukami": {
+      "fmt": "%.2f",
+      "macro": "NumScaleDecodeRelErrFukami",
+      "n": 42,
+      "note": "median per-encounter relative amplitude error of the decoded large-scale wake enstrophy vs DNS over [25,55]; companion to s46_scale_decode_corr; smaller is better",
+      "observable": "wake_enstrophy",
+      "source": "s46_regen.py",
+      "split": "test_b",
+      "value": 0.7088308943589505
+    },
+    "s46_scale_decode_rel_amp_err_jepa_tf_noc": {
+      "fmt": "%.2f",
+      "macro": "NumScaleDecodeRelErrJepaTf",
+      "n": 42,
+      "note": "median per-encounter relative amplitude error of the decoded large-scale wake enstrophy vs DNS over [25,55]; companion to s46_scale_decode_corr; smaller is better",
+      "observable": "wake_enstrophy",
+      "source": "s46_regen.py",
+      "split": "test_b",
+      "value": 0.11850867943202681
+    },
+    "s46_scale_decode_rel_amp_err_pod": {
+      "fmt": "%.2f",
+      "macro": "NumScaleDecodeRelErrPod",
+      "n": 42,
+      "note": "median per-encounter relative amplitude error of the decoded large-scale wake enstrophy vs DNS over [25,55]; companion to s46_scale_decode_corr; smaller is better",
+      "observable": "wake_enstrophy",
+      "source": "s46_regen.py",
+      "split": "test_b",
+      "value": 0.15918086266645493
     },
     "sensing_causal_clip_delta": {
       "endpoint": "deployment",

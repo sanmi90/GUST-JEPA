@@ -29,6 +29,8 @@ Output: paper/sections/figures/results/fig_error_maps_v2p1.png
 
 from __future__ import annotations
 
+import json
+
 import matplotlib
 
 matplotlib.use("Agg")
@@ -142,10 +144,24 @@ def main() -> None:
     )
     for key, (rho, p) in trends.items():
         print(f"    advantage vs {key}: rho = {rho:+.2f} (p = {p:.3f})")
-    print(
-        "  NOTE: the text literals (D rho=0.42, Y rho=0.49) are v2-era; the v2.1 "
-        "values above should replace them."
-    )
+
+    # eval_all numbers part: the three S4.6 error-map Spearman trends (macro-wired).
+    part_macro = {"D": "ErrMapRhoD", "G": "ErrMapRhoG", "Y": "ErrMapRhoY"}
+    nums = {}
+    for key, macro in part_macro.items():
+        rho, p = trends[key]
+        nums[f"errmap_spearman_{key.lower()}"] = {
+            "macro": macro, "value": float(rho), "fmt": "%+.2f",
+            "n": int(len(delta)), "split": "test_b", "observable": "wake_enstrophy",
+            "source": "make_fig_error_maps_v2p1.py",
+            "note": (f"Spearman rho of the per-encounter representational wake-enstrophy "
+                     f"advantage (e_AE - e_JEPA) against {key} on test_b (p={p:.3f}); "
+                     f"only D is significant at 0.05"),
+        }
+    part_path = cm.SESSION28 / "numbers_parts" / "error_maps.json"
+    part_path.parent.mkdir(parents=True, exist_ok=True)
+    part_path.write_text(json.dumps({"part": "error_maps", "numbers": nums}, indent=2))
+    print(f"wrote {part_path}")
 
 
 if __name__ == "__main__":

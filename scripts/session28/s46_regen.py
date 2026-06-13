@@ -653,6 +653,27 @@ def build_numbers_part(q1: dict, q2: dict, q3: dict) -> dict:
                 f"{rec['median_rel_amp_err']:+.2f}; case-clustered CI on the mean"
             ),
         }
+    # Q3 large-scale amplitude error (the "relative error X against Y" pair in S4.6).
+    for fam, macro in (
+        ("jepa_tf_noc", "NumScaleDecodeRelErrJepaTf"),
+        ("fukami", "NumScaleDecodeRelErrFukami"),
+        ("pod", "NumScaleDecodeRelErrPod"),
+    ):
+        rec = q3["per_family"][fam]
+        numbers[f"s46_scale_decode_rel_amp_err_{fam}"] = {
+            "macro": macro,
+            "value": rec["median_rel_amp_err"],
+            "fmt": "%.2f",
+            "n": rec["n_finite_corr"],
+            "split": "test_b",
+            "observable": "wake_enstrophy",
+            "source": "s46_regen.py",
+            "note": (
+                "median per-encounter relative amplitude error of the decoded "
+                "large-scale wake enstrophy vs DNS over [25,55]; companion to "
+                "s46_scale_decode_corr; smaller is better"
+            ),
+        }
     return {"part": "s46", "numbers": numbers}
 
 
