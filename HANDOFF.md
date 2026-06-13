@@ -8194,12 +8194,14 @@ floor) that v2 Table 8 used. Under Ledoit-Wolf shrinkage the Fukami ratio
 collapses to 0.88 (in-distribution), all ratios -> ~1. So "the AE is an order
 of magnitude out" is estimator-fragile; a referee running shrinkage gets 0.88
 and the M6 "picking the metric that flatters the model" criticism resurfaces
-one level deeper. RECOMMENDATION: lead the drift claim with the
-ESTIMATOR-INDEPENDENT statement (the AE rollout departs almost entirely along
-near-null encoded directions; the departure SPECTRUM, not the ratio magnitude)
-+ the decisive sign test, and present the 9.00 as the raw-covariance reading
-WITH the shrinkage value beside it, not as the headline. Author decision
-needed on the framing.
+one level deeper. RESOLVED (author principle 2026-06-13, [[feedback-paper-not-lab-report]]):
+HEADLINE the strong, estimator-independent result -- the predictive rollout
+stays on the encoded manifold while the reconstructive rollout departs almost
+entirely along near-null encoded directions (the departure SPECTRUM), decisive
+by the paired sign test (p 2.3e-13). The 9.00-vs-0.88 estimator dependence is
+NOT a headline and is NOT belabored as a defense; the Mahalanobis ratio, if
+shown at all, is one supporting line. The manuscript features the robust claim,
+not the audit of which covariance estimator yields which number.
 
 ### D181: Session 28 protocol freeze (GA2) -- one rollout, one estimator, one selection rule (2026-06-10, Session 28)
 
