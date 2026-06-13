@@ -8166,6 +8166,41 @@ wrongly attributed fragmentation to the reconstructive ROLLOUT; Phase D must
 fix this regardless. numbers part topology_ce2.json (macros incl. the two
 deciding gaps + branch code 2).
 
+### C-E1 drift reconciliation (M6): both metrics reconciled; "9x" is estimator-fragile (2026-06-13)
+
+`scripts/session28/drift_ce1.py` (+ 10 tests; the M6 mechanism shipped as a
+test: a perturbation along a low-variance axis gives small l2 + large
+Mahalanobis, high-variance axis the reverse). Complete Table 8 (all families,
+d in {16,32,64}, every cell a number) in outputs/session28/drift/table8.json;
+two-panel figure source (rel-l2 + Mahalanobis-ratio vs H, all families) +
+per-direction departure spectra in ce1_results.npz.
+
+Both diagnostics reproduced with OPPOSITE orderings confirmed (d=64, H=24):
+Fukami AE least-drifting by rel-l2 (0.32 vs JEPA 0.54) yet Mahalanobis 9.00
+(reproduces published ~9.9) vs JEPA 0.70. RECONCILIATION is mechanistic: the
+reconstructive latent is near-rank-degenerate (Fukami d=64 packs 99.8% of
+encoded variance into ~5 dirs, 58 near-null), the rollout's small Euclidean
+departure has a component in that null tail, and Mahalanobis divides by the
+near-zero variance there (Fukami carries 0.995 of its Mahalanobis departure
+energy in near-null directions). Ratios < 1 (JEPA d32/d64, POD all d, bvae)
+interpreted: the autoregressive predictor mean-reverts toward the training
+cloud. Significance (B6 method): paired JEPA-minus-Fukami Mahalanobis delta
+-8.30, case-clustered CI [-10.02, -6.71], sign p 2.3e-13. JEPA LSTM row is
+encoded-only (no matched-predictor rollout in Phase B KEYS; reported absent).
+
+**CLAIM-STRENGTH FLAG for Phase D (honesty, cuts against us):** the dramatic
+9.00 is SPECIFIC to the minimally-regularized raw-covariance estimator (1e-6
+floor) that v2 Table 8 used. Under Ledoit-Wolf shrinkage the Fukami ratio
+collapses to 0.88 (in-distribution), all ratios -> ~1. So "the AE is an order
+of magnitude out" is estimator-fragile; a referee running shrinkage gets 0.88
+and the M6 "picking the metric that flatters the model" criticism resurfaces
+one level deeper. RECOMMENDATION: lead the drift claim with the
+ESTIMATOR-INDEPENDENT statement (the AE rollout departs almost entirely along
+near-null encoded directions; the departure SPECTRUM, not the ratio magnitude)
++ the decisive sign test, and present the 9.00 as the raw-covariance reading
+WITH the shrinkage value beside it, not as the headline. Author decision
+needed on the framing.
+
 ### D181: Session 28 protocol freeze (GA2) -- one rollout, one estimator, one selection rule (2026-06-10, Session 28)
 
 Frozen BEFORE any v2p1 evaluation, in three byte-aligned artifacts:

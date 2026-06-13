@@ -1,0 +1,103 @@
+{
+  "numbers": {
+    "drift_maha_ratio_H24_d64_bvae": {
+      "fmt": "%.2f",
+      "horizon": 24,
+      "macro": "DriftMahaBvae",
+      "n": 42,
+      "note": "mean Mahalanobis ratio to train cloud, bvae d=64, H=24; ratio<1 (predictor regresses to train cloud)",
+      "source": "drift_ce1.py",
+      "split": "test_b",
+      "value": 0.8738094408709862
+    },
+    "drift_maha_ratio_H24_d64_fukami": {
+      "fmt": "%.2f",
+      "horizon": 24,
+      "macro": "DriftMahaFukami",
+      "n": 42,
+      "note": "mean Mahalanobis ratio to train cloud, fukami d=64, H=24",
+      "source": "drift_ce1.py",
+      "split": "test_b",
+      "value": 8.99833656699864
+    },
+    "drift_maha_ratio_H24_d64_jepa": {
+      "fmt": "%.2f",
+      "horizon": 24,
+      "macro": "DriftMahaJepa",
+      "n": 42,
+      "note": "mean Mahalanobis ratio to train cloud, jepa d=64, H=24; ratio<1 (predictor regresses to train cloud)",
+      "source": "drift_ce1.py",
+      "split": "test_b",
+      "value": 0.701746960649101
+    },
+    "drift_maha_ratio_H24_d64_pod": {
+      "fmt": "%.2f",
+      "horizon": 24,
+      "macro": "DriftMahaPod",
+      "n": 42,
+      "note": "mean Mahalanobis ratio to train cloud, pod d=64, H=24; ratio<1 (predictor regresses to train cloud)",
+      "source": "drift_ce1.py",
+      "split": "test_b",
+      "value": 0.8445477039670971
+    },
+    "drift_rel_l2_H24_d64_bvae": {
+      "fmt": "%.2f",
+      "horizon": 24,
+      "macro": "DriftRelLtwoBvae",
+      "n": 42,
+      "note": "mean rel-l2 deviation, bvae d=64, full-context rollout, H=24",
+      "source": "drift_ce1.py",
+      "split": "test_b",
+      "value": 0.5332719591193307
+    },
+    "drift_rel_l2_H24_d64_fukami": {
+      "fmt": "%.2f",
+      "horizon": 24,
+      "macro": "DriftRelLtwoFukami",
+      "n": 42,
+      "note": "mean rel-l2 deviation, fukami d=64, full-context rollout, H=24",
+      "source": "drift_ce1.py",
+      "split": "test_b",
+      "value": 0.31815159833058904
+    },
+    "drift_rel_l2_H24_d64_jepa": {
+      "fmt": "%.2f",
+      "horizon": 24,
+      "macro": "DriftRelLtwoJepa",
+      "n": 42,
+      "note": "mean rel-l2 deviation, jepa d=64, full-context rollout, H=24",
+      "source": "drift_ce1.py",
+      "split": "test_b",
+      "value": 0.5372359732685006
+    },
+    "drift_rel_l2_H24_d64_pod": {
+      "fmt": "%.2f",
+      "horizon": 24,
+      "macro": "DriftRelLtwoPod",
+      "n": 42,
+      "note": "mean rel-l2 deviation, pod d=64, full-context rollout, H=24",
+      "source": "drift_ce1.py",
+      "split": "test_b",
+      "value": 0.8382387338502681
+    },
+    "drift_spec_nearnull_frac_d64_fukami": {
+      "fmt": "%.2f",
+      "horizon": 24,
+      "macro": "DriftSpecNearNullFukami",
+      "note": "fraction of squared-Mahalanobis departure in near-null encoded eigen-dirs (58 dirs), Fukami d=64 (the M6 mechanism)",
+      "source": "drift_ce1.py",
+      "split": "test_b",
+      "value": 0.9952672682321783
+    },
+    "drift_spec_nearnull_frac_d64_jepa": {
+      "fmt": "%.2f",
+      "horizon": 24,
+      "macro": "DriftSpecNearNullJepa",
+      "note": "fraction of squared-Mahalanobis departure in near-null encoded eigen-dirs (42 dirs), JEPA d=64",
+      "source": "drift_ce1.py",
+      "split": "test_b",
+      "value": 0.8825952227058818
+    }
+  },
+  "part": "drift_ce1"
+}
