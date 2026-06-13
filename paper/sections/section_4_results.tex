@@ -239,7 +239,7 @@ wake is not recoverable at the smallest dimensions on this dataset. The latent c
 is correspondingly distributed rather than concentrated in a few coordinates, which
 \S\ref{sec:res_code} makes quantitative.
 
-\subsection{Why the latent stays on the manifold: drift, topology, and transport}
+\subsection{Why the latent stays on the manifold: drift and topology}
 \label{sec:res_horizon}
 \label{sec:res_drift}
 
@@ -247,167 +247,130 @@ The controls attribute the wake advantage to the predictive objective trained
 with wake supervision, and the representation is where that advantage is
 established. A separate question is whether the latent is usable under rollout,
 since a planner queries a forward model at the states its own rollout reaches. The
-answer is geometric: the unconditioned predictive latent stays on its encoded
-manifold while the reconstructive one drifts off, which we establish first as a
-horizon-resolved rollout drift and then with three coordinate-free diagnostics of
-the rollout itself.
+answer is geometric: the predictive latent stays on its encoded manifold while the
+reconstructive one leaves it, which we establish with two coordinate-free
+diagnostics, the manifold departure of the rollout and the topology of the encoded
+encounter.
 
-The unconditioned rollout drifts gracefully. Rolling the unconditioned predictor
-forward and measuring the relative deviation of the rolled latent from the latent
-encoded directly from the simulation, as a fraction of the encoded-latent scale, the
-drift grows gradually with horizon and stays bounded
-(figure~\ref{fig:drift_uncond}), and it tracks the conditioned model closely, so
-removing the gust parameters does not destabilise the rollout. This is the property a
-forward model needs and it is why the qualitative rollout of figure~\ref{fig:traces}
-tracks the encounter through impact before drifting only at long times. We do not
-attach a forecast $R^2$-versus-horizon headline to this rollout; the representational
-closure of \S\ref{sec:res_closure} carries the result, and the rollout is shown to be
-on-manifold and usable.
+The predictive rollout stays on the encoded manifold. Two drift measures order the
+families oppositely, and the reconciliation is the mechanism
+(table~\ref{tab:latent_drift}). By relative Euclidean deviation from the encoded
+trajectory the reconstructive rollout is the \emph{least} drifting
+($\DriftRelLtwoFukami$ against $\DriftRelLtwoJepa$ for the predictive at $H = 16$),
+yet by Mahalanobis distance to the training distribution it is an order of
+magnitude out ($\DriftMahaFukami$ against $\DriftMahaJepa$ for the predictive, which
+stays in distribution). Both are true because the reconstructive rollout departs
+along directions of negligible encoded variance: a fraction $\DriftSpecNearNullFukami$
+of its Mahalanobis departure lies in the near-null directions of the encoded
+covariance, where a small Euclidean step is a large Mahalanobis one, whereas the
+predictive rollout wanders within the broad isotropised cloud its anti-collapse
+regulariser maintains. The departure spectrum, not the ratio magnitude, is the
+robust statement: the reconstructive rollout exits the manifold along the directions
+the decoder never constrained. Ratios below one (the predictive and linear rollouts)
+mean the rollout is more in-distribution than the encoded held-out latents, the
+predictor mean-reverting toward the training cloud. This is the property a forward
+model needs, and it is why the qualitative rollout of figure~\ref{fig:traces} tracks
+the encounter through impact before drifting only at long times.
 
 \begin{figure}
   \centering
   \includegraphics[width=0.7\linewidth]{sections/figures/results/fig_horizon_sweep.pdf}
-  \caption{Relative drift of the unconditioned rollout on test\_b versus forecast
+  \caption{Relative drift of the predictive rollout on test\_b versus forecast
   horizon $H$, measured as the deviation of the rolled latent from the
   simulation-encoded latent normalised by the encoded-latent scale,
   $\lVert \widehat{\zvec}_{\text{rollout}} - \zvec_{\text{DNS}}\rVert /
-  \lVert \zvec_{\text{DNS}}\rVert$. The unconditioned transformer predictor (tf-no-c)
-  and a recurrent unconditioned variant (lstm-no-c) drift gradually and track the
-  conditioned production model closely, so dropping the gust parameters does not
-  destabilise the rollout. This is a deviation diagnostic of the unconditioned model,
-  not a forecast-$R^2$ headline; the family-separating drift is the Mahalanobis
-  manifold-departure of table~\ref{tab:latent_drift}.}
+  \lVert \zvec_{\text{DNS}}\rVert$. The transformer predictor (tf-no-c) and a
+  recurrent variant (lstm-no-c) drift gradually and stay bounded. This relative
+  deviation understates the family separation, which is the Mahalanobis
+  manifold-departure of table~\ref{tab:latent_drift}: the reconstructive rollout
+  exits along low-variance directions, small in this norm but large in Mahalanobis.}
   \label{fig:drift_uncond}
 \end{figure}
 
-The drift behaviour points to a geometric cause, which the rest of this
-subsection establishes three ways that do not
-depend on the latent coordinates: a distance that shows whether the rollout leaves
-the training manifold, a topology that shows whether the encounter stays a single
-cycle, and an optimal-transport metric that shows whether latent distance tracks the
-physical rearrangement of the flow. Together they test the one property a predictive
-objective confers and a reconstruction objective does not, that the latent metric
-stays aligned with the transport geometry under the predictor step, so the rollout
-remains close to the encoded manifold.
+The departure spectrum points to a single geometric cause, established here two
+ways that do not depend on the latent coordinates: the Mahalanobis distance that
+shows whether the rollout leaves the training manifold, and the topology that shows
+whether the encoded encounter is a single cycle.
 
 \begin{table}
   \centering
-  \caption{Latent-drift diagnostic on test\_b at $H = 16$. The Mahalanobis
-  distance of the rolled-out latent is reported alongside that of the
-  simulation-encoded latent in the same reference distribution; their ratio
-  $r = d_{\text{Mahal, Markov}} / d_{\text{Mahal, DNS}}$ measures how far the
-  autoregressive rollout has left the training manifold. A ratio near one means
-  the rollout stays in distribution. The unconditioned predictor used throughout
-  the paper drifts comparably to the values shown: its relative rollout drift grows
-  gracefully and stays bounded, tracking the conditioned model closely, so removing
-  the gust parameters does not destabilise the rollout.}
+  \caption{Latent-drift diagnostic on test\_b at $H = 16$, two measures. The
+  relative Euclidean deviation of the rollout from the encoded trajectory and the
+  Mahalanobis distance of the rolled-out latent to the training distribution order
+  the families oppositely (Fukami least-drifting by the former, an order of
+  magnitude out by the latter); the near-null fraction is the share of the
+  Mahalanobis departure lying in the near-zero-variance directions of the encoded
+  covariance, which reconciles the two. The Mahalanobis magnitude is reported at the
+  minimally-regularised covariance used here; under a shrinkage estimator the ratios
+  collapse toward one, so the robust statement is the departure direction (the
+  near-null fraction), not the ratio size.}
   \label{tab:latent_drift}
   \small
-  \fittab{\begin{tabular}{l c c c c}
+  \fittab{\begin{tabular}{l c c c}
     \toprule
-    Baseline & $d$ & $d_{\text{Mahal, ref}}$ & $d_{\text{Mahal, rollout}}$ & ratio $r$ \\
+    Family & rel.\ $\ell_2$ drift & Mahalanobis dist. & near-null frac. \\
     \midrule
-    Fukami & 64 & 2.92 & 28.96 & \textbf{9.90} \\
-    JEPA   & 64 & 8.08 & 6.84  & 0.85 \\
-    JEPA   & 32 & 5.43 & 4.65  & 0.86 \\
-    POD    & 64 & 7.74 & 6.27  & 0.81 \\
+    Fukami      & \DriftRelLtwoFukami & \textbf{\DriftMahaFukami} & \DriftSpecNearNullFukami \\
+    JEPA (tf)   & \DriftRelLtwoJepa   & \DriftMahaJepa            & \DriftSpecNearNullJepa \\
+    POD         & \DriftRelLtwoPod    & \DriftMahaPod             & --- \\
+    $\beta$-VAE & \DriftRelLtwoBvae   & \DriftMahaBvae            & --- \\
     \bottomrule
   \end{tabular}}
 \end{table}
 
-First, the latent-drift diagnostic (table~\ref{tab:latent_drift})
-measures how far each rollout leaves its training manifold. After $H = 16$ steps
-the reconstructive rollout sits an order of magnitude further from its training
-distribution than its simulation-encoded counterpart (ratio $9.90$), while the
-predictive and linear rollouts remain within it (ratios $0.85$ and $0.81$). This
-is the mechanism behind the closure gap: the probe attached to a drifted rollout
-is queried outside the support it was fit on, so its output degrades for reasons
-unrelated to the predictor's one-step quality. A reconstruction objective places
-latent codes wherever the decoder finds convenient and does not constrain the
-geometry to be predictable in time; the predictive objective, regularised
-against collapse, produces a latent that supports stable rollout by
-construction. The pre-impact inference of the impact lift makes the same point
-from the encoder side: an oracle probe on the simulation-encoded predictive
-latent recovers the impact $C_L$ at $R^2 = 0.683$ at every lead time, whereas
-the same oracle on the reconstructive latent is negative ($-0.185$), a
-representation failure rather than a probe failure, since no probe can recover
-information the latent does not carry. The reconstructive rollout therefore fails
-because the latent has left the manifold the probe was fit on, not because the
-predictor step is inaccurate.
+The mechanism behind the closure gap follows. A probe attached to a drifted
+rollout is queried outside the support it was fit on, so its output degrades for
+reasons unrelated to the predictor's one-step quality. A reconstruction objective
+places latent codes wherever the decoder finds convenient and does not constrain
+the geometry to be predictable in time, leaving the near-null directions the
+rollout then exits along; the predictive objective, regularised against collapse,
+produces an isotropised latent that supports stable rollout by construction. This
+is a representation property rather than a probe artefact: no probe in the
+evaluated class recovers the wake from the reconstructive rollout once it has left
+the manifold the probe was fit on, while the same class reads it from the
+predictive rollout, so the reconstructive failure is the manifold departure and not
+an inaccurate predictor step.
 
-Distance alone understates the geometric content of the
-result, so we next examine the trajectory topology. A gust encounter departs the baseline limit cycle, executes the
-LEV-formation and shedding excursion, and relaxes back toward it without closing
-within the window (\S\ref{sec:res_param_phase}); in the encoded latent the
-excursion nonetheless has the topology of a single cycle \citep{smith2024}. We characterise this with persistent homology, which
-identifies the persistent one-dimensional cycle ($H_1$ generator) of a
-trajectory by a Vietoris--Rips filtration \citep{smith2024}, applied here to four
-latent point clouds per encounter: the simulation-encoded predictive latent, its
-rollout, the simulation-encoded reconstructive latent, and its rollout
-(figure~\ref{fig:persistence}). The coordinate-free signature is not the survival
-of a single generator's lifetime, which is confounded by scale (the
-reconstructive rollout drifts into a large diffuse cloud that still supports a
-long-lived but non-canonical loop, so the rollout-to-encoded lifetime ratio is
-near one for both families and does not separate them). It is the
-\emph{generator count} of the simulation-encoded latent itself: the unconditioned
-predictive encoding produces a clean single cycle (median one significant $H_1$
-generator on test\_b, $52\%$ of encounters with exactly one), while the
-reconstructive encoding fragments into several (median $3.5$, $71\%$ with three or
-more; Mann--Whitney $p = 4.9 \times 10^{-9}$). The predictive latent has the clean limit-cycle topology of the
-physical encounter; the reconstructive latent does not. This is consistent with
-the curvature geometry of \S\ref{sec:res_param_phase}: the impact frame is a
-curvature minimum of the predictive trajectory, a smooth pass-through rather than
-a sharp corner, so the cycle it traces is a single well-formed loop. The result
-at $d = 32$ is the same (single predictive loop versus reconstructive
-fragmentation). The separation is robust to the two free choices of the analysis,
-following the convergence protocol of \citet{smith2024}: across noise floors from
-$2\%$ to $15\%$ of the cloud diameter and trajectory subsampling down to $60$
-points the predictive median stays at one generator and the Mann--Whitney
-separation holds at $p < 10^{-3}$, and it survives case-level clustering ($10$ of
-$10$ cases, signed-rank $p = 10^{-3}$ at the canonical setting). At the most
-aggressive $20\%$ floor, or under heavy subsampling to $30$ points, the spurious
-reconstructive generators are themselves filtered and the two medians converge, so
-the exact $p$ is floor- and sampling-dependent while the median-count separation
-is not (Appendix~\ref{app:reg}).
+The manifold departure is a rollout property; the second diagnostic asks whether
+the \emph{encoded} encounter has the topology of a single cycle. The undisturbed
+shedding traces a limit cycle, and a gust encounter departs it, executes the
+LEV-formation and shedding excursion, and relaxes back toward it
+\citep{smith2024}. We characterise the cycle with persistent homology, counting the
+significant one-dimensional generators ($H_1$) of a Vietoris--Rips filtration
+\citep{smith2024} on each encoded latent trajectory. Here honesty requires care
+with the metric. In raw latent coordinates the reconstructive encoding fragments a
+gusted encounter into several generators where the predictive encoding shows one,
+but the two encodings have very different per-coordinate scales by construction (the
+predictive latent is whitened toward isotropy by its anti-collapse regulariser, the
+reconstructive latent is not), and removing that anisotropic scale with a per-family
+whitening collapses the difference: under the whitened metric both families read a
+gusted encounter as essentially a single cycle (median $\TopoHoneWhtMedJepa$ and
+$\TopoHoneWhtMedFukami$ generators). The gusted-encounter fragmentation is therefore
+a property of the metric, not of the topology, and we do not claim it.
+
+What survives the whitening is the cleanest control, the undisturbed no-gust limit
+cycle (figure~\ref{fig:persistence}). Even after per-family whitening the
+reconstructive encoding fragments the clean shedding cycle into several generators
+(median $\TopoBaseWhtMedFukami$) while the predictive encoding keeps it as a single
+loop (median $\TopoBaseWhtMedJepa$, as does the linear basis). The reconstructive
+encoding cannot represent even the undisturbed limit cycle coherently, which is an
+encoding property, distinct from the rollout manifold departure above and computed
+on the simulation-encoded latents.
 \begin{figure}
   \centering
   \includegraphics[width=0.98\linewidth]{sections/figures/results/fig_persistence.pdf}
-  \caption{Persistent homology of the latent encounter on test\_b. Left and
-  centre: representative Vietoris--Rips $H_1$ persistence diagrams of the
-  simulation-encoded predictive and reconstructive latents; coloured points are
-  significant generators (lifetime above the dotted noise floor) and grey points
-  are noise. Right: the distribution of the significant-$H_1$ generator count over
-  the $42$ held-out encounters, the scale-free signal. The unconditioned predictive
-  encoding is a single clean loop (median one generator) while the reconstructive
-  encoding fragments (median three to four; Mann--Whitney one-sided
-  $p = 4.9\times10^{-9}$).}
+  \caption{Persistent homology of the encoded no-gust limit cycle on test\_b, under
+  the per-family whitened metric that removes anisotropic coordinate scale. Left and
+  centre: representative Vietoris--Rips $H_1$ persistence diagrams of the encoded
+  predictive and reconstructive latents; coloured points are significant generators
+  (lifetime above the dotted noise floor) and grey points are noise. Right: the
+  significant-$H_1$ generator count over the undisturbed shedding periods. The
+  predictive encoding is a single clean loop (median $\TopoBaseWhtMedJepa$) while
+  the reconstructive encoding fragments (median $\TopoBaseWhtMedFukami$); the gusted
+  fragmentation seen in raw coordinates does not survive the whitening and is not
+  claimed.}
   \label{fig:persistence}
 \end{figure}
-
-The third test makes the geometry physical by comparing latent distances with the
-unbalanced optimal-transport distance between vorticity fields. Euclidean distance
-between vorticity
-fields is insensitive to the spatial transport of structures, whereas an
-unbalanced optimal-transport (OT) distance measures the cost of rearranging one
-field into another and so tracks advection of the LEV and shear layer
-\citep{tran2026}. Computing the OT distance between simulation fields along an
-encounter gives a physical transport geometry against which the latent metric
-can be checked: the prediction is that distances in the predictive latent track
-the OT distances more faithfully than distances in the reconstructive latent, so
-that iterating the predictor step keeps the rollout closer to the data manifold.
-The
-prediction holds: the per-encounter Spearman correlation between the latent
-distance matrix and the simulation OT-distance matrix on test\_b is $0.61$ for
-the predictive latent against $0.45$ for the reconstructive latent, a margin of
-$0.16$. The predictive latent metric is therefore more aligned with the physical
-transport geometry, in this empirical distance-matrix sense, consistent with a
-rollout that remains closer to the encoded manifold. We report this per encounter
-rather than pooled across encounters, and we are explicit that the statistic is
-trajectory-local: pooling across encounters conflates the within-encounter geometry
-with a between-encounter latent-norm scale that the drift-prone reconstructive
-latent inflates, which reverses the pooled statistic ($0.41$ predictive against
-$0.63$ reconstructive) and is itself a symptom of the same drift. We therefore claim
-trajectory-local transport consistency, not a global isometry.
 
 \subsection{Where the wake is kept and where it is lost in physical space}
 \label{sec:res_param_phase}
