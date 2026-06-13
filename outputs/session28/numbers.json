@@ -1,0 +1,1334 @@
+{
+  "_provenance": {
+    "generated_iso": "2026-06-13T14:34:15.573391+00:00",
+    "git_commit": "e246847887069d64ea78bd08f60c60e749cec76c",
+    "manifest_runs_sha256": "aa07e687f2080e7e7f0dea8d75f3b2af40a86fa68c19f828ae3ec98422e60bbe",
+    "n_parts": 10,
+    "parts": [
+      "closure_headline.json",
+      "decode_operating_points.json",
+      "drift_ce1.json",
+      "p4_lev.json",
+      "sensing_cf.json",
+      "sensing_field_cf.json",
+      "spectrum_dmd.json",
+      "stats_harvest.json",
+      "topology_ce2.json",
+      "undisturbed.json"
+    ],
+    "protocol_file": "configs/eval_protocol_v2p1.yaml",
+    "protocol_sha256": "958ce70d2f0e25d20fc54d33bce55c9ce9718d561771438ade855a6bafe8661f"
+  },
+  "numbers": {
+    "closure_repr_wake_H16_testb_bvae_faith": {
+      "ci_hi": 0.7307180907839248,
+      "ci_lo": -1.0732139216371706,
+      "endpoint": "representational",
+      "fmt": "%.2f",
+      "horizon": 16,
+      "macro": "NumReprWakeBvaeFaith",
+      "n": 3,
+      "note": "d=64, tier pooled, seeds [42, 0, 1], n_enc=42; ci = case-clustered CI of lead seed 42",
+      "observable": "wake_enstrophy",
+      "probe": "ridge",
+      "run_tags": [
+        "bvae_faith_d64_s42",
+        "bvae_faith_d64_s0",
+        "bvae_faith_d64_s1"
+      ],
+      "seed_mean": -0.1869152340357341,
+      "seed_sd": 0.4829922926460755,
+      "source": "closure_matrix.py",
+      "split": "test_b",
+      "value": -0.1869152340357341
+    },
+    "closure_repr_wake_H16_testb_bvae_match": {
+      "ci_hi": 0.9287691338808112,
+      "ci_lo": 0.29489796470699847,
+      "endpoint": "representational",
+      "fmt": "%.2f",
+      "horizon": 16,
+      "macro": "NumReprWakeBvaeMatch",
+      "n": 3,
+      "note": "d=64, tier pooled, seeds [42, 0, 1], n_enc=42; ci = case-clustered CI of lead seed 42",
+      "observable": "wake_enstrophy",
+      "probe": "ridge",
+      "run_tags": [
+        "bvae_match_d64_s42",
+        "bvae_match_d64_s0",
+        "bvae_match_d64_s1"
+      ],
+      "seed_mean": 0.5321602933558306,
+      "seed_sd": 0.19632638908540231,
+      "source": "closure_matrix.py",
+      "split": "test_b",
+      "value": 0.5321602933558306
+    },
+    "closure_repr_wake_H16_testb_ctrl_pred_cnn": {
+      "ci_hi": 0.9607042922153765,
+      "ci_lo": 0.5672320089636258,
+      "endpoint": "representational",
+      "fmt": "%.2f",
+      "horizon": 16,
+      "macro": "NumReprWakeCtrlPredCnn",
+      "n": 3,
+      "note": "d=64, tier pooled, seeds [0, 1, 2], n_enc=42; ci = case-clustered CI of lead seed 0",
+      "observable": "wake_enstrophy",
+      "probe": "ridge",
+      "run_tags": [
+        "ctrl_pred_cnn_s0",
+        "ctrl_pred_cnn_s1",
+        "ctrl_pred_cnn_s2"
+      ],
+      "seed_mean": 0.7888080627356135,
+      "seed_sd": 0.06194602878212117,
+      "source": "closure_matrix.py",
+      "split": "test_b",
+      "value": 0.7888080627356135
+    },
+    "closure_repr_wake_H16_testb_ctrl_pred_vit_nowake": {
+      "ci_hi": 0.7562026803218438,
+      "ci_lo": -0.5298054175756954,
+      "endpoint": "representational",
+      "fmt": "%.2f",
+      "horizon": 16,
+      "macro": "NumReprWakeCtrlPredVitNowake",
+      "n": 3,
+      "note": "d=64, tier pooled, seeds [0, 1, 2], n_enc=42; ci = case-clustered CI of lead seed 0",
+      "observable": "wake_enstrophy",
+      "probe": "ridge",
+      "run_tags": [
+        "ctrl_pred_vit_nowake_s0",
+        "ctrl_pred_vit_nowake_s1",
+        "ctrl_pred_vit_nowake_s2"
+      ],
+      "seed_mean": 0.10509330262802792,
+      "seed_sd": 0.13346034624014563,
+      "source": "closure_matrix.py",
+      "split": "test_b",
+      "value": 0.10509330262802792
+    },
+    "closure_repr_wake_H16_testb_ctrl_recon_cnn": {
+      "ci_hi": 0.7987799061440362,
+      "ci_lo": -0.3294158325313943,
+      "endpoint": "representational",
+      "fmt": "%.2f",
+      "horizon": 16,
+      "macro": "NumReprWakeCtrlReconCnn",
+      "n": 3,
+      "note": "d=64, tier pooled, seeds [0, 1, 2], n_enc=42; ci = case-clustered CI of lead seed 0",
+      "observable": "wake_enstrophy",
+      "probe": "ridge",
+      "run_tags": [
+        "ctrl_recon_cnn_s0",
+        "ctrl_recon_cnn_s1",
+        "ctrl_recon_cnn_s2"
+      ],
+      "seed_mean": 0.3455286182782658,
+      "seed_sd": 0.4540477614819047,
+      "source": "closure_matrix.py",
+      "split": "test_b",
+      "value": 0.3455286182782658
+    },
+    "closure_repr_wake_H16_testb_ctrl_recon_cnnvit": {
+      "ci_hi": 0.5794602748288787,
+      "ci_lo": -0.6993144659344701,
+      "endpoint": "representational",
+      "fmt": "%.2f",
+      "horizon": 16,
+      "macro": "NumReprWakeCtrlReconCnnVit",
+      "n": 3,
+      "note": "d=64, tier pooled, seeds [0, 1, 2], n_enc=42; ci = case-clustered CI of lead seed 0",
+      "observable": "wake_enstrophy",
+      "probe": "ridge",
+      "run_tags": [
+        "ctrl_recon_cnnvit_s0",
+        "ctrl_recon_cnnvit_s1",
+        "ctrl_recon_cnnvit_s2"
+      ],
+      "seed_mean": 0.1266884606260161,
+      "seed_sd": 0.5540897454217013,
+      "source": "closure_matrix.py",
+      "split": "test_b",
+      "value": 0.1266884606260161
+    },
+    "closure_repr_wake_H16_testb_fukami": {
+      "ci_hi": 0.6721846208600768,
+      "ci_lo": -0.9212825727942862,
+      "endpoint": "representational",
+      "fmt": "%.2f",
+      "horizon": 16,
+      "macro": "NumReprWakeFukami",
+      "n": 4,
+      "note": "d=64, tier pooled, seeds [42, 0, 1, 2], n_enc=42; ci = case-clustered CI of lead seed 42",
+      "observable": "wake_enstrophy",
+      "probe": "ridge",
+      "run_tags": [
+        "fukami_d64_s42",
+        "fukami_d64_s0",
+        "fukami_d64_s1",
+        "fukami_d64_s2"
+      ],
+      "seed_mean": -0.2530461048796958,
+      "seed_sd": 0.2734062680697433,
+      "source": "closure_matrix.py",
+      "split": "test_b",
+      "value": -0.2530461048796958
+    },
+    "closure_repr_wake_H16_testb_jepa_lstm_noc": {
+      "ci_hi": 0.9057928180602406,
+      "ci_lo": 0.24142003087244812,
+      "endpoint": "representational",
+      "fmt": "%.2f",
+      "horizon": 16,
+      "macro": "NumReprWakeJepaLstm",
+      "n": 3,
+      "note": "d=64, tier pooled, seeds [42, 0, 1], n_enc=42; ci = case-clustered CI of lead seed 42",
+      "observable": "wake_enstrophy",
+      "probe": "ridge",
+      "run_tags": [
+        "jepa_lstm_noc_d64_s42",
+        "jepa_lstm_noc_d64_s0",
+        "jepa_lstm_noc_d64_s1"
+      ],
+      "seed_mean": 0.6903201606519872,
+      "seed_sd": 0.05193460648298572,
+      "source": "closure_matrix.py",
+      "split": "test_b",
+      "value": 0.6903201606519872
+    },
+    "closure_repr_wake_H16_testb_jepa_tf_cond": {
+      "ci_hi": 0.9260950356619007,
+      "ci_lo": 0.5268250671365433,
+      "endpoint": "representational",
+      "fmt": "%.2f",
+      "horizon": 16,
+      "macro": "NumReprWakeJepaTfCond",
+      "n": 3,
+      "note": "d=64, tier pooled, seeds [42, 0, 1], n_enc=42; ci = case-clustered CI of lead seed 42",
+      "observable": "wake_enstrophy",
+      "probe": "ridge",
+      "run_tags": [
+        "jepa_tf_cond_d64_s42",
+        "jepa_tf_cond_d64_s0",
+        "jepa_tf_cond_d64_s1"
+      ],
+      "seed_mean": 0.7745660661279171,
+      "seed_sd": 0.07386053106561871,
+      "source": "closure_matrix.py",
+      "split": "test_b",
+      "value": 0.7745660661279171
+    },
+    "closure_repr_wake_H16_testb_jepa_tf_noc": {
+      "ci_hi": 0.908162588691939,
+      "ci_lo": 0.6167194054492413,
+      "endpoint": "representational",
+      "fmt": "%.2f",
+      "horizon": 16,
+      "macro": "NumReprWakeJepaTf",
+      "n": 4,
+      "note": "d=64, tier pooled, seeds [42, 0, 1, 2], n_enc=42; ci = case-clustered CI of lead seed 42",
+      "observable": "wake_enstrophy",
+      "probe": "ridge",
+      "run_tags": [
+        "jepa_tf_noc_d64_s42",
+        "jepa_tf_noc_d64_s0",
+        "jepa_tf_noc_d64_s1",
+        "jepa_tf_noc_d64_s2"
+      ],
+      "seed_mean": 0.7940275861967386,
+      "seed_sd": 0.05534878853105978,
+      "source": "closure_matrix.py",
+      "split": "test_b",
+      "value": 0.7940275861967386
+    },
+    "closure_repr_wake_H16_testb_pod": {
+      "ci_hi": 0.4228526696573668,
+      "ci_lo": -0.7788510145680616,
+      "endpoint": "representational",
+      "fmt": "%.2f",
+      "horizon": 16,
+      "macro": "NumReprWakePod",
+      "n": 1,
+      "note": "d=64, tier pooled, seeds [-1], n_enc=42; ci = case-clustered CI of lead seed -1",
+      "observable": "wake_enstrophy",
+      "probe": "ridge",
+      "run_tags": [
+        "pod_d64"
+      ],
+      "seed_mean": -0.15687236649391667,
+      "seed_sd": 0.0,
+      "source": "closure_matrix.py",
+      "split": "test_b",
+      "value": -0.15687236649391667
+    },
+    "decode_op_iter_dec_jepa_lstm_noc_d64_s42": {
+      "fmt": "%d",
+      "macro": "DecOpIterJepaLstm",
+      "note": "T9 visualization decoder operating point: argmax full-test_a SSIM_mean over 15 checkpoints; frozen rule (PROTOCOL.md S6). 30k SSIM=0.5910, still_rising_at_30k=False",
+      "source": "decode_operating_points.py",
+      "split": "test_a",
+      "value": 22000
+    },
+    "decode_op_iter_dec_jepa_tf_noc_d64_s42": {
+      "fmt": "%d",
+      "macro": "DecOpIterJepaTf",
+      "note": "T9 visualization decoder operating point: argmax full-test_a SSIM_mean over 15 checkpoints; frozen rule (PROTOCOL.md S6). 30k SSIM=0.6032, still_rising_at_30k=False",
+      "source": "decode_operating_points.py",
+      "split": "test_a",
+      "value": 20000
+    },
+    "decode_op_iter_dec_posthoc_fukami_d64": {
+      "fmt": "%d",
+      "macro": "DecOpIterFukami",
+      "note": "T9 visualization decoder operating point: argmax full-test_a SSIM_mean over 15 checkpoints; frozen rule (PROTOCOL.md S6). 30k SSIM=0.4954, still_rising_at_30k=False",
+      "source": "decode_operating_points.py",
+      "split": "test_a",
+      "value": 20000
+    },
+    "decode_op_iter_dec_posthoc_pod_d64": {
+      "fmt": "%d",
+      "macro": "DecOpIterPod",
+      "note": "T9 visualization decoder operating point: argmax full-test_a SSIM_mean over 15 checkpoints; frozen rule (PROTOCOL.md S6). 30k SSIM=0.6681, still_rising_at_30k=False",
+      "source": "decode_operating_points.py",
+      "split": "test_a",
+      "value": 8000
+    },
+    "decode_op_val_ssim_dec_jepa_lstm_noc_d64_s42": {
+      "endpoint": "representational",
+      "fmt": "%.3f",
+      "macro": "DecOpValSsimJepaLstm",
+      "note": "val (test_a) SSIM_mean at the operating point iter 22000; Fukami SSIM def, raw-scale via v2p1 omega pipeline, n_enc=87, ssim_data_range=8.45",
+      "source": "decode_operating_points.py",
+      "split": "test_a",
+      "value": 0.5912064285872984
+    },
+    "decode_op_val_ssim_dec_jepa_tf_noc_d64_s42": {
+      "endpoint": "representational",
+      "fmt": "%.3f",
+      "macro": "DecOpValSsimJepaTf",
+      "note": "val (test_a) SSIM_mean at the operating point iter 20000; Fukami SSIM def, raw-scale via v2p1 omega pipeline, n_enc=87, ssim_data_range=8.45",
+      "source": "decode_operating_points.py",
+      "split": "test_a",
+      "value": 0.6063251999226084
+    },
+    "decode_op_val_ssim_dec_posthoc_fukami_d64": {
+      "endpoint": "representational",
+      "fmt": "%.3f",
+      "macro": "DecOpValSsimFukami",
+      "note": "val (test_a) SSIM_mean at the operating point iter 20000; Fukami SSIM def, raw-scale via v2p1 omega pipeline, n_enc=87, ssim_data_range=8.45",
+      "source": "decode_operating_points.py",
+      "split": "test_a",
+      "value": 0.4992445188453022
+    },
+    "decode_op_val_ssim_dec_posthoc_pod_d64": {
+      "endpoint": "representational",
+      "fmt": "%.3f",
+      "macro": "DecOpValSsimPod",
+      "note": "val (test_a) SSIM_mean at the operating point iter 8000; Fukami SSIM def, raw-scale via v2p1 omega pipeline, n_enc=87, ssim_data_range=8.45",
+      "source": "decode_operating_points.py",
+      "split": "test_a",
+      "value": 0.6759740211239985
+    },
+    "dmd_St_baseline_fukami": {
+      "fmt": "%.2f",
+      "macro": "SpecDmdStFukami",
+      "note": "data-driven DMD leading-pair St on Baseline limit cycle (fukami_d64_s42)",
+      "observable": "leading_oscillatory_St",
+      "source": "spectrum_dmd.py",
+      "split": "baseline",
+      "value": 0.5028220479718974
+    },
+    "dmd_St_baseline_jepa_tf_noc": {
+      "fmt": "%.2f",
+      "macro": "SpecDmdStJepaTf",
+      "note": "data-driven DMD leading-pair St on Baseline limit cycle (jepa_tf_noc_d64_s42)",
+      "observable": "leading_oscillatory_St",
+      "source": "spectrum_dmd.py",
+      "split": "baseline",
+      "value": 0.6617479576312852
+    },
+    "dmd_St_baseline_pod": {
+      "fmt": "%.2f",
+      "macro": "SpecDmdStPod",
+      "note": "data-driven DMD leading-pair St on Baseline limit cycle (pod_d64)",
+      "observable": "leading_oscillatory_St",
+      "source": "spectrum_dmd.py",
+      "split": "baseline",
+      "value": 0.6822523948710314
+    },
+    "dmd_best_st_recovery_family": {
+      "fmt": "%s",
+      "note": "family whose DMD leading St (0.682) is closest to a DNS shedding line (matched dominant, |err|=0.007)",
+      "source": "spectrum_dmd.py",
+      "split": "baseline",
+      "value": "pod"
+    },
+    "dmd_modulus_baseline_fukami": {
+      "fmt": "%.3f",
+      "macro": "SpecDmdModFukami",
+      "note": "leading-pair |lambda| (~1 = marginally stable limit cycle)",
+      "observable": "leading_oscillatory_modulus",
+      "source": "spectrum_dmd.py",
+      "split": "baseline",
+      "value": 0.9391353878699854
+    },
+    "dmd_modulus_baseline_jepa_tf_noc": {
+      "fmt": "%.3f",
+      "macro": "SpecDmdModJepaTf",
+      "note": "leading-pair |lambda| (~1 = marginally stable limit cycle)",
+      "observable": "leading_oscillatory_modulus",
+      "source": "spectrum_dmd.py",
+      "split": "baseline",
+      "value": 0.9913539953143484
+    },
+    "dmd_modulus_baseline_pod": {
+      "fmt": "%.3f",
+      "macro": "SpecDmdModPod",
+      "note": "leading-pair |lambda| (~1 = marginally stable limit cycle)",
+      "observable": "leading_oscillatory_modulus",
+      "source": "spectrum_dmd.py",
+      "split": "baseline",
+      "value": 0.9955932038392336
+    },
+    "drift_maha_ratio_H24_d64_bvae": {
+      "fmt": "%.2f",
+      "horizon": 24,
+      "macro": "DriftMahaBvae",
+      "n": 42,
+      "note": "mean Mahalanobis ratio to train cloud, bvae d=64, H=24; ratio<1 (predictor regresses to train cloud)",
+      "source": "drift_ce1.py",
+      "split": "test_b",
+      "value": 0.8738094408709862
+    },
+    "drift_maha_ratio_H24_d64_fukami": {
+      "fmt": "%.2f",
+      "horizon": 24,
+      "macro": "DriftMahaFukami",
+      "n": 42,
+      "note": "mean Mahalanobis ratio to train cloud, fukami d=64, H=24",
+      "source": "drift_ce1.py",
+      "split": "test_b",
+      "value": 8.99833656699864
+    },
+    "drift_maha_ratio_H24_d64_jepa": {
+      "fmt": "%.2f",
+      "horizon": 24,
+      "macro": "DriftMahaJepa",
+      "n": 42,
+      "note": "mean Mahalanobis ratio to train cloud, jepa d=64, H=24; ratio<1 (predictor regresses to train cloud)",
+      "source": "drift_ce1.py",
+      "split": "test_b",
+      "value": 0.701746960649101
+    },
+    "drift_maha_ratio_H24_d64_pod": {
+      "fmt": "%.2f",
+      "horizon": 24,
+      "macro": "DriftMahaPod",
+      "n": 42,
+      "note": "mean Mahalanobis ratio to train cloud, pod d=64, H=24; ratio<1 (predictor regresses to train cloud)",
+      "source": "drift_ce1.py",
+      "split": "test_b",
+      "value": 0.8445477039670971
+    },
+    "drift_rel_l2_H24_d64_bvae": {
+      "fmt": "%.2f",
+      "horizon": 24,
+      "macro": "DriftRelLtwoBvae",
+      "n": 42,
+      "note": "mean rel-l2 deviation, bvae d=64, full-context rollout, H=24",
+      "source": "drift_ce1.py",
+      "split": "test_b",
+      "value": 0.5332719591193307
+    },
+    "drift_rel_l2_H24_d64_fukami": {
+      "fmt": "%.2f",
+      "horizon": 24,
+      "macro": "DriftRelLtwoFukami",
+      "n": 42,
+      "note": "mean rel-l2 deviation, fukami d=64, full-context rollout, H=24",
+      "source": "drift_ce1.py",
+      "split": "test_b",
+      "value": 0.31815159833058904
+    },
+    "drift_rel_l2_H24_d64_jepa": {
+      "fmt": "%.2f",
+      "horizon": 24,
+      "macro": "DriftRelLtwoJepa",
+      "n": 42,
+      "note": "mean rel-l2 deviation, jepa d=64, full-context rollout, H=24",
+      "source": "drift_ce1.py",
+      "split": "test_b",
+      "value": 0.5372359732685006
+    },
+    "drift_rel_l2_H24_d64_pod": {
+      "fmt": "%.2f",
+      "horizon": 24,
+      "macro": "DriftRelLtwoPod",
+      "n": 42,
+      "note": "mean rel-l2 deviation, pod d=64, full-context rollout, H=24",
+      "source": "drift_ce1.py",
+      "split": "test_b",
+      "value": 0.8382387338502681
+    },
+    "drift_spec_nearnull_frac_d64_fukami": {
+      "fmt": "%.2f",
+      "horizon": 24,
+      "macro": "DriftSpecNearNullFukami",
+      "note": "fraction of squared-Mahalanobis departure in near-null encoded eigen-dirs (58 dirs), Fukami d=64 (the M6 mechanism)",
+      "source": "drift_ce1.py",
+      "split": "test_b",
+      "value": 0.9952672682321783
+    },
+    "drift_spec_nearnull_frac_d64_jepa": {
+      "fmt": "%.2f",
+      "horizon": 24,
+      "macro": "DriftSpecNearNullJepa",
+      "note": "fraction of squared-Mahalanobis departure in near-null encoded eigen-dirs (42 dirs), JEPA d=64",
+      "source": "drift_ce1.py",
+      "split": "test_b",
+      "value": 0.8825952227058818
+    },
+    "field_ceiling_ssim_K8_testb_fukami": {
+      "ci_hi": 0.6077247128737465,
+      "ci_lo": 0.47139204395728235,
+      "endpoint": "representational",
+      "fmt": "%.2f",
+      "macro": "FieldCeilSsimFukami",
+      "n": 42,
+      "note": "decode-ceiling: field from TRUE encoded z_dns(impact+16) (no pressure step); Wang SSIM L=8.45; exposes the decoder-quality confound vs the pressure-recovered SSIM",
+      "observable": "field_ssim",
+      "source": "sensing_field_cf",
+      "split": "test_b",
+      "value": 0.5376665014174256
+    },
+    "field_ceiling_ssim_K8_testb_jepa_tf_noc": {
+      "ci_hi": 0.6875543749854155,
+      "ci_lo": 0.5501577543177515,
+      "endpoint": "representational",
+      "fmt": "%.2f",
+      "macro": "FieldCeilSsimJepaTf",
+      "n": 42,
+      "note": "decode-ceiling: field from TRUE encoded z_dns(impact+16) (no pressure step); Wang SSIM L=8.45; exposes the decoder-quality confound vs the pressure-recovered SSIM",
+      "observable": "field_ssim",
+      "source": "sensing_field_cf",
+      "split": "test_b",
+      "value": 0.6184201892371224
+    },
+    "field_ceiling_ssim_K8_testb_pod": {
+      "ci_hi": 0.7624986507957998,
+      "ci_lo": 0.6587103899196302,
+      "endpoint": "representational",
+      "fmt": "%.2f",
+      "macro": "FieldCeilSsimPod",
+      "n": 42,
+      "note": "decode-ceiling: field from TRUE encoded z_dns(impact+16) (no pressure step); Wang SSIM L=8.45; exposes the decoder-quality confound vs the pressure-recovered SSIM",
+      "observable": "field_ssim",
+      "source": "sensing_field_cf",
+      "split": "test_b",
+      "value": 0.7091649581806032
+    },
+    "field_pr_eps_K8_testb_fukami": {
+      "endpoint": "deployment",
+      "fmt": "%.2f",
+      "macro": "FieldPrEpsFukami",
+      "note": "volume L2 relative error of the pressure-recovered field at K=8",
+      "observable": "field_eps_volume",
+      "source": "sensing_field_cf",
+      "split": "test_b",
+      "value": 1.0017525587010097
+    },
+    "field_pr_eps_K8_testb_jepa_tf_noc": {
+      "endpoint": "deployment",
+      "fmt": "%.2f",
+      "macro": "FieldPrEpsJepaTf",
+      "note": "volume L2 relative error of the pressure-recovered field at K=8",
+      "observable": "field_eps_volume",
+      "source": "sensing_field_cf",
+      "split": "test_b",
+      "value": 0.9160372118192897
+    },
+    "field_pr_eps_K8_testb_pod": {
+      "endpoint": "deployment",
+      "fmt": "%.2f",
+      "macro": "FieldPrEpsPod",
+      "note": "volume L2 relative error of the pressure-recovered field at K=8",
+      "observable": "field_eps_volume",
+      "source": "sensing_field_cf",
+      "split": "test_b",
+      "value": 0.894040484770233
+    },
+    "field_pr_peak_K8_testb_fukami": {
+      "endpoint": "deployment",
+      "fmt": "%.2f",
+      "macro": "FieldPrPeakFukami",
+      "note": "recovered/DNS peak |omega| of the pressure-recovered field at K=8",
+      "observable": "peak_vorticity_retention",
+      "source": "sensing_field_cf",
+      "split": "test_b",
+      "value": 0.8840661509605551
+    },
+    "field_pr_peak_K8_testb_jepa_tf_noc": {
+      "endpoint": "deployment",
+      "fmt": "%.2f",
+      "macro": "FieldPrPeakJepaTf",
+      "note": "recovered/DNS peak |omega| of the pressure-recovered field at K=8",
+      "observable": "peak_vorticity_retention",
+      "source": "sensing_field_cf",
+      "split": "test_b",
+      "value": 0.9179310377162798
+    },
+    "field_pr_peak_K8_testb_pod": {
+      "endpoint": "deployment",
+      "fmt": "%.2f",
+      "macro": "FieldPrPeakPod",
+      "note": "recovered/DNS peak |omega| of the pressure-recovered field at K=8",
+      "observable": "peak_vorticity_retention",
+      "source": "sensing_field_cf",
+      "split": "test_b",
+      "value": 0.7811603723824871
+    },
+    "field_pr_ssim_K8_testb_fukami": {
+      "ci_hi": 0.5811038599570034,
+      "ci_lo": 0.3832547616829103,
+      "endpoint": "deployment",
+      "fmt": "%.2f",
+      "macro": "FieldPrSsimFukami",
+      "n": 42,
+      "note": "pressure(8 qDEIM taps,W=30)->z_hat(impact+16)->decoder->omega; Wang SSIM L=8.45; case-clustered CI; d=64 lead seed",
+      "observable": "field_ssim",
+      "probe": "krr_rbf->decoder",
+      "source": "sensing_field_cf",
+      "split": "test_b",
+      "value": 0.4810375985231862
+    },
+    "field_pr_ssim_K8_testb_jepa_tf_noc": {
+      "ci_hi": 0.6726236672066432,
+      "ci_lo": 0.4672431547269771,
+      "endpoint": "deployment",
+      "fmt": "%.2f",
+      "macro": "FieldPrSsimJepaTf",
+      "n": 42,
+      "note": "pressure(8 qDEIM taps,W=30)->z_hat(impact+16)->decoder->omega; Wang SSIM L=8.45; case-clustered CI; d=64 lead seed",
+      "observable": "field_ssim",
+      "probe": "krr_rbf->decoder",
+      "source": "sensing_field_cf",
+      "split": "test_b",
+      "value": 0.5716338266294223
+    },
+    "field_pr_ssim_K8_testb_pod": {
+      "ci_hi": 0.6744718409273752,
+      "ci_lo": 0.4844662682484602,
+      "endpoint": "deployment",
+      "fmt": "%.2f",
+      "macro": "FieldPrSsimPod",
+      "n": 42,
+      "note": "pressure(8 qDEIM taps,W=30)->z_hat(impact+16)->decoder->omega; Wang SSIM L=8.45; case-clustered CI; d=64 lead seed",
+      "observable": "field_ssim",
+      "probe": "krr_rbf->decoder",
+      "source": "sensing_field_cf",
+      "split": "test_b",
+      "value": 0.5832011819175413
+    },
+    "field_pr_ssim_jepa_vs_recon_signp": {
+      "endpoint": "deployment",
+      "fmt": "%.3f",
+      "macro": "FieldPrSsimSignP",
+      "note": "max over recon families of one-sided sign-test p (JEPA pressure-recovered field SSIM > recon), jepa_tf_noc_vs_pod, K=8",
+      "observable": "field_ssim",
+      "source": "sensing_field_cf",
+      "split": "test_b",
+      "value": 0.8600218807355304
+    },
+    "field_ssim_gap_K8_testb_fukami": {
+      "endpoint": "deployment",
+      "fmt": "%.2f",
+      "macro": "FieldSsimGapFukami",
+      "note": "decode-ceiling SSIM minus pressure-recovered SSIM at K=8; the part of the field error attributable to imperfect pressure->state recovery (small gap => decoder-limited, large gap => state-limited)",
+      "observable": "field_ssim_gap",
+      "source": "sensing_field_cf",
+      "split": "test_b",
+      "value": 0.05662890289423933
+    },
+    "field_ssim_gap_K8_testb_jepa_tf_noc": {
+      "endpoint": "deployment",
+      "fmt": "%.2f",
+      "macro": "FieldSsimGapJepaTf",
+      "note": "decode-ceiling SSIM minus pressure-recovered SSIM at K=8; the part of the field error attributable to imperfect pressure->state recovery (small gap => decoder-limited, large gap => state-limited)",
+      "observable": "field_ssim_gap",
+      "source": "sensing_field_cf",
+      "split": "test_b",
+      "value": 0.04678636260770008
+    },
+    "field_ssim_gap_K8_testb_pod": {
+      "endpoint": "deployment",
+      "fmt": "%.2f",
+      "macro": "FieldSsimGapPod",
+      "note": "decode-ceiling SSIM minus pressure-recovered SSIM at K=8; the part of the field error attributable to imperfect pressure->state recovery (small gap => decoder-limited, large gap => state-limited)",
+      "observable": "field_ssim_gap",
+      "source": "sensing_field_cf",
+      "split": "test_b",
+      "value": 0.12596377626306188
+    },
+    "field_state_winner_matches": {
+      "endpoint": "deployment",
+      "fmt": "%d",
+      "macro": "FieldStateWinnerMatches",
+      "note": "1 iff the STATE-recovery winner (jepa_tf_noc) is also the FIELD-recovery winner; field order=['pod', 'jepa_tf_noc', 'fukami'], ceiling order=['pod', 'jepa_tf_noc', 'fukami']",
+      "observable": "ranking_agreement",
+      "source": "sensing_field_cf",
+      "split": "test_b",
+      "value": 0
+    },
+    "floquet_leading_modulus": {
+      "endpoint": "forecast",
+      "fmt": "%.3f",
+      "macro": "SpecFloqMod",
+      "note": "per-step Floquet multiplier modulus of the transformer predictor over the 59-frame Baseline cycle (W=16); ~1 = marginally stable orbit (the on-manifold property)",
+      "observable": "floquet_leading_per_step_modulus",
+      "source": "spectrum_dmd.py",
+      "split": "baseline",
+      "value": 1.0041725569280693
+    },
+    "floquet_markov_St": {
+      "endpoint": "forecast",
+      "fmt": "%.2f",
+      "macro": "SpecFloqSt",
+      "note": "intrinsic frequency from the Markov one-step predictor-Jacobian leading eigenvalue (mean over the Baseline cycle); the over-damped oscillatory Floquet sub-mode is NOT used for frequency (README HONEST READ). The well-resolved shedding line is the Part-1 data-driven DMD St.",
+      "observable": "markov_jacobian_leading_St",
+      "source": "spectrum_dmd.py",
+      "split": "baseline",
+      "value": 0.1937080266024367
+    },
+    "forecast_wake_H16_testb_fukami": {
+      "ci_hi": 0.6893826723831462,
+      "ci_lo": -0.44769565784708454,
+      "endpoint": "forecast",
+      "fmt": "%.2f",
+      "horizon": 16,
+      "macro": "ForecastWakeFukami",
+      "n": 42,
+      "note": "forecast-endpoint wake R^2 of the fukami rollout on its own coords",
+      "observable": "wake_enstrophy",
+      "probe": "ridge",
+      "source": "spectrum_dmd.py",
+      "split": "test_b",
+      "value": 0.2211479863140079
+    },
+    "forecast_wake_H16_testb_jepa_tf_noc": {
+      "ci_hi": 0.8511766759151022,
+      "ci_lo": -0.3209741277502407,
+      "endpoint": "forecast",
+      "fmt": "%.2f",
+      "horizon": 16,
+      "macro": "ForecastWakeJepaTf",
+      "n": 42,
+      "note": "forecast-endpoint wake R^2 of the jepa_tf_noc rollout on its own coords",
+      "observable": "wake_enstrophy",
+      "probe": "ridge",
+      "source": "spectrum_dmd.py",
+      "split": "test_b",
+      "value": 0.4322001569984707
+    },
+    "forecast_wake_H16_testb_pod": {
+      "ci_hi": 0.2990642075104728,
+      "ci_lo": -1.6689666425584613,
+      "endpoint": "forecast",
+      "fmt": "%.2f",
+      "horizon": 16,
+      "macro": "ForecastWakePod",
+      "n": 42,
+      "note": "forecast-endpoint wake R^2 of the pod rollout on its own coords",
+      "observable": "wake_enstrophy",
+      "probe": "ridge",
+      "source": "spectrum_dmd.py",
+      "split": "test_b",
+      "value": -0.5971388551905414
+    },
+    "forecast_wake_H16_testb_pod_dmd": {
+      "ci_hi": 0.33841446694327804,
+      "ci_lo": -1.403547580154354,
+      "endpoint": "forecast",
+      "fmt": "%.2f",
+      "horizon": 16,
+      "macro": "ForecastWakePodDmd",
+      "n": 42,
+      "note": "forecast-endpoint wake R^2 of the pod_dmd rollout on its own coords",
+      "observable": "wake_enstrophy",
+      "probe": "ridge",
+      "source": "spectrum_dmd.py",
+      "split": "test_b",
+      "value": -0.3926999629501797
+    },
+    "forecast_wake_jepa_minus_dmd": {
+      "endpoint": "forecast",
+      "fmt": "%.2f",
+      "horizon": 16,
+      "macro": "ForecastWakeJepaMinusDmd",
+      "note": "learned tf-no-c JEPA forecast wake R^2 minus the POD+linear-dynamics (DMD) rung; >0 => the learned nonlinear predictor beats DMD",
+      "observable": "wake_enstrophy",
+      "source": "spectrum_dmd.py",
+      "split": "test_b",
+      "value": 0.8249001199486504
+    },
+    "gd_hardening_krr_rbf_s0": {
+      "ci_hi": 19.53129597194903,
+      "ci_lo": -12.11874936751736,
+      "endpoint": "representational",
+      "horizon": 16,
+      "note": "paired abs-error delta = err(ctrl_recon_cnn_s0) - err(jepa_tf_noc); ci_includes_zero=True",
+      "observable": "wake_enstrophy",
+      "probe": "krr_rbf",
+      "run_tags": [
+        "jepa_tf_noc_d64_s42",
+        "ctrl_recon_cnn_s0"
+      ],
+      "source": "stats_harvest.py",
+      "split": "test_b",
+      "value": 4.9784063134506935
+    },
+    "gd_hardening_mlp_reg_s0": {
+      "ci_hi": 14.844731929948901,
+      "ci_lo": -5.0363122838956915,
+      "endpoint": "representational",
+      "horizon": 16,
+      "note": "paired abs-error delta = err(ctrl_recon_cnn_s0) - err(jepa_tf_noc); ci_includes_zero=True",
+      "observable": "wake_enstrophy",
+      "probe": "mlp_reg",
+      "run_tags": [
+        "jepa_tf_noc_d64_s42",
+        "ctrl_recon_cnn_s0"
+      ],
+      "source": "stats_harvest.py",
+      "split": "test_b",
+      "value": 5.403577192028671
+    },
+    "gd_weak_branch_supported": {
+      "fmt": "%d",
+      "note": "Weak branch SUPPORTED: the matched-head reconstructive AE is not reliably separated from the predictive family on linear/nonlinear wake decodability after case clustering; D183 lands on WEAK (linear-decodability framing).",
+      "source": "stats_harvest.py",
+      "value": 1
+    },
+    "holm_family_survivors": {
+      "fmt": "%d",
+      "macro": "NumHolmSurvivors",
+      "n": 12,
+      "note": "Holm survivors of the 12-test family (encounter-level sign p, the pre-registered D165 procedure): forecast/circ_neg, repr/CL, repr/circ_neg, repr/wake_enstrophy; stricter case-respecting (case-level sign p) survivors [2/12]: repr/CL, repr/circ_neg",
+      "source": "stats_harvest.py",
+      "value": 4
+    },
+    "holm_family_survivors_case_strict": {
+      "n": 12,
+      "note": "stricter case-respecting (case-level one-sided sign p) Holm survivors: repr/CL, repr/circ_neg",
+      "source": "stats_harvest.py",
+      "value": 2
+    },
+    "p4_gp4_pearson_r": {
+      "ci_hi": 0.882266128842341,
+      "ci_lo": 0.2675209868970489,
+      "fmt": "%.2f",
+      "macro": "NumPfourGPfourPearson",
+      "n": 66,
+      "note": "case-permutation two-sided p = 0.0445; branch = appendix (GP4 threshold 0.6); direct correlation only, no impulse claim (D167).",
+      "observable": "peak|dCL| vs peak|Gamma_LEV|",
+      "source": "p4_lev",
+      "split": "test_b+test_c",
+      "value": 0.5295368232850542
+    },
+    "p4_gp4_spearman_r": {
+      "ci_hi": 0.8870000669583701,
+      "ci_lo": 0.4121919789454406,
+      "fmt": "%.2f",
+      "macro": "NumPfourGPfourSpearman",
+      "n": 66,
+      "note": "case-permutation two-sided p = 0.0007999",
+      "observable": "peak|dCL| vs peak|Gamma_LEV|",
+      "source": "p4_lev",
+      "split": "test_b+test_c",
+      "value": 0.7507149566851061
+    },
+    "p4_gsign_peak_gamma_diff": {
+      "fmt": "%.3f",
+      "macro": "NumPfourGsignPeakGammaDiff",
+      "n": 42,
+      "note": "Mann-Whitney two-sided p = 0.06062; matched-bucket paired diff CI = [-0.513, 0.010]",
+      "observable": "peak|Gamma_LEV| (G>0 minus G<0, matched |G|)",
+      "source": "p4_lev",
+      "split": "test_b+test_c",
+      "value": -0.2404841240863623
+    },
+    "p4_track_frac_fukami_recon": {
+      "endpoint": "recon",
+      "fmt": "%.2f",
+      "macro": "NumPfourTrackFukamiRecon",
+      "n": 66,
+      "note": "18/66 encounters",
+      "observable": "decoded Gamma_LEV(t) tracks DNS",
+      "source": "p4_lev",
+      "split": "test_b+test_c",
+      "value": 0.2727272727272727
+    },
+    "p4_track_frac_pod_recon": {
+      "endpoint": "recon",
+      "fmt": "%.2f",
+      "macro": "NumPfourTrackPodRecon",
+      "n": 66,
+      "note": "32/66 encounters",
+      "observable": "decoded Gamma_LEV(t) tracks DNS",
+      "source": "p4_lev",
+      "split": "test_b+test_c",
+      "value": 0.48484848484848486
+    },
+    "p4_track_frac_tf_noc_recon": {
+      "endpoint": "recon",
+      "fmt": "%.2f",
+      "macro": "NumPfourTrackTfNocRecon",
+      "n": 66,
+      "note": "19/66 encounters (corr > 0.5); D146 regenerated on matched decoders.",
+      "observable": "decoded Gamma_LEV(t) tracks DNS",
+      "source": "p4_lev",
+      "split": "test_b+test_c",
+      "value": 0.2878787878787879
+    },
+    "paired_repr_wake_pred_minus_fukami": {
+      "ci_hi": 58.720187312181125,
+      "ci_lo": 7.790913520984917,
+      "endpoint": "representational",
+      "fmt": "%.2f",
+      "horizon": 16,
+      "macro": "NumPairedWakeRepr",
+      "n": 42,
+      "note": "paired abs-error delta = err(fukami) - err(jepa_tf_noc); >0 = predictive better; case-clustered CI; enc_sign_p=0.003958 (holm_enc_survives=True), case_sign_p=0.1719 (holm_case_survives=False)",
+      "observable": "wake_enstrophy",
+      "probe": "ridge",
+      "run_tags": [
+        "jepa_tf_noc_d64_s42",
+        "fukami_d64_s42"
+      ],
+      "source": "stats_harvest.py",
+      "split": "test_b",
+      "value": 33.56333489551835
+    },
+    "protocol_commit": {
+      "fmt": "%s",
+      "macro": "CommitHash",
+      "source": "eval_all.py",
+      "value": "e24684788706"
+    },
+    "sensing_causal_clip_delta": {
+      "endpoint": "deployment",
+      "fmt": "%.3f",
+      "macro": "SenseCausalDelta",
+      "note": "R^2 delta (causal-clip - base) on JEPA pressure->wake at K=8; base=0.183 causal=0.184",
+      "observable": "wake_enstrophy",
+      "source": "sensing_cf",
+      "split": "test_b",
+      "value": 0.0008781150039733898
+    },
+    "sensing_cc_K8_testb_bvae": {
+      "endpoint": "deployment",
+      "fmt": "%.2f",
+      "macro": "SenseCcBvae",
+      "note": "mean canonical correlation over min(d,K*W) dirs, 8 qDEIM taps; reported WITH the vw-R^2 to expose anisotropy",
+      "observable": "canonical_correlation",
+      "source": "sensing_cf",
+      "split": "test_b",
+      "value": 0.13450866364762623
+    },
+    "sensing_cc_K8_testb_fukami": {
+      "endpoint": "deployment",
+      "fmt": "%.2f",
+      "macro": "SenseCcFukami",
+      "note": "mean canonical correlation over min(d,K*W) dirs, 8 qDEIM taps; reported WITH the vw-R^2 to expose anisotropy",
+      "observable": "canonical_correlation",
+      "source": "sensing_cf",
+      "split": "test_b",
+      "value": 0.14626717269612133
+    },
+    "sensing_cc_K8_testb_jepa_tf_noc": {
+      "endpoint": "deployment",
+      "fmt": "%.2f",
+      "macro": "SenseCcJepaTf",
+      "note": "mean canonical correlation over min(d,K*W) dirs, 8 qDEIM taps; reported WITH the vw-R^2 to expose anisotropy",
+      "observable": "canonical_correlation",
+      "source": "sensing_cf",
+      "split": "test_b",
+      "value": 0.5614317344184845
+    },
+    "sensing_cc_K8_testb_pod": {
+      "endpoint": "deployment",
+      "fmt": "%.2f",
+      "macro": "SenseCcPod",
+      "note": "mean canonical correlation over min(d,K*W) dirs, 8 qDEIM taps; reported WITH the vw-R^2 to expose anisotropy",
+      "observable": "canonical_correlation",
+      "source": "sensing_cf",
+      "split": "test_b",
+      "value": 0.6355488501102181
+    },
+    "sensing_pY_K8_testb_jepa_tf_noc": {
+      "endpoint": "deployment",
+      "fmt": "%.2f",
+      "macro": "SensePY",
+      "note": "pressure(8 qDEIM taps)->Y R^2; M11 Y-attribution softening",
+      "observable": "Y",
+      "source": "sensing_cf",
+      "split": "test_b",
+      "value": 0.5103801249324093
+    },
+    "sensing_pcl_via_K8_testb_jepa_tf_noc": {
+      "endpoint": "deployment",
+      "fmt": "%.2f",
+      "macro": "SensePClVia",
+      "note": "pressure(8 qDEIM taps)->z(impact+16)->C_L probe R^2, JEPA; direct=0.443",
+      "observable": "C_L",
+      "source": "sensing_cf",
+      "split": "test_b",
+      "value": 0.4300158838759016
+    },
+    "sensing_pwake_K8_testb_bvae": {
+      "ci_hi": 0.5568346068058307,
+      "ci_lo": -2.1605605627982936,
+      "endpoint": "deployment",
+      "fmt": "%.2f",
+      "macro": "SensePWakeBvae",
+      "n": 42,
+      "note": "pressure(8 qDEIM taps,W=30)->z(impact+16)->frozen wake probe; case-clustered CI; d=64 lead seed",
+      "observable": "wake_enstrophy",
+      "probe": "krr_rbf->ridge",
+      "source": "sensing_cf",
+      "split": "test_b",
+      "value": 0.13328833524924777
+    },
+    "sensing_pwake_K8_testb_fukami": {
+      "ci_hi": 0.11296710408804624,
+      "ci_lo": -4.581354712584991,
+      "endpoint": "deployment",
+      "fmt": "%.2f",
+      "macro": "SensePWakeFukami",
+      "n": 42,
+      "note": "pressure(8 qDEIM taps,W=30)->z(impact+16)->frozen wake probe; case-clustered CI; d=64 lead seed",
+      "observable": "wake_enstrophy",
+      "probe": "krr_rbf->ridge",
+      "source": "sensing_cf",
+      "split": "test_b",
+      "value": -0.003882020198217706
+    },
+    "sensing_pwake_K8_testb_jepa_tf_noc": {
+      "ci_hi": 0.6404499223722391,
+      "ci_lo": -1.1936205176427612,
+      "endpoint": "deployment",
+      "fmt": "%.2f",
+      "macro": "SensePWakeJepaTf",
+      "n": 42,
+      "note": "pressure(8 qDEIM taps,W=30)->z(impact+16)->frozen wake probe; case-clustered CI; d=64 lead seed",
+      "observable": "wake_enstrophy",
+      "probe": "krr_rbf->ridge",
+      "source": "sensing_cf",
+      "split": "test_b",
+      "value": 0.1826220195195637
+    },
+    "sensing_pwake_K8_testb_pod": {
+      "ci_hi": -0.05083153830337883,
+      "ci_lo": -15.259582867284713,
+      "endpoint": "deployment",
+      "fmt": "%.2f",
+      "macro": "SensePWakePod",
+      "n": 42,
+      "note": "pressure(8 qDEIM taps,W=30)->z(impact+16)->frozen wake probe; case-clustered CI; d=64 lead seed",
+      "observable": "wake_enstrophy",
+      "probe": "krr_rbf->ridge",
+      "source": "sensing_cf",
+      "split": "test_b",
+      "value": -0.5053735160307329
+    },
+    "sensing_pwake_direct_K8_testb": {
+      "endpoint": "deployment",
+      "fmt": "%.2f",
+      "macro": "SensePWakeDirect",
+      "note": "direct pressure(8 qDEIM taps)->wake regression, no latent",
+      "observable": "wake_enstrophy",
+      "source": "sensing_cf",
+      "split": "test_b",
+      "value": 0.1708725201003498
+    },
+    "sensing_pwake_jepa_vs_best_recon_signp": {
+      "endpoint": "deployment",
+      "fmt": "%.3f",
+      "macro": "SensePWakeSignP",
+      "note": "max over recon families of one-sided sign-test p (JEPA pressure->wake error < recon), jepa_tf_noc_vs_bvae, K=8",
+      "observable": "wake_enstrophy",
+      "source": "sensing_cf",
+      "split": "test_b",
+      "value": 0.13997811926446957
+    },
+    "sensing_state_K8_testb_bvae": {
+      "endpoint": "deployment",
+      "fmt": "%.2f",
+      "macro": "SenseStateBvae",
+      "note": "variance-weighted state-recovery R^2, 8 qDEIM taps, d=64 lead seed; readout at impact+16",
+      "observable": "state_recovery",
+      "probe": "krr_rbf",
+      "source": "sensing_cf",
+      "split": "test_b",
+      "value": 0.5113826126749275
+    },
+    "sensing_state_K8_testb_fukami": {
+      "endpoint": "deployment",
+      "fmt": "%.2f",
+      "macro": "SenseStateFukami",
+      "note": "variance-weighted state-recovery R^2, 8 qDEIM taps, d=64 lead seed; readout at impact+16",
+      "observable": "state_recovery",
+      "probe": "krr_rbf",
+      "source": "sensing_cf",
+      "split": "test_b",
+      "value": 0.6637394962542553
+    },
+    "sensing_state_K8_testb_jepa_tf_noc": {
+      "endpoint": "deployment",
+      "fmt": "%.2f",
+      "macro": "SenseStateJepaTf",
+      "note": "variance-weighted state-recovery R^2, 8 qDEIM taps, d=64 lead seed; readout at impact+16",
+      "observable": "state_recovery",
+      "probe": "krr_rbf",
+      "source": "sensing_cf",
+      "split": "test_b",
+      "value": 0.781531949701702
+    },
+    "sensing_state_K8_testb_pod": {
+      "endpoint": "deployment",
+      "fmt": "%.2f",
+      "macro": "SenseStatePod",
+      "note": "variance-weighted state-recovery R^2, 8 qDEIM taps, d=64 lead seed; readout at impact+16",
+      "observable": "state_recovery",
+      "probe": "krr_rbf",
+      "source": "sensing_cf",
+      "split": "test_b",
+      "value": 0.34021441102362493
+    },
+    "sensing_state_qdeim_K8_testb_jepa_tf_noc": {
+      "endpoint": "deployment",
+      "fmt": "%.2f",
+      "macro": "SenseStateQdeim",
+      "note": "variance-weighted state recovery R^2, 8 target-blind qDEIM taps (primary placement), JEPA; TCSI picks in sensor_picks_v2p1.json",
+      "observable": "state_recovery",
+      "source": "sensing_cf",
+      "split": "test_b",
+      "value": 0.781531949701702
+    },
+    "topo_baseline_period_gap_jepa_minus_fukami": {
+      "fmt": "%.2f",
+      "note": "JEPA minus fukami single-cycle fraction on the SINGLE-PERIOD no-gust control under stdz whitening (jepa = 0.56, fukami = 0.00)",
+      "source": "topology_ce2.py",
+      "split": "baseline",
+      "value": 0.5625
+    },
+    "topo_ge2_branch": {
+      "fmt": "%d",
+      "macro": "TopoGEtwoBranch",
+      "note": "GE2 branch = WEAK-MIXED (1 STRONG / 2 WEAK-MIXED / 0 WEAK / -1 STRONG-PARTIAL): split verdict. On the WHOLE gusted encounters per-family standardisation closes/reverses the gap (gap = -0.21, fukami is read as a single cycle at least as often as the predictive family), so the v2 raw-coordinate gusted fragmentation claim was an anisotropic-scale artefact and Figure 5 must reframe from topology to metric organisation. BUT the single-period no-gust limit-cycle control DOES separate the families (gap = +0.56: the reconstructive encoding fragments the clean shedding cycle while the predictive encoding keeps it), and this survives whitening; the clean-cycle topology statement holds on the no-gust control, scoped to the limit cycle. Headline whitened metric = stdz. Encoding-vs-rollout fix: fragmentation is an ENCODING property (measured on simulation-encoded latents here); manifold departure is a ROLLOUT property (Sec 4.3 drift).",
+      "source": "topology_ce2.py",
+      "value": 2
+    },
+    "topo_gusted_gap_jepa_minus_fukami": {
+      "fmt": "%.2f",
+      "note": "JEPA minus fukami single-cycle fraction on gusted encounters under stdz whitening at 5% floor (jepa = 0.61, fukami = 0.82); >0 means the predictive encoding keeps the clean cycle more often",
+      "source": "topology_ce2.py",
+      "split": "test_b+test_c",
+      "value": -0.21212121212121215
+    },
+    "topo_h1_baseline_period_raw_median_bvae_faith_d64_s42": {
+      "fmt": "%.1f",
+      "macro": "TopoBaseRawMedBvae",
+      "n": 16,
+      "note": "no-gust Baseline SINGLE-PERIOD limit-cycle median persistent H1 count, RAW metric, 5% diameter floor (clean cycle == 1); period = 30 frames; frac single-cycle = 0.38; full-encounter (multi-period) median = 1.5",
+      "source": "topology_ce2.py",
+      "split": "baseline",
+      "value": 0.0
+    },
+    "topo_h1_baseline_period_raw_median_fukami_d64_s42": {
+      "fmt": "%.1f",
+      "macro": "TopoBaseRawMedFukami",
+      "n": 8,
+      "note": "no-gust Baseline SINGLE-PERIOD limit-cycle median persistent H1 count, RAW metric, 5% diameter floor (clean cycle == 1); period = 58 frames; frac single-cycle = 0.00; full-encounter (multi-period) median = 2.0",
+      "source": "topology_ce2.py",
+      "split": "baseline",
+      "value": 2.0
+    },
+    "topo_h1_baseline_period_raw_median_jepa_tf_noc_d64_s42": {
+      "fmt": "%.1f",
+      "macro": "TopoBaseRawMedJepa",
+      "n": 16,
+      "note": "no-gust Baseline SINGLE-PERIOD limit-cycle median persistent H1 count, RAW metric, 5% diameter floor (clean cycle == 1); period = 30 frames; frac single-cycle = 0.56; full-encounter (multi-period) median = 5.0",
+      "source": "topology_ce2.py",
+      "split": "baseline",
+      "value": 1.0
+    },
+    "topo_h1_baseline_period_raw_median_pod_d64": {
+      "fmt": "%.1f",
+      "macro": "TopoBaseRawMedPod",
+      "n": 16,
+      "note": "no-gust Baseline SINGLE-PERIOD limit-cycle median persistent H1 count, RAW metric, 5% diameter floor (clean cycle == 1); period = 29 frames; frac single-cycle = 0.62; full-encounter (multi-period) median = 5.5",
+      "source": "topology_ce2.py",
+      "split": "baseline",
+      "value": 1.0
+    },
+    "topo_h1_baseline_period_whitened_median_bvae_faith_d64_s42": {
+      "fmt": "%.1f",
+      "macro": "TopoBaseWhtMedBvae",
+      "n": 16,
+      "note": "no-gust Baseline SINGLE-PERIOD limit-cycle median persistent H1 count, stdz whitening, 5% diameter floor (clean cycle == 1); frac single-cycle = 0.31",
+      "source": "topology_ce2.py",
+      "split": "baseline",
+      "value": 0.5
+    },
+    "topo_h1_baseline_period_whitened_median_fukami_d64_s42": {
+      "fmt": "%.1f",
+      "macro": "TopoBaseWhtMedFukami",
+      "n": 8,
+      "note": "no-gust Baseline SINGLE-PERIOD limit-cycle median persistent H1 count, stdz whitening, 5% diameter floor (clean cycle == 1); frac single-cycle = 0.00",
+      "source": "topology_ce2.py",
+      "split": "baseline",
+      "value": 2.5
+    },
+    "topo_h1_baseline_period_whitened_median_jepa_tf_noc_d64_s42": {
+      "fmt": "%.1f",
+      "macro": "TopoBaseWhtMedJepa",
+      "n": 16,
+      "note": "no-gust Baseline SINGLE-PERIOD limit-cycle median persistent H1 count, stdz whitening, 5% diameter floor (clean cycle == 1); frac single-cycle = 0.56",
+      "source": "topology_ce2.py",
+      "split": "baseline",
+      "value": 1.0
+    },
+    "topo_h1_baseline_period_whitened_median_pod_d64": {
+      "fmt": "%.1f",
+      "macro": "TopoBaseWhtMedPod",
+      "n": 16,
+      "note": "no-gust Baseline SINGLE-PERIOD limit-cycle median persistent H1 count, stdz whitening, 5% diameter floor (clean cycle == 1); frac single-cycle = 0.62",
+      "source": "topology_ce2.py",
+      "split": "baseline",
+      "value": 1.0
+    },
+    "topo_h1_gusted_raw_median_bvae_faith_d64_s42": {
+      "fmt": "%.1f",
+      "macro": "TopoHoneRawMedBvae",
+      "n": 66,
+      "note": "median per-encounter persistent H1 generator count, RAW latent coordinates, 5% diameter floor; frac single-cycle = 0.48",
+      "source": "topology_ce2.py",
+      "split": "test_b+test_c",
+      "value": 1.0
+    },
+    "topo_h1_gusted_raw_median_fukami_d64_s42": {
+      "fmt": "%.1f",
+      "macro": "TopoHoneRawMedFukami",
+      "n": 66,
+      "note": "median per-encounter persistent H1 generator count, RAW latent coordinates, 5% diameter floor; frac single-cycle = 0.80",
+      "source": "topology_ce2.py",
+      "split": "test_b+test_c",
+      "value": 1.0
+    },
+    "topo_h1_gusted_raw_median_jepa_tf_noc_d64_s42": {
+      "fmt": "%.1f",
+      "macro": "TopoHoneRawMedJepa",
+      "n": 66,
+      "note": "median per-encounter persistent H1 generator count, RAW latent coordinates, 5% diameter floor; frac single-cycle = 0.59",
+      "source": "topology_ce2.py",
+      "split": "test_b+test_c",
+      "value": 1.0
+    },
+    "topo_h1_gusted_raw_median_pod_d64": {
+      "fmt": "%.1f",
+      "macro": "TopoHoneRawMedPod",
+      "n": 66,
+      "note": "median per-encounter persistent H1 generator count, RAW latent coordinates, 5% diameter floor; frac single-cycle = 0.71",
+      "source": "topology_ce2.py",
+      "split": "test_b+test_c",
+      "value": 1.0
+    },
+    "topo_h1_gusted_whitened_median_bvae_faith_d64_s42": {
+      "fmt": "%.1f",
+      "macro": "TopoHoneWhtMedBvae",
+      "n": 66,
+      "note": "median per-encounter persistent H1 generator count, per-family stdz whitening, 5% diameter floor; frac single-cycle = 0.20",
+      "source": "topology_ce2.py",
+      "split": "test_b+test_c",
+      "value": 3.0
+    },
+    "topo_h1_gusted_whitened_median_fukami_d64_s42": {
+      "fmt": "%.1f",
+      "macro": "TopoHoneWhtMedFukami",
+      "n": 66,
+      "note": "median per-encounter persistent H1 generator count, per-family stdz whitening, 5% diameter floor; frac single-cycle = 0.82",
+      "source": "topology_ce2.py",
+      "split": "test_b+test_c",
+      "value": 1.0
+    },
+    "topo_h1_gusted_whitened_median_jepa_tf_noc_d64_s42": {
+      "fmt": "%.1f",
+      "macro": "TopoHoneWhtMedJepa",
+      "n": 66,
+      "note": "median per-encounter persistent H1 generator count, per-family stdz whitening, 5% diameter floor; frac single-cycle = 0.61",
+      "source": "topology_ce2.py",
+      "split": "test_b+test_c",
+      "value": 1.0
+    },
+    "topo_h1_gusted_whitened_median_pod_d64": {
+      "fmt": "%.1f",
+      "macro": "TopoHoneWhtMedPod",
+      "n": 66,
+      "note": "median per-encounter persistent H1 generator count, per-family stdz whitening, 5% diameter floor; frac single-cycle = 0.42",
+      "source": "topology_ce2.py",
+      "split": "test_b+test_c",
+      "value": 2.0
+    },
+    "undisturbed_CD_mean": {
+      "fmt": "%.3f",
+      "macro": "NumUndistCDmean",
+      "note": "stationary window t/c [20, 40]",
+      "source": "undisturbed_validation.py",
+      "value": 0.25330688193440437
+    },
+    "undisturbed_CD_rms": {
+      "fmt": "%.4f",
+      "macro": "NumUndistCDrms",
+      "note": "stationary window t/c [20, 40]",
+      "source": "undisturbed_validation.py",
+      "value": 0.02309006696906155
+    },
+    "undisturbed_CL_mean": {
+      "fmt": "%.3f",
+      "macro": "NumUndistCLmean",
+      "note": "stationary window t/c [20, 40]",
+      "source": "undisturbed_validation.py",
+      "split": "baseline",
+      "value": 0.7610451057553291
+    },
+    "undisturbed_CL_rms": {
+      "fmt": "%.3f",
+      "macro": "NumUndistCLrms",
+      "note": "stationary window t/c [20, 40]",
+      "source": "undisturbed_validation.py",
+      "value": 0.127119959235604
+    },
+    "undisturbed_St": {
+      "fmt": "%.2f",
+      "macro": "NumUndistSt",
+      "note": "dominant lift-spectrum line",
+      "source": "undisturbed_validation.py",
+      "value": 0.6752056821661404
+    },
+    "undisturbed_St_modulation": {
+      "fmt": "%.2f",
+      "macro": "NumUndistStMod",
+      "note": "low-frequency modulation of the separated flow",
+      "source": "undisturbed_validation.py",
+      "value": 0.04397537258340819
+    },
+    "undisturbed_St_subharmonic": {
+      "fmt": "%.2f",
+      "macro": "NumUndistStSub",
+      "note": "full-cycle clock; the manuscript's 'St near 0.36' (M13)",
+      "source": "undisturbed_validation.py",
+      "value": 0.3382904869675207
+    }
+  }
+}
