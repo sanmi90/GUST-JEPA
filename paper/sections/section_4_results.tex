@@ -372,6 +372,82 @@ on the simulation-encoded latents.
   \label{fig:persistence}
 \end{figure}
 
+\subsection{Flow physics of the encounter and its latent image}
+\label{sec:res_flow_physics}
+
+The closure and mechanism results are representational; this subsection reports
+what the analysis says about the flow itself, in measures that do not depend on any
+learned model, and where the predictive latent inherits those measures. Three
+results stand.
+
+First, the latent dynamics carry the shedding spectrum. Fitting a linear operator
+to the encoded limit-cycle trajectory (dynamic mode decomposition) recovers a
+leading oscillatory eigenvalue at Strouhal number $\SpecDmdStJepaTf$ in the
+predictive latent, against a measured shedding line near $0.68$ in the undisturbed
+lift spectrum, with modulus $\SpecDmdModJepaTf$, a marginally stable orbit; the
+linear basis recovers the same frequency ($\SpecDmdStPod$) and the reconstructive
+latent is damped and off-frequency ($\SpecDmdStFukami$). Linearising the learned
+predictor about the orbit gives a leading Floquet multiplier of modulus
+$\SpecFloqMod$, confirming the marginal stability intrinsically. The learned
+dynamics are not, however, a linear operator in disguise: rolling a best-fit linear
+operator on the linear-basis coordinates (dynamic mode decomposition as a
+forecaster) gives a wake-enstrophy forecast $R^2$ of $\ForecastWakePodDmd$, far
+below the learned predictor's $\NumCloFcstWakeJepaTf$ on the same observable, a
+margin of $\ForecastWakeJepaMinusDmd$. The predictive latent therefore preserves
+the shedding spectrum that a linear basis also carries, while its nonlinear
+dynamics forecast the gusted wake that a linear operator cannot.
+
+Second, the wake response scales with gust strength. The peak large-scale
+wake-enstrophy excursion grows monotonically with $|G|$, a trend that is robust to
+the scale band (Spearman $\NumEfourWakeGtrendSigmaEfive$ at $\sigma/c = 0.05$,
+$\NumEfourWakeGtrendSigmaEthree$ and $\NumEfourWakeGtrendSigmaEone$ at the finer
+bands). The leading-edge vortex circulation budget shows a gust-sign asymmetry:
+negative gusts produce a larger and longer-lived leading-edge vortex than positive
+gusts at matched $|G|$, with a later circulation detachment (paired peak-circulation
+difference $\NumPfourGsignPeakGammaDiff$), quantifying the split-and-merge
+interaction the lineage describes qualitatively. The peak lift excursion and the
+peak vortex circulation are monotonically associated across the envelope (Spearman
+$\NumPfourGPfourSpearman$), reported as a correlation and not an impulse-theorem
+identity; the linear coefficient is weaker
+(Pearson $\NumPfourGPfourPearson$, Appendix~\ref{app:reg}).
+
+Third, the gust resets the shedding phase. Within a case the encounters share gust
+parameters and differ only in release instant, so consecutive releases sample
+shifted shedding phases; the undisturbed cadence is reproduced to within a few
+hundredths of a radian, but any gust of $|G| \ge 0.25$ decorrelates the
+shedding phase between releases, and the mean phase step drifts monotonically with
+gust strength. The encounter does not preserve the pre-impact clock, it resets it,
+which is why a fixed-cadence release campaign undersamples the impact phase
+(Appendix~\ref{app:reg}); we report the phase response within that measured
+coverage and treat the impact phase as a sampled rather than a controlled variable.
+
+\subsection{The latent code is distributed}
+\label{sec:res_code}
+
+The capacity ladder of \S\ref{sec:res_controls} already indicated that the wake is
+not held in a few latent coordinates. Two measures make this quantitative. The
+wake forecast is a collective code: the gap between the wake readability of the
+full latent and that of its single most informative coordinate is
+$\NumPfiveCollectiveGapJepa$ for the predictive latent, against
+$\NumPfiveCollectiveGapFukami$ and $\NumPfiveCollectiveGapPod$ for the
+reconstructive and linear baselines, so no single predictive coordinate carries the
+wake and the information is spread across many. The energy-information curve agrees:
+the predictive latent needs about $\NumPfiveEnergyKneeJepa$ leading principal
+components to reach its wake skill, where the reconstructive latent saturates at
+$\NumPfiveEnergyKneeFukami$ and the linear basis at $\NumPfiveEnergyKneePod$. The
+distributed code is the latent-space signature of the anti-collapse regulariser,
+which isotropises the representation, and it is consistent with the rollout staying
+within the broad cloud of \S\ref{sec:res_drift}.
+
+We do not claim that this code is spatially localised on identifiable structures. A
+gradient-saliency footprint of the wake-forecast direction through the frozen
+encoder overlaps the high-vorticity cores and the Q-criterion vortices \emph{below}
+a permutation chance baseline (overlap $\NumPfiveFootprintOmegaOverlap$ and
+$\NumPfiveFootprintQOverlap$ against the chance band), so the wake-forecast
+direction does not read the input preferentially at the leading-edge vortex or the
+shear layer. The wake code is distributed in the latent and not localised in the
+field, and we report it as such.
+
 \subsection{Where the wake is kept and where it is lost in physical space}
 \label{sec:res_param_phase}
 \label{sec:res_physical}
