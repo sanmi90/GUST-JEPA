@@ -1,31 +1,35 @@
-% Abstract. Reframed 2026-06-08 for the fully UNCONDITIONED model: no gust
-% parameters enter the encoder or the predictor. Leads with the physical problem
-% (wake reorganisation governs the transient load), headlines the REPRESENTATIONAL
-% wake closure (the latent keeps the wake reconstruction loses), de-emphasises the
-% rollout (shown, not headlined as forward-closure), mechanism is geometric, ends
-% on the positive observability result. No em-dashes; bounded claims (no isometry,
-% no validated controller). The interventional caveat stays in S1 + S5.
+% Abstract. Rewritten 2026-06-13 (Phase D, v2.1). No conditioning remarks (the
+% model is the model; nobody conditions, so it is not flagged). Gate GD is WEAK:
+% claims are LINEAR DECODABILITY, no possession verb. Transport-tracking sentence
+% REMOVED (claim did not survive the debiased statistic). Fragmentation attributed
+% to the ENCODING, manifold departure to the ROLLOUT (the v2 abstract conflated
+% them). Closes on sensing STATE recovery (a main result). Numbers are macros from
+% paper/macros.tex (provenance outputs/session28/numbers.json). No em-dashes.
 
 Extreme vortex-gust encounters challenge reduced-order models because the transient
-load is governed by wake reorganisation as well as by integrated forces. We ask which
-reduced state faithfully keeps the wake that reconstruction discards and that remains
-recoverable from sensors. Using direct numerical simulations of a NACA~0012 airfoil
-at $\alpha = 14^\circ$ and $\vRe = 5000$, perturbed by Taylor vortices parametrised
-by gust strength $G$, core diameter $D$, and wall-normal offset $Y$, we compare three
-latent states at matched dimension: a fully unconditioned joint-embedding predictive
-architecture, in which no gust parameters enter the encoder or the predictor, a
-reconstructive autoencoder in the Fukami-Taira lineage, and a POD basis. All are
-evaluated with the same probes, using the held-out closure of six observables.
-The predictive latent encodes wake information that the baselines lose: probed
-directly from the held-out field, its representational wake-enstrophy $R^2$ is $0.71$,
-essentially the $0.75$ of a model that does receive the gust parameters, while the
-reconstructive and linear baselines are at $0.06$ and below. The latent is single
-cycle and its metric stays aligned with the flow's transport geometry in a
-trajectory-local sense, whereas the reconstructive rollout leaves its latent manifold
-and fragments the encounter topology. Rolled forward, the unconditioned predictor
-tracks the wake through the encounter, which we show but do not present as a validated
-forecast. Matched controls show that the advantage requires the predictive objective
-together with wake-observable supervision, not the ViT architecture alone, and that
-removing the gust parameters costs almost nothing in what the latent encodes. The
-resulting state is also the most recoverable from sparse wall pressure, making it
-observable as well as a faithful carrier of the wake.
+load is governed by the reorganisation of the separated wake, not only by the
+integrated forces. We ask which reduced state renders that wake recoverable, from the
+flow and from sparse sensors, at matched latent dimension. Using direct numerical
+simulations of a NACA~0012 airfoil at $\alpha = 14^\circ$ and $\vRe = 5000$, perturbed
+by Taylor vortices spanning gust strength $G$, core diameter $D$, and wall-normal
+offset $Y$, we compare reduced states under one shared predictor and probe protocol: a
+joint-embedding predictive representation, a reconstructive observable-augmented
+autoencoder of the Fukami-Taira lineage, and a proper orthogonal decomposition basis.
+Probed directly from held-out fields sixteen frames after impact, the predictive latent
+renders the wake enstrophy linearly readable ($R^2 = \NumReprWakeJepaTf$ on the
+in-distribution test split) where the reconstructive and linear baselines do not
+($R^2 \le 0$); the per-encounter advantage survives case-level clustering and a
+family-wide multiplicity correction, with the training, validation, test\_b, and
+extrapolation test\_c splits reported in the text, and a nonlinear probe narrows but
+does not close it, so we claim linear decodability rather than exclusive possession. Regressed on the gust parameters alone the same observable
+is not recovered, so the latent carries wake state beyond the parameters. The mechanism
+is geometric: the predictive encoding organises each encounter as a single persistent
+cycle whose spectrum recovers the shedding frequency as a marginally stable orbit, and
+its autoregressive rollout stays on the encoded manifold, whereas the reconstructive
+encoding fragments even the undisturbed limit cycle and its rollout leaves the manifold
+along directions of negligible encoded variance. The response follows the flow's own
+scales: the wake departure grows with gust strength and the gust resets the shedding
+phase. The same predictive state is the most recoverable from sparse wall pressure
+($R^2 = \SenseStateJepaTf$ at eight taps, against $\SenseStateFukami$ and
+$\SenseStatePod$ for the alternatives). Rolled forward, the predictor tracks the
+encounter, which we show but do not present as a validated forecast.
