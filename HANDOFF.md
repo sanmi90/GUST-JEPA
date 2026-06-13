@@ -8248,6 +8248,32 @@ not state-recovery; report both the field scores AND the clean state-recovery
 number so the comparison is honest. Wake-via-latent / lift-via-latent panels
 retired with the pressure->wake drop.
 
+**FLOW-FIELD recovery comparison DONE (sensing_field_cf.py, 10 tests; RTX6000
+gpu1, 122 s): the STATE winner does NOT win FIELD recovery, and the reason is
+the keepable finding.** Chain pressure(K qDEIM taps) -> z_hat(impact+16) ->
+family decoder (frozen operating pt) -> omega field, SSIM vs DNS. K=8 test_b
+field SSIM: pod 0.583 ~ jepa 0.572 > fukami 0.481, whereas STATE R2 was jepa
+0.78 > fukami 0.66 > pod 0.34. The decode-CEILING (decode from the TRUE encoded
+latent) explains it: pod 0.709 > jepa 0.618 > fukami 0.538 -- POD's LINEAR
+decoder has the strongest raw reconstruction ceiling, lifting its
+field-from-pressure score despite POD's weakest state recovery; the ceiling-gap
+column (pod +0.126 vs jepa +0.047) shows POD is most decoder-limited / least
+state-limited. Significance: jepa beats fukami on field (sign 37/42, p<0.001,
+case-delta +0.089 CI[0.045,0.147]); jepa TIES pod (p 0.86, case-delta -0.010
+CI[-0.033,0.014]). bvae has no decoder under outputs/session28/decode so it is
+state-only (documented).
+
+**DEFENSIBLE TWO-PART SENSING STORY (both confound-aware):** (1) STATE: the
+predictive latent is the most recoverable state from sparse wall pressure
+(jepa 0.78, clean, seed-robust, decisive). (2) FIELD: the predictive latent
+recovers the field at least as well as any matched representation and
+significantly better than the reconstructive AE; POD's field PARITY is its
+linear-decoder reconstruction ceiling, NOT better state recovery (POD is the
+weakest state-recoverer). POD as a strong-linear-decode / weak-state baseline
+is itself the informative linear-floor point. Figure fig_field_recovery
+(DNS vs each method pressure-recovered vs ceiling, representative median
+encounter, Fig-3 convention).
+
 ### D189 (Gate GE3, transport, M5): the v2 "JEPA tracks transport geometry best" claim is DEAD; keep only the norm-variance mechanism (2026-06-13)
 
 `scripts/session28/transport_ce3.py` (+ 13 tests) to the Tran standard:

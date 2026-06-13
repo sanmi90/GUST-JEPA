@@ -1,0 +1,179 @@
+{
+  "part": "sensing_field_cf",
+  "numbers": {
+    "field_pr_ssim_K8_testb_jepa_tf_noc": {
+      "macro": "FieldPrSsimJepaTf",
+      "value": 0.5716338266294223,
+      "fmt": "%.2f",
+      "ci_lo": 0.4672431547269771,
+      "ci_hi": 0.6726236672066432,
+      "n": 42,
+      "split": "test_b",
+      "endpoint": "deployment",
+      "probe": "krr_rbf->decoder",
+      "observable": "field_ssim",
+      "note": "pressure(8 qDEIM taps,W=30)->z_hat(impact+16)->decoder->omega; Wang SSIM L=8.45; case-clustered CI; d=64 lead seed"
+    },
+    "field_ceiling_ssim_K8_testb_jepa_tf_noc": {
+      "macro": "FieldCeilSsimJepaTf",
+      "value": 0.6184201892371224,
+      "fmt": "%.2f",
+      "ci_lo": 0.5501577543177515,
+      "ci_hi": 0.6875543749854155,
+      "n": 42,
+      "split": "test_b",
+      "endpoint": "representational",
+      "observable": "field_ssim",
+      "note": "decode-ceiling: field from TRUE encoded z_dns(impact+16) (no pressure step); Wang SSIM L=8.45; exposes the decoder-quality confound vs the pressure-recovered SSIM"
+    },
+    "field_ssim_gap_K8_testb_jepa_tf_noc": {
+      "macro": "FieldSsimGapJepaTf",
+      "value": 0.04678636260770008,
+      "fmt": "%.2f",
+      "split": "test_b",
+      "endpoint": "deployment",
+      "observable": "field_ssim_gap",
+      "note": "decode-ceiling SSIM minus pressure-recovered SSIM at K=8; the part of the field error attributable to imperfect pressure->state recovery (small gap => decoder-limited, large gap => state-limited)"
+    },
+    "field_pr_eps_K8_testb_jepa_tf_noc": {
+      "macro": "FieldPrEpsJepaTf",
+      "value": 0.9160372118192897,
+      "fmt": "%.2f",
+      "split": "test_b",
+      "endpoint": "deployment",
+      "observable": "field_eps_volume",
+      "note": "volume L2 relative error of the pressure-recovered field at K=8"
+    },
+    "field_pr_peak_K8_testb_jepa_tf_noc": {
+      "macro": "FieldPrPeakJepaTf",
+      "value": 0.9179310377162798,
+      "fmt": "%.2f",
+      "split": "test_b",
+      "endpoint": "deployment",
+      "observable": "peak_vorticity_retention",
+      "note": "recovered/DNS peak |omega| of the pressure-recovered field at K=8"
+    },
+    "field_pr_ssim_K8_testb_fukami": {
+      "macro": "FieldPrSsimFukami",
+      "value": 0.4810375985231862,
+      "fmt": "%.2f",
+      "ci_lo": 0.3832547616829103,
+      "ci_hi": 0.5811038599570034,
+      "n": 42,
+      "split": "test_b",
+      "endpoint": "deployment",
+      "probe": "krr_rbf->decoder",
+      "observable": "field_ssim",
+      "note": "pressure(8 qDEIM taps,W=30)->z_hat(impact+16)->decoder->omega; Wang SSIM L=8.45; case-clustered CI; d=64 lead seed"
+    },
+    "field_ceiling_ssim_K8_testb_fukami": {
+      "macro": "FieldCeilSsimFukami",
+      "value": 0.5376665014174256,
+      "fmt": "%.2f",
+      "ci_lo": 0.47139204395728235,
+      "ci_hi": 0.6077247128737465,
+      "n": 42,
+      "split": "test_b",
+      "endpoint": "representational",
+      "observable": "field_ssim",
+      "note": "decode-ceiling: field from TRUE encoded z_dns(impact+16) (no pressure step); Wang SSIM L=8.45; exposes the decoder-quality confound vs the pressure-recovered SSIM"
+    },
+    "field_ssim_gap_K8_testb_fukami": {
+      "macro": "FieldSsimGapFukami",
+      "value": 0.05662890289423933,
+      "fmt": "%.2f",
+      "split": "test_b",
+      "endpoint": "deployment",
+      "observable": "field_ssim_gap",
+      "note": "decode-ceiling SSIM minus pressure-recovered SSIM at K=8; the part of the field error attributable to imperfect pressure->state recovery (small gap => decoder-limited, large gap => state-limited)"
+    },
+    "field_pr_eps_K8_testb_fukami": {
+      "macro": "FieldPrEpsFukami",
+      "value": 1.0017525587010097,
+      "fmt": "%.2f",
+      "split": "test_b",
+      "endpoint": "deployment",
+      "observable": "field_eps_volume",
+      "note": "volume L2 relative error of the pressure-recovered field at K=8"
+    },
+    "field_pr_peak_K8_testb_fukami": {
+      "macro": "FieldPrPeakFukami",
+      "value": 0.8840661509605551,
+      "fmt": "%.2f",
+      "split": "test_b",
+      "endpoint": "deployment",
+      "observable": "peak_vorticity_retention",
+      "note": "recovered/DNS peak |omega| of the pressure-recovered field at K=8"
+    },
+    "field_pr_ssim_K8_testb_pod": {
+      "macro": "FieldPrSsimPod",
+      "value": 0.5832011819175413,
+      "fmt": "%.2f",
+      "ci_lo": 0.4844662682484602,
+      "ci_hi": 0.6744718409273752,
+      "n": 42,
+      "split": "test_b",
+      "endpoint": "deployment",
+      "probe": "krr_rbf->decoder",
+      "observable": "field_ssim",
+      "note": "pressure(8 qDEIM taps,W=30)->z_hat(impact+16)->decoder->omega; Wang SSIM L=8.45; case-clustered CI; d=64 lead seed"
+    },
+    "field_ceiling_ssim_K8_testb_pod": {
+      "macro": "FieldCeilSsimPod",
+      "value": 0.7091649581806032,
+      "fmt": "%.2f",
+      "ci_lo": 0.6587103899196302,
+      "ci_hi": 0.7624986507957998,
+      "n": 42,
+      "split": "test_b",
+      "endpoint": "representational",
+      "observable": "field_ssim",
+      "note": "decode-ceiling: field from TRUE encoded z_dns(impact+16) (no pressure step); Wang SSIM L=8.45; exposes the decoder-quality confound vs the pressure-recovered SSIM"
+    },
+    "field_ssim_gap_K8_testb_pod": {
+      "macro": "FieldSsimGapPod",
+      "value": 0.12596377626306188,
+      "fmt": "%.2f",
+      "split": "test_b",
+      "endpoint": "deployment",
+      "observable": "field_ssim_gap",
+      "note": "decode-ceiling SSIM minus pressure-recovered SSIM at K=8; the part of the field error attributable to imperfect pressure->state recovery (small gap => decoder-limited, large gap => state-limited)"
+    },
+    "field_pr_eps_K8_testb_pod": {
+      "macro": "FieldPrEpsPod",
+      "value": 0.894040484770233,
+      "fmt": "%.2f",
+      "split": "test_b",
+      "endpoint": "deployment",
+      "observable": "field_eps_volume",
+      "note": "volume L2 relative error of the pressure-recovered field at K=8"
+    },
+    "field_pr_peak_K8_testb_pod": {
+      "macro": "FieldPrPeakPod",
+      "value": 0.7811603723824871,
+      "fmt": "%.2f",
+      "split": "test_b",
+      "endpoint": "deployment",
+      "observable": "peak_vorticity_retention",
+      "note": "recovered/DNS peak |omega| of the pressure-recovered field at K=8"
+    },
+    "field_pr_ssim_jepa_vs_recon_signp": {
+      "macro": "FieldPrSsimSignP",
+      "value": 0.8600218807355304,
+      "fmt": "%.3f",
+      "split": "test_b",
+      "endpoint": "deployment",
+      "observable": "field_ssim",
+      "note": "max over recon families of one-sided sign-test p (JEPA pressure-recovered field SSIM > recon), jepa_tf_noc_vs_pod, K=8"
+    },
+    "field_state_winner_matches": {
+      "macro": "FieldStateWinnerMatches",
+      "value": 0,
+      "fmt": "%d",
+      "split": "test_b",
+      "endpoint": "deployment",
+      "observable": "ranking_agreement",
+      "note": "1 iff the STATE-recovery winner (jepa_tf_noc) is also the FIELD-recovery winner; field order=['pod', 'jepa_tf_noc', 'fukami'], ceiling order=['pod', 'jepa_tf_noc', 'fukami']"
+    }
+  }
+}
