@@ -8,66 +8,57 @@
 \label{sec:disc_mechanism}
 \label{sec:disc_caveat}
 
-The central finding is representational, and it concerns what the latent encodes:
-with no gust parameters anywhere in the model, the predictive latent keeps the wake
-structure the reconstructive and linear families lose. Under a shared probe family,
-the unconditioned predictive latent encodes the wake at a held-out $R^2$ of $0.71$,
-essentially the $0.75$ of a model that does receive the parameters, while the
-baselines are near zero; the advantage is concentrated on the spatially distributed
-wake observables, survives case-level clustering and a family-wide correction, and
-the forward rollout is consistent with the same ordering but is shown qualitatively
-rather than as a validated forecast. The mechanism is a property of the latent
-metric: it is, to a good approximation, aligned with the optimal-transport geometry
-of the flow in a trajectory-local, empirical distance-matrix sense, so that the
-rollout stays close to the data manifold. A reconstruction objective
-fixes the latent only up to a diffeomorphism \citep{tran2026,kelshaw2024}, so the
-decoder is free to place codes anywhere it finds convenient and nothing
-constrains the latent geometry to be predictable in time; under autoregressive
-rollout the reconstructive latent therefore leaves its own training manifold,
-and a probe queried on that drifted state fails for reasons unrelated to the
-predictor's one-step accuracy. The predictive objective, regularised against
-collapse, instead organises the latent so that the encounter is a recurrent cycle
-that survives rollout, the on-manifold property that data-driven state-space and
-Koopman models of coherent-state dynamics on invariant manifolds rely on
-\citep{constanteamores2024}. The manifold departure of the reconstructive rollout
-is the
-parametric-gust counterpart of the catastrophic-divergence tail reported for
-reconstruction-based latent dynamics in controlled wakes
-\citep{solerarico_compactness_underreview}; the predictive objective is the common
-cure. The wake observables are the sharpest discriminator precisely because
-they can change while the scalar forces do not: a representation can carry the
-lift signature of an encounter without carrying the vorticity redistribution
-that produces it, and the reconstructive latent does exactly that, recovering
-the impact lift poorly from its own oracle while the predictive latent recovers
-it well.
+The central finding is representational, and it concerns what the latent renders
+readable: the predictive latent makes the wake structure linearly decodable where
+the reconstructive and linear families do not. Under a shared probe family the
+predictive latent reads the held-out wake at $R^2 = \NumReprWakeJepaTf$ while the
+baselines are at or below zero; the advantage is concentrated on the spatially
+distributed wake observables, survives the pre-registered encounter-level
+multiplicity correction (though not the stricter case-level one), and the forward
+rollout is consistent with the same ordering but shown qualitatively rather than as
+a validated forecast. We state the claim as linear decodability rather than
+exclusive possession because a nonlinear probe recovers part of the wake from the
+matched-head reconstructive control: the predictive objective renders the wake
+linearly readable, and the established reconstructive and linear recipes do not
+make it readable at all by the evaluated probe class. The mechanism is geometric.
+A reconstruction objective fixes the latent only up to a diffeomorphism
+\citep{kelshaw2024}, so the decoder is free to place codes anywhere it finds
+convenient and nothing constrains the latent geometry to be predictable in time;
+under autoregressive rollout the reconstructive latent leaves its own training
+manifold along the very directions the decoder never constrained, and a probe
+queried on that drifted state fails for reasons unrelated to the predictor's
+one-step accuracy. The predictive objective, regularised against collapse, instead
+organises the latent so that the encounter is a recurrent cycle that survives
+rollout, the on-manifold property that data-driven state-space and Koopman models
+of coherent-state dynamics on invariant manifolds rely on
+\citep{constanteamores2024}, and that the encoded no-gust limit cycle exhibits even
+under a metric that removes coordinate scale. The manifold departure of the
+reconstructive rollout is the parametric-gust counterpart of the
+catastrophic-divergence tail reported for reconstruction-based latent dynamics in
+controlled wakes \citep{solerarico_compactness_underreview}; the predictive
+objective is the common cure. The wake observables are the sharpest discriminator
+precisely because they can change while the scalar forces do not: the gust
+parameters alone fail to predict the wake at the readout horizon (the parametric
+floor of \S\ref{sec:res_closure} is negative) yet predict the forces well, so a
+representation can carry the force signature of an encounter without carrying the
+vorticity redistribution that produces it, and that is exactly the reconstructive
+latent's failure mode.
 
-A coordinate-level reading of the three latents makes the mechanism concrete and
-explains why the wake, and not the forces, separates the families. For each family
-we fit a linear probe of the future wake enstrophy on the $d = 64$ latent and ask
-how that forecast is distributed across the coordinates. The unconditioned
-predictive latent forecasts the future wake at a held-out skill of $0.84$ that no
-single coordinate approaches (the best one reaches $0.48$), so the information is a
-\emph{collective} code spread across many coordinates. Grouped by what they encode,
-these coordinates fall into wake-and-circulation blocks (tracking the wake
-enstrophy, thickness, and circulations) and a smaller force block; within each block
-the coordinates are strongly correlated rather than a disentangled basis, and on
-their own the wake blocks forecast the future wake at about $0.7$ to $0.8$, not quite
-matching the full latent's $0.84$, so the forecast draws on several blocks together.
-The reconstructive and linear latents forecast it far less well and from no
-collective structure: their best single coordinate is already as informative as the
-whole latent, a near-zero gap that holds across three reconstructive-encoder seeds
-(figure~\ref{fig:wake_code}). The forces, by contrast, are forecast redundantly in
-every family, with many individual coordinates carrying them. An energy or
-reconstruction objective therefore retains the force signature, which is present in
-many coordinates, but not the distributed combination that carries the wake, which
-is exactly the observable on which the predictive latent leads. The predictive wake
-direction also clears the parameter-only floor (the model never sees the parameters
-anyway) and the instantaneous forces (held-out rank-partial above the floor), so it
-carries genuine wake state and not merely the present forces. We read this as a
-description of correlations, not a causal decomposition. These are observational
-probes on the frozen encoders, a latent-space reading of the representational
-closure of \S\ref{sec:res_closure} rather than a separate claim, and they sit
-alongside the information-theoretic modal analyses of related flows
+The coordinate-level reading of \S\ref{sec:res_code} explains why the wake, and not
+the forces, separates the families. The wake forecast is a collective code in the
+predictive latent: the gap between the readability of the full latent and that of
+its single most informative coordinate is $\NumPfiveCollectiveGapJepa$, against
+$\NumPfiveCollectiveGapFukami$ and $\NumPfiveCollectiveGapPod$ for the reconstructive
+and linear baselines, whose best single coordinate is already as informative as the
+whole latent (figure~\ref{fig:wake_code}). The forces, by contrast, are carried
+redundantly in every family. An energy or reconstruction objective therefore retains
+the force signature, present in many coordinates, but not the distributed
+combination that carries the wake, which is exactly the observable on which the
+predictive latent leads and which the gust parameters alone cannot supply (the
+parametric floor of \S\ref{sec:res_closure} is negative on the wake). We read this
+as a description of correlations, not a causal decomposition: these are
+observational probes on the frozen encoders, alongside the information-theoretic
+modal analyses of related flows
 \citep{martinezsanchez2023,arranz2024,koshikawa2026}.
 
 \begin{figure}
@@ -75,56 +66,32 @@ alongside the information-theoretic modal analyses of related flows
   \includegraphics[width=0.62\linewidth]{sections/figures/results/fig_wake_code.pdf}
   \caption{The predictive objective builds a collective wake code that the
   reconstructive and linear objectives do not. For each encoder family at matched
-  $d = 64$, the held-out skill of the future wake enstrophy $\Omega_w(t{+}H)$ at
-  $H = 16$ from the best single latent coordinate (light) and from the full latent
-  combination (dark), on test\_b. The unconditioned predictive (JEPA) latent shows a
-  large gap (combination $0.84$, best single $0.48$): the wake is carried as a
-  distributed code across many coordinates. The reconstructive (Fukami) and linear
-  (POD) latents show a near-zero gap and lower skill, so their wake reading is no
-  better than a single coordinate. Observational probes on the frozen encoders.}
+  $d = 64$, the held-out skill of the future wake enstrophy at $H = 16$ from the
+  best single latent coordinate (light) and from the full latent combination
+  (dark), on test\_b. The predictive (JEPA) latent shows a large gap
+  ($\NumPfiveCollectiveGapJepa$): the wake is a distributed code across many
+  coordinates. The reconstructive (Fukami) and linear (POD) latents show a near-zero
+  gap ($\NumPfiveCollectiveGapFukami$, $\NumPfiveCollectiveGapPod$), so their wake
+  reading is no better than a single coordinate. Observational probes on the frozen
+  encoders.}
   \label{fig:wake_code}
 \end{figure}
 
-This organisation survives a halving of the latent dimension, which is the basis
-for reading it as a low-dimensional predictive state rather than an artefact of
-capacity (the representational wake closure holds on a plateau from $d = 64$ to
-$d = 16$, \S\ref{sec:res_controls}). The latent is in fact far lower-dimensional than its nominal budget:
-the encoded $d = 64$ latent has a participation ratio of about $1.7$ across the
-held-out trajectories, with the leading principal component carrying roughly
-three-quarters of the variance and six components spanning $90\%$. The dominant
-direction tracks the gust-strength dynamic range, the largest physical source of
-variation across encounters, so the structure is concentrated in a handful of
-directions rather than collapsed, as the parameter probes and forecasts confirm;
-both $d = 64$ and $d = 32$ are therefore over-complete relative to it, and the
-halving leaves the representation and every mechanism diagnostic intact.
-At $d = 32$ the predictive latent matches the $d = 64$ latent on
-representation quality, the held-out wake-enstrophy representation $R^2$ is $0.74$
-against $0.75$, and on every mechanism diagnostic: it traces the same single
-persistent cycle rather than fragmenting (\S\ref{sec:res_drift}), its latent
-metric aligns with the physical transport geometry to within the $d = 64$ margin
-(rank correlation $0.61$ against $0.63$), it returns to the baseline limit cycle
-under rollout (\S\ref{sec:res_param_phase}), it retains the same large-scale wake
-structure (\S\ref{sec:res_physical}), and its rollout-drift ratio is $0.86$
-against $0.85$ (table~\ref{tab:latent_drift}). The one quantity that degrades is
-the in-distribution wake forecast, where the $H = 16$ closure $R^2$ falls from
-$0.45$ to $0.21$ (table~\ref{tab:closure}(b)): halving the dimension costs
-forecast sharpness on the wake observables while leaving the geometric mechanism
-intact. Halving once more to $d = 16$ keeps the qualitative ordering, the
-predictive latent still leads on wake enstrophy where the reconstructive and
-linear latents are negative (table~\ref{tab:closure}), but its representational
-wake $R^2$ now falls to $0.55$ (from $0.74$ at $d = 32$): the budget is
-approaching the effective dimensionality, and the extra dimensions buy precision
-rather than a qualitatively different representation. On the out-of-distribution test\_c set the $d = 32$ latent is in fact
-marginally the more robust of the two, $0.45$ against $0.33$ on wake enstrophy.
-The physics the predictive objective organises into the latent, the closed
-encounter cycle and its transport-aligned metric, is therefore a
-low-dimensional object already present at $d = 32$, and the additional dimensions
-at $d = 64$ buy in-distribution forecast precision rather than a qualitatively
-different representation. The parameter content of the two latents is consistent
-with this reading: the dominant gust-strength axis is encoded as well at $d = 32$
-as at $d = 64$, while the core diameter and the wall-normal offset, the axes the
-data resolve least, are the ones whose recovery degrades when the dimension is
-halved, the same axes whose forward closure the extra dimensions sharpen.
+The wake organisation is low-dimensional. The representational wake closure holds
+on a plateau as the latent dimension is reduced, from $\NumCloReprWakeJepaTfDSixtyfour$
+at $d = 64$ to $\NumCloReprWakeJepaTfDThirtytwo$ at $d = 32$ and
+$\NumCloReprWakeJepaTfDSixteen$ at $d = 16$ (\S\ref{sec:res_controls}), so the
+representation declines gracefully rather than collapsing, and the qualitative
+ordering, predictive leading while the reconstructive and linear latents stay
+negative, is preserved throughout. The encoded latent is itself concentrated in a
+handful of directions: the $d = 64$ latent has a participation ratio of about
+$1.7$, with the leading principal component carrying roughly three-quarters of the
+variance and six components spanning $90\%$, the dominant direction tracking the
+gust-strength dynamic range. The reduction in closure as the dimension falls is
+therefore a loss of precision on the wake observables, not of the geometric
+mechanism, which is consistent with the distributed code above: the wake is spread
+across many low-variance directions, and trimming them costs sharpness before it
+costs the ordering.
 
 The mechanism above invites a strong reading, so we are deliberate about the
 scope of the claim. The predictive encoder differs
@@ -139,14 +106,14 @@ with the auxiliary heads matched, and the two architecture columns do not separa
 so the gain is the objective and not the architecture. The wake supervision,
 however, is a necessary part of the configuration that achieves it: a predictive
 model with the wake head removed collapses below the predict-the-mean floor on wake
-closure. The claim is therefore that the predictive objective keeps the wake
-\emph{when trained with wake supervision}, not that the objective in isolation does,
-and not that the wake head attached to an arbitrary objective does, since the
-reconstructive cells carry the same head and do not reach the predictive closure.
-The linear basis, for its part, remains genuinely useful: it is the most competitive
-family on the integrated impulse and is amplitude-accurate in reconstruction, so the
-result is not that POD is obsolete but that it does not produce a latent that keeps
-the wake observables.
+closure. The claim is therefore that the predictive objective renders the wake
+readable \emph{when trained with wake supervision}, not that the objective in
+isolation does, and not that the wake head attached to an arbitrary objective does,
+since the reconstructive cells carry the same head and do not reach the predictive
+readability. The linear basis, for its part, remains genuinely useful: it is the
+most competitive family on the integrated impulse and is amplitude-accurate in
+reconstruction, so the result is not that POD is obsolete but that it does not
+produce a latent from which the wake observables are linearly readable.
 
 \subsection{Limitations and outlook}
 \label{sec:disc_limits}
@@ -166,35 +133,30 @@ decoder is a diagnostic on the frozen encoder, never part of the predictive
 loss; a reader expecting sharp reconstructions from a predictive latent will be
 disappointed, which is the explicit trade the objective makes. To these we add,
 as a fourth, the co-necessity of the wake supervision established in
-\S\ref{sec:disc_caveat}: the predictive objective keeps the wake in the
+\S\ref{sec:disc_caveat}: the predictive objective renders the wake readable in the
 configuration tested, with the wake head as a necessary component, not as a
 property of the objective stripped of all auxiliary supervision.
 
 These limitations come into sharpest focus against the use the architecture is
-ultimately meant for. The unconditioned predictor is, by construction, the latent
+ultimately meant for. The predictor is, by construction, the latent
 dynamics function a model-based controller would plan against, and three properties
-of the architecture are relevant to that use: the latent keeps the wake the load
-transient is built from, the latent is two to three orders of magnitude cheaper to
-evolve than the full field, and the rollout stays on the training manifold, which is
-the property that determines whether long-horizon plans remain meaningful since a
-planner queries the predictor on states reached by its own rollout. Because the
-whole model is unconditional, the latent itself is the observable a controller has
+of the architecture are relevant to that use: the latent renders readable the wake
+the load transient is built from, the latent is two to three orders of magnitude
+cheaper to evolve than the full field, and the rollout stays on the training
+manifold, which is the property that determines whether long-horizon plans remain
+meaningful since a planner queries the predictor on states reached by its own
+rollout. The latent itself is the observable a controller has
 access to, with no gust parameters that would have to be estimated first, and adding
 an actuation channel is a change of input rather than of architecture; the
 phase-amplitude reading of \S\ref{sec:res_param_phase} connects the predictor
 directly to the sensitivity-function control designed for these flows
 \citep{fukami2024control}. Consistent with treating the world-model view of
 \S\ref{sec:introduction} as motivation only, we caution against over-reading the
-predictor as an interventional world model. We tested this directly on a conditioned
-variant of the predictor, as a control: perturbing the conditioning along $G$ by a
-fixed increment and comparing the predicted change in the six observables to the
-change measured between matched simulation encounters that differ only in $G$, the
-predicted and measured responses are uncorrelated to weakly anti-correlated (pooled
-$r = -0.27$ at the best-powered increment $\Delta G = 2$, $n = 23$ base points),
-although the response has physically plausible magnitude. Even when the parameters
-are supplied, then, the predictor is a forward model of the observed encounters, not
-a validated counterfactual model of parameter changes; the unconditioned model the
-paper reports makes no such claim, and the pilot below shows a further gap before any
+predictor as an interventional world model. The predictor takes no gust parameters
+and is trained to forecast the observed latent trajectory, so it is a forward model
+of the encounters in the training envelope, not a counterfactual model of the effect
+of changing the gust: it makes no claim to predict how an encounter would differ
+under a parameter it never sees, and the pilot below shows a further gap before any
 controller follows.
 
 As a limitation rather than a result, a closed-loop pilot that chains a
