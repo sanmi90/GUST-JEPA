@@ -65,40 +65,12 @@ training cost; a single split with bootstrap intervals is the community standard
 for this class of study.
 
 \subsubsection*{Training-set fit}
-For reference, table~\ref{tab:b1_closure_train_r2}
-reports the in-distribution training fit of the forecast rollout that the held-out
-closure of \S\ref{sec:res_closure} must be read against. The predictive latent
-attains the highest training fit, but this is an in-distribution number, not the
-held-out result: the ordering of the families is established by the representational
+The predictive latent attains the highest in-distribution training fit of the
+forecast rollout among the families, but this is an in-distribution number, not the
+held-out result: the family ordering is established by the held-out representational
 closure of table~\ref{tab:closure}(a), and the held-out forecast mean is markedly
-lower, as it must be.
-
-\begin{table}
-  \centering
-  \caption{Training-set fit, for reference only. Coefficient of determination
-  $R^2$ for predicting the six observables from the rolled-out latent ($H = 16$)
-  evaluated \emph{on the training distribution}. This quantifies in-distribution
-  fit and is \emph{not} the headline; held-out closure is in
-  table~\ref{tab:closure}. Best per column in bold; row mean at right.}
-  \label{tab:b1_closure_train_r2}
-  \small
-  \fittab{\begin{tabular}{l c c c c c c c c}
-    \toprule
-    Baseline & $d$ & $C_L$ & $C_D$ & $I_y$ & wake-enst.\ & circ.\ pos.\ & circ.\ neg.\ & mean \\
-    \midrule
-    JEPA   & 64 & \textbf{0.864} & \textbf{0.802} & 0.562 & \textbf{0.934} & \textbf{0.922} & \textbf{0.927} & \textbf{0.835} \\
-    JEPA   & 32 & 0.863 & 0.795 & 0.490 & 0.898 & 0.901 & 0.897 & 0.808 \\
-    \midrule
-    Fukami & 3  & 0.553 & 0.408 & 0.191 & 0.079 & 0.130 & 0.033 & 0.232 \\
-    Fukami & 32 & 0.695 & 0.596 & 0.278 & 0.333 & 0.369 & 0.313 & 0.430 \\
-    Fukami & 64 & 0.671 & 0.589 & 0.335 & 0.277 & 0.336 & 0.352 & 0.427 \\
-    \midrule
-    POD    & 16 & 0.763 & 0.720 & 0.514 & 0.574 & 0.582 & 0.527 & 0.613 \\
-    POD    & 32 & 0.763 & 0.748 & 0.690 & 0.589 & 0.618 & 0.621 & 0.671 \\
-    POD    & 64 & 0.641 & 0.656 & \textbf{0.799} & 0.373 & 0.388 & 0.506 & 0.561 \\
-    \bottomrule
-  \end{tabular}}
-\end{table}
+lower than the training fit, as it must be. We therefore do not tabulate the
+training-set fit, which would invite reading an in-distribution number as a result.
 
 \subsubsection*{Paired closure across all observables}
 Table~\ref{tab:paired_closure}

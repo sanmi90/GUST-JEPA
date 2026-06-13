@@ -185,10 +185,9 @@ rotational parts,
 \end{equation}
 with threshold $\omega_c = 1$ in the cleaned vorticity units. The signed
 circulations at $\omega_c \in \{0.5, 1, 2\}$ are nearly collinear (pairwise Pearson
-above $0.90$ across held-out frames) and the predictive latent's circulation
+well above $0.9$ across held-out frames) and the predictive latent's circulation
 closure advantage over the reconstructive baseline is essentially unchanged across
-them (negative-circulation margin $+1.06$ to $+1.10$, positive $+0.44$ to $+0.57$),
-so the closure does not depend on this threshold. The wall-normal hydrodynamic
+them, so the closure does not depend on this threshold. The wall-normal hydrodynamic
 impulse per unit span is
 \begin{equation}
   I_y(t) = \int_{\Omega} x \, \omegaz \,\mathrm{d}A
@@ -203,17 +202,17 @@ Two definitional points bound how these observables are read. The impulse $I_y$ 
 the mid-plane two-dimensional vorticity impulse, a diagnostic of wake-vortex
 transport, and not the impulse-theorem lift: the mid-plane slice omits the bound
 circulation, so on the simulation $\mathrm{d}I_y/\mathrm{d}t$ does not track the
-lift (Pearson $r \approx -0.05$ on test\_b, far from the value near $-1$ that a
+lift (Pearson correlation near zero on test\_b, far from the value near $-1$ that a
 planar impulse-lift relation would give), and no closure result below should be
 read as recovering the impulse-theorem lift. More broadly, the wake and flow
 observables (the enstrophy, the two circulations, and $I_y$) are computed on the
 same mid-plane slice the encoder consumes, so they omit the out-of-plane content
-quantified in \S\ref{sec:flow_physics} (about one fifth of the $\omegaz$ enstrophy
+quantified in \S\ref{sec:flow_physics} (roughly a fifth of the $\omegaz$ enstrophy
 in distribution), whereas $C_L$ and $C_D$ are true three-dimensional
 surface-integrated forces. The closure therefore compares mid-plane wake
 diagnostics against three-dimensional forces, and the mid-plane proxy is weakest at
-the $|G| = 4$ extrapolation boundary, where the out-of-plane fraction rises to about
-$0.56$.
+the $|G| = 4$ extrapolation boundary, where the out-of-plane fraction rises
+substantially.
 
 \begin{figure}
   \centering
