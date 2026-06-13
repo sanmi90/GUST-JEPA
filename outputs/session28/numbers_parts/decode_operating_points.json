@@ -1,0 +1,73 @@
+{
+  "part": "decode_operating_points",
+  "numbers": {
+    "decode_op_iter_dec_jepa_tf_noc_d64_s42": {
+      "macro": "DecOpIterJepaTf",
+      "value": 20000,
+      "fmt": "%d",
+      "split": "test_a",
+      "source": "decode_operating_points.py",
+      "note": "T9 visualization decoder operating point: argmax full-test_a SSIM_mean over 15 checkpoints; frozen rule (PROTOCOL.md S6). 30k SSIM=0.6032, still_rising_at_30k=False"
+    },
+    "decode_op_val_ssim_dec_jepa_tf_noc_d64_s42": {
+      "macro": "DecOpValSsimJepaTf",
+      "value": 0.6063251999226084,
+      "fmt": "%.3f",
+      "split": "test_a",
+      "endpoint": "representational",
+      "source": "decode_operating_points.py",
+      "note": "val (test_a) SSIM_mean at the operating point iter 20000; Fukami SSIM def, raw-scale via v2p1 omega pipeline, n_enc=87, ssim_data_range=8.45"
+    },
+    "decode_op_iter_dec_jepa_lstm_noc_d64_s42": {
+      "macro": "DecOpIterJepaLstm",
+      "value": 22000,
+      "fmt": "%d",
+      "split": "test_a",
+      "source": "decode_operating_points.py",
+      "note": "T9 visualization decoder operating point: argmax full-test_a SSIM_mean over 15 checkpoints; frozen rule (PROTOCOL.md S6). 30k SSIM=0.5910, still_rising_at_30k=False"
+    },
+    "decode_op_val_ssim_dec_jepa_lstm_noc_d64_s42": {
+      "macro": "DecOpValSsimJepaLstm",
+      "value": 0.5912064285872984,
+      "fmt": "%.3f",
+      "split": "test_a",
+      "endpoint": "representational",
+      "source": "decode_operating_points.py",
+      "note": "val (test_a) SSIM_mean at the operating point iter 22000; Fukami SSIM def, raw-scale via v2p1 omega pipeline, n_enc=87, ssim_data_range=8.45"
+    },
+    "decode_op_iter_dec_posthoc_fukami_d64": {
+      "macro": "DecOpIterFukami",
+      "value": 20000,
+      "fmt": "%d",
+      "split": "test_a",
+      "source": "decode_operating_points.py",
+      "note": "T9 visualization decoder operating point: argmax full-test_a SSIM_mean over 15 checkpoints; frozen rule (PROTOCOL.md S6). 30k SSIM=0.4954, still_rising_at_30k=False"
+    },
+    "decode_op_val_ssim_dec_posthoc_fukami_d64": {
+      "macro": "DecOpValSsimFukami",
+      "value": 0.4992445188453022,
+      "fmt": "%.3f",
+      "split": "test_a",
+      "endpoint": "representational",
+      "source": "decode_operating_points.py",
+      "note": "val (test_a) SSIM_mean at the operating point iter 20000; Fukami SSIM def, raw-scale via v2p1 omega pipeline, n_enc=87, ssim_data_range=8.45"
+    },
+    "decode_op_iter_dec_posthoc_pod_d64": {
+      "macro": "DecOpIterPod",
+      "value": 8000,
+      "fmt": "%d",
+      "split": "test_a",
+      "source": "decode_operating_points.py",
+      "note": "T9 visualization decoder operating point: argmax full-test_a SSIM_mean over 15 checkpoints; frozen rule (PROTOCOL.md S6). 30k SSIM=0.6681, still_rising_at_30k=False"
+    },
+    "decode_op_val_ssim_dec_posthoc_pod_d64": {
+      "macro": "DecOpValSsimPod",
+      "value": 0.6759740211239985,
+      "fmt": "%.3f",
+      "split": "test_a",
+      "endpoint": "representational",
+      "source": "decode_operating_points.py",
+      "note": "val (test_a) SSIM_mean at the operating point iter 8000; Fukami SSIM def, raw-scale via v2p1 omega pipeline, n_enc=87, ssim_data_range=8.45"
+    }
+  }
+}
