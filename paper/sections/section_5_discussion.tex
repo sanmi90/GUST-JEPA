@@ -159,17 +159,7 @@ predictor as an interventional world model. The predictor takes no gust paramete
 and is trained to forecast the observed latent trajectory, so it is a forward model
 of the encounters in the training envelope, not a counterfactual model of the effect
 of changing the gust: it makes no claim to predict how an encounter would differ
-under a parameter it never sees, and the pilot below shows a further gap before any
-controller follows.
-
-As a limitation rather than a result, a closed-loop pilot that chains a
-wall-pressure state estimator, the predictor rollout, and an observable probe does
-not yet meet the $C_L$ and $I_y$ tolerances set in advance; the bottleneck is the
-rollout rather than the estimator, since the within-tolerance fraction is essentially
-unchanged when an oracle latent replaces the estimated one, so the representation and
-the pressure observability are in place but the rollout needs reinforcement before a
-usable controller follows (estimator, sensor-placement, and loop details in
-Appendix~\ref{app:sensing}).
+under a parameter it never sees.
 
 The contribution is narrow by design: a controlled comparison on a single
 parametric flow, anchored to the representational closure of the wake rather than

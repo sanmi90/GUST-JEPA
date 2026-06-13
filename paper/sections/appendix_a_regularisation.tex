@@ -149,7 +149,8 @@ strength-dependent failure to recover. Figure~\ref{fig:appA_return} holds the
 core diameter fixed at $D = 1.0$ with $G < 0$, averages the distance to the
 baseline orbit over each case's encounters, and sweeps $|G|$. The departure
 amplitude near impact is nearly independent of gust strength (peak distance
-$3.2$ to $3.5$ orbit diameters across $|G| \in [0.5, 3.0]$), every trajectory is
+$\OrbitReturnPeakMin$ to $\OrbitReturnPeakMax$ orbit diameters across
+$|G| \in [0.5, 3.0]$), every trajectory is
 still contracting toward the orbit at the end of the window, and the strongest
 gust ends closest rather than farthest. The residual offset at the window's end
 is therefore set by the $\sim 4\,t/c$ of post-impact relaxation the cadence
@@ -160,7 +161,7 @@ contrasts the predictive and reconstructive rollouts over the same window.
 
 \begin{figure}
   \centering
-  \includegraphics[width=0.82\linewidth]{sections/figures/results/appA_orbit_return.pdf}
+  \includegraphics[width=0.82\linewidth]{sections/figures/results/appA_orbit_return_v2p1.pdf}
   \caption{Diameter-controlled return to the baseline orbit. Distance of the
   encoded gust trajectory to the no-gust orbit (predictive latent, in orbit
   diameters; grey band is the orbit thickness), at fixed core diameter $D = 1.0$
