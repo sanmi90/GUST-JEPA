@@ -1,0 +1,170 @@
+{
+  "part": "topology_ce2",
+  "numbers": {
+    "topo_h1_gusted_raw_median_jepa_tf_noc_d64_s42": {
+      "macro": "TopoHoneRawMedJepa",
+      "value": 1.0,
+      "fmt": "%.1f",
+      "n": 66,
+      "split": "test_b+test_c",
+      "source": "topology_ce2.py",
+      "note": "median per-encounter persistent H1 generator count, RAW latent coordinates, 5% diameter floor; frac single-cycle = 0.59"
+    },
+    "topo_h1_gusted_whitened_median_jepa_tf_noc_d64_s42": {
+      "macro": "TopoHoneWhtMedJepa",
+      "value": 1.0,
+      "fmt": "%.1f",
+      "n": 66,
+      "split": "test_b+test_c",
+      "source": "topology_ce2.py",
+      "note": "median per-encounter persistent H1 generator count, per-family stdz whitening, 5% diameter floor; frac single-cycle = 0.61"
+    },
+    "topo_h1_baseline_period_raw_median_jepa_tf_noc_d64_s42": {
+      "macro": "TopoBaseRawMedJepa",
+      "value": 1.0,
+      "fmt": "%.1f",
+      "n": 16,
+      "split": "baseline",
+      "source": "topology_ce2.py",
+      "note": "no-gust Baseline SINGLE-PERIOD limit-cycle median persistent H1 count, RAW metric, 5% diameter floor (clean cycle == 1); period = 30 frames; frac single-cycle = 0.56; full-encounter (multi-period) median = 5.0"
+    },
+    "topo_h1_baseline_period_whitened_median_jepa_tf_noc_d64_s42": {
+      "macro": "TopoBaseWhtMedJepa",
+      "value": 1.0,
+      "fmt": "%.1f",
+      "n": 16,
+      "split": "baseline",
+      "source": "topology_ce2.py",
+      "note": "no-gust Baseline SINGLE-PERIOD limit-cycle median persistent H1 count, stdz whitening, 5% diameter floor (clean cycle == 1); frac single-cycle = 0.56"
+    },
+    "topo_h1_gusted_raw_median_fukami_d64_s42": {
+      "macro": "TopoHoneRawMedFukami",
+      "value": 1.0,
+      "fmt": "%.1f",
+      "n": 66,
+      "split": "test_b+test_c",
+      "source": "topology_ce2.py",
+      "note": "median per-encounter persistent H1 generator count, RAW latent coordinates, 5% diameter floor; frac single-cycle = 0.80"
+    },
+    "topo_h1_gusted_whitened_median_fukami_d64_s42": {
+      "macro": "TopoHoneWhtMedFukami",
+      "value": 1.0,
+      "fmt": "%.1f",
+      "n": 66,
+      "split": "test_b+test_c",
+      "source": "topology_ce2.py",
+      "note": "median per-encounter persistent H1 generator count, per-family stdz whitening, 5% diameter floor; frac single-cycle = 0.82"
+    },
+    "topo_h1_baseline_period_raw_median_fukami_d64_s42": {
+      "macro": "TopoBaseRawMedFukami",
+      "value": 2.0,
+      "fmt": "%.1f",
+      "n": 8,
+      "split": "baseline",
+      "source": "topology_ce2.py",
+      "note": "no-gust Baseline SINGLE-PERIOD limit-cycle median persistent H1 count, RAW metric, 5% diameter floor (clean cycle == 1); period = 58 frames; frac single-cycle = 0.00; full-encounter (multi-period) median = 2.0"
+    },
+    "topo_h1_baseline_period_whitened_median_fukami_d64_s42": {
+      "macro": "TopoBaseWhtMedFukami",
+      "value": 2.5,
+      "fmt": "%.1f",
+      "n": 8,
+      "split": "baseline",
+      "source": "topology_ce2.py",
+      "note": "no-gust Baseline SINGLE-PERIOD limit-cycle median persistent H1 count, stdz whitening, 5% diameter floor (clean cycle == 1); frac single-cycle = 0.00"
+    },
+    "topo_h1_gusted_raw_median_pod_d64": {
+      "macro": "TopoHoneRawMedPod",
+      "value": 1.0,
+      "fmt": "%.1f",
+      "n": 66,
+      "split": "test_b+test_c",
+      "source": "topology_ce2.py",
+      "note": "median per-encounter persistent H1 generator count, RAW latent coordinates, 5% diameter floor; frac single-cycle = 0.71"
+    },
+    "topo_h1_gusted_whitened_median_pod_d64": {
+      "macro": "TopoHoneWhtMedPod",
+      "value": 2.0,
+      "fmt": "%.1f",
+      "n": 66,
+      "split": "test_b+test_c",
+      "source": "topology_ce2.py",
+      "note": "median per-encounter persistent H1 generator count, per-family stdz whitening, 5% diameter floor; frac single-cycle = 0.42"
+    },
+    "topo_h1_baseline_period_raw_median_pod_d64": {
+      "macro": "TopoBaseRawMedPod",
+      "value": 1.0,
+      "fmt": "%.1f",
+      "n": 16,
+      "split": "baseline",
+      "source": "topology_ce2.py",
+      "note": "no-gust Baseline SINGLE-PERIOD limit-cycle median persistent H1 count, RAW metric, 5% diameter floor (clean cycle == 1); period = 29 frames; frac single-cycle = 0.62; full-encounter (multi-period) median = 5.5"
+    },
+    "topo_h1_baseline_period_whitened_median_pod_d64": {
+      "macro": "TopoBaseWhtMedPod",
+      "value": 1.0,
+      "fmt": "%.1f",
+      "n": 16,
+      "split": "baseline",
+      "source": "topology_ce2.py",
+      "note": "no-gust Baseline SINGLE-PERIOD limit-cycle median persistent H1 count, stdz whitening, 5% diameter floor (clean cycle == 1); frac single-cycle = 0.62"
+    },
+    "topo_h1_gusted_raw_median_bvae_faith_d64_s42": {
+      "macro": "TopoHoneRawMedBvae",
+      "value": 1.0,
+      "fmt": "%.1f",
+      "n": 66,
+      "split": "test_b+test_c",
+      "source": "topology_ce2.py",
+      "note": "median per-encounter persistent H1 generator count, RAW latent coordinates, 5% diameter floor; frac single-cycle = 0.48"
+    },
+    "topo_h1_gusted_whitened_median_bvae_faith_d64_s42": {
+      "macro": "TopoHoneWhtMedBvae",
+      "value": 3.0,
+      "fmt": "%.1f",
+      "n": 66,
+      "split": "test_b+test_c",
+      "source": "topology_ce2.py",
+      "note": "median per-encounter persistent H1 generator count, per-family stdz whitening, 5% diameter floor; frac single-cycle = 0.20"
+    },
+    "topo_h1_baseline_period_raw_median_bvae_faith_d64_s42": {
+      "macro": "TopoBaseRawMedBvae",
+      "value": 0.0,
+      "fmt": "%.1f",
+      "n": 16,
+      "split": "baseline",
+      "source": "topology_ce2.py",
+      "note": "no-gust Baseline SINGLE-PERIOD limit-cycle median persistent H1 count, RAW metric, 5% diameter floor (clean cycle == 1); period = 30 frames; frac single-cycle = 0.38; full-encounter (multi-period) median = 1.5"
+    },
+    "topo_h1_baseline_period_whitened_median_bvae_faith_d64_s42": {
+      "macro": "TopoBaseWhtMedBvae",
+      "value": 0.5,
+      "fmt": "%.1f",
+      "n": 16,
+      "split": "baseline",
+      "source": "topology_ce2.py",
+      "note": "no-gust Baseline SINGLE-PERIOD limit-cycle median persistent H1 count, stdz whitening, 5% diameter floor (clean cycle == 1); frac single-cycle = 0.31"
+    },
+    "topo_gusted_gap_jepa_minus_fukami": {
+      "value": -0.21212121212121215,
+      "fmt": "%.2f",
+      "split": "test_b+test_c",
+      "source": "topology_ce2.py",
+      "note": "JEPA minus fukami single-cycle fraction on gusted encounters under stdz whitening at 5% floor (jepa = 0.61, fukami = 0.82); >0 means the predictive encoding keeps the clean cycle more often"
+    },
+    "topo_baseline_period_gap_jepa_minus_fukami": {
+      "value": 0.5625,
+      "fmt": "%.2f",
+      "split": "baseline",
+      "source": "topology_ce2.py",
+      "note": "JEPA minus fukami single-cycle fraction on the SINGLE-PERIOD no-gust control under stdz whitening (jepa = 0.56, fukami = 0.00)"
+    },
+    "topo_ge2_branch": {
+      "macro": "TopoGEtwoBranch",
+      "value": 2,
+      "fmt": "%d",
+      "source": "topology_ce2.py",
+      "note": "GE2 branch = WEAK-MIXED (1 STRONG / 2 WEAK-MIXED / 0 WEAK / -1 STRONG-PARTIAL): split verdict. On the WHOLE gusted encounters per-family standardisation closes/reverses the gap (gap = -0.21, fukami is read as a single cycle at least as often as the predictive family), so the v2 raw-coordinate gusted fragmentation claim was an anisotropic-scale artefact and Figure 5 must reframe from topology to metric organisation. BUT the single-period no-gust limit-cycle control DOES separate the families (gap = +0.56: the reconstructive encoding fragments the clean shedding cycle while the predictive encoding keeps it), and this survives whitening; the clean-cycle topology statement holds on the no-gust control, scoped to the limit cycle. Headline whitened metric = stdz. Encoding-vs-rollout fix: fragmentation is an ENCODING property (measured on simulation-encoded latents here); manifold departure is a ROLLOUT property (Sec 4.3 drift)."
+    }
+  }
+}

@@ -8130,6 +8130,42 @@ track); vs D -0.051 p=0.82 (no trend). Numbers part stats_harvest.json
 (macros NumPairedWakeRepr, NumHolmSurvivors, GD deltas); eval_all --check =
 33 numbers / 4 parts, 29 macro-bound, no collisions.
 
+### D188 (Gate GE2, topology fairness, M4): WEAK-MIXED, split verdict (2026-06-13)
+
+`scripts/session28/topology_ce2.py` (+ 11 tests incl. the M4 mechanism as a
+test: a 50x axis stretch fragments a clean circle's single H1 generator under
+the raw metric, per-dim standardisation and full Mahalanobis whitening each
+restore it). Vietoris-Rips (ripser maxdim=1) on per-encounter latent
+trajectory clouds, three metrics (raw / per-dim z-score = headline fair /
+Mahalanobis), 5% diameter floor + {2,5,10,20}% grid, families jepa_tf_noc,
+fukami, pod, bvae_faith at d=64. CPU ~10 s.
+
+METHOD CALL (load-bearing, flag for review): the full 120-frame Baseline
+traces ~2 shedding periods (St 0.338, ~59-frame period), so it fragments for
+EVERY family incl. JEPA; the agent segments the no-gust control into single
+periods (period auto-estimated per family from PC1 autocorrelation) where
+"clean cycle = 1 generator" is the correct null. Gusted encounters kept whole.
+
+**Branch WEAK-MIXED (the data does both the strong and weak behaviours in
+different regimes; a WEAK-MIXED code was added rather than force the binary):**
+- GUSTED encounters: jepa-minus-fukami single-cycle-fraction gap = -0.21, i.e.
+  whitening CLOSES/REVERSES the gap (fukami read as one clean cycle at least as
+  often as JEPA). The v2 raw-coordinate gusted-fragmentation claim is a METRIC
+  ARTEFACT and does not survive. Figure 6 must reframe gusted topology to
+  "metric organisation", NOT topological fragmentation.
+- NO-GUST single-period control: gap = +0.56 (fukami median 2.5 H1 generators,
+  0% single-cycle, even after whitening; jepa 56% single-cycle). This SURVIVES
+  whitening: the reconstructive ENCODING cannot represent the clean shedding
+  limit cycle coherently. The topology statement holds, RESCOPED to the
+  limit-cycle control.
+
+**Abstract attribution fix (independent of branch):** persistence is computed
+on the simulation-ENCODED latents, so fragmentation is an ENCODING property;
+manifold departure (C-E1 drift) is the ROLLOUT property. The v2 abstract
+wrongly attributed fragmentation to the reconstructive ROLLOUT; Phase D must
+fix this regardless. numbers part topology_ce2.json (macros incl. the two
+deciding gaps + branch code 2).
+
 ### D181: Session 28 protocol freeze (GA2) -- one rollout, one estimator, one selection rule (2026-06-10, Session 28)
 
 Frozen BEFORE any v2p1 evaluation, in three byte-aligned artifacts:
