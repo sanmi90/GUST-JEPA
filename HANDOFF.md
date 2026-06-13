@@ -8130,6 +8130,38 @@ track); vs D -0.051 p=0.82 (no trend). Numbers part stats_harvest.json
 (macros NumPairedWakeRepr, NumHolmSurvivors, GD deltas); eval_all --check =
 33 numbers / 4 parts, 29 macro-bound, no collisions.
 
+### FRAMING DIRECTIVE (author, 2026-06-13): the model is unconditioned, full stop; no conditioning remarks, no conditioned reference. REVERSES AD2.
+
+Author instruction, verbatim intent: "Do not report or add any conditioned or
+unconditioned result in the paper. We stick with the unconditioned model and
+treat it as the standard choice, as no one conditions their models, so there is
+no need to remark on this aspect." Consequences, binding on Phase D:
+
+1. AD2 is REVERSED. The conditioned reference (T6 jepa_tf_cond_d64_s42/s0/s1)
+   is NOT reported: no table row, no sentence, no macro in the manuscript. The
+   runs + their latents + their closure cells stay on disk as internal
+   tested-and-known (per [[feedback-paper-not-lab-report]]), flagged
+   internal-only; families_closure.yaml already has jepa_tf_cond gate:false.
+2. NO "unconditioned / fully unconditioned / withholding the gust parameters /
+   costs almost nothing" framing anywhere. The model does not take gust
+   parameters; that is simply the model, presented without remark (nobody
+   conditions, so there is nothing to flag). The abstract template's clause
+   "[, essentially matching a gust-parameter-conditioned reference at
+   \NumReprWakeCond]" (master plan D3) is DELETED; \NumReprWakeCond /
+   NumCondDelta macros are not emitted to the paper.
+3. Phase D scope: ~62 "uncondition*/unconditional/withhold" mentions across
+   paper/sections (mostly section_4_results.tex) are stripped during the D1/D2
+   restructure+macro pass, not in a separate edit, since the section is
+   rewritten anyway. R8 register cleanup absorbs this (it already wanted one
+   canonical definition; now the answer is: no definition needed, drop the
+   adjective). "the model"/"the predictive latent", not "the unconditioned
+   model".
+4. OPEN (flagged to author): the (G,D,Y)->observable parametric REGRESSION
+   floor (D145/B4) is a probe-interpretation baseline, NOT a conditioned MODEL
+   result. Kept for now unless the author also wants it out; it does not
+   "remark on conditioning the model", it bounds what the gust parameters alone
+   explain. Confirm at Phase D.
+
 ### D188 (Gate GE2, topology fairness, M4): WEAK-MIXED, split verdict (2026-06-13)
 
 `scripts/session28/topology_ce2.py` (+ 11 tests incl. the M4 mechanism as a
