@@ -1,15 +1,17 @@
 {
   "_provenance": {
-    "generated_iso": "2026-06-13T19:44:39.476061+00:00",
-    "git_commit": "fd8160669c74130925d242a00c0aef52667a12fe",
+    "generated_iso": "2026-06-13T20:26:28.547317+00:00",
+    "git_commit": "19c7f546f6328d2a1c554ec8cbdf6689b6990077",
     "manifest_runs_sha256": "aa07e687f2080e7e7f0dea8d75f3b2af40a86fa68c19f828ae3ec98422e60bbe",
-    "n_parts": 14,
+    "n_parts": 16,
     "parts": [
       "closure_floor_full.json",
       "closure_headline.json",
       "decode_operating_points.json",
       "drift_ce1.json",
       "e4_floor.json",
+      "p1.json",
+      "p2.json",
       "p4_lev.json",
       "p5_code.json",
       "s46.json",
@@ -1179,6 +1181,126 @@
       "source": "stats_harvest.py",
       "value": 2
     },
+    "p1_force_exponent": {
+      "ci_hi": 1.191718118791786,
+      "ci_lo": 1.0007334614136005,
+      "fmt": "%.2f",
+      "macro": "NumPoneForceExp",
+      "observable": "power-law exponent, peak|dCL| vs winning candidate",
+      "source": "p1_collapse.py",
+      "split": "train",
+      "value": 1.0962257901026933
+    },
+    "p1_force_r2_heldout": {
+      "ci_hi": 0.7981614810966542,
+      "ci_lo": -0.7619312810559056,
+      "fmt": "%.2f",
+      "macro": "NumPoneForceRtwo",
+      "n": 42,
+      "note": "winner=s4_MMF; held-out R2 (train-fit frozen); case-clustered CI.",
+      "observable": "peak|dCL| vs winning candidate (power-law, pooled)",
+      "source": "p1_collapse.py",
+      "split": "test_b",
+      "value": 0.44920201906355584
+    },
+    "p1_gp1_branch": {
+      "fmt": "%s",
+      "macro": "NumPoneBranch",
+      "note": "best force collapse (candidate s4_MMF) only reaches held-out R2=0.45 < 0.8; Y modulation dominates",
+      "source": "p1_collapse.py",
+      "value": "WEAK"
+    },
+    "p1_latent_exponent": {
+      "ci_hi": 0.617333937539162,
+      "ci_lo": 0.40156268917243954,
+      "endpoint": "predictive",
+      "fmt": "%.2f",
+      "macro": "NumPoneLatentExp",
+      "observable": "power-law exponent, latent excursion vs winning candidate",
+      "source": "p1_collapse.py",
+      "split": "train",
+      "value": 0.5094483133558008
+    },
+    "p1_latent_r2_heldout": {
+      "ci_hi": 0.09146470079321259,
+      "ci_lo": -4.5433661638772955,
+      "endpoint": "predictive",
+      "fmt": "%.2f",
+      "macro": "NumPoneLatentRtwo",
+      "n": 42,
+      "note": "winner=s4_MMF; predictive family jepa_tf_noc_d64_s42; orbit eff-dim 3.6/64 (rank-deficient; Mahalanobis cross-check per P1 spec).",
+      "observable": "peak latent Mahalanobis excursion vs winning candidate",
+      "source": "p1_collapse.py",
+      "split": "test_b",
+      "value": -0.8709112384907887
+    },
+    "p1_winning_candidate": {
+      "fmt": "%s",
+      "macro": "NumPoneWinner",
+      "note": "Martinez-Muriel & Flores (2020) induced-velocity ratio",
+      "source": "p1_collapse.py",
+      "value": "MMF"
+    },
+    "p2_frac_censored_latent": {
+      "fmt": "%.2f",
+      "macro": "NumPtwoFracCensoredLatent",
+      "n": 42,
+      "note": "42/42 censored",
+      "observable": "latent recovery clock (Mahalanobis tube)",
+      "source": "p2_latent_clock.py",
+      "split": "test_b",
+      "value": 1.0
+    },
+    "p2_frac_censored_physical": {
+      "fmt": "%.2f",
+      "macro": "NumPtwoFracCensoredPhysical",
+      "n": 42,
+      "note": "37/42 censored",
+      "observable": "physical v2 recovery clock",
+      "source": "p2_latent_clock.py",
+      "split": "test_b",
+      "value": 0.8809523809523809
+    },
+    "p2_frac_recovered_latent": {
+      "fmt": "%.2f",
+      "macro": "NumPtwoFracRecoveredLatent",
+      "n": 42,
+      "note": "0/42 recovered, 42 censored; statuses {'censored': 42}",
+      "observable": "latent recovery clock (Mahalanobis tube)",
+      "source": "p2_latent_clock.py",
+      "split": "test_b",
+      "value": 0.0
+    },
+    "p2_frac_recovered_physical": {
+      "fmt": "%.2f",
+      "macro": "NumPtwoFracRecoveredPhysical",
+      "n": 42,
+      "note": "5/42 recovered, 37 censored; statuses {'censored': 37, 'recovered_short_window': 2, 'recovered': 3}",
+      "observable": "physical v2 recovery clock",
+      "source": "p2_latent_clock.py",
+      "split": "test_b",
+      "value": 0.11904761904761904
+    },
+    "p2_gp2_branch": {
+      "fmt": "%.0f",
+      "macro": "NumPtwoGPtwoBranch",
+      "note": "latent-clock sentence DROPPED; physical DNS maps stand as the contribution",
+      "source": "p2_latent_clock.py",
+      "split": "test_b",
+      "value": 0.0
+    },
+    "p2_gp2_latent_phys_spearman": {
+      "ci_hi": NaN,
+      "ci_lo": NaN,
+      "fmt": "%.2f",
+      "macro": "NumPtwoGPtwoSpearman",
+      "n": 0,
+      "note": "case-permutation one-sided p = nan; GP2 threshold 0.7; passes=False; recovered-in-both n=0 over NA cases; Euclidean cross-check rho=nan",
+      "observable": "latent tau_rec vs physical tau_rec (Mahalanobis tube)",
+      "source": "p2_latent_clock.py",
+      "split": "test_b",
+      "value": NaN
+    },
     "p4_gp4_pearson_r": {
       "ci_hi": 0.882266128842341,
       "ci_lo": 0.2675209868970489,
@@ -1395,7 +1517,7 @@
       "fmt": "%s",
       "macro": "CommitHash",
       "source": "eval_all.py",
-      "value": "fd8160669c74"
+      "value": "19c7f546f632"
     },
     "s46_orbit_return_fukami": {
       "fmt": "%.2f",

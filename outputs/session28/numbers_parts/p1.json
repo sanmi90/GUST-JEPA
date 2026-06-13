@@ -1,0 +1,65 @@
+{
+  "numbers": {
+    "p1_force_exponent": {
+      "ci_hi": 1.191718118791786,
+      "ci_lo": 1.0007334614136005,
+      "fmt": "%.2f",
+      "macro": "NumPoneForceExp",
+      "observable": "power-law exponent, peak|dCL| vs winning candidate",
+      "source": "p1_collapse.py",
+      "split": "train",
+      "value": 1.0962257901026933
+    },
+    "p1_force_r2_heldout": {
+      "ci_hi": 0.7981614810966542,
+      "ci_lo": -0.7619312810559056,
+      "fmt": "%.2f",
+      "macro": "NumPoneForceRtwo",
+      "n": 42,
+      "note": "winner=s4_MMF; held-out R2 (train-fit frozen); case-clustered CI.",
+      "observable": "peak|dCL| vs winning candidate (power-law, pooled)",
+      "source": "p1_collapse.py",
+      "split": "test_b",
+      "value": 0.44920201906355584
+    },
+    "p1_gp1_branch": {
+      "fmt": "%s",
+      "macro": "NumPoneBranch",
+      "note": "best force collapse (candidate s4_MMF) only reaches held-out R2=0.45 < 0.8; Y modulation dominates",
+      "source": "p1_collapse.py",
+      "value": "WEAK"
+    },
+    "p1_latent_exponent": {
+      "ci_hi": 0.617333937539162,
+      "ci_lo": 0.40156268917243954,
+      "endpoint": "predictive",
+      "fmt": "%.2f",
+      "macro": "NumPoneLatentExp",
+      "observable": "power-law exponent, latent excursion vs winning candidate",
+      "source": "p1_collapse.py",
+      "split": "train",
+      "value": 0.5094483133558008
+    },
+    "p1_latent_r2_heldout": {
+      "ci_hi": 0.09146470079321259,
+      "ci_lo": -4.5433661638772955,
+      "endpoint": "predictive",
+      "fmt": "%.2f",
+      "macro": "NumPoneLatentRtwo",
+      "n": 42,
+      "note": "winner=s4_MMF; predictive family jepa_tf_noc_d64_s42; orbit eff-dim 3.6/64 (rank-deficient; Mahalanobis cross-check per P1 spec).",
+      "observable": "peak latent Mahalanobis excursion vs winning candidate",
+      "source": "p1_collapse.py",
+      "split": "test_b",
+      "value": -0.8709112384907887
+    },
+    "p1_winning_candidate": {
+      "fmt": "%s",
+      "macro": "NumPoneWinner",
+      "note": "Martinez-Muriel & Flores (2020) induced-velocity ratio",
+      "source": "p1_collapse.py",
+      "value": "MMF"
+    }
+  },
+  "part": "p1"
+}

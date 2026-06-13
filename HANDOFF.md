@@ -8166,6 +8166,39 @@ no need to remark on this aspect." Consequences, binding on Phase D:
    flow state BEYOND the parameters. Regenerate on v2p1 (D145 machinery) for the
    final table.
 
+### D190/D191 (Physics gates GP1 + GP2): both WEAK; flow-physics section already conservative (2026-06-13)
+
+Both flagship physics gates run and both land on the honest-negative branch.
+The flow-physics section 4.4 was written BEFORE these ran and deliberately claimed
+neither, so NO prose change is needed; the dropped claims simply do not appear.
+
+**GP1 (P1 similarity collapse, `p1_collapse.py`, 16 tests): WEAK.** No single
+candidate (G, G*D, Gamma_g, MMF induced-velocity ratio) collapses the force
+amplitude on held-out test_b to R^2 >= 0.8. Winner = MMF (only Y-aware) pooled
+force R^2 = 0.45 (exponent ~1.0, linear); Y modulation dominates (within
+|Y| = 0.4 the force collapse tightens to 0.74). The wake-enstrophy excursion
+collapses moderately with MMF (R^2 0.67, the strongest single collapse, still
+< 0.8). KEEPABLE appendix finding: the LATENT excursion does NOT inherit the
+force scaling -- it grows with exponent ~0.5 vs the force's ~1.0 (confirmed not a
+Mahalanobis rank artifact: Euclidean excursion gives the same ~0.5). Gamma_g is
+exactly proportional to G*D by construction. P1 figure -> appendix.
+
+**GP2 (P2 latent recovery clock, `p2_latent_clock.py`): BELOW 0.7 (decisive).**
+The predictive latent NEVER re-enters the baseline limit-cycle tube within the
+120-frame window (0/42 recovered, Mahalanobis AND Euclidean), so the
+latent-vs-physical clock Spearman is undefined (n=0). The latent-clock sentence
+is DROPPED. The PHYSICAL tau_rec stands: physical recovery fraction 0.12 on
+test_b (5/42 recovered, 37 censored), and the tau_rec(G,D,Y) maps remain a DNS
+contribution (fig_p2_recovery). Note this is consistent with the s46 limit-cycle-
+return reversal: the predictive latent's distance-from-baseline does not contract
+back within the observable window. (Macro NumPtwoGPtwoSpearman is NaN by design;
+do NOT reference it in prose.)
+
+Net: the keepable flow physics (already in 4.4) is the |G| trend, the G-sign LEV
+asymmetry, the phase reset, and the spectrum/limit-cycle; P1 collapse and P2
+latent-clock are honest negatives in the appendix. The physical tau_rec maps and
+the latent/force exponent gap (0.5 vs 1.0) are the publishable remnants.
+
 ### D188 (Gate GE2, topology fairness, M4): WEAK-MIXED, split verdict (2026-06-13)
 
 `scripts/session28/topology_ce2.py` (+ 11 tests incl. the M4 mechanism as a

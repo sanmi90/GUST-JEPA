@@ -1,0 +1,65 @@
+{
+  "part": "p2",
+  "numbers": {
+    "p2_gp2_latent_phys_spearman": {
+      "macro": "NumPtwoGPtwoSpearman",
+      "value": NaN,
+      "fmt": "%.2f",
+      "ci_lo": NaN,
+      "ci_hi": NaN,
+      "n": 0,
+      "split": "test_b",
+      "observable": "latent tau_rec vs physical tau_rec (Mahalanobis tube)",
+      "source": "p2_latent_clock.py",
+      "note": "case-permutation one-sided p = nan; GP2 threshold 0.7; passes=False; recovered-in-both n=0 over NA cases; Euclidean cross-check rho=nan"
+    },
+    "p2_gp2_branch": {
+      "macro": "NumPtwoGPtwoBranch",
+      "value": 0.0,
+      "fmt": "%.0f",
+      "split": "test_b",
+      "source": "p2_latent_clock.py",
+      "note": "latent-clock sentence DROPPED; physical DNS maps stand as the contribution"
+    },
+    "p2_frac_recovered_physical": {
+      "macro": "NumPtwoFracRecoveredPhysical",
+      "value": 0.11904761904761904,
+      "fmt": "%.2f",
+      "n": 42,
+      "split": "test_b",
+      "observable": "physical v2 recovery clock",
+      "source": "p2_latent_clock.py",
+      "note": "5/42 recovered, 37 censored; statuses {'censored': 37, 'recovered_short_window': 2, 'recovered': 3}"
+    },
+    "p2_frac_censored_physical": {
+      "macro": "NumPtwoFracCensoredPhysical",
+      "value": 0.8809523809523809,
+      "fmt": "%.2f",
+      "n": 42,
+      "split": "test_b",
+      "observable": "physical v2 recovery clock",
+      "source": "p2_latent_clock.py",
+      "note": "37/42 censored"
+    },
+    "p2_frac_recovered_latent": {
+      "macro": "NumPtwoFracRecoveredLatent",
+      "value": 0.0,
+      "fmt": "%.2f",
+      "n": 42,
+      "split": "test_b",
+      "observable": "latent recovery clock (Mahalanobis tube)",
+      "source": "p2_latent_clock.py",
+      "note": "0/42 recovered, 42 censored; statuses {'censored': 42}"
+    },
+    "p2_frac_censored_latent": {
+      "macro": "NumPtwoFracCensoredLatent",
+      "value": 1.0,
+      "fmt": "%.2f",
+      "n": 42,
+      "split": "test_b",
+      "observable": "latent recovery clock (Mahalanobis tube)",
+      "source": "p2_latent_clock.py",
+      "note": "42/42 censored"
+    }
+  }
+}

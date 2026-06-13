@@ -76,6 +76,21 @@ report ([[feedback-paper-not-lab-report]]).
   clause; attribute fragmentation to the ENCODING not the rollout; lead the
   closing with sensing STATE recovery (main result), not deployment hedging.
 
+## Table consistency status (Phase D D6, 2026-06-13)
+
+v2.1-consistent (macro-wired or regenerated from v2.1 outputs): tab:closure
+(headline, both panels), tab:paired_closure (B6 12-test, encounter-level Holm
+survivors bolded), tab:controls_2x2 (unconditioned representational 2x2),
+tab:parametric_floor, tab:latent_drift, tab:families (caption). tab:architecture
+unchanged (architecture). tab:dns_pending = collaborator \pending{}.
+REMAINING v2 table: tab:b1_closure_train_r2 (appendix training-fit reference) --
+still v2 numbers; cannot be regenerated from the closure matrix (the train-split
+FORECAST endpoint was not computed, only test_b/test_c forecast + train
+representational). Closing it needs a train-split rollout of the 11 predictors;
+low priority (secondary in-distribution reference, explicitly "not the held-out
+result"). jepa_dimsweep_table.tex is an orphan (no \input), conditioned content,
+harmless; delete at cleanup.
+
 ## Remaining before Phase D assembly
 
 - P5 (wake-code: collective code, energy-information curve, saliency footprint)
