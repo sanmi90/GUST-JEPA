@@ -8156,11 +8156,15 @@ no need to remark on this aspect." Consequences, binding on Phase D:
    canonical definition; now the answer is: no definition needed, drop the
    adjective). "the model"/"the predictive latent", not "the unconditioned
    model".
-4. OPEN (flagged to author): the (G,D,Y)->observable parametric REGRESSION
-   floor (D145/B4) is a probe-interpretation baseline, NOT a conditioned MODEL
-   result. Kept for now unless the author also wants it out; it does not
-   "remark on conditioning the model", it bounds what the gust parameters alone
-   explain. Confirm at Phase D.
+4. RESOLVED (author 2026-06-13: "this is nice", KEEP): the (G,D,Y)->observable
+   parametric REGRESSION floor (D145/B4) stays in the paper. It is a MODEL-FREE
+   baseline (regress each observable directly on the gust parameters), not a
+   conditioned-model result, so it is consistent with the no-conditioning
+   framing. RENAME away from "conditioning floor" (that word is banished) to the
+   "parametric / model-free floor": it bounds what the gust parameters ALONE
+   explain, and the latent beating it is what shows the representation carries
+   flow state BEYOND the parameters. Regenerate on v2p1 (D145 machinery) for the
+   final table.
 
 ### D188 (Gate GE2, topology fairness, M4): WEAK-MIXED, split verdict (2026-06-13)
 
