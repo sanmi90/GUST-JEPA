@@ -1,0 +1,76 @@
+{
+  "part": "stats_harvest",
+  "numbers": {
+    "paired_repr_wake_pred_minus_fukami": {
+      "macro": "NumPairedWakeRepr",
+      "value": 33.56333489551835,
+      "fmt": "%.2f",
+      "ci_lo": 7.790913520984917,
+      "ci_hi": 58.720187312181125,
+      "n": 42,
+      "split": "test_b",
+      "endpoint": "representational",
+      "probe": "ridge",
+      "observable": "wake_enstrophy",
+      "horizon": 16,
+      "run_tags": [
+        "jepa_tf_noc_d64_s42",
+        "fukami_d64_s42"
+      ],
+      "source": "stats_harvest.py",
+      "note": "paired abs-error delta = err(fukami) - err(jepa_tf_noc); >0 = predictive better; case-clustered CI; enc_sign_p=0.003958 (holm_enc_survives=True), case_sign_p=0.1719 (holm_case_survives=False)"
+    },
+    "holm_family_survivors": {
+      "macro": "NumHolmSurvivors",
+      "value": 4,
+      "fmt": "%d",
+      "n": 12,
+      "source": "stats_harvest.py",
+      "note": "Holm survivors of the 12-test family (encounter-level sign p, the pre-registered D165 procedure): forecast/circ_neg, repr/CL, repr/circ_neg, repr/wake_enstrophy; stricter case-respecting (case-level sign p) survivors [2/12]: repr/CL, repr/circ_neg"
+    },
+    "holm_family_survivors_case_strict": {
+      "value": 2,
+      "n": 12,
+      "source": "stats_harvest.py",
+      "note": "stricter case-respecting (case-level one-sided sign p) Holm survivors: repr/CL, repr/circ_neg"
+    },
+    "gd_hardening_krr_rbf_s0": {
+      "value": 4.9784063134506935,
+      "ci_lo": -12.11874936751736,
+      "ci_hi": 19.53129597194903,
+      "split": "test_b",
+      "endpoint": "representational",
+      "probe": "krr_rbf",
+      "observable": "wake_enstrophy",
+      "horizon": 16,
+      "run_tags": [
+        "jepa_tf_noc_d64_s42",
+        "ctrl_recon_cnn_s0"
+      ],
+      "source": "stats_harvest.py",
+      "note": "paired abs-error delta = err(ctrl_recon_cnn_s0) - err(jepa_tf_noc); ci_includes_zero=True"
+    },
+    "gd_hardening_mlp_reg_s0": {
+      "value": 5.403577192028671,
+      "ci_lo": -5.0363122838956915,
+      "ci_hi": 14.844731929948901,
+      "split": "test_b",
+      "endpoint": "representational",
+      "probe": "mlp_reg",
+      "observable": "wake_enstrophy",
+      "horizon": 16,
+      "run_tags": [
+        "jepa_tf_noc_d64_s42",
+        "ctrl_recon_cnn_s0"
+      ],
+      "source": "stats_harvest.py",
+      "note": "paired abs-error delta = err(ctrl_recon_cnn_s0) - err(jepa_tf_noc); ci_includes_zero=True"
+    },
+    "gd_weak_branch_supported": {
+      "value": 1,
+      "fmt": "%d",
+      "source": "stats_harvest.py",
+      "note": "Weak branch SUPPORTED: the matched-head reconstructive AE is not reliably separated from the predictive family on linear/nonlinear wake decodability after case clustering; D183 lands on WEAK (linear-decodability framing)."
+    }
+  }
+}

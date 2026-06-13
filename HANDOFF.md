@@ -8084,6 +8084,52 @@ artifact. B6 launched (needs a per-encounter residual dump the matrix
 did not persist; agent adding it). Note: closure_headline.json + gate
 are pre-B6 point estimates, NOT yet paper-grade.
 
+### B6 statistics harvest: D183/D184/D187 finalized (2026-06-13)
+
+`scripts/session28/stats_harvest.py` (+ closure_matrix.py `--dump-per-encounter`
+opt-in; 9 tests; stats_lib byte-untouched, its D165 regression still 3/3).
+All verdicts through stats_lib; paired delta = err_recon - err_pred on
+per-encounter absolute error (D165 convention, delta>0 = predictive better).
+METHOD CATCH: `stats_lib.case_permutation_p` is degenerate for a paired
+LOCATION test (block permutation preserves the pooled mean -> p~1); it is
+correct for the Fig-8 trend test and is used ONLY there. The Holm family uses
+the pre-registered D165 encounter-level one-sided sign p, with the stricter
+case-level sign p reported alongside as a case-respecting companion.
+
+**D183 (Gate GD): WEAK, statistically confirmed (not a point-estimate
+artifact).** Under both nonlinear probes (krr_rbf, mlp) the predictive-minus-
+matched-head-reconstructive (ctrl_recon_cnn) wake delta has a case-clustered
+CI that INCLUDES zero (krr deltas +1.2..+5.0, mlp +0.2..+5.4): the wake-head-
+supervised reconstructive AE is not reliably separated from the predictive
+family on nonlinear wake decodability. So carries/encodes -> LINEAR
+DECODABILITY everywhere; title drops any possession verb; "no probe can
+recover" -> "no probe in the evaluated class recovers". The B2 point-estimate
+gate had used the crippled ctrl_pred_vit_nowake as the predictive floor; the
+substantively correct comparison (real predictive vs matched-head recon) still
+lands WEAK.
+
+**D184 (family ordering, n=10 test_b -> wide clustered CIs):** jepa_tf_noc
+separates with a case-clustered CI excluding zero from fukami, pod, bvae_faith,
+ctrl_recon_cnnvit; it does NOT reliably separate from ctrl_recon_cnn
+(CI [-3.6, +44]), bvae_match, jepa_lstm_noc, jepa_tf_cond, or ctrl_pred_cnn.
+The AD2 sentence still holds at point estimate (uncond +0.79 ~ cond +0.78) but
+the two are NOT statistically separated (as intended: "costs almost nothing").
+
+**D187 (primary endpoint + honest Holm reporting):** primary paired delta
+(repr wake, jepa_tf_noc minus Fukami) = +33.56, case-clustered CI
+[+7.79, +58.72] (excludes zero). Holm family 4/12 survive at the pre-registered
+D165 encounter level (repr wake_enstrophy, repr C_L, repr circ_neg, forecast
+circ_neg: representational wake survives, forecast wake does not, the v2
+pattern); only 2/12 survive the STRICTER case-level Holm (repr C_L, repr
+circ_neg), and repr wake_enstrophy does NOT (case_sign_p=0.17; 7/10 test_b
+cases favor predictive). REPORT BOTH: the primary survives the pre-registered
+test but not the stricter case-respecting one; state the nuance, do not claim
+unqualified survival. Fig-8 (lead family, n=66 enc/14 cases): wake closure vs
+|G| Spearman -0.563 case-perm p=0.0022 (significant: larger gust harder to
+track); vs D -0.051 p=0.82 (no trend). Numbers part stats_harvest.json
+(macros NumPairedWakeRepr, NumHolmSurvivors, GD deltas); eval_all --check =
+33 numbers / 4 parts, 29 macro-bound, no collisions.
+
 ### D181: Session 28 protocol freeze (GA2) -- one rollout, one estimator, one selection rule (2026-06-10, Session 28)
 
 Frozen BEFORE any v2p1 evaluation, in three byte-aligned artifacts:
