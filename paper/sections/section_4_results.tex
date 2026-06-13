@@ -657,41 +657,50 @@ above, not on per-family decode fidelity.
 \label{sec:res_observability}
 
 At deployment the vorticity field is not available; only the wall pressure is.
-The representational result has an exact deployment mirror: we ask which
-representation is most recoverable from a sparse set of $K$ wall-pressure taps over
-a pre-impact window, using one kernel-ridge estimator across families for a uniform
-comparison (the sensor placement, the lead-time prediction, and a closed-loop pilot
-are detailed in Appendix~\ref{app:sensing}). Because the encoder is unconditional in
-every case, this observability is unaffected by dropping the gust parameters. The
-predictive state is markedly the most recoverable (figure~\ref{fig:observability}a):
-with $K = 8$ taps the held-out test\_b state $R^2$ is $0.88$, against $0.58$ for the
-reconstructive autoencoder and $0.32$ for the linear basis at $d = 64$, and the
-contrast is sharpest at matched capacity. The energy-optimal POD coordinates,
-optimal for reconstruction, are the hardest of the three to read from the wall: the
-same predictive objective that produces a wake-keeping state produces one that is
-also legible from pressure.
+The representational result has an exact deployment mirror, and it is a main
+result of the paper: we ask which representation is the most recoverable from a
+sparse set of $K$ wall-pressure taps over a pre-impact window, comparing both the
+recovered latent \emph{state} and the recovered flow \emph{field} across families
+under one kernel-ridge estimator and a target-blind (qDEIM) sensor placement (the
+placement, the lead-time prediction, and a closed-loop pilot are in
+Appendix~\ref{app:sensing}).
 
-Recoverability is not estimation quality, and the distinction is itself
-informative (figure~\ref{fig:observability}b). The three-dimensional
-reconstructive latent is the \emph{easiest} to recover from pressure (state
-$R^2 = 0.91$ at $K = 2$, the highest of any family) yet routing the impact-lift
-estimate through it gives the \emph{worst} lift error (mean absolute error $1.0$
-against a $C_L$ spread of $1.37$), while the predictive latent gives $0.49$; the
-lift itself is read most accurately straight off the pressure ($0.39$), because
-the imminent lift is already imprinted on the wall. The contribution of the
-predictive latent is therefore the observable, wake-keeping state it carries, not
-the instantaneous lift, which is read more accurately straight from the wall.
+The predictive state is the most recoverable (figure~\ref{fig:observability}a).
+With $K = 8$ taps the held-out test\_b state $R^2$ is $\SenseStateJepaTf$, against
+$\SenseStateFukami$ for the reconstructive autoencoder, $\SenseStateBvae$ for the
+variational baseline, and $\SenseStatePod$ for the linear basis; the lead is
+seed-robust ($\SenseStateJepaTf \pm 0.09$ over four predictive seeds against
+$\SenseStateFukami \pm 0.04$). The energy-optimal POD coordinates, optimal for
+reconstruction, are the hardest of the three to read from the wall: the same
+predictive objective that renders the wake readable from the field produces a state
+that is also legible from the wall. The wall pressure also recovers the
+wall-normal offset $Y$ at $R^2 = \SensePY$, so the weak $Y$ resolution of
+\S\ref{sec:res_physical} is a property of the mid-plane vorticity observable and
+the offset sampling, not of the pressure signal.
+
+The recovered \emph{field} tells a more nuanced story that we report in full. The
+pressure-to-latent map followed by each family's decoder reconstructs the
+large-scale field with similarity $\FieldPrSsimJepaTf$ for the predictive latent,
+$\FieldPrSsimPod$ for the linear basis, and $\FieldPrSsimFukami$ for the
+reconstructive (figure~\ref{fig:observability}b); the predictive latent beats the
+reconstructive significantly but ties the linear basis. The tie is a decoder
+property: the decode-ceiling gap (the loss from pressure recovery relative to
+decoding the true latent) is largest for POD ($\FieldSsimGapPod$ against
+$\FieldSsimGapJepaTf$ for the predictive), so the linear basis reaches field parity
+through its decoder's reconstruction ceiling, not through better state recovery,
+where it is the weakest of the three. The clean comparison is therefore the state
+recovery: the predictive latent is the most recoverable state from sparse wall
+pressure, and recovers the field at least as well as any matched representation.
 
 \begin{figure}
   \centering
   \includegraphics[width=\linewidth]{sections/figures/results/figF_observability.pdf}
-  \caption{Cross-family pressure observability under the target-conditioned
-  (TCSI) sensor placement. (a) Latent-state recovery $R^2$ versus sensor count
-  $K$: the predictive (JEPA) state is the most recoverable at $K \ge 4$, the
-  linear basis the least. (b) The physical estimate, impact $C_L$ mean absolute
-  error routed through each family's recovered latent, with the direct
-  pressure-to-$C_L$ baseline (dashed). The reconstructive $d = 3$ latent is the
-  easiest to recover (highest $R^2$ at low $K$) yet gives the worst lift estimate,
-  and the lift is read most accurately directly from the pressure.}
+  \caption{Cross-family pressure observability under the target-blind qDEIM sensor
+  placement. (a) Latent-state recovery $R^2$ versus sensor count $K$: the
+  predictive (JEPA) state is the most recoverable, the linear basis the least.
+  (b) Recovered-field large-scale similarity by family (pressure to latent to
+  decoder), with the decode-ceiling shown alongside: the predictive latent beats
+  the reconstructive autoencoder and ties the linear basis, whose field parity is
+  its decoder reconstruction ceiling rather than better state recovery.}
   \label{fig:observability}
 \end{figure}
