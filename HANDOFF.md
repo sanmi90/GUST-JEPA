@@ -8817,3 +8817,70 @@ spectral-bias finding on v2.1). Rationale (decoder-design review,
 paper's own 2-term-vs-5-term methodological contrast; the ablation rows plus
 the diagnostic-instrument framing close that gap.
 
+### D196 (Phase D, manuscript assembly COMPLETE): GI gate PASSED, reproducibility package re-pointed at v2.1, pushed (2026-06-14, Session 28)
+
+Phase D of the master plan is done. The manuscript body is fully v2.1 and the
+GI build gate passes; only the author/collaborator-owned GO gate remains. Work
+this session:
+
+- **Figures (D5).** All 14 result figures carry the `_v2p1` suffix; the only
+  non-`_v2p1` includes are the three tikz method schematics (architecture,
+  predictive-vs-reconstructive, eval-protocol). figB parameter-space was
+  switched to a single 3D `(G, D, Y)` isometric view per author request
+  (`scripts/session21/figB_paramspace3d_v2p1.py`, |G|=4 OOD plane + floor
+  projection for the Y~0 density); the 2D-projection generator is preserved
+  (`figB_paramspace_v2p1.py` -> `figB_paramspace_2d_v2p1.pdf`). figG replaced by
+  the v2.1 field-recovery panel (`figG_flow_recovery_v2p1`).
+- **Sensing appendix (appendix_b_sensing) rebuilt to v2.1 qDEIM-primary**, fully
+  macro-bound (state recovery + canonical-correlation anisotropy, decode-ceiling
+  /gap decomposition, the state-vs-field "different axes" point, pressure->Y,
+  pressure->wake non-result). CUT: the lead-time curve (figH) and the closed-loop
+  pilot (from S4.7, S5, and the appendix) -- they printed un-regenerated v2
+  numbers and asserted a v2.1-unverified oracle-latent claim, and fall outside
+  the pivoted state+field comparison scope; and the v2-era TCSI placement sweep
+  (figE), superseded by the target-blind qDEIM that is itself the placement
+  robustness argument.
+- **D1 macro audit closed.** The last hand-typed S4.6 result numbers are now
+  macros: error-map Spearman trends (`ErrMapRhoD`=+0.36 significant, G -0.13 /
+  Y +0.03 n.s.; `make_fig_error_maps_v2p1.py` now emits a part), scale-decode
+  relative-amplitude error (`NumScaleDecodeRelErr*`, jepa 0.12 vs fukami 0.71;
+  s46_regen.py emits it), and the orbit-return peak-distance range
+  (`OrbitReturnPeakMin/Max` = 3.8/4.2, vs v2 3.2-3.5). The orbit-return appendix
+  figure was regenerated on the canonical `jepa_tf_noc_d64_s42` latent
+  (`orbit_return_controlled_v2p1.py`); the qualitative caveat reproduces (peak
+  nearly independent of |G|, all strengths still contracting at the window end,
+  strongest ends closest). The `grep -nE '[0-9]\.[0-9]{2}' paper/sections` audit
+  now returns only macros, table inputs, physical constants, parameter labels,
+  and the chi_3D raw-DNS invariants (0.20/0.56).
+- **Cleanup.** Removed four orphan files holding stale v2 numbers, none `\input`
+  anywhere: `jepa_dimsweep_table.tex` (conditioned), `b1_physical_closure.tex`
+  (v2 training-fit), `conditioning_floor.tex` (v2 226-train floor),
+  `latent_drift.tex` (v2 Mahalanobis 9.90). The live tables are inline/macro-bound
+  on v2.1 (tab:latent_drift in S4.3, tab:parametric_floor in S4.2). The dead
+  tab:conditioning_floor label survives only in `_v2_md_archive/` markdown, not
+  the build.
+- **Reproducibility package (GO-prep).** Re-pointed the D174 scaffolding from
+  v2/session26 to v2.1: README (new title, split_v2p1, deposit centred on the
+  provenance-stamped `outputs/session28/numbers.json`, CPU-only reproduction =
+  `eval_all.py -> emit_macros.py`), data-availability statement (v2 -> v2.1
+  manifest), `.zenodo.json` + `CITATION.cff` (v2.1 title, numbers.json
+  description, optimal-transport keyword dropped, version **v1.0.0-rc2**, date
+  2026-06-14). Deposited all 18 `numbers_parts/` (force-added error_maps,
+  orbit_return, undisturbed) so `eval_all.py` reproduces numbers.json from the
+  package alone (18 parts, 206 numbers, 199 macro-bound).
+- **GI gate PASS.** Clean from-scratch build: latexmk exit 0, **34 pages**, 0
+  undefined refs/cites, 0 undefined control sequences, 0 multiply-defined labels,
+  0 overfull/underfull, 0 source em-dashes; every result figure `_v2p1`; macros
+  (287) all resolve. Committed and pushed to `origin/main` (HEAD `f004acd`),
+  tag `v1.0.0-rc2` pushed.
+
+**GO gate (the only thing left, all author/collaborator-owned):** DNS Table 1
+seven `\pending{}` rows (Mach/incompressible confirmation, domain + Lz/c,
+element/solution-point counts, near-wall resolution, timestep/CFL, gust-release
+station x0/c, grid+time-step sensitivity) from the simulation collaborators
+(package drafted `scripts/session28/DNS_COLLABORATOR_PACKAGE.md`, send pending);
+the real Zenodo DOI minted from the v1.0.0-rc2 tag (drops into README,
+.zenodo.json, CITATION.cff, data-availability); final license/institutional
+confirmation, CRediT roles, funding. The paper does NOT go out with an empty
+Table 1.
+

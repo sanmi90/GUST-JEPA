@@ -1,11 +1,19 @@
 # Session 28 results consolidation (v2.1 unconditioned) -- Phase D drafting map
 
+> **STATUS 2026-06-14: PHASE D COMPLETE (HANDOFF D196).** Every item in this map
+> is in the manuscript; the GI build gate passes (latexmk exit 0, 34 pp, 0
+> undefined/multiply-defined, 0 source em-dashes; D1 macro audit clean). Pushed to
+> `origin/main` (HEAD `f004acd`), tag `v1.0.0-rc2`. The only work left is the GO
+> gate, all author/collaborator-owned: DNS Table 1 (7 `\pending{}` rows + grid
+> sensitivity), the real Zenodo DOI, license/CRediT/funding. This file is kept as
+> the drafting record; numbers below were a 2026-06-13 snapshot (final macro count
+> 287 from 18 parts / 206 numbers in `outputs/session28/numbers.json`).
+
 Single source for the Phase D restructure. Every number is macro-bound in
-`paper/macros.tex` (regenerate: `eval_all.py` -> `emit_macros.py`; 117 numbers /
-10 parts / 166 macros as of 2026-06-13). Decision log: HANDOFF D178-D195 +
-the 2026-06-13 entries. Framing rules: no conditioning remarks (model is the
-default, [[unconditioned-jepa-rebuttal]]); feature strong results, not a lab
-report ([[feedback-paper-not-lab-report]]).
+`paper/macros.tex` (regenerate: `eval_all.py` -> `emit_macros.py`; final 287
+macros / 18 parts / 206 numbers). Decision log: HANDOFF D178-D196. Framing rules:
+no conditioning remarks (model is the default, [[unconditioned-jepa-rebuttal]]);
+feature strong results, not a lab report ([[feedback-paper-not-lab-report]]).
 
 ## The spine (headline-grade, survived fair scrutiny)
 

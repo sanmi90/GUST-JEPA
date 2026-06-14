@@ -12,21 +12,35 @@ matched latent dimension.
 
 Lead researcher: Carlos Sanmiguel Vila (INTA, UC3M).
 
-## Current focus (read first, set 2026-06-10, Session 28 / HANDOFF D178+)
+## Current focus (read first, set 2026-06-14, Session 28 / HANDOFF D196)
 
-**The v2.1 UNCONDITIONED rebuild is LIVE.** The deferred-retrain note from
-D177 is obsolete: the 2026-06-08 presentation is done and the paper target is
-now the **v2.1 unconditioned manuscript**. The campaign is governed by
-`SESSION28 31 MASTER V2P1 UNCOND PHYSICS.md` (one master plan, four sessions:
-Phase A = Session 28 training launch through Phase D = Session 31 manuscript),
-which merges the v2.1 rerun (`RERUN_MANIFEST.md` "Split v2.1 update" +
-"Unconditioned rerun"), the referee remediation, and four new physics tracks.
-Key invariants: every `train_jepa` run gets `--predictor-cond-dim 0`, split
+**The v2.1 UNCONDITIONED manuscript is COMPLETE; only the GO gate remains.**
+All four phases of `SESSION28 31 MASTER V2P1 UNCOND PHYSICS.md` are done (Phase A
+training, B closure/stats/baselines, C mechanism/physics/sensing, D manuscript).
+The paper on `main` now IS the v2.1 unconditioned manuscript: every result figure
+carries the `_v2p1` suffix (figB is a 3D `(G,D,Y)` view; the 3 tikz schematics are
+the only non-`_v2p1` includes), every printed number is a macro tracing to the
+provenance-stamped `outputs/session28/numbers.json` (18 parts), and the GI build
+gate passes (latexmk exit 0, 34 pp, 0 undefined/multiply-defined, 0 source
+em-dashes; D1 audit clean). Pushed to `origin/main` (HEAD `f004acd`), release
+candidate tag `v1.0.0-rc2`. See HANDOFF D196 for the full Phase D log.
+
+**The ONLY work left is the GO gate, all author/collaborator-owned and NOT
+runnable here:** the DNS Table 1 seven `\pending{}` rows + sensitivity evidence
+from the simulation collaborators (package drafted at
+`scripts/session28/DNS_COLLABORATOR_PACKAGE.md`); the real Zenodo DOI minted from
+the rc2 tag (drops into README, `.zenodo.json`, `CITATION.cff`, and the
+data-availability statement, all carrying `10.xxxx/zenodo.PLACEHOLDER`); and the
+final license/institutional confirmation, CRediT roles, and funding statement. The
+paper does not go out with an empty Table 1.
+
+Invariants if any v2.1 number/figure is regenerated: split
 `configs/splits/split_v2p1.json`, pipeline manifest
-`outputs/data_pipeline/v2p1/manifest.json`, `--partition v2p1` (W&B group
-`partition_v2p1`); every regenerated figure/table saved under its existing
-basename with a `_v2p1` suffix; v2 figures kept as the frozen reference; the
-paper on `main` still describes v2 until Phase D swaps it.
+`outputs/data_pipeline/v2p1/manifest.json`, every `train_jepa` run
+`--predictor-cond-dim 0` / `--partition v2p1` (W&B group `partition_v2p1`);
+regenerated figures keep the `_v2p1` basename suffix; every paper number flows
+through a `numbers_parts/<analysis>.json` record -> `eval_all.py` ->
+`emit_macros.py`, never hand-typed in the `.tex`.
 
 ## What we are building
 
