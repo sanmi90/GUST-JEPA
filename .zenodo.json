@@ -1,9 +1,9 @@
 {
-  "title": "vortex-jepa: analysis and evaluation code for forward physical closure of predictive and reconstructive latents for vortex-gust airfoil interactions at Re=5000",
+  "title": "vortex-jepa: analysis and evaluation code for a predictive latent representation that renders wake structure linearly readable in vortex-gust airfoil interactions at Re=5000",
   "upload_type": "software",
   "access_right": "open",
   "license": "MIT",
-  "description": "Reduced-order-model and evaluation code, configuration files, the v2 data-split manifest, and the committed analysis outputs that regenerate the tables and figures of the associated Journal of Fluid Mechanics manuscript. Compares a joint-embedding predictive architecture (JEPA), a reconstructive observable-augmented autoencoder, and a POD basis as reduced states for parametric vortex-gust airfoil interactions, judged by forward physical closure of six observables. The raw direct numerical simulation data (SOD2D solver) are owned by the simulation collaborators and are NOT included.",
+  "description": "Reduced-order-model and evaluation code, configuration files, the v2.1 data-split manifest, and the committed analysis outputs (a provenance-stamped numbers.json that renders every printed manuscript number) that regenerate the tables and figures of the associated Journal of Fluid Mechanics manuscript. Compares a joint-embedding predictive architecture (JEPA) trained with no gust parameters, a reconstructive observable-augmented autoencoder, a beta-variational baseline, and a POD basis as reduced states for parametric vortex-gust airfoil interactions, judged by held-out representational closure of six wake observables and by recovery from sparse wall pressure. The raw direct numerical simulation data (SOD2D solver) are owned by the simulation collaborators and are NOT included.",
   "creators": [
     {"name": "Solera-Rico, Alberto", "affiliation": "INTA; Universidad Carlos III de Madrid"},
     {"name": "Miro, Arnau", "affiliation": "Universitat Politecnica de Catalunya; Barcelona Supercomputing Centre"},
@@ -16,7 +16,7 @@
     "vortex-gust airfoil interaction",
     "direct numerical simulation",
     "latent dynamics",
-    "optimal transport",
+    "linear decodability",
     "wall-pressure observability"
   ],
   "related_identifiers": [

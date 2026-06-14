@@ -1,6 +1,6 @@
 cff-version: 1.2.0
 message: "If you use this code, please cite both the software and the associated paper."
-title: "vortex-jepa: analysis and evaluation code for forward physical closure of predictive and reconstructive latents"
+title: "vortex-jepa: analysis and evaluation code for a predictive latent representation that renders wake structure linearly readable"
 type: software
 authors:
   - family-names: "Solera-Rico"
@@ -18,18 +18,19 @@ authors:
     email: "csanvil@inta.es"
 license: MIT
 repository-code: "https://github.com/<ORG>/vortex-jepa"
-version: "v1.0.0-rc1"
-date-released: "2026-06-03"
+version: "v1.0.0-rc2"
+date-released: "2026-06-14"
 keywords:
   - "joint-embedding predictive architecture"
   - "reduced-order modelling"
   - "vortex-gust airfoil interaction"
   - "direct numerical simulation"
   - "latent dynamics"
-  - "optimal transport"
+  - "linear decodability"
+  - "wall-pressure observability"
 preferred-citation:
   type: article
-  title: "Forward physical closure of predictive and reconstructive latents for vortex-gust airfoil interactions at Re=5000"
+  title: "A predictive latent representation renders wake structure linearly readable in vortex-gust airfoil interactions at Re=5000"
   authors:
     - family-names: "Solera-Rico"
       given-names: "Alberto"

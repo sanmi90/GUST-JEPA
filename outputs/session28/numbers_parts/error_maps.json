@@ -1,0 +1,35 @@
+{
+  "part": "error_maps",
+  "numbers": {
+    "errmap_spearman_d": {
+      "macro": "ErrMapRhoD",
+      "value": 0.36058921131331784,
+      "fmt": "%+.2f",
+      "n": 42,
+      "split": "test_b",
+      "observable": "wake_enstrophy",
+      "source": "make_fig_error_maps_v2p1.py",
+      "note": "Spearman rho of the per-encounter representational wake-enstrophy advantage (e_AE - e_JEPA) against D on test_b (p=0.019); only D is significant at 0.05"
+    },
+    "errmap_spearman_g": {
+      "macro": "ErrMapRhoG",
+      "value": -0.13014787657998034,
+      "fmt": "%+.2f",
+      "n": 42,
+      "split": "test_b",
+      "observable": "wake_enstrophy",
+      "source": "make_fig_error_maps_v2p1.py",
+      "note": "Spearman rho of the per-encounter representational wake-enstrophy advantage (e_AE - e_JEPA) against G on test_b (p=0.411); only D is significant at 0.05"
+    },
+    "errmap_spearman_y": {
+      "macro": "ErrMapRhoY",
+      "value": 0.032972350538530364,
+      "fmt": "%+.2f",
+      "n": 42,
+      "split": "test_b",
+      "observable": "wake_enstrophy",
+      "source": "make_fig_error_maps_v2p1.py",
+      "note": "Spearman rho of the per-encounter representational wake-enstrophy advantage (e_AE - e_JEPA) against Y on test_b (p=0.836); only D is significant at 0.05"
+    }
+  }
+}

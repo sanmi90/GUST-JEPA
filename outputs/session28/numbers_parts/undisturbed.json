@@ -1,0 +1,55 @@
+{
+  "part": "undisturbed",
+  "numbers": {
+    "undisturbed_CL_mean": {
+      "macro": "NumUndistCLmean",
+      "value": 0.7610451057553291,
+      "fmt": "%.3f",
+      "split": "baseline",
+      "source": "undisturbed_validation.py",
+      "note": "stationary window t/c [20, 40]"
+    },
+    "undisturbed_CL_rms": {
+      "macro": "NumUndistCLrms",
+      "value": 0.127119959235604,
+      "fmt": "%.3f",
+      "source": "undisturbed_validation.py",
+      "note": "stationary window t/c [20, 40]"
+    },
+    "undisturbed_CD_mean": {
+      "macro": "NumUndistCDmean",
+      "value": 0.25330688193440437,
+      "fmt": "%.3f",
+      "source": "undisturbed_validation.py",
+      "note": "stationary window t/c [20, 40]"
+    },
+    "undisturbed_CD_rms": {
+      "macro": "NumUndistCDrms",
+      "value": 0.02309006696906155,
+      "fmt": "%.4f",
+      "source": "undisturbed_validation.py",
+      "note": "stationary window t/c [20, 40]"
+    },
+    "undisturbed_St": {
+      "macro": "NumUndistSt",
+      "value": 0.6752056821661404,
+      "fmt": "%.2f",
+      "source": "undisturbed_validation.py",
+      "note": "dominant lift-spectrum line"
+    },
+    "undisturbed_St_subharmonic": {
+      "macro": "NumUndistStSub",
+      "value": 0.3382904869675207,
+      "fmt": "%.2f",
+      "source": "undisturbed_validation.py",
+      "note": "full-cycle clock; the manuscript's 'St near 0.36' (M13)"
+    },
+    "undisturbed_St_modulation": {
+      "macro": "NumUndistStMod",
+      "value": 0.04397537258340819,
+      "fmt": "%.2f",
+      "source": "undisturbed_validation.py",
+      "note": "low-frequency modulation of the separated flow"
+    }
+  }
+}
