@@ -141,6 +141,40 @@ floor and sampling range, not the exact $p$; the case-clustered signed-rank test
 ($10$ of $10$ cases at the canonical setting) holds across the same range. The full
 grid is in the released analysis package.
 
+\subsubsection*{Preprocessing robustness}
+The wake enstrophy squares the vorticity, so the per-encounter high-percentile
+amplitude clip of the $\omegaz$ preprocessing could in principle shape the primary
+endpoint. We test this on the frozen encoders, with no retraining, by recomputing
+the readout-frame wake-enstrophy target under three training-only clip treatments of
+the raw field and re-fitting the frozen-latent-to-wake ridge probe per family: no
+amplitude clip, the production per-encounter $p_{99.99}$ clip, and a single
+leak-free $p_{99.99}$ threshold pooled over the training encounters. The predictive
+latent leads the wake on test\_b under all three (table~\ref{tab:prepsens}), with
+the largest shift in the predictive-minus-best-baseline advantage relative to the
+production clip being $\PrepSensMaxShift$ in $R^2$. The leak-free training-global
+clip gives the largest predictive advantage, so the per-encounter clip is not the
+source of the wake result.
+
+\begin{table}
+  \centering
+  \caption{Preprocessing robustness of the representational wake closure. Held-out
+  test\_b wake-enstrophy $R^2$ at $H = 16$ from a frozen-latent ridge probe (no
+  retraining), recomputed under three training-only amplitude-clip treatments of the
+  raw $\omegaz$ field. The predictive latent leads the wake under every treatment;
+  the advantage keeps its sign and approximate magnitude.}
+  \label{tab:prepsens}
+  \small
+  \begin{tabular}{l c c c}
+    \toprule
+    Family & no clip & per-encounter & training-global \\
+    \midrule
+    predictive (JEPA)       & \PrepSensJepaNone   & \PrepSensJepaPerEnc   & \PrepSensJepaGlobal \\
+    reconstructive (Fukami) & \PrepSensFukamiNone & \PrepSensFukamiPerEnc & \PrepSensFukamiGlobal \\
+    linear (POD)            & \PrepSensPodNone    & \PrepSensPodPerEnc    & \PrepSensPodGlobal \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
 \subsubsection*{Return to the baseline orbit within the encounter window}
 The load-bearing caveat of \S\ref{sec:res_drift}, that the simulation gust
 trajectories do not fully return to the baseline orbit within the $120$-frame

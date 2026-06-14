@@ -1,9 +1,9 @@
 {
   "_provenance": {
-    "generated_iso": "2026-06-14T19:33:20.594310+00:00",
-    "git_commit": "2f651356c18c8530fc103313016cda03700fb3aa",
+    "generated_iso": "2026-06-14T19:42:23.687051+00:00",
+    "git_commit": "ac0f36d6f17b1a219ba74759ae6acd708fddcd42",
     "manifest_runs_sha256": "aa07e687f2080e7e7f0dea8d75f3b2af40a86fa68c19f828ae3ec98422e60bbe",
-    "n_parts": 22,
+    "n_parts": 23,
     "parts": [
       "closure_floor_full.json",
       "closure_headline.json",
@@ -18,6 +18,7 @@
       "p2.json",
       "p4_lev.json",
       "p5_code.json",
+      "prepsens.json",
       "s46.json",
       "sensing_causal.json",
       "sensing_cf.json",
@@ -94,6 +95,76 @@
       "note": "canonical v2.1 manifest count (n_encounters_val)",
       "source": "split_v2p1.json::summary",
       "value": 87
+    },
+    "PrepSensFukamiGlobal": {
+      "fmt": "%.2f",
+      "macro": "PrepSensFukamiGlobal",
+      "note": "test_b wake-enstrophy R2, fukami, training_global clip",
+      "source": "preprocess_sensitivity_frozen.py (Track B0.5)",
+      "value": 0.07574339646736794
+    },
+    "PrepSensFukamiNone": {
+      "fmt": "%.2f",
+      "macro": "PrepSensFukamiNone",
+      "note": "test_b wake-enstrophy R2, fukami, none clip",
+      "source": "preprocess_sensitivity_frozen.py (Track B0.5)",
+      "value": 0.11501493971866683
+    },
+    "PrepSensFukamiPerEnc": {
+      "fmt": "%.2f",
+      "macro": "PrepSensFukamiPerEnc",
+      "note": "test_b wake-enstrophy R2, fukami, per_encounter clip",
+      "source": "preprocess_sensitivity_frozen.py (Track B0.5)",
+      "value": 0.09541894467542922
+    },
+    "PrepSensJepaGlobal": {
+      "fmt": "%.2f",
+      "macro": "PrepSensJepaGlobal",
+      "note": "test_b wake-enstrophy R2, jepa_tf_noc, training_global clip",
+      "source": "preprocess_sensitivity_frozen.py (Track B0.5)",
+      "value": 0.8424802655267543
+    },
+    "PrepSensJepaNone": {
+      "fmt": "%.2f",
+      "macro": "PrepSensJepaNone",
+      "note": "test_b wake-enstrophy R2, jepa_tf_noc, none clip",
+      "source": "preprocess_sensitivity_frozen.py (Track B0.5)",
+      "value": 0.7457413817408611
+    },
+    "PrepSensJepaPerEnc": {
+      "fmt": "%.2f",
+      "macro": "PrepSensJepaPerEnc",
+      "note": "test_b wake-enstrophy R2, jepa_tf_noc, per_encounter clip",
+      "source": "preprocess_sensitivity_frozen.py (Track B0.5)",
+      "value": 0.7957249679249985
+    },
+    "PrepSensMaxShift": {
+      "fmt": "%.2f",
+      "macro": "PrepSensMaxShift",
+      "note": "max |advantage shift| vs the per-encounter clip across treatments",
+      "source": "preprocess_sensitivity_frozen.py (Track B0.5)",
+      "value": 0.06957958122737495
+    },
+    "PrepSensPodGlobal": {
+      "fmt": "%.2f",
+      "macro": "PrepSensPodGlobal",
+      "note": "test_b wake-enstrophy R2, pod, training_global clip",
+      "source": "preprocess_sensitivity_frozen.py (Track B0.5)",
+      "value": 0.0
+    },
+    "PrepSensPodNone": {
+      "fmt": "%.2f",
+      "macro": "PrepSensPodNone",
+      "note": "test_b wake-enstrophy R2, pod, none clip",
+      "source": "preprocess_sensitivity_frozen.py (Track B0.5)",
+      "value": -0.27120680652104867
+    },
+    "PrepSensPodPerEnc": {
+      "fmt": "%.2f",
+      "macro": "PrepSensPodPerEnc",
+      "note": "test_b wake-enstrophy R2, pod, per_encounter clip",
+      "source": "preprocess_sensitivity_frozen.py (Track B0.5)",
+      "value": -0.04996417581819079
     },
     "clo_fcst_cd_fukami": {
       "fmt": "%.2f",
@@ -1662,7 +1733,7 @@
       "fmt": "%s",
       "macro": "CommitHash",
       "source": "eval_all.py",
-      "value": "2f651356c18c"
+      "value": "ac0f36d6f17b"
     },
     "s46_orbit_return_fukami": {
       "fmt": "%.2f",
