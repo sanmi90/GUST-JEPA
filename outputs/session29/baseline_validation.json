@@ -1,0 +1,280 @@
+{
+  "_provenance": {
+    "git_sha": "033ea11d2cd8fe2ea0a0c22adbb45990e5ee2aa8",
+    "command": "scripts/session29/validate_baseline.py",
+    "utc": "2026-06-14T12:25:35.021731+00:00",
+    "input_sha256": {
+      "/home/carlos/GUST-JEPA/outputs/session28/numbers_parts/undisturbed.json": "7906e18f19bc5888b2078dba5c78e3925235ec4e9c6b3c8cd30a60be2ac81637",
+      "/home/carlos/GUST-JEPA/configs/splits/split_v2p1.json": "f83f1af3ba68f8310316984358f3dcca932fdc79ca644e2164125068492def18"
+    },
+    "versions": {
+      "python": "3.10.12",
+      "numpy": "1.26.4",
+      "sklearn": "1.7.2"
+    },
+    "seed": null,
+    "split": "v2p1",
+    "reconciled_from": "SESSION29 plan (was main_13/v2); see RECONCILIATION_v2p1.md"
+  },
+  "_doc": "Baseline external validation (Track A, referee F1). DNS via SOD2D; configuration from Fukami et al. (2025). Mean/rms forces and St read from the frozen session28 undisturbed record; wake enstrophy computed here.",
+  "ours": {
+    "CL_mean": 0.7610451057553291,
+    "CL_rms": 0.127119959235604,
+    "CD_mean": 0.25330688193440437,
+    "CD_rms": 0.02309006696906155,
+    "St_dominant": 0.6752056821661404,
+    "St_subharmonic": 0.3382904869675207,
+    "wake_enstrophy": {
+      "value": 123.56466166509965,
+      "std_across_encounters": 8.757940071076218,
+      "value_later_encounters": 124.78125414907655,
+      "n_encounters": 6,
+      "per_encounter": [
+        {
+          "encounter": 0,
+          "mean": 117.48169924521531,
+          "std": 9.906913257715086
+        },
+        {
+          "encounter": 1,
+          "mean": 131.34691535754106,
+          "std": 16.44915904745101
+        },
+        {
+          "encounter": 2,
+          "mean": 133.7521035440526,
+          "std": 21.492265429670248
+        },
+        {
+          "encounter": 3,
+          "mean": 110.23203268407305,
+          "std": 12.670571755491403
+        },
+        {
+          "encounter": 4,
+          "mean": 117.96088426424363,
+          "std": 20.443716801532407
+        },
+        {
+          "encounter": 5,
+          "mean": 130.61433489547227,
+          "std": 20.226802418126468
+        }
+      ],
+      "units": "raw omega^2 * (chord units)^2 over wake box x[0.5,4.0] y[-1.0,1.0]",
+      "convention": "paper canonical (exp1b_decode_axes.py)"
+    },
+    "stationary_window_tc": [
+      20.0,
+      40.0
+    ],
+    "force_numbers_note": "stationary window t/c [20, 40]",
+    "source_record": "outputs/session28/numbers_parts/undisturbed.json"
+  },
+  "references": {
+    "Fukami2025": {
+      "CL_mean": 0.737,
+      "CL_rms": 0.116,
+      "CD_mean": 0.249,
+      "CD_rms": 0.019,
+      "kind": "DNS (incompressible), fine grid ~20M (production)",
+      "Lz_c": 1,
+      "citation": "Fukami, Smith & Taira, Phys. Rev. Fluids 10, 084703 (2025), Fig. 2(b) fine grid",
+      "source": "FukamiGustRe5000.pdf Fig. 2(b)"
+    },
+    "Rolandi2025": {
+      "CL_mean": 0.734,
+      "CD_mean": 0.246,
+      "kind": "LES (M_inf = 0.2)",
+      "Lz_c": 1,
+      "citation": "Rolandi, Smith, Amitay, Theofilis & Taira, arXiv:2501.04255 (2025)",
+      "source": "FukamiGustRe5000.pdf Fig. 2(b) (no rms / St columns reported)"
+    },
+    "Gupta2023": {
+      "CL_mean": 0.763,
+      "CD_mean": 0.223,
+      "kind": "wind-tunnel experiment",
+      "Lz_c": 10,
+      "citation": "Gupta, Zhao, Sharma, Agrawal, Hourigan & Thompson, J. Fluid Mech. 954, A26 (2023)",
+      "source": "FukamiGustRe5000.pdf Fig. 2(b) (no rms / St columns reported)"
+    }
+  },
+  "table": {
+    "CL_mean": {
+      "label": "time-averaged C_L",
+      "fmt": "%.3f",
+      "ours": 0.7610451057553291,
+      "Fukami2025": {
+        "value": 0.737,
+        "pct_diff_ours_vs_ref": 3.2625652313879434,
+        "status": "available"
+      },
+      "Rolandi2025": {
+        "value": 0.734,
+        "pct_diff_ours_vs_ref": 3.6846193127151428,
+        "status": "available"
+      },
+      "Gupta2023": {
+        "value": 0.763,
+        "pct_diff_ours_vs_ref": -0.2562115654876644,
+        "status": "available"
+      }
+    },
+    "CL_rms": {
+      "label": "rms C_L'",
+      "fmt": "%.3f",
+      "ours": 0.127119959235604,
+      "Fukami2025": {
+        "value": 0.116,
+        "pct_diff_ours_vs_ref": 9.58617175483104,
+        "status": "available"
+      },
+      "Rolandi2025": {
+        "value": null,
+        "status": "NEEDS-LITERATURE"
+      },
+      "Gupta2023": {
+        "value": null,
+        "status": "NEEDS-LITERATURE"
+      }
+    },
+    "CD_mean": {
+      "label": "time-averaged C_D",
+      "fmt": "%.3f",
+      "ours": 0.25330688193440437,
+      "Fukami2025": {
+        "value": 0.249,
+        "pct_diff_ours_vs_ref": 1.7296714596001492,
+        "status": "available"
+      },
+      "Rolandi2025": {
+        "value": 0.246,
+        "pct_diff_ours_vs_ref": 2.9702772091074694,
+        "status": "available"
+      },
+      "Gupta2023": {
+        "value": 0.223,
+        "pct_diff_ours_vs_ref": 13.590530015427966,
+        "status": "available"
+      }
+    },
+    "CD_rms": {
+      "label": "rms C_D'",
+      "fmt": "%.4f",
+      "ours": 0.02309006696906155,
+      "Fukami2025": {
+        "value": 0.019,
+        "pct_diff_ours_vs_ref": 21.526668258218685,
+        "status": "available"
+      },
+      "Rolandi2025": {
+        "value": null,
+        "status": "NEEDS-LITERATURE"
+      },
+      "Gupta2023": {
+        "value": null,
+        "status": "NEEDS-LITERATURE"
+      }
+    },
+    "St": {
+      "label": "shedding Strouhal",
+      "fmt": "%.3f",
+      "ours": 0.6752056821661404,
+      "Fukami2025": {
+        "value": null,
+        "status": "NEEDS-LITERATURE"
+      },
+      "Rolandi2025": {
+        "value": null,
+        "status": "NEEDS-LITERATURE"
+      },
+      "Gupta2023": {
+        "value": null,
+        "status": "NEEDS-LITERATURE"
+      }
+    },
+    "enstrophy": {
+      "label": "wake enstrophy",
+      "fmt": "%.4g",
+      "ours": 123.56466166509965,
+      "Fukami2025": {
+        "value": null,
+        "status": "NO-EXTERNAL-REFERENCE"
+      },
+      "Rolandi2025": {
+        "value": null,
+        "status": "NO-EXTERNAL-REFERENCE"
+      },
+      "Gupta2023": {
+        "value": null,
+        "status": "NO-EXTERNAL-REFERENCE"
+      }
+    }
+  },
+  "reference_availability": {
+    "Fukami2025": [
+      "CL_mean",
+      "CL_rms",
+      "CD_mean",
+      "CD_rms"
+    ],
+    "Rolandi2025": [
+      "CL_mean",
+      "CD_mean"
+    ],
+    "Gupta2023": [
+      "CL_mean",
+      "CD_mean"
+    ]
+  },
+  "within_band_verdict": {
+    "CL_mean": {
+      "checked": true,
+      "ours": 0.7610451057553291,
+      "ref_band": [
+        0.734,
+        0.763
+      ],
+      "n_refs": 3,
+      "in_band": true,
+      "nearest_ref": 0.763,
+      "pct_from_nearest": -0.2562115654876644
+    },
+    "CD_mean": {
+      "checked": true,
+      "ours": 0.25330688193440437,
+      "ref_band": [
+        0.223,
+        0.249
+      ],
+      "n_refs": 3,
+      "in_band": false,
+      "nearest_ref": 0.249,
+      "pct_from_nearest": 1.7296714596001492
+    },
+    "CL_rms": {
+      "checked": true,
+      "ours": 0.127119959235604,
+      "ref_band": [
+        0.116,
+        0.116
+      ],
+      "n_refs": 1,
+      "in_band": false,
+      "nearest_ref": 0.116,
+      "pct_from_nearest": 9.58617175483104
+    },
+    "CD_rms": {
+      "checked": true,
+      "ours": 0.02309006696906155,
+      "ref_band": [
+        0.019,
+        0.019
+      ],
+      "n_refs": 1,
+      "in_band": false,
+      "nearest_ref": 0.019,
+      "pct_from_nearest": 21.526668258218685
+    }
+  }
+}

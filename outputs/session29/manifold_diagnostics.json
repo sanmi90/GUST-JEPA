@@ -1,0 +1,474 @@
+{
+  "_provenance": {
+    "git_sha": "033ea11d2cd8fe2ea0a0c22adbb45990e5ee2aa8",
+    "command": "scripts/session29/manifold_diagnostics.py",
+    "utc": "2026-06-14T12:25:08.418094+00:00",
+    "input_sha256": {
+      "/home/carlos/GUST-JEPA/outputs/session28/latents/jepa_tf_noc_d64_s42/train.npz": "63d1954aa139c456e1ca28b630fa90b761f25657d2fa18318a7c12db6ba9d805",
+      "/home/carlos/GUST-JEPA/outputs/session28/rollouts/jepa_d64/test_b.npz": "87bac8bef6990c57cacceb84daf7ecf58711bb3a9e1e2344a2fc141269e958b5",
+      "/home/carlos/GUST-JEPA/outputs/session28/latents/fukami_d64_s42/train.npz": "a0b64b52b7652eed5cf3f4e7a1bd01f2c7d8ce394440b719c8ed5481f03f1d16",
+      "/home/carlos/GUST-JEPA/outputs/session28/rollouts/fukami_d64/test_b.npz": "14d889020cdede10bf4efa31f14e613293c549c7f5ccd03fca91178279f6e936",
+      "/home/carlos/GUST-JEPA/outputs/session28/latents/pod_d64/train.npz": "c638c98523b139b7f77e5243e3eecf35c58d2b6dffc7c0b86146a150ffa06398",
+      "/home/carlos/GUST-JEPA/outputs/session28/rollouts/pod_d64/test_b.npz": "3e8ae64a1a9824227a250526c75238910d26039481ddcc2cc48d774599792aba"
+    },
+    "versions": {
+      "python": "3.10.12",
+      "numpy": "1.26.4",
+      "sklearn": "1.7.2"
+    },
+    "seed": 42,
+    "split": "v2p1",
+    "reconciled_from": "SESSION29 plan (was main_13/v2); see RECONCILIATION_v2p1.md"
+  },
+  "config": {
+    "horizons": [
+      4,
+      8,
+      16,
+      24,
+      32
+    ],
+    "headline_horizon": 24,
+    "k_knn": 10,
+    "k_local_pca": 20,
+    "n_components_local_pca": 5,
+    "split": "test_b",
+    "query": "full-context rollout z_full at frame impact+H",
+    "reference_cloud": "per-frame TRAIN encoded latents at modal frame impact+H",
+    "normalisation": "RMS distance of TRAIN cloud to its centroid (metric-independent)",
+    "pred_lat_map": {
+      "jepa_d64": "jepa_tf_noc_d64_s42",
+      "fukami_d64": "fukami_d64_s42",
+      "pod_d64": "pod_d64"
+    }
+  },
+  "per_family": {
+    "jepa_d64": {
+      "family_label": "Unconditioned JEPA transformer (predictive)",
+      "d": 64,
+      "n_enc": 42,
+      "n_train": 229,
+      "knn_distance_rollout_median": [
+        0.268793670188493,
+        0.3066790320508947,
+        0.3210731183457722,
+        0.3417886834699948,
+        0.35084986440990096
+      ],
+      "knn_distance_encoded_median": [
+        0.30750489339265763,
+        0.31723256776719966,
+        0.361363365199072,
+        0.42079938066678674,
+        0.42561875747723926
+      ],
+      "local_pca_residual_rollout_median": [
+        0.10248557476046795,
+        0.11382148675710838,
+        0.12090195839805312,
+        0.1337370008154482,
+        0.14157605637197362
+      ],
+      "local_pca_residual_encoded_median": [
+        0.1302713185935995,
+        0.13525979488567952,
+        0.16952596289635996,
+        0.17460518614952947,
+        0.1962940050644233
+      ],
+      "cloud_scale_per_horizon": [
+        6.812003893802133,
+        6.561475089662396,
+        5.9181132971001995,
+        5.1467923502194175,
+        4.493627238481829
+      ]
+    },
+    "fukami_d64": {
+      "family_label": "Fukami observable-augmented AE (reconstructive)",
+      "d": 64,
+      "n_enc": 42,
+      "n_train": 229,
+      "knn_distance_rollout_median": [
+        0.08919573557696302,
+        0.08442910495003111,
+        0.08660574860240108,
+        0.09403376148102141,
+        0.14450897150785275
+      ],
+      "knn_distance_encoded_median": [
+        0.08202774259366005,
+        0.08085663446260616,
+        0.11171839924943361,
+        0.1264794584260133,
+        0.18422191016612569
+      ],
+      "local_pca_residual_rollout_median": [
+        0.009488374448420649,
+        0.009857627455410425,
+        0.013527612564156185,
+        0.019703129490379494,
+        0.03302648721590999
+      ],
+      "local_pca_residual_encoded_median": [
+        0.010556450712440173,
+        0.010305197058066783,
+        0.01943436221149993,
+        0.027458890064674668,
+        0.038261495145300896
+      ],
+      "cloud_scale_per_horizon": [
+        15.238301575284543,
+        14.109444953212963,
+        10.625988618988059,
+        7.260987104906338,
+        4.85261623611179
+      ]
+    },
+    "pod_d64": {
+      "family_label": "POD (linear reconstructive)",
+      "d": 64,
+      "n_enc": 42,
+      "n_train": 229,
+      "knn_distance_rollout_median": [
+        0.7260315051000026,
+        0.7223926412427114,
+        0.6816188864458816,
+        0.6604191457325255,
+        0.6441280630495505
+      ],
+      "knn_distance_encoded_median": [
+        0.8499916321837844,
+        0.8752441744219697,
+        0.8062412927449352,
+        0.707275505710475,
+        0.7625057611768125
+      ],
+      "local_pca_residual_rollout_median": [
+        0.3485949704901497,
+        0.3535773194345611,
+        0.32189167605744834,
+        0.31584360788753985,
+        0.33238767459553487
+      ],
+      "local_pca_residual_encoded_median": [
+        0.5364286738050457,
+        0.5552536241315935,
+        0.46362347972009094,
+        0.4811054763629758,
+        0.4590369794661639
+      ],
+      "cloud_scale_per_horizon": [
+        26.592961780630798,
+        26.08568528489132,
+        28.054202831416205,
+        29.051493848730097,
+        28.83604094083112
+      ]
+    }
+  },
+  "reconstructive_vs_predictive": {
+    "knn_distance": {
+      "4": {
+        "n_enc": 42,
+        "median_recon": 0.08919573557696302,
+        "median_pred": 0.268793670188493,
+        "median_delta_recon_minus_pred": -0.1894511067014349,
+        "mean_delta_recon_minus_pred": -0.1015235107105214,
+        "ratio_recon_over_pred": 0.33183718766299086,
+        "enc_mean_ci": [
+          -0.21937322463643136,
+          0.053443161660258566
+        ],
+        "case_mean": -0.09405361207087297,
+        "case_mean_ci": [
+          -0.21674821910555497,
+          0.0612073121578203
+        ],
+        "sign_k_pred_less_recon": 8,
+        "sign_n_eff": 42,
+        "sign_p_one_sided_pred_less_recon": 0.9999924513995211,
+        "case_paired": {
+          "n_cases": 10,
+          "cases_jepa_better": 2,
+          "wilcoxon_stat": 16.0,
+          "wilcoxon_p_one_sided": 0.8837890625,
+          "sign_p_one_sided": 0.9892578125,
+          "median_case_mean_delta": -0.18103062022415317
+        }
+      },
+      "8": {
+        "n_enc": 42,
+        "median_recon": 0.08442910495003111,
+        "median_pred": 0.3066790320508947,
+        "median_delta_recon_minus_pred": -0.19274043284819442,
+        "mean_delta_recon_minus_pred": -0.12983012550450362,
+        "ratio_recon_over_pred": 0.27530119808132086,
+        "enc_mean_ci": [
+          -0.2378271232226437,
+          0.011674966288016647
+        ],
+        "case_mean": -0.12265288008443939,
+        "case_mean_ci": [
+          -0.23551129916795133,
+          0.01957590727055182
+        ],
+        "sign_k_pred_less_recon": 7,
+        "sign_n_eff": 42,
+        "sign_p_one_sided_pred_less_recon": 0.9999985855611158,
+        "case_paired": {
+          "n_cases": 10,
+          "cases_jepa_better": 2,
+          "wilcoxon_stat": 14.0,
+          "wilcoxon_p_one_sided": 0.919921875,
+          "sign_p_one_sided": 0.9892578125,
+          "median_case_mean_delta": -0.2098027647846912
+        }
+      },
+      "16": {
+        "n_enc": 42,
+        "median_recon": 0.08660574860240108,
+        "median_pred": 0.3210731183457722,
+        "median_delta_recon_minus_pred": -0.226533979367634,
+        "mean_delta_recon_minus_pred": -0.15330258092018825,
+        "ratio_recon_over_pred": 0.26973839805901484,
+        "enc_mean_ci": [
+          -0.26187256720815977,
+          -0.014127044325209963
+        ],
+        "case_mean": -0.1465692146202972,
+        "case_mean_ci": [
+          -0.26018295697709926,
+          -0.004067176186824517
+        ],
+        "sign_k_pred_less_recon": 8,
+        "sign_n_eff": 42,
+        "sign_p_one_sided_pred_less_recon": 0.9999924513995211,
+        "case_paired": {
+          "n_cases": 10,
+          "cases_jepa_better": 2,
+          "wilcoxon_stat": 9.0,
+          "wilcoxon_p_one_sided": 0.9755859375,
+          "sign_p_one_sided": 0.9892578125,
+          "median_case_mean_delta": -0.21830392594306686
+        }
+      },
+      "24": {
+        "n_enc": 42,
+        "median_recon": 0.09403376148102141,
+        "median_pred": 0.3417886834699948,
+        "median_delta_recon_minus_pred": -0.24033558530795862,
+        "mean_delta_recon_minus_pred": -0.17309976952789072,
+        "ratio_recon_over_pred": 0.2751225129116263,
+        "enc_mean_ci": [
+          -0.2706918592306354,
+          -0.04833577524305049
+        ],
+        "case_mean": -0.16832834785456627,
+        "case_mean_ci": [
+          -0.2708712685496891,
+          -0.042266548857733885
+        ],
+        "sign_k_pred_less_recon": 6,
+        "sign_n_eff": 42,
+        "sign_p_one_sided_pred_less_recon": 0.9999997783147592,
+        "case_paired": {
+          "n_cases": 10,
+          "cases_jepa_better": 2,
+          "wilcoxon_stat": 7.0,
+          "wilcoxon_p_one_sided": 0.986328125,
+          "sign_p_one_sided": 0.9892578125,
+          "median_case_mean_delta": -0.24751513348854737
+        }
+      },
+      "32": {
+        "n_enc": 42,
+        "median_recon": 0.14450897150785275,
+        "median_pred": 0.35084986440990096,
+        "median_delta_recon_minus_pred": -0.20815339194102728,
+        "mean_delta_recon_minus_pred": -0.16624306423558508,
+        "ratio_recon_over_pred": 0.4118826488672136,
+        "enc_mean_ci": [
+          -0.23700639274402202,
+          -0.08252328219985
+        ],
+        "case_mean": -0.16451801828596133,
+        "case_mean_ci": [
+          -0.23891039891833435,
+          -0.07890675136198838
+        ],
+        "sign_k_pred_less_recon": 5,
+        "sign_n_eff": 42,
+        "sign_p_one_sided_pred_less_recon": 0.9999999717342689,
+        "case_paired": {
+          "n_cases": 10,
+          "cases_jepa_better": 2,
+          "wilcoxon_stat": 3.0,
+          "wilcoxon_p_one_sided": 0.9970703125,
+          "sign_p_one_sided": 0.9892578125,
+          "median_case_mean_delta": -0.20822287172366913
+        }
+      }
+    },
+    "local_pca_residual": {
+      "4": {
+        "n_enc": 42,
+        "median_recon": 0.009488374448420649,
+        "median_pred": 0.10248557476046795,
+        "median_delta_recon_minus_pred": -0.09501163816574798,
+        "mean_delta_recon_minus_pred": -0.09782434465338592,
+        "ratio_recon_over_pred": 0.0925825363286212,
+        "enc_mean_ci": [
+          -0.12189720306142543,
+          -0.07869177294602006
+        ],
+        "case_mean": -0.09433853774760176,
+        "case_mean_ci": [
+          -0.11489396892426522,
+          -0.07869177294602006
+        ],
+        "sign_k_pred_less_recon": 0,
+        "sign_n_eff": 42,
+        "sign_p_one_sided_pred_less_recon": 1.0,
+        "case_paired": {
+          "n_cases": 10,
+          "cases_jepa_better": 0,
+          "wilcoxon_stat": 0.0,
+          "wilcoxon_p_one_sided": 1.0,
+          "sign_p_one_sided": 1.0,
+          "median_case_mean_delta": -0.08612598947869493
+        }
+      },
+      "8": {
+        "n_enc": 42,
+        "median_recon": 0.009857627455410425,
+        "median_pred": 0.11382148675710838,
+        "median_delta_recon_minus_pred": -0.10387738895547127,
+        "mean_delta_recon_minus_pred": -0.1080825994242966,
+        "ratio_recon_over_pred": 0.08660603315124767,
+        "enc_mean_ci": [
+          -0.13731015860891352,
+          -0.08583515989872072
+        ],
+        "case_mean": -0.10352896339534959,
+        "case_mean_ci": [
+          -0.12792707466839837,
+          -0.08583515989872072
+        ],
+        "sign_k_pred_less_recon": 0,
+        "sign_n_eff": 42,
+        "sign_p_one_sided_pred_less_recon": 1.0,
+        "case_paired": {
+          "n_cases": 10,
+          "cases_jepa_better": 0,
+          "wilcoxon_stat": 0.0,
+          "wilcoxon_p_one_sided": 1.0,
+          "sign_p_one_sided": 1.0,
+          "median_case_mean_delta": -0.09555612224745623
+        }
+      },
+      "16": {
+        "n_enc": 42,
+        "median_recon": 0.013527612564156185,
+        "median_pred": 0.12090195839805312,
+        "median_delta_recon_minus_pred": -0.09187112703606828,
+        "mean_delta_recon_minus_pred": -0.09796583526632756,
+        "ratio_recon_over_pred": 0.11188911034524665,
+        "enc_mean_ci": [
+          -0.11299227448179353,
+          -0.08317355232473393
+        ],
+        "case_mean": -0.09721180386487568,
+        "case_mean_ci": [
+          -0.11299222945854438,
+          -0.08255955257771494
+        ],
+        "sign_k_pred_less_recon": 0,
+        "sign_n_eff": 42,
+        "sign_p_one_sided_pred_less_recon": 1.0,
+        "case_paired": {
+          "n_cases": 10,
+          "cases_jepa_better": 0,
+          "wilcoxon_stat": 0.0,
+          "wilcoxon_p_one_sided": 1.0,
+          "sign_p_one_sided": 1.0,
+          "median_case_mean_delta": -0.08940090007997599
+        }
+      },
+      "24": {
+        "n_enc": 42,
+        "median_recon": 0.019703129490379494,
+        "median_pred": 0.1337370008154482,
+        "median_delta_recon_minus_pred": -0.11834891469396089,
+        "mean_delta_recon_minus_pred": -0.09811566622174091,
+        "ratio_recon_over_pred": 0.1473274364629205,
+        "enc_mean_ci": [
+          -0.11750676985719655,
+          -0.0757685675421014
+        ],
+        "case_mean": -0.09798304565140728,
+        "case_mean_ci": [
+          -0.11805979973528322,
+          -0.07495224539595566
+        ],
+        "sign_k_pred_less_recon": 1,
+        "sign_n_eff": 42,
+        "sign_p_one_sided_pred_less_recon": 0.9999999999997726,
+        "case_paired": {
+          "n_cases": 10,
+          "cases_jepa_better": 0,
+          "wilcoxon_stat": 0.0,
+          "wilcoxon_p_one_sided": 1.0,
+          "sign_p_one_sided": 1.0,
+          "median_case_mean_delta": -0.10593860426234862
+        }
+      },
+      "32": {
+        "n_enc": 42,
+        "median_recon": 0.03302648721590999,
+        "median_pred": 0.14157605637197362,
+        "median_delta_recon_minus_pred": -0.10771677472556654,
+        "mean_delta_recon_minus_pred": -0.10910373687430547,
+        "ratio_recon_over_pred": 0.23327734973163097,
+        "enc_mean_ci": [
+          -0.12957665155756617,
+          -0.08566442618526916
+        ],
+        "case_mean": -0.10821725627818704,
+        "case_mean_ci": [
+          -0.12971106246435474,
+          -0.08430339693383719
+        ],
+        "sign_k_pred_less_recon": 0,
+        "sign_n_eff": 42,
+        "sign_p_one_sided_pred_less_recon": 1.0,
+        "case_paired": {
+          "n_cases": 10,
+          "cases_jepa_better": 0,
+          "wilcoxon_stat": 0.0,
+          "wilcoxon_p_one_sided": 1.0,
+          "sign_p_one_sided": 1.0,
+          "median_case_mean_delta": -0.12239006444217744
+        }
+      }
+    }
+  },
+  "verdict": {
+    "headline_horizon": 24,
+    "predictive_family": "Unconditioned JEPA transformer (predictive)",
+    "reconstructive_family": "Fukami observable-augmented AE (reconstructive)",
+    "knn_corroborates_mahalanobis": false,
+    "local_pca_corroborates_mahalanobis": false,
+    "both_corroborate": false,
+    "branch": "WEAK",
+    "knn_median_recon": 0.09403376148102141,
+    "knn_median_pred": 0.3417886834699948,
+    "knn_ratio_recon_over_pred": 0.2751225129116263,
+    "knn_sign_p_pred_less_recon": 0.9999997783147592,
+    "pca_median_recon": 0.019703129490379494,
+    "pca_median_pred": 0.1337370008154482,
+    "pca_ratio_recon_over_pred": 0.1473274364629205,
+    "pca_sign_p_pred_less_recon": 0.9999999999997726,
+    "note": "STRONG = the reconstructive (fukami) rollout departs the training manifold MORE than the predictive (jepa) under BOTH kNN-distance AND local-PCA residual at the headline horizon, corroborating the Mahalanobis ordering with NO covariance inverse (no shrinkage knob) => the mechanism is metric-independent and magnitude language is defensible. WEAK = only Mahalanobis showed it => retract magnitude language, claim only the departure direction. CIs are wide at 10 test_b cases; the robust signal is the SIGN consistency (sign test pred < recon) and the per-case Wilcoxon, not the ratio magnitude."
+  }
+}

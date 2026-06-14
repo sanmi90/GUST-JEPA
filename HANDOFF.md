@@ -8957,3 +8957,33 @@ probe (supervised_only vs jepa_tf_noc vs fukami at matched d) + auxiliary leakag
 tests (shuffled-wake-label sentinel, residualised wake) to decide whether
 "predictive objective" stays in the headline (D185). (Plan stub D185 -> D199.)
 
+### D200 (SESSION29 cheap-gate batch: G STRONG, A validates, H WEAK-but-confirms-paper) (2026-06-14, Session 29)
+
+Three frozen-encoder gates ran as parallel subagents (reconciled to v2.1, reusing
+`_s29_common`; reviewed critically, see `outputs/session29/GATE_REVIEW_NOTES.md`).
+
+- **Track G (stronger floors, F5/F6): STRONG.** `physics_floors.py`: predictive
+  latent readout wake R^2 = +0.68 clears every floor (gdy +0.44, gdy_history
+  +0.25, pressure_only +0.24, persistence +0.15) and both context latents
+  (fukami +0.45, pod +0.32). FLAG: G's bare-gdy floor (+0.44, nested-CV) differs
+  from the published `NumParamFloorWakeLinear` -0.18, but the published CI is
+  [-1.83,+0.77] (contains +0.44); keep -0.18 as the bare floor and present G as
+  the ADDITIONAL stronger floors. Latent clears the parameter floor under both.
+- **Track A (baseline external validation, F1): de-risks Table 1.**
+  `validate_baseline.py`: baseline mean C_L 0.761 (Fukami 0.737 / Rolandi 0.734 /
+  Gupta 0.763 = in band), mean C_D within 1.7% of Fukami, St 0.675. rms C_D +21.5%
+  honestly flagged; Rolandi/Gupta rms = NEEDS-LITERATURE (not fabricated; values
+  from repo FukamiGustRe5000.pdf). Submission still blocked on partner solver rows.
+- **Track H (mechanism corroboration): WEAK -- CONFIRMS the paper.**
+  `manifold_diagnostics.py`: kNN-distance + local-PCA residual put the
+  reconstructive (fukami) rollout CLOSEST to the training manifold (JEPA farther),
+  the REVERSE of a Euclidean "leaves the manifold more" magnitude story. This IS
+  the paper's own "small Euclidean drift" half; the discriminating claim is the
+  near-null departure SPECTRUM (sign p ~2e-13), direction-resolved, which
+  survives. FLAG (Track J): drop "by an order of magnitude" magnitude phrasing
+  (abstract.tex:29, intro:153, results:260) -> near-null-direction framing; add
+  H as the conservative metric-independent check.
+
+Outstanding cheap gates: I (causal pressure), B0.5 (clip sensitivity), C-min
+(slopegraph, subagent still running). GPU Track E supervised_only still training.
+
