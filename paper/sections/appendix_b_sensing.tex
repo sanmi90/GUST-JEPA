@@ -10,15 +10,21 @@
 
 At deployment the vorticity field is not available; only the wall pressure is. We
 ask how much of the latent state, the gust parameters, and the recovered flow field
-can be read from a sparse set of $K$ wall-pressure taps over a pre-impact window,
+can be read from a sparse set of $K$ wall-pressure taps,
 and through which representation. The input is the span-averaged pressure on the
 $192$ surface taps; the pressure-to-latent map is a kernel-ridge regressor with a
-radial-basis kernel on the flattened $K$-sensor by pre-impact-window feature
+radial-basis kernel on the flattened $K$-sensor by window feature
 vector, fitted on the training encounters and applied unchanged on the held-out
-set. The window has $W = 30$ frames ending at the readout instant (impact plus
+set. Two windows are reported. The primary feasibility comparison uses a window of
+$W = 30$ frames ending at the readout instant (impact plus
 $H = 16$, the closure-matrix primary endpoint), so the pressure is available up to
-but not beyond the readout. This is a feasibility comparison across
-representations, not a closed controller.
+but not beyond the readout; this is a feasibility comparison across
+representations, not a closed controller. The causal claim of
+\S\ref{sec:res_observability} instead uses a strictly pre-impact window of the same
+length ending at the impact frame, so the pressure ends before the gust reaches the
+leading edge: under that window the family ordering is preserved and in fact
+strengthens (predictive $\SenseStateCausalJepaTf$ against $\SenseStateCausalFukami$
+for the reconstructive autoencoder and $\SenseStateCausalPod$ for the linear basis).
 
 \subsubsection*{Target-blind placement}
 The placement we use throughout is qDEIM, the QR-pivot optimum of the wall-pressure
@@ -35,7 +41,8 @@ the wall pressure is information-rich enough that the placement choice no longer
 separates the families, which is why we report the target-blind optimum.
 
 \subsubsection*{State recovery and its anisotropy}
-With $K = 8$ taps the held-out test\_b state $R^2$ orders the families as in the
+Over the feasibility window, with $K = 8$ taps the held-out test\_b state $R^2$
+orders the families as in the
 main text (\S\ref{sec:res_observability}): predictive $\SenseStateJepaTf$,
 reconstructive autoencoder $\SenseStateFukami$, variational baseline
 $\SenseStateBvae$, linear basis $\SenseStatePod$. The variance-weighted $R^2$ is
@@ -104,8 +111,8 @@ model.
 \subsubsection*{Robustness and a non-result}
 The frame-0 gust-release clip of the re-release encounters leaves the result
 unchanged: removing the clipped frame from the pressure window shifts the
-predictive state recovery by $\SenseCausalDelta$ in $R^2$, within noise. We do not
-claim wake recovery from the wall: a pressure-to-latent-to-frozen-wake-probe route
+predictive state recovery by $\SenseCausalDelta$ in $R^2$, within noise. The wall
+pressure does not recover the wake: a pressure-to-latent-to-frozen-wake-probe route
 reaches only $R^2 = \SensePWakeJepaTf$ for the predictive latent, a direct
 pressure-to-wake regression $\SensePWakeDirect$, and the predictive advantage over
 the best reconstructive family is not significant (one-sided sign test

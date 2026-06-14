@@ -120,14 +120,15 @@ advanced as a validated forecast, and its interventional or causal interpretatio
 left for future work (\S\ref{sec:discussion}). What this leaves is the
 property our principle turns on: a reconstruction-trained autoencoder and an
 energy-optimal proper orthogonal decomposition basis are not constrained to keep the
-dynamically relevant wake structure linearly readable in the latent, and the drift
+dynamically relevant wake observables, the enstrophy and signed circulation in
+particular, linearly readable in the latent, and the drift
 mechanism of \S\ref{sec:res_drift} is the empirical consequence.
 
 The question this paper addresses is therefore not which encoder reconstructs
 the flow best, but which produces a reduced state from which the dynamically
 relevant wake is readable. We treat this as a fluid-mechanics question with a
 geometric answer: a predictive objective regularised against collapse organises the
-latent so that the encounter is a single recurrent cycle that survives rollout, the
+latent so that the undisturbed shedding orbit remains a single loop, the
 wake is carried as a distributed code, and the autoregressive rollout stays on the
 encoded manifold. A reconstruction objective does not impose this, so it smooths the
 wake away and its rollout drifts off the manifold along the directions the decoder

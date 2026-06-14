@@ -85,8 +85,9 @@ wake-enstrophy forecast stays the strongest of the three while the integrated
 forces collapse, consistent with the three-dimensional observability boundary of
 \S\ref{sec:flow_physics}.
 
-The representational wake separation is the statistically robust core of the
-result. A per-encounter paired test (table~\ref{tab:paired_closure}), which cancels
+The representational wake separation is the numerical core of the
+result, with case-level spread reported explicitly. A per-encounter paired test
+(table~\ref{tab:paired_closure}), which cancels
 the encounter-to-encounter difficulty of the held-out set that every model shares,
 shows the predictive latent carrying the smaller wake-enstrophy error under direct
 encoding by a paired margin of $\NumPairedWakeRepr$ (case-clustered $95\%$ CI
@@ -661,7 +662,8 @@ above, where the latent comparison has no decoder in the loop.
 At deployment the vorticity field is not available; only the wall pressure is.
 The representational result has an exact deployment mirror, and it is a main
 result of the paper: we ask which representation is the most recoverable from a
-sparse set of $K$ wall-pressure taps over a pre-impact window, comparing both the
+sparse set of $K$ wall-pressure taps over a window ending at the readout instant,
+comparing both the
 recovered latent \emph{state} and the recovered flow \emph{field} across families
 under one kernel-ridge estimator and a target-blind (qDEIM) sensor placement (the
 placement, the per-family field-recovery breakdown, the parameter recovery, and the

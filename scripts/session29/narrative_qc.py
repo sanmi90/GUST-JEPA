@@ -40,7 +40,17 @@ FORBIDDEN = [
     "renders wake structure",
     "counterfactual model",
     "faithful carrier of the wake",
+    # gusted-topology overclaim (SESSION29.4 B/claim-scope): the gusted-encounter
+    # persistent-homology difference disappears after whitening, so only the
+    # NO-GUST loop may be called a single cycle.
+    "the encounter is a single recurrent cycle",
+    "the encounter is a recurrent cycle",
 ]
+# Dataset counts must reach the manuscript only through manifest macros
+# (SESSION29.4 B1). A bare $N$ for any of these in a section/appendix source is a
+# hand-typed literal and a manifest-drift risk. Macros render to digits only in
+# macros.tex, never in the section sources.
+LITERAL_COUNTS = re.compile(r"\$\s*(84|85|226|229|378|382)\s*\$")
 # a line is "allowed" for forbidden-phrase purposes if it negates the claim
 NEG = re.compile(r"\b(no|not|without|never|do not|does not|cannot|rather than)\b", re.I)
 MAIN_SECTIONS = [
@@ -141,8 +151,42 @@ def main() -> None:
     report["pending_main"] = pending
     report["style_ok"] = emdash == 0
 
+    # 5. dataset-count literals (B1): scan main sections + the sensing appendix
+    # for a bare $N$ count that should be a manifest macro.
+    literal_hits = []
+    for s in MAIN_SECTIONS + ["appendix_b_sensing"]:
+        p = SECT / f"{s}.tex"
+        if not p.exists():
+            continue
+        for i, ln in enumerate(p.read_text().splitlines(), 1):
+            if ln.strip().startswith("%"):
+                continue
+            for m in LITERAL_COUNTS.finditer(ln):
+                literal_hits.append({"file": s, "line": i, "literal": m.group(1)})
+    report["literal_count_hits"] = literal_hits
+    report["counts_ok"] = len(literal_hits) == 0
+
+    # 6. pressure-window mislabel (B3): the readout-ending window must not be
+    # called a "pre-impact window" in the sensing appendix or results.
+    pwin_hits = []
+    for s in ["appendix_b_sensing", "section_4_results"]:
+        p = SECT / f"{s}.tex"
+        if not p.exists():
+            continue
+        for i, ln in enumerate(p.read_text().splitlines(), 1):
+            low = ln.lower()
+            if "over a pre-impact window" in low or "pre-impact-window feature" in low:
+                pwin_hits.append({"file": s, "line": i, "text": ln.strip()[:90]})
+    report["pressure_window_hits"] = pwin_hits
+    report["pressure_window_ok"] = len(pwin_hits) == 0
+
     # hard verdict: correctness/style locks only (figure budget is advisory)
-    gates = {k: report[k] for k in ("abstract_ok", "overclaim_ok", "style_ok")}
+    gates = {
+        k: report[k]
+        for k in (
+            "abstract_ok", "overclaim_ok", "style_ok", "counts_ok", "pressure_window_ok"
+        )
+    }
     report["all_gates_pass"] = all(gates.values())
 
     n = report["main_figures"]
@@ -170,6 +214,10 @@ def main() -> None:
         f"{'PASS' if report['overclaim_ok'] else 'FAIL'}",
         f"- em-dashes (main): {emdash}: "
         f"{'PASS' if report['style_ok'] else 'FAIL'}",
+        f"- dataset-count literals (B1): {len(literal_hits)}: "
+        f"{'PASS' if report['counts_ok'] else 'FAIL'}",
+        f"- pressure-window mislabel (B3): {len(pwin_hits)}: "
+        f"{'PASS' if report['pressure_window_ok'] else 'FAIL'}",
         "",
         f"**HARD GATES: {'PASS' if report['all_gates_pass'] else 'FAIL'}**",
         "",
@@ -181,6 +229,14 @@ def main() -> None:
         lines += ["", "## overclaim hits"] + [
             f"- {o['file']}:{o['line']} `{o['phrase']}` -> {o['text']}"
             for o in overclaims
+        ]
+    if literal_hits:
+        lines += ["", "## dataset-count literals (use a manifest macro)"] + [
+            f"- {h['file']}:{h['line']} ${h['literal']}$" for h in literal_hits
+        ]
+    if pwin_hits:
+        lines += ["", "## pressure-window mislabel"] + [
+            f"- {h['file']}:{h['line']} {h['text']}" for h in pwin_hits
         ]
     if not report["figures_within_budget"]:
         lines += ["", "## main figures (over accepted budget)"] + [

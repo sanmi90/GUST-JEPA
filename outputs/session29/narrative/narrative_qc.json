@@ -24,5 +24,9 @@
   "emdash": 0,
   "pending_main": 7,
   "style_ok": true,
+  "literal_count_hits": [],
+  "counts_ok": true,
+  "pressure_window_hits": [],
+  "pressure_window_ok": true,
   "all_gates_pass": true
 }

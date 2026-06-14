@@ -1,12 +1,13 @@
 {
   "_provenance": {
-    "generated_iso": "2026-06-14T16:19:09.495184+00:00",
-    "git_commit": "093cbe1020746b7f55686f673ed0ea6179c29ad3",
+    "generated_iso": "2026-06-14T19:33:20.594310+00:00",
+    "git_commit": "2f651356c18c8530fc103313016cda03700fb3aa",
     "manifest_runs_sha256": "aa07e687f2080e7e7f0dea8d75f3b2af40a86fa68c19f828ae3ec98422e60bbe",
-    "n_parts": 21,
+    "n_parts": 22,
     "parts": [
       "closure_floor_full.json",
       "closure_headline.json",
+      "dataset_manifest.json",
       "decode_operating_points.json",
       "drift_ce1.json",
       "e4_floor.json",
@@ -31,6 +32,69 @@
     "protocol_sha256": "958ce70d2f0e25d20fc54d33bce55c9ce9718d561771438ade855a6bafe8661f"
   },
   "numbers": {
+    "NumCasesTestB": {
+      "fmt": "%d",
+      "macro": "NumCasesTestB",
+      "note": "canonical v2.1 manifest count (n_cases_test_b)",
+      "source": "split_v2p1.json::summary",
+      "value": 10
+    },
+    "NumCasesTestC": {
+      "fmt": "%d",
+      "macro": "NumCasesTestC",
+      "note": "canonical v2.1 manifest count (n_cases_test_c)",
+      "source": "split_v2p1.json::summary",
+      "value": 4
+    },
+    "NumCasesTotal": {
+      "fmt": "%d",
+      "macro": "NumCasesTotal",
+      "note": "canonical v2.1 manifest count (n_cases_total)",
+      "source": "split_v2p1.json::summary",
+      "value": 85
+    },
+    "NumCasesTrain": {
+      "fmt": "%d",
+      "macro": "NumCasesTrain",
+      "note": "canonical v2.1 manifest count (n_cases_train)",
+      "source": "split_v2p1.json::summary",
+      "value": 71
+    },
+    "NumEncTestB": {
+      "fmt": "%d",
+      "macro": "NumEncTestB",
+      "note": "canonical v2.1 manifest count (n_encounters_test_b)",
+      "source": "split_v2p1.json::summary",
+      "value": 42
+    },
+    "NumEncTestC": {
+      "fmt": "%d",
+      "macro": "NumEncTestC",
+      "note": "canonical v2.1 manifest count (n_encounters_test_c)",
+      "source": "split_v2p1.json::summary",
+      "value": 24
+    },
+    "NumEncTotal": {
+      "fmt": "%d",
+      "macro": "NumEncTotal",
+      "note": "canonical v2.1 manifest count (n_encounters_total_in_splits)",
+      "source": "split_v2p1.json::summary",
+      "value": 382
+    },
+    "NumEncTrain": {
+      "fmt": "%d",
+      "macro": "NumEncTrain",
+      "note": "canonical v2.1 manifest count (n_encounters_train)",
+      "source": "split_v2p1.json::summary",
+      "value": 229
+    },
+    "NumEncVal": {
+      "fmt": "%d",
+      "macro": "NumEncVal",
+      "note": "canonical v2.1 manifest count (n_encounters_val)",
+      "source": "split_v2p1.json::summary",
+      "value": 87
+    },
     "clo_fcst_cd_fukami": {
       "fmt": "%.2f",
       "macro": "NumCloFcstCDFukami",
@@ -1598,7 +1662,7 @@
       "fmt": "%s",
       "macro": "CommitHash",
       "source": "eval_all.py",
-      "value": "093cbe102074"
+      "value": "2f651356c18c"
     },
     "s46_orbit_return_fukami": {
       "fmt": "%.2f",

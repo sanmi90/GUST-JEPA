@@ -110,19 +110,19 @@ the free-stream Mach number, the domain and spanwise extent, the element and
 solution-point counts, the near-wall spacing, the time step and CFL, the
 gust-release station, and the grid and time-step sensitivity, are listed as an
 author-fill checklist in table~\ref{tab:dns_pending}. The dataset
-comprises $84$ cases partitioned into training, validation (the held-out
+comprises $\NumCasesTotal$ cases partitioned into training, validation (the held-out
 encounters of the training cases, denoted test\_a), an
 in-distribution test set (test\_b), and an out-of-distribution test set
 (test\_c). The in-distribution test set is stratified to span the five gust
 strengths, the three core diameters, and the two source groups
 (figure~\ref{fig:paramspace}); test\_c is the
-$|G| = 4$ extrapolation set. These $84$ cases are separated in preprocessing into $378$ encounter windows of
-$120$ frames each, one per gust release: $226$ training, $86$ validation
-(test\_a, the held-out last encounters of the training cases), $42$ test\_b, and
-$24$ test\_c. The undisturbed reference case is retained in training. Behind these
-encounter counts are far fewer distinct cases: the $42$ test\_b encounters come
-from only $10$ held-out cases (five interior and five boundary tier) and the $24$
-test\_c encounters from $4$ cases, with most cases contributing four to six
+$|G| = 4$ extrapolation set. These $\NumCasesTotal$ cases are separated in preprocessing into $\NumEncTotal$ encounter windows of
+$120$ frames each, one per gust release: $\NumEncTrain$ training, $\NumEncVal$ validation
+(test\_a, the held-out last encounters of the training cases), $\NumEncTestB$ test\_b, and
+$\NumEncTestC$ test\_c. The undisturbed reference case is retained in training. Behind these
+encounter counts are far fewer distinct cases: the $\NumEncTestB$ test\_b encounters come
+from only $\NumCasesTestB$ held-out cases (five interior and five boundary tier) and the $\NumEncTestC$
+test\_c encounters from $\NumCasesTestC$ cases, with most cases contributing four to six
 encounters that share a baseline shedding history. Encounters of the same case are
 therefore not independent, so encounter-level intervals overstate the effective
 sample size; the headline wake comparison is reported additionally with a
@@ -238,11 +238,11 @@ substantially.
 \begin{figure}
   \centering
   \includegraphics[width=\linewidth]{sections/figures/results/figB_paramspace_v2p1.pdf}
-  \caption{Parameter-space sampling of the $85$ cases in the $(G, D, Y)$ gust
+  \caption{Parameter-space sampling of the $\NumCasesTotal$ cases in the $(G, D, Y)$ gust
   envelope, shown as one isometric view and coloured by split: training
-  ($229$ encounters), the stratified in-distribution test set (test\_b, $42$
+  ($\NumEncTrain$ encounters), the stratified in-distribution test set (test\_b, $\NumEncTestB$
   encounters, split into interior and boundary tiers), and the
-  out-of-distribution extrapolation set (test\_c, $24$ encounters). The translucent
+  out-of-distribution extrapolation set (test\_c, $\NumEncTestC$ encounters). The translucent
   plane marks the $|G| = 4$ extrapolation boundary and the grey points on the floor
   are the projection of every case, which shows that training mass concentrates
   near $Y/c = 0$, the reason the wall-normal offset is the least well resolved

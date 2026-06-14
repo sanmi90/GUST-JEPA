@@ -35,11 +35,11 @@ under autoregressive rollout the reconstructive latent leaves its own training
 manifold along the very directions the decoder never constrained, and a probe
 queried on that drifted state fails for reasons unrelated to the predictor's
 one-step accuracy. The predictive objective, regularised against collapse, instead
-organises the latent so that the encounter is a recurrent cycle that survives
-rollout, the on-manifold property that data-driven state-space and Koopman models
+organises the latent so that the rollout stays on the encoded manifold, the
+on-manifold property that data-driven state-space and Koopman models
 of coherent-state dynamics on invariant manifolds rely on
-\citep{constanteamores2024}, and that the encoded no-gust limit cycle exhibits even
-under a metric that removes coordinate scale. The manifold departure of the
+\citep{constanteamores2024}, and that the encoded no-gust limit cycle exhibits as a
+single loop even under a metric that removes coordinate scale. The manifold departure of the
 reconstructive rollout is the parametric-gust counterpart of the
 catastrophic-divergence tail reported for reconstruction-based latent dynamics in
 controlled wakes \citep{solerarico_compactness_underreview}; the predictive

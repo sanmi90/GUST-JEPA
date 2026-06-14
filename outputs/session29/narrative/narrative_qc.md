@@ -4,6 +4,8 @@
 - abstract words: 235 (gate <= 240): PASS
 - overclaim positive occurrences: 0: PASS
 - em-dashes (main): 0: PASS
+- dataset-count literals (B1): 0: PASS
+- pressure-window mislabel (B3): 0: PASS
 
 **HARD GATES: PASS**
 
