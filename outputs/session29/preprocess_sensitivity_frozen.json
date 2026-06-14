@@ -1,0 +1,237 @@
+{
+  "_provenance": {
+    "git_sha": "d33850e9a48e2b5bc530d8f1eba3292f5961111b",
+    "command": "scripts/session29/preprocess_sensitivity_frozen.py",
+    "utc": "2026-06-14T12:36:20.142423+00:00",
+    "input_sha256": {
+      "/home/carlos/GUST-JEPA/outputs/data_pipeline/v2p1/manifest.json": "965d0e0437a73ea6a0b0425be4fd37e4f85566824d4a3060a6a0df4022a6bbe2",
+      "/home/carlos/GUST-JEPA/outputs/session28/latents/jepa_tf_noc_d64_s42/train.npz": "63d1954aa139c456e1ca28b630fa90b761f25657d2fa18318a7c12db6ba9d805",
+      "/home/carlos/GUST-JEPA/outputs/session28/latents/fukami_d64_s42/train.npz": "a0b64b52b7652eed5cf3f4e7a1bd01f2c7d8ce394440b719c8ed5481f03f1d16",
+      "/home/carlos/GUST-JEPA/outputs/session28/latents/pod_d64/train.npz": "c638c98523b139b7f77e5243e3eecf35c58d2b6dffc7c0b86146a150ffa06398"
+    },
+    "versions": {
+      "python": "3.10.12",
+      "numpy": "1.26.4",
+      "sklearn": "1.7.2"
+    },
+    "seed": 0,
+    "split": "v2p1",
+    "reconciled_from": "SESSION29 plan (was main_13/v2); see RECONCILIATION_v2p1.md"
+  },
+  "config": {
+    "observable": "wake_enstrophy",
+    "horizon": 16,
+    "treatments": [
+      "none",
+      "per_encounter",
+      "training_global"
+    ],
+    "families": [
+      "jepa_tf_noc",
+      "fukami",
+      "pod"
+    ],
+    "baselines": [
+      "fukami",
+      "pod"
+    ],
+    "clip_percentile": 99.99,
+    "advantage_tol": 0.1,
+    "wake_box": {
+      "x": [
+        0.5,
+        4.0
+      ],
+      "y": [
+        -1.0,
+        1.0
+      ]
+    },
+    "regime": "readout-frame impact+H, frozen latent X = z[impact+H], y = raw-cache wake enstrophy recomputed per clip treatment (pipeline drop mask applied in all 3), Ridge with GroupKFold(5)-by-case alpha selection, fit train, eval test_b, case-clustered bootstrap CI",
+    "training_global_threshold": 94.70257582396516,
+    "drop_mask_cells": 140,
+    "drop_cells_in_wake_box": 54,
+    "note": "The project's stored wake_enstrophy target (exp2_build_targets) used NO amplitude clip AND NO pipeline drop mask; the 'none' treatment here adds the drop mask (54 of whose cells fall in the wake box) so all three treatments share the same spatial support."
+  },
+  "target_summary": {
+    "train": {
+      "none": {
+        "mean": 153.53438328239073,
+        "median": 118.2429428100586,
+        "max": 885.8089599609375
+      },
+      "per_encounter": {
+        "mean": 146.20451488245,
+        "median": 115.99964904785156,
+        "max": 817.2205200195312
+      },
+      "training_global": {
+        "mean": 142.23002944346598,
+        "median": 114.78350067138672,
+        "max": 794.4070434570312
+      }
+    },
+    "test_b": {
+      "none": {
+        "mean": 129.7693271636963,
+        "median": 110.12383651733398,
+        "max": 546.605224609375
+      },
+      "per_encounter": {
+        "mean": 124.6560638972691,
+        "median": 108.63337326049805,
+        "max": 533.5502319335938
+      },
+      "training_global": {
+        "mean": 123.18425342014858,
+        "median": 107.94723892211914,
+        "max": 501.47235107421875
+      }
+    }
+  },
+  "results": {
+    "none": {
+      "jepa_tf_noc": {
+        "r2": 0.7457413817408611,
+        "ci_lo": -0.9482994331242881,
+        "ci_hi": 0.8526677094579672,
+        "per_case_mae": 35.710247049559726,
+        "best_alpha": 0.1,
+        "n_features": 64,
+        "n_test_b": 42,
+        "n_cases_test_b": 10
+      },
+      "fukami": {
+        "r2": 0.11501493971866683,
+        "ci_lo": -2.8087522884565996,
+        "ci_hi": 0.26470377134705286,
+        "per_case_mae": 55.697102241349356,
+        "best_alpha": 100.0,
+        "n_features": 64,
+        "n_test_b": 42,
+        "n_cases_test_b": 10
+      },
+      "pod": {
+        "r2": -0.27120680652104867,
+        "ci_lo": -4.695085833915244,
+        "ci_hi": -0.013030365570607879,
+        "per_case_mae": 70.99649540907905,
+        "best_alpha": 100.0,
+        "n_features": 64,
+        "n_test_b": 42,
+        "n_cases_test_b": 10
+      }
+    },
+    "per_encounter": {
+      "jepa_tf_noc": {
+        "r2": 0.7957249679249985,
+        "ci_lo": -0.3341720409849689,
+        "ci_hi": 0.8467237097027145,
+        "per_case_mae": 28.618994452579635,
+        "best_alpha": 0.1,
+        "n_features": 64,
+        "n_test_b": 42,
+        "n_cases_test_b": 10
+      },
+      "fukami": {
+        "r2": 0.09541894467542922,
+        "ci_lo": -3.6632444233024506,
+        "ci_hi": 0.24820667045701336,
+        "per_case_mae": 50.12779643173599,
+        "best_alpha": 100.0,
+        "n_features": 64,
+        "n_test_b": 42,
+        "n_cases_test_b": 10
+      },
+      "pod": {
+        "r2": -0.04996417581819079,
+        "ci_lo": -3.7222499635034243,
+        "ci_hi": 0.03126205189378301,
+        "per_case_mae": 58.91772696626326,
+        "best_alpha": 1000.0,
+        "n_features": 64,
+        "n_test_b": 42,
+        "n_cases_test_b": 10
+      }
+    },
+    "training_global": {
+      "jepa_tf_noc": {
+        "r2": 0.8424802655267543,
+        "ci_lo": -0.14180638805657184,
+        "ci_hi": 0.8872047161855473,
+        "per_case_mae": 24.682850842135064,
+        "best_alpha": 0.1,
+        "n_features": 64,
+        "n_test_b": 42,
+        "n_cases_test_b": 10
+      },
+      "fukami": {
+        "r2": 0.07574339646736794,
+        "ci_lo": -3.239622814726975,
+        "ci_hi": 0.19839603475506157,
+        "per_case_mae": 49.98678457005117,
+        "best_alpha": 100.0,
+        "n_features": 64,
+        "n_test_b": 42,
+        "n_cases_test_b": 10
+      },
+      "pod": {
+        "r2": -0.0016442173723045794,
+        "ci_lo": -3.2587872319656994,
+        "ci_hi": 0.08020560242111308,
+        "per_case_mae": 54.04933201068751,
+        "best_alpha": 1000.0,
+        "n_features": 64,
+        "n_test_b": 42,
+        "n_cases_test_b": 10
+      }
+    }
+  },
+  "per_treatment_family_r2": {
+    "none": {
+      "jepa_tf_noc": 0.7457413817408611,
+      "fukami": 0.11501493971866683,
+      "pod": -0.27120680652104867
+    },
+    "per_encounter": {
+      "jepa_tf_noc": 0.7957249679249985,
+      "fukami": 0.09541894467542922,
+      "pod": -0.04996417581819079
+    },
+    "training_global": {
+      "jepa_tf_noc": 0.8424802655267543,
+      "fukami": 0.07574339646736794,
+      "pod": -0.0016442173723045794
+    }
+  },
+  "verdict": {
+    "per_treatment": {
+      "none": {
+        "jepa_r2": 0.7457413817408611,
+        "best_baseline": "fukami",
+        "best_baseline_r2": 0.11501493971866683,
+        "advantage": 0.6307264420221943
+      },
+      "per_encounter": {
+        "jepa_r2": 0.7957249679249985,
+        "best_baseline": "fukami",
+        "best_baseline_r2": 0.09541894467542922,
+        "advantage": 0.7003060232495693
+      },
+      "training_global": {
+        "jepa_r2": 0.8424802655267543,
+        "best_baseline": "fukami",
+        "best_baseline_r2": 0.07574339646736794,
+        "advantage": 0.7667368690593863
+      }
+    },
+    "reference_treatment": "per_encounter",
+    "reference_advantage": 0.7003060232495693,
+    "advantage_tol": 0.1,
+    "max_abs_advantage_shift": 0.06957958122737495,
+    "sign_preserved": true,
+    "magnitude_preserved": true,
+    "branch": "STRONG",
+    "b1_retrain_needed": false
+  }
+}

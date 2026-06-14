@@ -96,3 +96,21 @@ fixed, so no returned branch is taken at face value.)
   AND more favorable (jepa 0.82). Update the sensing numbers to the causal window
   (regenerate via pressure_causal.py -> numbers_parts), state the result strengthens
   under causality, keep the wide-10-case-CI caveat. This is a net WIN for the paper.
+
+## Track B0.5 (frozen clip sensitivity, F7): STRONG -- closes F7, no B1 retrain.
+- JEPA wake R^2: none 0.746 / per_encounter 0.796 / training_global 0.842; baselines
+  fukami ~0.1, pod ~0 throughout. JEPA-minus-best-baseline advantage +0.63 / +0.70 /
+  +0.77; sign preserved, max shift from the current pipeline 0.07 (< 0.10 tol).
+  Enstrophy decreases monotonically as the clip tightens (sanity ok). The B0 leak
+  does NOT move the wake headline -> B1 retrain unnecessary; report wake on
+  physical units with this sensitivity as the robustness statement.
+- KEY CATCH (target definition): B0.5 recomputed wake_enstrophy with the CANONICAL
+  cache-box convention (`scripts/session16/exp2_build_targets.py`, the actual
+  builder of the stored targets) and its per_encounter readout jepa R^2 = 0.796
+  REPRODUCES the published 0.79 headline. So `_s29_common.readout_xy`'s
+  `per_frame_targets` wake target (used by Tracks D and G, giving jepa ~0.58/0.68)
+  is a DIFFERENT/degraded target. D and G internal comparisons hold (same target
+  across families), but Track D's GBM-reversal verdict could be target-sensitive
+  -> RE-RUN Track D on the canonical target to confirm before pinning title
+  wording. G is STRONG by a wide margin (robust to target choice). The paper's
+  "linear decodability" framing is conservative and safe under either D outcome.
