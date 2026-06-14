@@ -30,9 +30,9 @@ forward, the predictor tracks the encounter, which we show but do not present as
 validated forecast. Because the predictive encoder also differs in architecture and
 auxiliary supervision, matched controls attribute the advantage to the predictive
 objective trained with wake supervision. The same predictive state is the most
-recoverable of the three from sparse wall pressure, so it is observable as well as a
-faithful carrier of the wake, the property a downstream estimator or controller
-would exploit. We do not claim a validated forecast, a controller, or a
+recoverable of the three from sparse wall pressure, so it is both the most
+wake-readable and the most wall-recoverable of the three, the property a downstream
+estimator would exploit. We do not claim a validated forecast, a controller, or a
 counterfactual model. The remaining limitations are the weak resolution of the
 wall-normal offset, the three-dimensional observability boundary at $|G| = 4$, and
 a rollout error that still prevents a closed-loop control demonstration.

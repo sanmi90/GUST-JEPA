@@ -103,14 +103,31 @@ stops: the representational wake-enstrophy advantage survives the pre-registered
 encounter-level family correction (one of $\NumHolmSurvivors$ of twelve paired
 tests that survive Holm, together with the lift and the negative circulation),
 but it does not survive the stricter case-level correction, where the smaller
-number of held-out cases widens the interval. The forecast advantage points the
-same way but survives neither. All six observables are reported in both modes, not
+number of held-out cases widens the interval; the per-case slopegraph
+(figure~\ref{fig:case_slopegraph}) shows the honest spread, the predictive latent
+giving the lower wake-enstrophy error on seven of the ten held-out cases. The
+forecast advantage points the same way but survives neither. All six observables are reported in both modes, not
 a selected subset, and the ordering is not uniform: the predictive latent leads on
 the spatially distributed wake observables (enstrophy and negative circulation),
 which is precisely the paper's claim. This separation is confirmed by the
 mechanistic evidence of \S\ref{sec:res_drift} (the drift departure spectrum and the
 no-gust limit-cycle topology), where the predictive and reconstructive families
 separate consistently.
+
+\begin{figure}
+  \centering
+  \includegraphics[width=0.7\linewidth]{sections/figures/results/fig_case_slopegraph.pdf}
+  \caption{Per-case wake-enstrophy closure, the honest case-level view of the
+  headline result. Each line is one held-out test\_b case (ten in all), connecting
+  the reconstructive autoencoder's per-case mean absolute error (left) to the
+  predictive latent's (right) at $H = 16$; a downward line favours the predictive
+  latent. The predictive latent gives the lower error on seven of the ten cases
+  (median per-case improvement positive, case-level signed-rank significant), with
+  three cases favouring the reconstructive baseline: the advantage is real at the
+  case level but not uniform, which is why the case-level multiplicity correction is
+  not passed and the claim is stated at encounter level with this spread shown.}
+  \label{fig:case_slopegraph}
+\end{figure}
 
 \begin{table}
   \centering
