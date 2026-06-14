@@ -9052,3 +9052,27 @@ F6 resolved). Build clean 35pp, 0 undefined, 0 em-dashes.
   baselines <=0.40 -> H=16 not cherry-picked (NumHorizonWake* macros; S4.2 sentence).
 Remaining: Track C-full (grouped-CV retrain, heavy GPU), Track J (figure cull +
 slopegraph swap), Track K (claim audit + PDF QC + empty blockers).
+
+### D204 (SESSION29.2 narrative uplift, parallel to C-full) (2026-06-14, Session 29.2)
+
+Narrative pass on top of the completed SESSION29.1 remediation (main_14 = current
+main.tex), run in PARALLEL with the Track C-full GPU campaign. Reconciliation in
+outputs/session29/narrative/RECONCILIATION.md (plan stubs D196-D200 collide with
+the live log -> continue at D204).
+- Abstract tightened ~290 -> ~225 words around the JFM spine; TOPOLOGY OVERCLAIM
+  fixed: "each encounter as a single persistent cycle" -> "its no-gust shedding
+  orbit remains a single persistent loop" (gusted topology does not survive
+  whitening, Track H).
+- Phrase-table edits (honesty-requires-care, we-are-explicit, controller->forward
+  model in Results, caption wake-structure->wake-observables); caveat de-dup.
+- narrative_qc.py gate-enforcer (abstract length, overclaim audit w/ cross-line
+  negation window, figure count, style). 3/4 gates PASS (abstract, overclaim,
+  style); em-dashes 0.
+- FIGURE CULL (author chose option a: move named candidates, preserve the rest):
+  figA_traces, fig_error_maps, figD_reconstructions moved to a new appendix
+  (appendix_c_supplementary_figures.tex, app:suppfigs); main-text result figures
+  15 -> 12. The figure gate (<=8) remains FAIL by design -- reaching 8 needs
+  consolidating the spectrum/scale/cycle physics figures into a composite, deferred
+  as an author-layout + figure-regeneration step. Build clean (35pp, 0 undefined).
+Remaining narrative items (deferred, larger): full section reorder + physics-first
+intro rewrite (plan allows flexible renumbering); figure consolidation to 8.

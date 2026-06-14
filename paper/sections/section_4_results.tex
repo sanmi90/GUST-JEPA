@@ -76,22 +76,6 @@ wake-enstrophy forecast stays the strongest of the three while the integrated
 forces collapse, consistent with the three-dimensional observability boundary of
 \S\ref{sec:flow_physics}.
 
-\begin{figure}
-  \centering
-  \includegraphics[width=\linewidth]{sections/figures/results/figA_traces_v2p1.pdf}
-  \caption{The predictive rollout tracks the encounter, shown qualitatively.
-  Predicted observables through representative held-out encounters (rows), for the
-  lift coefficient, the wake enstrophy, and the negative circulation (columns). The
-  simulation is the bold reference; the rollout of the predictor, started from the
-  pre-impact context, is the coloured line, and the dashed line is the
-  reconstruction from the encoded latent. The rollout tracks the
-  wake observables through the leading-edge-vortex peak and into recovery before
-  drifting gently at long times. We report this as qualitative tracking, not as a
-  closure $R^2$. Numbered glyphs mark the four encounter stages used throughout:
-  baseline, impact, peak load, and recovery.}
-  \label{fig:traces}
-\end{figure}
-
 The representational wake separation is the statistically robust core of the
 result. A per-encounter paired test (table~\ref{tab:paired_closure}), which cancels
 the encounter-to-encounter difficulty of the held-out set that every model shares,
@@ -579,21 +563,6 @@ near a single convective instant while the gust recurs about every two shedding
 periods, so the encounters fall into essentially two phase clusters and a
 phase-resolved trend is not identifiable here, which a design that varies the
 impact phase would isolate.
-\begin{figure}
-  \centering
-  \includegraphics[width=\linewidth]{sections/figures/results/fig_error_maps_v2p1.png}
-  \caption{Per-encounter paired improvement
-  $\Delta e = e_{\text{AE}} - e_{\text{JEPA}}$ in held-out wake-enstrophy error
-  against the gust strength $G$, core diameter $D$, wall-normal offset $Y$, and
-  the baseline shedding phase at impact $\phi$ (test\_b, $n = 42$); positive
-  $\Delta e$ means the predictive latent carries the smaller error. Each panel
-  shows the per-encounter values, a locally weighted (LOWESS) trend, and a
-  bootstrap band over encounters. The predictive advantage grows with $D$
-  (significant) but shows no significant $G$ or $Y$ trend; the shedding-phase axis
-  falls into two clusters because impact is fixed near a single convective instant.}
-  \label{fig:error_maps}
-\end{figure}
-
 These parameter and phase readings are statements about numbers; the encounter is
 itself a statement about
 vortices. Decoded and reconstructed vorticity fields on held-out encounters
@@ -608,21 +577,6 @@ physical-space claim is made on the validated large-scale band ($\sigma/c = 0.05
 the visualisation decoder is blurry at small scale by construction, so the
 large-scale leading-edge vortex and shear layer are tracked meaningfully while
 full-resolution and small-scale field fidelity are not claimed.
-
-\begin{figure}
-  \centering
-  \includegraphics[width=\linewidth]{sections/figures/results/figD_reconstructions_v2p1.pdf}
-  \caption{Decoded vorticity at the impact frame on held-out encounters (rows: an
-  interpolation test\_b encounter and a $|G| = 4$ test\_c encounter) for the
-  simulation and the predictive, reconstructive, and POD decodes (columns). The
-  predictive decoder is blurry by design but localises the impingement; the
-  reconstructive autoencoder collapses toward a near-uniform field on the held-out
-  interpolation condition, while the linear basis is amplitude-accurate. All
-  families degrade in the $|G| = 4$ regime, reported as the observability boundary
-  of \S\ref{sec:flow_physics} rather than as a generalisation claim. Field-space
-  similarity is read only as a labelled decode ceiling (\S\ref{sec:res_physical}).}
-  \label{fig:recon}
-\end{figure}
 
 The caution is that field-space similarity scores are misleading here. On held-out
 interpolation encounters the reconstructive autoencoder can attain a high structural
