@@ -17,7 +17,8 @@ The model comparison is meaningful only if the endpoint is physically discrimina
 so we begin with the wake itself. At impact the release parameters largely fix the
 immediate force excursion; by the readout horizon, sixteen frames after impact and
 past the leading-edge-vortex shedding, those same parameters no longer fix the
-downstream wake enstrophy, as the parameter-only floor below makes quantitative. This
+downstream wake enstrophy (figure~\ref{fig:staging}), as the parameter-only floor
+below makes quantitative. This
 separation, between the force that the gust sets and the wake that the evolving
 separated flow sets, is why the wake enstrophy is the primary endpoint.
 
@@ -594,9 +595,8 @@ with a field that is mostly quiescent away from the impact region. The predictiv
 decode localises the impingement at the right position and sign but is blurry by
 construction, and the linear basis is amplitude-accurate since its objective is
 amplitude-optimal. Field-space similarity therefore cannot rank the latents, which
-is why we read it as a decode ceiling below.
+is why we read it as a labelled decode ceiling rather than a state-content score.
 
-This is why field-space scores cannot rank the latents here.
 Decoding each family's faithfully encoded latent to a field and scoring
 the large-scale similarity against the simulation gives a decode \emph{ceiling}
 (the best each decoder can do from a true latent): on test\_b that ceiling is

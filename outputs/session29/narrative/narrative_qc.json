@@ -1,10 +1,11 @@
 {
-  "abstract_words": 240,
+  "abstract_words": 239,
   "abstract_ok": true,
   "overclaims": [],
   "overclaim_ok": true,
   "main_figures": 12,
   "main_figure_paths": [
+    "fig_staging_v2p1.pdf",
     "figB_paramspace_v2p1.pdf",
     "fig1_jepa_architecture.pdf",
     "fig_eval_protocol.pdf",
@@ -18,9 +19,10 @@
     "figF_observability_v2p1.pdf",
     "fig_wake_code_v2p1.pdf"
   ],
-  "figures_ok": false,
+  "figures_within_aspiration": false,
+  "figures_within_budget": true,
   "emdash": 0,
   "pending_main": 7,
   "style_ok": true,
-  "all_gates_pass": false
+  "all_gates_pass": true
 }
