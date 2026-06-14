@@ -8884,3 +8884,31 @@ the real Zenodo DOI minted from the v1.0.0-rc2 tag (drops into README,
 confirmation, CRediT roles, funding. The paper does NOT go out with an empty
 Table 1.
 
+### D197 (SESSION29 launch, reconciled to v2.1): Phase 0 + Track D probe-class = WEAK, claim stays LINEAR (2026-06-14, Session 29)
+
+SESSION29 (JFM remediation) launched, reconciled to v2.1 (the plan was written
+against v2/main_13; author decision: run on v2.1, cheap analytical gates first, no
+GPU retrain yet). Branch `session29-remediation`. Mapping + standing blockers in
+`outputs/session29/RECONCILIATION_v2p1.md` and `outputs/session29/blockers.md`.
+HANDOFF continues at D197 (the plan's D179-D195 stubs collide with the live log).
+Already-resolved-by-v2.1 findings (F2 counts, F3 case-vs-encounter, numbers
+authority, mechanism headline) are VERIFIED, not redone.
+
+**Track D (probe-class robustness, F4), the claim-critical gate: WEAK branch.**
+`scripts/session29/probe_class_sweep.py` (+ `_s29_common.py`, tests green),
+readout-frame wake-enstrophy probe at impact+16 on the frozen v2.1 latents
+(jepa_tf_noc / fukami / pod, d=64 s42), nested GroupKFold-by-case hyperparameter
+selection, case-clustered bootstrap. Matched probe-class test_b R^2:
+- linear: jepa +0.58 > fukami +0.34 > pod +0.11
+- kernel-ridge RBF: jepa +0.68 > fukami +0.45 > pod +0.32
+- MLP: jepa +0.42 > fukami +0.08, pod +0.25
+- GBM: jepa +0.36 < fukami +0.52, pod +0.54  (REVERSED)
+The predictive latent leads under linear, kernel, and neural probes but gradient
+boosting closes/reverses it; every case-clustered R^2 CI is very wide (10 test_b
+cases), so the robust signal is the sign consistency across 3 of 4 probe classes,
+not the magnitudes. Implication: the manuscript's existing framing ("renders wake
+structure linearly readable", "linear decodability rather than exclusive
+possession") is correct and even conservative (the advantage extends to kernel
+and MLP), with the GBM exception reported honestly. No title change forced; do not
+upgrade to a broad-probe exclusivity claim. (Plan stub D183 -> logged here as D197.)
+
