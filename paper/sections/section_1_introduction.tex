@@ -7,20 +7,20 @@
 % the predictive objective produces, with the rollout shown but not headlined as
 % forward closure, and the world-model reading kept as motivation only.
 
-Small uncrewed and micro air vehicles increasingly operate in airspace where
-the gust velocity is comparable to or larger than their flight speed, such as
-urban canyons, mountainous terrain, and the wakes of buildings and ships
-\citep{jones2022,mohamed2023gusts}. In this regime the gust ratio $G$, the ratio of
-the characteristic gust velocity to the free-stream velocity, exceeds unity,
-and the interaction between a discrete vortex gust and a lifting surface
-produces large, fast transients in the aerodynamic loads that conventional
-gust models do not capture \citep{fukami2024control,fukami2025prf}. The response
-is governed by the timing of the vortex impact relative to the airfoil's own
-shedding, by the wall-normal offset of the vortex core, and by the gust
-strength and core size. The load transient itself is produced by the formation,
-growth, and shedding of a leading-edge vortex, the dominant unsteady mechanism in
-these encounters \citep{eldredge2019leading}, together with the trailing-edge and
-wake structures it leaves behind. Even at the moderate chord Reynolds number
+A discrete vortex gust striking a post-stall airfoil does not merely perturb the
+force coefficients: it reorganises the separated wake. The lift excursion it
+produces is the surface signature of leading-edge-vortex roll-up, growth, and
+shedding, the dominant unsteady mechanism in these encounters
+\citep{eldredge2019leading}, together with the trailing-edge and wake structures
+it leaves behind, and it is set by the timing of the vortex impact relative to the
+airfoil's own shedding, the wall-normal offset of the vortex core, and the gust
+strength and core size. Such extreme gusts arise wherever the gust velocity is
+comparable to or larger than the flight speed, for small uncrewed and micro air
+vehicles in urban canyons, mountainous terrain, and the wakes of buildings and
+ships \citep{jones2022,mohamed2023gusts}: the gust ratio $G$, the ratio of the
+characteristic gust velocity to the free-stream velocity, then exceeds unity, and
+conventional gust models do not capture the resulting large, fast load transients
+\citep{fukami2024control,fukami2025prf}. Even at the moderate chord Reynolds number
 $\vRe = 5000$, the post-stall flow at $\alpha = 14^\circ$ is massively
 separated, and the gust-induced disturbance interacts nonlinearly with the
 natural shedding cycle \citep{fukami2025prf}; the vortical organisation of the
