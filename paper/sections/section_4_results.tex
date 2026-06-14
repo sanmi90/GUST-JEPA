@@ -310,6 +310,17 @@ predictor mean-reverting toward the training cloud. This is the property a forwa
 model needs, and it is why the qualitative rollout of figure~\ref{fig:traces} tracks
 the encounter through impact before drifting only at long times.
 
+The objective-free supervision-only latent locates this property precisely. Its
+rollout is the most in-distribution of the families (Mahalanobis $\DriftMahaSupOnly$,
+with no near-null departure, $\DriftSpecNearNullSupOnly$), so staying on the encoded
+manifold is supplied by the anti-collapse regulariser that the predictive and
+supervision-only latents share, not by the predictive objective on its own. What the
+predictive objective adds is staying close to the true trajectory: its
+relative-$\ell_2$ drift ($\DriftRelLtwoJepa$) is below the supervision-only latent's
+($\DriftRelLtwoSupOnly$), consistent with the better wake forecast of
+\S\ref{sec:res_controls}. The reconstructive rollout, which carries no anti-collapse
+term, is the one that leaves the manifold.
+
 \begin{figure}
   \centering
   \includegraphics[width=0.7\linewidth]{sections/figures/results/fig_horizon_sweep_v2p1.pdf}
@@ -341,17 +352,21 @@ whether the encoded encounter is a single cycle.
   covariance, which reconciles the two. The Mahalanobis magnitude is reported at the
   minimally-regularised covariance used here; under a shrinkage estimator the ratios
   collapse toward one, so the robust statement is the departure direction (the
-  near-null fraction), not the ratio size.}
+  near-null fraction), not the ratio size. The objective-free supervision-only
+  latent is the most in-distribution of all, which locates the on-manifold property
+  in the anti-collapse regulariser the predictive and supervision-only latents
+  share, not in the predictive objective alone.}
   \label{tab:latent_drift}
   \small
   \fittab{\begin{tabular}{l c c c}
     \toprule
     Family & rel.\ $\ell_2$ drift & Mahalanobis dist. & near-null frac. \\
     \midrule
-    Fukami      & \DriftRelLtwoFukami & \textbf{\DriftMahaFukami} & \DriftSpecNearNullFukami \\
-    JEPA (tf)   & \DriftRelLtwoJepa   & \DriftMahaJepa            & \DriftSpecNearNullJepa \\
-    POD         & \DriftRelLtwoPod    & \DriftMahaPod             & --- \\
-    $\beta$-VAE & \DriftRelLtwoBvae   & \DriftMahaBvae            & --- \\
+    Fukami           & \DriftRelLtwoFukami & \textbf{\DriftMahaFukami} & \DriftSpecNearNullFukami \\
+    JEPA (tf)        & \DriftRelLtwoJepa   & \DriftMahaJepa            & \DriftSpecNearNullJepa \\
+    supervision-only & \DriftRelLtwoSupOnly & \DriftMahaSupOnly        & \DriftSpecNearNullSupOnly \\
+    POD              & \DriftRelLtwoPod    & \DriftMahaPod             & --- \\
+    $\beta$-VAE      & \DriftRelLtwoBvae   & \DriftMahaBvae            & --- \\
     \bottomrule
   \end{tabular}}
 \end{table}
@@ -423,12 +438,16 @@ First, the latent dynamics carry the shedding spectrum. Fitting a linear operato
 to the encoded limit-cycle trajectory (dynamic mode decomposition) recovers a
 leading oscillatory eigenvalue at Strouhal number $\SpecDmdStJepaTf$ in the
 predictive latent, against a measured shedding line at $\NumUndistSt$ in the
-undisturbed lift spectrum, with modulus $\SpecDmdModJepaTf$, a marginally stable
-orbit; the
+undisturbed lift spectrum, with modulus $\SpecDmdModJepaTf$ (bootstrap CI
+$[\SpecDmdModJepaTfCIlo, \SpecDmdModJepaTfCIhi]$, consistent with a marginally
+stable orbit); the
 linear basis recovers the same frequency ($\SpecDmdStPod$) and the reconstructive
 latent is damped and off-frequency ($\SpecDmdStFukami$). Linearising the learned
-predictor about the orbit gives a leading Floquet multiplier of modulus
-$\SpecFloqMod$, confirming the marginal stability intrinsically. The learned
+predictor about the orbit gives a leading multiplier of modulus
+$\SpecFloqMod$ (bootstrap CI $[\SpecFloqModCIlo, \SpecFloqModCIhi]$), which sits
+just above one, so the learned orbit is very weakly amplifying rather than exactly
+neutral; we report it as a learned delay-map multiplier, not a physical Floquet
+multiplier of the simulation. The learned
 dynamics are not, however, a linear operator in disguise: rolling a best-fit linear
 operator on the linear-basis coordinates (dynamic mode decomposition as a
 forecaster) gives a wake-enstrophy forecast $R^2$ of $\ForecastWakePodDmd$, far

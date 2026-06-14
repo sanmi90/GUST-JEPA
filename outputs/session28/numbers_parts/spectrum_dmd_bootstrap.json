@@ -1,0 +1,83 @@
+{
+  "part": "spectrum_dmd_bootstrap",
+  "numbers": {
+    "dmd_St_baseline_pod_ci": {
+      "macro": "SpecDmdStPodCI",
+      "value": 0.6822523948710314,
+      "ci_lo": 0.037415690561837196,
+      "ci_hi": 0.7783942912406862,
+      "fmt": "%.2f",
+      "split": "baseline",
+      "observable": "leading_oscillatory_St",
+      "source": "spectrum_dmd_bootstrap.py",
+      "note": "leading-pair DMD St on the Baseline limit cycle (pod_d64); 1000-draw 2.5/97.5 snapshot-pair bootstrap (n_pairs=476)"
+    },
+    "dmd_modulus_baseline_pod_ci": {
+      "macro": "SpecDmdModPodCI",
+      "value": 0.9955932038392336,
+      "ci_lo": 0.9928391368057323,
+      "ci_hi": 1.0221875050346891,
+      "fmt": "%.3f",
+      "split": "baseline",
+      "observable": "leading_oscillatory_modulus",
+      "source": "spectrum_dmd_bootstrap.py",
+      "note": "leading-pair DMD |lambda| on the Baseline limit cycle (pod_d64); 1000-draw 2.5/97.5 snapshot-pair bootstrap (n_pairs=476)"
+    },
+    "dmd_St_baseline_jepa_tf_noc_ci": {
+      "macro": "SpecDmdStJepaTfCI",
+      "value": 0.6617479576312852,
+      "ci_lo": 0.03717129162344673,
+      "ci_hi": 0.6950568088751528,
+      "fmt": "%.2f",
+      "split": "baseline",
+      "observable": "leading_oscillatory_St",
+      "source": "spectrum_dmd_bootstrap.py",
+      "note": "leading-pair DMD St on the Baseline limit cycle (jepa_tf_noc_d64_s42); 1000-draw 2.5/97.5 snapshot-pair bootstrap (n_pairs=476)"
+    },
+    "dmd_modulus_baseline_jepa_tf_noc_ci": {
+      "macro": "SpecDmdModJepaTfCI",
+      "value": 0.9913539953143484,
+      "ci_lo": 0.9882859546623185,
+      "ci_hi": 1.015779735548693,
+      "fmt": "%.3f",
+      "split": "baseline",
+      "observable": "leading_oscillatory_modulus",
+      "source": "spectrum_dmd_bootstrap.py",
+      "note": "leading-pair DMD |lambda| on the Baseline limit cycle (jepa_tf_noc_d64_s42); 1000-draw 2.5/97.5 snapshot-pair bootstrap (n_pairs=476)"
+    },
+    "dmd_St_baseline_fukami_ci": {
+      "macro": "SpecDmdStFukamiCI",
+      "value": 0.5028220479718974,
+      "ci_lo": 0.0488325295286814,
+      "ci_hi": 0.6091474261469942,
+      "fmt": "%.2f",
+      "split": "baseline",
+      "observable": "leading_oscillatory_St",
+      "source": "spectrum_dmd_bootstrap.py",
+      "note": "leading-pair DMD St on the Baseline limit cycle (fukami_d64_s42); 1000-draw 2.5/97.5 snapshot-pair bootstrap (n_pairs=476)"
+    },
+    "dmd_modulus_baseline_fukami_ci": {
+      "macro": "SpecDmdModFukamiCI",
+      "value": 0.9391353878699854,
+      "ci_lo": 0.906591534563285,
+      "ci_hi": 0.9752034669103106,
+      "fmt": "%.3f",
+      "split": "baseline",
+      "observable": "leading_oscillatory_modulus",
+      "source": "spectrum_dmd_bootstrap.py",
+      "note": "leading-pair DMD |lambda| on the Baseline limit cycle (fukami_d64_s42); 1000-draw 2.5/97.5 snapshot-pair bootstrap (n_pairs=476)"
+    },
+    "floquet_leading_modulus_ci": {
+      "macro": "SpecFloqModCI",
+      "value": 1.004172488417314,
+      "ci_lo": 1.0025921117731826,
+      "ci_hi": 1.0049280108135479,
+      "fmt": "%.3f",
+      "split": "baseline",
+      "endpoint": "forecast",
+      "observable": "floquet_leading_per_step_modulus",
+      "source": "spectrum_dmd_bootstrap.py",
+      "note": "per-step Floquet multiplier modulus of the noc_tf predictor over the 59-frame Baseline cycle (W=16); 1000-draw 2.5/97.5 step-Jacobian bootstrap; CI straddles 1.0: False"
+    }
+  }
+}

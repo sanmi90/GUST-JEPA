@@ -34,16 +34,22 @@ convenient and nothing constrains the latent geometry to be predictable in time;
 under autoregressive rollout the reconstructive latent leaves its own training
 manifold along the very directions the decoder never constrained, and a probe
 queried on that drifted state fails for reasons unrelated to the predictor's
-one-step accuracy. The predictive objective, regularised against collapse, instead
+one-step accuracy. The anti-collapse regulariser instead
 organises the latent so that the rollout stays on the encoded manifold, the
 on-manifold property that data-driven state-space and Koopman models
 of coherent-state dynamics on invariant manifolds rely on
 \citep{constanteamores2024}, and that the encoded no-gust limit cycle exhibits as a
-single loop even under a metric that removes coordinate scale. The manifold departure of the
-reconstructive rollout is the parametric-gust counterpart of the
+single loop even under a metric that removes coordinate scale. This property is not
+unique to the predictive objective: the objective-free supervision-only latent,
+which carries the same anti-collapse term, is the most in-distribution of all under
+rollout (\S\ref{sec:res_drift}), so on-manifold geometry is supplied by the
+regulariser, while the predictive objective is what keeps the rollout close to the
+true trajectory and renders the wake forecastable. The manifold departure of the
+reconstructive rollout, which carries no anti-collapse term, is the parametric-gust
+counterpart of the
 catastrophic-divergence tail reported for reconstruction-based latent dynamics in
-controlled wakes \citep{solerarico_compactness_underreview}; the predictive
-objective is the common cure. The wake observables are the sharpest discriminator
+controlled wakes \citep{solerarico_compactness_underreview}; the anti-collapse
+regulariser is the common cure. The wake observables are the sharpest discriminator
 precisely because they can change while the scalar forces do not: the gust
 parameters alone fail to predict the wake at the readout horizon (the parametric
 floor of \S\ref{sec:res_closure} is negative) yet predict the forces well, so a

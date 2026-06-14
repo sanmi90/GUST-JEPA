@@ -1,15 +1,16 @@
 {
   "_provenance": {
-    "generated_iso": "2026-06-14T19:42:23.687051+00:00",
-    "git_commit": "ac0f36d6f17b1a219ba74759ae6acd708fddcd42",
+    "generated_iso": "2026-06-14T22:04:22.359773+00:00",
+    "git_commit": "273744179a582c5f680d47bd9249805ff1de3537",
     "manifest_runs_sha256": "aa07e687f2080e7e7f0dea8d75f3b2af40a86fa68c19f828ae3ec98422e60bbe",
-    "n_parts": 23,
+    "n_parts": 25,
     "parts": [
       "closure_floor_full.json",
       "closure_headline.json",
       "dataset_manifest.json",
       "decode_operating_points.json",
       "drift_ce1.json",
+      "drift_supervised_only.json",
       "e4_floor.json",
       "error_maps.json",
       "horizon_robust.json",
@@ -24,6 +25,7 @@
       "sensing_cf.json",
       "sensing_field_cf.json",
       "spectrum_dmd.json",
+      "spectrum_dmd_bootstrap.json",
       "stats_harvest.json",
       "topology_ce2.json",
       "track_e.json",
@@ -765,6 +767,17 @@
       "split": "baseline",
       "value": 0.5028220479718974
     },
+    "dmd_St_baseline_fukami_ci": {
+      "ci_hi": 0.6091474261469942,
+      "ci_lo": 0.0488325295286814,
+      "fmt": "%.2f",
+      "macro": "SpecDmdStFukamiCI",
+      "note": "leading-pair DMD St on the Baseline limit cycle (fukami_d64_s42); 1000-draw 2.5/97.5 snapshot-pair bootstrap (n_pairs=476)",
+      "observable": "leading_oscillatory_St",
+      "source": "spectrum_dmd_bootstrap.py",
+      "split": "baseline",
+      "value": 0.5028220479718974
+    },
     "dmd_St_baseline_jepa_tf_noc": {
       "fmt": "%.2f",
       "macro": "SpecDmdStJepaTf",
@@ -774,12 +787,34 @@
       "split": "baseline",
       "value": 0.6617479576312852
     },
+    "dmd_St_baseline_jepa_tf_noc_ci": {
+      "ci_hi": 0.6950568088751528,
+      "ci_lo": 0.03717129162344673,
+      "fmt": "%.2f",
+      "macro": "SpecDmdStJepaTfCI",
+      "note": "leading-pair DMD St on the Baseline limit cycle (jepa_tf_noc_d64_s42); 1000-draw 2.5/97.5 snapshot-pair bootstrap (n_pairs=476)",
+      "observable": "leading_oscillatory_St",
+      "source": "spectrum_dmd_bootstrap.py",
+      "split": "baseline",
+      "value": 0.6617479576312852
+    },
     "dmd_St_baseline_pod": {
       "fmt": "%.2f",
       "macro": "SpecDmdStPod",
       "note": "data-driven DMD leading-pair St on Baseline limit cycle (pod_d64)",
       "observable": "leading_oscillatory_St",
       "source": "spectrum_dmd.py",
+      "split": "baseline",
+      "value": 0.6822523948710314
+    },
+    "dmd_St_baseline_pod_ci": {
+      "ci_hi": 0.7783942912406862,
+      "ci_lo": 0.037415690561837196,
+      "fmt": "%.2f",
+      "macro": "SpecDmdStPodCI",
+      "note": "leading-pair DMD St on the Baseline limit cycle (pod_d64); 1000-draw 2.5/97.5 snapshot-pair bootstrap (n_pairs=476)",
+      "observable": "leading_oscillatory_St",
+      "source": "spectrum_dmd_bootstrap.py",
       "split": "baseline",
       "value": 0.6822523948710314
     },
@@ -799,6 +834,17 @@
       "split": "baseline",
       "value": 0.9391353878699854
     },
+    "dmd_modulus_baseline_fukami_ci": {
+      "ci_hi": 0.9752034669103106,
+      "ci_lo": 0.906591534563285,
+      "fmt": "%.3f",
+      "macro": "SpecDmdModFukamiCI",
+      "note": "leading-pair DMD |lambda| on the Baseline limit cycle (fukami_d64_s42); 1000-draw 2.5/97.5 snapshot-pair bootstrap (n_pairs=476)",
+      "observable": "leading_oscillatory_modulus",
+      "source": "spectrum_dmd_bootstrap.py",
+      "split": "baseline",
+      "value": 0.9391353878699854
+    },
     "dmd_modulus_baseline_jepa_tf_noc": {
       "fmt": "%.3f",
       "macro": "SpecDmdModJepaTf",
@@ -808,12 +854,34 @@
       "split": "baseline",
       "value": 0.9913539953143484
     },
+    "dmd_modulus_baseline_jepa_tf_noc_ci": {
+      "ci_hi": 1.015779735548693,
+      "ci_lo": 0.9882859546623185,
+      "fmt": "%.3f",
+      "macro": "SpecDmdModJepaTfCI",
+      "note": "leading-pair DMD |lambda| on the Baseline limit cycle (jepa_tf_noc_d64_s42); 1000-draw 2.5/97.5 snapshot-pair bootstrap (n_pairs=476)",
+      "observable": "leading_oscillatory_modulus",
+      "source": "spectrum_dmd_bootstrap.py",
+      "split": "baseline",
+      "value": 0.9913539953143484
+    },
     "dmd_modulus_baseline_pod": {
       "fmt": "%.3f",
       "macro": "SpecDmdModPod",
       "note": "leading-pair |lambda| (~1 = marginally stable limit cycle)",
       "observable": "leading_oscillatory_modulus",
       "source": "spectrum_dmd.py",
+      "split": "baseline",
+      "value": 0.9955932038392336
+    },
+    "dmd_modulus_baseline_pod_ci": {
+      "ci_hi": 1.0221875050346891,
+      "ci_lo": 0.9928391368057323,
+      "fmt": "%.3f",
+      "macro": "SpecDmdModPodCI",
+      "note": "leading-pair DMD |lambda| on the Baseline limit cycle (pod_d64); 1000-draw 2.5/97.5 snapshot-pair bootstrap (n_pairs=476)",
+      "observable": "leading_oscillatory_modulus",
+      "source": "spectrum_dmd_bootstrap.py",
       "split": "baseline",
       "value": 0.9955932038392336
     },
@@ -857,6 +925,16 @@
       "split": "test_b",
       "value": 0.8445477039670971
     },
+    "drift_maha_ratio_H24_d64_suponly": {
+      "fmt": "%.2f",
+      "horizon": 24,
+      "macro": "DriftMahaSupOnly",
+      "n": 42,
+      "note": "mean Mahalanobis ratio to per-frame TRAIN encoded cloud (v2 floored-covariance regime), supervised_only d=64, H=24; ratio<1 (predictor regresses to train cloud)",
+      "source": "drift_supervised_only (SESSION29.8 A1)",
+      "split": "test_b",
+      "value": 0.8269378769183797
+    },
     "drift_rel_l2_H24_d64_bvae": {
       "fmt": "%.2f",
       "horizon": 24,
@@ -897,6 +975,16 @@
       "split": "test_b",
       "value": 0.8382387338502681
     },
+    "drift_rel_l2_H24_d64_suponly": {
+      "fmt": "%.2f",
+      "horizon": 24,
+      "macro": "DriftRelLtwoSupOnly",
+      "n": 42,
+      "note": "mean rel-l2 deviation, supervised_only d=64, full-context rollout (matched AR-transformer), H=24; identical protocol to drift_ce1.py (tab:latent_drift)",
+      "source": "drift_supervised_only (SESSION29.8 A1)",
+      "split": "test_b",
+      "value": 0.9140233367633325
+    },
     "drift_spec_nearnull_frac_d64_fukami": {
       "fmt": "%.2f",
       "horizon": 24,
@@ -914,6 +1002,15 @@
       "source": "drift_ce1.py",
       "split": "test_b",
       "value": 0.8825952227058818
+    },
+    "drift_spec_nearnull_frac_d64_suponly": {
+      "fmt": "%.2f",
+      "horizon": 24,
+      "macro": "DriftSpecNearNullSupOnly",
+      "note": "fraction of squared-Mahalanobis departure in near-null encoded eigen-dirs (0 dirs), supervised_only d=64",
+      "source": "drift_supervised_only (SESSION29.8 A1)",
+      "split": "test_b",
+      "value": 0.0
     },
     "e4_wake_gtrend_sigmac_0p01": {
       "fmt": "%.2f",
@@ -1217,6 +1314,18 @@
       "source": "spectrum_dmd.py",
       "split": "baseline",
       "value": 1.0041725569280693
+    },
+    "floquet_leading_modulus_ci": {
+      "ci_hi": 1.0049280108135479,
+      "ci_lo": 1.0025921117731826,
+      "endpoint": "forecast",
+      "fmt": "%.3f",
+      "macro": "SpecFloqModCI",
+      "note": "per-step Floquet multiplier modulus of the noc_tf predictor over the 59-frame Baseline cycle (W=16); 1000-draw 2.5/97.5 step-Jacobian bootstrap; CI straddles 1.0: False",
+      "observable": "floquet_leading_per_step_modulus",
+      "source": "spectrum_dmd_bootstrap.py",
+      "split": "baseline",
+      "value": 1.004172488417314
     },
     "floquet_markov_St": {
       "endpoint": "forecast",
@@ -1733,7 +1842,7 @@
       "fmt": "%s",
       "macro": "CommitHash",
       "source": "eval_all.py",
-      "value": "ac0f36d6f17b"
+      "value": "273744179a58"
     },
     "s46_orbit_return_fukami": {
       "fmt": "%.2f",

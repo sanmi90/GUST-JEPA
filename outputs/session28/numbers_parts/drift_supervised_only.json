@@ -1,0 +1,34 @@
+{
+  "numbers": {
+    "drift_maha_ratio_H24_d64_suponly": {
+      "fmt": "%.2f",
+      "horizon": 24,
+      "macro": "DriftMahaSupOnly",
+      "n": 42,
+      "note": "mean Mahalanobis ratio to per-frame TRAIN encoded cloud (v2 floored-covariance regime), supervised_only d=64, H=24; ratio<1 (predictor regresses to train cloud)",
+      "source": "drift_supervised_only (SESSION29.8 A1)",
+      "split": "test_b",
+      "value": 0.8269378769183797
+    },
+    "drift_rel_l2_H24_d64_suponly": {
+      "fmt": "%.2f",
+      "horizon": 24,
+      "macro": "DriftRelLtwoSupOnly",
+      "n": 42,
+      "note": "mean rel-l2 deviation, supervised_only d=64, full-context rollout (matched AR-transformer), H=24; identical protocol to drift_ce1.py (tab:latent_drift)",
+      "source": "drift_supervised_only (SESSION29.8 A1)",
+      "split": "test_b",
+      "value": 0.9140233367633325
+    },
+    "drift_spec_nearnull_frac_d64_suponly": {
+      "fmt": "%.2f",
+      "horizon": 24,
+      "macro": "DriftSpecNearNullSupOnly",
+      "note": "fraction of squared-Mahalanobis departure in near-null encoded eigen-dirs (0 dirs), supervised_only d=64",
+      "source": "drift_supervised_only (SESSION29.8 A1)",
+      "split": "test_b",
+      "value": 0.0
+    }
+  },
+  "part": "drift_supervised_only"
+}
