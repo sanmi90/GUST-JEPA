@@ -1,11 +1,12 @@
 {
   "_provenance": {
-    "git_sha": "a5af450eae6c1117dfb97effd0793ebe19d04238",
-    "command": "probe_class_sweep.py --target-source canonical --families jepa_tf_noc supervised_only fukami pod",
-    "utc": "2026-06-14T14:31:13.852773+00:00",
+    "git_sha": "d336b041fe9c4021e57676ca5ac5862ca9aecf36",
+    "command": "probe_class_sweep.py --target-source canonical --families jepa_tf_noc supervised_only ctrl_recon fukami pod --probes linear kernel_ridge_rbf",
+    "utc": "2026-06-14T16:33:49.340056+00:00",
     "input_sha256": {
       "/home/carlos/GUST-JEPA/outputs/session28/latents/jepa_tf_noc_d64_s42/train.npz": "63d1954aa139c456e1ca28b630fa90b761f25657d2fa18318a7c12db6ba9d805",
       "/home/carlos/GUST-JEPA/outputs/session28/latents/supervised_only_d64_s42/train.npz": "e1f28bebca1c7a2dca8ca147be795d259037d3b3ace0bbed825febf317e7ea8d",
+      "/home/carlos/GUST-JEPA/outputs/session28/latents/ctrl_recon_cnnvit_s1/train.npz": "52388740646d5d3fd19c4308f60fecb3d8299978a5b23d7f76053ac03723d3c5",
       "/home/carlos/GUST-JEPA/outputs/session28/latents/fukami_d64_s42/train.npz": "a0b64b52b7652eed5cf3f4e7a1bd01f2c7d8ce394440b719c8ed5481f03f1d16",
       "/home/carlos/GUST-JEPA/outputs/session28/latents/pod_d64/train.npz": "c638c98523b139b7f77e5243e3eecf35c58d2b6dffc7c0b86146a150ffa06398",
       "/home/carlos/GUST-JEPA/outputs/session28/exp2/per_frame_targets/train.npz": "25c97045b6e7a5e9e4c75d2b3ad0fb62bced2250c266573f8f49cbfa4a703e5f",
@@ -52,35 +53,6 @@
         "r2_seed_sd": 0.0,
         "n_test_b": 42,
         "n_cases_test_b": 10
-      },
-      "mlp": {
-        "r2": 0.40154201760632313,
-        "ci_lo": -5.239201339215125,
-        "ci_hi": 0.25350226326531333,
-        "per_case_mae": 55.0776791413625,
-        "best_params": {
-          "model__alpha": 0.01,
-          "model__hidden_layer_sizes": [
-            64
-          ]
-        },
-        "r2_seed_sd": 0.28837890667004734,
-        "n_test_b": 42,
-        "n_cases_test_b": 10
-      },
-      "gbm": {
-        "r2": 0.6810816012977721,
-        "ci_lo": -1.424129936118377,
-        "ci_hi": 0.7978669931206169,
-        "per_case_mae": 28.298251147447377,
-        "best_params": {
-          "model__learning_rate": 0.03,
-          "model__max_depth": 3,
-          "model__n_estimators": 300
-        },
-        "r2_seed_sd": 0.0,
-        "n_test_b": 42,
-        "n_cases_test_b": 10
       }
     },
     "supervised_only": {
@@ -108,31 +80,29 @@
         "r2_seed_sd": 0.0,
         "n_test_b": 42,
         "n_cases_test_b": 10
-      },
-      "mlp": {
-        "r2": 0.5493085463688447,
-        "ci_lo": -2.69074021725672,
-        "ci_hi": 0.6797312447940506,
-        "per_case_mae": 39.15828161239624,
+      }
+    },
+    "ctrl_recon": {
+      "linear": {
+        "r2": -0.4884462547472119,
+        "ci_lo": -19.45321714428495,
+        "ci_hi": 0.2795615851038199,
+        "per_case_mae": 81.04701197942097,
         "best_params": {
-          "model__alpha": 0.001,
-          "model__hidden_layer_sizes": [
-            64
-          ]
+          "model__alpha": 10.0
         },
-        "r2_seed_sd": 0.028355224630050052,
+        "r2_seed_sd": 0.0,
         "n_test_b": 42,
         "n_cases_test_b": 10
       },
-      "gbm": {
-        "r2": 0.5296192842445062,
-        "ci_lo": -0.307378511361175,
-        "ci_hi": 0.695601916903004,
-        "per_case_mae": 31.710678822813446,
+      "kernel_ridge_rbf": {
+        "r2": -0.5275262473577693,
+        "ci_lo": -12.371580088229749,
+        "ci_hi": -0.03821170956902502,
+        "per_case_mae": 70.67341652521702,
         "best_params": {
-          "model__learning_rate": 0.1,
-          "model__max_depth": 2,
-          "model__n_estimators": 300
+          "model__alpha": 0.1,
+          "model__gamma": 0.01
         },
         "r2_seed_sd": 0.0,
         "n_test_b": 42,
@@ -164,35 +134,6 @@
         "r2_seed_sd": 0.0,
         "n_test_b": 42,
         "n_cases_test_b": 10
-      },
-      "mlp": {
-        "r2": -0.3981039530990134,
-        "ci_lo": -5.04940713473358,
-        "ci_hi": -0.16997734706877843,
-        "per_case_mae": 65.18356170654297,
-        "best_params": {
-          "model__alpha": 0.01,
-          "model__hidden_layer_sizes": [
-            64
-          ]
-        },
-        "r2_seed_sd": 0.006655927799029794,
-        "n_test_b": 42,
-        "n_cases_test_b": 10
-      },
-      "gbm": {
-        "r2": 0.06927961088329182,
-        "ci_lo": -2.501321700502519,
-        "ci_hi": 0.13901587458927164,
-        "per_case_mae": 50.41319891928758,
-        "best_params": {
-          "model__learning_rate": 0.03,
-          "model__max_depth": 3,
-          "model__n_estimators": 100
-        },
-        "r2_seed_sd": 0.0,
-        "n_test_b": 42,
-        "n_cases_test_b": 10
       }
     },
     "pod": {
@@ -220,36 +161,6 @@
         "r2_seed_sd": 0.0,
         "n_test_b": 42,
         "n_cases_test_b": 10
-      },
-      "mlp": {
-        "r2": 0.1722812507655225,
-        "ci_lo": -3.0905914376138983,
-        "ci_hi": 0.3207761360660757,
-        "per_case_mae": 49.831373023986814,
-        "best_params": {
-          "model__alpha": 0.1,
-          "model__hidden_layer_sizes": [
-            64,
-            32
-          ]
-        },
-        "r2_seed_sd": 0.05641895042118166,
-        "n_test_b": 42,
-        "n_cases_test_b": 10
-      },
-      "gbm": {
-        "r2": -0.13811860929384356,
-        "ci_lo": -6.628864644269415,
-        "ci_hi": 0.19595071086874222,
-        "per_case_mae": 53.04864600439839,
-        "best_params": {
-          "model__learning_rate": 0.1,
-          "model__max_depth": 2,
-          "model__n_estimators": 300
-        },
-        "r2_seed_sd": 0.0,
-        "n_test_b": 42,
-        "n_cases_test_b": 10
       }
     }
   },
@@ -270,29 +181,11 @@
         "gap_vs_fukami": 0.8369832025798815,
         "gap_vs_pod": 1.09499489272099,
         "jepa_best": true
-      },
-      "mlp": {
-        "jepa": 0.40154201760632313,
-        "fukami": -0.3981039530990134,
-        "pod": 0.1722812507655225,
-        "gap_vs_fukami": 0.7996459707053365,
-        "gap_vs_pod": 0.22926076684080063,
-        "jepa_best": true
-      },
-      "gbm": {
-        "jepa": 0.6810816012977721,
-        "fukami": 0.06927961088329182,
-        "pod": -0.13811860929384356,
-        "gap_vs_fukami": 0.6118019904144802,
-        "gap_vs_pod": 0.8192002105916156,
-        "jepa_best": true
       }
     },
     "probe_classes_jepa_leads": [
       "linear",
-      "kernel_ridge_rbf",
-      "mlp",
-      "gbm"
+      "kernel_ridge_rbf"
     ],
     "probe_classes_reversed": [],
     "branch": "STRONG",

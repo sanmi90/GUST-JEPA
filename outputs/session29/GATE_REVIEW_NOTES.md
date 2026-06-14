@@ -187,3 +187,19 @@ Canonical target, 4 families, readout wake R^2 (test_b, case-clustered CI):
    and is compatible with supervision where reconstruction is antagonistic
    (jepa 0.80 vs fukami 0.095 at matched wake head). Reframe approved by author
    ("confirm then reframe").
+
+## Track E matched-control clarification (fukami vs ctrl_recon) -- reframe verified.
+CRITICAL: the production `fukami_d64` is the Fukami-lineage AE with NO wake head
+(lambda_wake=0); it is a headline BASELINE (-0.25), not the matched-supervision
+control. The matched-wake-head reconstructive control is `ctrl_recon_cnnvit`
+(fuk_matched recipe: reconstruction + the SAME wake head as jepa/supervised_only).
+Matched-supervision triad, canonical readout-frame linear wake R^2 (test_b):
+- supervised_only (wake head, NO objective): +0.92
+- jepa_tf_noc   (wake head, predictive):     +0.80
+- ctrl_recon    (wake head, reconstructive): -0.49   (2x2 pooled value 0.13)
+=> with the SAME wake head, the reconstructive objective SUPPRESSES the
+supervision-supplied readability while prediction (and no-objective) preserve it.
+The reframe prose is correct: S4.2 references "the reconstructive cells above" (the
+2x2 ctrl_recon cells, wake head), not fukami. C-full uses the matched recon
+(fuk_matched recipe) as the reconstructive family. FAMILY_TAGS gains ctrl_recon ->
+ctrl_recon_cnnvit_s1; probe_class_matrix_canonical now 5-family.

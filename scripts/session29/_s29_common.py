@@ -34,6 +34,11 @@ FAMILY_TAGS = {
     # SESSION29 Track E (F4): wake+lift heads + SIGReg, NO predictive objective
     # (predictive_weight=0). Isolates whether wake supervision alone suffices.
     "supervised_only": "supervised_only_d64_s42",
+    # Matched-wake-head reconstructive control (fuk_matched recipe: reconstruction
+    # + the SAME wake head as jepa/supervised_only). This is the correct "same
+    # supervision, reconstructive objective" cell; `fukami` is the lineage AE with
+    # NO wake head and is a separate (headline) baseline.
+    "ctrl_recon": "ctrl_recon_cnnvit_s1",
 }
 ENCODER_SEED_TAGS = {  # for seed-variance robustness (encoder seeds, not probe)
     "jepa_tf_noc": ["jepa_tf_noc_d64_s0", "jepa_tf_noc_d64_s1", "jepa_tf_noc_d64_s42"],
