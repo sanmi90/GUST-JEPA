@@ -6,22 +6,22 @@
 % recovery (Track I), NOT a wake forecast. Numbers are macros. No em-dashes.
 
 Extreme vortex-gust encounters of a post-stall airfoil are wake-reorganisation
-events: the load spike is the surface signature of leading-edge-vortex roll-up,
-shedding and recovery, and the release parameters alone do not fix the wake after
-impact. Using direct numerical simulations of a NACA~0012 airfoil at
-$\alpha = 14^\circ$ and $\vRe = 5000$, perturbed by Taylor vortices spanning gust
-strength, core diameter and wall-normal offset, we ask which reduced state
-preserves that wake. At fixed latent dimension and under one shared probe and
-latent predictor, we compare a wake-supervised predictive state, a matched
-wake-supervised reconstructive state, and a proper orthogonal decomposition basis.
+events: the load spike is the surface signature of leading-edge-vortex roll-up and
+shedding, and the release parameters alone do not fix the wake after impact. Using
+direct numerical simulations of a NACA~0012 airfoil at $\alpha = 14^\circ$ and
+$\vRe = 5000$, perturbed by Taylor vortices spanning gust strength, core diameter
+and wall-normal offset, we ask which reduced state preserves that wake. At fixed
+dimension, under one shared probe and predictor, we compare a wake-supervised
+predictive state, a matched wake-supervised reconstructive state, and a proper
+orthogonal decomposition basis.
 Probed from held-out fields sixteen frames after impact, the predictive state makes
 the wake enstrophy linearly readable ($R^2 = \NumReprWakeJepaTf$, with case-level
 spread reported explicitly) where the reconstructive and linear states are at or
 below the mean predictor. Matched controls separate readability from dynamics: an
-objective-free encoder carrying only the wake supervision reads the wake as well,
-so the supervision supplies the instantaneous readability, while the predictive
-objective preserves it under rollout and the reconstructive objective suppresses it
-under the same supervision. The mechanism is geometric: the predictive rollout
+objective-free encoder with only the wake supervision reads the wake as well, so
+supervision supplies the readability, while the predictive objective preserves it
+under rollout and the reconstructive objective suppresses it under the same
+supervision. The mechanism is geometric: the predictive rollout
 stays on the encoded manifold and its no-gust shedding orbit remains a single
 persistent loop, whereas the reconstructive rollout departs along directions of
 negligible encoded variance and its no-gust loop fragments. Sparse wall pressure
