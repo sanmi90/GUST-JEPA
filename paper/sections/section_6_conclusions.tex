@@ -26,13 +26,13 @@ separation appears coordinate-free in the rollout drift and in the topology of t
 encoded no-gust limit cycle. The latent also carries the flow's own clocks: its
 spectrum recovers the shedding frequency as a marginally stable orbit, the wake
 response scales with gust strength, and the gust resets the shedding phase. Rolled
-forward, the predictor tracks the encounter, which we show but do not present as a
-validated forecast. Because the predictive encoder also differs in architecture and
+forward, the predictor tracks the encounter as consistent confirmation rather than
+as a validated forecast. Because the predictive encoder also differs in architecture and
 auxiliary supervision, matched controls attribute the advantage to the predictive
 objective trained with wake supervision. The same predictive state is the most
 recoverable of the three from sparse wall pressure, so it is both the most
 wake-readable and the most wall-recoverable of the three, the property a downstream
-estimator would exploit. We do not claim a validated forecast, a controller, or a
-counterfactual model. The remaining limitations are the weak resolution of the
-wall-normal offset, the three-dimensional observability boundary at $|G| = 4$, and
-a rollout error that still prevents a closed-loop control demonstration.
+estimator would exploit. Three facts bound the result: the wall-normal offset is
+weakly resolved, the mid-plane representation reaches a three-dimensional
+observability boundary at $|G| = 4$, and the rollout error still exceeds the
+tolerance a closed-loop control demonstration would require.

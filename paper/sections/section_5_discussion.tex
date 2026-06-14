@@ -103,8 +103,8 @@ mechanism, which is consistent with the distributed code above: the wake is spre
 across many low-variance directions, and trimming them costs sharpness before it
 costs the ordering.
 
-The mechanism above invites a strong reading, so we are deliberate about the
-scope of the claim. The predictive encoder differs
+The mechanism above invites a strong reading, which the controls bound. The
+predictive encoder differs
 from the reconstructive baseline in three respects at once: the training
 objective, the CNN$+$ViT architecture, and the wake supervision. The
 parameter-only floor removes the gust parameters as an explanation, all the more
@@ -167,13 +167,13 @@ access to, with no gust parameters that would have to be estimated first, and ad
 an actuation channel is a change of input rather than of architecture; the
 phase-amplitude reading of \S\ref{sec:res_param_phase} connects the predictor
 directly to the sensitivity-function control designed for these flows
-\citep{fukami2024control}. Consistent with treating the world-model view of
-\S\ref{sec:introduction} as motivation only, we caution against over-reading the
-predictor as an interventional world model. The predictor takes no gust parameters
+\citep{fukami2024control}. The predictor takes no gust parameters
 and is trained to forecast the observed latent trajectory, so it is a forward model
-of the encounters in the training envelope, not a counterfactual model of the effect
-of changing the gust: it makes no claim to predict how an encounter would differ
-under a parameter it never sees.
+of the encounters in the training envelope: it captures how an encounter evolves
+within the envelope, while predicting how one would differ under a changed gust
+parameter, the interventional setting, is a separate task its training does not
+address. We keep the world-model view of \S\ref{sec:introduction} as motivation
+accordingly.
 
 The contribution is narrow by design: a controlled comparison on a single
 parametric flow, anchored to the representational closure of the wake rather than

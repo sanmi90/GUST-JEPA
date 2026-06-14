@@ -114,9 +114,10 @@ latent from its own history alone. The world-model framework of
 \citet{lecun2022,ha2018world} motivates this split as an analogy and not a property
 we claim, since the latent dynamics function is the object a controller would plan
 against, and a recent gust-airfoil instance couples a physics-augmented autoencoder
-to a latent dynamics model \citep{liu2025modelbased}. We are deliberate about scope:
-we do not claim an interventional or causal model (\S\ref{sec:discussion}), and the
-rollout is shown but not advanced as a validated forecast. What this leaves is the
+to a latent dynamics model \citep{liu2025modelbased}. We treat that reading as
+motivation: the rollout is shown as a consistent latent trajectory rather than
+advanced as a validated forecast, and its interventional or causal interpretation is
+left for future work (\S\ref{sec:discussion}). What this leaves is the
 property our principle turns on: a reconstruction-trained autoencoder and an
 energy-optimal proper orthogonal decomposition basis are not constrained to keep the
 dynamically relevant wake structure linearly readable in the latent, and the drift
@@ -150,7 +151,7 @@ wake-observable supervision, with the predictive objective distinguished by
 preserving it where the reconstructive objective suppresses it and by rendering the
 wake forecastable. We phrase the result as linear decodability rather than exclusive
 possession, since a nonlinear probe narrows the gap. The predictor rollout points
-the same way, which we show but do not advance as a validated forecast.
+the same way, shown as consistent tracking rather than advanced as a validated forecast.
 
 Second, we identify the mechanism. A latent-drift diagnostic shows that the
 reconstructive rollout's departure from the training distribution concentrates in
@@ -164,17 +165,17 @@ the undisturbed shedding cycle as a single persistent generator where the
 reconstructive encoding fragments it, so the reconstructive encoding cannot
 represent even the no-gust limit cycle coherently.
 
-Third, we are explicit about what the comparison does and does not isolate. The
+Third, we attribute the wake gain to its cause. The
 predictive encoder differs from the reconstructive baseline not only in its
 objective but also in its architecture and in its auxiliary observable
-supervision. We therefore phrase the result as a property of the
+supervision, so we phrase the result as a property of the
 \emph{predictive latent family}, report a model-free parametric floor that rules
 out the gust parameters as the explanation (\S\ref{sec:res_closure}),
 and perform matched-architecture and matched-auxiliary controls
 (\S\ref{sec:res_controls}) that attribute the wake gain to the predictive
-objective trained with wake-observable supervision, not to the architecture. We
-further show that the same predictive state is the most recoverable of the three
+objective trained with wake-observable supervision rather than to the architecture. The
+same predictive state is also the most recoverable of the three
 from sparse wall pressure, so it is both the most wake-readable and the most
-wall-recoverable of the three (\S\ref{sec:res_observability}), and we relate the predictor to the latent
-dynamics function a controller would plan against, with a closed-loop pilot
-reported as a limitation rather than a result (\S\ref{sec:discussion}).
+wall-recoverable of the three (\S\ref{sec:res_observability}), and it is the latent
+dynamics function a controller would plan against, a closed-loop demonstration of
+which lies beyond the present rollout accuracy (\S\ref{sec:discussion}).

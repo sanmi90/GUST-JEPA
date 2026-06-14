@@ -383,7 +383,8 @@ reconstructive latent is not), and removing that anisotropic scale with a per-fa
 whitening collapses the difference: under the whitened metric both families read a
 gusted encounter as essentially a single cycle (median $\TopoHoneWhtMedJepa$ and
 $\TopoHoneWhtMedFukami$ generators). The gusted-encounter fragmentation is therefore
-a property of the metric, not of the topology, and we do not claim it.
+a property of the metric, not of the topology, and we read no topological
+difference into the gusted encounter.
 
 What survives the whitening is the cleanest control, the undisturbed no-gust limit
 cycle (figure~\ref{fig:persistence}). Even after per-family whitening the
@@ -494,14 +495,15 @@ distributed code is the latent-space signature of the anti-collapse regulariser,
 which isotropises the representation, and it is consistent with the rollout staying
 within the broad cloud of \S\ref{sec:res_drift}.
 
-We do not claim that this code is spatially localised on identifiable structures. A
+The distributed code lives in the latent rather than on identifiable flow
+structures. A
 gradient-saliency footprint of the wake-forecast direction through the frozen
 encoder overlaps the high-vorticity cores and the Q-criterion vortices \emph{below}
 a permutation chance baseline (overlap $\NumPfiveFootprintOmegaOverlap$ and
 $\NumPfiveFootprintQOverlap$ against the chance band), so the wake-forecast
 direction does not read the input preferentially at the leading-edge vortex or the
-shear layer. The wake code is distributed in the latent and not localised in the
-field, and we report it as such.
+shear layer. The wake code is distributed across the latent and is not localised in
+the field.
 
 \subsection{Where the wake is kept and where it is lost in physical space}
 \label{sec:res_param_phase}
@@ -564,7 +566,7 @@ across the envelope. It grows with the gust core diameter $D$ (Spearman
 $\rho = \ErrMapRhoD$ on the encoded latent, significant), while its dependence on
 the gust strength $G$ and the wall-normal offset $Y$ is weak and not significant
 ($\rho = \ErrMapRhoG$ and $\ErrMapRhoY$). The predictive advantage therefore concentrates at
-the larger cores that most reorganise the wake; we do not read a $Y$ trend, in
+the larger cores that most reorganise the wake, with no significant $Y$ trend, in
 keeping with the weak $Y$ resolution of the probe above. The
 shedding phase at impact, the axis the gust-response literature emphasises
 \citep{fukami2024control}, is only weakly sampled by this dataset: impact is fixed
@@ -629,19 +631,18 @@ claim is that the predictive decode tracks the large-scale wake better than the
 reconstructive autoencoder, while field-space decode correlation does not separate
 it from the linear basis. This is
 where the wake-enstrophy advantage of \S\ref{sec:res_closure} becomes a statement
-about the leading-edge vortex and shear layer rather than about a scalar. We are
-deliberately careful about the converse question, whether a family's \emph{decode}
-tracks the leading-edge-vortex circulation per frame, because that test is confounded
+about the leading-edge vortex and shear layer rather than about a scalar. The
+converse question, whether a family's \emph{decode}
+tracks the leading-edge-vortex circulation per frame, is confounded
 by decoder quality rather than by what the latent carries. Under the matched
-post-hoc decoders, the fraction of held-out encounters whose decoded circulation
+post-hoc decoders the fraction of held-out encounters whose decoded circulation
 tracks the simulation is comparable across families and modest
 ($\NumPfourTrackTfNocRecon$ for the predictive decode, $\NumPfourTrackFukamiRecon$
 for the reconstructive, and highest for the linear basis at
 $\NumPfourTrackPodRecon$, whose linear decoder reconstructs the large-scale field
-best regardless of state content). We therefore do not claim that the predictive
-decode tracks the leading-edge vortex better than the alternatives; the wake result
-rests on the representational closure and the scale-resolved enstrophy tracking
-above, not on per-family decode fidelity.
+best regardless of state content). The wake result therefore rests on the
+representational closure and the scale-resolved enstrophy tracking
+above, where the latent comparison has no decoder in the loop.
 \begin{figure}
   \centering
   \includegraphics[width=0.98\linewidth]{sections/figures/results/fig_scale_decomp_v2p1.pdf}
