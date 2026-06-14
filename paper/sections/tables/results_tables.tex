@@ -47,7 +47,9 @@
   reconstructive (Fukami) and linear (POD) latents are at or below zero. The forecast
   panel points the same way and is read as secondary; the per-encounter paired test
   is in table~\ref{tab:paired_closure} and full probe values with bootstrap CIs in
-  Appendix~\ref{app:reg}.}
+  Appendix~\ref{app:reg}. The $\beta$-VAE representation row uses the matched-recipe
+  encoder; its single forecast row is rolled out from the faithful-recipe predictor,
+  the only $\beta$-VAE rollout available, and is read accordingly.}
   \label{tab:closure}
   \small
   \fittab{\begin{tabular}{l c c c c c c c}
@@ -57,6 +59,7 @@
     \midrule
     predictive (JEPA) & \textbf{\NumCloReprCLJepaTf} & \textbf{\NumCloReprCDJepaTf} & $\NumCloReprIyJepaTf$ & \textbf{\NumReprWakeJepaTf} & \textbf{\NumCloReprCircPosJepaTf} & \textbf{\NumCloReprCircNegJepaTf} & \textbf{\NumCloReprMeanSixJepaTf} \\
     reconstructive (Fukami) & \NumCloReprCLFukami & \NumCloReprCDFukami & $\NumCloReprIyFukami$ & $\NumReprWakeFukami$ & \NumCloReprCircPosFukami & \NumCloReprCircNegFukami & \\
+    $\beta$-VAE & \NumCloReprCLBvae & \NumCloReprCDBvae & $\NumCloReprIyBvae$ & $\NumReprWakeBvaeMatch$ & \NumCloReprCircPosBvae & \NumCloReprCircNegBvae & \NumCloReprMeanSixBvae \\
     linear (POD) & \NumCloReprCLPod & \NumCloReprCDPod & $\NumCloReprIyPod$ & $\NumReprWakePod$ & $\NumCloReprCircPosPod$ & \NumCloReprCircNegPod & \\
     \bottomrule
   \end{tabular}}
@@ -70,6 +73,7 @@
     \midrule
     predictive (JEPA) & \NumCloFcstCLJepaTf & \NumCloFcstCDJepaTf & $\NumCloFcstIyJepaTf$ & \textbf{\NumCloFcstWakeJepaTf} & \NumCloFcstCircPosJepaTf & \textbf{\NumCloFcstCircNegJepaTf} \\
     reconstructive (Fukami) & \NumCloFcstCLFukami & \NumCloFcstCDFukami & \NumCloFcstIyFukami & $\NumCloFcstWakeFukami$ & \NumCloFcstCircPosFukami & \NumCloFcstCircNegFukami \\
+    $\beta$-VAE & \NumCloFcstCLBvae & \NumCloFcstCDBvae & $\NumCloFcstIyBvae$ & $\NumCloFcstWakeBvae$ & \NumCloFcstCircPosBvae & \NumCloFcstCircNegBvae \\
     linear (POD) & \textbf{\NumCloFcstCLPod} & \textbf{\NumCloFcstCDPod} & $\NumCloFcstIyPod$ & $\NumCloFcstWakePod$ & $\NumCloFcstCircPosPod$ & \NumCloFcstCircNegPod \\
     \bottomrule
   \end{tabular}}

@@ -1,10 +1,11 @@
 {
   "_provenance": {
-    "generated_iso": "2026-06-14T22:04:22.359773+00:00",
-    "git_commit": "273744179a582c5f680d47bd9249805ff1de3537",
+    "generated_iso": "2026-06-14T22:15:09.090023+00:00",
+    "git_commit": "98d204694d74c494558006c5af2bfc548323b66d",
     "manifest_runs_sha256": "aa07e687f2080e7e7f0dea8d75f3b2af40a86fa68c19f828ae3ec98422e60bbe",
-    "n_parts": 25,
+    "n_parts": 26,
     "parts": [
+      "closure_bvae.json",
       "closure_floor_full.json",
       "closure_headline.json",
       "dataset_manifest.json",
@@ -168,6 +169,20 @@
       "source": "preprocess_sensitivity_frozen.py (Track B0.5)",
       "value": -0.04996417581819079
     },
+    "clo_fcst_cd_bvae": {
+      "endpoint": "forecast",
+      "fmt": "%.2f",
+      "horizon": 16,
+      "macro": "NumCloFcstCDBvae",
+      "observable": "C_D",
+      "probe": "ridge",
+      "run_tags": [
+        "bvae_d64"
+      ],
+      "source": "emit_closure_bvae_part.py (matrix.csv; bvae_d64 rollout from bvae_faith_d64_s42)",
+      "split": "test_b",
+      "value": 0.28
+    },
     "clo_fcst_cd_fukami": {
       "fmt": "%.2f",
       "macro": "NumCloFcstCDFukami",
@@ -188,6 +203,20 @@
       "source": "emit_closure_floor_part.py (matrix.csv seed-mean)",
       "split": "test_b",
       "value": 0.72
+    },
+    "clo_fcst_circneg_bvae": {
+      "endpoint": "forecast",
+      "fmt": "%.2f",
+      "horizon": 16,
+      "macro": "NumCloFcstCircNegBvae",
+      "observable": "circulation_neg",
+      "probe": "ridge",
+      "run_tags": [
+        "bvae_d64"
+      ],
+      "source": "emit_closure_bvae_part.py (matrix.csv; bvae_d64 rollout from bvae_faith_d64_s42)",
+      "split": "test_b",
+      "value": 0.12
     },
     "clo_fcst_circneg_fukami": {
       "fmt": "%.2f",
@@ -210,6 +239,20 @@
       "split": "test_b",
       "value": 0.45
     },
+    "clo_fcst_circpos_bvae": {
+      "endpoint": "forecast",
+      "fmt": "%.2f",
+      "horizon": 16,
+      "macro": "NumCloFcstCircPosBvae",
+      "observable": "circulation_pos",
+      "probe": "ridge",
+      "run_tags": [
+        "bvae_d64"
+      ],
+      "source": "emit_closure_bvae_part.py (matrix.csv; bvae_d64 rollout from bvae_faith_d64_s42)",
+      "split": "test_b",
+      "value": 0.29
+    },
     "clo_fcst_circpos_fukami": {
       "fmt": "%.2f",
       "macro": "NumCloFcstCircPosFukami",
@@ -230,6 +273,20 @@
       "source": "emit_closure_floor_part.py (matrix.csv seed-mean)",
       "split": "test_b",
       "value": -0.18
+    },
+    "clo_fcst_cl_bvae": {
+      "endpoint": "forecast",
+      "fmt": "%.2f",
+      "horizon": 16,
+      "macro": "NumCloFcstCLBvae",
+      "observable": "C_L",
+      "probe": "ridge",
+      "run_tags": [
+        "bvae_d64"
+      ],
+      "source": "emit_closure_bvae_part.py (matrix.csv; bvae_d64 rollout from bvae_faith_d64_s42)",
+      "split": "test_b",
+      "value": 0.66
     },
     "clo_fcst_cl_fukami": {
       "fmt": "%.2f",
@@ -252,6 +309,20 @@
       "split": "test_b",
       "value": 0.83
     },
+    "clo_fcst_iy_bvae": {
+      "endpoint": "forecast",
+      "fmt": "%.2f",
+      "horizon": 16,
+      "macro": "NumCloFcstIyBvae",
+      "observable": "I_y",
+      "probe": "ridge",
+      "run_tags": [
+        "bvae_d64"
+      ],
+      "source": "emit_closure_bvae_part.py (matrix.csv; bvae_d64 rollout from bvae_faith_d64_s42)",
+      "split": "test_b",
+      "value": 0.3
+    },
     "clo_fcst_iy_fukami": {
       "fmt": "%.2f",
       "macro": "NumCloFcstIyFukami",
@@ -272,6 +343,20 @@
       "source": "emit_closure_floor_part.py (matrix.csv seed-mean)",
       "split": "test_b",
       "value": -0.02
+    },
+    "clo_fcst_wake_bvae": {
+      "endpoint": "forecast",
+      "fmt": "%.2f",
+      "horizon": 16,
+      "macro": "NumCloFcstWakeBvae",
+      "observable": "wake_enstrophy",
+      "probe": "ridge",
+      "run_tags": [
+        "bvae_d64"
+      ],
+      "source": "emit_closure_bvae_part.py (matrix.csv; bvae_d64 rollout from bvae_faith_d64_s42)",
+      "split": "test_b",
+      "value": -0.07
     },
     "clo_fcst_wake_fukami": {
       "fmt": "%.2f",
@@ -294,6 +379,22 @@
       "split": "test_b",
       "value": -0.6
     },
+    "clo_repr_cd_bvae": {
+      "endpoint": "representational",
+      "fmt": "%.2f",
+      "horizon": 16,
+      "macro": "NumCloReprCDBvae",
+      "observable": "C_D",
+      "probe": "ridge",
+      "run_tags": [
+        "bvae_match_d64_s42",
+        "bvae_match_d64_s0",
+        "bvae_match_d64_s1"
+      ],
+      "source": "emit_closure_bvae_part.py (matrix.csv seed-mean, matched recipe)",
+      "split": "test_b",
+      "value": 0.52
+    },
     "clo_repr_cd_fukami": {
       "fmt": "%.2f",
       "macro": "NumCloReprCDFukami",
@@ -314,6 +415,22 @@
       "source": "emit_closure_floor_part.py (matrix.csv seed-mean)",
       "split": "test_b",
       "value": 0.64
+    },
+    "clo_repr_circneg_bvae": {
+      "endpoint": "representational",
+      "fmt": "%.2f",
+      "horizon": 16,
+      "macro": "NumCloReprCircNegBvae",
+      "observable": "circulation_neg",
+      "probe": "ridge",
+      "run_tags": [
+        "bvae_match_d64_s42",
+        "bvae_match_d64_s0",
+        "bvae_match_d64_s1"
+      ],
+      "source": "emit_closure_bvae_part.py (matrix.csv seed-mean, matched recipe)",
+      "split": "test_b",
+      "value": 0.44
     },
     "clo_repr_circneg_fukami": {
       "fmt": "%.2f",
@@ -336,6 +453,22 @@
       "split": "test_b",
       "value": 0.32
     },
+    "clo_repr_circpos_bvae": {
+      "endpoint": "representational",
+      "fmt": "%.2f",
+      "horizon": 16,
+      "macro": "NumCloReprCircPosBvae",
+      "observable": "circulation_pos",
+      "probe": "ridge",
+      "run_tags": [
+        "bvae_match_d64_s42",
+        "bvae_match_d64_s0",
+        "bvae_match_d64_s1"
+      ],
+      "source": "emit_closure_bvae_part.py (matrix.csv seed-mean, matched recipe)",
+      "split": "test_b",
+      "value": 0.54
+    },
     "clo_repr_circpos_fukami": {
       "fmt": "%.2f",
       "macro": "NumCloReprCircPosFukami",
@@ -356,6 +489,22 @@
       "source": "emit_closure_floor_part.py (matrix.csv seed-mean)",
       "split": "test_b",
       "value": -0.15
+    },
+    "clo_repr_cl_bvae": {
+      "endpoint": "representational",
+      "fmt": "%.2f",
+      "horizon": 16,
+      "macro": "NumCloReprCLBvae",
+      "observable": "C_L",
+      "probe": "ridge",
+      "run_tags": [
+        "bvae_match_d64_s42",
+        "bvae_match_d64_s0",
+        "bvae_match_d64_s1"
+      ],
+      "source": "emit_closure_bvae_part.py (matrix.csv seed-mean, matched recipe)",
+      "split": "test_b",
+      "value": 0.69
     },
     "clo_repr_cl_fukami": {
       "fmt": "%.2f",
@@ -378,6 +527,22 @@
       "split": "test_b",
       "value": 0.68
     },
+    "clo_repr_iy_bvae": {
+      "endpoint": "representational",
+      "fmt": "%.2f",
+      "horizon": 16,
+      "macro": "NumCloReprIyBvae",
+      "observable": "I_y",
+      "probe": "ridge",
+      "run_tags": [
+        "bvae_match_d64_s42",
+        "bvae_match_d64_s0",
+        "bvae_match_d64_s1"
+      ],
+      "source": "emit_closure_bvae_part.py (matrix.csv seed-mean, matched recipe)",
+      "split": "test_b",
+      "value": 0.05
+    },
     "clo_repr_iy_fukami": {
       "fmt": "%.2f",
       "macro": "NumCloReprIyFukami",
@@ -398,6 +563,17 @@
       "source": "emit_closure_floor_part.py (matrix.csv seed-mean)",
       "split": "test_b",
       "value": -0.69
+    },
+    "clo_repr_meansix_bvae": {
+      "endpoint": "representational",
+      "fmt": "%.2f",
+      "horizon": 16,
+      "macro": "NumCloReprMeanSixBvae",
+      "note": "includes the matched wake-repr value (NumReprWakeBvaeMatch) in the six-mean",
+      "probe": "ridge",
+      "source": "emit_closure_bvae_part.py (mean over six matched-recipe repr cells)",
+      "split": "test_b",
+      "value": 0.46
     },
     "clo_repr_meansix_jepatf": {
       "fmt": "%.2f",
@@ -1842,7 +2018,7 @@
       "fmt": "%s",
       "macro": "CommitHash",
       "source": "eval_all.py",
-      "value": "273744179a58"
+      "value": "98d204694d74"
     },
     "s46_orbit_return_fukami": {
       "fmt": "%.2f",

@@ -1,0 +1,180 @@
+{
+  "part": "closure_bvae",
+  "numbers": {
+    "clo_repr_cl_bvae": {
+      "macro": "NumCloReprCLBvae",
+      "value": 0.69,
+      "fmt": "%.2f",
+      "split": "test_b",
+      "endpoint": "representational",
+      "probe": "ridge",
+      "observable": "C_L",
+      "horizon": 16,
+      "run_tags": [
+        "bvae_match_d64_s42",
+        "bvae_match_d64_s0",
+        "bvae_match_d64_s1"
+      ],
+      "source": "emit_closure_bvae_part.py (matrix.csv seed-mean, matched recipe)"
+    },
+    "clo_repr_cd_bvae": {
+      "macro": "NumCloReprCDBvae",
+      "value": 0.52,
+      "fmt": "%.2f",
+      "split": "test_b",
+      "endpoint": "representational",
+      "probe": "ridge",
+      "observable": "C_D",
+      "horizon": 16,
+      "run_tags": [
+        "bvae_match_d64_s42",
+        "bvae_match_d64_s0",
+        "bvae_match_d64_s1"
+      ],
+      "source": "emit_closure_bvae_part.py (matrix.csv seed-mean, matched recipe)"
+    },
+    "clo_repr_iy_bvae": {
+      "macro": "NumCloReprIyBvae",
+      "value": 0.05,
+      "fmt": "%.2f",
+      "split": "test_b",
+      "endpoint": "representational",
+      "probe": "ridge",
+      "observable": "I_y",
+      "horizon": 16,
+      "run_tags": [
+        "bvae_match_d64_s42",
+        "bvae_match_d64_s0",
+        "bvae_match_d64_s1"
+      ],
+      "source": "emit_closure_bvae_part.py (matrix.csv seed-mean, matched recipe)"
+    },
+    "clo_repr_circpos_bvae": {
+      "macro": "NumCloReprCircPosBvae",
+      "value": 0.54,
+      "fmt": "%.2f",
+      "split": "test_b",
+      "endpoint": "representational",
+      "probe": "ridge",
+      "observable": "circulation_pos",
+      "horizon": 16,
+      "run_tags": [
+        "bvae_match_d64_s42",
+        "bvae_match_d64_s0",
+        "bvae_match_d64_s1"
+      ],
+      "source": "emit_closure_bvae_part.py (matrix.csv seed-mean, matched recipe)"
+    },
+    "clo_repr_circneg_bvae": {
+      "macro": "NumCloReprCircNegBvae",
+      "value": 0.44,
+      "fmt": "%.2f",
+      "split": "test_b",
+      "endpoint": "representational",
+      "probe": "ridge",
+      "observable": "circulation_neg",
+      "horizon": 16,
+      "run_tags": [
+        "bvae_match_d64_s42",
+        "bvae_match_d64_s0",
+        "bvae_match_d64_s1"
+      ],
+      "source": "emit_closure_bvae_part.py (matrix.csv seed-mean, matched recipe)"
+    },
+    "clo_repr_meansix_bvae": {
+      "macro": "NumCloReprMeanSixBvae",
+      "value": 0.46,
+      "fmt": "%.2f",
+      "split": "test_b",
+      "endpoint": "representational",
+      "probe": "ridge",
+      "horizon": 16,
+      "source": "emit_closure_bvae_part.py (mean over six matched-recipe repr cells)",
+      "note": "includes the matched wake-repr value (NumReprWakeBvaeMatch) in the six-mean"
+    },
+    "clo_fcst_cl_bvae": {
+      "macro": "NumCloFcstCLBvae",
+      "value": 0.66,
+      "fmt": "%.2f",
+      "split": "test_b",
+      "endpoint": "forecast",
+      "probe": "ridge",
+      "observable": "C_L",
+      "horizon": 16,
+      "run_tags": [
+        "bvae_d64"
+      ],
+      "source": "emit_closure_bvae_part.py (matrix.csv; bvae_d64 rollout from bvae_faith_d64_s42)"
+    },
+    "clo_fcst_cd_bvae": {
+      "macro": "NumCloFcstCDBvae",
+      "value": 0.28,
+      "fmt": "%.2f",
+      "split": "test_b",
+      "endpoint": "forecast",
+      "probe": "ridge",
+      "observable": "C_D",
+      "horizon": 16,
+      "run_tags": [
+        "bvae_d64"
+      ],
+      "source": "emit_closure_bvae_part.py (matrix.csv; bvae_d64 rollout from bvae_faith_d64_s42)"
+    },
+    "clo_fcst_iy_bvae": {
+      "macro": "NumCloFcstIyBvae",
+      "value": 0.3,
+      "fmt": "%.2f",
+      "split": "test_b",
+      "endpoint": "forecast",
+      "probe": "ridge",
+      "observable": "I_y",
+      "horizon": 16,
+      "run_tags": [
+        "bvae_d64"
+      ],
+      "source": "emit_closure_bvae_part.py (matrix.csv; bvae_d64 rollout from bvae_faith_d64_s42)"
+    },
+    "clo_fcst_wake_bvae": {
+      "macro": "NumCloFcstWakeBvae",
+      "value": -0.07,
+      "fmt": "%.2f",
+      "split": "test_b",
+      "endpoint": "forecast",
+      "probe": "ridge",
+      "observable": "wake_enstrophy",
+      "horizon": 16,
+      "run_tags": [
+        "bvae_d64"
+      ],
+      "source": "emit_closure_bvae_part.py (matrix.csv; bvae_d64 rollout from bvae_faith_d64_s42)"
+    },
+    "clo_fcst_circpos_bvae": {
+      "macro": "NumCloFcstCircPosBvae",
+      "value": 0.29,
+      "fmt": "%.2f",
+      "split": "test_b",
+      "endpoint": "forecast",
+      "probe": "ridge",
+      "observable": "circulation_pos",
+      "horizon": 16,
+      "run_tags": [
+        "bvae_d64"
+      ],
+      "source": "emit_closure_bvae_part.py (matrix.csv; bvae_d64 rollout from bvae_faith_d64_s42)"
+    },
+    "clo_fcst_circneg_bvae": {
+      "macro": "NumCloFcstCircNegBvae",
+      "value": 0.12,
+      "fmt": "%.2f",
+      "split": "test_b",
+      "endpoint": "forecast",
+      "probe": "ridge",
+      "observable": "circulation_neg",
+      "horizon": 16,
+      "run_tags": [
+        "bvae_d64"
+      ],
+      "source": "emit_closure_bvae_part.py (matrix.csv; bvae_d64 rollout from bvae_faith_d64_s42)"
+    }
+  }
+}
