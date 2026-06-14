@@ -1,0 +1,180 @@
+{
+  "cell": {
+    "observable": "wake_enstrophy",
+    "horizon": 16,
+    "split": "test_b",
+    "endpoint": "representational",
+    "probe": "ridge",
+    "tier": "pooled",
+    "jepa_tag": "jepa_tf_noc_d64_s42",
+    "fukami_tag": "fukami_d64_s42"
+  },
+  "per_case": [
+    {
+      "case_id": "G+0.50_D1.50_Y+0.00",
+      "n_encounters": 4,
+      "err_fukami": 102.09029809047422,
+      "err_jepa": 14.073799721107516,
+      "delta_fukami_minus_jepa": 88.0164983693667,
+      "jepa_wins": true
+    },
+    {
+      "case_id": "G+1.00_D0.50_Y+0.40",
+      "n_encounters": 4,
+      "err_fukami": 47.45862372817619,
+      "err_jepa": 13.090506124198352,
+      "delta_fukami_minus_jepa": 34.368117603977836,
+      "jepa_wins": true
+    },
+    {
+      "case_id": "G+1.50_D1.50_Y+0.10",
+      "n_encounters": 4,
+      "err_fukami": 86.00725344521265,
+      "err_jepa": 38.76487938743608,
+      "delta_fukami_minus_jepa": 47.24237405777657,
+      "jepa_wins": true
+    },
+    {
+      "case_id": "G+2.00_D0.50_Y+0.10",
+      "n_encounters": 6,
+      "err_fukami": 57.44684323047098,
+      "err_jepa": 15.373488232355172,
+      "delta_fukami_minus_jepa": 42.07335499811581,
+      "jepa_wins": true
+    },
+    {
+      "case_id": "G+3.00_D1.00_Y+0.10",
+      "n_encounters": 4,
+      "err_fukami": 33.16763701272866,
+      "err_jepa": 72.97256675088077,
+      "delta_fukami_minus_jepa": -39.80492973815211,
+      "jepa_wins": false
+    },
+    {
+      "case_id": "G-0.50_D1.00_Y-0.40",
+      "n_encounters": 4,
+      "err_fukami": 36.05498017021807,
+      "err_jepa": 14.354093070375356,
+      "delta_fukami_minus_jepa": 21.700887099842717,
+      "jepa_wins": true
+    },
+    {
+      "case_id": "G-1.00_D1.00_Y-0.20",
+      "n_encounters": 4,
+      "err_fukami": 41.474965798364735,
+      "err_jepa": 43.432798612422715,
+      "delta_fukami_minus_jepa": -1.95783281405798,
+      "jepa_wins": false
+    },
+    {
+      "case_id": "G-1.50_D0.50_Y-0.20",
+      "n_encounters": 4,
+      "err_fukami": 7.193356194319598,
+      "err_jepa": 28.795305458734873,
+      "delta_fukami_minus_jepa": -21.601949264415275,
+      "jepa_wins": false
+    },
+    {
+      "case_id": "G-2.00_D1.00_Y-0.40",
+      "n_encounters": 4,
+      "err_fukami": 88.79579308357704,
+      "err_jepa": 30.891237208992386,
+      "delta_fukami_minus_jepa": 57.90455587458465,
+      "jepa_wins": true
+    },
+    {
+      "case_id": "G-3.00_D1.50_Y-0.10",
+      "n_encounters": 4,
+      "err_fukami": 154.17057155998992,
+      "err_jepa": 50.733308843143966,
+      "delta_fukami_minus_jepa": 103.43726271684596,
+      "jepa_wins": true
+    }
+  ],
+  "case_unique": [
+    "G+0.50_D1.50_Y+0.00",
+    "G+1.00_D0.50_Y+0.40",
+    "G+1.50_D1.50_Y+0.10",
+    "G+2.00_D0.50_Y+0.10",
+    "G+3.00_D1.00_Y+0.10",
+    "G-0.50_D1.00_Y-0.40",
+    "G-1.00_D1.00_Y-0.20",
+    "G-1.50_D0.50_Y-0.20",
+    "G-2.00_D1.00_Y-0.40",
+    "G-3.00_D1.50_Y-0.10"
+  ],
+  "err_jepa_by_case": [
+    14.073799721107516,
+    13.090506124198352,
+    38.76487938743608,
+    15.373488232355172,
+    72.97256675088077,
+    14.354093070375356,
+    43.432798612422715,
+    28.795305458734873,
+    30.891237208992386,
+    50.733308843143966
+  ],
+  "err_fukami_by_case": [
+    102.09029809047422,
+    47.45862372817619,
+    86.00725344521265,
+    57.44684323047098,
+    33.16763701272866,
+    36.05498017021807,
+    41.474965798364735,
+    7.193356194319598,
+    88.79579308357704,
+    154.17057155998992
+  ],
+  "case_mean_delta": [
+    88.0164983693667,
+    34.368117603977836,
+    47.24237405777657,
+    42.07335499811581,
+    -39.80492973815211,
+    21.700887099842717,
+    -1.95783281405798,
+    -21.601949264415275,
+    57.90455587458465,
+    103.43726271684596
+  ],
+  "case_level_paired": {
+    "n_cases": 10,
+    "cases_jepa_better": 7,
+    "wilcoxon_stat": 47.0,
+    "wilcoxon_p_one_sided": 0.0244140625,
+    "sign_p_one_sided": 0.171875,
+    "median_case_mean_delta": 38.22073630104683
+  },
+  "encounter_level_sign_test": {
+    "k_jepa_better": 30,
+    "n_effective": 42,
+    "p_one_sided": 0.003957948667448363
+  },
+  "mean_encounter_delta": 33.56333489551835,
+  "mean_case_delta": 33.13783389038849,
+  "verdict": "WEAK",
+  "verdict_basis": {
+    "case_level_confirms": false,
+    "encounter_level_confirms": true
+  },
+  "source": "dump",
+  "provenance": {
+    "git_sha": "033ea11d2cd8fe2ea0a0c22adbb45990e5ee2aa8",
+    "command": "scripts/session29/make_case_slopegraph.py",
+    "utc": "2026-06-14T12:28:42.190710+00:00",
+    "input_sha256": {
+      "/home/carlos/GUST-JEPA/outputs/session28/closure_matrix/per_encounter/dump.npz": "f3016090558f239a295db703f3e5aacabaf52be3bd13815bed2b6d4659d38fec"
+    },
+    "versions": {
+      "python": "3.10.12",
+      "numpy": "1.26.4",
+      "sklearn": "1.7.2"
+    },
+    "seed": 42,
+    "split": "v2p1",
+    "reconciled_from": "SESSION29 plan (was main_13/v2); see RECONCILIATION_v2p1.md",
+    "source": "dump"
+  }
+}

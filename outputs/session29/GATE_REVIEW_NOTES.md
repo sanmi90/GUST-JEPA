@@ -58,3 +58,19 @@ fixed, so no returned branch is taken at face value.)
   mean-force agreement and flagging rms; submission still blocked on the partner
   solver-resolution rows + convergence panel, but the data itself is now
   externally validated.
+
+## Track C-min (case-level slopegraph, F3): WEAK -- accepted, matches the paper.
+- Headline representational wake result, per CASE (10 test_b cases), jepa vs
+  fukami: JEPA better in 7/10. Encounter-level sign p=0.004; case-level Wilcoxon
+  signed-rank p=0.024 (sig); conservative exact case-level sign test p=0.17 (NOT
+  sig). Median per-case delta +38.2. Exactly the v2.1 GD-weak state.
+- Slopegraph `outputs/session29/fig_case_slopegraph.pdf` (3/10 cases favour
+  recon; green=jepa wins, red=recon) is the honest per-case figure that should
+  replace the encounter-level bars (Track J figure plan).
+- DATA-PATH NOTE (important for D/G): the HEADLINE closure probe is fit on
+  POOLED-over-frames latents with DNS ground truth from `dns_physical_metrics.npz`
+  (subagent reproduced the published dump to ~2e-11). The `per_frame_targets`
+  wake_enstrophy used by `_s29_common.readout_xy` (Tracks D, G) is a DIFFERENT
+  scale; R^2 is invariant under an affine target transform for a refit
+  ridge-with-intercept probe, so D/G R^2 stand, but they are READOUT-FRAME numbers
+  (jepa linear ~0.58), NOT the pooled-frame headline (0.79). Keep that distinction.
