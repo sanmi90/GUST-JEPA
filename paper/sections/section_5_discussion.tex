@@ -116,17 +116,16 @@ with the auxiliary heads matched, and the two architecture columns do not separa
 so the gain is the objective and not the architecture. The wake supervision,
 however, is a necessary part of the configuration that achieves it: a predictive
 model with the wake head removed collapses below the predict-the-mean floor on wake
-closure. A further control sharpens this: removing the predictive objective
-\emph{entirely} while keeping the wake supervision and the anti-collapse term
-($\NumReprWakeSupOnly$ against $\NumReprWakeJepaReadout$ for the predictive latent)
-shows the representational readability is supplied by the supervision, not by the
-predictive objective. The claim is therefore that a wake-supervised latent renders
+closure. A further control sharpens this, and we recall its numbers from the first
+paragraph rather than restate them: removing the predictive objective \emph{entirely}
+while keeping the wake supervision and the anti-collapse term shows the
+representational readability is supplied by the supervision, not by the predictive
+objective. The claim is therefore that a wake-supervised latent renders
 the wake readable, and that among objectives the predictive one is distinguished by
 \emph{preserving} that supervision-supplied readability where the reconstructive
 objective, carrying the same head, suppresses it, and by rendering the wake
-forecastable from the rollout ($R^2 = \NumFcstWakeJepaReadout$ against
-$\NumFcstWakeSupOnly$ for the supervision-only latent), which the static
-supervision-only encoder cannot do. The linear basis, for its part, remains genuinely useful: it is the
+forecastable from the rollout, which the static supervision-only encoder cannot do.
+The linear basis, for its part, remains genuinely useful: it is the
 most competitive family on the integrated impulse and is amplitude-accurate in
 reconstruction, so the result is not that POD is obsolete but that it does not
 produce a latent from which the wake observables are linearly readable.

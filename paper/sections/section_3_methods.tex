@@ -17,16 +17,15 @@ is a hybrid network: three convolutional downsampling stages produce a
 $24 \times 12 \times 256$ feature map, a six-layer vision transformer processes
 the resulting tokens, and the class-token output is projected to $\zvec$ through
 a single linear layer with a batch-normalisation boundary, which the
-characteristic-function regulariser below requires. The encoder is a pure state
-map: it sees only the flow field, not the gust parameters $\cvec = (G,D,Y)$. This
-is the property that lets the latent itself serve as the observable a controller
-would have access to, since at deployment the gust parameters are not known a
-priori (\S\ref{sec:discussion}).
+characteristic-function regulariser below requires. The encoder is therefore a pure
+state map, and this is the property that lets the latent itself serve as the
+observable a controller would have access to, since at deployment the gust
+parameters are not known a priori (\S\ref{sec:discussion}).
 
 The predictor $P_\phi$ advances the latent in time. It is a six-layer
 autoregressive transformer with rotary positional embeddings and a causal mask,
-and it advances the latent from its own history alone, with no gust input, so the
-gust parameters enter nowhere in the model. Its internal structure is given in
+and it advances the latent from its own history alone, so the model is
+unconditioned end to end. Its internal structure is given in
 Appendix~\ref{app:reg}. Figure~\ref{fig:method}(a) shows
 the encoder and predictor, and panel~(b) sets out the matched-predictor evaluation
 protocol used throughout; the contrast between the predictive training signal and
