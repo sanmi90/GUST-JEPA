@@ -126,6 +126,36 @@
       "observable": "wake_enstrophy",
       "source": "s46_regen.py",
       "note": "mean decoded-vs-DNS large-scale wake-enstrophy Pearson corr over [25,55] (median 0.69); median rel amp err +0.16; case-clustered CI on the mean"
+    },
+    "s46_scale_decode_rel_amp_err_jepa_tf_noc": {
+      "macro": "NumScaleDecodeRelErrJepaTf",
+      "value": 0.11850867943202681,
+      "fmt": "%.2f",
+      "n": 42,
+      "split": "test_b",
+      "observable": "wake_enstrophy",
+      "source": "s46_regen.py",
+      "note": "median per-encounter relative amplitude error of the decoded large-scale wake enstrophy vs DNS over [25,55]; companion to s46_scale_decode_corr; smaller is better"
+    },
+    "s46_scale_decode_rel_amp_err_fukami": {
+      "macro": "NumScaleDecodeRelErrFukami",
+      "value": 0.7088308943589505,
+      "fmt": "%.2f",
+      "n": 42,
+      "split": "test_b",
+      "observable": "wake_enstrophy",
+      "source": "s46_regen.py",
+      "note": "median per-encounter relative amplitude error of the decoded large-scale wake enstrophy vs DNS over [25,55]; companion to s46_scale_decode_corr; smaller is better"
+    },
+    "s46_scale_decode_rel_amp_err_pod": {
+      "macro": "NumScaleDecodeRelErrPod",
+      "value": 0.15918086266645493,
+      "fmt": "%.2f",
+      "n": 42,
+      "split": "test_b",
+      "observable": "wake_enstrophy",
+      "source": "s46_regen.py",
+      "note": "median per-encounter relative amplitude error of the decoded large-scale wake enstrophy vs DNS over [25,55]; companion to s46_scale_decode_corr; smaller is better"
     }
   }
 }
