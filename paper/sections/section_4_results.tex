@@ -381,8 +381,8 @@ shedding traces a limit cycle, and a gust encounter departs it, executes the
 LEV-formation and shedding excursion, and relaxes back toward it
 \citep{smith2024}. We characterise the cycle with persistent homology, counting the
 significant one-dimensional generators ($H_1$) of a Vietoris--Rips filtration
-\citep{smith2024} on each encoded latent trajectory. Here honesty requires care
-with the metric. In raw latent coordinates the reconstructive encoding fragments a
+\citep{smith2024} on each encoded latent trajectory. The metric matters here.
+In raw latent coordinates the reconstructive encoding fragments a
 gusted encounter into several generators where the predictive encoding shows one,
 but the two encodings have very different per-coordinate scales by construction (the
 predictive latent is whitened toward isotropy by its anti-collapse regulariser, the
@@ -544,8 +544,8 @@ relaxes back: the simulation trajectories do not fully return within the $120$-f
 window, which is the gust-release period itself ($6\,t/c$ at
 $\Delta t = 0.05\,t/c$, impact near $2\,t/c$), so only about $4\,t/c$ of post-impact
 relaxation is observed before the next release, a window-length limitation of the
-fixed gust cadence. We therefore read the latent cycle as the phase-amplitude
-coordinate a controller would use, and do not draw a family comparison from the
+fixed gust cadence. We therefore read the latent cycle as a phase-amplitude
+coordinate of the forward model, and do not draw a family comparison from the
 incompletely-observed return.
 \begin{figure}
   \centering
@@ -634,8 +634,8 @@ construction, and the linear basis is amplitude-accurate since its objective is
 amplitude-optimal. Field-space similarity therefore cannot rank the latents, which
 is why we read it as a decode ceiling below.
 
-This is why field-space scores cannot rank the latents here, and we are explicit
-about it. Decoding each family's faithfully encoded latent to a field and scoring
+This is why field-space scores cannot rank the latents here.
+Decoding each family's faithfully encoded latent to a field and scoring
 the large-scale similarity against the simulation gives a decode \emph{ceiling}
 (the best each decoder can do from a true latent): on test\_b that ceiling is
 highest for the linear basis ($\FieldCeilSsimPod$), then the predictive decode

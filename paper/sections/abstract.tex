@@ -1,45 +1,29 @@
-% Abstract. Reframed 2026-06-14 (Session 29, Track E / D202). The SESSION29
-% control grid (supervised_only, predictive_weight=0) showed the REPRESENTATIONAL
-% wake readability is supplied by the wake-observable SUPERVISION, not by the
-% predictive objective: an objective-free supervised encoder reads the wake as
-% well. The predictive objective's distinctive role is the FORECAST endpoint and
-% the dynamics, and being COMPATIBLE with the supervision where the reconstructive
-% objective suppresses it. Hence "a wake-supervised predictive latent". Gate GD
-% WEAK -> linear decodability, no possession verb. Drift attributed to near-null
-% (negligible-variance) directions, NOT an "order of magnitude" Mahalanobis
-% magnitude (Track H). Sensing reported over a strictly pre-impact causal window
-% (Track I). Numbers are macros from paper/macros.tex. No em-dashes.
+% Abstract. Reframed 2026-06-14 (Session 29 Track E / D202) and TIGHTENED for the
+% JFM narrative (Session 29.2 / D204): ~225 words, one physics question, one
+% dataset, one primary result, the supervision-vs-prediction attribution, the
+% geometric mechanism, one boundary. Topology claim is NO-GUST only (the gusted
+% topology difference does not survive whitening, Track H). Sensing is causal state
+% recovery (Track I), NOT a wake forecast. Numbers are macros. No em-dashes.
 
-Extreme vortex-gust encounters challenge reduced-order models because the transient
-load is governed by the reorganisation of the separated wake, not only by the
-integrated forces. We ask which reduced state renders that wake recoverable, from the
-flow and from sparse sensors, at matched latent dimension. Using direct numerical
-simulations of a NACA~0012 airfoil at $\alpha = 14^\circ$ and $\vRe = 5000$, perturbed
-by Taylor vortices spanning gust strength $G$, core diameter $D$, and wall-normal
-offset $Y$, we compare reduced states under one shared predictor and probe protocol,
-each carrying the same wake-observable supervision: a joint-embedding predictive
-representation, a reconstructive observable-augmented autoencoder of the Fukami-Taira
-lineage, and a proper orthogonal decomposition basis. Probed directly from held-out
-fields sixteen frames after impact, the predictive latent renders the wake enstrophy
-linearly readable ($R^2 = \NumReprWakeJepaTf$ on the in-distribution test split) where
-the reconstructive and linear baselines do not ($R^2 \le 0$); the per-encounter
-advantage survives case-level clustering and a family-wide multiplicity correction,
-with the training, validation, test\_b, and extrapolation test\_c splits reported in
-the text, and a nonlinear probe does not close it. Matched controls localise the
-cause: an objective-free encoder carrying only the wake supervision reads the wake
-equally well, so the readability is supplied by that supervision, while the predictive
-objective is what additionally makes the wake forecastable from the latent's own
-rollout and is compatible with the supervision where the reconstructive objective
-suppresses it. Regressed on the gust parameters alone the wake is not recovered, so
-the latent carries wake state beyond the parameters. The mechanism is geometric: the
-predictive encoding organises each encounter as a single persistent cycle whose
-spectrum recovers the shedding frequency as a marginally stable orbit, and its
-autoregressive rollout stays on the encoded manifold, whereas the reconstructive
-encoding fragments even the undisturbed limit cycle and its rollout departs along
-directions of negligible encoded variance. The response follows the flow's own scales:
-the wake departure grows with gust strength and the gust resets the shedding phase. The
-same predictive state is the most recoverable from sparse wall pressure
-($R^2 = \SenseStateJepaTf$ at eight taps, against $\SenseStateFukami$ and
-$\SenseStatePod$), an ordering that holds under a strictly pre-impact causal window.
-Rolled forward, the predictor tracks the encounter, which we show but do not present
-as a validated forecast.
+Extreme vortex-gust encounters of a post-stall airfoil are wake-reorganisation
+events: the load spike is the surface signature of leading-edge-vortex roll-up,
+shedding and recovery, and the release parameters alone do not fix the wake after
+impact. Using direct numerical simulations of a NACA~0012 airfoil at
+$\alpha = 14^\circ$ and $\vRe = 5000$, perturbed by Taylor vortices spanning gust
+strength, core diameter and wall-normal offset, we ask which reduced state
+preserves that wake. At fixed latent dimension and under one shared probe and
+latent predictor, we compare a wake-supervised predictive state, a matched
+wake-supervised reconstructive state, and a proper orthogonal decomposition basis.
+Probed from held-out fields sixteen frames after impact, the predictive state makes
+the wake enstrophy linearly readable ($R^2 = \NumReprWakeJepaTf$, with case-level
+spread reported explicitly) where the reconstructive and linear states are at or
+below the mean predictor. Matched controls separate readability from dynamics: an
+objective-free encoder carrying only the wake supervision reads the wake as well,
+so the supervision supplies the instantaneous readability, while the predictive
+objective preserves it under rollout and the reconstructive objective suppresses it
+under the same supervision. The mechanism is geometric: the predictive rollout
+stays on the encoded manifold and its no-gust shedding orbit remains a single
+persistent loop, whereas the reconstructive rollout departs along directions of
+negligible encoded variance and its no-gust loop fragments. Sparse wall pressure
+recovers the predictive state best under a strictly pre-impact window; we do not
+claim a validated wake forecast or a closed-loop controller.
