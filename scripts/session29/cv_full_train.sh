@@ -45,14 +45,14 @@ train_fukami_fold() {
   local out="$ROOT/fukami${sm}/encoder"
   [[ -f "$out/checkpoint_iter$(printf '%06d' "$iters").pt" ]] && { echo "[cvfull][f$fold] SKIP fukami"; return 0; }
   mkdir -p "$out"
-  nice -n 10 python -u -m src.training.session9_train_fukami \
+  nice -n 10 python -u scripts/session9_train_fukami.py \
     --all-train --max-iters "$iters" --B 16 --T 32 --gpu "$gpu" \
     --partition v2p1 --split "$SPLIT" --omega-pipeline-manifest "$MAN" \
     --recon-loss-type mse \
     --observable-head cl_future --observable-head-deltas 0 --lambda-lift 0.01 \
     --wake-observable-type patch_signed_spectrum --lambda-wake 1.0 \
     --wake-loss smooth_l1 --wake-loss-beta 0.5 --wake-head-hidden 128 \
-    --d 64 --num-workers 3 --wandb-mode offline \
+    --encoder cnn_vit --d 64 --seed 42 --num-workers 3 --wandb-mode offline \
     --log-every 200 --diagnostic-every 2000 --checkpoint-every "$iters" \
     --tag-suffix "s29_cvfull_f${fold}_fukami" --output-dir "$out" > "$out/train.log" 2>&1
   echo "[cvfull][f$fold] fukami rc=$?"
