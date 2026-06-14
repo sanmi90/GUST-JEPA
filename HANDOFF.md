@@ -8933,3 +8933,27 @@ training-global / no clip and on physical-unit observables); a **B1** full retra
 is warranted only if B0.5 moves the JEPA advantage. Wake enstrophy should be
 reported on physical (unclipped) units regardless. (Plan stub D182 -> D198.)
 
+### D199 (SESSION29 Track E, F4 decisive cell): supervised_only control implemented + training (2026-06-14, Session 29, GPU authorised)
+
+The existing v2.1 controls already cover most of the F4 2x2 (predictive+wake =
+jepa_tf_noc; predictive-wake = ctrl_pred_vit_nowake; reconstructive+wake =
+fukami). The one missing decisive cell is `supervised_only`: wake+lift heads with
+NO predictive and NO reconstructive objective, to isolate whether wake supervision
+ALONE produces the linearly readable latent. Implemented as a backward-compatible
+`predictive_weight` (default 1.0) on the JEPA loss (`src/models/jepa.py`: scales
+L_pred + L_roll) plus `--predictive-weight` in `train_jepa.py`; `predictive_weight
+= 0` keeps SIGReg anti-collapse + the lift/wake heads, drops only the predictive
+loss. `pw=1` reproduces the original loss expression exactly (existing checkpoints
+/tests unaffected). Launch wrapper `scripts/session29/train_supervised_only.sh`
+(same jepa_common+wake_on recipe as `_run_one.sh`).
+
+Smoke (d=64 s0, 300 iters, RTX 6000 card 0 = torch cuda:2) VALIDATED the path:
+loss_total = 0.373 = 0.01*anti(0.015) + 0.01*obs(8.20) + 1.0*wake(0.29), with
+pred(2.05)/roll(1.93) computed but EXCLUDED -> pw=0 works. PR grew 1.95 (iter 0)
+-> 11.06 (iter 200): the supervised_only latent forms, does not collapse. Full
+runs LAUNCHED: d=64 x seeds {0,1,42}, 20k iters, both RTX cards (card 0: s0 then
+s42; card 1: s1), W&B offline, ~few hours. Next: encode latents -> Track E closure
+probe (supervised_only vs jepa_tf_noc vs fukami at matched d) + auxiliary leakage
+tests (shuffled-wake-label sentinel, residualised wake) to decide whether
+"predictive objective" stays in the headline (D185). (Plan stub D185 -> D199.)
+

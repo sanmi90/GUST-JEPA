@@ -102,6 +102,17 @@ def parse_args() -> argparse.Namespace:
     )
     p.add_argument("--lambda-sigreg", type=float, default=0.1)
     p.add_argument(
+        "--predictive-weight",
+        type=float,
+        default=1.0,
+        help=(
+            "Scale on the predictive loss (L_pred + L_roll). Default 1.0 = standard "
+            "JEPA. Set to 0.0 for the SESSION29 Track E 'supervised_only' control: "
+            "the encoder is driven by the anti-collapse term and the lift/wake heads "
+            "alone, with no predictive objective (isolates supervision sufficiency)."
+        ),
+    )
+    p.add_argument(
         "--total-correlation-weight",
         type=float,
         default=0.0,
@@ -754,6 +765,7 @@ def main() -> None:
         anticollapse=anticollapse,
         lambda_anticollapse=args.lambda_sigreg,
         rollout_weight=0.5,
+        predictive_weight=args.predictive_weight,
         H_roll=args.H_roll,
         rollout_start_strategy="uniform_random",
         c_dropout_prob=args.c_dropout_prob,

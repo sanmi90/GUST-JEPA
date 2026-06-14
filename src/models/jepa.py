@@ -67,6 +67,7 @@ class JEPA(nn.Module):
         anticollapse: nn.Module,
         lambda_anticollapse: float = 0.1,
         rollout_weight: float = 0.5,
+        predictive_weight: float = 1.0,
         H_roll: int = 8,
         rollout_start_strategy: str = "uniform_random",
         c_dropout_prob: float = 0.0,
@@ -97,6 +98,10 @@ class JEPA(nn.Module):
         self.anticollapse = anticollapse
         self.lambda_anticollapse = float(lambda_anticollapse)
         self.rollout_weight = float(rollout_weight)
+        # predictive_weight scales L_pred + L_roll. =1 is the standard JEPA
+        # objective; =0 gives the SESSION29 Track E `supervised_only` control
+        # (encoder driven by anti-collapse + observable heads, no prediction).
+        self.predictive_weight = float(predictive_weight)
         self.H_roll = int(H_roll)
         self.rollout_start_strategy = rollout_start_strategy
         self.c_dropout_prob = float(c_dropout_prob)
@@ -194,8 +199,8 @@ class JEPA(nn.Module):
             loss_wake = torch.zeros((), device=z.device, dtype=torch.float32)
 
         loss_total = (
-            loss_pred
-            + self.rollout_weight * loss_roll
+            self.predictive_weight * loss_pred
+            + self.predictive_weight * self.rollout_weight * loss_roll
             + self.lambda_anticollapse * loss_anticollapse
             + self.observable_weight * loss_obs
             + self.wake_observable_weight * loss_wake
