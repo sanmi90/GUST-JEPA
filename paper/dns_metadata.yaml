@@ -1,0 +1,50 @@
+# Single source of truth for DNS Table 1 (SESSION29.8 S0).
+# Render the LaTeX table:   python scripts/session29/render_table1_from_yaml.py
+# Draft status report:      python scripts/session29/check_dns_metadata.py --mode draft
+# Submission gate (CI):     python scripts/session29/check_dns_metadata.py --mode submission
+#   (submission mode exits non-zero while any required value is null / PENDING / TBD)
+#
+# Partner-owned resolution values are null until the simulation collaborators
+# supply them. Do NOT fabricate DNS values, and do NOT hand-edit the generated
+# .tex: edit this file and re-render. Only facts already established in the
+# manuscript and CLAUDE.md are filled (solver, discretisation, subgrid, wall);
+# everything resolution-specific stays null.
+
+solver:
+  name: SOD2D
+  discretisation: spectral-element
+  subgrid_model: none
+  airfoil_wall_condition: no-slip
+  polynomial_order: null   # partner to confirm
+
+# Referee-facing reproducibility rows of Table 1. value: null renders as [PENDING].
+# The 'why' text is the referee rationale shown in the third column.
+rows:
+  - key: mach
+    quantity: "Free-stream Mach number (or incompressible-limit confirmation)"
+    value: null
+    why: "Confirms the low-Mach formulation is effectively incompressible at $\\vRe = 5000$."
+  - key: domain
+    quantity: "Computational domain and spanwise extent $L_z/c$"
+    value: null
+    why: "Bounds domain blockage and confirms the span resolves the three-dimensional wake."
+  - key: resolution
+    quantity: "Element and solution-point counts"
+    value: null
+    why: "Fixes the spatial resolution of the spectral-element discretisation."
+  - key: wall_spacing
+    quantity: "Minimum wall-normal spacing $\\Delta n_{\\min}/c$ and wall units $\\Delta n^+$"
+    value: null
+    why: "Shows the near-wall layer is resolved without a wall model."
+  - key: timestep
+    quantity: "Time step $\\Delta t\\,u_\\infty/c$ and maximum CFL"
+    value: null
+    why: "Establishes the temporal resolution and stability of the integration."
+  - key: gust_station
+    quantity: "Gust-release station $x_0/c$"
+    value: null
+    why: "Sets the upstream distance over which the Taylor vortex develops before impact."
+  - key: convergence
+    quantity: "Grid and time-step sensitivity check (baseline and a representative gust case)"
+    value: null
+    why: "Demonstrates that the reported statistics are converged."

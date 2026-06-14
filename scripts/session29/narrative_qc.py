@@ -147,6 +147,11 @@ def main() -> None:
         txt = p.read_text()
         emdash += len(re.findall(r"[—–]", txt))
         pending += txt.count("\\pending{")
+    # DNS Table 1 is generated from paper/dns_metadata.yaml into a separate file
+    # (SESSION29.8 S0); count its pending rows so the advisory stays accurate.
+    dns_tab = SECT / "tables" / "table_dns_metadata.tex"
+    if dns_tab.exists():
+        pending += dns_tab.read_text().count("\\pending{")
     report["emdash"] = emdash
     report["pending_main"] = pending
     report["style_ok"] = emdash == 0

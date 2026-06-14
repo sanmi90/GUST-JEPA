@@ -129,37 +129,11 @@ sample size; the headline wake comparison is reported additionally with a
 case-clustered bootstrap and a case-level paired test (Appendix~\ref{app:reg}). The
 partition is fixed once and used identically by every model and baseline.
 
-\begin{table}
-  \centering
-  {\small
-  \fittab{\begin{tabular}{@{}p{0.29\textwidth}l p{0.43\textwidth}@{}}
-    \toprule
-    Quantity & Value & Why a referee needs it \\
-    \midrule
-    Free-stream Mach number (or incompressible-limit confirmation) & \pending{} &
-    Confirms the low-Mach formulation is effectively incompressible at
-    $\vRe = 5000$. \\
-    Computational domain and spanwise extent $L_z/c$ & \pending{} & Bounds domain
-    blockage and confirms the span resolves the three-dimensional wake. \\
-    Element and solution-point counts & \pending{} & Fixes the spatial resolution
-    of the spectral-element discretisation. \\
-    Minimum wall-normal spacing $\Delta n_{\min}/c$ and wall units $\Delta n^+$ &
-    \pending{} & Shows the near-wall layer is resolved without a wall model. \\
-    Time step $\Delta t\,u_\infty/c$ and maximum CFL & \pending{} & Establishes the
-    temporal resolution and stability of the integration. \\
-    Gust-release station $x_0/c$ & \pending{} & Sets the upstream distance over
-    which the Taylor vortex develops before impact. \\
-    Grid and time-step sensitivity check & \pending{} & Demonstrates that the
-    reported statistics are converged. \\
-    \bottomrule
-  \end{tabular}}}
-  \caption{Author-fill checklist of the DNS solver-resolution details required for
-  full reproducibility (\S\ref{sec:flow_observables}). The data are direct
-  numerical simulations with no subgrid-scale model, so all scales are resolved
-  and no large-eddy closure is involved; the resolution values are to be supplied
-  by the simulation collaborators and are not yet filled in.}
-  \label{tab:dns_pending}
-\end{table}
+% DNS Table 1 is generated from paper/dns_metadata.yaml (single source of truth)
+% by scripts/session29/render_table1_from_yaml.py; the submission gate
+% scripts/session29/check_dns_metadata.py --mode submission fails while any value
+% is pending. Do not edit the generated file by hand; edit the YAML and re-render.
+\input{sections/tables/table_dns_metadata.tex}
 
 For each frame the cache stores the mid-plane spanwise vorticity
 $\omegaz(192, 96)$, the span-averaged wall pressure $p_{\mathrm{wall}}(192)$,
