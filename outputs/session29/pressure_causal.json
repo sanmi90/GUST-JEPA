@@ -1,0 +1,456 @@
+{
+  "_provenance": {
+    "git_sha": "d33850e9a48e2b5bc530d8f1eba3292f5961111b",
+    "command": "scripts/session29/pressure_causal.py",
+    "utc": "2026-06-14T12:34:29.280885+00:00",
+    "input_sha256": {
+      "/home/carlos/GUST-JEPA/outputs/session28/latents/jepa_tf_noc_d64_s42/train.npz": "63d1954aa139c456e1ca28b630fa90b761f25657d2fa18318a7c12db6ba9d805",
+      "/home/carlos/GUST-JEPA/outputs/session28/latents/fukami_d64_s42/train.npz": "a0b64b52b7652eed5cf3f4e7a1bd01f2c7d8ce394440b719c8ed5481f03f1d16",
+      "/home/carlos/GUST-JEPA/outputs/session28/latents/pod_d64/train.npz": "c638c98523b139b7f77e5243e3eecf35c58d2b6dffc7c0b86146a150ffa06398",
+      "/home/carlos/GUST-JEPA/outputs/session28/exp2/per_frame_targets/train.npz": "25c97045b6e7a5e9e4c75d2b3ad0fb62bced2250c266573f8f49cbfa4a703e5f",
+      "/home/carlos/GUST-JEPA/outputs/session28/exp2/per_frame_targets/test_b.npz": "cfb6eef859861c71bfdb2444af6b87a3a57b4ff6c105cf2e15c825d059f5fd42"
+    },
+    "versions": {
+      "python": "3.10.12",
+      "numpy": "1.26.4",
+      "sklearn": "1.7.2"
+    },
+    "seed": 0,
+    "split": "v2p1",
+    "reconciled_from": "SESSION29 plan (was main_13/v2); see RECONCILIATION_v2p1.md"
+  },
+  "config": {
+    "question": "F6: does pressure->state recovery survive a strictly causal window?",
+    "K": 8,
+    "W": 30,
+    "readout_horizon_H": 16,
+    "windows": {
+      "preimpact_m30_to_m1": [
+        -30,
+        0
+      ],
+      "through_impact_m29_to_0": [
+        -29,
+        1
+      ],
+      "readout_m13_to_p16": [
+        -14,
+        16
+      ]
+    },
+    "causal_window": "preimpact_m30_to_m1",
+    "placement": "target-blind causal qDEIM on the pre-impact window-mean snapshot",
+    "map": "KernelRidge(RBF), (alpha,gamma) by GroupKFold(5)-by-case",
+    "primary_target": "latent_state (variance-weighted R^2)",
+    "regime": "fit train, eval test_b, case-clustered bootstrap CI (n=2000)",
+    "wake": "frozen closure wake probe; reported as a NON-RESULT (no claim)"
+  },
+  "results": {
+    "preimpact_m30_to_m1": {
+      "jepa_tf_noc": {
+        "latent_state": {
+          "r2": 0.8222462780658785,
+          "ci_lo": 0.6598101423149842,
+          "ci_hi": 0.8699993673292767,
+          "krr_params": {
+            "model__alpha": 0.1,
+            "model__gamma": 0.01
+          },
+          "d": 64
+        },
+        "params": {
+          "r2": 0.9343143244327257,
+          "ci_lo": 0.8177518085596968,
+          "ci_hi": 0.9633274760480479,
+          "krr_params": {
+            "model__alpha": 0.1,
+            "model__gamma": 0.001
+          }
+        },
+        "cl_impact": {
+          "r2": 0.7775856675343592,
+          "ci_lo": 0.36216127952640415,
+          "ci_hi": 0.9559959592825344,
+          "krr_params": {
+            "model__alpha": 0.01,
+            "model__gamma": 0.001
+          }
+        },
+        "wake_via_latent": {
+          "r2": 0.21642145897818998,
+          "ci_lo": -2.1389725986449886,
+          "ci_hi": 0.3859216029375361,
+          "claim": false,
+          "note": "known NON-RESULT; reported but no recovery claim is made."
+        },
+        "n_train": 229,
+        "n_test_b": 42,
+        "n_cases_test_b": 10
+      },
+      "fukami": {
+        "latent_state": {
+          "r2": 0.7648108996226651,
+          "ci_lo": 0.3014314691823143,
+          "ci_hi": 0.8918622519903392,
+          "krr_params": {
+            "model__alpha": 1.0,
+            "model__gamma": 0.001
+          },
+          "d": 64
+        },
+        "params": {
+          "r2": 0.9343143244327257,
+          "ci_lo": 0.8177518085596968,
+          "ci_hi": 0.9633274760480479,
+          "krr_params": {
+            "model__alpha": 0.1,
+            "model__gamma": 0.001
+          }
+        },
+        "cl_impact": {
+          "r2": 0.7775856675343592,
+          "ci_lo": 0.36216127952640415,
+          "ci_hi": 0.9559959592825344,
+          "krr_params": {
+            "model__alpha": 0.01,
+            "model__gamma": 0.001
+          }
+        },
+        "wake_via_latent": {
+          "r2": 0.2497976900502411,
+          "ci_lo": -6.763932777456184,
+          "ci_hi": 0.7246991512556757,
+          "claim": false,
+          "note": "known NON-RESULT; reported but no recovery claim is made."
+        },
+        "n_train": 229,
+        "n_test_b": 42,
+        "n_cases_test_b": 10
+      },
+      "pod": {
+        "latent_state": {
+          "r2": 0.2238990058604181,
+          "ci_lo": 0.019690309831789092,
+          "ci_hi": 0.3172454062629811,
+          "krr_params": {
+            "model__alpha": 1.0,
+            "model__gamma": 0.01
+          },
+          "d": 64
+        },
+        "params": {
+          "r2": 0.9343143244327257,
+          "ci_lo": 0.8177518085596968,
+          "ci_hi": 0.9633274760480479,
+          "krr_params": {
+            "model__alpha": 0.1,
+            "model__gamma": 0.001
+          }
+        },
+        "cl_impact": {
+          "r2": 0.7775856675343592,
+          "ci_lo": 0.36216127952640415,
+          "ci_hi": 0.9559959592825344,
+          "krr_params": {
+            "model__alpha": 0.01,
+            "model__gamma": 0.001
+          }
+        },
+        "wake_via_latent": {
+          "r2": -0.04164030929167062,
+          "ci_lo": -8.246108421782841,
+          "ci_hi": 0.33527577752846716,
+          "claim": false,
+          "note": "known NON-RESULT; reported but no recovery claim is made."
+        },
+        "n_train": 229,
+        "n_test_b": 42,
+        "n_cases_test_b": 10
+      }
+    },
+    "through_impact_m29_to_0": {
+      "jepa_tf_noc": {
+        "latent_state": {
+          "r2": 0.8303349350086566,
+          "ci_lo": 0.6616047811920082,
+          "ci_hi": 0.8810607962148095,
+          "krr_params": {
+            "model__alpha": 0.1,
+            "model__gamma": 0.01
+          },
+          "d": 64
+        },
+        "params": {
+          "r2": 0.9363084997165847,
+          "ci_lo": 0.826364872008338,
+          "ci_hi": 0.9631198398087968,
+          "krr_params": {
+            "model__alpha": 0.1,
+            "model__gamma": 0.001
+          }
+        },
+        "cl_impact": {
+          "r2": 0.7795218182876639,
+          "ci_lo": 0.3705375040999291,
+          "ci_hi": 0.9566577789853947,
+          "krr_params": {
+            "model__alpha": 0.01,
+            "model__gamma": 0.001
+          }
+        },
+        "wake_via_latent": {
+          "r2": 0.2260351637239979,
+          "ci_lo": -1.6374272946131687,
+          "ci_hi": 0.3787533628392107,
+          "claim": false,
+          "note": "known NON-RESULT; reported but no recovery claim is made."
+        },
+        "n_train": 229,
+        "n_test_b": 42,
+        "n_cases_test_b": 10
+      },
+      "fukami": {
+        "latent_state": {
+          "r2": 0.768574913607427,
+          "ci_lo": 0.29130717797574607,
+          "ci_hi": 0.8908351450714139,
+          "krr_params": {
+            "model__alpha": 1.0,
+            "model__gamma": 0.001
+          },
+          "d": 64
+        },
+        "params": {
+          "r2": 0.9363084997165847,
+          "ci_lo": 0.826364872008338,
+          "ci_hi": 0.9631198398087968,
+          "krr_params": {
+            "model__alpha": 0.1,
+            "model__gamma": 0.001
+          }
+        },
+        "cl_impact": {
+          "r2": 0.7795218182876639,
+          "ci_lo": 0.3705375040999291,
+          "ci_hi": 0.9566577789853947,
+          "krr_params": {
+            "model__alpha": 0.01,
+            "model__gamma": 0.001
+          }
+        },
+        "wake_via_latent": {
+          "r2": 0.272674132894524,
+          "ci_lo": -6.516728273315448,
+          "ci_hi": 0.7438500201761641,
+          "claim": false,
+          "note": "known NON-RESULT; reported but no recovery claim is made."
+        },
+        "n_train": 229,
+        "n_test_b": 42,
+        "n_cases_test_b": 10
+      },
+      "pod": {
+        "latent_state": {
+          "r2": 0.22951815802216258,
+          "ci_lo": 0.017465446329966102,
+          "ci_hi": 0.33111780568700866,
+          "krr_params": {
+            "model__alpha": 1.0,
+            "model__gamma": 0.01
+          },
+          "d": 64
+        },
+        "params": {
+          "r2": 0.9363084997165847,
+          "ci_lo": 0.826364872008338,
+          "ci_hi": 0.9631198398087968,
+          "krr_params": {
+            "model__alpha": 0.1,
+            "model__gamma": 0.001
+          }
+        },
+        "cl_impact": {
+          "r2": 0.7795218182876639,
+          "ci_lo": 0.3705375040999291,
+          "ci_hi": 0.9566577789853947,
+          "krr_params": {
+            "model__alpha": 0.01,
+            "model__gamma": 0.001
+          }
+        },
+        "wake_via_latent": {
+          "r2": -0.06541751214248248,
+          "ci_lo": -8.373895879445447,
+          "ci_hi": 0.31218261182486645,
+          "claim": false,
+          "note": "known NON-RESULT; reported but no recovery claim is made."
+        },
+        "n_train": 229,
+        "n_test_b": 42,
+        "n_cases_test_b": 10
+      }
+    },
+    "readout_m13_to_p16": {
+      "jepa_tf_noc": {
+        "latent_state": {
+          "r2": 0.6251777708175577,
+          "ci_lo": 0.21999897906533802,
+          "ci_hi": 0.7372056000613751,
+          "krr_params": {
+            "model__alpha": 0.01,
+            "model__gamma": 0.01
+          },
+          "d": 64
+        },
+        "params": {
+          "r2": 0.7874945205186691,
+          "ci_lo": 0.5520620665758401,
+          "ci_hi": 0.9588786967807726,
+          "krr_params": {
+            "model__alpha": 0.01,
+            "model__gamma": 0.001
+          }
+        },
+        "cl_impact": {
+          "r2": 0.9190993234657504,
+          "ci_lo": 0.7585952914283771,
+          "ci_hi": 0.9882102775706342,
+          "krr_params": {
+            "model__alpha": 0.01,
+            "model__gamma": 0.001
+          }
+        },
+        "wake_via_latent": {
+          "r2": 0.22940032657124598,
+          "ci_lo": -0.6460384723100279,
+          "ci_hi": 0.36208741232921104,
+          "claim": false,
+          "note": "known NON-RESULT; reported but no recovery claim is made."
+        },
+        "n_train": 229,
+        "n_test_b": 42,
+        "n_cases_test_b": 10
+      },
+      "fukami": {
+        "latent_state": {
+          "r2": 0.7616534413169621,
+          "ci_lo": 0.360813619686431,
+          "ci_hi": 0.8625441480922044,
+          "krr_params": {
+            "model__alpha": 1.0,
+            "model__gamma": 0.001
+          },
+          "d": 64
+        },
+        "params": {
+          "r2": 0.7874945205186691,
+          "ci_lo": 0.5520620665758401,
+          "ci_hi": 0.9588786967807726,
+          "krr_params": {
+            "model__alpha": 0.01,
+            "model__gamma": 0.001
+          }
+        },
+        "cl_impact": {
+          "r2": 0.9190993234657504,
+          "ci_lo": 0.7585952914283771,
+          "ci_hi": 0.9882102775706342,
+          "krr_params": {
+            "model__alpha": 0.01,
+            "model__gamma": 0.001
+          }
+        },
+        "wake_via_latent": {
+          "r2": 0.4336508792674364,
+          "ci_lo": -3.151840901701087,
+          "ci_hi": 0.7351957896759971,
+          "claim": false,
+          "note": "known NON-RESULT; reported but no recovery claim is made."
+        },
+        "n_train": 229,
+        "n_test_b": 42,
+        "n_cases_test_b": 10
+      },
+      "pod": {
+        "latent_state": {
+          "r2": 0.36231793048714556,
+          "ci_lo": 0.10832641696290593,
+          "ci_hi": 0.5499836672455549,
+          "krr_params": {
+            "model__alpha": 0.1,
+            "model__gamma": 0.01
+          },
+          "d": 64
+        },
+        "params": {
+          "r2": 0.7874945205186691,
+          "ci_lo": 0.5520620665758401,
+          "ci_hi": 0.9588786967807726,
+          "krr_params": {
+            "model__alpha": 0.01,
+            "model__gamma": 0.001
+          }
+        },
+        "cl_impact": {
+          "r2": 0.9190993234657504,
+          "ci_lo": 0.7585952914283771,
+          "ci_hi": 0.9882102775706342,
+          "krr_params": {
+            "model__alpha": 0.01,
+            "model__gamma": 0.001
+          }
+        },
+        "wake_via_latent": {
+          "r2": -0.4381463593918533,
+          "ci_lo": -14.391511829140278,
+          "ci_hi": 0.18594096450324168,
+          "claim": false,
+          "note": "known NON-RESULT; reported but no recovery claim is made."
+        },
+        "n_train": 229,
+        "n_test_b": 42,
+        "n_cases_test_b": 10
+      }
+    }
+  },
+  "state_r2_table": {
+    "preimpact_m30_to_m1": {
+      "jepa_tf_noc": 0.8222462780658785,
+      "fukami": 0.7648108996226651,
+      "pod": 0.2238990058604181
+    },
+    "through_impact_m29_to_0": {
+      "jepa_tf_noc": 0.8303349350086566,
+      "fukami": 0.768574913607427,
+      "pod": 0.22951815802216258
+    },
+    "readout_m13_to_p16": {
+      "jepa_tf_noc": 0.6251777708175577,
+      "fukami": 0.7616534413169621,
+      "pod": 0.36231793048714556
+    }
+  },
+  "qdeim_taps": [
+    7,
+    10,
+    11,
+    12,
+    26,
+    69,
+    106,
+    167
+  ],
+  "verdict": {
+    "predictive_family": "jepa_tf_noc",
+    "causal_window": "preimpact_m30_to_m1",
+    "ordering_holds_per_window": {
+      "preimpact_m30_to_m1": true,
+      "through_impact_m29_to_0": true,
+      "readout_m13_to_p16": false
+    },
+    "ordering_holds_under_causal_window": true,
+    "branch": "STRONG",
+    "recommendation": "Pressure -> state recovery stays a MAIN result, now reported with the strictly-causal preimpact_m30_to_m1 window.",
+    "note": "STRONG iff the predictive latent (jepa_tf_noc) has the strictly highest variance-weighted latent-state R^2 (test_b) under the strictly-causal preimpact_m30_to_m1 window. case-clustered R^2 CIs are wide at 10 test_b cases; weigh the sign/ordering consistency alongside the point R^2."
+  }
+}

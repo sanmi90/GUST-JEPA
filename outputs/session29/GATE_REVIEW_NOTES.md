@@ -74,3 +74,25 @@ fixed, so no returned branch is taken at face value.)
   scale; R^2 is invariant under an affine target transform for a refit
   ridge-with-intercept probe, so D/G R^2 stand, but they are READOUT-FRAME numbers
   (jepa linear ~0.58), NOT the pooled-frame headline (0.79). Keep that distinction.
+
+## Track I (causal pressure window, F6): STRONG -- accepted; re-base sensing on the causal window.
+- State recovery (test_b, K=8 qDEIM placed on the strictly-pre-impact snapshot,
+  KRR-RBF, nested GroupKFold-by-case, case-clustered CI):
+  - `preimpact_m30_to_m1` (STRICTLY CAUSAL): jepa +0.822 > fukami +0.765 > pod
+    +0.224 -- predictive most recoverable. CLEANER than the non-causal window.
+  - `through_impact_m29_to_0`: jepa +0.830 > fukami +0.769 > pod +0.230.
+  - `readout_m13_to_p16` (current NON-causal): jepa +0.625 < fukami +0.762 -- the
+    ordering FLIPS (post-impact frames feed the reconstructive AE's
+    reconstruction-aligned latent).
+- The F6 critique is resolved: the predictive ordering not only survives a strictly
+  causal pre-impact window, it STRENGTHENS. Params [G,D,Y] R^2 = 0.934, impact C_L
+  R^2 = 0.778 (causal). Wake-via-latent stays the NON-RESULT (jepa +0.22, CIs span
+  below 0; no claim).
+- FLAG (Track J): RE-BASE the sensing headline on the causal `preimpact_m30_to_m1`
+  window. The current SenseState* macros (jepa 0.78) are from the non-causal
+  readout window with the paper's own taps; Track I uses causal-snapshot qDEIM +
+  nested CV, so do NOT read the readout-window flip as "0.78 is wrong" -- read it
+  as: a consistent causal placement makes the causal window both more defensible
+  AND more favorable (jepa 0.82). Update the sensing numbers to the causal window
+  (regenerate via pressure_causal.py -> numbers_parts), state the result strengthens
+  under causality, keep the wide-10-case-CI caveat. This is a net WIN for the paper.
