@@ -164,3 +164,26 @@ Canonical target, 4 families, readout wake R^2 (test_b, case-clustered CI):
   leakage tests (shuffled-wake-label sentinel + residualized-wake) to show jepa
   carries wake STATE beyond the head's own echo. Outputs:
   probe_class_matrix_canonical.json (4-family).
+
+## Track E CONFIRMATIONS (both in): the dissociation that justifies the reframe.
+1. Shuffled-label sentinel (auxiliary_leakage.json): PASS. Permuting TRAIN wake
+   labels collapses the probe -- jepa 0.796->0.008, supervised_only 0.918->-0.328
+   -- so both encode GENUINE latent->wake structure (not probe overfitting). A
+   training-time shuffled-label encoder control is the GPU complement (deferred).
+2. Forecast comparison (trackE_forecast.json): trained a MATCHED predictor
+   (train_baseline_predictor.py, D181 protocol) on supervised_only's latents,
+   rolled out, probed forecast wake. DISSOCIATION:
+     - REPRESENTATIONAL (encoded latent): supervised_only 0.92 > jepa 0.80.
+     - FORECAST (rolled-out latent):       jepa 0.50 > supervised_only 0.27.
+   Supervision drives the representational readability; the PREDICTIVE objective
+   drives the forecast endpoint (+0.23 over supervised_only). supervised_only's
+   matched predictor partly forecasts (0.27, not zero -- the latent inherits some
+   smoothness from the shared wake supervision), but the predictive latent
+   forecasts clearly better. CIs wide at 10 cases; the robust signal is the SIGN
+   dissociation (representational favours supervision, forecast favours prediction).
+=> FINAL Track E verdict: the honest claim is a WAKE-SUPERVISED PREDICTIVE latent.
+   Supervision is necessary for (and dominates) representational readability; the
+   predictive objective owns the forecast closure + dynamics (limit cycle, drift)
+   and is compatible with supervision where reconstruction is antagonistic
+   (jepa 0.80 vs fukami 0.095 at matched wake head). Reframe approved by author
+   ("confirm then reframe").

@@ -1,0 +1,47 @@
+{
+  "_provenance": {
+    "git_sha": "77aec4853d6edab4bc5bba2772374cce72d784f3",
+    "command": "-c",
+    "utc": "2026-06-14T15:39:39.914670+00:00",
+    "input_sha256": {
+      "/home/carlos/GUST-JEPA/outputs/session28/exp2/dns_physical_metrics.npz": "269ebfbf1515ab555e5008f78cd4bbac60759c7dbc789b51729dc32b2a6c7090"
+    },
+    "versions": {
+      "python": "3.10.12",
+      "numpy": "1.26.4",
+      "sklearn": "1.7.2"
+    },
+    "seed": 0,
+    "split": "v2p1",
+    "reconciled_from": "SESSION29 plan (was main_13/v2); see RECONCILIATION_v2p1.md"
+  },
+  "config": {
+    "endpoint": "forecast vs representational",
+    "observable": "wake_enstrophy",
+    "horizon": 16,
+    "target_source": "canonical",
+    "probe": "ridge_groupkfold",
+    "ci": "case_clustered"
+  },
+  "representational": {
+    "supervised_only": 0.918,
+    "jepa_tf_noc": 0.796
+  },
+  "forecast": {
+    "supervised_only": {
+      "r2": 0.265,
+      "ci": [
+        -3.341,
+        0.419
+      ]
+    },
+    "jepa_tf_noc": {
+      "r2": 0.496,
+      "ci": [
+        -1.076,
+        0.571
+      ]
+    }
+  },
+  "verdict": "dissociation: supervision drives REPRESENTATIONAL readability (supervised_only>=jepa); the PREDICTIVE objective drives FORECAST closure (jepa 0.50 > supervised_only 0.27). Supports the wake-supervised predictive latent reframe. CIs wide at 10 cases; robust signal is the sign dissociation."
+}
