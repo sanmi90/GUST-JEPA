@@ -1,9 +1,9 @@
 {
   "_provenance": {
-    "generated_iso": "2026-06-14T16:13:06.250026+00:00",
-    "git_commit": "2dbc0ed06ab9ce1f5f2e951ca9b7f0e603b9c508",
+    "generated_iso": "2026-06-14T16:19:09.495184+00:00",
+    "git_commit": "093cbe1020746b7f55686f673ed0ea6179c29ad3",
     "manifest_runs_sha256": "aa07e687f2080e7e7f0dea8d75f3b2af40a86fa68c19f828ae3ec98422e60bbe",
-    "n_parts": 20,
+    "n_parts": 21,
     "parts": [
       "closure_floor_full.json",
       "closure_headline.json",
@@ -11,6 +11,7 @@
       "drift_ce1.json",
       "e4_floor.json",
       "error_maps.json",
+      "horizon_robust.json",
       "orbit_return.json",
       "p1.json",
       "p2.json",
@@ -1215,6 +1216,36 @@
       "source": "stats_harvest.py",
       "value": 2
     },
+    "horizon_wake_baseline_max": {
+      "endpoint": "representational",
+      "fmt": "%.2f",
+      "macro": "NumHorizonWakeBaselineMax",
+      "note": "max over the reconstructive and linear baselines AND over H in {4,8,16,32} of representational wake R^2 (pod at H=4); the predictive latent leads at every horizon",
+      "observable": "wake_enstrophy",
+      "source": "closure_matrix.csv (Track F)",
+      "split": "test_b",
+      "value": 0.399
+    },
+    "horizon_wake_jepa_max": {
+      "endpoint": "representational",
+      "fmt": "%.2f",
+      "macro": "NumHorizonWakeJepaMax",
+      "note": "max of the predictive representational wake R^2 over H in {4,8,16,32} (H=8)",
+      "observable": "wake_enstrophy",
+      "source": "closure_matrix.csv (Track F)",
+      "split": "test_b",
+      "value": 0.801
+    },
+    "horizon_wake_jepa_min": {
+      "endpoint": "representational",
+      "fmt": "%.2f",
+      "macro": "NumHorizonWakeJepaMin",
+      "note": "min of the predictive representational wake R^2 over H in {4,8,16,32}, ridge, test_b pooled (H=32); the H=16 endpoint sits on this plateau",
+      "observable": "wake_enstrophy",
+      "source": "closure_matrix.csv (Track F)",
+      "split": "test_b",
+      "value": 0.717
+    },
     "orbit_return_peak_max": {
       "fmt": "%.1f",
       "macro": "OrbitReturnPeakMax",
@@ -1567,7 +1598,7 @@
       "fmt": "%s",
       "macro": "CommitHash",
       "source": "eval_all.py",
-      "value": "2dbc0ed06ab9"
+      "value": "093cbe102074"
     },
     "s46_orbit_return_fukami": {
       "fmt": "%.2f",

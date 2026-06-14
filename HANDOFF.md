@@ -9035,3 +9035,20 @@ latent state improves linear closure of vortex-gust wake observables at Re=5000.
 AUTHOR SIGN-OFF on the title pending. Confirm-next: forecast-endpoint comparison
 (supervised_only should fail) + auxiliary leakage tests.
 
+
+### D203 (SESSION29 reframe complete + Tracks F, sensing-causal, J-prep) (2026-06-14, Session 29)
+
+Reframe applied across the manuscript (title/abstract/intro/S4.1/S4.2/S4.7/S5/S6 ->
+"wake-supervised predictive latent"): representational readability supplied by the
+wake supervision (Track E control NumReprWakeSupOnly 0.92 vs NumReprWakeJepaReadout
+0.80), predictive objective distinguished by preserving it (vs reconstruction
+suppressing it) and rendering the wake forecastable (NumFcstWakeJepaReadout 0.50 vs
+NumFcstWakeSupOnly 0.27). Drift de-magnitudised per Track H (near-null direction +
+kNN/local-PCA corroboration, no "order of magnitude"). Sensing shown causal per
+Track I (SenseStateCausal jepa 0.82 > fukami 0.77 > pod 0.22, strictly pre-impact;
+F6 resolved). Build clean 35pp, 0 undefined, 0 em-dashes.
+- Track F (horizon robustness): the closure matrix already has wake closure at
+  H in {4,8,16,32}; the predictive latent leads at EVERY horizon (0.72-0.80) vs
+  baselines <=0.40 -> H=16 not cherry-picked (NumHorizonWake* macros; S4.2 sentence).
+Remaining: Track C-full (grouped-CV retrain, heavy GPU), Track J (figure cull +
+slopegraph swap), Track K (claim audit + PDF QC + empty blockers).

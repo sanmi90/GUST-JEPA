@@ -253,7 +253,12 @@ The latent dimension is the remaining control. The representational wake closure
 holds on a plateau from $d = 64$ down to $d = 16$ ($R^2 = \NumCloReprWakeJepaTfDSixtyfour$,
 $\NumCloReprWakeJepaTfDThirtytwo$, and $\NumCloReprWakeJepaTfDSixteen$ at $d = 64$, $32$,
 and $16$) and falls off below, so the reported $d = 64$ sits on the plateau and the
-wake is not recoverable at the smallest dimensions on this dataset. The latent code
+wake is not recoverable at the smallest dimensions on this dataset. The reported
+$H = 16$ readout is likewise not a cherry-picked endpoint: across
+$H \in \{4, 8, 16, 32\}$ the predictive representational wake closure stays on a
+plateau ($R^2 = \NumHorizonWakeJepaMin$ to $\NumHorizonWakeJepaMax$) while no
+baseline exceeds $\NumHorizonWakeBaselineMax$ at any horizon, so the predictive
+latent leads the wake at every horizon tested. The latent code
 is correspondingly distributed rather than concentrated in a few coordinates, which
 \S\ref{sec:res_code} makes quantitative.
 

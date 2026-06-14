@@ -1,0 +1,35 @@
+{
+ "part": "horizon_robust",
+ "numbers": {
+  "horizon_wake_jepa_min": {
+   "macro": "NumHorizonWakeJepaMin",
+   "value": 0.717,
+   "fmt": "%.2f",
+   "split": "test_b",
+   "endpoint": "representational",
+   "observable": "wake_enstrophy",
+   "source": "closure_matrix.csv (Track F)",
+   "note": "min of the predictive representational wake R^2 over H in {4,8,16,32}, ridge, test_b pooled (H=32); the H=16 endpoint sits on this plateau"
+  },
+  "horizon_wake_jepa_max": {
+   "macro": "NumHorizonWakeJepaMax",
+   "value": 0.801,
+   "fmt": "%.2f",
+   "split": "test_b",
+   "endpoint": "representational",
+   "observable": "wake_enstrophy",
+   "source": "closure_matrix.csv (Track F)",
+   "note": "max of the predictive representational wake R^2 over H in {4,8,16,32} (H=8)"
+  },
+  "horizon_wake_baseline_max": {
+   "macro": "NumHorizonWakeBaselineMax",
+   "value": 0.399,
+   "fmt": "%.2f",
+   "split": "test_b",
+   "endpoint": "representational",
+   "observable": "wake_enstrophy",
+   "source": "closure_matrix.csv (Track F)",
+   "note": "max over the reconstructive and linear baselines AND over H in {4,8,16,32} of representational wake R^2 (pod at H=4); the predictive latent leads at every horizon"
+  }
+ }
+}
