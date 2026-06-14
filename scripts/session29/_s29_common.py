@@ -104,17 +104,47 @@ def load_dns_observable(split: str, observable: str) -> dict:
     return {(cid[i], int(enc[i])): obs[i] for i in range(len(cid))}, p
 
 
-def readout_xy(tag: str, split: str, observable: str, horizon: int):
+# Canonical DNS metrics: the SAME wake_enstrophy the published closure headline
+# uses (reproduces the 0.79 number). dns_physical_metrics keys are <split>_<name>.
+DNS_CANON = REPO / "outputs" / "session28" / "exp2" / "dns_physical_metrics.npz"
+
+
+def load_dns_canonical(split: str, observable: str) -> dict:
+    """Canonical (headline) DNS per-frame observable from dns_physical_metrics.npz,
+    keyed by (case_id, encounter). Use this for headline-comparable numbers; the
+    per_frame_targets variant (load_dns_observable) is a different/degraded scale."""
+    if not DNS_CANON.exists():
+        raise FileNotFoundError(f"missing canonical DNS metrics: {DNS_CANON}")
+    d = np.load(DNS_CANON, allow_pickle=True)
+    key = f"{split}_{observable}"
+    if key not in d:
+        raise KeyError(f"{key!r} not in {DNS_CANON}")
+    cid = np.asarray(d[f"{split}_case_id"]).astype(str)
+    enc = np.asarray(d[f"{split}_encounter_index"]).astype(int)
+    obs = np.asarray(d[key])  # (n, 120)
+    return {(cid[i], int(enc[i])): obs[i] for i in range(len(cid))}, DNS_CANON
+
+
+def readout_xy(
+    tag: str,
+    split: str,
+    observable: str,
+    horizon: int,
+    target_source: str = "per_frame",
+):
     """Readout-frame design matrix: X = latent at impact+H, y = DNS obs at impact+H.
 
-    Returns (X (n,d), y (n,), case_ids (n,)). One row per encounter. The probe
-    fitting/eval regime is the readout frame, with grouping by case_id; this is
-    the apples-to-apples regime for the linear-vs-nonlinear readability question
-    (the paper's pooled-frame ridge headline is a separate number, noted in the
-    report).
+    Returns (X (n,d), y (n,), case_ids (n,)). One row per encounter, grouped by
+    case_id. target_source 'per_frame' (default, back-compat) uses per_frame_targets;
+    'canonical' uses dns_physical_metrics (the published-headline wake target). The
+    fit/eval regime is the readout frame impact+H; the paper's pooled-frame ridge
+    headline is a separate number.
     """
     fam = load_family(tag, split)
-    obs_map, _ = load_dns_observable(split, observable)
+    if target_source == "canonical":
+        obs_map, _ = load_dns_canonical(split, observable)
+    else:
+        obs_map, _ = load_dns_observable(split, observable)
     z, imp, cid, enc = (
         fam["z_full"],
         fam["impact_frame"],

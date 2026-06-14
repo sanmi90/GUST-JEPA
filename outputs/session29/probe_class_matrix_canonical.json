@@ -1,0 +1,244 @@
+{
+  "_provenance": {
+    "git_sha": "1db715fb86f32330e6cb533e9c2f51a5990b3b57",
+    "command": "probe_class_sweep.py --target-source canonical",
+    "utc": "2026-06-14T12:41:24.422424+00:00",
+    "input_sha256": {
+      "/home/carlos/GUST-JEPA/outputs/session28/latents/jepa_tf_noc_d64_s42/train.npz": "63d1954aa139c456e1ca28b630fa90b761f25657d2fa18318a7c12db6ba9d805",
+      "/home/carlos/GUST-JEPA/outputs/session28/latents/fukami_d64_s42/train.npz": "a0b64b52b7652eed5cf3f4e7a1bd01f2c7d8ce394440b719c8ed5481f03f1d16",
+      "/home/carlos/GUST-JEPA/outputs/session28/latents/pod_d64/train.npz": "c638c98523b139b7f77e5243e3eecf35c58d2b6dffc7c0b86146a150ffa06398",
+      "/home/carlos/GUST-JEPA/outputs/session28/exp2/per_frame_targets/train.npz": "25c97045b6e7a5e9e4c75d2b3ad0fb62bced2250c266573f8f49cbfa4a703e5f",
+      "/home/carlos/GUST-JEPA/outputs/session28/exp2/per_frame_targets/test_b.npz": "cfb6eef859861c71bfdb2444af6b87a3a57b4ff6c105cf2e15c825d059f5fd42"
+    },
+    "versions": {
+      "python": "3.10.12",
+      "numpy": "1.26.4",
+      "sklearn": "1.7.2"
+    },
+    "seed": 0,
+    "split": "v2p1",
+    "reconciled_from": "SESSION29 plan (was main_13/v2); see RECONCILIATION_v2p1.md"
+  },
+  "config": {
+    "observable": "wake_enstrophy",
+    "horizon": 16,
+    "regime": "readout-frame, nested GroupKFold-by-case, case-clustered CI",
+    "target_source": "canonical"
+  },
+  "matrix": {
+    "jepa_tf_noc": {
+      "linear": {
+        "r2": 0.7956797120041833,
+        "ci_lo": -0.33447570059576,
+        "ci_hi": 0.8467478686979257,
+        "per_case_mae": 28.624398136138915,
+        "best_params": {
+          "model__alpha": 0.1
+        },
+        "r2_seed_sd": 0.0,
+        "n_test_b": 42,
+        "n_cases_test_b": 10
+      },
+      "kernel_ridge_rbf": {
+        "r2": 0.8460867040706259,
+        "ci_lo": -0.3003519140195692,
+        "ci_hi": 0.8940032747666539,
+        "per_case_mae": 22.425725419235487,
+        "best_params": {
+          "model__alpha": 0.01,
+          "model__gamma": 0.01
+        },
+        "r2_seed_sd": 0.0,
+        "n_test_b": 42,
+        "n_cases_test_b": 10
+      },
+      "mlp": {
+        "r2": 0.40154201760632313,
+        "ci_lo": -5.239201339215125,
+        "ci_hi": 0.25350226326531333,
+        "per_case_mae": 55.0776791413625,
+        "best_params": {
+          "model__alpha": 0.01,
+          "model__hidden_layer_sizes": [
+            64
+          ]
+        },
+        "r2_seed_sd": 0.28837890667004734,
+        "n_test_b": 42,
+        "n_cases_test_b": 10
+      },
+      "gbm": {
+        "r2": 0.6810816012977721,
+        "ci_lo": -1.424129936118377,
+        "ci_hi": 0.7978669931206169,
+        "per_case_mae": 28.298251147447377,
+        "best_params": {
+          "model__learning_rate": 0.03,
+          "model__max_depth": 3,
+          "model__n_estimators": 300
+        },
+        "r2_seed_sd": 0.0,
+        "n_test_b": 42,
+        "n_cases_test_b": 10
+      }
+    },
+    "fukami": {
+      "linear": {
+        "r2": 0.09541895679768575,
+        "ci_lo": -3.6632441648996004,
+        "ci_hi": 0.24820664180715157,
+        "per_case_mae": 50.12779811223348,
+        "best_params": {
+          "model__alpha": 100.0
+        },
+        "r2_seed_sd": 0.0,
+        "n_test_b": 42,
+        "n_cases_test_b": 10
+      },
+      "kernel_ridge_rbf": {
+        "r2": 0.009103501490744459,
+        "ci_lo": -2.8157843140867285,
+        "ci_hi": 0.05453359126886859,
+        "per_case_mae": 57.201309849233255,
+        "best_params": {
+          "model__alpha": 0.1,
+          "model__gamma": 0.001
+        },
+        "r2_seed_sd": 0.0,
+        "n_test_b": 42,
+        "n_cases_test_b": 10
+      },
+      "mlp": {
+        "r2": -0.3981039530990134,
+        "ci_lo": -5.04940713473358,
+        "ci_hi": -0.16997734706877843,
+        "per_case_mae": 65.18356170654297,
+        "best_params": {
+          "model__alpha": 0.01,
+          "model__hidden_layer_sizes": [
+            64
+          ]
+        },
+        "r2_seed_sd": 0.006655927799029794,
+        "n_test_b": 42,
+        "n_cases_test_b": 10
+      },
+      "gbm": {
+        "r2": 0.06927961088329182,
+        "ci_lo": -2.501321700502519,
+        "ci_hi": 0.13901587458927164,
+        "per_case_mae": 50.41319891928758,
+        "best_params": {
+          "model__learning_rate": 0.03,
+          "model__max_depth": 3,
+          "model__n_estimators": 100
+        },
+        "r2_seed_sd": 0.0,
+        "n_test_b": 42,
+        "n_cases_test_b": 10
+      }
+    },
+    "pod": {
+      "linear": {
+        "r2": -0.2009456973294943,
+        "ci_lo": -5.279148436760106,
+        "ci_hi": -0.007069153337736651,
+        "per_case_mae": 64.9904689470927,
+        "best_params": {
+          "model__alpha": 100.0
+        },
+        "r2_seed_sd": 0.0,
+        "n_test_b": 42,
+        "n_cases_test_b": 10
+      },
+      "kernel_ridge_rbf": {
+        "r2": -0.24890818865036413,
+        "ci_lo": -8.309196819967278,
+        "ci_hi": 0.03541995211980525,
+        "per_case_mae": 67.96285656091803,
+        "best_params": {
+          "model__alpha": 0.01,
+          "model__gamma": 0.001
+        },
+        "r2_seed_sd": 0.0,
+        "n_test_b": 42,
+        "n_cases_test_b": 10
+      },
+      "mlp": {
+        "r2": 0.1722812507655225,
+        "ci_lo": -3.0905914376138983,
+        "ci_hi": 0.3207761360660757,
+        "per_case_mae": 49.831373023986814,
+        "best_params": {
+          "model__alpha": 0.1,
+          "model__hidden_layer_sizes": [
+            64,
+            32
+          ]
+        },
+        "r2_seed_sd": 0.05641895042118166,
+        "n_test_b": 42,
+        "n_cases_test_b": 10
+      },
+      "gbm": {
+        "r2": -0.13811860929384356,
+        "ci_lo": -6.628864644269415,
+        "ci_hi": 0.19595071086874222,
+        "per_case_mae": 53.04864600439839,
+        "best_params": {
+          "model__learning_rate": 0.1,
+          "model__max_depth": 2,
+          "model__n_estimators": 300
+        },
+        "r2_seed_sd": 0.0,
+        "n_test_b": 42,
+        "n_cases_test_b": 10
+      }
+    }
+  },
+  "verdict": {
+    "per_probe": {
+      "linear": {
+        "jepa": 0.7956797120041833,
+        "fukami": 0.09541895679768575,
+        "pod": -0.2009456973294943,
+        "gap_vs_fukami": 0.7002607552064976,
+        "gap_vs_pod": 0.9966254093336776,
+        "jepa_best": true
+      },
+      "kernel_ridge_rbf": {
+        "jepa": 0.8460867040706259,
+        "fukami": 0.009103501490744459,
+        "pod": -0.24890818865036413,
+        "gap_vs_fukami": 0.8369832025798815,
+        "gap_vs_pod": 1.09499489272099,
+        "jepa_best": true
+      },
+      "mlp": {
+        "jepa": 0.40154201760632313,
+        "fukami": -0.3981039530990134,
+        "pod": 0.1722812507655225,
+        "gap_vs_fukami": 0.7996459707053365,
+        "gap_vs_pod": 0.22926076684080063,
+        "jepa_best": true
+      },
+      "gbm": {
+        "jepa": 0.6810816012977721,
+        "fukami": 0.06927961088329182,
+        "pod": -0.13811860929384356,
+        "gap_vs_fukami": 0.6118019904144802,
+        "gap_vs_pod": 0.8192002105916156,
+        "jepa_best": true
+      }
+    },
+    "probe_classes_jepa_leads": [
+      "linear",
+      "kernel_ridge_rbf",
+      "mlp",
+      "gbm"
+    ],
+    "probe_classes_reversed": [],
+    "branch": "STRONG",
+    "note": "STRONG = predictive latent leads under EVERY probe class (broad readability). WEAK = a nonlinear probe closes/reverses the ordering => pin claim to LINEAR decodability + organization. NB: case-clustered R^2 CIs are very wide at 10 test_b cases, so the robust signal is the SIGN consistency across probe classes and the per-case MAE, not the individual R^2 magnitudes."
+  }
+}

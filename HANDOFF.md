@@ -8987,3 +8987,30 @@ Three frozen-encoder gates ran as parallel subagents (reconciled to v2.1, reusin
 Outstanding cheap gates: I (causal pressure), B0.5 (clip sensitivity), C-min
 (slopegraph, subagent still running). GPU Track E supervised_only still training.
 
+### D201 (SESSION29 Tracks I, B0.5, C-min + Track D CORRECTION) (2026-06-14, Session 29)
+
+- **Track I (causal pressure, F6): STRONG, a WIN.** `pressure_causal.py`: under the
+  strictly-causal preimpact_m30_to_m1 window the predictive latent is cleanly most
+  recoverable (jepa 0.822 > fukami 0.765 > pod 0.224), CLEANER than the non-causal
+  readout window (which flips to fukami 0.762 > jepa 0.625). F6 resolved; pressure
+  stays a MAIN result, re-based on the causal window (re-base SenseState* macros at
+  Track J). Wake stays a non-result.
+- **Track B0.5 (clip sensitivity, F7): STRONG, closes F7.** JEPA wake advantage
+  preprocessing-robust across none/per_encounter/training_global clip (+0.63..+0.77,
+  max shift 0.07 < 0.10 tol). B1 retrain NOT needed. Catch: recomputing the CANONICAL
+  cache-box enstrophy reproduces the published 0.79 (per_encounter jepa 0.796).
+- **Track C-min (case-level, F3): WEAK, matches GD-weak.** Slopegraph is the honest
+  per-case figure (jepa better 7/10; case signed-rank p=0.024, exact sign p=0.17).
+- **Track D CORRECTION: STRONG, supersedes D197 WEAK.** B0.5 exposed that
+  `_s29_common` per_frame_targets is a degraded wake target. Re-ran Track D with
+  `--target-source canonical` (dns_physical_metrics): the predictive latent leads
+  under EVERY probe class -- linear 0.796 (= published 0.79), kernel 0.846, mlp
+  0.402, gbm 0.681 -- vs fukami <=0.10 and pod negative throughout. The D197 GBM
+  reversal was a per_frame_targets artifact. The wake is readable by a BROAD probe
+  class; "linear decodability" is conservative and may be upgraded. Added
+  `cm.load_dns_canonical` + `readout_xy(target_source=)` + `--target-source`.
+
+Remaining: GPU Track E supervised_only (encode + closure probe + leakage tests once
+trained), then F horizon matrix, C-full grouped-CV, J/K synthesis. Reviews in
+`outputs/session29/GATE_REVIEW_NOTES.md`.
+

@@ -114,3 +114,22 @@ fixed, so no returned branch is taken at face value.)
   -> RE-RUN Track D on the canonical target to confirm before pinning title
   wording. G is STRONG by a wide margin (robust to target choice). The paper's
   "linear decodability" framing is conservative and safe under either D outcome.
+
+## Track D CORRECTION (canonical target): STRONG, supersedes the D197 WEAK.
+Re-ran probe_class_sweep with `--target-source canonical` (dns_physical_metrics,
+the published-headline wake target). The predictive latent leads under EVERY probe
+class by a wide margin (test_b wake R^2):
+- linear: jepa +0.796 (= the published 0.79) > fukami +0.095 > pod -0.201
+- kernel-ridge: jepa +0.846 > fukami +0.009 > pod -0.249
+- mlp: jepa +0.402 > fukami -0.398, pod +0.172
+- gbm: jepa +0.681 > fukami +0.069 > pod -0.138
+VERDICT STRONG (no reversal under any probe). The GBM reversal reported in D197
+was an ARTIFACT of the degraded per_frame_targets wake target (which gave jepa only
+0.58 and let tree ensembles extract comparable signal from the baselines). On the
+correct target the wake is readable from the predictive latent by a BROAD probe
+class (linear, kernel, neural, tree), not merely linear -- so the manuscript's
+"linear decodability" framing is CONSERVATIVE and could be upgraded to "broad probe
+class" (still report the GBM/MLP point estimates and the wide 10-case CIs). This
+supersedes D197. Outputs: probe_class_matrix_canonical.json /
+probe_class_sweep_canonical.md. (Track G's STRONG holds a fortiori on the canonical
+target, where the latent is ~0.80; G need not be re-run.)

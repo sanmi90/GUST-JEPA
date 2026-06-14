@@ -98,6 +98,13 @@ def main() -> None:
     ap.add_argument("--probes", nargs="+", default=PROBES)
     ap.add_argument("--observable", default="wake_enstrophy")
     ap.add_argument("--horizon", type=int, default=16)
+    ap.add_argument(
+        "--target-source",
+        choices=["per_frame", "canonical"],
+        default="per_frame",
+        help="'canonical' uses dns_physical_metrics (published-headline "
+        "wake target); 'per_frame' (default) uses per_frame_targets.",
+    )
     ap.add_argument("--seeds", type=int, nargs="+", default=[0, 1, 2])
     ap.add_argument("--dry-run", action="store_true")
     args = ap.parse_args()
@@ -108,8 +115,12 @@ def main() -> None:
         print("[dry-run] families:", args.families, "probes:", args.probes)
         for f in args.families:
             tag = cm.FAMILY_TAGS[f]
-            Xtr, ytr, gtr = cm.readout_xy(tag, "train", args.observable, args.horizon)
-            Xte, yte, gte = cm.readout_xy(tag, "test_b", args.observable, args.horizon)
+            Xtr, ytr, gtr = cm.readout_xy(
+                tag, "train", args.observable, args.horizon, args.target_source
+            )
+            Xte, yte, gte = cm.readout_xy(
+                tag, "test_b", args.observable, args.horizon, args.target_source
+            )
             print(
                 f"  {f}: train X{Xtr.shape} ({len(np.unique(gtr))} cases), "
                 f"test_b X{Xte.shape} ({len(np.unique(gte))} cases)"
@@ -119,8 +130,12 @@ def main() -> None:
     matrix = {}
     for f in args.families:
         tag = cm.FAMILY_TAGS[f]
-        Xtr, ytr, gtr = cm.readout_xy(tag, "train", args.observable, args.horizon)
-        Xte, yte, gte = cm.readout_xy(tag, "test_b", args.observable, args.horizon)
+        Xtr, ytr, gtr = cm.readout_xy(
+            tag, "train", args.observable, args.horizon, args.target_source
+        )
+        Xte, yte, gte = cm.readout_xy(
+            tag, "test_b", args.observable, args.horizon, args.target_source
+        )
         if len(yte) == 0 or not np.isfinite(ytr).all():
             raise ValueError(f"{f}: empty/non-finite readout matrix")
         matrix[f] = {}
@@ -186,7 +201,11 @@ def main() -> None:
         "matrix": matrix,
         "verdict": verdict,
     }
-    cm.write_artifact(OUT_JSON, payload)
+    payload["config"]["target_source"] = args.target_source
+    suffix = "" if args.target_source == "per_frame" else f"_{args.target_source}"
+    out_json = OUT_JSON.with_name(f"probe_class_matrix{suffix}.json")
+    out_md = OUT_MD.with_name(f"probe_class_sweep{suffix}.md")
+    cm.write_artifact(out_json, payload)
 
     lines = [
         "# Track D: probe-class robustness (v2.1, wake enstrophy, H=16, test_b)\n",
@@ -222,8 +241,8 @@ def main() -> None:
             "",
             verdict["note"],
         ]
-    OUT_MD.write_text("\n".join(lines) + "\n")
-    print(f"\nwrote {OUT_JSON}\nwrote {OUT_MD}")
+    out_md.write_text("\n".join(lines) + "\n")
+    print(f"\nwrote {out_json}\nwrote {out_md}")
     if verdict:
         print(
             f"VERDICT: {verdict['branch']} | leads {verdict['probe_classes_jepa_leads']} "
