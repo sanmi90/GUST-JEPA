@@ -150,11 +150,12 @@ possession, since a nonlinear probe narrows the gap. The predictor rollout point
 the same way, which we show but do not advance as a validated forecast.
 
 Second, we identify the mechanism. A latent-drift diagnostic shows that the
-reconstructive rollout leaves its training manifold by an order of magnitude at
-$H = 16$ while the predictive and linear rollouts remain within it, and the
-departure is along directions of negligible encoded variance, which reconciles the
-small Euclidean drift of the reconstructive rollout with its large Mahalanobis
-departure (\S\ref{sec:res_drift}). We add a topological statement on the cleanest
+reconstructive rollout's departure from the training distribution concentrates in
+directions of negligible encoded variance at $H = 16$, whereas the predictive
+rollout stays within the populated cloud; metric-independent distance diagnostics
+confirm that the reconstructive Euclidean drift is itself small, so the
+discriminating statement is the \emph{direction} of departure, not its magnitude
+(\S\ref{sec:res_drift}). We add a topological statement on the cleanest
 control: under a metric that removes coordinate scale, the predictive encoding keeps
 the undisturbed shedding cycle as a single persistent generator where the
 reconstructive encoding fragments it, so the reconstructive encoding cannot

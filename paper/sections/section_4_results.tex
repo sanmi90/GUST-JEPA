@@ -257,8 +257,8 @@ families oppositely, and the reconciliation is the mechanism
 (table~\ref{tab:latent_drift}). By relative Euclidean deviation from the encoded
 trajectory the reconstructive rollout is the \emph{least} drifting
 ($\DriftRelLtwoFukami$ against $\DriftRelLtwoJepa$ for the predictive at $H = 16$),
-yet by Mahalanobis distance to the training distribution it is an order of
-magnitude out ($\DriftMahaFukami$ against $\DriftMahaJepa$ for the predictive, which
+yet by Mahalanobis distance to the training distribution it is markedly farther by
+that metric ($\DriftMahaFukami$ against $\DriftMahaJepa$ for the predictive, which
 stays in distribution). Both are true because the reconstructive rollout departs
 along directions of negligible encoded variance: a fraction $\DriftSpecNearNullFukami$
 of its Mahalanobis departure lies in the near-null directions of the encoded
@@ -266,7 +266,11 @@ covariance, where a small Euclidean step is a large Mahalanobis one, whereas the
 predictive rollout wanders within the broad isotropised cloud its anti-collapse
 regulariser maintains. The departure spectrum, not the ratio magnitude, is the
 robust statement: the reconstructive rollout exits the manifold along the directions
-the decoder never constrained. Ratios below one (the predictive and linear rollouts)
+the decoder never constrained. Two metric-independent diagnostics, the
+$k$-nearest-neighbour distance and the local-PCA residual to the training cloud,
+agree with the Euclidean ordering that the reconstructive rollout drifts the least,
+confirming that the Mahalanobis separation is a direction effect rather than a larger
+physical departure. Ratios below one (the predictive and linear rollouts)
 mean the rollout is more in-distribution than the encoded held-out latents, the
 predictor mean-reverting toward the training cloud. This is the property a forward
 model needs, and it is why the qualitative rollout of figure~\ref{fig:traces} tracks
