@@ -8912,3 +8912,24 @@ possession") is correct and even conservative (the advantage extends to kernel
 and MLP), with the GBM exception reported honestly. No title change forced; do not
 upgrade to a broad-probe exclusivity claim. (Plan stub D183 -> logged here as D197.)
 
+### D198 (SESSION29 Track B0, clip-leakage F7): leak REAL but immaterial at the readout (2026-06-14, Session 29)
+
+`scripts/session29/diagnose_clip_leakage.py` (tests green) quantified the F7
+per-encounter clip leak on the v2.1 cache (all 42 test_b + 50 train encounters).
+The omega pipeline's clip threshold is a single per-encounter p99.99 computed over
+ALL 120 frames (`build_omega_mean_pipeline.py:63`) and applied to every frame, so
+it is future-dependent by construction. Findings:
+- Method sanity: full-window recompute matches the stored manifest threshold to
+  median 0.17% (the diagnosis reproduces the pipeline).
+- The leak is REAL and not negligible at the THRESHOLD level: the full-window
+  p99.99 runs median ~11% (p95 ~30%) above the causal [0:impact+H] threshold,
+  because post-readout wake frames carry comparable |omega| extremes.
+- BUT the effect at the wake READOUT is tiny: only ~0.005% of impact-window
+  [25,55] cells (median; p95 ~0.013%) are clipped differently under the causal
+  threshold, so the encoder input where the wake is read is essentially unchanged.
+Verdict WEAK (leak present) but materiality at the readout negligible. Decisive
+test is **B0.5 frozen sensitivity** (recompute the wake result under causal /
+training-global / no clip and on physical-unit observables); a **B1** full retrain
+is warranted only if B0.5 moves the JEPA advantage. Wake enstrophy should be
+reported on physical (unclipped) units regardless. (Plan stub D182 -> D198.)
+
