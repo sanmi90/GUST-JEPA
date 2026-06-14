@@ -207,6 +207,12 @@ def parse_args() -> argparse.Namespace:
                  "patch_signed_spectrum", "wake_coarse_pool"],
     )
     p.add_argument("--lambda-wake", type=float, default=0.0)
+    # SESSION29.8 A2: optional SIGReg anti-collapse on the latent (the regularised
+    # reconstructive-AE attribution cell). Default 0.0 reproduces the unregularised
+    # AE exactly. Use --encoder cnn_vit so the batchnorm projection boundary SIGReg
+    # expects is present.
+    p.add_argument("--lambda-sigreg", type=float, default=0.0,
+                   help="SIGReg anti-collapse weight on the latent (0 = off; A2 cell).")
     p.add_argument("--wake-loss", type=str, default="smooth_l1",
                    choices=["smooth_l1", "mse"])
     p.add_argument("--wake-loss-beta", type=float, default=0.5)
@@ -554,6 +560,7 @@ def main() -> None:
         wake_loss_kind=args.wake_loss,
         wake_loss_beta=args.wake_loss_beta,
         encoder_kind=args.encoder,
+        lambda_sigreg=args.lambda_sigreg,
     )
     if args.vae:
         from src.baselines.solera_rico import BetaVAEWrapper

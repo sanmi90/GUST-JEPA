@@ -256,6 +256,7 @@ class FukamiAEWrapper(nn.Module):
         wake_loss_kind: str = "smooth_l1",
         wake_loss_beta: float = 0.5,
         encoder_kind: str = "cnn",
+        lambda_sigreg: float = 0.0,
     ) -> None:
         super().__init__()
         # encoder_kind 'cnn' is the native Fukami CNN encoder (the reconstructive
@@ -293,6 +294,16 @@ class FukamiAEWrapper(nn.Module):
         self.n_deltas = n_deltas
         self.lambda_recon = lambda_recon
         self.lambda_lift = lambda_lift
+        # SESSION29.8 A2: optional SIGReg anti-collapse on the latent, the same
+        # recipe JEPA uses (the cnn_vit encoder already carries the batchnorm
+        # projection boundary SIGReg expects). Default 0.0 leaves the loss and the
+        # forward path byte-for-byte identical to the unregularised AE.
+        self.lambda_sigreg = float(lambda_sigreg)
+        if self.lambda_sigreg > 0:
+            from src.models.sigreg import SIGReg
+            self.sigreg: "nn.Module | None" = SIGReg(dim=latent_dim)
+        else:
+            self.sigreg = None
         self.omega_scale = float(omega_scale)
         if recon_loss_type not in {"mse", "l1", "charbonnier", "multiscale", "l2norm"}:
             raise ValueError(f"Unknown recon_loss_type {recon_loss_type!r}; "
@@ -567,15 +578,22 @@ class FukamiAEWrapper(nn.Module):
         else:
             L_wake = torch.zeros((), device=omega.device, dtype=omega.dtype)
 
+        if self.sigreg is not None:
+            L_sigreg = self.sigreg(z.reshape(-1, z.shape[-1]).float())
+        else:
+            L_sigreg = torch.zeros((), device=omega.device, dtype=omega.dtype)
+
         L_total = (
             self.lambda_recon * L_recon
             + self.lambda_lift * L_lift
             + self.wake_observable_weight * L_wake
+            + self.lambda_sigreg * L_sigreg
         )
         return {
             "L_total": L_total,
             "L_recon": L_recon.detach(),
             "L_lift": L_lift.detach(),
             "L_wake": L_wake.detach(),
+            "L_sigreg": L_sigreg.detach(),
             "z": z.detach(),
         }
