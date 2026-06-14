@@ -1,9 +1,9 @@
 {
   "_provenance": {
-    "generated_iso": "2026-06-14T06:23:07.289555+00:00",
-    "git_commit": "d5b12296bdf5c9753de426803057686a0d0544a2",
+    "generated_iso": "2026-06-14T16:11:59.293873+00:00",
+    "git_commit": "a48c1b01dcbcd9d4a8fb3671812e104443ba6ff4",
     "manifest_runs_sha256": "aa07e687f2080e7e7f0dea8d75f3b2af40a86fa68c19f828ae3ec98422e60bbe",
-    "n_parts": 18,
+    "n_parts": 19,
     "parts": [
       "closure_floor_full.json",
       "closure_headline.json",
@@ -22,6 +22,7 @@
       "spectrum_dmd.json",
       "stats_harvest.json",
       "topology_ce2.json",
+      "track_e.json",
       "undisturbed.json"
     ],
     "protocol_file": "configs/eval_protocol_v2p1.yaml",
@@ -1565,7 +1566,7 @@
       "fmt": "%s",
       "macro": "CommitHash",
       "source": "eval_all.py",
-      "value": "d5b12296bdf5"
+      "value": "a48c1b01dcbc"
     },
     "s46_orbit_return_fukami": {
       "fmt": "%.2f",
@@ -2087,6 +2088,46 @@
       "source": "topology_ce2.py",
       "split": "test_b+test_c",
       "value": 2.0
+    },
+    "track_e_fcst_wake_jepa_readout": {
+      "endpoint": "forecast",
+      "fmt": "%.2f",
+      "macro": "NumFcstWakeJepaReadout",
+      "note": "predictive latent forecast wake R^2 via the matched predictor rollout (readout regime); the predictive objective owns the forecast endpoint (~ the published pooled NumCloFcstWakeJepaTf=0.43)",
+      "observable": "wake_enstrophy",
+      "source": "matched-predictor rollout + probe (Track E)",
+      "split": "test_b",
+      "value": 0.496
+    },
+    "track_e_fcst_wake_supervised_only": {
+      "endpoint": "forecast",
+      "fmt": "%.2f",
+      "macro": "NumFcstWakeSupOnly",
+      "note": "supervised_only forecast wake R^2 via a MATCHED predictor rollout; the supervision-only latent forecasts markedly worse than the predictive latent",
+      "observable": "wake_enstrophy",
+      "source": "matched-predictor rollout (train_baseline_predictor.py) + probe (Track E)",
+      "split": "test_b",
+      "value": 0.265
+    },
+    "track_e_repr_wake_jepa_readout": {
+      "endpoint": "representational",
+      "fmt": "%.2f",
+      "macro": "NumReprWakeJepaReadout",
+      "note": "predictive latent readout-frame linear wake R^2 on the canonical target; reproduces the pooled-frame headline NumReprWakeJepaTf=0.79, validating the Track E readout regime",
+      "observable": "wake_enstrophy",
+      "source": "probe_class_sweep.py --target-source canonical (Track E)",
+      "split": "test_b",
+      "value": 0.796
+    },
+    "track_e_repr_wake_supervised_only": {
+      "endpoint": "representational",
+      "fmt": "%.2f",
+      "macro": "NumReprWakeSupOnly",
+      "note": "supervised_only (predictive_weight=0: wake+lift heads + SIGReg, NO predictive objective) readout-frame linear wake R^2 on the canonical target; matches/exceeds the predictive latent's readout R^2 (0.80, which reproduces the 0.79 pooled headline) => representational readability is supervision-driven",
+      "observable": "wake_enstrophy",
+      "source": "probe_class_sweep.py --target-source canonical (Track E)",
+      "split": "test_b",
+      "value": 0.918
     },
     "undisturbed_CD_mean": {
       "fmt": "%.3f",

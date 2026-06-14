@@ -226,10 +226,28 @@ cell. The result therefore requires the predictive objective \emph{and} the wake
 supervision together; it is not a property of the objective in isolation, nor of
 the architecture, nor of the wake head attached to an arbitrary objective (the
 reconstructive cells carry the same wake head and do not reach the predictive
-readability). We claim, accordingly, that the predictive objective renders the
-wake linearly readable over the reconstructive objective at matched architecture
-and matched supervision, with the auxiliary wake head a necessary component of the
-configuration that achieves it.
+readability). We claim, accordingly, that at matched architecture and matched
+supervision the predictive objective renders the wake linearly readable where the
+reconstructive objective does not, with the auxiliary wake head a necessary
+component.
+
+A final control isolates the predictive objective from the wake supervision
+directly. An encoder trained on the lift and wake heads alone, with the predictive
+objective removed entirely (its weight set to zero) but the anti-collapse term
+retained, renders the wake \emph{at least as} linearly readable as the full
+predictive model on the representational endpoint ($R^2 = \NumReprWakeSupOnly$ under
+a readout-frame probe that reproduces the headline for the predictive model,
+$\NumReprWakeJepaReadout$). The representational readability is therefore supplied
+by the wake-observable supervision, not by the predictive objective. The predictive
+objective's distinctive role is dynamical: rolled forward through a matched
+predictor, the supervision-only latent forecasts the wake markedly worse than the
+predictive latent ($R^2 = \NumFcstWakeSupOnly$ against $\NumFcstWakeJepaReadout$),
+and the same supervision attached to the reconstructive objective collapses to the
+floor (the reconstructive cells above). The honest statement is therefore a
+wake-supervised \emph{predictive} latent: the supervision makes the wake readable,
+the reconstructive objective suppresses that readability, and the predictive
+objective is the one objective that both preserves it and renders the wake
+forecastable from the latent's own rollout.
 
 The latent dimension is the remaining control. The representational wake closure
 holds on a plateau from $d = 64$ down to $d = 16$ ($R^2 = \NumCloReprWakeJepaTfDSixtyfour$,

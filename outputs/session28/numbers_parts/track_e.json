@@ -1,0 +1,45 @@
+{
+ "part": "track_e",
+ "numbers": {
+  "track_e_repr_wake_supervised_only": {
+   "macro": "NumReprWakeSupOnly",
+   "value": 0.918,
+   "fmt": "%.2f",
+   "split": "test_b",
+   "endpoint": "representational",
+   "observable": "wake_enstrophy",
+   "source": "probe_class_sweep.py --target-source canonical (Track E)",
+   "note": "supervised_only (predictive_weight=0: wake+lift heads + SIGReg, NO predictive objective) readout-frame linear wake R^2 on the canonical target; matches/exceeds the predictive latent's readout R^2 (0.80, which reproduces the 0.79 pooled headline) => representational readability is supervision-driven"
+  },
+  "track_e_repr_wake_jepa_readout": {
+   "macro": "NumReprWakeJepaReadout",
+   "value": 0.796,
+   "fmt": "%.2f",
+   "split": "test_b",
+   "endpoint": "representational",
+   "observable": "wake_enstrophy",
+   "source": "probe_class_sweep.py --target-source canonical (Track E)",
+   "note": "predictive latent readout-frame linear wake R^2 on the canonical target; reproduces the pooled-frame headline NumReprWakeJepaTf=0.79, validating the Track E readout regime"
+  },
+  "track_e_fcst_wake_supervised_only": {
+   "macro": "NumFcstWakeSupOnly",
+   "value": 0.265,
+   "fmt": "%.2f",
+   "split": "test_b",
+   "endpoint": "forecast",
+   "observable": "wake_enstrophy",
+   "source": "matched-predictor rollout (train_baseline_predictor.py) + probe (Track E)",
+   "note": "supervised_only forecast wake R^2 via a MATCHED predictor rollout; the supervision-only latent forecasts markedly worse than the predictive latent"
+  },
+  "track_e_fcst_wake_jepa_readout": {
+   "macro": "NumFcstWakeJepaReadout",
+   "value": 0.496,
+   "fmt": "%.2f",
+   "split": "test_b",
+   "endpoint": "forecast",
+   "observable": "wake_enstrophy",
+   "source": "matched-predictor rollout + probe (Track E)",
+   "note": "predictive latent forecast wake R^2 via the matched predictor rollout (readout regime); the predictive objective owns the forecast endpoint (~ the published pooled NumCloFcstWakeJepaTf=0.43)"
+  }
+ }
+}
