@@ -24,9 +24,26 @@ first** (no GPU retrain until the analytical gates show one is needed).
   latents under `outputs/session28/latents/`). Create session29 scripts only for
   genuinely-new analyses.
 
+## Canonical dataset accounting (v2.1; SESSION29.5 P0.2)
+The canonical counts are **85 cases / 382 encounter windows** (229 train, 87
+validation, 42 test_b, 24 test_c), frozen in `configs/splits/split_v2p1.json`
+under the `summary` block and emitted to the manuscript ONLY through manifest
+macros (`scripts/session28/emit_dataset_manifest_part.py` ->
+`numbers.json` -> `paper/macros.tex`: `\NumCasesTotal`, `\NumEncTotal`,
+`\NumEncTrain`, `\NumEncVal`, `\NumEncTestB`, `\NumEncTestC`). No literal count
+appears in the section sources (narrative_qc hard gate).
+
+The 84 -> 85 change versus v2 is a **training case-set change, not a no-gust
+accounting change**: v2.1 ADDS two train cases (`G+1.00_D1.50_Y-0.10`,
+`G-1.50_D1.50_Y+0.00`) and DROPS one (`G-2.00_D1.50_Y+0.10`), all in the train
+split, from the finer-dt run3 regeneration (HANDOFF D177). test_b and test_c are
+frozen identical to v2; the undisturbed Baseline (no-gust, calibration reference)
+case is unchanged and remains in train. Net +1 case, +3 train encounters
+(226 -> 229) and the validation count rises 86 -> 87.
+
 ## Already resolved by the v2.1 rebuild (SESSION29 VERIFIES, does not redo)
 - **F2** dataset accounting: v2p1 uses 85 cases / 229 train consistently; GI gate
-  confirmed zero count contradictions.
+  confirmed zero count contradictions (now fully macro-bound, see above).
 - **F3** statistical unit: the paper already reports BOTH encounter-level Holm
   (survives) and case-level (does not); GD declared WEAK; case-clustered CIs.
 - **Track 0** numbers authority: numbers.json + macros.tex already in force.

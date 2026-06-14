@@ -44,6 +44,23 @@
 % via emit_macros.py). Phase D wires every quoted number to these.
 \input{macros.tex}
 
+% Suppress the CUP author-class production-guidance footer flags that otherwise
+% render visibly in the compiled PDF ("Abstract must not spill onto p.2", "Focus on
+% Fluids articles must not exceed this page length", "Rapids articles must not
+% exceed this page length"). These are editorial-workflow reminders, not part of a
+% submission. We override the two footer-flag primitives (used by the abstract
+% footer and the page-4/10 limit footers) to render the class's own clean
+% page-number footer instead of the coloured warning box. The journal class file
+% itself is left unmodified.
+\makeatletter
+\def\jfm@cleanfoot{\hbox to \textwidth{{\cppagefont\ifx\@volume\undefined\else
+  \textbf{\@volume}\fi\ \ifx\@issue\undefined\ifpaper A\else\ifrapid R\else\ifpersp
+  P\else\iffof F\else X\fi\fi\fi\fi1-\else\ifpaper A\else\ifrapid R\else\ifpersp
+  P\else\iffof F\else X\fi\fi\fi\fi\@issue-\fi\thepage}\hfill}}
+\def\oddfooterflagdefns#1{\jfm@cleanfoot}
+\def\evenfooterflagdefns#1{\jfm@cleanfoot}
+\makeatother
+
 \lefttitle{Solera-Rico, Mir\'o, Lehmkuhl and Sanmiguel Vila}
 \righttitle{Journal of Fluid Mechanics}
 

@@ -170,6 +170,9 @@ high-percentile clip caps spikes, and the field is scaled by the training
 standard deviation with no mean shift, preserving the vorticity antisymmetry.
 All representation and probe losses are computed in this normalised space;
 unnormalised values are used only for physical-units metrics and figures.
+Appendix~\ref{app:reg} repeats the primary wake probe under no amplitude clip and
+under a single training-pooled leak-free threshold, and the family ordering is
+unchanged, so the per-encounter clip does not drive the result.
 
 We evaluate forward closure against six physical observables that together span
 body-force, integrated-flow, and spatially distributed wake diagnostics. The
