@@ -141,11 +141,14 @@ training recipe, and probe family, so that representation quality is attributabl
 the encoder alone (\S\ref{sec:methods}). The headline figure of merit is
 representational closure, whether a fixed probe reads each of six observables off the
 simulation-encoded latent, the wake in particular (\S\ref{sec:res_closure}). On
-held-out cases the predictive latent renders the wake linearly readable where the
-others do not: its representational wake-enstrophy $R^2$ is $\NumReprWakeJepaTf$
-where the reconstructive and linear baselines are at or below zero, and the
-per-encounter advantage survives the pre-registered encounter-level multiplicity
-correction. We phrase the result as linear decodability rather than exclusive
+held-out cases the wake-supervised predictive latent renders the wake linearly
+readable where the others do not: its representational wake-enstrophy $R^2$ is
+$\NumReprWakeJepaTf$ where the reconstructive and linear baselines are at or below
+zero, and the per-encounter advantage survives the pre-registered encounter-level
+multiplicity correction. A control shows the readability is supplied by the
+wake-observable supervision, with the predictive objective distinguished by
+preserving it where the reconstructive objective suppresses it and by rendering the
+wake forecastable. We phrase the result as linear decodability rather than exclusive
 possession, since a nonlinear probe narrows the gap. The predictor rollout points
 the same way, which we show but do not advance as a validated forecast.
 

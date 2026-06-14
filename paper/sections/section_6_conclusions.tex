@@ -2,19 +2,23 @@
 
 We asked which reduced-order state renders the wake that governs the transient load
 linearly readable in parametric vortex-gust airfoil interactions, and reached a
-representational answer with a geometric mechanism: a predictive objective
-regularised against collapse builds a latent from which the wake is linearly
-decodable and whose rollout stays on the encoded manifold, whereas a reconstruction
-objective smooths the wake away and its rollout drifts off the manifold along
-directions of negligible encoded variance. We tested this by comparing a predictive
+representational answer with a geometric mechanism: a wake-supervised predictive
+latent builds a state from which the wake is linearly decodable and whose rollout
+stays on the encoded manifold, whereas a reconstruction objective carrying the same
+supervision smooths the wake away and its rollout drifts off the manifold along
+directions of negligible encoded variance. A control shows the representational
+readability is supplied by the wake supervision rather than by the predictive
+objective, which is distinguished instead by preserving that readability where
+reconstruction suppresses it and by rendering the wake forecastable from the
+rollout. We tested this by comparing a predictive
 latent (JEPA, which takes no gust parameters), a reconstructive observable-augmented
 autoencoder, and a proper orthogonal decomposition basis as reduced states at
 $\vRe = 5000$, under a protocol in which a single probe family was held fixed so
 that only the encoder varied, judging each first by the representational closure of
-the wake. On held-out cases the predictive latent renders the wake linearly readable
-where the others do not: its representational wake-enstrophy $R^2$ is
-$\NumReprWakeJepaTf$ against the reconstructive and linear baselines at or below
-zero, the per-encounter advantage survives the pre-registered encounter-level
+the wake. On held-out cases the wake-supervised predictive latent renders the wake
+linearly readable where the others do not: its representational wake-enstrophy
+$R^2$ is $\NumReprWakeJepaTf$ against the reconstructive and linear baselines at or
+below zero, the per-encounter advantage survives the pre-registered encounter-level
 multiplicity correction (though not the stricter case-level one), and the gust
 parameters alone do not supply the wake state (the parametric floor is negative),
 while the linear basis remains most competitive on the integrated impulse. The same

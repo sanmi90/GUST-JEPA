@@ -1,9 +1,9 @@
 {
   "_provenance": {
-    "generated_iso": "2026-06-14T16:11:59.293873+00:00",
-    "git_commit": "a48c1b01dcbcd9d4a8fb3671812e104443ba6ff4",
+    "generated_iso": "2026-06-14T16:13:06.250026+00:00",
+    "git_commit": "2dbc0ed06ab9ce1f5f2e951ca9b7f0e603b9c508",
     "manifest_runs_sha256": "aa07e687f2080e7e7f0dea8d75f3b2af40a86fa68c19f828ae3ec98422e60bbe",
-    "n_parts": 19,
+    "n_parts": 20,
     "parts": [
       "closure_floor_full.json",
       "closure_headline.json",
@@ -17,6 +17,7 @@
       "p4_lev.json",
       "p5_code.json",
       "s46.json",
+      "sensing_causal.json",
       "sensing_cf.json",
       "sensing_field_cf.json",
       "spectrum_dmd.json",
@@ -1566,7 +1567,7 @@
       "fmt": "%s",
       "macro": "CommitHash",
       "source": "eval_all.py",
-      "value": "a48c1b01dcbc"
+      "value": "2dbc0ed06ab9"
     },
     "s46_orbit_return_fukami": {
       "fmt": "%.2f",
@@ -1913,6 +1914,36 @@
       "source": "sensing_cf",
       "split": "test_b",
       "value": 0.34021441102362493
+    },
+    "sensing_state_causal_fukami": {
+      "endpoint": "deployment",
+      "fmt": "%.2f",
+      "macro": "SenseStateCausalFukami",
+      "note": "reconstructive-AE state recovery, strictly pre-impact causal window",
+      "observable": "state_recovery",
+      "source": "pressure_causal.py (Track I)",
+      "split": "test_b",
+      "value": 0.765
+    },
+    "sensing_state_causal_jepa": {
+      "endpoint": "deployment",
+      "fmt": "%.2f",
+      "macro": "SenseStateCausalJepaTf",
+      "note": "predictive-latent state recovery from K=8 qDEIM taps over the STRICTLY PRE-IMPACT window [impact-30:impact] (causal); the ordering holds and strengthens vs the non-causal readout window",
+      "observable": "state_recovery",
+      "source": "pressure_causal.py (Track I)",
+      "split": "test_b",
+      "value": 0.822
+    },
+    "sensing_state_causal_pod": {
+      "endpoint": "deployment",
+      "fmt": "%.2f",
+      "macro": "SenseStateCausalPod",
+      "note": "POD state recovery, strictly pre-impact causal window",
+      "observable": "state_recovery",
+      "source": "pressure_causal.py (Track I)",
+      "split": "test_b",
+      "value": 0.224
     },
     "sensing_state_qdeim_K8_testb_jepa_tf_noc": {
       "endpoint": "deployment",

@@ -1,0 +1,35 @@
+{
+ "part": "sensing_causal",
+ "numbers": {
+  "sensing_state_causal_jepa": {
+   "macro": "SenseStateCausalJepaTf",
+   "value": 0.822,
+   "fmt": "%.2f",
+   "split": "test_b",
+   "endpoint": "deployment",
+   "observable": "state_recovery",
+   "source": "pressure_causal.py (Track I)",
+   "note": "predictive-latent state recovery from K=8 qDEIM taps over the STRICTLY PRE-IMPACT window [impact-30:impact] (causal); the ordering holds and strengthens vs the non-causal readout window"
+  },
+  "sensing_state_causal_fukami": {
+   "macro": "SenseStateCausalFukami",
+   "value": 0.765,
+   "fmt": "%.2f",
+   "split": "test_b",
+   "endpoint": "deployment",
+   "observable": "state_recovery",
+   "source": "pressure_causal.py (Track I)",
+   "note": "reconstructive-AE state recovery, strictly pre-impact causal window"
+  },
+  "sensing_state_causal_pod": {
+   "macro": "SenseStateCausalPod",
+   "value": 0.224,
+   "fmt": "%.2f",
+   "split": "test_b",
+   "endpoint": "deployment",
+   "observable": "state_recovery",
+   "source": "pressure_causal.py (Track I)",
+   "note": "POD state recovery, strictly pre-impact causal window"
+  }
+ }
+}

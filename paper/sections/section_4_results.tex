@@ -693,7 +693,13 @@ predictive objective that renders the wake readable from the field produces a st
 that is also legible from the wall. The wall pressure also recovers the
 wall-normal offset $Y$ at $R^2 = \SensePY$, so the weak $Y$ resolution of
 \S\ref{sec:res_physical} is a property of the mid-plane vorticity observable and
-the offset sampling, not of the pressure signal.
+the offset sampling, not of the pressure signal. The recoverability is causal:
+restricting the pressure window to a strictly pre-impact span, ending before the
+gust reaches the airfoil rather than at the readout instant, preserves and in fact
+sharpens the ordering (predictive $\SenseStateCausalJepaTf$ against
+$\SenseStateCausalFukami$ for the reconstructive autoencoder and
+$\SenseStateCausalPod$ for the linear basis), so the predictive state is the most
+recoverable from pressure available strictly before the event.
 
 The recovered \emph{field} tells a more nuanced story that we report in full. The
 pressure-to-latent map followed by each family's decoder reconstructs the

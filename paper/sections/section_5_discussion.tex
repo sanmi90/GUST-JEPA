@@ -8,19 +8,26 @@
 \label{sec:disc_mechanism}
 \label{sec:disc_caveat}
 
-The central finding is representational, and it concerns what the latent renders
-readable: the predictive latent makes the wake structure linearly decodable where
-the reconstructive and linear families do not. Under a shared probe family the
-predictive latent reads the held-out wake at $R^2 = \NumReprWakeJepaTf$ while the
+The central finding is representational, and it concerns what makes the wake
+readable. Under a shared probe family the wake-supervised predictive latent reads
+the held-out wake at $R^2 = \NumReprWakeJepaTf$ while the reconstructive and linear
 baselines are at or below zero; the advantage is concentrated on the spatially
 distributed wake observables, survives the pre-registered encounter-level
 multiplicity correction (though not the stricter case-level one), and the forward
 rollout is consistent with the same ordering but shown qualitatively rather than as
-a validated forecast. We state the claim as linear decodability rather than
-exclusive possession because a nonlinear probe recovers part of the wake from the
-matched-head reconstructive control: the predictive objective renders the wake
-linearly readable, and the established reconstructive and linear recipes do not
-make it readable at all by the evaluated probe class. The mechanism is geometric.
+a validated forecast. A control localises the cause: an objective-free encoder
+carrying only the wake-observable supervision reads the wake as well
+($R^2 = \NumReprWakeSupOnly$ against $\NumReprWakeJepaReadout$ for the predictive
+latent under the same probe), so the representational readability is supplied by the
+supervision, not by the predictive objective in isolation. The predictive objective
+is the one objective that \emph{preserves} that readability where the reconstructive
+objective suppresses it, and that additionally renders the wake forecastable from
+the latent's own rollout ($R^2 = \NumFcstWakeJepaReadout$ against
+$\NumFcstWakeSupOnly$ for the supervision-only control). We state the readability
+claim as linear decodability rather than exclusive possession because a nonlinear
+probe recovers part of the wake from the matched-head reconstructive control; the
+established reconstructive and linear recipes do not make the wake readable at all
+by the evaluated probe class. The mechanism is geometric.
 A reconstruction objective fixes the latent only up to a diffeomorphism
 \citep{kelshaw2024}, so the decoder is free to place codes anywhere it finds
 convenient and nothing constrains the latent geometry to be predictable in time;
@@ -109,11 +116,17 @@ with the auxiliary heads matched, and the two architecture columns do not separa
 so the gain is the objective and not the architecture. The wake supervision,
 however, is a necessary part of the configuration that achieves it: a predictive
 model with the wake head removed collapses below the predict-the-mean floor on wake
-closure. The claim is therefore that the predictive objective renders the wake
-readable \emph{when trained with wake supervision}, not that the objective in
-isolation does, and not that the wake head attached to an arbitrary objective does,
-since the reconstructive cells carry the same head and do not reach the predictive
-readability. The linear basis, for its part, remains genuinely useful: it is the
+closure. A further control sharpens this: removing the predictive objective
+\emph{entirely} while keeping the wake supervision and the anti-collapse term
+($\NumReprWakeSupOnly$ against $\NumReprWakeJepaReadout$ for the predictive latent)
+shows the representational readability is supplied by the supervision, not by the
+predictive objective. The claim is therefore that a wake-supervised latent renders
+the wake readable, and that among objectives the predictive one is distinguished by
+\emph{preserving} that supervision-supplied readability where the reconstructive
+objective, carrying the same head, suppresses it, and by rendering the wake
+forecastable from the rollout ($R^2 = \NumFcstWakeJepaReadout$ against
+$\NumFcstWakeSupOnly$ for the supervision-only latent), which the static
+supervision-only encoder cannot do. The linear basis, for its part, remains genuinely useful: it is the
 most competitive family on the integrated impulse and is amplitude-accurate in
 reconstruction, so the result is not that POD is obsolete but that it does not
 produce a latent from which the wake observables are linearly readable.
@@ -135,10 +148,12 @@ claim. Third, the visualisation
 decoder is a diagnostic on the frozen encoder, never part of the predictive
 loss; a reader expecting sharp reconstructions from a predictive latent will be
 disappointed, which is the explicit trade the objective makes. To these we add,
-as a fourth, the co-necessity of the wake supervision established in
-\S\ref{sec:disc_caveat}: the predictive objective renders the wake readable in the
-configuration tested, with the wake head as a necessary component, not as a
-property of the objective stripped of all auxiliary supervision.
+as a fourth, the role of the wake supervision established in
+\S\ref{sec:disc_caveat}: the wake supervision supplies the representational
+readability, and the predictive objective is what preserves it (where the
+reconstructive objective suppresses it) and renders it forecastable; the result is
+a property of the wake-supervised predictive configuration, not of the objective
+stripped of supervision nor of the supervision attached to an arbitrary objective.
 
 These limitations come into sharpest focus against the use the architecture is
 ultimately meant for. The predictor is, by construction, the latent
