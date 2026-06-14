@@ -12,16 +12,16 @@ direct numerical simulations of a NACA~0012 airfoil at $\alpha = 14^\circ$ and
 $\vRe = 5000$, perturbed by Taylor vortices spanning gust strength, core diameter
 and wall-normal offset, we ask which reduced state preserves that wake. At fixed
 dimension, under one shared probe and predictor, we compare a wake-supervised
-predictive state, a matched wake-supervised reconstructive state, and a proper
-orthogonal decomposition basis.
+predictive state, the lift-augmented reconstructive autoencoder of the
+Fukami-Taira lineage, and a proper orthogonal decomposition basis; matched
+wake-supervised controls separate objective from supervision.
 Probed from held-out fields sixteen frames after impact, the predictive state makes
-the wake enstrophy linearly readable ($R^2 = \NumReprWakeJepaTf$, with case-level
-spread reported explicitly) where the reconstructive and linear states are at or
-below the mean predictor. Matched controls separate readability from dynamics: an
-objective-free encoder with only the wake supervision reads the wake as well, so
-supervision supplies the readability, while the predictive objective preserves it
-under rollout and the reconstructive objective suppresses it under the same
-supervision. The mechanism is geometric: the predictive rollout
+the wake enstrophy linearly readable ($R^2 = \NumReprWakeJepaTf$; case-level spread
+shown) where the reconstructive and linear states are at or below the mean
+predictor. The matched controls separate readability from dynamics: an
+objective-free supervised encoder reads the wake equally well, so supervision
+supplies the readability, while the predictive objective preserves it under rollout
+where reconstruction suppresses it. The mechanism is geometric: the predictive rollout
 stays on the encoded manifold and its no-gust shedding orbit remains a single
 persistent loop, whereas the reconstructive rollout departs along directions of
 negligible encoded variance and its no-gust loop fragments. Sparse wall pressure
