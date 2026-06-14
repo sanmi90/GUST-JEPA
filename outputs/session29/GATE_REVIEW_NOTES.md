@@ -133,3 +133,34 @@ class" (still report the GBM/MLP point estimates and the wide 10-case CIs). This
 supersedes D197. Outputs: probe_class_matrix_canonical.json /
 probe_class_sweep_canonical.md. (Track G's STRONG holds a fortiori on the canonical
 target, where the latent is ~0.80; G need not be re-run.)
+
+## Track E (objective vs supervision, F4 DECISIVE, D185): WEAK -- headline-level.
+Canonical target, 4 families, readout wake R^2 (test_b, case-clustered CI):
+| probe | jepa_tf_noc (pred+wake) | supervised_only (wake, NO pred) | fukami (recon+wake) | pod |
+|---|---|---|---|---|
+| linear | 0.796 | **0.918** | 0.095 | -0.201 |
+| kernel | 0.846 | **0.884** | 0.009 | -0.249 |
+| mlp | 0.402 | **0.549** | -0.398 | 0.172 |
+| gbm | 0.681 | 0.530 | 0.069 | -0.138 |
+- **supervised_only MATCHES/EXCEEDS the predictive latent on representational wake
+  closure** (0.92 vs 0.80 linear). So on the representational endpoint, the wake
+  readability is driven by the WAKE-HEAD SUPERVISION, not the predictive objective.
+  The plan's WEAK branch fires: "predictive objective" cannot be claimed as the
+  SOURCE of readability; reframe as a wake-supervised latent (D185).
+- BUT the objective governs whether supervision STICKS: same wake head, jepa
+  (predictive) 0.80 vs fukami (reconstructive) 0.095 -- prediction is COMPATIBLE
+  with wake supervision, reconstruction is ANTAGONISTIC. And supervised_only's
+  predictor is UNTRAINED (predictive_weight=0 -> zero gradient to it), so it has NO
+  forecast/dynamics: the predictive latent's UNIQUE value is the forecast closure
+  (published 0.43), the limit cycle, and the drift mechanism, none of which
+  supervised_only can provide.
+- HEADLINE CONSEQUENCE (needs author sign-off): the representational-readability
+  headline is supervision-driven. Recommended title (plan WEAK default): "A
+  wake-supervised predictive latent state improves linear closure of vortex-gust
+  wake observables at Re=5000" -- honest: wake-supervised (representational
+  readability), predictive latent (forecast + dynamics), improves linear closure.
+- CONFIRM-NEXT: (i) forecast-endpoint comparison (supervised_only should FAIL,
+  untrained predictor -> the predictive objective's exclusive win); (ii) auxiliary
+  leakage tests (shuffled-wake-label sentinel + residualized-wake) to show jepa
+  carries wake STATE beyond the head's own echo. Outputs:
+  probe_class_matrix_canonical.json (4-family).

@@ -31,6 +31,9 @@ FAMILY_TAGS = {
     "jepa_tf_noc": "jepa_tf_noc_d64_s42",
     "fukami": "fukami_d64_s42",
     "pod": "pod_d64",
+    # SESSION29 Track E (F4): wake+lift heads + SIGReg, NO predictive objective
+    # (predictive_weight=0). Isolates whether wake supervision alone suffices.
+    "supervised_only": "supervised_only_d64_s42",
 }
 ENCODER_SEED_TAGS = {  # for seed-variance robustness (encoder seeds, not probe)
     "jepa_tf_noc": ["jepa_tf_noc_d64_s0", "jepa_tf_noc_d64_s1", "jepa_tf_noc_d64_s42"],

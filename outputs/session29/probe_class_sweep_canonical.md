@@ -8,6 +8,10 @@ Readout-frame probe, nested grouped-CV by case, case-clustered bootstrap CI.
 | jepa_tf_noc | kernel_ridge_rbf | +0.846 | [-0.300, +0.894] | 22.426 |
 | jepa_tf_noc | mlp | +0.402 | [-5.239, +0.254] | 55.078 |
 | jepa_tf_noc | gbm | +0.681 | [-1.424, +0.798] | 28.298 |
+| supervised_only | linear | +0.918 | [-0.165, +0.962] | 20.064 |
+| supervised_only | kernel_ridge_rbf | +0.884 | [-0.481, +0.940] | 21.939 |
+| supervised_only | mlp | +0.549 | [-2.691, +0.680] | 39.158 |
+| supervised_only | gbm | +0.530 | [-0.307, +0.696] | 31.711 |
 | fukami | linear | +0.095 | [-3.663, +0.248] | 50.128 |
 | fukami | kernel_ridge_rbf | +0.009 | [-2.816, +0.055] | 57.201 |
 | fukami | mlp | -0.398 | [-5.049, -0.170] | 65.184 |

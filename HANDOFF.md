@@ -9014,3 +9014,24 @@ Remaining: GPU Track E supervised_only (encode + closure probe + leakage tests o
 trained), then F horizon matrix, C-full grouped-CV, J/K synthesis. Reviews in
 `outputs/session29/GATE_REVIEW_NOTES.md`.
 
+### D202 (SESSION29 Track E, F4 DECISIVE, D185): WEAK -- representational readability is supervision-driven (2026-06-14, Session 29)
+
+supervised_only (d=64 x s0/s1/s42, predictive_weight=0: wake+lift heads + SIGReg,
+no predictive objective) trained on both RTX 6000s, encoded, and probed on the
+CANONICAL wake target. Readout wake R^2 (test_b, case-clustered):
+- jepa_tf_noc (pred+wake): linear 0.796 / kernel 0.846 / mlp 0.402 / gbm 0.681
+- supervised_only (wake, NO pred): linear 0.918 / kernel 0.884 / mlp 0.549 / gbm 0.530
+- fukami (recon+wake): 0.095 / 0.009 / -0.398 / 0.069 ; pod negative.
+supervised_only MATCHES/EXCEEDS the predictive latent on representational wake
+closure => the wake-head SUPERVISION, not the predictive objective, is the source
+of representational readability. Track E WEAK branch (plan D185): "predictive
+objective" cannot headline the readability; reframe to a WAKE-SUPERVISED predictive
+latent. Nuance that keeps the predictive objective load-bearing: same wake head,
+prediction is COMPATIBLE (jepa 0.80) where reconstruction is ANTAGONISTIC (fukami
+0.095); and supervised_only's predictor is UNTRAINED, so it has NO forecast/
+dynamics -- the predictive objective owns the forecast closure (0.43), limit cycle,
+and drift. Recommended title (plan WEAK default): "A wake-supervised predictive
+latent state improves linear closure of vortex-gust wake observables at Re=5000."
+AUTHOR SIGN-OFF on the title pending. Confirm-next: forecast-endpoint comparison
+(supervised_only should fail) + auxiliary leakage tests.
+

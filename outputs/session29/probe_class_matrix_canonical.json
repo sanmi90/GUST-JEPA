@@ -1,10 +1,11 @@
 {
   "_provenance": {
-    "git_sha": "1db715fb86f32330e6cb533e9c2f51a5990b3b57",
-    "command": "probe_class_sweep.py --target-source canonical",
-    "utc": "2026-06-14T12:41:24.422424+00:00",
+    "git_sha": "a5af450eae6c1117dfb97effd0793ebe19d04238",
+    "command": "probe_class_sweep.py --target-source canonical --families jepa_tf_noc supervised_only fukami pod",
+    "utc": "2026-06-14T14:31:13.852773+00:00",
     "input_sha256": {
       "/home/carlos/GUST-JEPA/outputs/session28/latents/jepa_tf_noc_d64_s42/train.npz": "63d1954aa139c456e1ca28b630fa90b761f25657d2fa18318a7c12db6ba9d805",
+      "/home/carlos/GUST-JEPA/outputs/session28/latents/supervised_only_d64_s42/train.npz": "e1f28bebca1c7a2dca8ca147be795d259037d3b3ace0bbed825febf317e7ea8d",
       "/home/carlos/GUST-JEPA/outputs/session28/latents/fukami_d64_s42/train.npz": "a0b64b52b7652eed5cf3f4e7a1bd01f2c7d8ce394440b719c8ed5481f03f1d16",
       "/home/carlos/GUST-JEPA/outputs/session28/latents/pod_d64/train.npz": "c638c98523b139b7f77e5243e3eecf35c58d2b6dffc7c0b86146a150ffa06398",
       "/home/carlos/GUST-JEPA/outputs/session28/exp2/per_frame_targets/train.npz": "25c97045b6e7a5e9e4c75d2b3ad0fb62bced2250c266573f8f49cbfa4a703e5f",
@@ -75,6 +76,62 @@
         "best_params": {
           "model__learning_rate": 0.03,
           "model__max_depth": 3,
+          "model__n_estimators": 300
+        },
+        "r2_seed_sd": 0.0,
+        "n_test_b": 42,
+        "n_cases_test_b": 10
+      }
+    },
+    "supervised_only": {
+      "linear": {
+        "r2": 0.9181944874442902,
+        "ci_lo": -0.16513684131590023,
+        "ci_hi": 0.9618292639695656,
+        "per_case_mae": 20.064473247528078,
+        "best_params": {
+          "model__alpha": 1.0
+        },
+        "r2_seed_sd": 0.0,
+        "n_test_b": 42,
+        "n_cases_test_b": 10
+      },
+      "kernel_ridge_rbf": {
+        "r2": 0.8837874307764301,
+        "ci_lo": -0.48131475969400184,
+        "ci_hi": 0.939935559541384,
+        "per_case_mae": 21.938968217009737,
+        "best_params": {
+          "model__alpha": 0.01,
+          "model__gamma": 0.001
+        },
+        "r2_seed_sd": 0.0,
+        "n_test_b": 42,
+        "n_cases_test_b": 10
+      },
+      "mlp": {
+        "r2": 0.5493085463688447,
+        "ci_lo": -2.69074021725672,
+        "ci_hi": 0.6797312447940506,
+        "per_case_mae": 39.15828161239624,
+        "best_params": {
+          "model__alpha": 0.001,
+          "model__hidden_layer_sizes": [
+            64
+          ]
+        },
+        "r2_seed_sd": 0.028355224630050052,
+        "n_test_b": 42,
+        "n_cases_test_b": 10
+      },
+      "gbm": {
+        "r2": 0.5296192842445062,
+        "ci_lo": -0.307378511361175,
+        "ci_hi": 0.695601916903004,
+        "per_case_mae": 31.710678822813446,
+        "best_params": {
+          "model__learning_rate": 0.1,
+          "model__max_depth": 2,
           "model__n_estimators": 300
         },
         "r2_seed_sd": 0.0,
