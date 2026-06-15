@@ -17,15 +17,16 @@ dimension, under one shared probe and predictor, we compare a wake-supervised
 predictive state, the lift-augmented reconstructive autoencoder of the
 Fukami-Taira lineage, and a proper orthogonal decomposition basis; matched
 wake-supervised controls separate objective from supervision.
-Probed from held-out fields sixteen frames after impact, the predictive state makes
-the wake enstrophy linearly readable ($R^2 = \NumReprWakeJepaTf$; case-level spread
-shown) where the reconstructive and linear states are at or below the mean
-predictor. The matched controls separate readability from dynamics: an
-objective-free supervised encoder reads the wake equally well, so supervision
-supplies the readability, while the predictive objective preserves it under rollout
-where reconstruction suppresses it. The mechanism is geometric: the predictive rollout
-stays on the encoded manifold and its no-gust shedding orbit remains a single
-persistent loop, whereas the reconstructive rollout departs along directions of
-negligible encoded variance and its no-gust loop fragments. Sparse wall pressure
-recovers the predictive state best from a strictly pre-impact window, making it the
-most wall-recoverable of the three.
+Probed from held-out fields sixteen frames after impact, the wake-supervised state
+reads the wake enstrophy ($R^2 = \NumReprWakeJepaTf$) where the no-wake baselines
+are at or below the mean predictor; but an objective-free supervised encoder reads
+it equally well, and a matched reconstructive control reads it comparably under
+case-disjoint retraining, so the wake supervision, not the objective, supplies the
+readability. The predictive objective is distinguished dynamically: it alone
+forecasts the wake from its own rollout. The mechanism is geometric: the predictive
+and supervised rollouts stay on the encoded manifold
+while the reconstructive rollout departs along low-variance
+directions, and the predictive no-gust shedding orbit stays a single loop
+where the reconstructive one fragments. Sparse wall pressure recovers the predictive
+state best from a strictly pre-impact window, making it the most wall-recoverable of
+the three.

@@ -1,38 +1,34 @@
 % Conclusions. Short, in the idiom of the reference papers' "Concluding remarks".
 
-We asked which reduced-order state renders the wake that governs the transient load
-linearly readable in parametric vortex-gust airfoil interactions, and reached a
-representational answer with a geometric mechanism: a wake-supervised predictive
-latent builds a state from which the wake is linearly decodable and whose rollout
-stays on the encoded manifold, whereas a reconstruction objective carrying the same
-supervision smooths the wake away and its rollout drifts off the manifold along
-directions of negligible encoded variance. A control shows the representational
-readability is supplied by the wake supervision rather than by the predictive
-objective, which is distinguished instead by preserving that readability where
-reconstruction suppresses it and by rendering the wake forecastable from the
-rollout. We tested this by comparing a predictive
+We asked which reduced-order state best carries the wake that governs the transient
+load in parametric vortex-gust airfoil interactions, and reached a dynamical answer
+with a geometric mechanism: a wake-supervised predictive latent builds a state from
+which the wake is linearly decodable, whose rollout forecasts the wake and stays on
+the encoded manifold, where a reconstruction objective carrying the same supervision
+lets its rollout drift off the manifold along directions of negligible encoded
+variance. We tested this by comparing a predictive
 latent (JEPA, which takes no gust parameters), a reconstructive observable-augmented
 autoencoder, and a proper orthogonal decomposition basis as reduced states at
 $\vRe = 5000$, under a protocol in which a single probe family was held fixed so
-that only the encoder varied, judging each first by the representational closure of
-the wake. On held-out cases the wake-supervised predictive latent renders the wake
-linearly readable where the others do not: its representational wake-enstrophy
-$R^2$ is $\NumReprWakeJepaTf$ against the reconstructive and linear baselines at or
-below zero, the per-encounter advantage survives the pre-registered encounter-level
-multiplicity correction (though not the stricter case-level one), and the gust
-parameters alone do not supply the wake state (the parametric floor is negative),
-while the linear basis remains most competitive on the integrated impulse. The same
-separation appears coordinate-free in the rollout drift and in the topology of the
-encoded no-gust limit cycle. The latent also carries the flow's own clocks: its
-spectrum recovers the shedding frequency as a marginally stable orbit, the wake
-response scales with gust strength, and the gust resets the shedding phase. Rolled
-forward, the predictor tracks the encounter as consistent confirmation rather than
-as a validated forecast. Because the predictive encoder also differs in architecture and
-auxiliary supervision, matched controls attribute the advantage to the predictive
-objective trained with wake supervision. The same predictive state is the most
-recoverable of the three from sparse wall pressure, so it is both the most
-wake-readable and the most wall-recoverable of the three, the property a downstream
-estimator would exploit. Three facts bound the result: the wall-normal offset is
-weakly resolved, the mid-plane representation reaches a three-dimensional
-observability boundary at $|G| = 4$, and the rollout error still exceeds the
-tolerance a closed-loop control demonstration would require.
+that only the encoder varied. The instantaneous readability is the wake
+supervision's: on the fixed test set the wake-supervised predictive latent reads the
+wake (representational wake-enstrophy $R^2 = \NumReprWakeJepaTf$) where the
+established no-wake baselines are at or below zero, but an objective-free supervised
+encoder reads it as well, and under case-disjoint retraining a matched reconstructive
+control reads it comparably (held-out median $\NumCvFullReconMedian$ against
+$\NumCvFullJepaMedian$), so we do not attribute the readability to the predictive
+objective. What the predictive objective robustly adds is dynamical: it reads the
+wake consistently across retrains, forecasts it from the rollout where the
+supervision-only and reconstructive states do not, and keeps the rollout on the
+manifold, a property shared with the anti-collapse supervised latent and absent from
+the unregularised reconstructive one. The same separation appears coordinate-free in
+the rollout drift and in the topology of the encoded no-gust limit cycle. The latent
+also carries the flow's own clocks: its spectrum recovers the shedding frequency on
+an orbit whose modulus sits just above one, the wake response scales with gust
+strength, and the gust resets the shedding phase. The same predictive state is the
+most recoverable of the three from sparse wall pressure, so it is both wake-readable
+and the most wall-recoverable of the three, the property a downstream estimator
+would exploit. Three facts bound the result: the wall-normal offset is weakly
+resolved, the mid-plane representation reaches a three-dimensional observability
+boundary at $|G| = 4$, and the rollout error still exceeds the tolerance a
+closed-loop control demonstration would require.
