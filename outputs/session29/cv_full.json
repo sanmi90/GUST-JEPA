@@ -1,0 +1,108 @@
+{
+  "_provenance": {
+    "git_sha": "0a44a16d281e48160aac3ab29ee49fab38a55743",
+    "command": "scripts/session29/group_case_cv_probe.py",
+    "utc": "2026-06-15T01:56:14.130320+00:00",
+    "input_sha256": {
+      "/home/carlos/GUST-JEPA/outputs/session28/exp2/dns_physical_metrics.npz": "269ebfbf1515ab555e5008f78cd4bbac60759c7dbc789b51729dc32b2a6c7090"
+    },
+    "versions": {
+      "python": "3.10.12",
+      "numpy": "1.26.4",
+      "sklearn": "1.7.2"
+    },
+    "seed": 0,
+    "split": "v2p1",
+    "reconciled_from": "SESSION29 plan (was main_13/v2); see RECONCILIATION_v2p1.md"
+  },
+  "config": {
+    "observable": "wake_enstrophy",
+    "horizon": 16,
+    "smoke": false
+  },
+  "summary": {
+    "jepa": {
+      "median": 0.674664391468897,
+      "mean": 0.6838204844529585,
+      "iqr": [
+        0.6703464331349236,
+        0.7365605959665862
+      ],
+      "min": 0.566479528517513,
+      "max": 0.7710514731768725,
+      "n_folds": 5,
+      "per_fold": [
+        {
+          "fold": 0,
+          "r2": 0.6703464331349236,
+          "n_holdout_cases": 17
+        },
+        {
+          "fold": 1,
+          "r2": 0.566479528517513,
+          "n_holdout_cases": 16
+        },
+        {
+          "fold": 2,
+          "r2": 0.7710514731768725,
+          "n_holdout_cases": 16
+        },
+        {
+          "fold": 3,
+          "r2": 0.674664391468897,
+          "n_holdout_cases": 16
+        },
+        {
+          "fold": 4,
+          "r2": 0.7365605959665862,
+          "n_holdout_cases": 16
+        }
+      ]
+    },
+    "ctrl_recon": {
+      "median": 0.6950946389616927,
+      "mean": 0.5941521876408167,
+      "iqr": [
+        0.5830880971393708,
+        0.7194345538380968
+      ],
+      "min": 0.02034419946304722,
+      "max": 0.9527994488018763,
+      "n_folds": 5,
+      "per_fold": [
+        {
+          "fold": 0,
+          "r2": 0.7194345538380968,
+          "n_holdout_cases": 17
+        },
+        {
+          "fold": 1,
+          "r2": 0.6950946389616927,
+          "n_holdout_cases": 16
+        },
+        {
+          "fold": 2,
+          "r2": 0.9527994488018763,
+          "n_holdout_cases": 16
+        },
+        {
+          "fold": 3,
+          "r2": 0.5830880971393708,
+          "n_holdout_cases": 16
+        },
+        {
+          "fold": 4,
+          "r2": 0.02034419946304722,
+          "n_holdout_cases": 16
+        }
+      ]
+    }
+  },
+  "verdict": {
+    "jepa_median": 0.674664391468897,
+    "ctrl_recon_median": 0.6950946389616927,
+    "median_gap": -0.02043024749279565,
+    "branch": "WEAK",
+    "note": "5-fold held-out-case wake R^2 distribution; STRONG if the predictive median clears the matched reconstructive control by >0.2 across folds. Every case predicted by an encoder that never saw its case (F3)."
+  }
+}
