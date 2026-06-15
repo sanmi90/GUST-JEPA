@@ -1,13 +1,14 @@
 {
   "_provenance": {
-    "generated_iso": "2026-06-14T22:15:09.090023+00:00",
-    "git_commit": "98d204694d74c494558006c5af2bfc548323b66d",
+    "generated_iso": "2026-06-15T05:25:35.478283+00:00",
+    "git_commit": "c7a32ecec68229e0d1c310d4c24f0bdcb4e6183c",
     "manifest_runs_sha256": "aa07e687f2080e7e7f0dea8d75f3b2af40a86fa68c19f828ae3ec98422e60bbe",
-    "n_parts": 26,
+    "n_parts": 27,
     "parts": [
       "closure_bvae.json",
       "closure_floor_full.json",
       "closure_headline.json",
+      "cvfull.json",
       "dataset_manifest.json",
       "decode_operating_points.json",
       "drift_ce1.json",
@@ -63,6 +64,48 @@
       "note": "canonical v2.1 manifest count (n_cases_train)",
       "source": "split_v2p1.json::summary",
       "value": 71
+    },
+    "NumCvFullJepaMax": {
+      "fmt": "%.2f",
+      "macro": "NumCvFullJepaMax",
+      "note": "5-fold grouped-CV held-out wake R2 max, jepa",
+      "source": "group_case_cv_probe.py (Track C-full / D)",
+      "value": 0.7710514731768725
+    },
+    "NumCvFullJepaMedian": {
+      "fmt": "%.2f",
+      "macro": "NumCvFullJepaMedian",
+      "note": "5-fold grouped-CV held-out wake R2 median, jepa",
+      "source": "group_case_cv_probe.py (Track C-full / D)",
+      "value": 0.674664391468897
+    },
+    "NumCvFullJepaMin": {
+      "fmt": "%.2f",
+      "macro": "NumCvFullJepaMin",
+      "note": "5-fold grouped-CV held-out wake R2 min, jepa",
+      "source": "group_case_cv_probe.py (Track C-full / D)",
+      "value": 0.566479528517513
+    },
+    "NumCvFullReconMax": {
+      "fmt": "%.2f",
+      "macro": "NumCvFullReconMax",
+      "note": "5-fold grouped-CV held-out wake R2 max, ctrl_recon",
+      "source": "group_case_cv_probe.py (Track C-full / D)",
+      "value": 0.9527994488018763
+    },
+    "NumCvFullReconMedian": {
+      "fmt": "%.2f",
+      "macro": "NumCvFullReconMedian",
+      "note": "5-fold grouped-CV held-out wake R2 median, ctrl_recon",
+      "source": "group_case_cv_probe.py (Track C-full / D)",
+      "value": 0.6950946389616927
+    },
+    "NumCvFullReconMin": {
+      "fmt": "%.2f",
+      "macro": "NumCvFullReconMin",
+      "note": "5-fold grouped-CV held-out wake R2 min, ctrl_recon",
+      "source": "group_case_cv_probe.py (Track C-full / D)",
+      "value": 0.02034419946304722
     },
     "NumEncTestB": {
       "fmt": "%d",
@@ -2018,7 +2061,7 @@
       "fmt": "%s",
       "macro": "CommitHash",
       "source": "eval_all.py",
-      "value": "98d204694d74"
+      "value": "c7a32ecec682"
     },
     "s46_orbit_return_fukami": {
       "fmt": "%.2f",

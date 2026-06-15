@@ -1,0 +1,47 @@
+{
+  "numbers": {
+    "NumCvFullJepaMax": {
+      "fmt": "%.2f",
+      "macro": "NumCvFullJepaMax",
+      "note": "5-fold grouped-CV held-out wake R2 max, jepa",
+      "source": "group_case_cv_probe.py (Track C-full / D)",
+      "value": 0.7710514731768725
+    },
+    "NumCvFullJepaMedian": {
+      "fmt": "%.2f",
+      "macro": "NumCvFullJepaMedian",
+      "note": "5-fold grouped-CV held-out wake R2 median, jepa",
+      "source": "group_case_cv_probe.py (Track C-full / D)",
+      "value": 0.674664391468897
+    },
+    "NumCvFullJepaMin": {
+      "fmt": "%.2f",
+      "macro": "NumCvFullJepaMin",
+      "note": "5-fold grouped-CV held-out wake R2 min, jepa",
+      "source": "group_case_cv_probe.py (Track C-full / D)",
+      "value": 0.566479528517513
+    },
+    "NumCvFullReconMax": {
+      "fmt": "%.2f",
+      "macro": "NumCvFullReconMax",
+      "note": "5-fold grouped-CV held-out wake R2 max, ctrl_recon",
+      "source": "group_case_cv_probe.py (Track C-full / D)",
+      "value": 0.9527994488018763
+    },
+    "NumCvFullReconMedian": {
+      "fmt": "%.2f",
+      "macro": "NumCvFullReconMedian",
+      "note": "5-fold grouped-CV held-out wake R2 median, ctrl_recon",
+      "source": "group_case_cv_probe.py (Track C-full / D)",
+      "value": 0.6950946389616927
+    },
+    "NumCvFullReconMin": {
+      "fmt": "%.2f",
+      "macro": "NumCvFullReconMin",
+      "note": "5-fold grouped-CV held-out wake R2 min, ctrl_recon",
+      "source": "group_case_cv_probe.py (Track C-full / D)",
+      "value": 0.02034419946304722
+    }
+  },
+  "part": "cvfull"
+}

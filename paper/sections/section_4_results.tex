@@ -40,7 +40,15 @@ $\NumReprWakeFukami$ and $\NumReprWakePod$, both below the predict-the-mean floo
 A nonlinear (kernel-ridge) probe narrows this gap, recovering part of the wake from
 the matched-head reconstructive control (\S\ref{sec:res_controls}), so the claim is
 that the predictive latent renders the wake \emph{linearly decodable}, not that
-the reconstructive encoding discards it irrecoverably. The forces and the
+the reconstructive encoding discards it irrecoverably. The established reconstructive
+and linear recipes compared here carry no wake-observable head, and the separation
+is against that: a matched reconstructive control that does carry the head reads the
+wake comparably once each case is held out of training
+(\S\ref{sec:res_controls}). The representational readability is therefore supplied
+by the wake supervision, and the predictive objective's robust distinction is
+dynamical, established in \S\ref{sec:res_controls} and \S\ref{sec:res_drift}: it
+reads the wake consistently across retrains, forecasts it from its own rollout, and
+keeps that rollout on the encoded manifold. The forces and the
 circulations are read off the same latent cleanly, with $C_L$ at
 $R^2 = \NumCloReprCLJepaTf$, the negative and positive circulations at
 $\NumCloReprCircNegJepaTf$ and $\NumCloReprCircPosJepaTf$, and the drag at
@@ -180,29 +188,33 @@ baseline not only in its training objective but also in its CNN$+$ViT architectu
 and its $80$-dimensional wake supervision. Because the architecture and the wake
 supervision are confounds, we isolate the cause here, before turning to why the
 rollout stays on the manifold (\S\ref{sec:res_drift}). The controls in
-table~\ref{tab:controls_2x2} are the decisive crossing, run directly on the same
-models the paper reports and scored at the representational endpoint: a
+table~\ref{tab:controls_2x2} cross objective and architecture, run directly on the
+same models the paper reports and scored at the representational endpoint: a
 $2 \times 2$ crossing of objective \{predictive, reconstructive\} with architecture
 \{CNN, CNN$+$ViT\} at matched $d = 64$, with the auxiliary heads matched across all
 four cells, together with a predictive variant from which the wake head is removed.
-The decisive question is whether the predictive objective renders the wake readable
+The question is whether the predictive objective renders the wake readable
 more than the reconstructive one once the architecture and the wake supervision are
-held in common.
+held in common. The fixed-test crossing and the case-disjoint cross-validation that
+follows answer it together, and the answer is more nuanced than the fixed test
+alone suggests.
 
 \begin{table}
   \centering
-  \caption{Objective $\times$ architecture controls (decisive experiment), scored
-  at the representational endpoint on the in-distribution test split. Held-out
+  \caption{Objective $\times$ architecture controls on the fixed test split, scored
+  at the representational endpoint. Held-out
   representational wake-enstrophy $R^2$ at $H = 16$ (test\_b, fixed linear probe on
   the simulation-encoded latent, seed mean) for the four cells crossing
   \{predictive, reconstructive\} with \{CNN, CNN$+$ViT\} at $d = 64$, with the
   auxiliary heads (the instantaneous lift plus the $80$-dimensional wake head)
   matched across all four cells, plus a predictive variant with the wake head
-  removed. Predictive renders the wake readable at both architectures, while both
-  reconstructive cells stay low; removing the wake head from the predictive model
-  collapses wake readability to the floor, so the wake supervision is also
-  necessary. The CNN and CNN$+$ViT predictive columns do not separate, so the ViT
-  is not the driver.}
+  removed. On the fixed test set the predictive cells read the wake at both
+  architectures while both reconstructive cells score low, and removing the wake
+  head collapses readability to the floor; the CNN and CNN$+$ViT predictive columns
+  do not separate, so the ViT is not the driver. The reconstructive gap does not
+  survive case-disjoint retraining (text): the matched reconstructive control reads
+  the wake comparably under cross-validation, so the readability is attributed to
+  the wake supervision, not to the objective.}
   \label{tab:controls_2x2}
   \small
   \fittab{\begin{tabular}{l l l c}
@@ -219,46 +231,52 @@ held in common.
   \end{tabular}}
 \end{table}
 
-The controls (table~\ref{tab:controls_2x2}) give a two-part answer, and we state
-both. First, the predictive objective renders the wake readable at \emph{both}
-architectures with the auxiliary heads matched: the representational
-wake-enstrophy $R^2$ is $\NumReprWakeJepaTf$ for the predictive CNN$+$ViT and
-$\NumReprWakeCtrlPredCnn$ for the predictive CNN, while both reconstructive cells
-stay low ($\NumReprWakeCtrlReconCnnVit$ at CNN$+$ViT, $\NumReprWakeCtrlReconCnn$ at
-CNN). The objective, not the architecture, carries the advantage: the two
-predictive columns do not separate, so the ViT is not the driver. Second, and
-equally important, the wake-observable supervision is necessary: the predictive
-model with the wake head removed collapses to a representational wake $R^2$ of
-$\NumReprWakeCtrlPredVitNowake$, at the floor and below every other predictive
-cell. The result therefore requires the predictive objective \emph{and} the wake
-supervision together; it is not a property of the objective in isolation, nor of
-the architecture, nor of the wake head attached to an arbitrary objective (the
-reconstructive cells carry the same wake head and do not reach the predictive
-readability). We claim, accordingly, that at matched architecture and matched
-supervision the predictive objective renders the wake linearly readable where the
-reconstructive objective does not, with the auxiliary wake head a necessary
-component.
+The controls (table~\ref{tab:controls_2x2}) give a two-part answer on the fixed
+test set. First, the predictive cells read the wake at \emph{both} architectures
+with the auxiliary heads matched ($\NumReprWakeJepaTf$ at CNN$+$ViT,
+$\NumReprWakeCtrlPredCnn$ at CNN), while both reconstructive cells score low
+($\NumReprWakeCtrlReconCnnVit$ at CNN$+$ViT, $\NumReprWakeCtrlReconCnn$ at CNN), and
+the two predictive columns do not separate, so the ViT is not the driver. Second,
+the wake-observable supervision is necessary: the predictive model with the wake
+head removed collapses to $\NumReprWakeCtrlPredVitNowake$, at the floor.
 
-A final control isolates the predictive objective from the wake supervision
-directly. An encoder trained on the lift and wake heads alone, with the predictive
-objective removed entirely (its weight set to zero) but the anti-collapse term
-retained, renders the wake \emph{at least as} linearly readable as the full
-predictive model on the representational endpoint ($R^2 = \NumReprWakeSupOnly$ under
-a readout-frame probe that reproduces the headline for the predictive model,
-$\NumReprWakeJepaReadout$). The representational readability is therefore supplied
-by the wake-observable supervision, not by the predictive objective. The predictive
-objective's distinctive role is dynamical: rolled forward through a matched
+The fixed-test reconstructive gap does not survive retraining, and we say so
+plainly. Under a five-fold case-disjoint cross-validation, in which every fold
+retrains both the predictive encoder and the matched reconstructive control and
+reads each held-out case from an encoder that never saw it, the matched
+reconstructive control reads the wake \emph{comparably} to the predictive latent:
+its held-out wake-enstrophy $R^2$ has median $\NumCvFullReconMedian$ against the
+predictive $\NumCvFullJepaMedian$, with the predictive latent stable across folds
+($\NumCvFullJepaMin$ to $\NumCvFullJepaMax$) while the reconstructive control is
+erratic ($\NumCvFullReconMin$ to $\NumCvFullReconMax$). This is consistent with the
+wide fixed-test interval on the reconstructive cell ($\NumReprWakeCtrlReconCnnVit$
+with a $95\%$ CI of $[\NumReprWakeCtrlReconCnnVitlo, \NumReprWakeCtrlReconCnnVithi]$):
+the clean fixed-test margin was a favourable draw, not a robust separation. We
+therefore do not attribute the instantaneous wake readability to the predictive
+objective over the reconstructive one. The robust statement at the representation
+level is narrower: the predictive latent reads the wake \emph{consistently}, where
+the matched reconstructive control reads it only erratically.
+
+The supervision-only control identifies the source of the readability and isolates
+what the predictive objective does add. An encoder trained on the lift and wake
+heads alone, with the predictive objective removed entirely (its weight set to zero)
+but the anti-collapse term retained, reads the wake \emph{at least as} well as the
+full predictive model ($R^2 = \NumReprWakeSupOnly$ under a readout-frame probe that
+reproduces $\NumReprWakeJepaReadout$ for the predictive model), so the
+representational readability is supplied by the wake-observable supervision, which
+every wake-supervised cell carries, not by the predictive objective. What the
+predictive objective robustly adds is dynamical. Rolled forward through a matched
 predictor, the supervision-only latent forecasts the wake markedly worse than the
 predictive latent ($R^2 = \NumFcstWakeSupOnly$ against $\NumFcstWakeJepaReadout$,
 both under the readout-frame protocol of the representational endpoint rather than
 the full pre-impact-context protocol of table~\ref{tab:closure}(b), which is why the
-predictive value here differs from the $\NumCloFcstWakeJepaTf$ reported there),
-and the same supervision attached to the reconstructive objective collapses to the
-floor (the reconstructive cells above). The honest statement is therefore a
-wake-supervised \emph{predictive} latent: the supervision makes the wake readable,
-the reconstructive objective suppresses that readability, and the predictive
-objective is the one objective that both preserves it and renders the wake
-forecastable from the latent's own rollout.
+predictive value here differs from the $\NumCloFcstWakeJepaTf$ reported there), and
+the reconstructive families' wake forecast collapses
+(table~\ref{tab:closure}(b)). The honest statement is therefore a wake-supervised
+\emph{predictive} latent whose advantage is dynamical, not a larger instantaneous
+margin: the supervision makes the wake readable, and among objectives the predictive
+one is distinguished by reading the wake consistently, forecasting it from its own
+rollout, and keeping that rollout on the encoded manifold (\S\ref{sec:res_drift}).
 
 The latent dimension is the remaining control. The representational wake closure
 holds on a plateau from $d = 64$ down to $d = 16$ ($R^2 = \NumCloReprWakeJepaTfDSixtyfour$,
