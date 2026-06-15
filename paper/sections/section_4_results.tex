@@ -44,7 +44,10 @@ the reconstructive encoding discards it irrecoverably. The established reconstru
 and linear recipes compared here carry no wake-observable head, and the separation
 is against that: a matched reconstructive control that does carry the head reads the
 wake comparably once each case is held out of training
-(\S\ref{sec:res_controls}). The representational readability is therefore supplied
+(\S\ref{sec:res_controls}). A $\beta$-VAE lineage baseline that also carries the
+wake head (table~\ref{tab:closure}) reads part of the wake at the representational
+endpoint ($\NumReprWakeBvaeMatch$) but does not preserve it under the shared rollout
+($\NumCloFcstWakeBvae$), the same pattern. The representational readability is therefore supplied
 by the wake supervision, and the predictive objective's robust distinction is
 dynamical, established in \S\ref{sec:res_controls} and \S\ref{sec:res_drift}: it
 reads the wake consistently across retrains, forecasts it from its own rollout, and
@@ -289,8 +292,9 @@ and $16$) and falls off below, so the reported $d = 64$ sits on the plateau and 
 wake is not recoverable at the smallest dimensions on this dataset. The reported
 $H = 16$ readout is likewise not a cherry-picked endpoint: across
 $H \in \{4, 8, 16, 32\}$ the predictive representational wake closure stays on a
-plateau ($R^2 = \NumHorizonWakeJepaMin$ to $\NumHorizonWakeJepaMax$) while no
-baseline exceeds $\NumHorizonWakeBaselineMax$ at any horizon, so the predictive
+plateau ($R^2 = \NumHorizonWakeJepaMin$ to $\NumHorizonWakeJepaMax$) while neither
+no-wake established baseline (the reconstructive autoencoder or POD) exceeds
+$\NumHorizonWakeBaselineMax$ at any horizon, so the predictive
 latent leads the wake at every horizon tested. The latent code
 is correspondingly distributed rather than concentrated in a few coordinates, which
 \S\ref{sec:res_code} makes quantitative.
@@ -398,8 +402,12 @@ rollout is queried outside the support it was fit on, so its output degrades for
 reasons unrelated to the predictor's one-step quality. A reconstruction objective
 places latent codes wherever the decoder finds convenient and does not constrain
 the geometry to be predictable in time, leaving the near-null directions the
-rollout then exits along; the predictive objective, regularised against collapse,
-produces an isotropised latent that supports stable rollout by construction. This
+rollout then exits along. The anti-collapse regulariser supplies the isotropised
+in-distribution geometry shared by the predictive and supervision-only latents, and
+predictive training then makes that state dynamically trackable: the predictive
+rollout stays closer to the encoded simulation trajectory than the objective-free
+supervised rollout, while the reconstructive rollout, lacking the regulariser,
+leaves the support along low-variance directions. This
 is a representation property rather than a probe artefact: no probe in the
 evaluated class recovers the wake from the reconstructive rollout once it has left
 the manifold the probe was fit on, while the same class reads it from the
@@ -701,8 +709,8 @@ above, where the latent comparison has no decoder in the loop.
 \label{sec:res_observability}
 
 At deployment the vorticity field is not available; only the wall pressure is.
-The representational result has an exact deployment mirror, and it is a main
-result of the paper: we ask which representation is the most recoverable from a
+The deployment analogue is therefore state recoverability rather than direct wake
+recovery: we ask which representation is the most recoverable from a
 sparse set of $K$ wall-pressure taps over a window ending at the readout instant,
 comparing both the
 recovered latent \emph{state} and the recovered flow \emph{field} across families

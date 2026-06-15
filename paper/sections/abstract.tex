@@ -14,19 +14,20 @@ direct numerical simulations of a NACA~0012 airfoil at $\alpha = 14^\circ$ and
 $\vRe = 5000$, perturbed by Taylor vortices spanning gust strength, core diameter
 and wall-normal offset, we ask which reduced state preserves that wake. At fixed
 dimension, under one shared probe and predictor, we compare a wake-supervised
-predictive state, the lift-augmented reconstructive autoencoder of the
-Fukami-Taira lineage, and a proper orthogonal decomposition basis; matched
-wake-supervised controls separate objective from supervision.
+predictive state, a lift-augmented reconstructive autoencoder (Fukami-Taira
+lineage), and a proper orthogonal decomposition basis; matched
+controls separate objective from supervision.
 Probed from held-out fields sixteen frames after impact, the wake-supervised state
 reads the wake enstrophy ($R^2 = \NumReprWakeJepaTf$) where the no-wake baselines
 are at or below the mean predictor; but an objective-free supervised encoder reads
 it equally well, and a matched reconstructive control reads it comparably under
 case-disjoint retraining, so the wake supervision, not the objective, supplies the
-readability. The predictive objective is distinguished dynamically: it alone
-forecasts the wake from its own rollout. The mechanism is geometric: the predictive
-and supervised rollouts stay on the encoded manifold
+readability. The predictive objective is distinguished dynamically: it gives the
+most accurate wake rollout, reported as secondary.
+The mechanism is geometric: the anti-collapse regulariser keeps the predictive
+and supervised rollouts on the encoded manifold
 while the reconstructive rollout departs along low-variance
 directions, and the predictive no-gust shedding orbit stays a single loop
 where the reconstructive one fragments. Sparse wall pressure recovers the predictive
-state best from a strictly pre-impact window, making it the most wall-recoverable of
-the three.
+state best from a strictly pre-impact window, a state-recovery property rather than
+direct wake recovery.

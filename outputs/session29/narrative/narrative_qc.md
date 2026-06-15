@@ -1,7 +1,7 @@
 # SESSION29.2 narrative QC
 
 ## Hard gates (drive the verdict)
-- abstract words: 239 (gate <= 240): PASS
+- abstract words: 240 (gate <= 240): PASS
 - overclaim positive occurrences: 0: PASS
 - em-dashes (main): 0: PASS
 - dataset-count literals (B1): 0: PASS

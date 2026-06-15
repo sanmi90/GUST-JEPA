@@ -166,8 +166,9 @@ a property of the wake-supervised predictive configuration, not of the objective
 stripped of supervision nor of the supervision attached to an arbitrary objective.
 
 These limitations come into sharpest focus against the use the architecture is
-ultimately meant for. The predictor is, by construction, the latent
-dynamics function a model-based controller would plan against, and three properties
+ultimately meant for. The predictor is, by construction, a latent
+dynamics function of the kind an estimator or controller would require, though
+closed-loop use is outside the present evidence, and three properties
 of the architecture are relevant to that use: the latent renders readable the wake
 the load transient is built from, the latent is two to three orders of magnitude
 cheaper to evolve than the full field, and the rollout stays on the training

@@ -2,7 +2,7 @@
 
 - hard-fail overclaims: 0
 - required concepts present: 6/6
-- warnings (manual triage): 44
+- warnings (manual triage): 46
 
 
 ## WARNINGS (mark OK / EDIT / LIMITATION)
@@ -22,18 +22,20 @@
 - [ ] section_3_methods:116 `baseline` -> The comparison rests on a single principle: every baseline is the same
 - [ ] section_3_methods:132 `baseline` -> parametric probe; the comparison is therefore against a tuned baseline, not a
 - [ ] section_3_methods:178 `baseline` -> Because the predictive encoder differs from the reconstructive baseline in
-- [ ] section_4_results:116 `baseline` -> three cases favouring the reconstructive baseline: the advantage is real at the
-- [ ] section_4_results:129 `baseline` -> model-free baseline: the predictive latent beating it (last column, the
-- [ ] section_4_results:178 `baseline` -> additional baselines to be beaten. The representational result of
-- [ ] section_4_results:182 `baseline` -> baseline not only in its training objective but also in its CNN$+$ViT architecture
-- [ ] section_4_results:284 `baseline` -> baseline exceeds $\NumHorizonWakeBaselineMax$ at any horizon, so the predictive
-- [ ] section_4_results:369 `on-manifold` -> latent is the most in-distribution of all, which locates the on-manifold property
-- [ ] section_4_results:522 `baseline` -> reconstructive and linear baselines, so no single predictive coordinate carries the
-- [ ] section_4_results:535 `baseline` -> a permutation chance baseline (overlap $\NumPfiveFootprintOmegaOverlap$ and
-- [ ] section_4_results:582 `baseline` -> trajectory to the baseline orbit (full latent, in units of the orbit diameter;
-- [ ] section_4_results:583 `baseline` -> the grey band is the baseline orbit thickness): the encounter departs the baseline
-- [ ] section_4_results:619 `baseline` -> reconstructive baseline (\S\ref{sec:res_drift}). And every quantitative
-- [ ] section_4_results:707 `baseline` -> variational baseline, and $\SenseStatePod$ for the linear basis; the lead is
+- [ ] section_4_results:38 `baseline` -> (\S\ref{sec:res_controls}). A $\beta$-VAE lineage baseline that also carries the
+- [ ] section_4_results:119 `baseline` -> three cases favouring the reconstructive baseline: the advantage is real at the
+- [ ] section_4_results:132 `baseline` -> model-free baseline: the predictive latent beating it (last column, the
+- [ ] section_4_results:181 `baseline` -> additional baselines to be beaten. The representational result of
+- [ ] section_4_results:185 `baseline` -> baseline not only in its training objective but also in its CNN$+$ViT architecture
+- [ ] section_4_results:287 `baseline` -> no-wake established baseline (the reconstructive autoencoder or POD) exceeds
+- [ ] section_4_results:288 `baseline` -> $\NumHorizonWakeBaselineMax$ at any horizon, so the predictive
+- [ ] section_4_results:373 `on-manifold` -> latent is the most in-distribution of all, which locates the on-manifold property
+- [ ] section_4_results:530 `baseline` -> reconstructive and linear baselines, so no single predictive coordinate carries the
+- [ ] section_4_results:543 `baseline` -> a permutation chance baseline (overlap $\NumPfiveFootprintOmegaOverlap$ and
+- [ ] section_4_results:590 `baseline` -> trajectory to the baseline orbit (full latent, in units of the orbit diameter;
+- [ ] section_4_results:591 `baseline` -> the grey band is the baseline orbit thickness): the encounter departs the baseline
+- [ ] section_4_results:627 `baseline` -> reconstructive baseline (\S\ref{sec:res_drift}). And every quantitative
+- [ ] section_4_results:715 `baseline` -> variational baseline, and $\SenseStatePod$ for the linear basis; the lead is
 - [ ] section_5_discussion:15 `baseline` -> the established reconstructive and linear baselines, which carry no wake head, are
 - [ ] section_5_discussion:40 `on-manifold` -> on-manifold property that data-driven state-space and Koopman models
 - [ ] section_5_discussion:46 `on-manifold` -> rollout (\S\ref{sec:res_drift}), so on-manifold geometry is supplied by the
@@ -43,9 +45,9 @@
 - [ ] section_5_discussion:115 `baseline` -> from the reconstructive baseline in three respects at once: the training
 - [ ] section_5_discussion:133 `forecastable` -> the wake forecastable from the rollout, which the static supervision-only encoder
 - [ ] section_5_discussion:159 `forecastable` -> reconstructive objective suppresses it) and renders it forecastable; the result is
-- [ ] section_5_discussion:165 `controller` -> dynamics function a model-based controller would plan against, and three properties
-- [ ] section_5_discussion:171 `controller` -> rollout. The latent itself is the observable a controller has
-- [ ] section_5_discussion:196 `controller` -> forecast, a controller, or a counterfactual model. The natural next step is to apply
+- [ ] section_5_discussion:165 `controller` -> dynamics function of the kind an estimator or controller would require, though
+- [ ] section_5_discussion:172 `controller` -> rollout. The latent itself is the observable a controller has
+- [ ] section_5_discussion:197 `controller` -> forecast, a controller, or a counterfactual model. The natural next step is to apply
 - [ ] section_6_conclusions:15 `baseline` -> established no-wake baselines are at or below zero, but an objective-free supervised
 - [ ] section_6_conclusions:28 `wake-readable` -> most recoverable of the three from sparse wall pressure, so it is both wake-readable
 - [ ] appendix_b_sensing:13 `controller` -> representations, not a closed controller. The causal claim of

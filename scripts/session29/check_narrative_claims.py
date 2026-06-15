@@ -42,6 +42,10 @@ HARD_FAIL_ALWAYS = [
     "all gusted encounters are single loops",
     "pressure recovers the wake",
     "closed-loop controller demonstrated",
+    # SESSION29.10 overclaim guards
+    "alone forecasts",
+    "exact deployment mirror",
+    "wake recovery from wall pressure",
 ]
 # Fail only in a POSITIVE (non-negated) context; OK inside a negated/limitation clause.
 HARD_FAIL_IF_POSITIVE = [
