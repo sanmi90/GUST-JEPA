@@ -29,6 +29,11 @@ encounter is moreover similar across laminar and turbulent regimes
 family. Resolving the full parametric
 envelope by simulation is expensive, so reduced-order models (ROMs) of the
 encounter-to-encounter and case-to-case variability are an active line of work.
+A reduced model for such an encounter must do more than reproduce a vorticity
+snapshot or the instantaneous force: it must retain the wake variables that
+determine the post-impact transient and organise them into a state on which a
+forward model can be queried without leaving the data manifold. This is the
+predictive-state problem that organises the present study.
 
 Reduced-order models of such flows form a ladder of increasing nonlinearity.
 Energy-optimal linear bases, proper orthogonal decomposition
@@ -39,8 +44,12 @@ principled comparator rather than a strawman. Nonlinear autoencoders compress
 further at matched latent dimension \citep{murata2020nonlinear,lee2020model}, and
 coupling an
 autoencoder to a learned latent dynamics forecasts better than dynamics confined
-to a linear subspace \citep{linot2023dynamics}. The extreme-aerodynamic reduced
-models we build on sit at the nonlinear, observable-augmented end of this ladder.
+to a linear subspace \citep{linot2023dynamics}. Read as a design ladder, these
+methods progress from field reconstruction and energy compression, through
+observable readability, toward forward-state usability, which is the property a
+reduced state needs to serve a predictor; the extreme-aerodynamic reduced models we
+build on sit at the nonlinear, observable-augmented rung, and the question we pursue
+is what carries a state the rest of the way.
 
 Recent ROMs for separated and extreme-aerodynamic flows, increasingly built with
 machine learning \citep{brunton2020machine}, share a common
@@ -60,7 +69,12 @@ however, is that the latent coordinates of an autoencoder are unique only up to
 a diffeomorphism, so reconstruction leaves the geometry of the latent largely
 unconstrained, which complicates any downstream task that relies on that
 geometry, including dynamics, interpolation, and comparison
-\citep{tran2026,kelshaw2024}.
+\citep{tran2026,kelshaw2024}. Observable augmentation solves only one part of the
+predictive-state problem: it tells the encoder which aerodynamic quantity to
+represent, but it does not by itself fix whether the latent coordinates are
+suitable for time advancement. A reduced state that is linearly readable at a single
+instant may still be unusable once an autoregressive predictor queries the points
+its own rollout produces.
 
 A parallel and fast-growing line reads these flows through the information their
 reduced states carry rather than their energy. Transfer-entropy causality among
@@ -85,9 +99,11 @@ latent-space forecasting, with an explicit anti-collapse regulariser in place
 of the decoder. This is the joint-embedding predictive architecture (JEPA)
 \citep{lecun2022}: an encoder maps the input to a representation, a predictor
 advances that representation in time, and the loss never reconstructs the
-field. Two consequences follow. The encoder is free to discard detail that is
-not predictive of the future, and the predictor cannot exploit pixel-level
-shortcuts because no field-space signal reaches it. The image and video
+field. The encoder is thereby trained in the same coordinates in which the
+predictor will later operate, which makes JEPA a useful instrument for testing
+whether predictive training produces a latent state that remains usable when rolled
+forward, rather than merely readable when encoded from the DNS field; the predictor
+also cannot exploit pixel-level shortcuts, because no field-space signal reaches it. The image and video
 instantiations \citep{ijepa,vjepa2} and the recent from-pixels variants that
 remove the moving-target encoder in favour of a characteristic-function
 regulariser \citep{lewm,lejepa} or a variance-covariance objective
@@ -117,65 +133,50 @@ to a latent dynamics model \citep{liu2025modelbased}. We treat that reading as
 motivation: the rollout is shown as a consistent latent trajectory rather than
 advanced as a validated forecast, and its interventional or causal interpretation is
 left for future work (\S\ref{sec:discussion}). What this leaves is the
-property our principle turns on: a reconstruction-trained autoencoder and an
-energy-optimal proper orthogonal decomposition basis are not constrained to keep the
-dynamically relevant wake observables, the enstrophy and signed circulation in
-particular, linearly readable in the latent, and the drift
-mechanism of \S\ref{sec:res_drift} is the empirical consequence.
+property our study turns on: an established reconstruction-trained autoencoder and an
+energy-optimal proper orthogonal decomposition basis, lacking wake supervision, do
+not keep the dynamically relevant wake observables linearly readable, and even a
+wake-readable state is not automatically usable once a forward model advances it.
+The drift mechanism of \S\ref{sec:res_drift} and the division of labour we identify
+are the empirical consequences.
 
 The question this paper addresses is therefore not which encoder reconstructs
-the flow best, but which produces a reduced state from which the dynamically
-relevant wake is readable. We treat this as a fluid-mechanics question with a
-geometric answer: a predictive objective regularised against collapse organises the
-latent so that the undisturbed shedding orbit remains a single loop, the
-wake is carried as a distributed code, and the autoregressive rollout stays on the
-encoded manifold. A reconstruction objective does not impose this, so it smooths the
-wake away and its rollout drifts off the manifold along the directions the decoder
-never constrained. The joint-embedding predictive architecture is the instrument we
-use to realise the principle, not the subject of the paper. We make three
-contributions.
+the flow best, nor even which produces a reduced state from which the wake is
+readable at a single instant, but which produces a state that is also usable once a
+forward model advances it. We treat this as a fluid-mechanics question with a
+geometric answer, and find a division of labour: wake-observable supervision makes
+the wake readable, an anti-collapse regulariser keeps the latent in distribution
+under rollout, and the predictive objective makes the supervised state dynamically
+trackable. The joint-embedding predictive architecture is the instrument we use to
+test this principle, not the subject of the paper. We make three contributions.
 
-First, we set up a controlled comparison in which a predictive encoder (JEPA),
-a reconstructive encoder in the Fukami lineage, and a POD basis are evaluated
-at matched latent dimension under a single shared autoregressive predictor,
-training recipe, and probe family, so that representation quality is attributable to
-the encoder alone (\S\ref{sec:methods}). The headline figure of merit is
-representational closure, whether a fixed probe reads each of six observables off the
-simulation-encoded latent, the wake in particular (\S\ref{sec:res_closure}). On
-held-out cases the wake-supervised predictive latent renders the wake linearly
-readable where the others do not: its representational wake-enstrophy $R^2$ is
-$\NumReprWakeJepaTf$ where the reconstructive and linear baselines are at or below
-zero, and the per-encounter advantage survives the pre-registered encounter-level
-multiplicity correction. A control shows the readability is supplied by the
-wake-observable supervision, with the predictive objective distinguished by
-preserving it where the reconstructive objective suppresses it and by rendering the
-wake forecastable. We phrase the result as linear decodability rather than exclusive
-possession, since a nonlinear probe narrows the gap. The predictor rollout points
-the same way, shown as consistent tracking rather than advanced as a validated forecast.
+First, we formulate the vortex-gust encounter as a predictive-state benchmark. The
+primary endpoint is the wake enstrophy at a fixed post-impact readout ($H = 16$),
+because it summarises the leading-edge-vortex roll-up and wake reorganisation that
+the scalar force can miss; all encoders, a predictive one (JEPA), a reconstructive
+one in the Fukami lineage, and a POD basis, are compared at matched latent dimension
+under a single shared probe and autoregressive predictor (\S\ref{sec:methods}). The
+question is then not field-reconstruction quality but whether the reduced state
+carries the wake variables a forward model needs (\S\ref{sec:res_closure}).
 
-Second, we identify the mechanism. A latent-drift diagnostic shows that the
-reconstructive rollout's departure from the training distribution concentrates in
-directions of negligible encoded variance at $H = 16$, whereas the predictive
-rollout stays within the populated cloud; metric-independent distance diagnostics
-confirm that the reconstructive Euclidean drift is itself small, so the
-discriminating statement is the \emph{direction} of departure, not its magnitude
-(\S\ref{sec:res_drift}). We add a topological statement on the cleanest
-control: under a metric that removes coordinate scale, the predictive encoding keeps
-the undisturbed shedding cycle as a single persistent generator where the
-reconstructive encoding fragments it, so the reconstructive encoding cannot
-represent even the no-gust limit cycle coherently.
+Second, we separate the ingredients of a usable predictive state
+(\S\ref{sec:res_controls}). Wake-observable supervision supplies the instantaneous
+readability: on held-out fields the wake-supervised states make the wake enstrophy
+linearly readable ($R^2 = \NumReprWakeJepaTf$) where the no-wake reconstructive and
+linear baselines are at or below zero, but an objective-free supervised encoder
+reads it as well, and a matched reconstructive control reads it comparably once
+retrained out of sample, so the readability is the supervision's, not the
+objective's. Anti-collapse regularisation supplies an in-distribution geometry: the
+supervision-only and predictive rollouts both stay on the encoded manifold, where
+the reconstructive rollout departs along directions of negligible encoded variance
+(\S\ref{sec:res_drift}). The predictive objective supplies the dynamic usability: its
+rollout stays closer to the encoded simulation trajectory and forecasts the wake
+better than the objective-free and reconstructive alternatives.
 
-Third, we attribute the wake gain to its cause. The
-predictive encoder differs from the reconstructive baseline not only in its
-objective but also in its architecture and in its auxiliary observable
-supervision, so we phrase the result as a property of the
-\emph{predictive latent family}, report a model-free parametric floor that rules
-out the gust parameters as the explanation (\S\ref{sec:res_closure}),
-and perform matched-architecture and matched-auxiliary controls
-(\S\ref{sec:res_controls}) that attribute the wake gain to the predictive
-objective trained with wake-observable supervision rather than to the architecture. The
-same predictive state is also the most recoverable of the three
-from sparse wall pressure, so it is both the most wake-readable and the most
-wall-recoverable of the three (\S\ref{sec:res_observability}), and it is the latent
-dynamics function a controller would plan against, a closed-loop demonstration of
-which lies beyond the present rollout accuracy (\S\ref{sec:discussion}).
+Third, we interpret the resulting state physically and observationally
+(\S\ref{sec:res_flow_physics}, \S\ref{sec:res_observability}). The predictive state
+keeps the undisturbed shedding orbit as a single loop under a metric that removes
+coordinate scale, carries the wake response across the tested readout horizons, and
+is the most recoverable of the three from sparse pre-impact wall pressure. These
+results motivate the state as an input to a future estimator or controller; the
+present paper does not claim a validated forecast or a closed-loop controller.
