@@ -20,6 +20,10 @@ set -euo pipefail
 cd "$(dirname "$0")/../.."
 
 gpu="${1:-0}"
+# Optional architecture filter so the grid can be split across the two RTX 6000s
+# (e.g. "bash a2_regae_launch.sh 0 cnn" on card 0 and "... 1 cnn_vit" on card 1).
+# Default runs both architectures on the one card.
+ARCHS="${2:-cnn cnn_vit}"
 export PREVENT_ROOT="${PREVENT_ROOT:-$HOME/PREVENT}" WANDB_PROJECT="${WANDB_PROJECT:-vortex-jepa}"
 SPLIT="configs/splits/split_v2p1.json"
 MAN="outputs/data_pipeline/v2p1/manifest.json"
@@ -56,7 +60,7 @@ train_cell() {  # train_cell <arch> <seed> <max_iters> <tag-extra>
 }
 
 echo "[a2] GPU smoke (200 iters) per architecture before the full grid..."
-for arch in cnn cnn_vit; do
+for arch in $ARCHS; do
   train_cell "$arch" 0 200 "_smoke"
   if ! ls "$ROOT/regae_${arch}_d64_s0_smoke"/checkpoint_*.pt >/dev/null 2>&1; then
     echo "[a2] SMOKE FAILED for $arch; inspect $ROOT/regae_${arch}_d64_s0_smoke/train.log and fix before the full grid."
@@ -65,7 +69,7 @@ for arch in cnn cnn_vit; do
 done
 echo "[a2] smoke OK. Launching full grid (cnn, cnn_vit) x (s0..s4) at 20000 iters."
 
-for arch in cnn cnn_vit; do
+for arch in $ARCHS; do
   for s in 0 1 2 3 4; do
     train_cell "$arch" "$s" 20000 ""
   done
