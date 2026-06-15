@@ -2,7 +2,7 @@
 
 - hard-fail overclaims: 0
 - required concepts present: 6/6
-- warnings (manual triage): 46
+- warnings (manual triage): 47
 
 
 ## WARNINGS (mark OK / EDIT / LIMITATION)
@@ -27,15 +27,16 @@
 - [ ] section_4_results:132 `baseline` -> model-free baseline: the predictive latent beating it (last column, the
 - [ ] section_4_results:181 `baseline` -> additional baselines to be beaten. The representational result of
 - [ ] section_4_results:185 `baseline` -> baseline not only in its training objective but also in its CNN$+$ViT architecture
-- [ ] section_4_results:287 `baseline` -> no-wake established baseline (the reconstructive autoencoder or POD) exceeds
-- [ ] section_4_results:288 `baseline` -> $\NumHorizonWakeBaselineMax$ at any horizon, so the predictive
-- [ ] section_4_results:373 `on-manifold` -> latent is the most in-distribution of all, which locates the on-manifold property
-- [ ] section_4_results:530 `baseline` -> reconstructive and linear baselines, so no single predictive coordinate carries the
-- [ ] section_4_results:543 `baseline` -> a permutation chance baseline (overlap $\NumPfiveFootprintOmegaOverlap$ and
-- [ ] section_4_results:590 `baseline` -> trajectory to the baseline orbit (full latent, in units of the orbit diameter;
-- [ ] section_4_results:591 `baseline` -> the grey band is the baseline orbit thickness): the encounter departs the baseline
-- [ ] section_4_results:627 `baseline` -> reconstructive baseline (\S\ref{sec:res_drift}). And every quantitative
-- [ ] section_4_results:715 `baseline` -> variational baseline, and $\SenseStatePod$ for the linear basis; the lead is
+- [ ] section_4_results:288 `on-manifold` -> anti-collapse regulariser therefore supplies the on-manifold geometry of
+- [ ] section_4_results:301 `baseline` -> no-wake established baseline (the reconstructive autoencoder or POD) exceeds
+- [ ] section_4_results:302 `baseline` -> $\NumHorizonWakeBaselineMax$ at any horizon, so the predictive
+- [ ] section_4_results:387 `on-manifold` -> latent is the most in-distribution of all, which locates the on-manifold property
+- [ ] section_4_results:544 `baseline` -> reconstructive and linear baselines, so no single predictive coordinate carries the
+- [ ] section_4_results:557 `baseline` -> a permutation chance baseline (overlap $\NumPfiveFootprintOmegaOverlap$ and
+- [ ] section_4_results:604 `baseline` -> trajectory to the baseline orbit (full latent, in units of the orbit diameter;
+- [ ] section_4_results:605 `baseline` -> the grey band is the baseline orbit thickness): the encounter departs the baseline
+- [ ] section_4_results:641 `baseline` -> reconstructive baseline (\S\ref{sec:res_drift}). And every quantitative
+- [ ] section_4_results:729 `baseline` -> variational baseline, and $\SenseStatePod$ for the linear basis; the lead is
 - [ ] section_5_discussion:15 `baseline` -> the established reconstructive and linear baselines, which carry no wake head, are
 - [ ] section_5_discussion:40 `on-manifold` -> on-manifold property that data-driven state-space and Koopman models
 - [ ] section_5_discussion:46 `on-manifold` -> rollout (\S\ref{sec:res_drift}), so on-manifold geometry is supplied by the

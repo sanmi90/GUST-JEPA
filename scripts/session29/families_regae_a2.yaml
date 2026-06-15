@@ -1,0 +1,33 @@
+# Families manifest for the SESSION29.8 Track A2 regAE attribution probe.
+#
+# Two families, one per encoder architecture, both the matched reconstructive AE
+# recipe (reconstruction + the SAME wake head as ctrl_recon) PLUS SIGReg
+# anti-collapse (lambda_sigreg = 0.01). The matched no-anti-collapse control is
+# ctrl_recon_{cnn,cnnvit} in families_closure.yaml. Latents were encoded with
+# scripts/session18/encode_baseline_latents.py (non-strict load: SIGReg + wake
+# head keys ignored, only the encoder weights load) to
+# outputs/session28/latents/regae/{cnn,cnn_vit}_s{seed}.
+#
+# objective = reconstructive (same as ctrl_recon): the question is whether
+# anti-collapse alone raises the reconstructive latent's instantaneous wake
+# readability toward the predictive/supervised range.
+
+defaults:
+  latents_root: outputs/session28/latents
+  rollouts_root: outputs/session28/rollouts
+  tag_template: "{family}_d{d}_s{seed}"
+
+families:
+  regae_cnn:
+    objective: reconstructive
+    macro_family: RegaeCnn
+    tag_template: "regae/cnn_s{seed}"
+    dims:
+      64: [0, 1, 2, 3, 4]
+
+  regae_cnn_vit:
+    objective: reconstructive
+    macro_family: RegaeCnnVit
+    tag_template: "regae/cnn_vit_s{seed}"
+    dims:
+      64: [0, 1, 2, 3, 4]

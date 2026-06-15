@@ -1,9 +1,9 @@
 {
   "_provenance": {
-    "generated_iso": "2026-06-15T05:25:35.478283+00:00",
-    "git_commit": "c7a32ecec68229e0d1c310d4c24f0bdcb4e6183c",
+    "generated_iso": "2026-06-15T23:23:45.413907+00:00",
+    "git_commit": "bed0f250e5bc0e53be4b579e418c469c5d013e14",
     "manifest_runs_sha256": "aa07e687f2080e7e7f0dea8d75f3b2af40a86fa68c19f828ae3ec98422e60bbe",
-    "n_parts": 27,
+    "n_parts": 28,
     "parts": [
       "closure_bvae.json",
       "closure_floor_full.json",
@@ -22,6 +22,7 @@
       "p4_lev.json",
       "p5_code.json",
       "prepsens.json",
+      "regae_a2.json",
       "s46.json",
       "sensing_causal.json",
       "sensing_cf.json",
@@ -2061,7 +2062,25 @@
       "fmt": "%s",
       "macro": "CommitHash",
       "source": "eval_all.py",
-      "value": "c7a32ecec682"
+      "value": "bed0f250e5bc"
+    },
+    "repr_wake_regae_cnn": {
+      "ci_hi": 0.7605018884227008,
+      "ci_lo": -0.3574806712790952,
+      "fmt": "%.2f",
+      "macro": "NumReprWakeRegaeCnn",
+      "note": "recon+SIGReg CNN, repr wake R2 test_b H16, canonical, seed-mean(5)",
+      "source": "regae_a2 (SESSION29.8 A2)",
+      "value": 0.4823896674890496
+    },
+    "repr_wake_regae_cnnvit": {
+      "ci_hi": 0.8914381413447477,
+      "ci_lo": 0.18926182553288562,
+      "fmt": "%.2f",
+      "macro": "NumReprWakeRegaeCnnVit",
+      "note": "recon+SIGReg CNN+ViT, repr wake R2 test_b H16, canonical, seed-mean(5)",
+      "source": "regae_a2 (SESSION29.8 A2)",
+      "value": 0.20656186606144558
     },
     "s46_orbit_return_fukami": {
       "fmt": "%.2f",

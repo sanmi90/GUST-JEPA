@@ -285,6 +285,20 @@ margin: the supervision makes the wake readable, and among objectives the predic
 one is distinguished by reading the wake consistently, forecasting it from its own
 rollout, and keeping that rollout on the encoded manifold (\S\ref{sec:res_drift}).
 
+One further control closes the attribution. If reconstruction kept the supervised
+wake readability low only for want of an isotropised geometry, then adding the
+predictive model's anti-collapse term to the reconstructive autoencoder should
+restore it. It does not. A reconstructive autoencoder carrying the matched wake head
+\emph{and} the same SIGReg anti-collapse term reads the wake at
+$\NumReprWakeRegaeCnn$ (CNN) and $\NumReprWakeRegaeCnnVit$ (CNN$+$ViT), within noise
+of the unregularised reconstructive control and far below the supervision-only
+($\NumReprWakeSupOnly$) and predictive ($\NumReprWakeJepaTf$) band, and it stays as
+seed-variable as that control (the CNN$+$ViT seeds span negative to $0.8$). The
+anti-collapse regulariser therefore supplies the on-manifold geometry of
+\S\ref{sec:res_drift}, not the wake readability; it is the reconstruction
+\emph{objective} that leaves the supervised readability erratic, where the
+predictive objective reads it consistently.
+
 The latent dimension is the remaining control. The representational wake closure
 holds on a plateau from $d = 64$ down to $d = 16$ ($R^2 = \NumCloReprWakeJepaTfDSixtyfour$,
 $\NumCloReprWakeJepaTfDThirtytwo$, and $\NumCloReprWakeJepaTfDSixteen$ at $d = 64$, $32$,

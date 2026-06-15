@@ -1,0 +1,23 @@
+{
+  "part": "regae_a2",
+  "numbers": {
+    "repr_wake_regae_cnn": {
+      "macro": "NumReprWakeRegaeCnn",
+      "value": 0.4823896674890496,
+      "fmt": "%.2f",
+      "ci_lo": -0.3574806712790952,
+      "ci_hi": 0.7605018884227008,
+      "source": "regae_a2 (SESSION29.8 A2)",
+      "note": "recon+SIGReg CNN, repr wake R2 test_b H16, canonical, seed-mean(5)"
+    },
+    "repr_wake_regae_cnnvit": {
+      "macro": "NumReprWakeRegaeCnnVit",
+      "value": 0.20656186606144558,
+      "fmt": "%.2f",
+      "ci_lo": 0.18926182553288562,
+      "ci_hi": 0.8914381413447477,
+      "source": "regae_a2 (SESSION29.8 A2)",
+      "note": "recon+SIGReg CNN+ViT, repr wake R2 test_b H16, canonical, seed-mean(5)"
+    }
+  }
+}
