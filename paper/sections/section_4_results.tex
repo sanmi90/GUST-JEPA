@@ -181,7 +181,11 @@ wake state the latent encodes.
 \subsection{Objective, architecture, and auxiliary-head controls}
 \label{sec:res_controls}
 
-The representational result of \S\ref{sec:res_closure} is established, but the
+The controls in this section separate three ingredients that are entangled in the
+full model, the wake-observable supervision, the anti-collapse geometry, and the
+predictive objective, so we read them as an attribution experiment rather than as
+additional baselines to be beaten. The representational result of
+\S\ref{sec:res_closure} is established, but the
 predictive latent \emph{family} as configured renders the wake readable for reasons
 we have not yet separated: the predictive encoder differs from the reconstructive
 baseline not only in its training objective but also in its CNN$+$ViT architecture

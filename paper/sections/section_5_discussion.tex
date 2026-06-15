@@ -4,12 +4,17 @@
 % (Tran et al. 2026) is used to explain *why* reconstruction leaves the geometry
 % free.
 
-\subsection{Interpretation and scope}
+\subsection{What a predictive latent state must contain}
 \label{sec:disc_mechanism}
 \label{sec:disc_caveat}
 
-The central finding is dynamical, and it concerns what a wake-supervised state is
-good for once it has to evolve. The instantaneous part is quickly stated and
+The central result is a design rule for predictive reduced states: a vortex-gust
+state must carry the wake observables that govern the post-impact transient, but
+readability alone is not enough, because the state must also be organised so that a
+forward model can roll it out without leaving the manifold on which the probes and
+estimators were trained. The finding is therefore dynamical, and it concerns what a
+wake-supervised state is good for once it has to evolve. The instantaneous part is
+quickly stated and
 quickly bounded: under a shared probe family the wake-supervised predictive latent
 reads the held-out wake at $R^2 = \NumReprWakeJepaTf$ on the fixed test set while
 the established reconstructive and linear baselines, which carry no wake head, are
