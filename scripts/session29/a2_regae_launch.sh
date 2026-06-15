@@ -24,6 +24,9 @@ gpu="${1:-0}"
 # (e.g. "bash a2_regae_launch.sh 0 cnn" on card 0 and "... 1 cnn_vit" on card 1).
 # Default runs both architectures on the one card.
 ARCHS="${2:-cnn cnn_vit}"
+# Optional seed filter (3rd arg) so a freed card can pick up specific queued cells
+# without racing the other card (e.g. "... 0 cnn_vit 4" runs only seed 4 on card 0).
+SEEDS="${3:-0 1 2 3 4}"
 export PREVENT_ROOT="${PREVENT_ROOT:-$HOME/PREVENT}" WANDB_PROJECT="${WANDB_PROJECT:-vortex-jepa}"
 SPLIT="configs/splits/split_v2p1.json"
 MAN="outputs/data_pipeline/v2p1/manifest.json"
@@ -70,7 +73,7 @@ done
 echo "[a2] smoke OK. Launching full grid (cnn, cnn_vit) x (s0..s4) at 20000 iters."
 
 for arch in $ARCHS; do
-  for s in 0 1 2 3 4; do
+  for s in $SEEDS; do
     train_cell "$arch" "$s" 20000 ""
   done
 done
