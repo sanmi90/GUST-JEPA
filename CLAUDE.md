@@ -351,6 +351,19 @@ runs so paper compute is on a single, named accelerator class. Silent CPU
 fallback is also forbidden: a script that should be on GPU but ends up on
 CPU has lost most of its meaning.
 
+CPU is shared, do NOT grab all of it (the 96-core workstation is shared with a
+collaborator (asolera) whose SOD2D / OpenFOAM CPU solvers need at least 64 cores).
+A GPU training job must not let dataloading and math threads fan out across every
+core. Before any training, smoke-test, or benchmark run, cap the CPU footprint:
+export `OMP_NUM_THREADS` (and `MKL_NUM_THREADS`) to a small value (8 is plenty for
+the data pipeline), keep `--num-workers` at most 4 per run, and confine the process
+to a core subset with `taskset -c 0-15` (or fewer when two runs share the box) so at
+least 64 cores stay free. PyTorch otherwise spawns an intra-op thread pool sized to
+all 96 cores and a per-encounter preprocessing pipeline that, unpinned, starves the
+collaborator. If a run is already going and needs reining in, `taskset -cp 0-15
+<every TID under /proc/<pid>/task>` plus `renice 19` confines it without a restart
+(a plain `taskset -p <pid>` only moves the main thread, not the OMP pool).
+
 Two-card usage (D40): the two RTX 6000s are addressable by 0-indexed `--gpu`
 on every training entrypoint:
 
