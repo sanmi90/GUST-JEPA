@@ -23,12 +23,11 @@ OUT = REPO / "paper/sections/tables/paired_closure_body.tex"
 OBS_LABEL = {
     "CL": "$C_L$",
     "CD": "$C_D$",
-    "Iy": "$I_y$",
     "wake_enstrophy": "wake-enst.\\",
     "circ_pos": "circ.\\ pos.\\",
     "circ_neg": "circ.\\ neg.\\",
 }
-ORDER = ["CL", "CD", "Iy", "wake_enstrophy", "circ_pos", "circ_neg"]
+ORDER = ["CL", "CD", "wake_enstrophy", "circ_pos", "circ_neg"]
 
 
 def fmt(x: float, nd: int = 3) -> str:

@@ -4,9 +4,8 @@ UNCONDITIONED predictive (jepa_tf_noc) latent at H = 16 after gust impact, v2.1.
 Two panels, matching the v2.1 caption (sec:fig4_closure, section_4_results.tex):
 
   (a) per-observable held-out R^2 of a FIXED LINEAR (ridge) probe applied to the
-      simulation-encoded latent (no rollout) for the six observables on the
-      in-distribution test set (test_b, n = 42). The dashed line is the mean over
-      the six; the one weak observable, the mid-plane impulse I_y, is shaded light.
+      simulation-encoded latent (no rollout) for the five observables on the
+      in-distribution test set (test_b, n = 42).
   (b) the wake-enstrophy R^2 across families: the predictive latent against the
       reconstructive autoencoder (Fukami) and the linear basis (POD), each d = 64.
 
@@ -29,15 +28,14 @@ fs = cm.fs
 INK = "#242933"
 MUTE = "#6b7280"
 
-# left-panel order: wake first (the point), then circulations, forces, I_y last.
-ORDER = ["wake_enstrophy", "circulation_pos", "circulation_neg", "C_L", "C_D", "I_y"]
+# left-panel order: wake first (the point), then circulations, forces.
+ORDER = ["wake_enstrophy", "circulation_pos", "circulation_neg", "C_L", "C_D"]
 METRIC_LABEL = {
     "wake_enstrophy": r"wake $\Omega_w$",
     "circulation_pos": r"$\Gamma^{+}$",
     "circulation_neg": r"$\Gamma^{-}$",
     "C_L": r"$C_L$",
     "C_D": r"$C_D$",
-    "I_y": r"$I_y$",
 }
 # macro per observable for the predictive (jepa_tf_noc) representational R^2.
 REPR_MACRO = {
@@ -46,7 +44,6 @@ REPR_MACRO = {
     "circulation_neg": "NumCloReprCircNegJepaTf",
     "C_L": "NumCloReprCLJepaTf",
     "C_D": "NumCloReprCDJepaTf",
-    "I_y": "NumCloReprIyJepaTf",
 }
 WAKE_FAM_MACRO = [
     ("jepa", "NumReprWakeJepaTf", "predict.\n(uncond.)"),
@@ -59,7 +56,6 @@ def main() -> None:
     fs.use_style()
     numbers = cm.load_numbers()
     per = {m: cm.macro_value(numbers, REPR_MACRO[m]) for m in ORDER}
-    mean6 = cm.macro_value(numbers, "NumCloReprMeanSixJepaTf")
 
     fig, (axL, axR) = plt.subplots(
         1, 2, figsize=fs.figure_size(1.0, aspect=0.42), gridspec_kw={"width_ratios": [1.7, 1.0]}
@@ -72,20 +68,9 @@ def main() -> None:
         xs, vals, color=fs.FAMILY_COLOR["jepa"], width=0.66, edgecolor="white", linewidth=0.5
     )
     for b, m in zip(bars, ORDER):
-        if per[m] < 0:  # de-emphasise the one weak (negative) observable, I_y
+        if per[m] < 0:  # de-emphasise any weak (negative) observable
             b.set_color("#9bbf9e")
     axL.axhline(0.0, color="#000000", lw=0.8)
-    axL.axhline(mean6, color=MUTE, lw=1.0, ls="--")
-    axL.text(
-        0.0,
-        mean6 + 0.03,
-        f"mean over six $= {mean6:.2f}$",
-        ha="left",
-        va="bottom",
-        fontsize=7,
-        color=MUTE,
-        style="italic",
-    )
     for x, m in zip(xs, ORDER):
         v = per[m]
         axL.text(
@@ -137,7 +122,6 @@ def main() -> None:
     print(
         "  (a) per-observable repr R^2: "
         + ", ".join(f"{m}={per[m]:+.2f}" for m in ORDER)
-        + f"; mean6={mean6:.2f}"
     )
     print(f"  (b) wake R^2: jepa {wv[0]:+.2f}, fukami {wv[1]:+.2f}, pod {wv[2]:+.2f}")
 

@@ -4,21 +4,19 @@ All paired tests use the D165 convention: per-encounter absolute error, delta = 
 
 ## (a) The 12-test Holm family (predictive jepa_tf_noc vs reconstructive Fukami AE)
 
-Cell: test_b pooled, H=16, d=64, ridge; n_tests = 12.
+Cell: test_b pooled, H=16, d=64, ridge; n_tests = 10.
 
   test                       n_enc  delta      clustered_CI            enc_p    holm_enc  surv_enc  case_p   holm_case surv_case
-  forecast/CD                  42    +0.081        [-0.088, +0.251]  0.322   1   False  0.623   1   False
-  forecast/CL                  42    +0.012        [-0.430, +0.424]  0.04421   0.3537   False  0.623   1   False
-  forecast/Iy                  42    +0.141        [-0.307, +0.610]  0.5612   1   False  0.1719   1   False
-  forecast/circ_neg            42    +0.708        [-0.010, +1.720]  0.003958   0.03958   True   0.05469   0.5469   False
-  forecast/circ_pos            42    -0.128        [-0.435, +0.194]  0.9179   1   False  0.8281   1   False
-  forecast/wake_enstrophy      42   +16.845       [+1.061, +32.757]  0.08207   0.4924   False  0.05469   0.5469   False
-  repr/CD                      42    +0.134        [+0.008, +0.309]  0.14   0.6999   False  0.377   1   False
-  repr/CL                      42    +0.552        [+0.241, +0.949]  3.439e-05   0.0004126   True   0.0009766   0.01172   True 
-  repr/Iy                      42    -0.681        [-1.400, +0.074]  0.9179   1   False  0.8281   1   False
-  repr/circ_neg                42    +0.944        [+0.302, +1.969]  0.0001358   0.001493   True   0.0009766   0.01172   True 
-  repr/circ_pos                42    +0.398        [+0.038, +0.912]  0.04421   0.3537   False  0.1719   1   False
-  repr/wake_enstrophy          42   +33.563       [+7.791, +58.720]  0.003958   0.03958   True   0.1719   1   False
+  forecast/CD                  42    +0.081        [-0.088, +0.251]  0.322   0.644   False  0.623   1   False
+  forecast/CL                  42    +0.012        [-0.430, +0.424]  0.04421   0.2653   False  0.623   1   False
+  forecast/circ_neg            42    +0.708        [-0.010, +1.720]  0.003958   0.03166   True   0.05469   0.4375   False
+  forecast/circ_pos            42    -0.128        [-0.435, +0.194]  0.9179   0.9179   False  0.8281   1   False
+  forecast/wake_enstrophy      42   +16.845       [+1.061, +32.757]  0.08207   0.3283   False  0.05469   0.4375   False
+  repr/CD                      42    +0.134        [+0.008, +0.309]  0.14   0.4199   False  0.377   1   False
+  repr/CL                      42    +0.552        [+0.241, +0.949]  3.439e-05   0.0003439   True   0.0009766   0.009766   True 
+  repr/circ_neg                42    +0.944        [+0.302, +1.969]  0.0001358   0.001222   True   0.0009766   0.009766   True 
+  repr/circ_pos                42    +0.398        [+0.038, +0.912]  0.04421   0.2653   False  0.1719   1   False
+  repr/wake_enstrophy          42   +33.563       [+7.791, +58.720]  0.003958   0.03166   True   0.1719   1   False
 
 Holm survivors (encounter-level sign p, HEADLINE / D165 procedure, alpha=0.05): 4/12 -> forecast/circ_neg, repr/CL, repr/circ_neg, repr/wake_enstrophy
 Holm survivors (case-level sign p, STRICTER case-respecting robustness): 2/12 -> repr/CL, repr/circ_neg

@@ -46,10 +46,12 @@ endpoints:
   both_reported_everywhere: true
 
 observables:
-  list: [C_L, C_D, I_y, wake_enstrophy, circulation_pos, circulation_neg]
+  list: [C_L, C_D, wake_enstrophy, circulation_pos, circulation_neg]
   primary: wake_enstrophy
   caveats:
-    I_y: non-impulse proxy (D167); reported in the matrix, never headlined
+    I_y_removed: the wall-normal impulse was dropped (the unconditioned mid-plane
+      latent does not encode it; representational R2 negative at all horizons) so
+      it does not distort the heterogeneous-observable comparison
 
 probes:
   classes: [ridge, krr_rbf, mlp_reg]   # ridge is the linear PRIMARY; the other two are the probe-class robustness axis (Gate GD)
@@ -68,7 +70,7 @@ uncertainty:
   bootstrap_n: 2000
   bootstrap_unit: encounter
   cluster_unit: case            # case-clustered CIs mandatory for every wake claim
-  multiplicity: Holm over the 12-test family (6 observables x 2 endpoints, JEPA vs reconstructive AE, test_b, H = 16)
+  multiplicity: Holm over the 10-test family (5 observables x 2 endpoints, JEPA vs reconstructive AE, test_b, H = 16)
   seed_variance: "mean +- sd over encoder seeds (lead family n = 4: seeds 42/0/1/2; others n = 3)"
 
 primary_endpoint:

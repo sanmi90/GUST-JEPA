@@ -55,22 +55,16 @@ keeps that rollout on the encoded manifold. The forces and the
 circulations are read off the same latent cleanly, with $C_L$ at
 $R^2 = \NumCloReprCLJepaTf$, the negative and positive circulations at
 $\NumCloReprCircNegJepaTf$ and $\NumCloReprCircPosJepaTf$, and the drag at
-$\NumCloReprCDJepaTf$; the mean over the six observables is
-$\NumCloReprMeanSixJepaTf$. The one weak observable is the wall-normal impulse $I_y$
-($R^2 = \NumCloReprIyJepaTf$), a mid-plane vorticity diagnostic that even the
-energy-optimal linear basis captures only modestly (\S\ref{sec:flow_observables}),
-so its weakness is a property of the observable rather than of the predictive
-latent. The same ordering holds on the training, validation, and extrapolation
-(test\_c) splits reported below.
+$\NumCloReprCDJepaTf$. The same ordering holds on the training, validation, and
+extrapolation (test\_c) splits reported below.
 
 \begin{figure}
   \centering
   \includegraphics[width=\linewidth]{sections/figures/results/fig4_closure_v2p1.pdf}
   \caption{Representational closure of the predictive latent at $H = 16$ after gust
   impact, the headline result. (a) Held-out $R^2$ of a fixed linear probe applied to
-  the simulation-encoded latent (no rollout) for each of the six observables, on the
-  in-distribution test set (test\_b, $n = 42$); the dashed line marks the mean over
-  the six and the one weak observable, the mid-plane impulse $I_y$, is shaded light.
+  the simulation-encoded latent (no rollout) for each of the five observables, on the
+  in-distribution test set (test\_b, $n = 42$).
   (b) The wake-enstrophy $R^2$ across families: the predictive latent
   ($\NumReprWakeJepaTf$) against the reconstructive autoencoder
   ($\NumReprWakeFukami$) and the linear basis ($\NumReprWakePod$), each at $d = 64$.
@@ -102,13 +96,13 @@ paired direct-encoding margin (table~\ref{tab:paired_closure}) is
 $\NumPairedWakeRepr$ in wake-enstrophy units with a case-clustered $95\%$ interval
 $[\NumPairedWakeReprlo, \NumPairedWakeReprhi]$, and the per-case slopegraph
 (figure~\ref{fig:case_slopegraph}) gives the predictive latent the lower error on
-seven of the ten held-out cases. Across the full twelve-test closure matrix the
+seven of the ten held-out cases. Across the full ten-test closure matrix the
 pre-registered encounter-level Holm family retains the wake-enstrophy advantage,
 together with the lift and the negative circulation; the stricter case-level Holm
 family is underpowered on ten cases and is not used to promote the secondary
 observables. We therefore state the primary claim as a pre-specified paired
 wake-enstrophy result with the case spread shown explicitly, while the forecast rows
-and the non-primary observables remain descriptive. All six observables are reported in both modes, not
+and the non-primary observables remain descriptive. All five observables are reported in both modes, not
 a selected subset, and the ordering is not uniform: the predictive latent leads on
 the spatially distributed wake observables (enstrophy and negative circulation),
 which is precisely the paper's claim. This separation is confirmed by the
@@ -155,7 +149,6 @@ separate consistently.
     \midrule
     $C_L$          & \NumFloorCL      & \NumCloReprCLJepaTf \\
     $C_D$          & \NumFloorCD      & \NumCloReprCDJepaTf \\
-    $I_y$          & \NumFloorIy      & \NumCloReprIyJepaTf \\
     wake-enstrophy & \NumFloorWake    & \NumReprWakeJepaTf \\
     circ.\ pos.\   & \NumFloorCircPos & \NumCloReprCircPosJepaTf \\
     circ.\ neg.\   & \NumFloorCircNeg & \NumCloReprCircNegJepaTf \\

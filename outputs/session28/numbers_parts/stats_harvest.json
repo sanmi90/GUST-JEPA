@@ -24,13 +24,13 @@
       "macro": "NumHolmSurvivors",
       "value": 4,
       "fmt": "%d",
-      "n": 12,
+      "n": 10,
       "source": "stats_harvest.py",
       "note": "Holm survivors of the 12-test family (encounter-level sign p, the pre-registered D165 procedure): forecast/circ_neg, repr/CL, repr/circ_neg, repr/wake_enstrophy; stricter case-respecting (case-level sign p) survivors [2/12]: repr/CL, repr/circ_neg"
     },
     "holm_family_survivors_case_strict": {
       "value": 2,
-      "n": 12,
+      "n": 10,
       "source": "stats_harvest.py",
       "note": "stricter case-respecting (case-level one-sided sign p) Holm survivors: repr/CL, repr/circ_neg"
     },

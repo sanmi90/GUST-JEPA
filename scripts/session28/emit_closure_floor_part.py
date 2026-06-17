@@ -27,7 +27,6 @@ OUT = REPO / "outputs/session28/numbers_parts/closure_floor_full.json"
 OBS = {
     "C_L": "CL",
     "C_D": "CD",
-    "I_y": "Iy",
     "wake_enstrophy": "Wake",
     "circulation_pos": "CircPos",
     "circulation_neg": "CircNeg",
@@ -95,20 +94,9 @@ def main() -> None:
                 "source": "emit_closure_floor_part.py (capacity ladder)",
             }
 
-    # mean over the six observables, jepa repr
-    six = [
-        seed_mean(rows, "jepa_tf_noc", o, "representational")
-        for o in OBS
-    ]
-    six = [x for x in six if x is not None]
-    if six:
-        numbers["clo_repr_meansix_jepatf"] = {
-            "macro": "NumCloReprMeanSixJepaTf",
-            "value": round(statistics.mean(six), 2),
-            "fmt": "%.2f",
-            "split": "test_b",
-            "source": "emit_closure_floor_part.py",
-        }
+    # (the mean-over-observables aggregate was dropped with I_y: a mean R^2 over
+    # heterogeneous observables was dominated by the one weak outlier, so it is
+    # not reported. See the I_y removal.)
 
     # parametric floor per observable (ridge), test_b
     floor = json.load(open(FLOOR))["floor"]

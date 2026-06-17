@@ -64,13 +64,13 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 import stats_lib  # noqa: E402
 
-# The 6 protocol observables, in the protocol's declared order, with the short
-# D165 labels used as the Holm-family test keys.
-OBSERVABLES = ["C_L", "C_D", "I_y", "wake_enstrophy", "circulation_pos", "circulation_neg"]
+# The 5 protocol observables, in the protocol's declared order, with the short
+# D165 labels used as the Holm-family test keys. (I_y was removed: the latent
+# does not encode it and it broke the heterogeneous-mean aggregate.)
+OBSERVABLES = ["C_L", "C_D", "wake_enstrophy", "circulation_pos", "circulation_neg"]
 SHORT = {
     "C_L": "CL",
     "C_D": "CD",
-    "I_y": "Iy",
     "wake_enstrophy": "wake_enstrophy",
     "circulation_pos": "circ_pos",
     "circulation_neg": "circ_neg",

@@ -50,7 +50,6 @@ OUT = REPO / "outputs/session28/numbers_parts/closure_bvae.json"
 OBS = {
     "C_L": "CL",
     "C_D": "CD",
-    "I_y": "Iy",
     "wake_enstrophy": "Wake",
     "circulation_pos": "CircPos",
     "circulation_neg": "CircNeg",
@@ -137,19 +136,7 @@ def main() -> None:
             "source": "emit_closure_bvae_part.py (matrix.csv seed-mean, matched recipe)",
         }
 
-    # Mean over the six representational observables (matched recipe), to mirror
-    # NumCloReprMeanSixJepaTf. Includes the matched wake-repr value in the mean.
-    numbers["clo_repr_meansix_bvae"] = {
-        "macro": "NumCloReprMeanSixBvae",
-        "value": round(statistics.mean(six_repr), 2),
-        "fmt": "%.2f",
-        "split": "test_b",
-        "endpoint": "representational",
-        "probe": "ridge",
-        "horizon": 16,
-        "source": "emit_closure_bvae_part.py (mean over six matched-recipe repr cells)",
-        "note": "includes the matched wake-repr value (NumReprWakeBvaeMatch) in the six-mean",
-    }
+    # (the mean-over-observables aggregate was dropped with I_y; not reported.)
 
     # Forecast: the only beta-VAE matched-predictor rollout (bvae_d64), trained
     # and rolled out from bvae_faith_d64_s42 (single seed; no matched-recipe

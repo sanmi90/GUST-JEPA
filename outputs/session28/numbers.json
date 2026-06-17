@@ -1,9 +1,9 @@
 {
   "_provenance": {
-    "generated_iso": "2026-06-17T11:16:49.156115+00:00",
-    "git_commit": "7e4557f3fbe544d4d69c3454a1ca5f700a66b7b2",
+    "generated_iso": "2026-06-17T17:52:22.309504+00:00",
+    "git_commit": "134c17c52bbd9e2961b14a3ad82a7ea2894bd334",
     "manifest_runs_sha256": "aa07e687f2080e7e7f0dea8d75f3b2af40a86fa68c19f828ae3ec98422e60bbe",
-    "n_parts": 28,
+    "n_parts": 30,
     "parts": [
       "closure_bvae.json",
       "closure_floor_full.json",
@@ -16,6 +16,8 @@
       "e4_floor.json",
       "error_maps.json",
       "horizon_robust.json",
+      "m2_drift_nowake.json",
+      "m3_wake_enstrophy.json",
       "orbit_return.json",
       "p1.json",
       "p2.json",
@@ -35,7 +37,7 @@
       "undisturbed.json"
     ],
     "protocol_file": "configs/eval_protocol_v2p1.yaml",
-    "protocol_sha256": "958ce70d2f0e25d20fc54d33bce55c9ce9718d561771438ade855a6bafe8661f"
+    "protocol_sha256": "37bcbe292b2367d0262746b51f2dbba08bda88117efcc59f5e6b7ab8f4214dc6"
   },
   "numbers": {
     "NumCasesTestB": {
@@ -353,41 +355,6 @@
       "split": "test_b",
       "value": 0.83
     },
-    "clo_fcst_iy_bvae": {
-      "endpoint": "forecast",
-      "fmt": "%.2f",
-      "horizon": 16,
-      "macro": "NumCloFcstIyBvae",
-      "observable": "I_y",
-      "probe": "ridge",
-      "run_tags": [
-        "bvae_d64"
-      ],
-      "source": "emit_closure_bvae_part.py (matrix.csv; bvae_d64 rollout from bvae_faith_d64_s42)",
-      "split": "test_b",
-      "value": 0.3
-    },
-    "clo_fcst_iy_fukami": {
-      "fmt": "%.2f",
-      "macro": "NumCloFcstIyFukami",
-      "source": "emit_closure_floor_part.py (matrix.csv seed-mean)",
-      "split": "test_b",
-      "value": 0.08
-    },
-    "clo_fcst_iy_jepatf": {
-      "fmt": "%.2f",
-      "macro": "NumCloFcstIyJepaTf",
-      "source": "emit_closure_floor_part.py (matrix.csv seed-mean)",
-      "split": "test_b",
-      "value": 0.25
-    },
-    "clo_fcst_iy_pod": {
-      "fmt": "%.2f",
-      "macro": "NumCloFcstIyPod",
-      "source": "emit_closure_floor_part.py (matrix.csv seed-mean)",
-      "split": "test_b",
-      "value": -0.02
-    },
     "clo_fcst_wake_bvae": {
       "endpoint": "forecast",
       "fmt": "%.2f",
@@ -570,61 +537,6 @@
       "source": "emit_closure_floor_part.py (matrix.csv seed-mean)",
       "split": "test_b",
       "value": 0.68
-    },
-    "clo_repr_iy_bvae": {
-      "endpoint": "representational",
-      "fmt": "%.2f",
-      "horizon": 16,
-      "macro": "NumCloReprIyBvae",
-      "observable": "I_y",
-      "probe": "ridge",
-      "run_tags": [
-        "bvae_match_d64_s42",
-        "bvae_match_d64_s0",
-        "bvae_match_d64_s1"
-      ],
-      "source": "emit_closure_bvae_part.py (matrix.csv seed-mean, matched recipe)",
-      "split": "test_b",
-      "value": 0.05
-    },
-    "clo_repr_iy_fukami": {
-      "fmt": "%.2f",
-      "macro": "NumCloReprIyFukami",
-      "source": "emit_closure_floor_part.py (matrix.csv seed-mean)",
-      "split": "test_b",
-      "value": 0.13
-    },
-    "clo_repr_iy_jepatf": {
-      "fmt": "%.2f",
-      "macro": "NumCloReprIyJepaTf",
-      "source": "emit_closure_floor_part.py (matrix.csv seed-mean)",
-      "split": "test_b",
-      "value": -0.21
-    },
-    "clo_repr_iy_pod": {
-      "fmt": "%.2f",
-      "macro": "NumCloReprIyPod",
-      "source": "emit_closure_floor_part.py (matrix.csv seed-mean)",
-      "split": "test_b",
-      "value": -0.69
-    },
-    "clo_repr_meansix_bvae": {
-      "endpoint": "representational",
-      "fmt": "%.2f",
-      "horizon": 16,
-      "macro": "NumCloReprMeanSixBvae",
-      "note": "includes the matched wake-repr value (NumReprWakeBvaeMatch) in the six-mean",
-      "probe": "ridge",
-      "source": "emit_closure_bvae_part.py (mean over six matched-recipe repr cells)",
-      "split": "test_b",
-      "value": 0.46
-    },
-    "clo_repr_meansix_jepatf": {
-      "fmt": "%.2f",
-      "macro": "NumCloReprMeanSixJepaTf",
-      "source": "emit_closure_floor_part.py",
-      "split": "test_b",
-      "value": 0.61
     },
     "clo_repr_wake_fukami": {
       "fmt": "%.2f",
@@ -1135,6 +1047,16 @@
       "split": "test_b",
       "value": 0.701746960649101
     },
+    "drift_maha_ratio_H24_d64_nowake": {
+      "fmt": "%.2f",
+      "horizon": 24,
+      "macro": "DriftMahaNowake",
+      "n": 42,
+      "note": "Mahalanobis ratio to per-frame TRAIN encoded cloud (v2 floored), no-wake-head predictive d=64, H=24",
+      "source": "m2_drift_nowake (no-wake-head predictivity check)",
+      "split": "test_b",
+      "value": 1.11991614520044
+    },
     "drift_maha_ratio_H24_d64_pod": {
       "fmt": "%.2f",
       "horizon": 24,
@@ -1185,6 +1107,16 @@
       "split": "test_b",
       "value": 0.5372359732685006
     },
+    "drift_rel_l2_H24_d64_nowake": {
+      "fmt": "%.2f",
+      "horizon": 24,
+      "macro": "DriftRelLtwoNowake",
+      "n": 42,
+      "note": "mean rel-l2 rollout deviation, no-wake-head predictive d=64, own co-trained predictor, H=24; identical protocol to drift_ce1",
+      "source": "m2_drift_nowake (no-wake-head predictivity check)",
+      "split": "test_b",
+      "value": 0.26160642440061466
+    },
     "drift_rel_l2_H24_d64_pod": {
       "fmt": "%.2f",
       "horizon": 24,
@@ -1222,6 +1154,15 @@
       "source": "drift_ce1.py",
       "split": "test_b",
       "value": 0.8825952227058818
+    },
+    "drift_spec_nearnull_frac_d64_nowake": {
+      "fmt": "%.2f",
+      "horizon": 24,
+      "macro": "DriftSpecNearNullNowake",
+      "note": "near-null departure fraction (61 dirs), no-wake-head predictive d=64",
+      "source": "m2_drift_nowake (no-wake-head predictivity check)",
+      "split": "test_b",
+      "value": 0.9919836065124907
     },
     "drift_spec_nearnull_frac_d64_suponly": {
       "fmt": "%.2f",
@@ -1511,13 +1452,6 @@
       "split": "test_b",
       "value": 0.61
     },
-    "floor_iy": {
-      "fmt": "%.2f",
-      "macro": "NumFloorIy",
-      "source": "emit_closure_floor_part.py (parametric_floor ridge)",
-      "split": "test_b",
-      "value": 0.25
-    },
     "floor_wake": {
       "fmt": "%.2f",
       "macro": "NumFloorWake",
@@ -1669,13 +1603,13 @@
     "holm_family_survivors": {
       "fmt": "%d",
       "macro": "NumHolmSurvivors",
-      "n": 12,
+      "n": 10,
       "note": "Holm survivors of the 12-test family (encounter-level sign p, the pre-registered D165 procedure): forecast/circ_neg, repr/CL, repr/circ_neg, repr/wake_enstrophy; stricter case-respecting (case-level sign p) survivors [2/12]: repr/CL, repr/circ_neg",
       "source": "stats_harvest.py",
       "value": 4
     },
     "holm_family_survivors_case_strict": {
-      "n": 12,
+      "n": 10,
       "note": "stricter case-respecting (case-level one-sided sign p) Holm survivors: repr/CL, repr/circ_neg",
       "source": "stats_harvest.py",
       "value": 2
@@ -1709,6 +1643,27 @@
       "source": "closure_matrix.csv (Track F)",
       "split": "test_b",
       "value": 0.717
+    },
+    "m3_lswake_enstrophy_relerr_fukami": {
+      "fmt": "%.2f",
+      "note": "same, reconstructive Fukami AE",
+      "source": "m3_wake_enstrophy",
+      "split": "test_b",
+      "value": 0.4774562418460846
+    },
+    "m3_lswake_enstrophy_relerr_nowake": {
+      "fmt": "%.2f",
+      "note": "median rel-err of large-scale (24x12) wake-ROI enstrophy, decoded vs DNS, no-wake encoder",
+      "source": "m3_wake_enstrophy",
+      "split": "test_b",
+      "value": 0.5243997573852539
+    },
+    "m3_lswake_enstrophy_relerr_wake": {
+      "fmt": "%.2f",
+      "note": "same, production wake-supervised JEPA",
+      "source": "m3_wake_enstrophy",
+      "split": "test_b",
+      "value": 0.3431616723537445
     },
     "orbit_return_peak_max": {
       "fmt": "%.1f",
@@ -2062,7 +2017,7 @@
       "fmt": "%s",
       "macro": "CommitHash",
       "source": "eval_all.py",
-      "value": "7e4557f3fbe5"
+      "value": "134c17c52bbd"
     },
     "repr_wake_regae_cnn": {
       "ci_hi": 0.7605018884227008,

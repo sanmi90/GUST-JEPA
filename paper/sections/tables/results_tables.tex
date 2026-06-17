@@ -52,29 +52,29 @@
   the only $\beta$-VAE rollout available, and is read accordingly.}
   \label{tab:closure}
   \small
-  \fittab{\begin{tabular}{l c c c c c c c}
-    \multicolumn{8}{c}{\textit{(a) Representational closure: held-out $R^2$}}\\
+  \fittab{\begin{tabular}{l c c c c c}
+    \multicolumn{6}{c}{\textit{(a) Representational closure: held-out $R^2$}}\\
     \toprule
-    & $C_L$ & $C_D$ & $I_y$ & wake-enst.\ & circ.\ pos.\ & circ.\ neg.\ & mean \\
+    & $C_L$ & $C_D$ & wake-enst.\ & circ.\ pos.\ & circ.\ neg.\ \\
     \midrule
-    predictive (JEPA) & \textbf{\NumCloReprCLJepaTf} & \textbf{\NumCloReprCDJepaTf} & $\NumCloReprIyJepaTf$ & \textbf{\NumReprWakeJepaTf} & \textbf{\NumCloReprCircPosJepaTf} & \textbf{\NumCloReprCircNegJepaTf} & \textbf{\NumCloReprMeanSixJepaTf} \\
-    reconstructive (Fukami) & \NumCloReprCLFukami & \NumCloReprCDFukami & $\NumCloReprIyFukami$ & $\NumReprWakeFukami$ & \NumCloReprCircPosFukami & \NumCloReprCircNegFukami & \\
-    $\beta$-VAE & \NumCloReprCLBvae & \NumCloReprCDBvae & $\NumCloReprIyBvae$ & $\NumReprWakeBvaeMatch$ & \NumCloReprCircPosBvae & \NumCloReprCircNegBvae & \NumCloReprMeanSixBvae \\
-    linear (POD) & \NumCloReprCLPod & \NumCloReprCDPod & $\NumCloReprIyPod$ & $\NumReprWakePod$ & $\NumCloReprCircPosPod$ & \NumCloReprCircNegPod & \\
+    predictive (JEPA) & \textbf{\NumCloReprCLJepaTf} & \textbf{\NumCloReprCDJepaTf} & \textbf{\NumReprWakeJepaTf} & \textbf{\NumCloReprCircPosJepaTf} & \textbf{\NumCloReprCircNegJepaTf} \\
+    reconstructive (Fukami) & \NumCloReprCLFukami & \NumCloReprCDFukami & $\NumReprWakeFukami$ & \NumCloReprCircPosFukami & \NumCloReprCircNegFukami \\
+    $\beta$-VAE & \NumCloReprCLBvae & \NumCloReprCDBvae & $\NumReprWakeBvaeMatch$ & \NumCloReprCircPosBvae & \NumCloReprCircNegBvae \\
+    linear (POD) & \NumCloReprCLPod & \NumCloReprCDPod & $\NumReprWakePod$ & $\NumCloReprCircPosPod$ & \NumCloReprCircNegPod \\
     \bottomrule
   \end{tabular}}
 
   \vspace{6pt}
 
-  \fittab{\begin{tabular}{l c c c c c c}
-    \multicolumn{7}{c}{\textit{(b) Forecast closure (secondary): full-context rollout $R^2$}}\\
+  \fittab{\begin{tabular}{l c c c c c}
+    \multicolumn{6}{c}{\textit{(b) Forecast closure (secondary): full-context rollout $R^2$}}\\
     \toprule
-    & $C_L$ & $C_D$ & $I_y$ & wake-enst.\ & circ.\ pos.\ & circ.\ neg.\ \\
+    & $C_L$ & $C_D$ & wake-enst.\ & circ.\ pos.\ & circ.\ neg.\ \\
     \midrule
-    predictive (JEPA) & \NumCloFcstCLJepaTf & \NumCloFcstCDJepaTf & $\NumCloFcstIyJepaTf$ & \textbf{\NumCloFcstWakeJepaTf} & \NumCloFcstCircPosJepaTf & \textbf{\NumCloFcstCircNegJepaTf} \\
-    reconstructive (Fukami) & \NumCloFcstCLFukami & \NumCloFcstCDFukami & \NumCloFcstIyFukami & $\NumCloFcstWakeFukami$ & \NumCloFcstCircPosFukami & \NumCloFcstCircNegFukami \\
-    $\beta$-VAE & \NumCloFcstCLBvae & \NumCloFcstCDBvae & $\NumCloFcstIyBvae$ & $\NumCloFcstWakeBvae$ & \NumCloFcstCircPosBvae & \NumCloFcstCircNegBvae \\
-    linear (POD) & \textbf{\NumCloFcstCLPod} & \textbf{\NumCloFcstCDPod} & $\NumCloFcstIyPod$ & $\NumCloFcstWakePod$ & $\NumCloFcstCircPosPod$ & \NumCloFcstCircNegPod \\
+    predictive (JEPA) & \NumCloFcstCLJepaTf & \NumCloFcstCDJepaTf & \textbf{\NumCloFcstWakeJepaTf} & \NumCloFcstCircPosJepaTf & \textbf{\NumCloFcstCircNegJepaTf} \\
+    reconstructive (Fukami) & \NumCloFcstCLFukami & \NumCloFcstCDFukami & $\NumCloFcstWakeFukami$ & \NumCloFcstCircPosFukami & \NumCloFcstCircNegFukami \\
+    $\beta$-VAE & \NumCloFcstCLBvae & \NumCloFcstCDBvae & $\NumCloFcstWakeBvae$ & \NumCloFcstCircPosBvae & \NumCloFcstCircNegBvae \\
+    linear (POD) & \textbf{\NumCloFcstCLPod} & \textbf{\NumCloFcstCDPod} & $\NumCloFcstWakePod$ & $\NumCloFcstCircPosPod$ & \NumCloFcstCircNegPod \\
     \bottomrule
   \end{tabular}}
 \end{table}

@@ -85,48 +85,6 @@
       "split": "test_b",
       "source": "emit_closure_floor_part.py (matrix.csv seed-mean)"
     },
-    "clo_repr_iy_jepatf": {
-      "macro": "NumCloReprIyJepaTf",
-      "value": -0.21,
-      "fmt": "%.2f",
-      "split": "test_b",
-      "source": "emit_closure_floor_part.py (matrix.csv seed-mean)"
-    },
-    "clo_fcst_iy_jepatf": {
-      "macro": "NumCloFcstIyJepaTf",
-      "value": 0.25,
-      "fmt": "%.2f",
-      "split": "test_b",
-      "source": "emit_closure_floor_part.py (matrix.csv seed-mean)"
-    },
-    "clo_repr_iy_fukami": {
-      "macro": "NumCloReprIyFukami",
-      "value": 0.13,
-      "fmt": "%.2f",
-      "split": "test_b",
-      "source": "emit_closure_floor_part.py (matrix.csv seed-mean)"
-    },
-    "clo_fcst_iy_fukami": {
-      "macro": "NumCloFcstIyFukami",
-      "value": 0.08,
-      "fmt": "%.2f",
-      "split": "test_b",
-      "source": "emit_closure_floor_part.py (matrix.csv seed-mean)"
-    },
-    "clo_repr_iy_pod": {
-      "macro": "NumCloReprIyPod",
-      "value": -0.69,
-      "fmt": "%.2f",
-      "split": "test_b",
-      "source": "emit_closure_floor_part.py (matrix.csv seed-mean)"
-    },
-    "clo_fcst_iy_pod": {
-      "macro": "NumCloFcstIyPod",
-      "value": -0.02,
-      "fmt": "%.2f",
-      "split": "test_b",
-      "source": "emit_closure_floor_part.py (matrix.csv seed-mean)"
-    },
     "clo_repr_wake_jepatf": {
       "macro": "NumCloReprWakeJepaTf",
       "value": 0.79,
@@ -274,13 +232,6 @@
       "split": "test_b",
       "source": "emit_closure_floor_part.py (capacity ladder)"
     },
-    "clo_repr_meansix_jepatf": {
-      "macro": "NumCloReprMeanSixJepaTf",
-      "value": 0.61,
-      "fmt": "%.2f",
-      "split": "test_b",
-      "source": "emit_closure_floor_part.py"
-    },
     "floor_cl": {
       "macro": "NumFloorCL",
       "value": 0.61,
@@ -291,13 +242,6 @@
     "floor_cd": {
       "macro": "NumFloorCD",
       "value": 0.54,
-      "fmt": "%.2f",
-      "split": "test_b",
-      "source": "emit_closure_floor_part.py (parametric_floor ridge)"
-    },
-    "floor_iy": {
-      "macro": "NumFloorIy",
-      "value": 0.25,
       "fmt": "%.2f",
       "split": "test_b",
       "source": "emit_closure_floor_part.py (parametric_floor ridge)"
