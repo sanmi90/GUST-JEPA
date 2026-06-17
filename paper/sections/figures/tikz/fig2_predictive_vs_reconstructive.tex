@@ -1,15 +1,17 @@
-% Fig 2 - Reconstructive (AE / Fukami) vs Predictive (JEPA), revised layout.
+% Fig 2 - Reconstructive (AE / Fukami) vs Predictive (JEPA).
 %
-% LEFT panel: AE single column with L_AE loss box on the LEFT side, half-height,
-%             with short loss arrows from both the input and the reconstruction.
-% RIGHT panel: JEPA two parallel columns. Main column (left): input(t) -> encoder
-%             -> z_t -> predictor -> zhat. Target column (right): input(t+dt) ->
-%             shared-weight encoder -> z(t+dt), drawn faint. L_JEPA loss box at
-%             the BOTTOM RIGHT, outside the spine, with arrows from zhat and z(t+dt).
+% Restyled to the JFM block-diagram format (Sanchis-Agudo et al. style):
+% soft pastel rounded containers, module NAMES as rotated labels OUTSIDE the
+% colour boxes (the box holds the operation/architecture), pale tensor-shape
+% boxes, dashed loss boxes, larger fonts.
+%
+% LEFT container  : reconstructive autoencoder, single column, L_AE pixel loss.
+% RIGHT container : predictive JEPA, two columns (main + faint shared-weight
+%                   target), L_JEPA latent loss, no decoder during training.
 %
 % Standalone-compilable: pdflatex fig2_predictive_vs_reconstructive.tex
 
-\documentclass[border=10pt,tikz]{standalone}
+\documentclass[border=12pt,tikz]{standalone}
 \usepackage{tikz}
 \usepackage{amsmath,amssymb}
 \usetikzlibrary{positioning,arrows.meta,fit,shapes.geometric,calc,backgrounds}
@@ -17,112 +19,101 @@
 \begin{document}
 
 \begin{tikzpicture}[
-    font=\small,
-    box/.style={draw, rounded corners=2pt, align=center, inner sep=5pt, thick},
-    encoder/.style={box, fill=blue!8,    minimum width=36mm, minimum height=14mm},
-    encoderfaint/.style={box, fill=blue!4, draw=blue!30,
-                         minimum width=36mm, minimum height=14mm,
-                         text=black!60},
-    predictor/.style={box, fill=orange!10, minimum width=36mm, minimum height=14mm},
-    decoder/.style={box, fill=gray!18, minimum width=36mm, minimum height=14mm},
-    state/.style={draw, rectangle, rounded corners=1pt, fill=white,
-                  minimum height=9mm, minimum width=26mm, inner sep=3pt},
-    statefaint/.style={draw=black!40, rectangle, rounded corners=1pt, fill=white,
-                       minimum height=9mm, minimum width=26mm, inner sep=3pt,
-                       text=black!60},
-    losssm/.style={draw, rectangle, dashed, fill=red!5, inner sep=3pt,
-                   minimum height=14mm, minimum width=34mm, align=center,
-                   font=\footnotesize},
-    arr/.style={-{Stealth[length=2.5mm]}, thick},
-    arrfaint/.style={-{Stealth[length=2mm]}, semithick, black!40, densely dashed},
-    lossarr/.style={-{Stealth[length=2mm]}, dashed, semithick, red!70!black},
-    header/.style={font=\bfseries\small, align=center}
+    font=\normalsize,
+    node distance=8mm,
+    % operation blocks (colour-coded by role; the NAME sits outside, beside it)
+    op/.style={draw, rounded corners=3pt, align=center, inner sep=6pt, thick,
+               minimum width=33mm, minimum height=13mm},
+    encoder/.style={op, fill=cyan!20,  draw=cyan!55!black},
+    decoder/.style={op, fill=gray!22,  draw=gray!60!black},
+    predictor/.style={op, fill=orange!22, draw=orange!65!black},
+    encfaint/.style={op, fill=cyan!7, draw=cyan!35, text=black!55},
+    % tensor-shape annotation boxes
+    tbox/.style={draw=black!45, rounded corners=2pt, fill=yellow!18,
+                 align=center, inner sep=4pt, font=\small,
+                 minimum width=31mm, minimum height=9mm},
+    tboxfaint/.style={tbox, fill=yellow!7, draw=black!30, text=black!55},
+    % dashed loss boxes
+    loss/.style={draw, rounded corners=2pt, dashed, fill=red!9, draw=red!60!black,
+                 align=center, inner sep=5pt, font=\small,
+                 minimum width=34mm, minimum height=15mm},
+    % module names: rotated, OUTSIDE the colour box
+    mname/.style={rotate=90, font=\small\bfseries, align=center, inner sep=2pt},
+    mnamefaint/.style={mname, text=black!55, font=\small\itshape},
+    arr/.style={-{Stealth[length=3mm]}, very thick},
+    arrf/.style={-{Stealth[length=2.4mm]}, thick, black!45, densely dashed},
+    larr/.style={-{Stealth[length=2.4mm]}, dashed, thick, red!65!black},
+    side/.style={font=\Large\bfseries, rotate=90, align=center, text=black!80}
   ]
 
-  % ============= LEFT PANEL: AE / Fukami =============
-  \node[header] (ltitle) {Reconstructive (AE / Fukami)};
+  % ===================== LEFT: reconstructive autoencoder =====================
+  \node[tbox] (aein) {$\boldsymbol{\omega}_z(t)$ \\[1pt] $(B,\,1,\,192,\,96)$};
+  \node[encoder, below=of aein] (aeenc) {CNN};
+  \node[tbox, below=of aeenc] (aez) {$\mathbf{z}_t$ \\[1pt] $(B,\,d),\ d=64$};
+  \node[decoder, below=of aez] (aedec) {transposed CNN};
+  \node[tbox, below=of aedec] (aeout) {$\widehat{\boldsymbol{\omega}}_z(t)$ \\[1pt] $(B,\,1,\,192,\,96)$};
 
-  \node[state, below=6mm of ltitle] (aein)
-    {$\boldsymbol{\omega}_z(t)$};
-  \node[encoder, below=7mm of aein] (aeenc)
-    {\textbf{Encoder} $E_{\theta}$ \\[1pt] CNN};
-  \node[state, below=7mm of aeenc] (aez)
-    {$\mathbf{z}_t \in \mathbb{R}^{d}$};
-  \node[decoder, below=7mm of aez] (aedec)
-    {\textbf{Decoder} $D_{\psi}$ \\[1pt] transposed CNN};
-  \node[state, below=7mm of aedec] (aeout)
-    {$\widehat{\boldsymbol{\omega}}_z(t)$};
+  % module names outside (to the right of each colour box)
+  \node[mname, right=1.5mm of aeenc] {Encoder $E_{\theta}$};
+  \node[mname, right=1.5mm of aedec] {Decoder $D_{\psi}$};
 
-  \draw[arr] (aein) -- (aeenc);
+  \draw[arr] (aein)  -- (aeenc);
   \draw[arr] (aeenc) -- (aez);
-  \draw[arr] (aez) -- (aedec);
+  \draw[arr] (aez)   -- (aedec);
   \draw[arr] (aedec) -- (aeout);
 
-  % AE loss box: placed to the LEFT of the spine, at the vertical midpoint, narrow
-  % so the loss arrows come from the input above and the reconstruction below.
-  \node[losssm, left=20mm of aez] (laerec)
-    {$\mathcal{L}_{\text{AE}}$ \\[2pt]
-     $\| \widehat{\boldsymbol{\omega}}_z(t) - \boldsymbol{\omega}_z(t) \|^{2}$ \\[1pt]
+  \node[loss, left=16mm of aez] (aeloss)
+    {$\mathcal{L}_{\mathrm{AE}}$ \\[2pt]
+     $\|\widehat{\boldsymbol{\omega}}_z(t)-\boldsymbol{\omega}_z(t)\|^{2}$ \\[1pt]
      \emph{pixel-space MSE}};
+  \draw[larr] (aein.west) to[out=180,in=90]  (aeloss.north);
+  \draw[larr] (aeout.west) to[out=180,in=-90] (aeloss.south);
 
-  \draw[lossarr] (laerec.north) to[out=90,in=180] (aein.west);
-  \draw[lossarr] (laerec.south) to[out=-90,in=180] (aeout.west);
+  % ===================== RIGHT: predictive JEPA =====================
+  \node[tbox, right=34mm of aein] (jin) {$\boldsymbol{\omega}_z(t)$ \\[1pt] $(B,\,1,\,192,\,96)$};
+  \node[tboxfaint, right=9mm of jin] (jintgt)
+    {$\boldsymbol{\omega}_z(t{+}\Delta t)$ \\[1pt] $(B,\,1,\,192,\,96)$};
 
-  % ============= RIGHT PANEL: JEPA =============
-  \node[header, right=72mm of ltitle] (rtitle) {Predictive (JEPA)};
+  \node[encoder, below=of jin] (jenc) {CNN $+$ ViT};
+  \node[encfaint, below=of jintgt] (jenctgt) {CNN $+$ ViT \\[1pt] \emph{shared}};
 
-  % Two parallel columns: main (left, full color) and target (right, faint).
-  \node[state, below=6mm of rtitle, xshift=-22mm] (jin)
-    {$\boldsymbol{\omega}_z(t)$};
-  \node[statefaint, below=6mm of rtitle, xshift=22mm] (jintgt)
-    {$\boldsymbol{\omega}_z(t+\Delta t)$};
+  \node[tbox, below=of jenc] (jz) {$\mathbf{z}_t$ \\[1pt] $(B,\,d)$};
+  \node[tboxfaint, below=of jenctgt] (jztgt) {$\mathbf{z}_{t+\Delta t}$ \\[1pt] $(B,\,d)$};
 
-  \node[encoder, below=7mm of jin] (jenc)
-    {\textbf{Encoder} $E_{\theta}$ \\[1pt] CNN $+$ ViT};
-  \node[encoderfaint, below=7mm of jintgt] (jenctgt)
-    {Encoder $E_{\theta}$ \\[1pt] \emph{shared weights}};
+  \node[predictor, below=of jz] (jpred) {AR transformer};
+  \node[tbox, below=of jpred] (jzhat) {$\widehat{\mathbf{z}}_{t+\Delta t}$ \\[1pt] $(B,\,d)$};
 
-  \node[state, below=7mm of jenc] (jz)
-    {$\mathbf{z}_t \in \mathbb{R}^{d}$};
-  \node[statefaint, below=7mm of jenctgt] (jztgt)
-    {$\mathbf{z}_{t+\Delta t}$};
+  % module names outside (to the left of each main-column colour box)
+  \node[mname, left=1.5mm of jenc] {Encoder $E_{\theta}$};
+  \node[mname, left=1.5mm of jpred] {Predictor $P_{\phi}$};
+  \node[mnamefaint, right=1.5mm of jenctgt] {Encoder $E_{\theta}$};
 
-  \node[predictor, below=7mm of jz] (jpred)
-    {\textbf{Predictor} $P_{\phi}$ \\[1pt] AR transformer};
+  \draw[arr]  (jin)   -- (jenc);
+  \draw[arr]  (jenc)  -- (jz);
+  \draw[arr]  (jz)    -- (jpred);
+  \draw[arr]  (jpred) -- (jzhat);
+  \draw[arrf] (jintgt)  -- (jenctgt);
+  \draw[arrf] (jenctgt) -- (jztgt);
 
-  \node[state, below=7mm of jpred] (jzhat)
-    {$\widehat{\mathbf{z}}_{t+\Delta t}$};
-
-  % main forward path solid; target path faint dashed
-  \draw[arr] (jin) -- (jenc);
-  \draw[arr] (jenc) -- (jz);
-  \draw[arr] (jz) -- (jpred);
-  \draw[arr] (jpred) -- (jzhat);
-  \draw[arrfaint] (jintgt) -- (jenctgt);
-  \draw[arrfaint] (jenctgt) -- (jztgt);
-
-  % JEPA loss box: BOTTOM RIGHT, outside the predictor spine. Arrows from
-  % zhat (left) and z_target (right) converge into it.
-  \node[losssm, right=14mm of jzhat] (ljpred)
-    {$\mathcal{L}_{\text{JEPA}}$ \\[2pt]
-     $\| \widehat{\mathbf{z}}_{t+\Delta t} - \mathbf{z}_{t+\Delta t} \|^{2}$ \\[1pt]
+  \node[loss, below=of jztgt] (jloss)
+    {$\mathcal{L}_{\mathrm{JEPA}}$ \\[2pt]
+     $\|\widehat{\mathbf{z}}_{t+\Delta t}-\mathbf{z}_{t+\Delta t}\|^{2}$ \\[1pt]
      \emph{latent-space MSE}};
+  \draw[larr] (jztgt.south) -- (jloss.north);
+  \draw[larr] (jzhat.east) -- (jloss.west);
 
-  \draw[lossarr] (jzhat.east) -- (ljpred.west);
-  \draw[lossarr] (jztgt.south) to[out=-90,in=60] (ljpred.north east);
-
-  % Annotation: NO pixel-space loss in JEPA, above the right title
-  \node[align=center, font=\footnotesize\itshape, text=red!60!black,
-        above=4mm of rtitle]
-    (nopix) {No pixel-space loss, no decoder during training};
-
-  % ============= background frames =============
+  % ===================== pastel containers + side labels =====================
   \begin{scope}[on background layer]
-    \node[draw=gray!50, rounded corners=4pt, dashed, inner sep=5mm,
-          fit=(ltitle)(aein)(aeenc)(aez)(aedec)(aeout)(laerec)] (lframe) {};
-    \node[draw=orange!50, rounded corners=4pt, dashed, inner sep=5mm,
-          fit=(rtitle)(jin)(jintgt)(jenc)(jenctgt)(jz)(jztgt)(jpred)(jzhat)(ljpred)(nopix)] (rframe) {};
+    \node[fill=red!7, rounded corners=10pt, inner sep=7mm,
+          fit=(aein)(aeenc)(aez)(aedec)(aeout)(aeloss)] (lframe) {};
+    \node[fill=blue!8, rounded corners=10pt, inner sep=7mm,
+          fit=(jin)(jintgt)(jenc)(jenctgt)(jz)(jztgt)(jpred)(jzhat)(jloss)] (rframe) {};
   \end{scope}
+
+  % side labels: same vertical centre (image middle), aligned across both panels
+  \coordinate (gc) at ($(lframe.center)!0.5!(rframe.center)$);
+  \node[side] at ($(lframe.west |- gc) + (-7mm,0)$) {Reconstructive};
+  \node[side] at ($(rframe.east |- gc) + (7mm,0)$) {Predictive};
 
 \end{tikzpicture}
 
