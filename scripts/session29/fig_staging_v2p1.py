@@ -243,13 +243,16 @@ def build_figure(cases, frames, root: Path, pipe):
     im = None
     for r, (cid, row_label, _curve_label, _gval) in enumerate(cases):
         omega_raw, _cl = load_encounter(root, cid, ENCOUNTER)
-        omega_norm = np.asarray(pipe(omega_raw, cid, ENCOUNTER), dtype=np.float64)
-        n_t = omega_norm.shape[0]
+        # Raw physical vorticity (NO pipeline clip/scale). The colorbar is fixed at
+        # +/-3 so the field saturates into a high-contrast sign map, per the figure
+        # request. Training uses the 3-sigma-normalised field; this figure does not.
+        omega_disp = np.asarray(omega_raw, dtype=np.float64)
+        n_t = omega_disp.shape[0]
         for c, frame in enumerate(frames):
             if frame < 0 or frame >= n_t:
                 raise ValueError(f"frame {frame} out of range [0, {n_t}) for {cid}")
             ax = fig.add_subplot(grid[r, c])
-            im = fs.vort_panel(ax, omega_norm[frame])
+            im = fs.vort_panel(ax, omega_disp[frame])
             if c == 0:
                 ax.text(
                     -0.06,
@@ -267,7 +270,7 @@ def build_figure(cases, frames, root: Path, pipe):
     # one shared horizontal colourbar spanning the grid, below the bottom row.
     cax = fig.add_axes([0.32, 0.022, 0.40, 0.016])
     cb = fig.colorbar(im, cax=cax, orientation="horizontal", ticks=[-3, -2, -1, 0, 1, 2, 3])
-    cb.set_label(r"$\omega_z$ (3-$\sigma$ normalised)", fontsize=7.5, labelpad=2)
+    cb.set_label(r"$\omega_z$ (raw; colorbar clipped to $\pm 3$)", fontsize=7.5, labelpad=2)
     cb.ax.tick_params(labelsize=6.5)
 
     picks = [
