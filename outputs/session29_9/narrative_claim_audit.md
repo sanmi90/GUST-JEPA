@@ -18,27 +18,27 @@
 - [ ] section_2_flow_and_data:67 `baseline` -> cases perturb the baseline shedding only slightly; $G = -4$ is the $|G| = 4$
 - [ ] section_2_flow_and_data:123 `baseline` -> encounters that share a baseline shedding history. Encounters of the same case are
 - [ ] section_2_flow_and_data:127 `baseline` -> partition is fixed once and used identically by every model and baseline.
-- [ ] section_2_flow_and_data:180 `baseline` -> closure advantage over the reconstructive baseline is essentially unchanged across
+- [ ] section_2_flow_and_data:179 `baseline` -> closure advantage over the reconstructive baseline is essentially unchanged across
 - [ ] section_3_methods:15 `controller` -> observable a controller would have access to, since at deployment the gust
-- [ ] section_3_methods:76 `baseline` -> the reconstructive baseline below carries a lift head but not a wake head, and
-- [ ] section_3_methods:116 `baseline` -> The comparison rests on a single principle: every baseline is the same
-- [ ] section_3_methods:132 `baseline` -> parametric probe; the comparison is therefore against a tuned baseline, not a
-- [ ] section_3_methods:178 `baseline` -> Because the predictive encoder differs from the reconstructive baseline in
+- [ ] section_3_methods:91 `baseline` -> the reconstructive baseline below carries a lift head but not a wake head, and
+- [ ] section_3_methods:131 `baseline` -> The comparison rests on a single principle: every baseline is the same
+- [ ] section_3_methods:147 `baseline` -> parametric probe; the comparison is therefore against a tuned baseline, not a
+- [ ] section_3_methods:193 `baseline` -> Because the predictive encoder differs from the reconstructive baseline in
 - [ ] section_4_results:38 `baseline` -> (\S\ref{sec:res_controls}). A $\beta$-VAE lineage baseline that also carries the
-- [ ] section_4_results:119 `baseline` -> three cases favouring the reconstructive baseline: the advantage is real at the
-- [ ] section_4_results:132 `baseline` -> model-free baseline: the predictive latent beating it (last column, the
-- [ ] section_4_results:181 `baseline` -> additional baselines to be beaten. The representational result of
-- [ ] section_4_results:185 `baseline` -> baseline not only in its training objective but also in its CNN$+$ViT architecture
-- [ ] section_4_results:288 `on-manifold` -> anti-collapse regulariser therefore supplies the on-manifold geometry of
-- [ ] section_4_results:301 `baseline` -> no-wake established baseline (the reconstructive autoencoder or POD) exceeds
-- [ ] section_4_results:302 `baseline` -> $\NumHorizonWakeBaselineMax$ at any horizon, so the predictive
-- [ ] section_4_results:387 `on-manifold` -> latent is the most in-distribution of all, which locates the on-manifold property
-- [ ] section_4_results:544 `baseline` -> reconstructive and linear baselines, so no single predictive coordinate carries the
-- [ ] section_4_results:557 `baseline` -> a permutation chance baseline (overlap $\NumPfiveFootprintOmegaOverlap$ and
-- [ ] section_4_results:604 `baseline` -> trajectory to the baseline orbit (full latent, in units of the orbit diameter;
-- [ ] section_4_results:605 `baseline` -> the grey band is the baseline orbit thickness): the encounter departs the baseline
-- [ ] section_4_results:641 `baseline` -> reconstructive baseline (\S\ref{sec:res_drift}). And every quantitative
-- [ ] section_4_results:729 `baseline` -> variational baseline, and $\SenseStatePod$ for the linear basis; the lead is
+- [ ] section_4_results:113 `baseline` -> three cases favouring the reconstructive baseline: the advantage is real at the
+- [ ] section_4_results:126 `baseline` -> model-free baseline: the predictive latent beating it (last column, the
+- [ ] section_4_results:174 `baseline` -> additional baselines to be beaten. The representational result of
+- [ ] section_4_results:178 `baseline` -> baseline not only in its training objective but also in its CNN$+$ViT architecture
+- [ ] section_4_results:281 `on-manifold` -> anti-collapse regulariser therefore supplies the on-manifold geometry of
+- [ ] section_4_results:294 `baseline` -> no-wake established baseline (the reconstructive autoencoder or POD) exceeds
+- [ ] section_4_results:295 `baseline` -> $\NumHorizonWakeBaselineMax$ at any horizon, so the predictive
+- [ ] section_4_results:380 `on-manifold` -> latent is the most in-distribution of all, which locates the on-manifold property
+- [ ] section_4_results:537 `baseline` -> reconstructive and linear baselines, so no single predictive coordinate carries the
+- [ ] section_4_results:550 `baseline` -> a permutation chance baseline (overlap $\NumPfiveFootprintOmegaOverlap$ and
+- [ ] section_4_results:597 `baseline` -> trajectory to the baseline orbit (full latent, in units of the orbit diameter;
+- [ ] section_4_results:598 `baseline` -> the grey band is the baseline orbit thickness): the encounter departs the baseline
+- [ ] section_4_results:634 `baseline` -> reconstructive baseline (\S\ref{sec:res_drift}). And every quantitative
+- [ ] section_4_results:722 `baseline` -> variational baseline, and $\SenseStatePod$ for the linear basis; the lead is
 - [ ] section_5_discussion:15 `baseline` -> the established reconstructive and linear baselines, which carry no wake head, are
 - [ ] section_5_discussion:40 `on-manifold` -> on-manifold property that data-driven state-space and Koopman models
 - [ ] section_5_discussion:46 `on-manifold` -> rollout (\S\ref{sec:res_drift}), so on-manifold geometry is supplied by the

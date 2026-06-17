@@ -1,9 +1,9 @@
 {
   "_provenance": {
-    "generated_iso": "2026-06-17T17:52:22.309504+00:00",
-    "git_commit": "134c17c52bbd9e2961b14a3ad82a7ea2894bd334",
+    "generated_iso": "2026-06-17T18:03:36.632640+00:00",
+    "git_commit": "c5178ac399763fc6a7cc22058e6edfcef998ffa5",
     "manifest_runs_sha256": "aa07e687f2080e7e7f0dea8d75f3b2af40a86fa68c19f828ae3ec98422e60bbe",
-    "n_parts": 30,
+    "n_parts": 31,
     "parts": [
       "closure_bvae.json",
       "closure_floor_full.json",
@@ -16,6 +16,7 @@
       "e4_floor.json",
       "error_maps.json",
       "horizon_robust.json",
+      "latent_readability.json",
       "m2_drift_nowake.json",
       "m3_wake_enstrophy.json",
       "orbit_return.json",
@@ -1644,6 +1645,144 @@
       "split": "test_b",
       "value": 0.717
     },
+    "latread_jepa_C_D": {
+      "ci_hi": 0.8584917234043267,
+      "ci_lo": 0.6936652604989414,
+      "fmt": "%.2f",
+      "macro": "NumLatReadCdragJepa",
+      "n": 5040,
+      "note": "PER-FRAME state-descriptor regime: linear collective readout (StandardScaler + Ridge, alpha by GroupKFold-by-case) of the FULL 64-D latent, pooled over all 120 frames, fit on train cases and evaluated on held-out test_b. COLLECTIVE whole-latent readability, NOT per-coordinate semantics. NB: distinct from the closure headline (pooled-frame ridge at readout frame impact+H=16 on the canonical DNS metric); do not confuse.",
+      "observable": "C_D",
+      "source": "scripts/session29/make_fig_latent_readability_v2p1.py",
+      "split": "test_b",
+      "value": 0.7704050413123142
+    },
+    "latread_jepa_C_L": {
+      "ci_hi": 0.9453705873583771,
+      "ci_lo": 0.7744693490445183,
+      "fmt": "%.2f",
+      "macro": "NumLatReadCliftJepa",
+      "n": 5040,
+      "note": "PER-FRAME state-descriptor regime: linear collective readout (StandardScaler + Ridge, alpha by GroupKFold-by-case) of the FULL 64-D latent, pooled over all 120 frames, fit on train cases and evaluated on held-out test_b. COLLECTIVE whole-latent readability, NOT per-coordinate semantics. NB: distinct from the closure headline (pooled-frame ridge at readout frame impact+H=16 on the canonical DNS metric); do not confuse.",
+      "observable": "C_L",
+      "source": "scripts/session29/make_fig_latent_readability_v2p1.py",
+      "split": "test_b",
+      "value": 0.8683993850998132
+    },
+    "latread_jepa_centroid_x": {
+      "ci_hi": 0.8839629483530905,
+      "ci_lo": 0.7809997700784278,
+      "fmt": "%.2f",
+      "macro": "NumLatReadCentroidXJepa",
+      "n": 5040,
+      "note": "PER-FRAME state-descriptor regime: linear collective readout (StandardScaler + Ridge, alpha by GroupKFold-by-case) of the FULL 64-D latent, pooled over all 120 frames, fit on train cases and evaluated on held-out test_b. COLLECTIVE whole-latent readability, NOT per-coordinate semantics. NB: distinct from the closure headline (pooled-frame ridge at readout frame impact+H=16 on the canonical DNS metric); do not confuse.",
+      "observable": "centroid_x",
+      "source": "scripts/session29/make_fig_latent_readability_v2p1.py",
+      "split": "test_b",
+      "value": 0.8471378571931947
+    },
+    "latread_jepa_centroid_y": {
+      "ci_hi": 0.7655156063109099,
+      "ci_lo": 0.6197893729143352,
+      "fmt": "%.2f",
+      "macro": "NumLatReadCentroidYJepa",
+      "n": 5040,
+      "note": "PER-FRAME state-descriptor regime: linear collective readout (StandardScaler + Ridge, alpha by GroupKFold-by-case) of the FULL 64-D latent, pooled over all 120 frames, fit on train cases and evaluated on held-out test_b. COLLECTIVE whole-latent readability, NOT per-coordinate semantics. NB: distinct from the closure headline (pooled-frame ridge at readout frame impact+H=16 on the canonical DNS metric); do not confuse.",
+      "observable": "centroid_y",
+      "source": "scripts/session29/make_fig_latent_readability_v2p1.py",
+      "split": "test_b",
+      "value": 0.7308746632461849
+    },
+    "latread_jepa_circulation": {
+      "fmt": "%.2f",
+      "macro": "NumLatReadCirculationJepa",
+      "n": 5040,
+      "note": "PER-FRAME state-descriptor regime: linear collective readout (StandardScaler + Ridge, alpha by GroupKFold-by-case) of the FULL 64-D latent, pooled over all 120 frames, fit on train cases and evaluated on held-out test_b. COLLECTIVE whole-latent readability, NOT per-coordinate semantics. NB: distinct from the closure headline (pooled-frame ridge at readout frame impact+H=16 on the canonical DNS metric); do not confuse. Mean of the Gamma+ and Gamma- collective-readability R^2 for JEPA on test_b.",
+      "observable": "circulation_pos",
+      "source": "scripts/session29/make_fig_latent_readability_v2p1.py",
+      "split": "test_b",
+      "value": 0.8189433247842843
+    },
+    "latread_jepa_circulation_neg": {
+      "ci_hi": 0.8481701734184167,
+      "ci_lo": 0.6849194118734747,
+      "fmt": "%.2f",
+      "macro": "NumLatReadCircNegJepa",
+      "n": 5040,
+      "note": "PER-FRAME state-descriptor regime: linear collective readout (StandardScaler + Ridge, alpha by GroupKFold-by-case) of the FULL 64-D latent, pooled over all 120 frames, fit on train cases and evaluated on held-out test_b. COLLECTIVE whole-latent readability, NOT per-coordinate semantics. NB: distinct from the closure headline (pooled-frame ridge at readout frame impact+H=16 on the canonical DNS metric); do not confuse.",
+      "observable": "circulation_neg",
+      "source": "scripts/session29/make_fig_latent_readability_v2p1.py",
+      "split": "test_b",
+      "value": 0.7877364652490586
+    },
+    "latread_jepa_circulation_pos": {
+      "ci_hi": 0.8991816470051026,
+      "ci_lo": 0.7342343737923869,
+      "fmt": "%.2f",
+      "macro": "NumLatReadCircPosJepa",
+      "n": 5040,
+      "note": "PER-FRAME state-descriptor regime: linear collective readout (StandardScaler + Ridge, alpha by GroupKFold-by-case) of the FULL 64-D latent, pooled over all 120 frames, fit on train cases and evaluated on held-out test_b. COLLECTIVE whole-latent readability, NOT per-coordinate semantics. NB: distinct from the closure headline (pooled-frame ridge at readout frame impact+H=16 on the canonical DNS metric); do not confuse.",
+      "observable": "circulation_pos",
+      "source": "scripts/session29/make_fig_latent_readability_v2p1.py",
+      "split": "test_b",
+      "value": 0.8501501843195102
+    },
+    "latread_jepa_peak_neg_omega": {
+      "ci_hi": 0.7464871187803597,
+      "ci_lo": 0.17364309307102518,
+      "fmt": "%.2f",
+      "macro": "NumLatReadPeakNegOmegaJepa",
+      "n": 5040,
+      "note": "PER-FRAME state-descriptor regime: linear collective readout (StandardScaler + Ridge, alpha by GroupKFold-by-case) of the FULL 64-D latent, pooled over all 120 frames, fit on train cases and evaluated on held-out test_b. COLLECTIVE whole-latent readability, NOT per-coordinate semantics. NB: distinct from the closure headline (pooled-frame ridge at readout frame impact+H=16 on the canonical DNS metric); do not confuse.",
+      "observable": "peak_neg_omega",
+      "source": "scripts/session29/make_fig_latent_readability_v2p1.py",
+      "split": "test_b",
+      "value": 0.6502550615119254
+    },
+    "latread_jepa_peak_pos_omega": {
+      "ci_hi": 0.6212366186223541,
+      "ci_lo": 0.29084808703432935,
+      "fmt": "%.2f",
+      "macro": "NumLatReadPeakPosOmegaJepa",
+      "n": 5040,
+      "note": "PER-FRAME state-descriptor regime: linear collective readout (StandardScaler + Ridge, alpha by GroupKFold-by-case) of the FULL 64-D latent, pooled over all 120 frames, fit on train cases and evaluated on held-out test_b. COLLECTIVE whole-latent readability, NOT per-coordinate semantics. NB: distinct from the closure headline (pooled-frame ridge at readout frame impact+H=16 on the canonical DNS metric); do not confuse.",
+      "observable": "peak_pos_omega",
+      "source": "scripts/session29/make_fig_latent_readability_v2p1.py",
+      "split": "test_b",
+      "value": 0.4527008263683546
+    },
+    "latread_jepa_wake_enstrophy": {
+      "ci_hi": 0.7418748487278355,
+      "ci_lo": 0.3441894326149911,
+      "fmt": "%.2f",
+      "macro": "NumLatReadWakeEnstJepa",
+      "n": 5040,
+      "note": "PER-FRAME state-descriptor regime: linear collective readout (StandardScaler + Ridge, alpha by GroupKFold-by-case) of the FULL 64-D latent, pooled over all 120 frames, fit on train cases and evaluated on held-out test_b. COLLECTIVE whole-latent readability, NOT per-coordinate semantics. NB: distinct from the closure headline (pooled-frame ridge at readout frame impact+H=16 on the canonical DNS metric); do not confuse.",
+      "observable": "wake_enstrophy",
+      "source": "scripts/session29/make_fig_latent_readability_v2p1.py",
+      "split": "test_b",
+      "value": 0.6226117545069279
+    },
+    "latread_jepa_weakest": {
+      "ci_hi": 0.6212366186223541,
+      "ci_lo": 0.29084808703432935,
+      "fmt": "%.2f",
+      "macro": "NumLatReadWeakestJepa",
+      "n": 5040,
+      "note": "PER-FRAME state-descriptor regime: linear collective readout (StandardScaler + Ridge, alpha by GroupKFold-by-case) of the FULL 64-D latent, pooled over all 120 frames, fit on train cases and evaluated on held-out test_b. COLLECTIVE whole-latent readability, NOT per-coordinate semantics. NB: distinct from the closure headline (pooled-frame ridge at readout frame impact+H=16 on the canonical DNS metric); do not confuse. Weakest collective-readability observable for JEPA on test_b: peak_pos_omega.",
+      "observable": "peak_pos_omega",
+      "source": "scripts/session29/make_fig_latent_readability_v2p1.py",
+      "split": "test_b",
+      "value": 0.4527008263683546
+    },
+    "latread_jepa_weakest_name": {
+      "fmt": "%s",
+      "macro": "NumLatReadWeakestJepaObs",
+      "note": "Name of the weakest collective-readability observable for JEPA on test_b.",
+      "source": "scripts/session29/make_fig_latent_readability_v2p1.py",
+      "split": "test_b",
+      "value": "peak_pos_omega"
+    },
     "m3_lswake_enstrophy_relerr_fukami": {
       "fmt": "%.2f",
       "note": "same, reconstructive Fukami AE",
@@ -2017,7 +2156,7 @@
       "fmt": "%s",
       "macro": "CommitHash",
       "source": "eval_all.py",
-      "value": "134c17c52bbd"
+      "value": "c5178ac39976"
     },
     "repr_wake_regae_cnn": {
       "ci_hi": 0.7605018884227008,

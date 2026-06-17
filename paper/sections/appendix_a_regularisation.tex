@@ -203,3 +203,40 @@ contrasts the predictive and reconstructive rollouts over the same window.
   a window-length effect, not a strength-dependent one.}
   \label{fig:appA_return}
 \end{figure}
+
+\subsubsection*{What the latent encodes}
+The closure of \S\ref{sec:res_closure} reads single observables at the readout
+instant; the latent's broader content is summarised in
+figure~\ref{fig:latent_readability}, the held-out $R^2$ of a single linear readout
+of the full $64$-dimensional latent to each per-frame flow-state descriptor, on
+test\_b, for the three families. The wake-supervised predictive latent is the most
+readable on every descriptor: the signed circulations ($\NumLatReadCircPosJepa$
+and $\NumLatReadCircNegJepa$), the wake centroid ($\NumLatReadCentroidXJepa$), the
+body forces ($C_L$ at $\NumLatReadCliftJepa$), and the wake enstrophy, with the
+weakest descriptor still at $\NumLatReadWeakestJepa$. This is a collective property
+of the latent, not of any single coordinate: no individual coordinate approaches
+the readability of the full latent (the distributed-code gap of
+\S\ref{sec:res_code}), and the linear coordinate frame is seed-arbitrary, the
+leading subspaces of independent retrains overlapping at the random-rotation level
+(squared cosine near $K/d$), so the figure measures how much of each observable is
+linearly available in the whole code, not the meaning of any axis. The readout
+here pools all post-release frames and is therefore a broader and lower number than
+the readout-instant closure: for the wake enstrophy it is $\NumLatReadWakeEnstJepa$
+over the full window against $\NumReprWakeJepaTf$ at the impact-plus-$H$ readout,
+two regimes of the same encoder rather than a discrepancy. The gust parameters are
+omitted because they are an impact-frame quantity (\S\ref{sec:res_param_phase}),
+not a per-frame one.
+
+\begin{figure}
+  \centering
+  \includegraphics[width=\linewidth]{sections/figures/results/fig_latent_readability_v2p1.pdf}
+  \caption{Collective readability of the latent. Held-out test\_b $R^2$ of a single
+  linear readout of the full $64$-dimensional latent to each per-frame flow-state
+  descriptor, for the predictive (JEPA), reconstructive (Fukami), and linear (POD)
+  families; error bars are case-clustered bootstrap $95\%$ intervals and the faint
+  open markers are the $|G| = 4$ extrapolation (test\_c). The bars measure how much
+  of each descriptor is linearly available in the whole code, not the semantics of
+  any individual coordinate; the latent is a distributed representation. The gust
+  parameters are omitted as an impact-frame, not a per-frame, quantity.}
+  \label{fig:latent_readability}
+\end{figure}

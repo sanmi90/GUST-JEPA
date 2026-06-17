@@ -1,0 +1,487 @@
+{
+  "part": "latent_readability",
+  "_staging": "STAGING ONLY. Not under outputs/session28/numbers_parts to avoid racing the GO-gate job. Promote manually after review.",
+  "_provenance": {
+    "git_sha": "134c17c52bbd9e2961b14a3ad82a7ea2894bd334",
+    "command": "scripts/session29/make_fig_latent_readability_v2p1.py",
+    "utc": "2026-06-17T17:54:12.989448+00:00",
+    "input_sha256": {
+      "/home/carlos/GUST-JEPA/outputs/session28/latents/jepa_tf_noc_d64_s42/train.npz": "63d1954aa139c456e1ca28b630fa90b761f25657d2fa18318a7c12db6ba9d805",
+      "/home/carlos/GUST-JEPA/outputs/session28/latents/jepa_tf_noc_d64_s42/test_b.npz": "5c1383af2af395c535a3e3d715f0144c776e0ffc0294c301ca74eed8f9621072",
+      "/home/carlos/GUST-JEPA/outputs/session28/latents/jepa_tf_noc_d64_s42/test_c.npz": "a2e83a688e1fc3a960d6b98323408e8a21b3bbae0c7412bdb715ae39b0e84789",
+      "/home/carlos/GUST-JEPA/outputs/session28/latents/fukami_d64_s42/train.npz": "a0b64b52b7652eed5cf3f4e7a1bd01f2c7d8ce394440b719c8ed5481f03f1d16",
+      "/home/carlos/GUST-JEPA/outputs/session28/latents/fukami_d64_s42/test_b.npz": "8dbe1386567e74b2e68ae27f598f61ceadf2a38b67e2a6438cd594f3ceaeb835",
+      "/home/carlos/GUST-JEPA/outputs/session28/latents/fukami_d64_s42/test_c.npz": "6d87fd10242d2c5c197ac43154992700ff1dade06ed5f96e620aef3fa1c41194",
+      "/home/carlos/GUST-JEPA/outputs/session28/latents/pod_d64/train.npz": "c638c98523b139b7f77e5243e3eecf35c58d2b6dffc7c0b86146a150ffa06398",
+      "/home/carlos/GUST-JEPA/outputs/session28/latents/pod_d64/test_b.npz": "23f498c8dbb74ff28e44e3f1932bf9345ba6a8502434dd75010a2a43d838ed78",
+      "/home/carlos/GUST-JEPA/outputs/session28/latents/pod_d64/test_c.npz": "aa96abcf1dad4d8babccbbfd4b9a238b325058938b7217533da9842c44e8af23",
+      "/home/carlos/GUST-JEPA/outputs/session28/exp2/per_frame_targets/train.npz": "25c97045b6e7a5e9e4c75d2b3ad0fb62bced2250c266573f8f49cbfa4a703e5f",
+      "/home/carlos/GUST-JEPA/outputs/session28/exp2/per_frame_targets/test_b.npz": "cfb6eef859861c71bfdb2444af6b87a3a57b4ff6c105cf2e15c825d059f5fd42",
+      "/home/carlos/GUST-JEPA/outputs/session28/exp2/per_frame_targets/test_c.npz": "e324c3bcb81d3271a0db75443da14997c313100737ddc0fe65162ef0ab0b356f"
+    },
+    "versions": {
+      "python": "3.10.12",
+      "numpy": "1.26.4",
+      "sklearn": "1.7.2"
+    },
+    "seed": 0,
+    "split": "v2p1",
+    "reconciled_from": "SESSION29 plan (was main_13/v2); see RECONCILIATION_v2p1.md"
+  },
+  "config": {
+    "regime": "per-frame state-descriptor, linear collective readout of full 64-D latent",
+    "probe_class": "StandardScaler + Ridge (linear), alpha by GroupKFold-by-case",
+    "observables": [
+      "wake_enstrophy",
+      "circulation_pos",
+      "circulation_neg",
+      "peak_pos_omega",
+      "peak_neg_omega",
+      "centroid_x",
+      "centroid_y",
+      "C_L",
+      "C_D"
+    ],
+    "parameters_excluded": [
+      "G",
+      "D",
+      "Y"
+    ],
+    "parameters_excluded_reason": "per-frame parameter R^2 is negative; parameter content is an impact-frame quantity, not a per-frame state descriptor.",
+    "families": {
+      "jepa": "jepa_tf_noc_d64_s42",
+      "fukami": "fukami_d64_s42",
+      "pod": "pod_d64"
+    }
+  },
+  "full_table": {
+    "wake_enstrophy": {
+      "jepa": {
+        "train": 0.7743916495691431,
+        "test_b": 0.6226117545069279,
+        "test_c": 0.6622392649077239,
+        "test_b_ci_lo": 0.3441894326149911,
+        "test_b_ci_hi": 0.7418748487278355,
+        "n_test_b": 5040,
+        "n_cases_test_b": 10,
+        "best_alpha": 1.0
+      },
+      "fukami": {
+        "train": 0.324138559383387,
+        "test_b": 0.33223114425719935,
+        "test_c": -0.020979298261201595,
+        "test_b_ci_lo": -0.25304130051967866,
+        "test_b_ci_hi": 0.4528758373440391,
+        "n_test_b": 5040,
+        "n_cases_test_b": 10,
+        "best_alpha": 100.0
+      },
+      "pod": {
+        "train": 0.5236692627235894,
+        "test_b": 0.34839187563901763,
+        "test_c": 0.34196731248419043,
+        "test_b_ci_lo": -0.23717888779106056,
+        "test_b_ci_hi": 0.5205673360120693,
+        "n_test_b": 5040,
+        "n_cases_test_b": 10,
+        "best_alpha": 100.0
+      }
+    },
+    "circulation_pos": {
+      "jepa": {
+        "train": 0.9080850490149799,
+        "test_b": 0.8501501843195102,
+        "test_c": 0.7964697344593696,
+        "test_b_ci_lo": 0.7342343737923869,
+        "test_b_ci_hi": 0.8991816470051026,
+        "n_test_b": 5040,
+        "n_cases_test_b": 10,
+        "best_alpha": 1.0
+      },
+      "fukami": {
+        "train": 0.5602714509317761,
+        "test_b": 0.3713149851597638,
+        "test_c": -0.3809666864491599,
+        "test_b_ci_lo": 0.11017863736330713,
+        "test_b_ci_hi": 0.6200505704149257,
+        "n_test_b": 5040,
+        "n_cases_test_b": 10,
+        "best_alpha": 100.0
+      },
+      "pod": {
+        "train": 0.5870648303725845,
+        "test_b": 0.3719743153688879,
+        "test_c": 0.037788718950652056,
+        "test_b_ci_lo": -0.030915954900782982,
+        "test_b_ci_hi": 0.485382478598798,
+        "n_test_b": 5040,
+        "n_cases_test_b": 10,
+        "best_alpha": 100.0
+      }
+    },
+    "circulation_neg": {
+      "jepa": {
+        "train": 0.9095956694236861,
+        "test_b": 0.7877364652490586,
+        "test_c": 0.7390658541351591,
+        "test_b_ci_lo": 0.6849194118734747,
+        "test_b_ci_hi": 0.8481701734184167,
+        "n_test_b": 5040,
+        "n_cases_test_b": 10,
+        "best_alpha": 1.0
+      },
+      "fukami": {
+        "train": 0.46577335243490214,
+        "test_b": 0.256434566447137,
+        "test_c": -0.6177713990395688,
+        "test_b_ci_lo": -0.015896182058754645,
+        "test_b_ci_hi": 0.5491382886782311,
+        "n_test_b": 5040,
+        "n_cases_test_b": 10,
+        "best_alpha": 100.0
+      },
+      "pod": {
+        "train": 0.5957114817233302,
+        "test_b": 0.3599630511437685,
+        "test_c": -0.06490277176565273,
+        "test_b_ci_lo": -0.16474403675455893,
+        "test_b_ci_hi": 0.4094263074129381,
+        "n_test_b": 5040,
+        "n_cases_test_b": 10,
+        "best_alpha": 100.0
+      }
+    },
+    "peak_pos_omega": {
+      "jepa": {
+        "train": 0.7236580479057433,
+        "test_b": 0.4527008263683546,
+        "test_c": 0.3845055650200736,
+        "test_b_ci_lo": 0.29084808703432935,
+        "test_b_ci_hi": 0.6212366186223541,
+        "n_test_b": 5040,
+        "n_cases_test_b": 10,
+        "best_alpha": 1.0
+      },
+      "fukami": {
+        "train": 0.4028921638136522,
+        "test_b": 0.3595134240041735,
+        "test_c": 0.05634005609256332,
+        "test_b_ci_lo": 0.1613717119946981,
+        "test_b_ci_hi": 0.5027347654721627,
+        "n_test_b": 5040,
+        "n_cases_test_b": 10,
+        "best_alpha": 100.0
+      },
+      "pod": {
+        "train": 0.602252064299303,
+        "test_b": 0.39923868751592784,
+        "test_c": 0.071028549289196,
+        "test_b_ci_lo": 0.14985473932093582,
+        "test_b_ci_hi": 0.5943763248522309,
+        "n_test_b": 5040,
+        "n_cases_test_b": 10,
+        "best_alpha": 100.0
+      }
+    },
+    "peak_neg_omega": {
+      "jepa": {
+        "train": 0.7411669635190078,
+        "test_b": 0.6502550615119254,
+        "test_c": 0.7254547951936127,
+        "test_b_ci_lo": 0.17364309307102518,
+        "test_b_ci_hi": 0.7464871187803597,
+        "n_test_b": 5040,
+        "n_cases_test_b": 10,
+        "best_alpha": 1.0
+      },
+      "fukami": {
+        "train": 0.45449826826481576,
+        "test_b": 0.42098533977112484,
+        "test_c": 0.472776983884855,
+        "test_b_ci_lo": -0.06466432085397078,
+        "test_b_ci_hi": 0.5337996429529351,
+        "n_test_b": 5040,
+        "n_cases_test_b": 10,
+        "best_alpha": 100.0
+      },
+      "pod": {
+        "train": 0.56108709143914,
+        "test_b": 0.41119702915522205,
+        "test_c": 0.5916491165271753,
+        "test_b_ci_lo": -0.4211643845363931,
+        "test_b_ci_hi": 0.6156837724712941,
+        "n_test_b": 5040,
+        "n_cases_test_b": 10,
+        "best_alpha": 100.0
+      }
+    },
+    "centroid_x": {
+      "jepa": {
+        "train": 0.8535567562599631,
+        "test_b": 0.8471378571931947,
+        "test_c": 0.7126793000054155,
+        "test_b_ci_lo": 0.7809997700784278,
+        "test_b_ci_hi": 0.8839629483530905,
+        "n_test_b": 5040,
+        "n_cases_test_b": 10,
+        "best_alpha": 1.0
+      },
+      "fukami": {
+        "train": 0.4293975278879868,
+        "test_b": 0.3957852452844137,
+        "test_c": 0.41888731728722906,
+        "test_b_ci_lo": 0.30467858032099027,
+        "test_b_ci_hi": 0.4604605528502996,
+        "n_test_b": 5040,
+        "n_cases_test_b": 10,
+        "best_alpha": 10.0
+      },
+      "pod": {
+        "train": 0.43693320941552194,
+        "test_b": 0.4652387974658653,
+        "test_c": 0.3531405200922998,
+        "test_b_ci_lo": 0.2503573822503607,
+        "test_b_ci_hi": 0.5938548280309975,
+        "n_test_b": 5040,
+        "n_cases_test_b": 10,
+        "best_alpha": 100.0
+      }
+    },
+    "centroid_y": {
+      "jepa": {
+        "train": 0.745252748256372,
+        "test_b": 0.7308746632461849,
+        "test_c": 0.7398164467996944,
+        "test_b_ci_lo": 0.6197893729143352,
+        "test_b_ci_hi": 0.7655156063109099,
+        "n_test_b": 5040,
+        "n_cases_test_b": 10,
+        "best_alpha": 1.0
+      },
+      "fukami": {
+        "train": 0.34350838744417345,
+        "test_b": 0.15823947709057684,
+        "test_c": 0.4004488417808848,
+        "test_b_ci_lo": -0.2478723269148002,
+        "test_b_ci_hi": 0.3335536873919352,
+        "n_test_b": 5040,
+        "n_cases_test_b": 10,
+        "best_alpha": 10.0
+      },
+      "pod": {
+        "train": 0.3230345055603947,
+        "test_b": 0.08111695823012488,
+        "test_c": 0.280018923779231,
+        "test_b_ci_lo": -0.4877705987900546,
+        "test_b_ci_hi": 0.37841732625530555,
+        "n_test_b": 5040,
+        "n_cases_test_b": 10,
+        "best_alpha": 100.0
+      }
+    },
+    "C_L": {
+      "jepa": {
+        "train": 0.9777553763695844,
+        "test_b": 0.8683993850998132,
+        "test_c": 0.9075717906040609,
+        "test_b_ci_lo": 0.7744693490445183,
+        "test_b_ci_hi": 0.9453705873583771,
+        "n_test_b": 5040,
+        "n_cases_test_b": 10,
+        "best_alpha": 0.1
+      },
+      "fukami": {
+        "train": 0.7064331705811571,
+        "test_b": 0.5455556512550847,
+        "test_c": 0.6772854374424291,
+        "test_b_ci_lo": 0.2545162682794791,
+        "test_b_ci_hi": 0.7558742194378146,
+        "n_test_b": 5040,
+        "n_cases_test_b": 10,
+        "best_alpha": 10.0
+      },
+      "pod": {
+        "train": 0.852345837054283,
+        "test_b": 0.7396375212272923,
+        "test_c": 0.8699293337289506,
+        "test_b_ci_lo": 0.5270177796131144,
+        "test_b_ci_hi": 0.8556866167666466,
+        "n_test_b": 5040,
+        "n_cases_test_b": 10,
+        "best_alpha": 100.0
+      }
+    },
+    "C_D": {
+      "jepa": {
+        "train": 0.9051292184432148,
+        "test_b": 0.7704050413123142,
+        "test_c": 0.524077064230026,
+        "test_b_ci_lo": 0.6936652604989414,
+        "test_b_ci_hi": 0.8584917234043267,
+        "n_test_b": 5040,
+        "n_cases_test_b": 10,
+        "best_alpha": 10.0
+      },
+      "fukami": {
+        "train": 0.5564710856600782,
+        "test_b": 0.35018581243527025,
+        "test_c": 0.3211254837279117,
+        "test_b_ci_lo": 0.0006861861893481725,
+        "test_b_ci_hi": 0.6444412204426179,
+        "n_test_b": 5040,
+        "n_cases_test_b": 10,
+        "best_alpha": 100.0
+      },
+      "pod": {
+        "train": 0.8058081778276798,
+        "test_b": 0.6856185915408997,
+        "test_c": 0.6333428638004746,
+        "test_b_ci_lo": 0.5137103163780089,
+        "test_b_ci_hi": 0.7948784015834844,
+        "n_test_b": 5040,
+        "n_cases_test_b": 10,
+        "best_alpha": 100.0
+      }
+    }
+  },
+  "numbers": {
+    "latread_jepa_wake_enstrophy": {
+      "macro": "NumLatReadWakeEnstJepa",
+      "value": 0.6226117545069279,
+      "fmt": "%.2f",
+      "split": "test_b",
+      "source": "scripts/session29/make_fig_latent_readability_v2p1.py",
+      "note": "PER-FRAME state-descriptor regime: linear collective readout (StandardScaler + Ridge, alpha by GroupKFold-by-case) of the FULL 64-D latent, pooled over all 120 frames, fit on train cases and evaluated on held-out test_b. COLLECTIVE whole-latent readability, NOT per-coordinate semantics. NB: distinct from the closure headline (pooled-frame ridge at readout frame impact+H=16 on the canonical DNS metric); do not confuse.",
+      "ci_lo": 0.3441894326149911,
+      "ci_hi": 0.7418748487278355,
+      "observable": "wake_enstrophy",
+      "n": 5040
+    },
+    "latread_jepa_circulation_pos": {
+      "macro": "NumLatReadCircPosJepa",
+      "value": 0.8501501843195102,
+      "fmt": "%.2f",
+      "split": "test_b",
+      "source": "scripts/session29/make_fig_latent_readability_v2p1.py",
+      "note": "PER-FRAME state-descriptor regime: linear collective readout (StandardScaler + Ridge, alpha by GroupKFold-by-case) of the FULL 64-D latent, pooled over all 120 frames, fit on train cases and evaluated on held-out test_b. COLLECTIVE whole-latent readability, NOT per-coordinate semantics. NB: distinct from the closure headline (pooled-frame ridge at readout frame impact+H=16 on the canonical DNS metric); do not confuse.",
+      "ci_lo": 0.7342343737923869,
+      "ci_hi": 0.8991816470051026,
+      "observable": "circulation_pos",
+      "n": 5040
+    },
+    "latread_jepa_circulation_neg": {
+      "macro": "NumLatReadCircNegJepa",
+      "value": 0.7877364652490586,
+      "fmt": "%.2f",
+      "split": "test_b",
+      "source": "scripts/session29/make_fig_latent_readability_v2p1.py",
+      "note": "PER-FRAME state-descriptor regime: linear collective readout (StandardScaler + Ridge, alpha by GroupKFold-by-case) of the FULL 64-D latent, pooled over all 120 frames, fit on train cases and evaluated on held-out test_b. COLLECTIVE whole-latent readability, NOT per-coordinate semantics. NB: distinct from the closure headline (pooled-frame ridge at readout frame impact+H=16 on the canonical DNS metric); do not confuse.",
+      "ci_lo": 0.6849194118734747,
+      "ci_hi": 0.8481701734184167,
+      "observable": "circulation_neg",
+      "n": 5040
+    },
+    "latread_jepa_peak_pos_omega": {
+      "macro": "NumLatReadPeakPosOmegaJepa",
+      "value": 0.4527008263683546,
+      "fmt": "%.2f",
+      "split": "test_b",
+      "source": "scripts/session29/make_fig_latent_readability_v2p1.py",
+      "note": "PER-FRAME state-descriptor regime: linear collective readout (StandardScaler + Ridge, alpha by GroupKFold-by-case) of the FULL 64-D latent, pooled over all 120 frames, fit on train cases and evaluated on held-out test_b. COLLECTIVE whole-latent readability, NOT per-coordinate semantics. NB: distinct from the closure headline (pooled-frame ridge at readout frame impact+H=16 on the canonical DNS metric); do not confuse.",
+      "ci_lo": 0.29084808703432935,
+      "ci_hi": 0.6212366186223541,
+      "observable": "peak_pos_omega",
+      "n": 5040
+    },
+    "latread_jepa_peak_neg_omega": {
+      "macro": "NumLatReadPeakNegOmegaJepa",
+      "value": 0.6502550615119254,
+      "fmt": "%.2f",
+      "split": "test_b",
+      "source": "scripts/session29/make_fig_latent_readability_v2p1.py",
+      "note": "PER-FRAME state-descriptor regime: linear collective readout (StandardScaler + Ridge, alpha by GroupKFold-by-case) of the FULL 64-D latent, pooled over all 120 frames, fit on train cases and evaluated on held-out test_b. COLLECTIVE whole-latent readability, NOT per-coordinate semantics. NB: distinct from the closure headline (pooled-frame ridge at readout frame impact+H=16 on the canonical DNS metric); do not confuse.",
+      "ci_lo": 0.17364309307102518,
+      "ci_hi": 0.7464871187803597,
+      "observable": "peak_neg_omega",
+      "n": 5040
+    },
+    "latread_jepa_centroid_x": {
+      "macro": "NumLatReadCentroidXJepa",
+      "value": 0.8471378571931947,
+      "fmt": "%.2f",
+      "split": "test_b",
+      "source": "scripts/session29/make_fig_latent_readability_v2p1.py",
+      "note": "PER-FRAME state-descriptor regime: linear collective readout (StandardScaler + Ridge, alpha by GroupKFold-by-case) of the FULL 64-D latent, pooled over all 120 frames, fit on train cases and evaluated on held-out test_b. COLLECTIVE whole-latent readability, NOT per-coordinate semantics. NB: distinct from the closure headline (pooled-frame ridge at readout frame impact+H=16 on the canonical DNS metric); do not confuse.",
+      "ci_lo": 0.7809997700784278,
+      "ci_hi": 0.8839629483530905,
+      "observable": "centroid_x",
+      "n": 5040
+    },
+    "latread_jepa_centroid_y": {
+      "macro": "NumLatReadCentroidYJepa",
+      "value": 0.7308746632461849,
+      "fmt": "%.2f",
+      "split": "test_b",
+      "source": "scripts/session29/make_fig_latent_readability_v2p1.py",
+      "note": "PER-FRAME state-descriptor regime: linear collective readout (StandardScaler + Ridge, alpha by GroupKFold-by-case) of the FULL 64-D latent, pooled over all 120 frames, fit on train cases and evaluated on held-out test_b. COLLECTIVE whole-latent readability, NOT per-coordinate semantics. NB: distinct from the closure headline (pooled-frame ridge at readout frame impact+H=16 on the canonical DNS metric); do not confuse.",
+      "ci_lo": 0.6197893729143352,
+      "ci_hi": 0.7655156063109099,
+      "observable": "centroid_y",
+      "n": 5040
+    },
+    "latread_jepa_C_L": {
+      "macro": "NumLatReadCliftJepa",
+      "value": 0.8683993850998132,
+      "fmt": "%.2f",
+      "split": "test_b",
+      "source": "scripts/session29/make_fig_latent_readability_v2p1.py",
+      "note": "PER-FRAME state-descriptor regime: linear collective readout (StandardScaler + Ridge, alpha by GroupKFold-by-case) of the FULL 64-D latent, pooled over all 120 frames, fit on train cases and evaluated on held-out test_b. COLLECTIVE whole-latent readability, NOT per-coordinate semantics. NB: distinct from the closure headline (pooled-frame ridge at readout frame impact+H=16 on the canonical DNS metric); do not confuse.",
+      "ci_lo": 0.7744693490445183,
+      "ci_hi": 0.9453705873583771,
+      "observable": "C_L",
+      "n": 5040
+    },
+    "latread_jepa_C_D": {
+      "macro": "NumLatReadCdragJepa",
+      "value": 0.7704050413123142,
+      "fmt": "%.2f",
+      "split": "test_b",
+      "source": "scripts/session29/make_fig_latent_readability_v2p1.py",
+      "note": "PER-FRAME state-descriptor regime: linear collective readout (StandardScaler + Ridge, alpha by GroupKFold-by-case) of the FULL 64-D latent, pooled over all 120 frames, fit on train cases and evaluated on held-out test_b. COLLECTIVE whole-latent readability, NOT per-coordinate semantics. NB: distinct from the closure headline (pooled-frame ridge at readout frame impact+H=16 on the canonical DNS metric); do not confuse.",
+      "ci_lo": 0.6936652604989414,
+      "ci_hi": 0.8584917234043267,
+      "observable": "C_D",
+      "n": 5040
+    },
+    "latread_jepa_weakest": {
+      "macro": "NumLatReadWeakestJepa",
+      "value": 0.4527008263683546,
+      "fmt": "%.2f",
+      "split": "test_b",
+      "source": "scripts/session29/make_fig_latent_readability_v2p1.py",
+      "note": "PER-FRAME state-descriptor regime: linear collective readout (StandardScaler + Ridge, alpha by GroupKFold-by-case) of the FULL 64-D latent, pooled over all 120 frames, fit on train cases and evaluated on held-out test_b. COLLECTIVE whole-latent readability, NOT per-coordinate semantics. NB: distinct from the closure headline (pooled-frame ridge at readout frame impact+H=16 on the canonical DNS metric); do not confuse. Weakest collective-readability observable for JEPA on test_b: peak_pos_omega.",
+      "ci_lo": 0.29084808703432935,
+      "ci_hi": 0.6212366186223541,
+      "observable": "peak_pos_omega",
+      "n": 5040
+    },
+    "latread_jepa_weakest_name": {
+      "macro": "NumLatReadWeakestJepaObs",
+      "value": "peak_pos_omega",
+      "fmt": "%s",
+      "split": "test_b",
+      "source": "scripts/session29/make_fig_latent_readability_v2p1.py",
+      "note": "Name of the weakest collective-readability observable for JEPA on test_b."
+    },
+    "latread_jepa_circulation": {
+      "macro": "NumLatReadCirculationJepa",
+      "value": 0.8189433247842843,
+      "fmt": "%.2f",
+      "split": "test_b",
+      "source": "scripts/session29/make_fig_latent_readability_v2p1.py",
+      "note": "PER-FRAME state-descriptor regime: linear collective readout (StandardScaler + Ridge, alpha by GroupKFold-by-case) of the FULL 64-D latent, pooled over all 120 frames, fit on train cases and evaluated on held-out test_b. COLLECTIVE whole-latent readability, NOT per-coordinate semantics. NB: distinct from the closure headline (pooled-frame ridge at readout frame impact+H=16 on the canonical DNS metric); do not confuse. Mean of the Gamma+ and Gamma- collective-readability R^2 for JEPA on test_b.",
+      "observable": "circulation_pos",
+      "n": 5040
+    }
+  }
+}
