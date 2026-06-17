@@ -2,7 +2,7 @@
 
 - hard-fail overclaims: 0
 - required concepts present: 6/6
-- warnings (manual triage): 47
+- warnings (manual triage): 49
 
 
 ## WARNINGS (mark OK / EDIT / LIMITATION)
@@ -12,11 +12,13 @@
 - [ ] section_1_introduction:158 `baseline` -> linear baselines are at or below zero, but an objective-free supervised encoder
 - [ ] section_1_introduction:173 `controller` -> results motivate the state as an input to a future estimator or controller; the
 - [ ] section_1_introduction:174 `controller` -> present paper does not claim a validated forecast or a closed-loop controller.
-- [ ] section_2_flow_and_data:42 `baseline` -> the wake then relaxes back toward the baseline shedding. The sign of $G$ sets
-- [ ] section_2_flow_and_data:45 `baseline` -> the vortex core, and the impact timing sets the phase of the baseline cycle at
-- [ ] section_2_flow_and_data:118 `baseline` -> encounters that share a baseline shedding history. Encounters of the same case are
-- [ ] section_2_flow_and_data:122 `baseline` -> partition is fixed once and used identically by every model and baseline.
-- [ ] section_2_flow_and_data:175 `baseline` -> closure advantage over the reconstructive baseline is essentially unchanged across
+- [ ] section_2_flow_and_data:44 `baseline` -> the wake then relaxes back toward the baseline shedding. The sign of $G$ sets
+- [ ] section_2_flow_and_data:47 `baseline` -> the vortex core, and the impact timing sets the phase of the baseline cycle at
+- [ ] section_2_flow_and_data:59 `baseline` -> instant and impact near $t/c = 2$; the undisturbed baseline ($G = 0$) is grey, and
+- [ ] section_2_flow_and_data:67 `baseline` -> cases perturb the baseline shedding only slightly; $G = -4$ is the $|G| = 4$
+- [ ] section_2_flow_and_data:123 `baseline` -> encounters that share a baseline shedding history. Encounters of the same case are
+- [ ] section_2_flow_and_data:127 `baseline` -> partition is fixed once and used identically by every model and baseline.
+- [ ] section_2_flow_and_data:180 `baseline` -> closure advantage over the reconstructive baseline is essentially unchanged across
 - [ ] section_3_methods:15 `controller` -> observable a controller would have access to, since at deployment the gust
 - [ ] section_3_methods:76 `baseline` -> the reconstructive baseline below carries a lift head but not a wake head, and
 - [ ] section_3_methods:116 `baseline` -> The comparison rests on a single principle: every baseline is the same

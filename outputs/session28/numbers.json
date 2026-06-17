@@ -1,7 +1,7 @@
 {
   "_provenance": {
-    "generated_iso": "2026-06-15T23:23:45.413907+00:00",
-    "git_commit": "bed0f250e5bc0e53be4b579e418c469c5d013e14",
+    "generated_iso": "2026-06-17T11:16:49.156115+00:00",
+    "git_commit": "7e4557f3fbe544d4d69c3454a1ca5f700a66b7b2",
     "manifest_runs_sha256": "aa07e687f2080e7e7f0dea8d75f3b2af40a86fa68c19f828ae3ec98422e60bbe",
     "n_parts": 28,
     "parts": [
@@ -1280,7 +1280,7 @@
       "observable": "wake_enstrophy",
       "source": "make_fig_error_maps_v2p1.py",
       "split": "test_b",
-      "value": -0.13014787657998034
+      "value": 0.13014787657998034
     },
     "errmap_spearman_y": {
       "fmt": "%+.2f",
@@ -1874,11 +1874,11 @@
       "fmt": "%.3f",
       "macro": "NumPfourGsignPeakGammaDiff",
       "n": 42,
-      "note": "Mann-Whitney two-sided p = 0.06062; matched-bucket paired diff CI = [-0.513, 0.010]",
+      "note": "Mann-Whitney two-sided p = 0.06062; matched-bucket paired diff CI = [-0.010, 0.513]",
       "observable": "peak|Gamma_LEV| (G>0 minus G<0, matched |G|)",
       "source": "p4_lev",
       "split": "test_b+test_c",
-      "value": -0.2404841240863623
+      "value": 0.2404841240863623
     },
     "p4_track_frac_fukami_recon": {
       "endpoint": "recon",
@@ -2062,7 +2062,7 @@
       "fmt": "%s",
       "macro": "CommitHash",
       "source": "eval_all.py",
-      "value": "bed0f250e5bc"
+      "value": "7e4557f3fbe5"
     },
     "repr_wake_regae_cnn": {
       "ci_hi": 0.7605018884227008,

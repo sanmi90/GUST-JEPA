@@ -78,11 +78,14 @@ ENCOUNTER = 0  # encounter_00 for every row (no-gust baseline + first gust relea
 
 # (case_id, row label, inline C_L curve label, gust value G). Ordered by increasing
 # gust strength so both panels read top-to-bottom / light-to-dark as G grows.
+# Displayed G uses the paper's sign convention (G = -s, opposite the dataset's
+# solver sign in the case id); the 4th tuple field keeps the MAGNITUDE for the
+# colour gradient and label-anchor logic.
 DEFAULT_CASES = [
     ("Baseline", r"$G = 0$", r"$G = 0$", 0.0),
-    ("G+0.50_D0.50_Y-0.10", r"$G = 0.5$", r"$G = 0.5$", 0.5),
-    ("G+1.50_D0.50_Y-0.10", r"$G = 1.5$", r"$G = 1.5$", 1.5),
-    ("G+4.00_D0.50_Y-0.10", r"$G = 4$", r"$G = 4$", 4.0),
+    ("G+0.50_D0.50_Y-0.10", r"$G = -0.5$", r"$G = -0.5$", 0.5),
+    ("G+1.50_D0.50_Y-0.10", r"$G = -1.5$", r"$G = -1.5$", 1.5),
+    ("G+4.00_D0.50_Y-0.10", r"$G = -4$", r"$G = -4$", 4.0),
 ]
 
 # Inline-label anchor (frame, vertical-align) per gust value G. Each label sits in a band
@@ -270,7 +273,7 @@ def build_figure(cases, frames, root: Path, pipe):
     # one shared horizontal colourbar spanning the grid, below the bottom row.
     cax = fig.add_axes([0.32, 0.022, 0.40, 0.016])
     cb = fig.colorbar(im, cax=cax, orientation="horizontal", ticks=[-3, -2, -1, 0, 1, 2, 3])
-    cb.set_label(r"$\omega_z$ (raw; colorbar clipped to $\pm 3$)", fontsize=7.5, labelpad=2)
+    cb.set_label(r"$\omega_z$", fontsize=7.5, labelpad=2)
     cb.ax.tick_params(labelsize=6.5)
 
     picks = [

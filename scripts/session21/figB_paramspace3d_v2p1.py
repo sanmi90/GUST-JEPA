@@ -45,7 +45,8 @@ def main() -> None:
     cases = json.load(open(SPLIT))["cases"]
     pts = {k: [] for k in fs.SPLIT_COLOR}
     for c in cases.values():
-        pts[tier_key(c)].append((c["G"], c["D"], c["Y"]))
+        # paper convention G = -s (dataset case G is +s)
+        pts[tier_key(c)].append((-c["G"], c["D"], c["Y"]))
     pts = {k: np.array(v) for k, v in pts.items() if v}
 
     all_pts = np.concatenate([pts[k] for k in ORDER if k in pts])
@@ -75,11 +76,12 @@ def main() -> None:
                edgecolors="white", linewidths=0.5, depthshade=False,
                zorder=5, label="baseline (no gust)")
 
-    # |G| = 4 out-of-distribution plane
+    # |G| = 4 out-of-distribution plane (paper convention G = -s: the held-out
+    # |G|=4 set now sits at paper G = -4, so the marker plane follows)
     dlim = (all_pts[:, 1].min() - 0.1, all_pts[:, 1].max() + 0.1)
     ylim = (y_floor, all_pts[:, 2].max() + 0.06)
     dd, yy = np.meshgrid(np.linspace(*dlim, 2), np.linspace(*ylim, 2))
-    ax.plot_surface(np.full_like(dd, 4.0), dd, yy, color=fs.SPLIT_COLOR["test_c"],
+    ax.plot_surface(np.full_like(dd, -4.0), dd, yy, color=fs.SPLIT_COLOR["test_c"],
                     alpha=0.10, shade=False, zorder=1)
 
     ax.set_xlabel("$G$", labelpad=6)

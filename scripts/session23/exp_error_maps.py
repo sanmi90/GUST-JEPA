@@ -330,7 +330,9 @@ def build_table(mode: str, meta: dict, mach: dict) -> dict:
         "n": int(n),
         "case_id": meta["case_id"].tolist(),
         "encounter_index": meta["encounter_index"].astype(int).tolist(),
-        "G": meta["G"].tolist(),
+        # paper convention G = -s (dataset case G is +s): the negated G feeds both
+        # the G Spearman trend and the G-panel x-axis. D, Y, phi untouched.
+        "G": (-meta["G"]).tolist(),
         "D": meta["D"].tolist(),
         "Y": meta["Y"].tolist(),
         "phi": phi.tolist(),

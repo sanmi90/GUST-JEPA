@@ -13,7 +13,7 @@
     },
     "errmap_spearman_g": {
       "macro": "ErrMapRhoG",
-      "value": -0.13014787657998034,
+      "value": 0.13014787657998034,
       "fmt": "%+.2f",
       "n": 42,
       "split": "test_b",

@@ -81,7 +81,9 @@ def gust_axes(cid: np.ndarray, enc: np.ndarray) -> dict[str, np.ndarray]:
     pkey = {(c, int(e)): i for i, (c, e) in enumerate(zip(pc, pe))}
     idx = np.array([pkey[(c, int(e))] for c, e in zip(cid, enc)])
     return {
-        "G": p["G"][idx].astype(float),
+        # paper convention G = -s (dataset case G is +s); negation flows to both
+        # the signed-G Spearman input and the G-panel x-axis. D, Y, phi unchanged.
+        "G": -p["G"][idx].astype(float),
         "D": p["D"][idx].astype(float),
         "Y": p["Y"][idx].astype(float),
         "phi": p["phi_imp"][idx].astype(float),

@@ -25,12 +25,12 @@
     },
     "p4_gsign_peak_gamma_diff": {
       "macro": "NumPfourGsignPeakGammaDiff",
-      "value": -0.2404841240863623,
+      "value": 0.2404841240863623,
       "fmt": "%.3f",
       "n": 42,
       "split": "test_b+test_c",
       "observable": "peak|Gamma_LEV| (G>0 minus G<0, matched |G|)",
-      "note": "Mann-Whitney two-sided p = 0.06062; matched-bucket paired diff CI = [-0.513, 0.010]"
+      "note": "Mann-Whitney two-sided p = 0.06062; matched-bucket paired diff CI = [-0.010, 0.513]"
     },
     "p4_track_frac_tf_noc_recon": {
       "macro": "NumPfourTrackTfNocRecon",

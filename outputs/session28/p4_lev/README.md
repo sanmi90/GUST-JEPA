@@ -18,7 +18,7 @@ Pearson r = 0.530 (95% case-clustered CI [0.268, 0.882], case-permutation two-si
 
 ## (ii) G-sign asymmetry (positive vs negative gusts, matched |G|)
 
-Matched |G| buckets: [0.5, 1.0, 1.5, 2.0, 3.0] (n_pos = 22, n_neg = 20). Peak |Gamma_LEV|: G>0 mean 0.155 vs G<0 mean 0.395 (pos - neg = -0.240, Mann-Whitney two-sided p = 0.06062); matched-bucket paired difference -0.233 (95% CI [-0.513, 0.010], 5 buckets). Detachment time t/c: G>0 mean 0.115 vs G<0 mean 0.350 (MW p = 0.02403). The PRF text describes the split-and-merge of the gust with the pre-existing suction-side vorticity qualitatively; this quantifies the budget asymmetry.
+Matched |G| buckets: [0.5, 1.0, 1.5, 2.0, 3.0] (n_pos = 20, n_neg = 22). Peak |Gamma_LEV|: G>0 mean 0.395 vs G<0 mean 0.155 (pos - neg = 0.240, Mann-Whitney two-sided p = 0.06062); matched-bucket paired difference 0.233 (95% CI [-0.010, 0.513], 5 buckets). Detachment time t/c: G>0 mean 0.350 vs G<0 mean 0.115 (MW p = 0.02403). The PRF text describes the split-and-merge of the gust with the pre-existing suction-side vorticity qualitatively; this quantifies the budget asymmetry.
 
 ## (iii) Y modulation
 

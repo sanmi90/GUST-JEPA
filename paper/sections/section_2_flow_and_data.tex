@@ -30,7 +30,9 @@ which peaks at the core radius $r = R$ \citep{taylor1918}, and is parametrised b
 three scalars: the signed gust ratio $G \equiv u_{\theta,\max}/u_\infty$, the
 core diameter $D \equiv 2R/c$, and the wall-normal offset $Y$ of the vortex
 centre, the displacement normal to the chord (the laboratory coordinates are
-rotated by the angle of attack to define $Y$). The profile and the $(G, D, Y)$
+rotated by the angle of attack to define $Y$). The released-data case identifiers
+encode the solver's opposite sign convention, $s = -G$, so a case labelled
+\texttt{G+4.00} in the archive corresponds to $G = -4$ here. The profile and the $(G, D, Y)$
 sampling follow the configuration of \citet{fukami2025prf}. The training envelope spans $|G| \in \{0.5, 1.0, 1.5, 2.0,
 3.0\}$ with $G = 0$ as the undisturbed reference, $D \in \{0.5, 1.0, 1.5\}$
 chords, and $Y \in [-0.4, +0.4]$; the value $|G| = 4$ is held out as an
@@ -63,14 +65,14 @@ sequence.
   $Y = -0.1$ (the first encounter of each case). (a) The lift coefficient $C_L$
   against convective time $t/c$ for the four cases, with $t/c = 0$ the gust-release
   instant and impact near $t/c = 2$; the undisturbed baseline ($G = 0$) is grey, and
-  the load excursion deepens and widens monotonically with the gust strength $G$.
-  (b) The mid-plane spanwise vorticity $\omegaz$ for each case (rows, $G = 0$, $0.5$,
-  $1.5$, $4$) at four convective times (columns, $t/c = 1$, $2$, $3$, $4$), in raw
+  the load excursion deepens and widens monotonically with the gust strength $|G|$.
+  (b) The mid-plane spanwise vorticity $\omegaz$ for each case (rows, $G = 0$, $-0.5$,
+  $-1.5$, $-4$) at four convective times (columns, $t/c = 1$, $2$, $3$, $4$), in raw
   physical units with the colorbar clipped at $\pm 3$ (the intense cores saturate;
   the wake structure away from them lies within the range), and the airfoil drawn as
   a filled polygon. The strong
   gust injects a vortex that reorganises the wake through impact, while the weak
-  cases perturb the baseline shedding only slightly; $G = 4$ is the $|G| = 4$
+  cases perturb the baseline shedding only slightly; $G = -4$ is the $|G| = 4$
   extrapolation case, shown here only as a physical illustration. The load spike and
   the wake reorganisation are the surface and field signatures of the same event,
   and the release parameters alone do not fix where the wake sits afterwards, which

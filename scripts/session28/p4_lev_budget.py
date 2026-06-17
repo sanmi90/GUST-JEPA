@@ -427,8 +427,11 @@ def gsign_asymmetry(rows: list[dict], rng) -> dict:
     absG = np.array([round(abs(r["G"]), 4) for r in sub])
     matched = sorted(set(absG[np.array([_has_both_signs(sub, g) for g in absG])].tolist()))
 
-    pos = [r for r in sub if r["G"] > 0 and round(abs(r["G"]), 4) in matched]
-    neg = [r for r in sub if r["G"] < 0 and round(abs(r["G"]), 4) in matched]
+    # paper convention G = -s (dataset case G is +s): the pos/neg SPLIT is on the
+    # SIGNED paper G, so paper "pos" (G>0) is the dataset's G<0 group, and vice
+    # versa. The |G| bucketing (round(abs(.))) is a magnitude and stays as-is.
+    pos = [r for r in sub if -r["G"] > 0 and round(abs(r["G"]), 4) in matched]
+    neg = [r for r in sub if -r["G"] < 0 and round(abs(r["G"]), 4) in matched]
 
     def _arr(group, key):
         return np.array([r[key] for r in group], dtype=np.float64)
@@ -677,8 +680,10 @@ def make_figure(
     # Panel (a): Gamma_LEV(t) growth curves by gust sign (DNS, test_b+test_c).
     ax = axes[0]
     sub = [r for r in dns_rows if r["n_detected"] > 0]
-    pos = [r["gamma_series"] for r in sub if r["G"] > 1e-9]
-    neg = [r["gamma_series"] for r in sub if r["G"] < -1e-9]
+    # paper convention G = -s (dataset case G is +s): the G>0 vs G<0 grouping is on
+    # the SIGNED paper G, so paper "G>0" is the dataset's G<0 group.
+    pos = [r["gamma_series"] for r in sub if -r["G"] > 1e-9]
+    neg = [r["gamma_series"] for r in sub if -r["G"] < -1e-9]
 
     def _band(ax, series, color, label):
         if not series:
@@ -702,7 +707,8 @@ def make_figure(
     ax = axes[1]
     x = np.array([r["dcl_peak_simple"] for r in sub])
     y = np.array([r["peak_gamma_abs"] for r in sub])
-    gcol = np.array([r["G"] for r in sub])
+    # paper convention G = -s (dataset case G is +s): signed-G colour axis is flipped
+    gcol = np.array([-r["G"] for r in sub])
     sc = ax.scatter(x, y, c=gcol, cmap="coolwarm", s=14, edgecolors="none", alpha=0.85)
     cb = fig.colorbar(sc, ax=ax, fraction=0.046, pad=0.04)
     cb.set_label(r"$G$", fontsize=7)

@@ -52,34 +52,34 @@
       2.0,
       3.0
     ],
-    "n_pos": 22,
-    "n_neg": 20,
+    "n_pos": 20,
+    "n_neg": 22,
     "peak_gamma_abs": {
-      "pos_mean": 0.15493952921427082,
-      "neg_mean": 0.3954236533006331,
-      "pos_median": 0.0837819478477572,
-      "neg_median": 0.23353291748949137,
-      "asymmetry_pos_minus_neg": -0.2404841240863623,
-      "mannwhitney_u": 145.0,
+      "pos_mean": 0.3954236533006331,
+      "neg_mean": 0.15493952921427082,
+      "pos_median": 0.23353291748949137,
+      "neg_median": 0.0837819478477572,
+      "asymmetry_pos_minus_neg": 0.2404841240863623,
+      "mannwhitney_u": 295.0,
       "mannwhitney_p_two_sided": 0.06062355375477688,
-      "n_pos": 22,
-      "n_neg": 20
+      "n_pos": 20,
+      "n_neg": 22
     },
     "detach_tc": {
-      "pos_mean": 0.11500000000000002,
-      "neg_mean": 0.35000000000000003,
-      "pos_median": 0.025,
-      "neg_median": 0.35000000000000003,
-      "asymmetry_pos_minus_neg": -0.23500000000000001,
-      "mannwhitney_u": 25.5,
+      "pos_mean": 0.35000000000000003,
+      "neg_mean": 0.11500000000000002,
+      "pos_median": 0.35000000000000003,
+      "neg_median": 0.025,
+      "asymmetry_pos_minus_neg": 0.23500000000000001,
+      "mannwhitney_u": 94.5,
       "mannwhitney_p_two_sided": 0.02403341130318597,
-      "n_pos": 10,
-      "n_neg": 12
+      "n_pos": 12,
+      "n_neg": 10
     },
-    "matched_paired_peak_gamma_diff_mean": -0.2329199957609851,
+    "matched_paired_peak_gamma_diff_mean": 0.2329199957609851,
     "matched_paired_peak_gamma_diff_ci": [
-      -0.513037511436556,
-      0.009786095610095533
+      -0.009786095610095533,
+      0.513037511436556
     ],
     "n_matched_buckets": 5
   },
