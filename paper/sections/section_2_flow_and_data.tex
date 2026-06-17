@@ -145,8 +145,9 @@ $\omegaz(192, 96)$, the span-averaged wall pressure $p_{\mathrm{wall}}(192)$,
 and the lift and drag coefficients $C_L, C_D$. The vorticity is normalised by a
 fixed pipeline: a spatial mask removes the solid and one adjacent cell layer to
 suppress the leading-edge finite-difference artefact, a per-encounter
-high-percentile clip caps spikes, and the field is scaled by the training
-standard deviation with no mean shift, preserving the vorticity antisymmetry.
+high-percentile clip caps spikes, and the field is scaled by three times the
+training standard deviation with no mean shift, preserving the vorticity
+antisymmetry.
 All representation and probe losses are computed in this normalised space;
 unnormalised values are used only for physical-units metrics and figures.
 Appendix~\ref{app:reg} repeats the primary wake probe under no amplitude clip and
