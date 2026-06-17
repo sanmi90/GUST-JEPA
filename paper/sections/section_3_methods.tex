@@ -78,7 +78,22 @@ training: a lift head that maps $\zvec_t$ to $C_L(t)$, and a wake head that maps
 $\zvec_t$ to an $80$-dimensional signed wake spectrum, both trained with small
 weights jointly with the representation and neither part of the latent-prediction
 loss. These heads are adopted from the observable-augmentation
-lineage \citep{fukami2023,fukami2025}. They are also, however, the reason the
+lineage \citep{fukami2023,fukami2025}. The wake target itself is a fixed
+descriptor chosen by design rather than tuned: it pairs a coarse signed spatial
+pooling of the wake region, which retains the layout of the alternating positive
+and negative vortices while discarding pixel-level detail, the spatial-pyramid
+construction of \citet{lazebnik2006beyond}, with a radially-averaged power
+spectrum, the canonical isotropic scale descriptor of a turbulent field
+\citep{pope2001turbulent} and an established compact image descriptor in machine
+learning \citep{durall2020watch}, so it encodes both where the wake vortices sit
+and at which scales their energy resides. Pairing a localised spatial summary
+with a multiscale spectral one is the spatial-plus-scale representation
+formalised by the wavelet scattering transform \citep{brunamallat2013}, which has
+been applied to turbulent flow fields precisely to recover geometry that the
+power spectrum alone cannot resolve \citep{skinner2025characterizing}. We keep
+the descriptor compact, at $80$ dimensions, so that it constrains the wake
+structure without over-parameterising the target on the available training
+encounters. They are also, however, the reason the
 present predictive encoder is not a clean isolation of the training objective:
 the reconstructive baseline below carries a lift head but not a wake head, and
 the two encoders differ in architecture as well. The headline comparison is
