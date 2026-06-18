@@ -95,31 +95,37 @@ smoke(){
 echo "[ov] ===== overnight pipeline START $(date -Iseconds) (pid $$) ====="
 wait_d32
 
-echo "[ov] ===== PHASE 1: deferred d64 SSIM decoders ====="
-dec_existing "$LAT/jepa_tf_noc_d64_s2" dec_jepa_d64_s2  0 &
-dec_existing "$LAT/regae/cnn_vit_s1"   dec_regae_d64_s1 1 & wait
-dec_existing "$LAT/regae/cnn_vit_s2"   dec_regae_d64_s2 0 & wait
-
-echo "[ov] ===== PHASE 2: ST smoke gate ====="
+# Reordered 2026-06-19 00:20: ST band is the priority and the long pole, so it
+# runs FIRST (smoke -> encoders -> latents -> rolls gives forecast/drift/probe/PR
+# by morning). ST decoders then the deferred d64 SSIM remainder run LAST (SSIM is
+# secondary corroboration; the regae remainder is blocked by a pre-existing
+# missing-latent gap anyway and will skip/fail harmlessly).
+echo "[ov] ===== PHASE A: ST smoke gate ====="
 if ! smoke; then echo "[ov] ABORT: ST smoke failed; not launching the band. $(date -Iseconds)"; exit 1; fi
 
-echo "[ov] ===== PHASE 3: ST band ====="
-echo "[ov] -- train encoders (2-packed) --"
+echo "[ov] ===== PHASE B: ST encoders (2-packed) ====="
 run_st 64 0 0 & run_st 64 1 1 & wait
 run_st 64 2 0 & run_st 64 42 1 & wait
 run_st 16 0 0 & run_st 16 1 1 & wait
 run_st 16 42 0 & wait
-echo "[ov] -- extract latents --"
+
+echo "[ov] ===== PHASE C: ST latents + JEPA-own rollouts ====="
 for s in 0 1 2 42; do st_lat 64 "$s" 0; done
 for s in 0 1 42;   do st_lat 16 "$s" 0; done
-echo "[ov] -- JEPA-own rollouts (2-packed) --"
 st_roll 64 0 0 & st_roll 64 1 1 & wait
 st_roll 64 2 0 & st_roll 64 42 1 & wait
 st_roll 16 0 0 & st_roll 16 1 1 & wait
 st_roll 16 42 0 & wait
-echo "[ov] -- T9 decoders (2-packed) --"
+echo "[ov] forecast/drift/probe/PR computable now (latents+rolls done) $(date -Iseconds)"
+
+echo "[ov] ===== PHASE D: ST T9 decoders (2-packed) ====="
 st_dec 64 0 0 & st_dec 64 1 1 & wait
 st_dec 64 2 0 & st_dec 64 42 1 & wait
 st_dec 16 0 0 & st_dec 16 1 1 & wait
 st_dec 16 42 0 & wait
+
+echo "[ov] ===== PHASE E: deferred d64 SSIM remainder (lowest priority) ====="
+dec_existing "$LAT/jepa_tf_noc_d64_s2" dec_jepa_d64_s2  0 &
+dec_existing "$LAT/regae/cnn_vit_s1"   dec_regae_d64_s1 1 & wait
+dec_existing "$LAT/regae/cnn_vit_s2"   dec_regae_d64_s2 0 & wait
 echo "[ov] ===== overnight pipeline COMPLETE $(date -Iseconds) ====="
