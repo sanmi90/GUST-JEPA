@@ -12,6 +12,7 @@ import torch
 from torch import nn
 
 from src.models.encoder import HybridCNNViTEncoder, PatchPoolEncoder
+from src.models.encoder import SpatioTemporalCNNViTEncoder
 from src.utils.device import NoRTX6000Error, require_rtx6000
 
 
@@ -170,3 +171,48 @@ def test_patch_pool_encoder_rejects_bad_input_shape() -> None:
     enc = PatchPoolEncoder()
     with pytest.raises(ValueError, match="4D"):
         enc(torch.randn(2, 192, 96))
+
+
+def test_st_encoder_shape_contract() -> None:
+    """Input (2, 8, 1, 192, 96) -> output (2, 8, 32) at default config."""
+    torch.manual_seed(0)
+    enc = SpatioTemporalCNNViTEncoder()
+    x = torch.randn(2, 8, 1, 192, 96)
+    z = enc(x)
+    assert z.shape == (2, 8, 32)
+
+
+def test_st_encoder_is_causal() -> None:
+    """Perturbing a future frame must not change earlier latents.
+
+    With temporal kernel 3 in the stem + 2 downsamples, the causal receptive
+    field is 1 + (3-1)*3 = 7 frames, so z_t depends only on frames in
+    [t-6, t]. Perturbing frame 7 must leave z_0..z_6 unchanged. Run in eval()
+    so BatchNorm uses fixed running stats and the only temporal coupling under
+    test is the 3D stem.
+    """
+    torch.manual_seed(0)
+    enc = SpatioTemporalCNNViTEncoder(latent_dim=16).eval()
+    x = torch.randn(1, 10, 1, 192, 96)
+    with torch.no_grad():
+        z = enc(x)
+        x2 = x.clone()
+        x2[:, 7] = torch.randn(1, 1, 192, 96)
+        z2 = enc(x2)
+    assert torch.allclose(z[:, :7], z2[:, :7], atol=1e-5)
+    assert not torch.allclose(z[:, 7], z2[:, 7], atol=1e-5)
+
+
+def test_st_encoder_projection_is_batchnorm_by_default() -> None:
+    """The default projection_norm selects nn.BatchNorm1d at proj[-1]."""
+    enc = SpatioTemporalCNNViTEncoder()
+    assert isinstance(enc.proj[-1], nn.BatchNorm1d)
+
+
+def test_st_encoder_param_count_bound() -> None:
+    """ST encoder stays within ~1.5x the per-frame encoder's parameter count."""
+    from src.models.encoder import HybridCNNViTEncoder
+
+    base = sum(p.numel() for p in HybridCNNViTEncoder().parameters())
+    st = sum(p.numel() for p in SpatioTemporalCNNViTEncoder().parameters())
+    assert st < 1.5 * base, f"ST encoder {st} params exceeds 1.5x base {base}"

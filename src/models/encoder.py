@@ -13,6 +13,7 @@ descriptor ``c = (G, D, Y)`` enters only the predictor.
 from __future__ import annotations
 
 import torch
+import torch.nn.functional as F
 from torch import Tensor, nn
 
 
@@ -233,6 +234,163 @@ class HybridCNNViTEncoder(nn.Module):
 
         z = self.proj(h[:, 0, :])
         return z.view(B, T, -1)
+
+
+class _CausalConv3dBlock(nn.Module):
+    """Causal Conv3d -> per-frame GroupNorm -> GELU.
+
+    The time axis is left-padded by ``t_kernel - 1`` with zeros and uses
+    temporal stride 1, so output frame ``t`` depends only on input frames
+    ``<= t``. GroupNorm is applied per frame (reshape to ``(B*T, C, H, W)``)
+    so the normalization statistics never mix across time, which would
+    otherwise leak the future into the past and break causality.
+    """
+
+    def __init__(
+        self,
+        in_ch: int,
+        out_ch: int,
+        t_kernel: int,
+        s_kernel: int = 3,
+        spatial_stride: int = 1,
+        n_groups: int = 8,
+    ) -> None:
+        super().__init__()
+        self._t_pad = t_kernel - 1
+        s_pad = s_kernel // 2
+        self.conv = nn.Conv3d(
+            in_ch,
+            out_ch,
+            kernel_size=(t_kernel, s_kernel, s_kernel),
+            stride=(1, spatial_stride, spatial_stride),
+            padding=(0, s_pad, s_pad),
+            bias=True,
+        )
+        self.norm = nn.GroupNorm(n_groups, out_ch)
+        self.act = nn.GELU()
+
+    def forward(self, x: Tensor) -> Tensor:
+        # x: (B, C, T, H, W). Causal left-pad on the time axis only.
+        x = F.pad(x, (0, 0, 0, 0, self._t_pad, 0))
+        x = self.conv(x)
+        b, c, t, h, w = x.shape
+        x = x.permute(0, 2, 1, 3, 4).reshape(b * t, c, h, w)
+        x = self.act(self.norm(x))
+        return x.reshape(b, t, c, h, w).permute(0, 2, 1, 3, 4)
+
+
+class SpatioTemporalCNNViTEncoder(nn.Module):
+    """Causal 3D-conv tubelet stem + per-frame ViT, emitting per-frame latents.
+
+    Same ``(B, T, 1, H, W) -> (B, T, d)`` contract as
+    ``HybridCNNViTEncoder``, but the stem mixes a causal window of frames so
+    each ``z_t`` integrates frames ``<= t`` instead of a single snapshot. The
+    temporal receptive field is ``1 + (t_kernel - 1) * 3`` frames (the stem and
+    the two spatial-downsampling convs are temporal; the residual blocks are
+    spatial-only at temporal kernel 1). The ViT, ``[CLS]`` readout, and
+    BatchNorm projection are identical to ``HybridCNNViTEncoder``.
+    """
+
+    def __init__(
+        self,
+        in_channels: int = 1,
+        cnn_channels: tuple[int, int, int] = (64, 128, 256),
+        vit_depth: int = 6,
+        vit_hidden: int = 256,
+        vit_heads: int = 8,
+        vit_mlp_ratio: float = 4.0,
+        latent_dim: int = 32,
+        dropout: float = 0.0,
+        projection_norm: str = "batchnorm",
+        temporal_kernel: int = 3,
+    ) -> None:
+        super().__init__()
+        if projection_norm not in ("batchnorm", "layernorm"):
+            raise ValueError(
+                f"projection_norm must be 'batchnorm' or 'layernorm', got {projection_norm!r}"
+            )
+        if temporal_kernel < 1:
+            raise ValueError(f"temporal_kernel must be >= 1, got {temporal_kernel}")
+        self.projection_norm = projection_norm
+        self.temporal_kernel = temporal_kernel
+        c1, c2, c3 = cnn_channels
+        tk = temporal_kernel
+
+        # Causal 3D stem: temporal in stem + the two downsamples (RF = 1+(tk-1)*3);
+        # residual blocks are spatial-only (t_kernel=1).
+        self.stem = _CausalConv3dBlock(in_channels, c1, t_kernel=tk, s_kernel=7, spatial_stride=2)
+        self.block1 = nn.Sequential(
+            _CausalConv3dBlock(c1, c1, t_kernel=1),
+            _CausalConv3dBlock(c1, c1, t_kernel=1),
+        )
+        self.down1 = _CausalConv3dBlock(c1, c2, t_kernel=tk, spatial_stride=2)
+        self.block2 = nn.Sequential(
+            _CausalConv3dBlock(c2, c2, t_kernel=1),
+            _CausalConv3dBlock(c2, c2, t_kernel=1),
+        )
+        self.down2 = _CausalConv3dBlock(c2, c3, t_kernel=tk, spatial_stride=2)
+        self.block3 = nn.Sequential(
+            _CausalConv3dBlock(c3, c3, t_kernel=1),
+            _CausalConv3dBlock(c3, c3, t_kernel=1),
+        )
+
+        h_feat, w_feat = 192 // 8, 96 // 8
+        self._num_spatial_tokens = h_feat * w_feat
+
+        self.token_proj: nn.Module = (
+            nn.Identity() if c3 == vit_hidden else nn.Linear(c3, vit_hidden)
+        )
+        pos_embed = _sin_cos_2d_pos_embed(h_feat, w_feat, vit_hidden)
+        self.register_buffer("pos_embed", pos_embed.unsqueeze(0), persistent=False)
+        self.cls_token = nn.Parameter(torch.zeros(1, 1, vit_hidden))
+        nn.init.trunc_normal_(self.cls_token, std=0.02)
+        self.vit = nn.ModuleList(
+            [_ViTBlock(vit_hidden, vit_heads, vit_mlp_ratio, dropout) for _ in range(vit_depth)]
+        )
+        self.norm = nn.LayerNorm(vit_hidden)
+        proj_norm: nn.Module = (
+            nn.BatchNorm1d(latent_dim)
+            if projection_norm == "batchnorm"
+            else nn.LayerNorm(latent_dim)
+        )
+        self.proj = nn.Sequential(nn.Linear(vit_hidden, latent_dim), proj_norm)
+
+    @property
+    def num_spatial_tokens(self) -> int:
+        return self._num_spatial_tokens
+
+    def forward(self, x: Tensor) -> Tensor:
+        """Encode a sub-trajectory into causal-window-aware per-frame latents.
+
+        Args:
+            x: ``(B, T, C, H, W)`` with ``C = 1``, ``H = 192``, ``W = 96``.
+
+        Returns:
+            ``z`` of shape ``(B, T, latent_dim)``.
+        """
+        if x.dim() != 5:
+            raise ValueError(f"x must be (B, T, C, H, W), got {tuple(x.shape)}")
+        b, t = x.shape[0], x.shape[1]
+        h = x.permute(0, 2, 1, 3, 4)  # (B, C, T, H, W)
+        h = self.stem(h)
+        h = self.block1(h)
+        h = self.down1(h)
+        h = self.block2(h)
+        h = self.down2(h)
+        h = self.block3(h)  # (B, c3, T, 24, 12)
+
+        c3, hf, wf = h.shape[1], h.shape[3], h.shape[4]
+        h = h.permute(0, 2, 1, 3, 4).reshape(b * t, c3, hf, wf)
+        h = h.flatten(2).transpose(1, 2)  # (B*T, 288, c3)
+        h = self.token_proj(h)
+        h = h + self.pos_embed
+        cls = self.cls_token.expand(b * t, -1, -1)
+        h = torch.cat([cls, h], dim=1)
+        for block in self.vit:
+            h = block(h)
+        h = self.norm(h)
+        z = self.proj(h[:, 0, :])
+        return z.view(b, t, -1)
 
 
 class CNNOnlyEncoder(nn.Module):
