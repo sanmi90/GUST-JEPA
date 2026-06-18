@@ -39,7 +39,11 @@ from torch.utils.data import DataLoader
 
 from src.data.episode_dataset import EpisodeDataset
 from src.data.omega_pipeline import OmegaPipeline
-from src.models.encoder import CNNOnlyEncoder, HybridCNNViTEncoder
+from src.models.encoder import (
+    CNNOnlyEncoder,
+    HybridCNNViTEncoder,
+    SpatioTemporalCNNViTEncoder,
+)
 from src.models.jepa import JEPA
 from src.models.observable_head import ObservableHead, WakeObservableHead
 from src.data.wake_observables import mode_output_dim
@@ -173,13 +177,23 @@ def parse_args() -> argparse.Namespace:
     p.add_argument(
         "--encoder",
         type=str,
-        choices=["hybrid", "cnn_only"],
+        choices=["hybrid", "cnn_only", "st_hybrid"],
         default="hybrid",
         help=(
             "Encoder family. 'hybrid' is the locked CNN+ViT production encoder "
             "(HANDOFF.md D3); 'cnn_only' removes the ViT (Session 20 Track A "
             "A2/A4 architecture-axis control), keeping the same CNN stem and "
             "BatchNorm latent projection."
+        ),
+    )
+    p.add_argument(
+        "--temporal-kernel",
+        type=int,
+        default=3,
+        help=(
+            "Temporal conv kernel for --encoder st_hybrid. Causal receptive "
+            "field is 1 + (k-1)*3 frames (k=3 -> 7 frames ~ 0.35 t/c). Ignored "
+            "for other encoders."
         ),
     )
     p.add_argument(
@@ -726,6 +740,12 @@ def main() -> None:
     if args.encoder == "cnn_only":
         encoder: nn.Module = CNNOnlyEncoder(
             latent_dim=args.d, projection_norm=args.projection_norm
+        )
+    elif args.encoder == "st_hybrid":
+        encoder = SpatioTemporalCNNViTEncoder(
+            latent_dim=args.d,
+            projection_norm=args.projection_norm,
+            temporal_kernel=args.temporal_kernel,
         )
     else:
         encoder = HybridCNNViTEncoder(latent_dim=args.d, projection_norm=args.projection_norm)
