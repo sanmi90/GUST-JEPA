@@ -202,7 +202,11 @@ def _load_jepa_encoder(
     device: torch.device,
 ):
     """Reconstruct the HybridCNNViTEncoder from a JEPA checkpoint."""
-    from src.models.encoder import CNNOnlyEncoder, HybridCNNViTEncoder
+    from src.models.encoder import (
+        CNNOnlyEncoder,
+        HybridCNNViTEncoder,
+        SpatioTemporalCNNViTEncoder,
+    )
 
     blob = torch.load(checkpoint_path, map_location="cpu", weights_only=False)
     targs = blob.get("args", {})
@@ -212,6 +216,11 @@ def _load_jepa_encoder(
     encoder_kind = str(targs.get("encoder", "hybrid"))
     if encoder_kind == "cnn_only":
         encoder = CNNOnlyEncoder(latent_dim=d, projection_norm=proj_norm).to(device)
+    elif encoder_kind == "st_hybrid":
+        tk = int(targs.get("temporal_kernel", 3))
+        encoder = SpatioTemporalCNNViTEncoder(
+            latent_dim=d, projection_norm=proj_norm, temporal_kernel=tk
+        ).to(device)
     else:
         encoder = HybridCNNViTEncoder(latent_dim=d, projection_norm=proj_norm).to(device)
     # JEPA checkpoint stores the full JEPA module; extract encoder weights
