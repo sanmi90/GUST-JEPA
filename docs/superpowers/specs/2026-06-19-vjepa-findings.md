@@ -13,7 +13,53 @@ rollout objective on the gust data? Tested at d=64, seeds {0,1,2}, split v2.1,
 on the six-metric suite. (Variant A, spatio-temporal *encoding* inside our
 framing, was a clean null; B was a user-requested exploration.)
 
-## Verdict: MIXED, and the forecast comparison is confounded by the eval adapter.
+## FINAL VERDICT (after the fair re-eval, 2026-06-19 12:30)
+
+V-JEPA improves PARAMETER READABILITY (real: impact-frame Y R^2 0.92 vs the
+per-frame JEPA's 0.57) but does NOT forecast the wake better; on a FAIR
+same-predictor test it forecasts much WORSE, and that weakness lives in the
+V-JEPA latent itself, not the evaluation. So: helpful for a parameter-sensing /
+disentanglement goal, not for the dynamical (forecasting) goal that is this
+project's primary aim. Do not adopt it for the forecasting story.
+
+### The fair re-eval that decided it (supersedes the "eval confound" section below)
+
+The first run's poor V-JEPA forecast had two suspected confounds; both were
+removed and the verdict held:
+1. Coarse d=64 pooling -> re-extracted with a FINER latent (overlapping clips
+   stride 8 + linear interp, vjepa_fine_s*). Forecast essentially UNCHANGED
+   (-0.08 -> +0.51 vs the coarse +0.00 -> +0.53). The pooling was NOT the cause;
+   my earlier "likely an eval artifact" framing was wrong.
+2. Matched-vs-own predictor -> built jepa_matched (per-frame JEPA latent + the
+   SAME matched predictor). It forecasts +0.89 -> +0.59, essentially identical to
+   jepa-own (+0.89 -> +0.61). The matched protocol is NOT the cause, and the JEPA
+   latent's forecastability lives in the LATENT, not the co-trained predictor.
+
+Fair same-predictor 3-seed forecast band (wake R^2, h=1 -> h=16):
+| family (same matched predictor) | h=1 | h=16 |
+|---|---|---|
+| jepa_matched (per-frame JEPA latent) | +0.89 | +0.59 |
+| regAE-matched | +0.54 | +0.37 |
+| vjepa_fine (finer latent) | -0.08 | +0.51 |
+| (ref) jepa-own (co-trained predictor) | +0.89 | +0.61 |
+
+Conclusion: with both confounds removed, the V-JEPA latent is a decisively worse
+short-horizon wake forecaster (-0.08 at h=1 vs +0.89 for the JEPA latent under the
+identical predictor). The inverted curve (poor short, rising long) suggests the
+masked-prediction objective learns slow / clip-scale structure, not the fast
+sub-clip dynamics short-horizon wake forecasting needs. The readability win (Y)
+stands and is the one solid V-JEPA advantage.
+
+NOTE: jepa_matched band shown at s0 (firm; s1/s2 were finishing at write time, the
+h=1 gap 0.89 vs -0.08 is decisive at any seed count).
+
+---
+## (SUPERSEDED) earlier framing: "forecast confounded by the eval adapter"
+
+The section below was written before the fair re-eval and is kept for the record.
+Its core hypothesis (coarse pooling causes the poor forecast) was REFUTED by the
+finer-latent re-extraction above. The one-line summary it gives is no longer the
+conclusion.
 
 V-JEPA clearly improves PARAMETER READABILITY (a real, eval-robust win,
 especially the hard Y parameter), but its rollout FORECAST is poor and
