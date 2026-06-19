@@ -188,3 +188,23 @@ supervision pattern.
 
 PENDING: step (1) = V-JEPA WITH lift+wake heads (the proper both-supervised fair
 test) + dense SSIM-vs-AE (decoders running).
+
+---
+## UPDATE 3 (2026-06-19 20:05): dense V-JEPA SSIM vs the AE
+
+Canonical T9-decoder SSIM (same recipe as the AE decoders), dense V-JEPA latent:
+- dec_vjepa_dense_s1: test_b 0.492 (test_a 0.578, test_c 0.322); s0 firming.
+- refs (test_b): per-frame JEPA 0.502, regAE 0.476, Fukami AE 0.380.
+
+So dense V-JEPA reconstructs the vorticity field ~= the per-frame JEPA (0.492 vs
+0.502) and slightly BETTER than the reconstruction-trained regAE (0.476), despite
+V-JEPA having NO reconstruction loss (pure masked-feature SSL). Image quality is a
+point in V-JEPA's favour, not against it. (The dense loss did not raise SSIM over
+plain V-JEPA ~0.56 test_a_subset8; it helped long-horizon forecast, not recon.)
+
+Net fair picture (after removing the confounds the user flagged): V-JEPA is
+competitive-or-better on readability (Y 0.92 >> 0.57), reconstruction (>= AE), and
+long-horizon forecast (dense h16 +0.62, best); its only clear deficit is
+SHORT-horizon wake forecast, and step 2 showed that gap is largely the missing
+wake head. Step 1 (V-JEPA + lift+wake heads) tests whether matched supervision
+closes even that.
