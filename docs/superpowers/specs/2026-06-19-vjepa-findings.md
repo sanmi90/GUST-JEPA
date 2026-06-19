@@ -34,7 +34,8 @@ is not cleanly answered here.
 | probe Y R^2 (test_b) | **+0.92** | +0.57 | +0.49 | n/a |
 | probe G / D R^2 | 0.94 / 0.95 | 0.95 / 0.88 | 0.94 / 0.87 | n/a |
 | participation ratio (d64) | 4.1 | ~1.8 | ~1.8 | 9.9 |
-| SSIM test_b | pending | 0.502 | ~0.50 | 0.476 |
+| SSIM (test_a_subset8 @8k, matched) | 0.56 (climbing) | 0.61 | - | - |
+| SSIM test_b (canonical, pending) | pending | 0.502 | ~0.50 | 0.476 |
 
 ## What is real
 
@@ -63,6 +64,13 @@ artifact of the d=64 EVAL ADAPTER, not the objective:
   but here reflects a near-constant trajectory, not superior dynamics. Also note
   V-JEPA uses a MATCHED predictor while the JEPA/ST drift used their OWN predictor,
   so the drift rows are not strictly apples-to-apples.
+
+SSIM corroborates the confound: V-JEPA reconstructs the field somewhat worse at
+matched iters (test_a_subset8 0.56 vs JEPA 0.61 at 8k), i.e. the SAME coarse,
+temporally-blocky d=64 latent that hurts the rollout also smears the decoded
+field. Both temporal-resolution-dependent metrics (forecast, SSIM) are degraded,
+while the probe (a single readout, no rollout) is not, which is exactly where
+V-JEPA's representation quality shows through.
 
 A fair forecast test of the V-JEPA objective needs a finer-temporal eval latent
 (overlapping clips with stride < 32, and LINEAR rather than nearest time
