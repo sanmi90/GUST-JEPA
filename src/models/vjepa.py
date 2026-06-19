@@ -64,6 +64,16 @@ class VJEPA(nn.Module):
         self.pred_proj = nn.Linear(pred_hidden, hidden)
         pred_pos = sincos_3d(self.grid, pred_hidden).unsqueeze(0)
         self.register_buffer("pred_pos", pred_pos, persistent=False)
+        gt, gh, gw = self.grid
+        coords = (
+            torch.stack(
+                torch.meshgrid(torch.arange(gt), torch.arange(gh), torch.arange(gw), indexing="ij"),
+                dim=-1,
+            )
+            .reshape(-1, 3)
+            .float()
+        )  # (N, 3) token (t,h,w) coords in TubeletEmbed flatten order
+        self.register_buffer("grid_coords", coords, persistent=False)
 
     @torch.no_grad()
     def ema_update(self, momentum: float) -> None:
@@ -76,25 +86,24 @@ class VJEPA(nn.Module):
         """Eval helper: full-clip context-encoder tokens (B, N, D)."""
         return self.context_encoder(self.tokenizer(omega))
 
-    def forward(self, omega: Tensor, mask: Tensor | None = None) -> dict[str, Tensor]:
+    def forward(
+        self, omega: Tensor, mask: Tensor | None = None, lam_ctx: float = 0.0
+    ) -> dict[str, Tensor]:
         tok = self.tokenizer(omega)  # (B,N,D)
         b, n, d = tok.shape
         if mask is None:
-            mask = self.masker.sample(b).to(tok.device)  # (B,N) True=masked
+            mask = self.masker.sample(b).to(tok.device)
         vis = ~mask
         n_vis = int(vis[0].sum())
         n_mask = n - n_vis
         vis_idx = vis.nonzero(as_tuple=False)[:, 1].view(b, n_vis)
         mask_idx = mask.nonzero(as_tuple=False)[:, 1].view(b, n_mask)
-        # context: encode visible tokens only
         ctx_tok = torch.gather(tok, 1, vis_idx[:, :, None].expand(b, n_vis, d))
-        ctx = self.context_encoder(ctx_tok)  # (B, n_vis, D)
-        # target: full clip through EMA encoder, stop-grad, per-token LayerNorm
+        ctx = self.context_encoder(ctx_tok)
         with torch.no_grad():
-            tgt_full = self.target_encoder(self.tokenizer(omega))  # (B,N,D)
+            tgt_full = self.target_encoder(self.tokenizer(omega))
             tgt_full = F.layer_norm(tgt_full, (d,))
-        tgt = torch.gather(tgt_full, 1, mask_idx[:, :, None].expand(b, n_mask, d))
-        # predictor: context tokens + mask tokens, each stamped with its position
+        tgt_m = torch.gather(tgt_full, 1, mask_idx[:, :, None].expand(b, n_mask, d))
         ph = self.pred_pos.shape[-1]
         pos = self.pred_pos.expand(b, n, -1)
         vis_pos = torch.gather(pos, 1, vis_idx[:, :, None].expand(b, n_vis, ph))
@@ -105,6 +114,21 @@ class VJEPA(nn.Module):
         for blk in self.pred_blocks:
             seq = blk(seq)
         seq = self.pred_norm(seq)
-        pred_mask = self.pred_proj(seq[:, n_vis:, :])  # (B, n_mask, D)
-        loss = F.smooth_l1_loss(pred_mask, tgt, beta=0.5)
-        return {"loss": loss, "mask": mask}
+        pred_full = self.pred_proj(seq)  # (b, n_vis + n_mask, d)
+        pred_m = pred_full[:, n_vis:, :]
+        l_pred = F.smooth_l1_loss(pred_m, tgt_m, beta=0.5)
+        out = {"loss": l_pred, "l_pred": l_pred.detach(), "mask": mask}
+        if lam_ctx > 0:
+            pred_v = pred_full[:, :n_vis, :]
+            tgt_v = torch.gather(tgt_full, 1, vis_idx[:, :, None].expand(b, n_vis, d))
+            vis_c = self.grid_coords[vis_idx]  # (b, n_vis, 3)
+            mask_c = self.grid_coords[mask_idx]  # (b, n_mask, 3)
+            dmin = torch.cdist(vis_c, mask_c).min(dim=-1).values  # (b, n_vis)
+            w = lam_ctx / torch.sqrt(dmin.clamp(min=1.0))  # (b, n_vis)
+            l_elem = F.smooth_l1_loss(pred_v, tgt_v, beta=0.5, reduction="none").mean(
+                -1
+            )  # (b,n_vis)
+            l_ctx = (w * l_elem).mean()
+            out["loss"] = l_pred + l_ctx
+            out["l_ctx"] = l_ctx.detach()
+        return out

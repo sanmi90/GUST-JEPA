@@ -126,3 +126,51 @@ def test_frame_mean_pool_is_mean_over_spatial() -> None:
     # frame 0 occupies tokens [0 : 12*6]
     expected0 = tok[0, 0:72].mean(dim=0)
     assert torch.allclose(fp[0, 0], expected0, atol=1e-5)
+
+
+def test_vjepa_grid_coords_shape() -> None:
+    m = VJEPA(depth=2, pred_depth=2)
+    assert m.grid_coords.shape == (1152, 3)
+
+
+def test_vjepa_lam_ctx_zero_matches_original() -> None:
+    """lam_ctx=0 (default) reproduces the masked-only loss exactly."""
+    torch.manual_seed(0)
+    m = VJEPA(depth=2, pred_depth=2).eval()
+    x = _batch(2)
+    mask = m.masker.sample(2)
+    with torch.no_grad():
+        a = m(x, mask=mask)["loss"]
+        b = m(x, mask=mask, lam_ctx=0.0)["loss"]
+    assert torch.allclose(a, b)
+
+
+def test_vjepa_dense_loss_adds_positive_context_term() -> None:
+    """lam_ctx>0 adds a finite positive context term; total > masked-only."""
+    torch.manual_seed(0)
+    m = VJEPA(depth=2, pred_depth=2).eval()
+    x = _batch(2)
+    mask = m.masker.sample(2)
+    with torch.no_grad():
+        base = m(x, mask=mask, lam_ctx=0.0)
+        dense = m(x, mask=mask, lam_ctx=0.5)
+    assert "l_ctx" in dense and torch.isfinite(dense["l_ctx"]) and dense["l_ctx"] > 0
+    assert float(dense["loss"]) > float(base["loss"])
+
+
+def test_vjepa_dense_overfits_one_batch_cpu() -> None:
+    """With the dense loss on, the objective still learns on a fixed batch."""
+    torch.manual_seed(0)
+    m = VJEPA(depth=2, pred_depth=2)
+    x = _batch(2)
+    mask = m.masker.sample(2)
+    opt = torch.optim.AdamW([p for p in m.parameters() if p.requires_grad], lr=1e-3)
+    losses = []
+    for _ in range(30):
+        opt.zero_grad()
+        out = m(x, mask=mask, lam_ctx=0.5)
+        out["loss"].backward()
+        opt.step()
+        m.ema_update(momentum=0.99)
+        losses.append(float(out["loss"].detach()))
+    assert losses[-1] < 0.6 * losses[0], f"no overfit: {losses[0]:.4f} -> {losses[-1]:.4f}"

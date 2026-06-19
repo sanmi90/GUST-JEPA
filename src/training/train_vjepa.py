@@ -56,6 +56,18 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--wake-observables-root", default=None)
     p.add_argument("--cases", nargs="+", default=None)
     p.add_argument("--all-train", action="store_true")
+    p.add_argument(
+        "--lam-ctx",
+        type=float,
+        default=0.5,
+        help="V-JEPA 2.1 dense context-loss base weight (0 = original masked-only).",
+    )
+    p.add_argument(
+        "--lam-ctx-warmup-frac",
+        type=float,
+        default=0.25,
+        help="Fraction of training over which lam_ctx warms 0 -> lam_ctx.",
+    )
     return p.parse_args()
 
 
@@ -112,15 +124,19 @@ def main() -> None:
         for g, b in zip(opt.param_groups, base_lrs):
             g["lr"] = b * s
         opt.zero_grad(set_to_none=True)
+        lam_w = args.lam_ctx * min(1.0, i / max(1.0, args.lam_ctx_warmup_frac * args.max_iters))
         with torch.autocast(device_type="cuda", dtype=torch.bfloat16):
-            out_d = model(omega)
+            out_d = model(omega, lam_ctx=lam_w)
         out_d["loss"].backward()
         torch.nn.utils.clip_grad_norm_(model.parameters(), args.grad_clip)
         opt.step()
         model.ema_update(ema_m(i))
         if i % args.log_every == 0:
+            lp = float(out_d.get("l_pred", out_d["loss"]))
+            lc = float(out_d["l_ctx"]) if "l_ctx" in out_d else 0.0
             print(
                 f"[iter {i}/{args.max_iters}] L={float(out_d['loss'].detach()):.4f} "
+                f"Lpred={lp:.4f} Lctx={lc:.4f} lam={lam_w:.3f} "
                 f"lr={opt.param_groups[0]['lr']:.2e} ema={ema_m(i):.4f}",
                 file=log,
                 flush=True,
