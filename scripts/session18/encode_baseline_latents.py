@@ -250,11 +250,20 @@ def _load_jepa_encoder(
     return encode_fn, d
 
 
-def _load_vjepa_encoder(checkpoint_path, pipeline, device):
-    """Rebuild VJEPA from checkpoint; encode_fn -> (120, hidden=384) per encounter
-    by tiling the 120-frame encounter into 32-frame clips, frame-mean-pooling each
-    clip's tokens, concatenating along time, and nearest-upsampling to 120."""
-    import numpy as np
+def _load_vjepa_encoder(checkpoint_path, pipeline, device, eval_stride: int = 32,
+                        eval_interp: str = "nearest"):
+    """Rebuild VJEPA from checkpoint; encode_fn -> (120, hidden=384) per encounter.
+
+    Default (``eval_stride >= clip_len and eval_interp == "nearest"``) tiles the
+    120-frame encounter into NON-overlapping 32-frame clips, frame-mean-pools each
+    clip's tokens, concatenates along time, and nearest-upsamples to 120 (the
+    original Session 18 path, byte-for-byte preserved).
+
+    The finer path (``eval_stride < clip_len`` or ``eval_interp == "linear"``)
+    uses OVERLAPPING clips, assigns each pooled frame-token its tubelet-center
+    time, and linear-interpolates the scattered features onto the 120-frame grid.
+    This removes the piecewise-constant-within-clip artefact that confounds
+    short-horizon forecasting."""
     import torch
     from src.models.vjepa import VJEPA
     from src.models.vjepa_pool import frame_mean_pool
@@ -268,27 +277,63 @@ def _load_vjepa_encoder(checkpoint_path, pipeline, device):
     grid = model.grid
     clip_len = 32
     hidden = int(model.tokenizer.proj.out_channels)
+    t_tubelet = clip_len // grid[0]
 
     @torch.no_grad()
-    def encode_fn(omega_THW: np.ndarray, case_id: str, k: int) -> np.ndarray:
+    def encode_fn(omega_THW, case_id, k):
+        import numpy as np
         omega = pipeline.preprocess_raw(omega_THW, case_id, int(k))  # (T,H,W)
         t_total = omega.shape[0]
         ot = torch.from_numpy(omega).unsqueeze(0).unsqueeze(2).to(device)  # (1,T,1,H,W)
         ot = pipeline.normalize(ot)
-        feats = []
-        for s in range(0, t_total, clip_len):
-            chunk = ot[:, s:s + clip_len]
+
+        def _clip_pool(s0):
+            chunk = ot[:, s0:s0 + clip_len]
             if chunk.shape[1] < clip_len:
                 pad = clip_len - chunk.shape[1]
                 chunk = torch.cat([chunk, chunk[:, -1:].repeat(1, pad, 1, 1, 1)], dim=1)
             with torch.autocast(device_type="cuda", dtype=torch.bfloat16):
-                tok = model.encode_tokens(chunk)  # (1, N, D)
-            feats.append(frame_mean_pool(tok.float(), grid).squeeze(0).cpu().numpy())  # (gt, D)
-        feat = np.concatenate(feats, axis=0)  # (gt*nchunks, D)
-        idx = np.clip((np.arange(120) * feat.shape[0] / 120).astype(int), 0, feat.shape[0] - 1)
-        return feat[idx]  # (120, D)
+                tok = model.encode_tokens(chunk)  # (1,N,D)
+            return frame_mean_pool(tok.float(), grid).squeeze(0).cpu().numpy()  # (gt,D)
+
+        if eval_stride >= clip_len and eval_interp == "nearest":
+            feats = [_clip_pool(s) for s in range(0, t_total, clip_len)]
+            feat = np.concatenate(feats, axis=0)
+            idx = np.clip((np.arange(120) * feat.shape[0] / 120).astype(int), 0, feat.shape[0] - 1)
+            return feat[idx]
+
+        # finer path: overlapping clips, tubelet-center times, linear interp to 120
+        starts = list(range(0, max(1, t_total - clip_len + 1), eval_stride))
+        if starts[-1] != t_total - clip_len:
+            starts.append(t_total - clip_len)
+        times, feats = [], []
+        for s0 in starts:
+            fp = _clip_pool(s0)  # (gt, D)
+            for j in range(grid[0]):
+                times.append(s0 + j * t_tubelet + (t_tubelet - 1) / 2.0)
+                feats.append(fp[j])
+        return _vjepa_assemble(times, feats, 120)
 
     return encode_fn, hidden
+
+
+def _vjepa_assemble(times, feats, n_out: int = 120):
+    """Scattered (times, feats[M,D]) -> dense (n_out, D): average duplicate
+    times, then linear-interpolate onto arange(n_out)."""
+    import numpy as np
+    times = np.asarray(times, dtype=np.float64)
+    feats = np.asarray(feats, dtype=np.float64)
+    ut, inv = np.unique(times, return_inverse=True)
+    uf = np.zeros((len(ut), feats.shape[1]))
+    cnt = np.zeros(len(ut))
+    np.add.at(uf, inv, feats)
+    np.add.at(cnt, inv, 1.0)
+    uf /= cnt[:, None]
+    grid = np.arange(n_out, dtype=np.float64)
+    out = np.empty((n_out, feats.shape[1]), dtype=np.float32)
+    for d in range(feats.shape[1]):
+        out[:, d] = np.interp(grid, ut, uf[:, d])
+    return out
 
 
 def _vjepa_pca_to_64(output_dir, splits, n_components: int = 64) -> None:
@@ -358,6 +403,10 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--gpu", type=int, default=0)
     p.add_argument("--device", type=str, default=None,
                    help="Explicit torch device (e.g. cuda:0 for an L40S); bypasses require_rtx6000.")
+    p.add_argument("--vjepa-eval-stride", type=int, default=32,
+                   help="V-JEPA eval clip stride (frames). <32 = overlapping clips.")
+    p.add_argument("--vjepa-eval-interp", default="nearest", choices=["nearest", "linear"],
+                   help="V-JEPA eval time interpolation to 120 frames.")
     return p.parse_args()
 
 
@@ -391,7 +440,9 @@ def main() -> None:
         from src.utils.device import require_rtx6000
 
         device = torch.device(args.device) if args.device else require_rtx6000(gpu_index=args.gpu)
-        encode_fn, d_ckpt = _load_vjepa_encoder(args.checkpoint, pipeline, device)
+        encode_fn, d_ckpt = _load_vjepa_encoder(
+            args.checkpoint, pipeline, device,
+            eval_stride=args.vjepa_eval_stride, eval_interp=args.vjepa_eval_interp)
     else:
         from src.utils.device import require_rtx6000
 
