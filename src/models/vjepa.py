@@ -11,6 +11,7 @@ from torch import Tensor, nn
 
 from src.models.encoder import _ViTBlock
 from src.models.vjepa_masking import MultiBlockMask
+from src.models.vjepa_pool import frame_mean_pool
 from src.models.vjepa_tokenizer import TubeletEmbed, sincos_3d
 
 
@@ -44,6 +45,9 @@ class VJEPA(nn.Module):
         pred_heads: int = 6,
         dropout: float = 0.0,
         mask_ratio: float = 0.8,
+        n_lift: int = 1,
+        wake_dim: int = 80,
+        wake_head_hidden: int = 128,
     ) -> None:
         super().__init__()
         self.tokenizer = TubeletEmbed(hidden=hidden)
@@ -74,6 +78,12 @@ class VJEPA(nn.Module):
             .float()
         )  # (N, 3) token (t,h,w) coords in TubeletEmbed flatten order
         self.register_buffer("grid_coords", coords, persistent=False)
+        self.lift_head = nn.Sequential(
+            nn.Linear(hidden, hidden), nn.GELU(), nn.Linear(hidden, n_lift)
+        )
+        self.wake_head = nn.Sequential(
+            nn.Linear(hidden, wake_head_hidden), nn.GELU(), nn.Linear(wake_head_hidden, wake_dim)
+        )
 
     @torch.no_grad()
     def ema_update(self, momentum: float) -> None:
@@ -87,7 +97,14 @@ class VJEPA(nn.Module):
         return self.context_encoder(self.tokenizer(omega))
 
     def forward(
-        self, omega: Tensor, mask: Tensor | None = None, lam_ctx: float = 0.0
+        self,
+        omega: Tensor,
+        mask: Tensor | None = None,
+        lam_ctx: float = 0.0,
+        cl_future: Tensor | None = None,
+        wake_target: Tensor | None = None,
+        lift_w: float = 0.0,
+        wake_w: float = 0.0,
     ) -> dict[str, Tensor]:
         tok = self.tokenizer(omega)  # (B,N,D)
         b, n, d = tok.shape
@@ -131,4 +148,22 @@ class VJEPA(nn.Module):
             l_ctx = (w * l_elem).mean()
             out["loss"] = l_pred + l_ctx
             out["l_ctx"] = l_ctx.detach()
+        if lift_w > 0.0 or wake_w > 0.0:
+            feat_full = self.context_encoder(tok)  # full-clip, with grad (B,N,hidden)
+            fp = frame_mean_pool(feat_full, self.grid)  # (B, gt, hidden)
+            gt = fp.shape[1]
+            if lift_w > 0.0 and cl_future is not None:
+                if cl_future.dim() == 2:
+                    cl_future = cl_future.unsqueeze(-1)
+                cl_ds = cl_future[:, ::2, :][:, :gt, :]  # (B,32,n)->(B,gt,n)
+                l_lift = F.smooth_l1_loss(self.lift_head(fp), cl_ds, beta=0.5)
+                out["loss"] = out["loss"] + lift_w * l_lift
+                out["l_lift"] = l_lift.detach()
+            if wake_w > 0.0 and wake_target is not None:
+                if wake_target.dim() == 2:
+                    wake_target = wake_target.unsqueeze(-1)
+                wk_ds = wake_target[:, ::2, :][:, :gt, :]
+                l_wake = F.smooth_l1_loss(self.wake_head(fp), wk_ds, beta=0.5)
+                out["loss"] = out["loss"] + wake_w * l_wake
+                out["l_wake"] = l_wake.detach()
         return out

@@ -38,6 +38,7 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--hidden", type=int, default=384)
     p.add_argument("--depth", type=int, default=8)
     p.add_argument("--pred-depth", type=int, default=6)
+    p.add_argument("--wake-dim", type=int, default=80)
     p.add_argument("--seed", type=int, default=42)
     p.add_argument("--gpu", type=int, default=0)
     p.add_argument("--log-every", type=int, default=200)
@@ -83,7 +84,12 @@ def main() -> None:
     loader = make_train_loader(args)
     it = infinite_iter(loader)
     model = VJEPA(
-        hidden=args.hidden, depth=args.depth, pred_depth=args.pred_depth, mask_ratio=args.mask_ratio
+        hidden=args.hidden,
+        depth=args.depth,
+        pred_depth=args.pred_depth,
+        mask_ratio=args.mask_ratio,
+        n_lift=len(args.observable_head_deltas),
+        wake_dim=args.wake_dim,
     ).to(device)
     enc_params = list(model.tokenizer.parameters()) + list(model.context_encoder.parameters())
     pred_params = (
@@ -125,8 +131,19 @@ def main() -> None:
             g["lr"] = b * s
         opt.zero_grad(set_to_none=True)
         lam_w = args.lam_ctx * min(1.0, i / max(1.0, args.lam_ctx_warmup_frac * args.max_iters))
+        cl = batch.get("cl_future")
+        wk = batch.get("wake_target")
+        cl = cl.to(device) if cl is not None else None
+        wk = wk.to(device) if wk is not None else None
         with torch.autocast(device_type="cuda", dtype=torch.bfloat16):
-            out_d = model(omega, lam_ctx=lam_w)
+            out_d = model(
+                omega,
+                lam_ctx=lam_w,
+                cl_future=cl,
+                wake_target=wk,
+                lift_w=args.observable_head_weight if args.observable_head == "cl_future" else 0.0,
+                wake_w=args.lambda_wake,
+            )
         out_d["loss"].backward()
         torch.nn.utils.clip_grad_norm_(model.parameters(), args.grad_clip)
         opt.step()
@@ -134,9 +151,11 @@ def main() -> None:
         if i % args.log_every == 0:
             lp = float(out_d.get("l_pred", out_d["loss"]))
             lc = float(out_d["l_ctx"]) if "l_ctx" in out_d else 0.0
+            ll = float(out_d["l_lift"]) if "l_lift" in out_d else 0.0
+            lw = float(out_d["l_wake"]) if "l_wake" in out_d else 0.0
             print(
                 f"[iter {i}/{args.max_iters}] L={float(out_d['loss'].detach()):.4f} "
-                f"Lpred={lp:.4f} Lctx={lc:.4f} lam={lam_w:.3f} "
+                f"Lpred={lp:.4f} Lctx={lc:.4f} Llift={ll:.4f} Lwake={lw:.4f} lam={lam_w:.3f} "
                 f"lr={opt.param_groups[0]['lr']:.2e} ema={ema_m(i):.4f}",
                 file=log,
                 flush=True,

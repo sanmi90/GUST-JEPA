@@ -174,3 +174,49 @@ def test_vjepa_dense_overfits_one_batch_cpu() -> None:
         m.ema_update(momentum=0.99)
         losses.append(float(out["loss"].detach()))
     assert losses[-1] < 0.6 * losses[0], f"no overfit: {losses[0]:.4f} -> {losses[-1]:.4f}"
+
+
+def test_vjepa_heads_present_and_optional() -> None:
+    """Heads exist; with weights 0 (default) the loss is unchanged vs no-heads."""
+    torch.manual_seed(0)
+    m = VJEPA(depth=2, pred_depth=2).eval()
+    assert hasattr(m, "lift_head") and hasattr(m, "wake_head")
+    x = _batch(2)
+    mask = m.masker.sample(2)
+    with torch.no_grad():
+        base = m(x, mask=mask)["loss"]
+        same = m(x, mask=mask, lift_w=0.0, wake_w=0.0)["loss"]
+    assert torch.allclose(base, same)
+
+
+def test_vjepa_heads_add_supervised_terms() -> None:
+    torch.manual_seed(0)
+    m = VJEPA(depth=2, pred_depth=2, n_lift=1, wake_dim=80).eval()
+    x = _batch(2)
+    mask = m.masker.sample(2)
+    cl = torch.randn(2, 32, 1)
+    wk = torch.randn(2, 32, 80)
+    with torch.no_grad():
+        base = m(x, mask=mask)["loss"]
+        sup = m(x, mask=mask, cl_future=cl, wake_target=wk, lift_w=0.01, wake_w=1.0)
+    assert "l_lift" in sup and "l_wake" in sup
+    assert float(sup["loss"]) > float(base)
+
+
+def test_vjepa_with_heads_overfits_one_batch_cpu() -> None:
+    torch.manual_seed(0)
+    m = VJEPA(depth=2, pred_depth=2, n_lift=1, wake_dim=80)
+    x = _batch(2)
+    mask = m.masker.sample(2)
+    cl = torch.randn(2, 32, 1)
+    wk = torch.randn(2, 32, 80)
+    opt = torch.optim.AdamW([p for p in m.parameters() if p.requires_grad], lr=1e-3)
+    losses = []
+    for _ in range(30):
+        opt.zero_grad()
+        out = m(x, mask=mask, lam_ctx=0.5, cl_future=cl, wake_target=wk, lift_w=0.01, wake_w=1.0)
+        out["loss"].backward()
+        opt.step()
+        m.ema_update(0.99)
+        losses.append(float(out["loss"].detach()))
+    assert losses[-1] < 0.6 * losses[0], f"no overfit: {losses[0]:.3f}->{losses[-1]:.3f}"
