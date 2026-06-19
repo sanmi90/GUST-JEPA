@@ -49,3 +49,43 @@ def test_mask_leaves_some_visible_and_varies_per_row() -> None:
     vis_frac = 1.0 - mask.float().mean().item()
     assert vis_frac >= 0.10
     assert not torch.equal(mask[0], mask[1])
+
+
+from src.models.vjepa import VJEPA
+
+
+def _batch(b=2):
+    return torch.randn(b, 32, 1, 192, 96)
+
+
+def test_vjepa_forward_returns_scalar_loss() -> None:
+    torch.manual_seed(0)
+    model = VJEPA(depth=2, pred_depth=2)
+    out = model(_batch())
+    assert out["loss"].ndim == 0 and torch.isfinite(out["loss"])
+
+
+def test_vjepa_target_encoder_has_no_grad() -> None:
+    model = VJEPA(depth=2, pred_depth=2)
+    assert all(not p.requires_grad for p in model.target_encoder.parameters())
+    assert any(p.requires_grad for p in model.context_encoder.parameters())
+
+
+def test_vjepa_ema_moves_target_toward_context() -> None:
+    torch.manual_seed(0)
+    model = VJEPA(depth=2, pred_depth=2)
+    with torch.no_grad():
+        for p in model.context_encoder.parameters():
+            p.add_(1.0)
+    tgt_before = next(iter(model.target_encoder.parameters())).clone()
+    ctx = next(iter(model.context_encoder.parameters())).clone()
+    model.ema_update(momentum=0.9)
+    tgt_after = next(iter(model.target_encoder.parameters()))
+    assert torch.norm(tgt_after - ctx) < torch.norm(tgt_before - ctx)
+
+
+def test_vjepa_encode_tokens_shape() -> None:
+    model = VJEPA(depth=2, pred_depth=2).eval()
+    with torch.no_grad():
+        tok = model.encode_tokens(_batch(1))
+    assert tok.shape == (1, 1152, 384)
