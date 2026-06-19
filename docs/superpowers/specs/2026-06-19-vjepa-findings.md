@@ -302,3 +302,29 @@ not the chaos tail.
 Scorecard so far (best config pending): V-JEPA(+heads) beats regAE on readability
 Y (0.92 vs 0.23), SSIM (0.492 vs 0.476), and short-horizon wake forecast in the
 predictable regime (+0.55 vs +0.42).
+
+---
+## UPDATE 7 (2026-06-19, user refocus): the ROM metric = DECODED FIELD FORECAST (Solera-Rico)
+
+The real deliverable is a ROM: roll the latent, DECODE to a field, compare the
+PREDICTED field to true DNS over the horizon. (Prior scalar-forecast R^2 and the
+parameter probe were proxies/interpretability, NOT the ROM goal.) New eval:
+scripts/session29/rom_field_forecast.py (h=0 reconstruction matches decoder
+summaries exactly -> wiring verified). Field SSIM(h), test_b, s0:
+
+| h | jepa-own | regAE | vjepa_dense |
+|---|---|---|---|
+| 0 | 0.50 | 0.53 | 0.54 |
+| 8 | 0.49 | 0.49 | 0.50 |
+| 16 | 0.38 | 0.45 | 0.46 |
+| 24 | 0.24 | 0.40 | 0.41 |
+| 32 | 0.22 | 0.36 | 0.37 |
+
+KEY DISSOCIATION: the scalar-forecast ranking does NOT transfer to FIELD forecast.
+jepa-own (best scalar wake +0.89) is the WORST ROM (field diverges fastest, 0.22
+@h32). regAE and vjepa_dense are the best ROMs, ~tied (~0.37 @h32). So on the ACTUAL
+ROM metric, V-JEPA(dense) already matches/edges regAE; the reconstruction-oriented
+latents make better ROMs than the scalar-forecast-optimised JEPA. Caveats: 1
+seed/model (firm later); SSIM = decoder convention (cross-model valid); ROM =
+encoder+predictor+decoder pipeline (fairly conflates latent+decoder). NEXT: add
+vjepa_best (full 2.1 + heads) -- the candidate to beat regAE as a ROM.
