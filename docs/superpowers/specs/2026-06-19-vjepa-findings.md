@@ -38,9 +38,9 @@ removed and the verdict held:
 Fair same-predictor 3-seed forecast band (wake R^2, h=1 -> h=16):
 | family (same matched predictor) | h=1 | h=16 |
 |---|---|---|
-| jepa_matched (per-frame JEPA latent) | +0.89 | +0.59 |
+| jepa_matched (per-frame JEPA latent, 3-seed) | +0.88 [0.88,0.89] | +0.53 [0.48,0.59] |
 | regAE-matched | +0.54 | +0.37 |
-| vjepa_fine (finer latent) | -0.08 | +0.51 |
+| vjepa_fine (finer latent, 3-seed) | -0.08 [-0.24,0.03] | +0.51 [0.39,0.59] |
 | (ref) jepa-own (co-trained predictor) | +0.89 | +0.61 |
 
 Conclusion: with both confounds removed, the V-JEPA latent is a decisively worse
@@ -50,8 +50,9 @@ masked-prediction objective learns slow / clip-scale structure, not the fast
 sub-clip dynamics short-horizon wake forecasting needs. The readability win (Y)
 stands and is the one solid V-JEPA advantage.
 
-NOTE: jepa_matched band shown at s0 (firm; s1/s2 were finishing at write time, the
-h=1 gap 0.89 vs -0.08 is decisive at any seed count).
+NOTE: all bands above are firm 3-seed (jepa_matched 3-seed +0.88->+0.53 confirms
+matched ~ own predictor). The h=1 gap (+0.88 jepa vs -0.08 vjepa, same predictor)
+is the decisive result.
 
 ---
 ## (SUPERSEDED) earlier framing: "forecast confounded by the eval adapter"
