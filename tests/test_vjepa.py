@@ -89,3 +89,21 @@ def test_vjepa_encode_tokens_shape() -> None:
     with torch.no_grad():
         tok = model.encode_tokens(_batch(1))
     assert tok.shape == (1, 1152, 384)
+
+
+def test_vjepa_overfits_one_batch_cpu() -> None:
+    """Loss on a fixed batch + mask must drop substantially after a few steps."""
+    torch.manual_seed(0)
+    model = VJEPA(depth=2, pred_depth=2)
+    x = _batch(2)
+    mask = model.masker.sample(2)
+    opt = torch.optim.AdamW([p for p in model.parameters() if p.requires_grad], lr=1e-3)
+    losses = []
+    for _ in range(30):
+        opt.zero_grad()
+        out = model(x, mask=mask)
+        out["loss"].backward()
+        opt.step()
+        model.ema_update(momentum=0.99)
+        losses.append(float(out["loss"].detach()))
+    assert losses[-1] < 0.6 * losses[0], f"no overfit: {losses[0]:.4f} -> {losses[-1]:.4f}"
