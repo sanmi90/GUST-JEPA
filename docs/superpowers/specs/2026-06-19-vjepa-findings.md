@@ -151,3 +151,40 @@ Code on branch `vjepa`: `src/models/vjepa{,_tokenizer,_masking,_pool}.py`,
 `outputs/runs/session29/dec_vjepa_s*`. Forecast via `m_lowd_forecast`; drift via
 `drift_ce1.compute_key` (ROLL_DIR=lowd_rollouts, PRED_LAT[vjepa_matched_s{s}]=
 vjepa_s{s}); probe = impact-frame z -> KernelRidge(RBF) GroupKFold-CV.
+
+---
+## UPDATE 2 (2026-06-19 18:40): the supervision-head confound (user-flagged) + C_L metric
+
+KEY CORRECTION to the forecast verdict. V-JEPA (plain AND dense) has NO lift/wake
+head (pure SSL); the JEPA/regAE it was compared to BOTH have lift (C_L) + wake
+(lambda=1.0) heads. The forecast metric IS the wake head's training target, so the
+comparison conflated OBJECTIVE with SUPERVISION.
+
+Step-2 control (ctrl_pred_vit_nowake = JEPA, lift head only, wake head removed),
+3-seed, own predictor, wake + C_L forecast R^2 (h=1 / h=16):
+
+| family (heads) | wake h1 | wake h16 | C_L h1 | C_L h16 |
+|---|---|---|---|---|
+| jepa-own (wake+lift) | +0.89 | +0.61 | +0.72 | +0.56 |
+| ctrl_nowake-own (LIFT only) | +0.13 | +0.28 | +0.69 | +0.40 |
+| regAE-matched (wake+lift) | +0.42 | +0.13 | +0.33 | +0.26 |
+| vjepa_fine (NO heads) | -0.08 | +0.51 | -0.06 | +0.55 |
+| vjepa_dense (NO heads) | -0.05 | +0.62 | -0.09 | +0.56 |
+
+DOUBLE-DISSOCIATION: removing the WAKE head crashes the WAKE forecast
+(+0.89 -> +0.13, toward V-JEPA's -0.08) but barely touches C_L (+0.72 -> +0.69,
+lift head retained). So the head, not the objective, drives each forecast.
+CONCLUSION: the "JEPA forecasts the wake far better than V-JEPA" result is largely
+a SUPERVISION artifact. A JEPA without the wake head forecasts the wake nearly as
+poorly as the unsupervised V-JEPA; the autoregressive objective retains only a
+small residual edge (+0.13 vs -0.08).
+
+DENSE CORRECTION: the firm 3-seed dense forecast is wake h1 = -0.05 (NOT the +0.16
+2-seed read), i.e. dense does NOT fix the short horizon; it only helps long-horizon
+(wake h16 +0.62, the best of any latent). Same for C_L (-0.09 -> +0.56).
+
+C_L metric: added throughout (above). Both wake and C_L follow the same
+supervision pattern.
+
+PENDING: step (1) = V-JEPA WITH lift+wake heads (the proper both-supervised fair
+test) + dense SSIM-vs-AE (decoders running).
