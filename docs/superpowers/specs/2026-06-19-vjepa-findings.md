@@ -292,3 +292,13 @@ under chaos; the legitimate result is that V-JEPA WITH the wake head recovers th
 correct decaying forecast and edges regAE in the predictable regime. Evaluate
 vjepa_best (full 2.1 + heads) on short-to-mid horizons (the predictable band),
 not the chaos tail.
+
+---
+## regAE reference cells (for the final vs-regAE table)
+- regAE encoded wake ceiling (3-seed): h1 +0.53, h8 +0.44, h16 +0.52 (flat ~0.5;
+  per-frame recon latent reads instantaneous wake moderately, below jepa ~0.8).
+- regAE probe Y (3-seed): +0.23  -> V-JEPA's Y readability (0.92) BEATS regAE by a
+  wide margin (0.92 vs 0.23), not marginal.
+Scorecard so far (best config pending): V-JEPA(+heads) beats regAE on readability
+Y (0.92 vs 0.23), SSIM (0.492 vs 0.476), and short-horizon wake forecast in the
+predictable regime (+0.55 vs +0.42).
