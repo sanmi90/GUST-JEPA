@@ -250,12 +250,75 @@ def _load_jepa_encoder(
     return encode_fn, d
 
 
+def _load_vjepa_encoder(checkpoint_path, pipeline, device):
+    """Rebuild VJEPA from checkpoint; encode_fn -> (120, hidden=384) per encounter
+    by tiling the 120-frame encounter into 32-frame clips, frame-mean-pooling each
+    clip's tokens, concatenating along time, and nearest-upsampling to 120."""
+    import numpy as np
+    import torch
+    from src.models.vjepa import VJEPA
+    from src.models.vjepa_pool import frame_mean_pool
+
+    blob = torch.load(checkpoint_path, map_location="cpu", weights_only=False)
+    a = blob.get("args", {})
+    model = VJEPA(hidden=int(a.get("hidden", 384)), depth=int(a.get("depth", 8)),
+                  pred_depth=int(a.get("pred_depth", 6))).to(device)
+    model.load_state_dict(blob["vjepa_state_dict"])
+    model.eval()
+    grid = model.grid
+    clip_len = 32
+    hidden = int(model.tokenizer.proj.out_channels)
+
+    @torch.no_grad()
+    def encode_fn(omega_THW: np.ndarray, case_id: str, k: int) -> np.ndarray:
+        omega = pipeline.preprocess_raw(omega_THW, case_id, int(k))  # (T,H,W)
+        t_total = omega.shape[0]
+        ot = torch.from_numpy(omega).unsqueeze(0).unsqueeze(2).to(device)  # (1,T,1,H,W)
+        ot = pipeline.normalize(ot)
+        feats = []
+        for s in range(0, t_total, clip_len):
+            chunk = ot[:, s:s + clip_len]
+            if chunk.shape[1] < clip_len:
+                pad = clip_len - chunk.shape[1]
+                chunk = torch.cat([chunk, chunk[:, -1:].repeat(1, pad, 1, 1, 1)], dim=1)
+            with torch.autocast(device_type="cuda", dtype=torch.bfloat16):
+                tok = model.encode_tokens(chunk)  # (1, N, D)
+            feats.append(frame_mean_pool(tok.float(), grid).squeeze(0).cpu().numpy())  # (gt, D)
+        feat = np.concatenate(feats, axis=0)  # (gt*nchunks, D)
+        idx = np.clip((np.arange(120) * feat.shape[0] / 120).astype(int), 0, feat.shape[0] - 1)
+        return feat[idx]  # (120, D)
+
+    return encode_fn, hidden
+
+
+def _vjepa_pca_to_64(output_dir, splits, n_components: int = 64) -> None:
+    """Fit PCA(n_components) on TRAIN pooled features, transform + re-save every
+    split's z_full from (n,120,hidden) to (n,120,n_components)."""
+    import numpy as np
+    from sklearn.decomposition import PCA
+
+    tr = np.load(output_dir / "train.npz", allow_pickle=True)
+    h = tr["z_full"].shape[-1]
+    pca = PCA(n_components=n_components, random_state=0)
+    pca.fit(tr["z_full"].reshape(-1, h))
+    for split in splits:
+        p = output_dir / f"{split}.npz"
+        if not p.exists():
+            continue
+        d = {k: v for k, v in np.load(p, allow_pickle=True).items()}
+        n, t, _ = d["z_full"].shape
+        d["z_full"] = pca.transform(d["z_full"].reshape(-1, h)).reshape(
+            n, t, n_components).astype(np.float32)
+        np.savez(p, **d)
+        print(f"[vjepa-pca] {split}: z_full -> {d['z_full'].shape}")
+
+
 def parse_args() -> argparse.Namespace:
     p = argparse.ArgumentParser(description="Encode baseline latents (B1)")
     p.add_argument(
         "--baseline",
         type=str,
-        choices=["fukami", "pod", "jepa"],
+        choices=["fukami", "pod", "jepa", "vjepa"],
         required=True,
     )
     p.add_argument("--d", type=int, required=True)
@@ -301,7 +364,7 @@ def parse_args() -> argparse.Namespace:
 def main() -> None:
     args = parse_args()
 
-    if args.baseline in ("fukami", "jepa") and args.checkpoint is None:
+    if args.baseline in ("fukami", "jepa", "vjepa") and args.checkpoint is None:
         raise SystemExit(f"--checkpoint required for baseline={args.baseline}")
     if args.baseline == "pod" and args.basis is None:
         raise SystemExit("--basis required for baseline=pod")
@@ -324,6 +387,11 @@ def main() -> None:
     elif args.baseline == "pod":
         device = torch.device("cpu")
         encode_fn, d_ckpt = _load_pod_encoder(args.basis, pipeline)
+    elif args.baseline == "vjepa":
+        from src.utils.device import require_rtx6000
+
+        device = torch.device(args.device) if args.device else require_rtx6000(gpu_index=args.gpu)
+        encode_fn, d_ckpt = _load_vjepa_encoder(args.checkpoint, pipeline, device)
     else:
         from src.utils.device import require_rtx6000
 
@@ -391,6 +459,9 @@ def main() -> None:
             impact_frame=impact_frame,
         )
         print(f"[encode] {split}: wrote {out_path} ({z_full.nbytes / 1e6:.2f} MB)")
+
+    if args.baseline == "vjepa":
+        _vjepa_pca_to_64(args.output_dir, args.splits)
 
     print("[encode] DONE")
 
