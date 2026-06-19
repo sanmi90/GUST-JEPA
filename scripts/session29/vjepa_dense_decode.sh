@@ -18,11 +18,8 @@ LOCK=outputs/runs/session29/vjepa_dense_decode.lock
 [ -f "$LOCK" ] && { echo "[vdd] lock exists; exit"; exit 0; }
 mkdir -p outputs/runs/session29; echo "$$ $(date -Iseconds)" > "$LOCK"; trap 'rm -f "$LOCK"' EXIT
 
-echo "[vdd] waiting for the dense band to finish (vjepa_dense.lock) ..."
-deadline=$((SECONDS+18000))
-while [ -f outputs/runs/session29/vjepa_dense.lock ]; do
-  sleep 60; [ "$SECONDS" -ge "$deadline" ] && { echo "[vdd] WARN wait timed out; proceeding"; break; }
-done
+# Encoders are what the decoder needs (NOT the forecast rollouts); all 3 are
+# trained, so no band-wait gate. Run now, in parallel with the band's tail.
 for s in 0 1 2; do
   while [ ! -f "$RUN/vjepa_dense_s${s}/checkpoint_iter020000.pt" ]; do sleep 30; done
 done
