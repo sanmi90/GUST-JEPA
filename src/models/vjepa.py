@@ -27,10 +27,18 @@ class _Encoder(nn.Module):
         )
         self.norm = nn.LayerNorm(hidden)
 
-    def forward(self, x: Tensor) -> Tensor:
-        for b in self.blocks:
+    def forward(self, x: Tensor, return_levels: list[int] | None = None) -> Tensor | list[Tensor]:
+        if return_levels is None:
+            for b in self.blocks:
+                x = b(x)
+            return self.norm(x)
+        outs = []
+        want = set(return_levels)
+        for i, b in enumerate(self.blocks, start=1):  # 1-indexed depth
             x = b(x)
-        return self.norm(x)
+            if i in want:
+                outs.append(self.norm(x) if i == len(self.blocks) else x)
+        return outs  # in ascending level order
 
 
 class VJEPA(nn.Module):
@@ -48,6 +56,7 @@ class VJEPA(nn.Module):
         n_lift: int = 1,
         wake_dim: int = 80,
         wake_head_hidden: int = 128,
+        n_levels: int = 1,
     ) -> None:
         super().__init__()
         self.tokenizer = TubeletEmbed(hidden=hidden)
@@ -65,7 +74,12 @@ class VJEPA(nn.Module):
             [_ViTBlock(pred_hidden, pred_heads, mlp_ratio, dropout) for _ in range(pred_depth)]
         )
         self.pred_norm = nn.LayerNorm(pred_hidden)
-        self.pred_proj = nn.Linear(pred_hidden, hidden)
+        self.n_levels = n_levels
+        depth = len(self.context_encoder.blocks)
+        self.levels = [
+            depth * k // n_levels for k in range(1, n_levels + 1)
+        ]  # ascending, last==depth
+        self.pred_projs = nn.ModuleList([nn.Linear(pred_hidden, hidden) for _ in range(n_levels)])
         pred_pos = sincos_3d(self.grid, pred_hidden).unsqueeze(0)
         self.register_buffer("pred_pos", pred_pos, persistent=False)
         gt, gh, gw = self.grid
@@ -116,11 +130,12 @@ class VJEPA(nn.Module):
         vis_idx = vis.nonzero(as_tuple=False)[:, 1].view(b, n_vis)
         mask_idx = mask.nonzero(as_tuple=False)[:, 1].view(b, n_mask)
         ctx_tok = torch.gather(tok, 1, vis_idx[:, :, None].expand(b, n_vis, d))
-        ctx = self.context_encoder(ctx_tok)
+        # Context features at every supervised depth; predictor reads the final level.
+        ctx_levels = self.context_encoder(ctx_tok, return_levels=self.levels)
+        ctx = ctx_levels[-1]
         with torch.no_grad():
-            tgt_full = self.target_encoder(self.tokenizer(omega))
-            tgt_full = F.layer_norm(tgt_full, (d,))
-        tgt_m = torch.gather(tgt_full, 1, mask_idx[:, :, None].expand(b, n_mask, d))
+            tgt_levels = self.target_encoder(self.tokenizer(omega), return_levels=self.levels)
+            tgt_levels = [F.layer_norm(t, (d,)) for t in tgt_levels]
         ph = self.pred_pos.shape[-1]
         pos = self.pred_pos.expand(b, n, -1)
         vis_pos = torch.gather(pos, 1, vis_idx[:, :, None].expand(b, n_vis, ph))
@@ -130,22 +145,31 @@ class VJEPA(nn.Module):
         seq = torch.cat([ctx_p, mtok], dim=1)
         for blk in self.pred_blocks:
             seq = blk(seq)
-        seq = self.pred_norm(seq)
-        pred_full = self.pred_proj(seq)  # (b, n_vis + n_mask, d)
-        pred_m = pred_full[:, n_vis:, :]
-        l_pred = F.smooth_l1_loss(pred_m, tgt_m, beta=0.5)
-        out = {"loss": l_pred, "l_pred": l_pred.detach(), "mask": mask}
+        seq = self.pred_norm(seq)  # (b, n_vis + n_mask, pred_hidden); shared across levels
         if lam_ctx > 0:
-            pred_v = pred_full[:, :n_vis, :]
-            tgt_v = torch.gather(tgt_full, 1, vis_idx[:, :, None].expand(b, n_vis, d))
             vis_c = self.grid_coords[vis_idx]  # (b, n_vis, 3)
             mask_c = self.grid_coords[mask_idx]  # (b, n_mask, 3)
             dmin = torch.cdist(vis_c, mask_c).min(dim=-1).values  # (b, n_vis)
             w = lam_ctx / torch.sqrt(dmin.clamp(min=1.0))  # (b, n_vis)
-            l_elem = F.smooth_l1_loss(pred_v, tgt_v, beta=0.5, reduction="none").mean(
-                -1
-            )  # (b,n_vis)
-            l_ctx = (w * l_elem).mean()
+        l_pred_levels = []
+        l_ctx_levels = []
+        for li, proj in enumerate(self.pred_projs):
+            pred_full = proj(seq)  # (b, n_vis + n_mask, d)
+            tgt_full = tgt_levels[li]
+            tgt_m = torch.gather(tgt_full, 1, mask_idx[:, :, None].expand(b, n_mask, d))
+            pred_m = pred_full[:, n_vis:, :]
+            l_pred_levels.append(F.smooth_l1_loss(pred_m, tgt_m, beta=0.5))
+            if lam_ctx > 0:
+                pred_v = pred_full[:, :n_vis, :]
+                tgt_v = torch.gather(tgt_full, 1, vis_idx[:, :, None].expand(b, n_vis, d))
+                l_elem = F.smooth_l1_loss(pred_v, tgt_v, beta=0.5, reduction="none").mean(
+                    -1
+                )  # (b,n_vis)
+                l_ctx_levels.append((w * l_elem).mean())
+        l_pred = torch.stack(l_pred_levels).mean()
+        out = {"loss": l_pred, "l_pred": l_pred.detach(), "mask": mask}
+        if lam_ctx > 0:
+            l_ctx = torch.stack(l_ctx_levels).mean()
             out["loss"] = l_pred + l_ctx
             out["l_ctx"] = l_ctx.detach()
         if lift_w > 0.0 or wake_w > 0.0:

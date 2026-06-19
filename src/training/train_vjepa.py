@@ -38,6 +38,13 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--hidden", type=int, default=384)
     p.add_argument("--depth", type=int, default=8)
     p.add_argument("--pred-depth", type=int, default=6)
+    p.add_argument(
+        "--n-levels",
+        type=int,
+        default=1,
+        help="V-JEPA 2.1 deep self-supervision: number of supervised encoder depths "
+        "(1 = original final-layer-only model).",
+    )
     p.add_argument("--wake-dim", type=int, default=80)
     p.add_argument("--seed", type=int, default=42)
     p.add_argument("--gpu", type=int, default=0)
@@ -90,6 +97,7 @@ def main() -> None:
         mask_ratio=args.mask_ratio,
         n_lift=len(args.observable_head_deltas),
         wake_dim=args.wake_dim,
+        n_levels=args.n_levels,
     ).to(device)
     enc_params = list(model.tokenizer.parameters()) + list(model.context_encoder.parameters())
     pred_params = (
@@ -97,7 +105,7 @@ def main() -> None:
         + [model.mask_token]
         + list(model.pred_blocks.parameters())
         + list(model.pred_norm.parameters())
-        + list(model.pred_proj.parameters())
+        + list(model.pred_projs.parameters())
     )
     opt = torch.optim.AdamW(
         [

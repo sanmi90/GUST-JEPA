@@ -220,3 +220,34 @@ def test_vjepa_with_heads_overfits_one_batch_cpu() -> None:
         m.ema_update(0.99)
         losses.append(float(out["loss"].detach()))
     assert losses[-1] < 0.6 * losses[0], f"no overfit: {losses[0]:.3f}->{losses[-1]:.3f}"
+
+
+def test_vjepa_n_levels_default_is_one_and_runs() -> None:
+    m = VJEPA(depth=2, pred_depth=2)
+    assert m.n_levels == 1 and m.levels == [2]
+    out = m(_batch(2))
+    assert torch.isfinite(out["loss"])
+
+
+def test_vjepa_deep_ss_multilevel_runs_and_levels_correct() -> None:
+    m = VJEPA(depth=8, pred_depth=2, n_levels=4)
+    assert m.levels == [2, 4, 6, 8]
+    out = m(_batch(2), lam_ctx=0.5)
+    assert torch.isfinite(out["loss"]) and "l_ctx" in out
+
+
+def test_vjepa_deep_ss_overfits_one_batch_cpu() -> None:
+    torch.manual_seed(0)
+    m = VJEPA(depth=8, pred_depth=2, n_levels=4)
+    x = _batch(2)
+    mask = m.masker.sample(2)
+    opt = torch.optim.AdamW([p for p in m.parameters() if p.requires_grad], lr=1e-3)
+    losses = []
+    for _ in range(25):
+        opt.zero_grad()
+        out = m(x, mask=mask, lam_ctx=0.5)
+        out["loss"].backward()
+        opt.step()
+        m.ema_update(0.99)
+        losses.append(float(out["loss"].detach()))
+    assert losses[-1] < 0.7 * losses[0], f"no overfit: {losses[0]:.3f}->{losses[-1]:.3f}"
