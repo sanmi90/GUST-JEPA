@@ -107,3 +107,22 @@ def test_vjepa_overfits_one_batch_cpu() -> None:
         model.ema_update(momentum=0.99)
         losses.append(float(out["loss"].detach()))
     assert losses[-1] < 0.6 * losses[0], f"no overfit: {losses[0]:.4f} -> {losses[-1]:.4f}"
+
+
+from src.models.vjepa_pool import frame_mean_pool
+
+
+def test_frame_mean_pool_shape() -> None:
+    """(B,N,D) tokens with grid (16,12,6) -> (B,16,D) frame means."""
+    tok = torch.randn(2, 1152, 384)
+    fp = frame_mean_pool(tok, grid=(16, 12, 6))
+    assert fp.shape == (2, 16, 384)
+
+
+def test_frame_mean_pool_is_mean_over_spatial() -> None:
+    """Frame f's pooled vector equals the mean of that frame's gh*gw tokens."""
+    tok = torch.randn(1, 1152, 384)
+    fp = frame_mean_pool(tok, grid=(16, 12, 6))
+    # frame 0 occupies tokens [0 : 12*6]
+    expected0 = tok[0, 0:72].mean(dim=0)
+    assert torch.allclose(fp[0, 0], expected0, atol=1e-5)
