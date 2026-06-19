@@ -232,3 +232,34 @@ autoregressive objective keeps a residual short-horizon edge.
 
 Training now: vjepa_best = FULL V-JEPA 2.1 (dense lam_ctx 0.5 + deep-SS n_levels 4)
 + lift+wake heads, to win cleanly + try to close the C_L h1 gap.
+
+---
+## UPDATE 5 (2026-06-19, user-flagged): the h=1 forecast metric is degenerate; use persistence + encoded ceiling
+
+User point: R^2=0 at h=1 = random (mean) prediction, uninterpretable. Deeper:
+the PERSISTENCE baseline (predict wake(impact+h)=wake(impact)) scores R^2 = +0.95
+at h=1, decaying to +0.43 at h=16 (wake enstrophy is slowly varying). So:
+- The h=1 forecast R^2-vs-mean is a DEGENERATE regime: NO model beats persistence
+  at h=1 (even jepa-own rolled +0.89 < persistence +0.95). Prior h=1 comparisons
+  (-0.08 vs +0.49 etc.) were the WRONG bar and should not be over-interpreted.
+- Real forecast SKILL = beating persistence, which only happens at LONG horizon.
+  At h=16 (persistence +0.43): jepa rolled +0.60, vjepa_fine +0.59, vjepa_dense
+  +0.62 BEAT it; regAE +0.37 does NOT. So on meaningful forecast skill, dense
+  V-JEPA beats regAE, and regAE barely matches 'assume no change'.
+
+ENCODED-latent ceiling (read wake from the TRUE latent at impact+h, no rollout)
+disentangles latent-info from rollout-fidelity (test_b, s0):
+| model | enc h1 | enc h16 | rolled h1 | rolled h16 |
+|---|---|---|---|---|
+| jepa_tf_noc | +0.81 | +0.78 | +0.89 | +0.60 |
+| vjepa_fine (no head) | -0.10 | +0.68 | +0.03 | +0.59 |
+| vjepa_heads | +0.58 | +0.70 | +0.55 | +0.17 |
+Reading: V-JEPA's no-head latent genuinely LACKS short-horizon wake info
+(encoded h1 -0.10; it only appears at long range) -- NOT a rollout artifact. The
+wake head injects it (encoded h1 +0.58). vjepa_heads' rolled h16 (+0.17) falls
+far below its encoded ceiling (+0.70) -> the matched predictor rolls the headed
+latent poorly at long range (a predictor issue, not a latent one).
+
+ACTION: re-report the forecast comparison as SKILL vs PERSISTENCE at meaningful
+horizons (drop h=1 R^2-vs-mean), and report the encoded ceiling alongside the
+rolled forecast. The best-config (vjepa_best) eval will use this framing.
