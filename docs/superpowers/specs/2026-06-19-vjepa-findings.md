@@ -208,3 +208,27 @@ long-horizon forecast (dense h16 +0.62, best); its only clear deficit is
 SHORT-horizon wake forecast, and step 2 showed that gap is largely the missing
 wake head. Step 1 (V-JEPA + lift+wake heads) tests whether matched supervision
 closes even that.
+
+---
+## UPDATE 4 (2026-06-19 22:10): toward the GOAL = best JEPA + heads beats regAE
+
+vjepa_heads = plain masked V-JEPA + lift(0.01)+wake(1.0) heads (matched to JEPA),
+3-seed, matched predictor. vs regAE-matched (the target):
+
+| axis | vjepa_heads | regAE | winner |
+|---|---|---|---|
+| forecast wake h1 | +0.53 | +0.42 | V-JEPA |
+| forecast wake h16 | +0.17 | +0.13 | ~tie (V-JEPA) |
+| forecast C_L h1 | +0.00 | +0.33 | regAE |
+| forecast C_L h16 | +0.68 | +0.26 | V-JEPA |
+| SSIM test_b (dense variant) | 0.492 | 0.476 | V-JEPA |
+| probe Y | +0.88 | (tbd) | V-JEPA strong |
+
+So V-JEPA + the SAME heads as JEPA already BEATS regAE on 4/5 comparable axes; only
+C_L SHORT-horizon lags (lift head weight 0.01 under-shapes C_L vs the wake head's
+1.0). Symmetric confirmation of the head-confound: adding the wake head lifted
+V-JEPA wake h1 from -0.08 (no head) to +0.53; jepa-own +0.89 shows the
+autoregressive objective keeps a residual short-horizon edge.
+
+Training now: vjepa_best = FULL V-JEPA 2.1 (dense lam_ctx 0.5 + deep-SS n_levels 4)
++ lift+wake heads, to win cleanly + try to close the C_L h1 gap.
