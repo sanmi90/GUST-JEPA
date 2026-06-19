@@ -263,3 +263,32 @@ latent poorly at long range (a predictor issue, not a latent one).
 ACTION: re-report the forecast comparison as SKILL vs PERSISTENCE at meaningful
 horizons (drop h=1 R^2-vs-mean), and report the encoded ceiling alongside the
 rolled forecast. The best-config (vjepa_best) eval will use this framing.
+
+---
+## UPDATE 6 (2026-06-19, user-flagged): the chaos lens -- inverted curve is the anomaly, not a win
+
+Physically (chaotic flow), forecast skill must be HIGH at short horizon and DECAY
+at long (predictability lost as error grows past the Lyapunov time). Persistence
+(+0.95->+0.43) and jepa-own rolled (+0.89->+0.60) both show this correct decay.
+
+Plain V-JEPA's INVERTED curve (bad short, good long) is therefore the anomaly, and
+it is a DEFICIT, not a win: its clip-pooled / temporally-averaged latent is blind
+to the fast impact transient (the short-horizon, most-predictable part) and only
+captures the slow settled wake that survives at long range. Consequences:
+- The earlier "plain/dense V-JEPA wins long-horizon forecast" is a HOLLOW read:
+  long horizon is chaos-limited (persistence already +0.43 from the slow
+  component), so winning there mostly means "captured the slow remnant." V-JEPA
+  was failing exactly where forecasting is possible (short horizon).
+- The WAKE HEAD restores the physical shape: vjepa_heads rolled decays
+  +0.55->+0.48->+0.43->+0.46->+0.17 (h1->h16) -- correct good-short/worse-long --
+  because the head injects the short-horizon wake info the clip-pooled latent
+  lacked (encoded h1 -0.10 no-head -> +0.58 with head).
+- So the honest "beat regAE" must rest on the PREDICTABLE (short) horizon: there
+  vjepa_heads +0.55 > regAE +0.42 (holds, for the right reason). The chaos-limited
+  long-horizon tail should not be used to claim forecast superiority.
+
+Net: head-less V-JEPA's long-horizon "advantage" is a slow-structure-bias artifact
+under chaos; the legitimate result is that V-JEPA WITH the wake head recovers the
+correct decaying forecast and edges regAE in the predictable regime. Evaluate
+vjepa_best (full 2.1 + heads) on short-to-mid horizons (the predictable band),
+not the chaos tail.
