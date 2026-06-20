@@ -270,9 +270,20 @@ def _load_vjepa_encoder(checkpoint_path, pipeline, device, eval_stride: int = 32
 
     blob = torch.load(checkpoint_path, map_location="cpu", weights_only=False)
     a = blob.get("args", {})
+    if not isinstance(a, dict):
+        a = vars(a)
+    sd = blob["vjepa_state_dict"]
+    # n_levels (deep self-supervision) sizes the pred_projs ModuleList; a checkpoint
+    # trained with --n-levels>1 carries pred_projs.1.. that a default (n_levels=1)
+    # VJEPA lacks, which makes a strict load fail. Recover n_levels from args, and
+    # fall back to counting pred_projs.* in the state dict if args are absent.
+    n_levels = int(a.get("n_levels", 0)) or (
+        1 + max((int(k.split(".")[1]) for k in sd if k.startswith("pred_projs.")), default=0)
+    )
     model = VJEPA(hidden=int(a.get("hidden", 384)), depth=int(a.get("depth", 8)),
-                  pred_depth=int(a.get("pred_depth", 6))).to(device)
-    model.load_state_dict(blob["vjepa_state_dict"])
+                  pred_depth=int(a.get("pred_depth", 6)),
+                  wake_dim=int(a.get("wake_dim", 80)), n_levels=n_levels).to(device)
+    model.load_state_dict(sd)
     model.eval()
     grid = model.grid
     clip_len = 32

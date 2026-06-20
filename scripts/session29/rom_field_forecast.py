@@ -117,13 +117,13 @@ def decode_latents(
     return arr.reshape(-1, 192, 96)
 
 
-def gather_test_b() -> dict[tuple[str, int], Path]:
-    """Map (case_id, encounter_index) -> cached v2p1 encounter HDF5 path for test_b."""
+def gather_split(split: str) -> dict[tuple[str, int], Path]:
+    """Map (case_id, encounter_index) -> cached v2p1 encounter HDF5 path for a split."""
     with open(SPLIT_MANIFEST) as f:
         manifest = json.load(f)
     out: dict[tuple[str, int], Path] = {}
     for cid, case in manifest["cases"].items():
-        if case["split"] != "test_b":
+        if case["split"] != split:
             continue
         for k in range(int(case["n_encounters_full"])):
             path = CACHE_ROOT / PARTITION / cid / f"encounter_{int(k):02d}.h5"
@@ -148,6 +148,7 @@ def run_one(
     rollout_npz: Path,
     latent_npz: Path,
     device: torch.device,
+    split: str = "test_b",
 ) -> dict:
     pipeline = OmegaPipeline.from_manifest(OMEGA_MANIFEST)
     dec, _ = load_decoder(device, decoder_ckpt)
@@ -166,7 +167,7 @@ def run_one(
     lat_eidx = np.asarray(lat["encounter_indices"]).astype(int)
     lat_lookup = {(c, int(e)): i for i, (c, e) in enumerate(zip(lat_cids, lat_eidx))}
 
-    cache = gather_test_b()
+    cache = gather_split(split)
     n = z_roll.shape[0]
 
     # Accumulators: SSIM/MSE summed over encounters per horizon (+ h=0 anchor).
@@ -221,17 +222,18 @@ def main() -> None:
     p.add_argument("--decoder", required=True, type=str, help="path to decoder_iter*.pt")
     p.add_argument("--rollout", required=True, type=str, help="rollout tag under lowd_rollouts/")
     p.add_argument("--latents", required=True, type=str, help="latent dir tag under session28/latents/")
+    p.add_argument("--split", type=str, default="test_b", choices=["test_b", "test_c"])
     p.add_argument("--gpu", type=int, default=0)
     args = p.parse_args()
 
     device = require_rtx6000(gpu_index=args.gpu)
-    print(f"[rom] device={device}  gpu_name={torch.cuda.get_device_name(device.index)}")
+    print(f"[rom] device={device}  gpu_name={torch.cuda.get_device_name(device.index)}  split={args.split}")
 
     decoder_ckpt = Path(args.decoder)
     if not decoder_ckpt.is_absolute():
         decoder_ckpt = REPO / decoder_ckpt
-    rollout_npz = REPO / "outputs" / "session29" / "lowd_rollouts" / args.rollout / "test_b.npz"
-    latent_npz = REPO / "outputs" / "session28" / "latents" / args.latents / "test_b.npz"
+    rollout_npz = REPO / "outputs" / "session29" / "lowd_rollouts" / args.rollout / f"{args.split}.npz"
+    latent_npz = REPO / "outputs" / "session28" / "latents" / args.latents / f"{args.split}.npz"
 
     for label, pth in (("decoder", decoder_ckpt), ("rollout", rollout_npz), ("latents", latent_npz)):
         if not pth.exists():
@@ -241,7 +243,7 @@ def main() -> None:
     print(f"[rom] latents={latent_npz}")
 
     t0 = time.time()
-    result = run_one(decoder_ckpt, rollout_npz, latent_npz, device)
+    result = run_one(decoder_ckpt, rollout_npz, latent_npz, device, split=args.split)
     print(f"[rom] done in {time.time() - t0:.1f}s\n")
 
     print(f"{'h':>4}  {'SSIM':>8}  {'MSE':>12}  {'n':>4}")
@@ -254,12 +256,12 @@ def main() -> None:
         "rollout": str(rollout_npz),
         "latents": str(latent_npz),
         "horizons": list(HORIZONS),
-        "split": "test_b",
+        "split": args.split,
         "partition": PARTITION,
         "omega_manifest": str(OMEGA_MANIFEST),
         "ssim_convention": "Fukami c1=0.16 c2=1.44 on raw-scale omega (matches decoder_summary)",
     }
-    out_path = OUT / f"{args.rollout}.json"
+    out_path = OUT / (f"{args.rollout}.json" if args.split == "test_b" else f"{args.rollout}.{args.split}.json")
     with open(out_path, "w") as f:
         json.dump(result, f, indent=2)
     print(f"\n[rom] wrote {out_path}")

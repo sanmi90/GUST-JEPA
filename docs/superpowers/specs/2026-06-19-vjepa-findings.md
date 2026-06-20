@@ -328,3 +328,58 @@ latents make better ROMs than the scalar-forecast-optimised JEPA. Caveats: 1
 seed/model (firm later); SSIM = decoder convention (cross-model valid); ROM =
 encoder+predictor+decoder pipeline (fairly conflates latent+decoder). NEXT: add
 vjepa_best (full 2.1 + heads) -- the candidate to beat regAE as a ROM.
+
+---
+## UPDATE 8 (2026-06-20): the FAIR ROM table is in -- full V-JEPA 2.1 does NOT beat regAE
+
+Completed the fair ROM field-forecast table: all 4 models on the SAME matched
+predictor recipe (only latent + decoder vary), test_b AND test_c (OOD G=+4), s0.
+vjepa_best = FULL V-JEPA 2.1: dense ctx (lam_ctx 0.5) + deep self-supervision
+(n_levels 4) + lift+wake heads = "all the tricks". bvae_match = beta-VAE through
+the fuk_matched recipe (patch_signed_spectrum wake lam 1.0 + C_L head) = the FAIR
+Solera-Rico baseline a ROM must beat. Band: scripts/session29/rom_fair_table.sh.
+(Fixed a loader bug first: encode_baseline_latents._load_vjepa_encoder ignored
+n_levels, so it could not strict-load the deep-SS checkpoints; now recovers
+n_levels + wake_dim from the checkpoint.)
+
+Field SSIM(h), test_b (in-envelope):
+| h | jepa(matched) | regAE | bvae_match | vjepa_best | [ref]vjepa_dense | [ref]jepa-own |
+|---|---|---|---|---|---|---|
+| 0  | 0.499 | 0.535 | 0.488 | 0.524 | 0.537 | 0.499 |
+| 8  | 0.468 | 0.490 | 0.400 | 0.450 | 0.500 | 0.489 |
+| 16 | 0.418 | 0.446 | 0.347 | 0.393 | 0.455 | 0.384 |
+| 24 | 0.339 | 0.404 | 0.333 | 0.382 | 0.410 | 0.240 |
+| 32 | 0.334 | 0.360 | 0.257 | 0.342 | 0.369 | 0.224 |
+
+Field SSIM(h), test_c (OOD G=+4):
+| h | jepa | regAE | bvae_match | vjepa_best |
+|---|---|---|---|---|
+| 4  | 0.249 | 0.280 | 0.145 | 0.228 |
+| 16 | 0.139 | 0.187 | 0.116 | 0.167 |
+| 32 | 0.102 | 0.139 | 0.093 | 0.096 |
+
+VERDICT (answers the GOAL):
+1. NO -- full V-JEPA 2.1 (vjepa_best) does NOT beat regAE as a ROM. In-envelope
+   regAE 0.360 @h32 ~= vjepa_dense 0.369 > vjepa_best 0.342; OOD regAE leads at
+   every h>=4 (0.139 vs 0.096 @h32). regAE is the best (or co-best) field ROM.
+2. "All the tricks" did NOT help -- vjepa_best (dense+deep-SS+heads) is MARGINALLY
+   WORSE than the simpler dense-only V-JEPA at every long horizon, in-envelope.
+   Deep self-supervision + observable heads add nothing to field-forecast ROM
+   quality here (likely hurt slightly via the d=64 PCA bottleneck of a token model).
+3. The beta-VAE baseline (bvae_match) is the WEAKEST field ROM on BOTH splits,
+   even with matched wake+lift supervision (0.257 @h32 test_b vs regAE 0.360). A
+   reconstructive AE and even the per-frame JEPA beat the named Solera-Rico-style
+   baseline on field forecast. Important for the paper.
+4. The per-frame JEPA's OWN co-trained predictor over-collapses the field at long
+   horizon (jepa-own 0.224 @h32) vs a fresh matched predictor on the same latent
+   (jepa-matched 0.334). The latent is fine; the co-trained predictor is the
+   liability for FIELD forecasting (opposite of the scalar-wake story).
+
+BOTTOM LINE: the ROM hierarchy is reconstruction-oriented latents (regAE ~=
+vjepa_dense) > scalar/objective-oriented latents (jepa, vjepa_best) > beta-VAE.
+V-JEPA's value remains parameter readability (Y 0.92), NOT field-forecast ROM.
+Caveat: s0 only; in-envelope regAE/vjepa_dense/vjepa_best are within ~0.02-0.03 at
+long h (single-seed, do not over-read the regAE-vs-vjepa_dense ordering). Seed
+firming deferred (needs more decoders, not cheap). Artifacts:
+outputs/session29/rom_field_forecast/{jepa_matched_d64_s0,regae_d64,
+bvae_match_matched_s0,vjepa_best_matched_s0}{,.test_c}.json.
