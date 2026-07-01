@@ -48,6 +48,12 @@ MODEL_SHORT = {
     "ae_wake": "AeWake",
     "supervised_only": "SupOnly",
     "regAE": "RegAE",
+    # Session 31 Track E one-axis ablations.
+    "jepa_cnn": "JepaCnn",
+    "ae_cnn": "AeCnn",
+    "st_d64": "StDsixtyfour",
+    "jepa_pool": "JepaPool",
+    "jepa_vicreg": "JepaVicreg",
 }
 MODEL_LABEL = {
     "jepa_nowake": "JEPA",
@@ -56,6 +62,28 @@ MODEL_LABEL = {
     "ae_wake": "AE+wake",
     "supervised_only": "supervised",
     "regAE": "regAE",
+    "jepa_cnn": "JEPA (CNN-only)",
+    "ae_cnn": "AE (CNN-only)",
+    "st_d64": "JEPA (spatio-temporal, d64)",
+    "jepa_pool": "JEPA+wake (pooled)",
+    "jepa_vicreg": "JEPA+wake (VICReg)",
+}
+
+# Each ablation moves ONE axis versus a reference; the table shows the delta.
+ABLATION_MODELS = ("jepa_cnn", "ae_cnn", "st_d64", "jepa_pool", "jepa_vicreg")
+ABLATION_REFERENCE = {
+    "jepa_cnn": "jepa_nowake",  # -ViT
+    "ae_cnn": "ae_nowake",  # -ViT
+    "st_d64": "jepa_nowake",  # +temporal conv, d 32->64
+    "jepa_pool": "jepa_wake",  # spatial -> pooled latent
+    "jepa_vicreg": "jepa_wake",  # SIGReg -> VICReg
+}
+ABLATION_AXIS = {
+    "jepa_cnn": "drop ViT (encoder cnn_only)",
+    "ae_cnn": "drop ViT (encoder cnn_only)",
+    "st_d64": "temporal conv encoder, d=64",
+    "jepa_pool": "pooled latent (vs spatial)",
+    "jepa_vicreg": "VICReg anti-collapse (vs SIGReg)",
 }
 
 TARGETS = ("C_L", "C_D", "wake_enstrophy", "circulation_pos", "circulation_neg")

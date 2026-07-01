@@ -342,15 +342,21 @@ class SpatioTemporalCNNViTEncoder(nn.Module):
         dropout: float = 0.0,
         projection_norm: str = "batchnorm",
         temporal_kernel: int = 3,
+        latent_mode: str = "pooled",
     ) -> None:
         super().__init__()
         if projection_norm not in ("batchnorm", "layernorm"):
             raise ValueError(
                 f"projection_norm must be 'batchnorm' or 'layernorm', got {projection_norm!r}"
             )
+        if latent_mode not in ("pooled", "spatial"):
+            raise ValueError(f"latent_mode must be 'pooled' or 'spatial', got {latent_mode!r}")
         if temporal_kernel < 1:
             raise ValueError(f"temporal_kernel must be >= 1, got {temporal_kernel}")
         self.projection_norm = projection_norm
+        self.latent_mode = latent_mode
+        self.latent_dim = latent_dim
+        self.vit_hidden = vit_hidden
         self.temporal_kernel = temporal_kernel
         c1, c2, c3 = cnn_channels
         tk = temporal_kernel
@@ -374,6 +380,7 @@ class SpatioTemporalCNNViTEncoder(nn.Module):
         )
 
         h_feat, w_feat = 192 // 8, 96 // 8
+        self._h_feat, self._w_feat = h_feat, w_feat
         self._num_spatial_tokens = h_feat * w_feat
 
         self.token_proj: nn.Module = (
@@ -394,9 +401,24 @@ class SpatioTemporalCNNViTEncoder(nn.Module):
         )
         self.proj = nn.Sequential(nn.Linear(vit_hidden, latent_dim), proj_norm)
 
+        # Optional SPATIAL latent tap (Session 31 Track E): the same 1x1-conv +
+        # BatchNorm2d tap as HybridCNNViTEncoder, on the causal-window-aware ViT
+        # token map, so the temporal ablation emits the SAME (B, T, d, h, w)
+        # spatial latent as the canonical spine (only the temporal conv differs).
+        self.spatial_proj: nn.Module | None = None
+        self.spatial_norm: nn.Module | None = None
+        if latent_mode == "spatial":
+            self.spatial_proj = nn.Conv2d(vit_hidden, latent_dim, kernel_size=1, bias=True)
+            self.spatial_norm = nn.BatchNorm2d(latent_dim)
+
     @property
     def num_spatial_tokens(self) -> int:
         return self._num_spatial_tokens
+
+    @property
+    def latent_grid(self) -> tuple[int, int]:
+        """The ``(h_feat, w_feat)`` ViT token grid, ``(24, 12)`` by default."""
+        return (self._h_feat, self._w_feat)
 
     def forward(self, x: Tensor) -> Tensor:
         """Encode a sub-trajectory into causal-window-aware per-frame latents.
@@ -405,7 +427,8 @@ class SpatioTemporalCNNViTEncoder(nn.Module):
             x: ``(B, T, C, H, W)`` with ``C = 1``, ``H = 192``, ``W = 96``.
 
         Returns:
-            ``z`` of shape ``(B, T, latent_dim)``.
+            ``z`` of shape ``(B, T, latent_dim)`` in ``pooled`` mode, or
+            ``(B, T, latent_dim, h, w)`` in ``spatial`` mode.
         """
         if x.dim() != 5:
             raise ValueError(f"x must be (B, T, C, H, W), got {tuple(x.shape)}")
@@ -428,6 +451,13 @@ class SpatioTemporalCNNViTEncoder(nn.Module):
         for block in self.vit:
             h = block(h)
         h = self.norm(h)
+
+        if self.latent_mode == "spatial":
+            assert self.spatial_proj is not None and self.spatial_norm is not None
+            tokens = h[:, 1:, :].transpose(1, 2).reshape(b * t, self.vit_hidden, hf, wf)
+            z = self.spatial_norm(self.spatial_proj(tokens))
+            return z.view(b, t, self.latent_dim, hf, wf)
+
         z = self.proj(h[:, 0, :])
         return z.view(b, t, -1)
 
@@ -452,13 +482,18 @@ class CNNOnlyEncoder(nn.Module):
         cnn_channels: tuple[int, int, int] = (64, 128, 256),
         latent_dim: int = 32,
         projection_norm: str = "batchnorm",
+        latent_mode: str = "pooled",
     ) -> None:
         super().__init__()
         if projection_norm not in ("batchnorm", "layernorm"):
             raise ValueError(
                 f"projection_norm must be 'batchnorm' or 'layernorm', got {projection_norm!r}"
             )
+        if latent_mode not in ("pooled", "spatial"):
+            raise ValueError(f"latent_mode must be 'pooled' or 'spatial', got {latent_mode!r}")
         self.projection_norm = projection_norm
+        self.latent_mode = latent_mode
+        self.latent_dim = latent_dim
         c1, c2, c3 = cnn_channels
 
         self.stem = nn.Sequential(
@@ -481,6 +516,11 @@ class CNNOnlyEncoder(nn.Module):
             _conv_block(c3, c3, kernel=3, stride=1),
         )
 
+        # 24x12 feature grid after the shared 3-stage stem on a (192, 96) input.
+        h_feat, w_feat = 192 // 8, 96 // 8
+        self._h_feat, self._w_feat = h_feat, w_feat
+        self._num_spatial_tokens = h_feat * w_feat
+
         proj_norm: nn.Module = (
             nn.BatchNorm1d(latent_dim)
             if projection_norm == "batchnorm"
@@ -491,8 +531,33 @@ class CNNOnlyEncoder(nn.Module):
             proj_norm,
         )
 
+        # Optional SPATIAL latent tap (Session 31 Track E): mirror the
+        # HybridCNNViTEncoder spatial tap so the cnn_only ablation produces the
+        # SAME (B, T, d, h, w) spatial latent as the canonical spine, differing
+        # only by the absent ViT. A 1x1 conv projects the (c3, h, w) feature map
+        # to d channels with a channel-wise BatchNorm2d at the latent boundary
+        # (BatchNorm, not LayerNorm; SIGReg invariant, CLAUDE.md).
+        self.spatial_proj: nn.Module | None = None
+        self.spatial_norm: nn.Module | None = None
+        if latent_mode == "spatial":
+            self.spatial_proj = nn.Conv2d(c3, latent_dim, kernel_size=1, bias=True)
+            self.spatial_norm = nn.BatchNorm2d(latent_dim)
+
+    @property
+    def latent_grid(self) -> tuple[int, int]:
+        """The ``(h_feat, w_feat)`` feature grid, ``(24, 12)`` by default."""
+        return (self._h_feat, self._w_feat)
+
+    @property
+    def num_spatial_tokens(self) -> int:
+        return self._num_spatial_tokens
+
     def forward(self, x: Tensor) -> Tensor:
-        """Encode ``(B, T, C, H, W)`` with ``C=1, H=192, W=96`` into ``(B, T, d)``."""
+        """Encode ``(B, T, C, H, W)`` with ``C=1, H=192, W=96``.
+
+        Returns ``(B, T, d)`` in ``pooled`` mode or ``(B, T, d, h, w)`` in
+        ``spatial`` mode.
+        """
         B, T = x.shape[0], x.shape[1]
         x_flat = x.flatten(0, 1)
 
@@ -502,6 +567,11 @@ class CNNOnlyEncoder(nn.Module):
         h = self.block2(h)
         h = self.down2(h)
         h = self.block3(h)
+
+        if self.latent_mode == "spatial":
+            assert self.spatial_proj is not None and self.spatial_norm is not None
+            z = self.spatial_norm(self.spatial_proj(h))  # (B*T, d, h, w)
+            return z.view(B, T, self.latent_dim, self._h_feat, self._w_feat)
 
         h = h.mean(dim=(2, 3))  # global average pool -> (B*T, c3)
         z = self.proj(h)

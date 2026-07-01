@@ -48,6 +48,18 @@ CANONICAL_MODELS = (
     "regAE",
 )
 
+# Session 31 Track E one-axis ablations (evaluated with the same frozen-probe
+# harness). st_d64 is a d=64 spatio-temporal encoder; jepa_pool is a pooled
+# latent. Both flow through the shared Q1/Q2 helpers unchanged (the pooled latent
+# is broadcast to the spatial grid in encode_split; d flows from the checkpoint).
+ABLATION_MODELS = (
+    "jepa_cnn",
+    "ae_cnn",
+    "st_d64",
+    "jepa_pool",
+    "jepa_vicreg",
+)
+
 
 # --------------------------------------------------------------------------- pure math
 def aggregated_vrmse(pred: np.ndarray, true: np.ndarray) -> float:
@@ -340,6 +352,7 @@ def run_q1(
     decoder_batch: int = 64,
     limit: int | None = None,
     targets: Sequence[str] | None = None,
+    frame_chunk: int = 40,
 ) -> dict:
     """Encode all six models, fit the decode floor + probes, write q1_representation.json."""
     import torch
@@ -388,6 +401,7 @@ def run_q1(
             windows=windows,
             device=device,
             limit=limit,
+            frame_chunk=frame_chunk,
         )
         enc_tb = re.encode_split(
             frozen,
@@ -398,6 +412,7 @@ def run_q1(
             windows=windows,
             device=device,
             limit=limit,
+            frame_chunk=frame_chunk,
         )
         re.save_latents(cache_dir / f"latents_{name}_train.npz", enc_tr)
         re.save_latents(cache_dir / f"latents_{name}_test_b.npz", enc_tb)
@@ -570,6 +585,16 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     p.add_argument("--decoder-batch", type=int, default=64)
     p.add_argument("--limit", type=int, default=None, help="Debug: cap encounters per split.")
     p.add_argument("--targets", nargs="+", default=None)
+    p.add_argument(
+        "--frame-chunk",
+        type=int,
+        default=40,
+        help=(
+            "Frames encoded per forward. Irrelevant for per-frame encoders; set "
+            ">= n_frames (e.g. 200) for the cnn_vit_temporal ablation so its causal "
+            "window is never truncated at a chunk boundary."
+        ),
+    )
     return p.parse_args(argv)
 
 
@@ -593,6 +618,7 @@ def main(argv: list[str] | None = None) -> int:
         decoder_batch=args.decoder_batch,
         limit=args.limit,
         targets=args.targets,
+        frame_chunk=args.frame_chunk,
     )
     return 0
 

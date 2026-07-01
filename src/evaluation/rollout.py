@@ -56,6 +56,16 @@ CANONICAL_MODELS = (
     "regAE",
 )
 
+# Session 31 Track E one-axis ablations (matched-predictor forecast eval reuses
+# the exact harness; the native co-trained predictor is not read for these).
+ABLATION_MODELS = (
+    "jepa_cnn",
+    "ae_cnn",
+    "st_d64",
+    "jepa_pool",
+    "jepa_vicreg",
+)
+
 # Which models carry a co-trained (native) ResUNet predictor in the checkpoint.
 NATIVE_PREDICTOR_MODELS = ("jepa_nowake", "jepa_wake")
 

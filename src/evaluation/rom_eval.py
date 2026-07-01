@@ -309,6 +309,16 @@ def encode_split(
         omega_norm = np.asarray(pipe.normalize(omega_clean), dtype=np.float32)
 
         z_sp = _encode_frames(frozen.encoder, omega_norm, device, frame_chunk, use_bf16)
+        if getattr(frozen.encoder, "latent_mode", "spatial") == "pooled":
+            # Pooled encoder (jepa_pool ablation) emits (T, d); lift to the
+            # spatial grid by the SAME parameter-free broadcast used at train time
+            # (src.probes.PooledToSpatialAdapter) so every downstream Q1/Q2 helper
+            # sees a (T, d, h, w) latent. GAP of the constant map recovers pooled.
+            fh, fw = frozen.latent_grid
+            z_sp = np.ascontiguousarray(
+                np.broadcast_to(z_sp[:, :, None, None], z_sp.shape + (fh, fw)),
+                dtype=np.float32,
+            )
         z_gap = z_sp.mean(axis=(2, 3))
 
         phys = physical_observables(omega_clean)

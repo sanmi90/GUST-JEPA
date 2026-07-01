@@ -34,9 +34,14 @@ from torch import Tensor, nn
 
 from src.data.wake_observables import mode_output_dim
 from src.models.decoder import SpatialLatentFieldDecoder
-from src.models.encoder import HybridCNNViTEncoder
+from src.models.encoder import (
+    CNNOnlyEncoder,
+    HybridCNNViTEncoder,
+    SpatioTemporalCNNViTEncoder,
+)
 from src.models.observable_head import ObservableHead, WakeObservableHead
 from src.models.resunet_predictor import ResUNetPredictor
+from src.probes.decoder_probe import PooledToSpatialAdapter
 
 if TYPE_CHECKING:  # pragma: no cover - typing only
     from src.config.kit_config import ResolvedKitConfig
@@ -170,6 +175,7 @@ def build_outputs(
     decoder: nn.Module | None = None,
     lift_head: nn.Module | None = None,
     wake_head: nn.Module | None = None,
+    z_anticollapse: Tensor | None = None,
 ) -> dict[str, Tensor]:
     """Assemble the named-tensor ``outputs`` dict for :func:`compute_total_loss`.
 
@@ -188,6 +194,13 @@ def build_outputs(
         decoder: The field decoder (required for ``"recon"``).
         lift_head: Optional current-frame ``C_L`` head.
         wake_head: Optional wake-observable head.
+        z_anticollapse: Optional latent used for the anti-collapse ``z`` key
+            INSTEAD of ``z_spatial`` (flattened the same way). Used by the
+            pooled-latent ablation so anti-collapse sees the ``(B, T, d)`` pooled
+            latent directly (``(B*T, d)`` rows) rather than the ``h*w`` identical
+            broadcast copies fed to the predictor/decoder/heads. When ``None``
+            (the spatial default) the anti-collapse latent is ``z_spatial`` and
+            the output is byte-identical to before.
 
     Returns:
         A dict with ``z`` (flattened latent) and ``_z_spatial`` always, plus the
@@ -195,8 +208,9 @@ def build_outputs(
         ``cl_pred``/``cl_true``, ``wake_pred``/``wake_true`` selected by the
         active terms.
     """
+    z_for_ac = z_spatial if z_anticollapse is None else z_anticollapse
     outputs: dict[str, Tensor] = {
-        "z": flatten_spatial_latent(z_spatial),
+        "z": flatten_spatial_latent(z_for_ac),
         "_z_spatial": z_spatial,
     }
 
@@ -264,17 +278,16 @@ class CanonicalModel(nn.Module):
         super().__init__()
         encoder_kind = cfg.model.get("encoder", "cnn_vit")
         latent_kind = cfg.model.get("latent", "spatial")
-        if encoder_kind != "cnn_vit":
-            raise NotImplementedError(
-                f"CanonicalModel (Track C.1) supports encoder 'cnn_vit'; got "
-                f"{encoder_kind!r}. The cnn_only / cnn_vit_temporal ablation "
-                f"encoders are a later task."
+        if encoder_kind not in ("cnn_vit", "cnn_only", "cnn_vit_temporal"):
+            raise ValueError(
+                f"unknown model.encoder {encoder_kind!r}; expected "
+                f"cnn_vit | cnn_only | cnn_vit_temporal."
             )
-        if latent_kind != "spatial":
-            raise NotImplementedError(
-                f"CanonicalModel (Track C.1) supports the spatial latent; got " f"{latent_kind!r}."
-            )
+        if latent_kind not in ("spatial", "pooled"):
+            raise ValueError(f"unknown model.latent {latent_kind!r}; expected spatial | pooled.")
 
+        self.encoder_kind = encoder_kind
+        self.latent_kind = latent_kind
         self.objective = cfg.objective
         terms = cfg.active_terms()
         self.lift_on = "lift" in terms
@@ -282,12 +295,37 @@ class CanonicalModel(nn.Module):
         self.latent_dim = int(latent_dim)
         self.horizon = int(cfg.representation_objective["pred"]["horizon"])
 
-        self.encoder = HybridCNNViTEncoder(
-            latent_dim=latent_dim,
-            projection_norm=projection_norm,
-            latent_mode="spatial",
-        )
+        # Encoder dispatch (Session 31 Track E). The cnn_vit + spatial path is
+        # byte-identical to the canonical spine; the cnn_only / cnn_vit_temporal
+        # encoders emit the SAME (B, T, d, h, w) spatial latent (Track E spatial
+        # taps), and the pooled latent is lifted to that spatial shape by a
+        # parameter-free broadcast so the predictor / decoder / heads are matched.
+        if encoder_kind == "cnn_vit":
+            self.encoder: nn.Module = HybridCNNViTEncoder(
+                latent_dim=latent_dim,
+                projection_norm=projection_norm,
+                latent_mode=latent_kind,
+            )
+        elif encoder_kind == "cnn_only":
+            self.encoder = CNNOnlyEncoder(
+                latent_dim=latent_dim,
+                projection_norm=projection_norm,
+                latent_mode=latent_kind,
+            )
+        else:  # cnn_vit_temporal
+            self.encoder = SpatioTemporalCNNViTEncoder(
+                latent_dim=latent_dim,
+                projection_norm=projection_norm,
+                latent_mode=latent_kind,
+            )
         feature_h, feature_w = self.encoder.latent_grid
+
+        # Pooled -> spatial parameter-free broadcast (Track B PooledToSpatialAdapter)
+        # so a pooled latent feeds the identical spatial predictor / decoder / GAP
+        # heads. Anti-collapse still sees the un-broadcast pooled latent.
+        self.pooled_adapter: nn.Module | None = None
+        if latent_kind == "pooled":
+            self.pooled_adapter = PooledToSpatialAdapter(latent_dim, feature_h, feature_w)
 
         self.predictor: nn.Module | None = None
         self.decoder: nn.Module | None = None
@@ -337,8 +375,16 @@ class CanonicalModel(nn.Module):
         if "omega" not in batch:
             raise KeyError(f"batch must contain 'omega'; got {list(batch.keys())}")
         z = self.encoder(batch["omega"])
+        if self.pooled_adapter is not None:
+            # z is (B, T, d); broadcast to (B, T, d, h, w) for the spatial path,
+            # but keep the pooled latent for the anti-collapse statistic.
+            z_spatial = self.pooled_adapter(z)
+            z_anticollapse: Tensor | None = z
+        else:
+            z_spatial = z
+            z_anticollapse = None
         return build_outputs(
-            z,
+            z_spatial,
             batch,
             objective=self.objective,
             horizon=self.horizon,
@@ -346,4 +392,5 @@ class CanonicalModel(nn.Module):
             decoder=self.decoder,
             lift_head=self.lift_head,
             wake_head=self.wake_head,
+            z_anticollapse=z_anticollapse,
         )

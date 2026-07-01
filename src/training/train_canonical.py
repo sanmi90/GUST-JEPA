@@ -246,6 +246,10 @@ def run_diagnostics(
     with torch.no_grad():
         with torch.autocast(device_type="cuda", dtype=torch.bfloat16):
             z = model.encoder(batch["omega"])
+            if getattr(model, "pooled_adapter", None) is not None:
+                # Pooled ablation: lift (B, T, d) to the spatial grid so the
+                # decode / spatial-std diagnostics run exactly as for the spine.
+                z = model.pooled_adapter(z)
         zf = flatten_spatial_latent(z).float()
         z_vec = global_average_pool_latent(z).float()  # (B, T, d)
         decoder = model.decoder if model.decoder is not None else diag_decoder

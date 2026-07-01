@@ -61,6 +61,15 @@ CANONICAL_MODELS = (
     "regAE",
 )
 
+# Session 31 Track E one-axis ablations (Q3 optional; same harness).
+ABLATION_MODELS = (
+    "jepa_cnn",
+    "ae_cnn",
+    "st_d64",
+    "jepa_pool",
+    "jepa_vicreg",
+)
+
 OBSERVABLES = (
     "C_L",
     "C_D",

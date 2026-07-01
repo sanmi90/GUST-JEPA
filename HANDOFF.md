@@ -9365,3 +9365,33 @@ case-clustered bootstrap CI; the remaining 126 no-CI cells are context horizons 
 not reported. New pure helper three_curve_field_contribs (2 TDD tests); 30 report+rollout
 tests green. REMAINING (per Carlos, this session): Track E ablations + fukami/fukami_wake/
 POD references. Deferred: multi-seed; bvae author-pending.
+
+### D214 (SESSION31 Track E -- 5 one-axis ablations; gate E) (2026-07-01, Session 31)
+
+CanonicalModel extended to dispatch cfg.model.encoder in {cnn_vit, cnn_only,
+cnn_vit_temporal} + latent in {spatial, pooled}; anti_collapse.method vicreg via the
+kit. Canonical cnn_vit+spatial path byte-identical (existing checkpoints load strict;
+committed canonical q*.json untouched). 5 ablations trained on v2p2 (1 seed, 10k, both
+RTX 6000s), Q1+Q2 evaluated through the SAME frozen-probe harness. Zero VICReg
+fallbacks. New: src/training/canonical_model.py + src/models/encoder.py + eval-harness
+(represent/rollout/rom_eval/pressure_infer) ablation support; make_ablation_table.py;
+test_canonical_ablations.py; q1_ablation.json, q2_ablation.json, numbers_ablation.json,
+tables/ablation_comparison.{tex,md}, macros_session31_ablation.tex. 119 ROM-suite tests
+green; my D212 rollout fix intact.
+
+GATE E (ablation vs reference, key deltas; decode SSIM / C_L closure / merit / field VRMSE):
+  jepa_pool (pooled vs spatial): -0.093 / -0.214 / -0.095 / +0.130 -- THE SPATIAL LATENT
+    IS THE DECODABILITY LEVER (headline ablation; multi-metric movement is physical
+    spillover of the decode bottleneck, not a coupling bug).
+  jepa_vicreg (VICReg vs SIGReg): +0.018 / -0.031 / -0.006 / -0.011, PR 30.7, no collapse
+    -- one-knob anti-collapse robust/interchangeable (clean single axis).
+  st_d64 (cnn_vit_temporal+d64): -0.003 / -0.023 / -0.143 / +0.030 -- spatio-temporal
+    does NOT help forecast (re-confirms the earlier ST null on fresh v2.2).
+  jepa_cnn (drop ViT): -0.004 / -0.014 / -0.165 / +0.005 -- decode/field/C_L ~unchanged
+    but the wake-observable FORECAST merit drops; the CNN+ViT latent carries wake-
+    forecastable structure the cnn_only latent loses. REFINES the v2.1 "ViT marginal"
+    claim (that was pooled Repr R^2; here it is spatial forecast merit).
+  ae_cnn (drop ViT): -0.005 / +0.121 / -0.021 / -0.006 -- ViT ~nothing for the recon AE.
+Gate E STRONG on headline axes; the jepa_cnn/st_d64 merit drops are a real refinement to
+report. REMAINING (this session): fukami/fukami_wake/POD references. Ablation CIs +
+multi-seed deferred.
