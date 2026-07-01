@@ -9197,3 +9197,27 @@ FileNotFoundError. STILL OPEN in Track C: references fukami/fukami_wake + POD ne
 baseline-trainer integration pass on v2p2 (train_baseline.py has no exposed wake-head
 flag for fukami_wake; confirm it consumes the v2p2 pipeline manifest and yields a
 Track-D-comparable latent); bvae author-pending. Nothing committed yet.
+
+### D208 (SESSION31 Track D Q1 -- decode floor + representation) (2026-07-01, Session 31)
+
+Tracks 0-C committed (ab8bced v2p2 staging, 85fb5fe session31 code). Track D Q1
+(`src/evaluation/rom_eval.py` harness + `represent.py`, 17 TDD tests, verified
+aggregated-VRMSE + held-out-R2 math). Frozen-probe eval over the 6 canonical
+checkpoints on Test B; all 5 physical targets sourced inline from omega (C_L, C_D
+from cache; wake_enstrophy + circulation_pos/neg via the session17 wake-box defs, so
+split-version-independent). Latents cached to outputs/session31/q1_latents/ (~9.4GB)
+for Q2/Q3 reuse. q1_representation.json.
+
+DECODE FLOOR (field VRMSE / SSIM, Test B all-frames): recon family wins decisively --
+regAE 0.260/0.982, ae_nowake 0.578/0.924, ae_wake 0.592/0.920 vs supervised_only
+0.700/0.877, jepa_nowake 0.711/0.873, jepa_wake 0.711/0.874. D-N3 POSITIVE: the
+spatial latent decodes the field well (regAE SSIM 0.98), validating the spatial-latent
+bet -- the pooled-latent floor of v2.1 is beaten. REPRESENTATION (linear/MLP R2):
+C_L readable by all lift-head models ~0.85-0.90 (regAE, no lift head, fails 0.08/0.17);
+wake observables (wake_enstrophy, circ+/-) driven by the WAKE HEAD -- jepa_wake/ae_wake/
+supervised_only ~0.75-0.89 vs the nowake variants ~0.35-0.63. This re-confirms the
+Session-29 finding (D202/D203): representational readability is supervision-driven, not
+objective-driven. MLP >= linear everywhere. The recon-wins-field / supervision-drives-
+observables split is the expected win/loss boundary; the DECISIVE predictive-vs-recon
+distinction is Q2 (forecast) + Q3 (pressure), pending. Q1 code committed; the JSON/
+latent artifacts are gitignored (flow to numbers.json at Track F).
