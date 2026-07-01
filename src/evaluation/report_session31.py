@@ -54,6 +54,10 @@ MODEL_SHORT = {
     "st_d64": "StDsixtyfour",
     "jepa_pool": "JepaPool",
     "jepa_vicreg": "JepaVicreg",
+    # Session 31 published-baseline references (own architectures).
+    "fukami": "Fukami",
+    "fukami_wake": "FukamiWake",
+    "pod": "Pod",
 }
 MODEL_LABEL = {
     "jepa_nowake": "JEPA",
@@ -67,6 +71,21 @@ MODEL_LABEL = {
     "st_d64": "JEPA (spatio-temporal, d64)",
     "jepa_pool": "JEPA+wake (pooled)",
     "jepa_vicreg": "JEPA+wake (VICReg)",
+    "fukami": "Fukami AE",
+    "fukami_wake": "Fukami+wake",
+    "pod": "POD ($d{=}32$)",
+}
+
+# Session 31 published-baseline references. They use their OWN architectures
+# (fukami: native lift-augmented CNN AE, Fukami/Taira lineage; pod: linear basis),
+# are trained on their own recipe (Track C), and read out through the SAME frozen
+# probes as the shared-backbone spine. Reported in a separate reference section so
+# the controlled one-axis matrix stays clean.
+REFERENCE_MODELS = ("fukami", "fukami_wake", "pod")
+REFERENCE_NOTE = {
+    "fukami": "MSE recon + beta*C_L, no wake, no anti-collapse (Fukami/Taira lineage)",
+    "fukami_wake": "Fukami + wake-spectrum head (v2.1 augmented Fukami)",
+    "pod": "linear POD basis at d=32 (linear floor)",
 }
 
 # Each ablation moves ONE axis versus a reference; the table shows the delta.

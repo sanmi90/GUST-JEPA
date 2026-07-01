@@ -1,0 +1,172 @@
+{
+  "numbers": {
+    "q1.floor.vrmse.fukami": {
+      "value": 0.9538337319091852,
+      "macro": "ReprFloorVrmseFukami",
+      "fmt": "%.3f",
+      "model": "fukami",
+      "metric": "decode_floor_vrmse"
+    },
+    "q1.floor.ssim.fukami": {
+      "value": 0.7077320052706405,
+      "macro": "ReprFloorSsimFukami",
+      "fmt": "%.3f",
+      "model": "fukami",
+      "metric": "decode_floor_ssim"
+    },
+    "q1.probe.mlp.C_L.fukami": {
+      "value": 0.7870987036119169,
+      "macro": "ReprMlpCLFukami",
+      "fmt": "%.2f",
+      "model": "fukami",
+      "metric": "probe_mlp_r2"
+    },
+    "q1.probe.mlp.wake_enstrophy.fukami": {
+      "value": 0.18464061308276425,
+      "macro": "ReprMlpWakeEnsFukami",
+      "fmt": "%.2f",
+      "model": "fukami",
+      "metric": "probe_mlp_r2"
+    },
+    "q2.closure.mlp.C_L.h8.fukami": {
+      "value": -0.04771333476946982,
+      "macro": "ForeClosCLFukamiHiEight",
+      "fmt": "%.2f",
+      "model": "fukami",
+      "metric": "closure_mlp_r2"
+    },
+    "q2.merit.mean_obs.h8.fukami": {
+      "value": -0.1997793707280683,
+      "macro": "ForeMeritFukamiHiEight",
+      "fmt": "%.2f",
+      "model": "fukami",
+      "metric": "merit"
+    },
+    "q2.field_vrmse.model.h8.fukami": {
+      "value": 1.0159377019547482,
+      "macro": "ForeFieldVrmseFukamiHiEight",
+      "fmt": "%.3f",
+      "model": "fukami",
+      "metric": "field_vrmse_model"
+    },
+    "q3.pressure_obs.mean_linear.fukami": {
+      "value": 0.12873478303085004,
+      "macro": "PresObsMeanFukami",
+      "fmt": "%.2f",
+      "model": "fukami",
+      "metric": "pressure_obs_mean_r2"
+    },
+    "q1.floor.vrmse.fukami_wake": {
+      "value": 0.9675418408778069,
+      "macro": "ReprFloorVrmseFukamiWake",
+      "fmt": "%.3f",
+      "model": "fukami_wake",
+      "metric": "decode_floor_vrmse"
+    },
+    "q1.floor.ssim.fukami_wake": {
+      "value": 0.7048116745663372,
+      "macro": "ReprFloorSsimFukamiWake",
+      "fmt": "%.3f",
+      "model": "fukami_wake",
+      "metric": "decode_floor_ssim"
+    },
+    "q1.probe.mlp.C_L.fukami_wake": {
+      "value": 0.7242268339247644,
+      "macro": "ReprMlpCLFukamiWake",
+      "fmt": "%.2f",
+      "model": "fukami_wake",
+      "metric": "probe_mlp_r2"
+    },
+    "q1.probe.mlp.wake_enstrophy.fukami_wake": {
+      "value": 0.30677110512130934,
+      "macro": "ReprMlpWakeEnsFukamiWake",
+      "fmt": "%.2f",
+      "model": "fukami_wake",
+      "metric": "probe_mlp_r2"
+    },
+    "q2.closure.mlp.C_L.h8.fukami_wake": {
+      "value": 0.44203679284769326,
+      "macro": "ForeClosCLFukamiWakeHiEight",
+      "fmt": "%.2f",
+      "model": "fukami_wake",
+      "metric": "closure_mlp_r2"
+    },
+    "q2.merit.mean_obs.h8.fukami_wake": {
+      "value": 0.2034922374939243,
+      "macro": "ForeMeritFukamiWakeHiEight",
+      "fmt": "%.2f",
+      "model": "fukami_wake",
+      "metric": "merit"
+    },
+    "q2.field_vrmse.model.h8.fukami_wake": {
+      "value": 1.0258959431620012,
+      "macro": "ForeFieldVrmseFukamiWakeHiEight",
+      "fmt": "%.3f",
+      "model": "fukami_wake",
+      "metric": "field_vrmse_model"
+    },
+    "q3.pressure_obs.mean_linear.fukami_wake": {
+      "value": 0.1106435783295884,
+      "macro": "PresObsMeanFukamiWake",
+      "fmt": "%.2f",
+      "model": "fukami_wake",
+      "metric": "pressure_obs_mean_r2"
+    },
+    "q1.floor.vrmse.pod": {
+      "value": 0.8120196728109241,
+      "macro": "ReprFloorVrmsePod",
+      "fmt": "%.3f",
+      "model": "pod",
+      "metric": "decode_floor_vrmse"
+    },
+    "q1.floor.ssim.pod": {
+      "value": 0.774961637159701,
+      "macro": "ReprFloorSsimPod",
+      "fmt": "%.3f",
+      "model": "pod",
+      "metric": "decode_floor_ssim"
+    },
+    "q1.probe.mlp.C_L.pod": {
+      "value": 0.7223833169022755,
+      "macro": "ReprMlpCLPod",
+      "fmt": "%.2f",
+      "model": "pod",
+      "metric": "probe_mlp_r2"
+    },
+    "q1.probe.mlp.wake_enstrophy.pod": {
+      "value": 0.16412869858834744,
+      "macro": "ReprMlpWakeEnsPod",
+      "fmt": "%.2f",
+      "model": "pod",
+      "metric": "probe_mlp_r2"
+    },
+    "q2.closure.mlp.C_L.h8.pod": {
+      "value": 0.5428957224969438,
+      "macro": "ForeClosCLPodHiEight",
+      "fmt": "%.2f",
+      "model": "pod",
+      "metric": "closure_mlp_r2"
+    },
+    "q2.merit.mean_obs.h8.pod": {
+      "value": 0.2904001766231986,
+      "macro": "ForeMeritPodHiEight",
+      "fmt": "%.2f",
+      "model": "pod",
+      "metric": "merit"
+    },
+    "q2.field_vrmse.model.h8.pod": {
+      "value": 0.9298909524070612,
+      "macro": "ForeFieldVrmsePodHiEight",
+      "fmt": "%.3f",
+      "model": "pod",
+      "metric": "field_vrmse_model"
+    },
+    "q3.pressure_obs.mean_linear.pod": {
+      "value": 0.21804080549951452,
+      "macro": "PresObsMeanPod",
+      "fmt": "%.2f",
+      "model": "pod",
+      "metric": "pressure_obs_mean_r2"
+    }
+  }
+}

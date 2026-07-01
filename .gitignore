@@ -53,6 +53,7 @@ outputs/session28/*
 outputs/session31/*
 !outputs/session31/numbers.json
 !outputs/session31/numbers_ablation.json
+!outputs/session31/numbers_reference.json
 !outputs/session31/ci_dump.json
 !outputs/session31/tables/
 outputs/session31/tables/*

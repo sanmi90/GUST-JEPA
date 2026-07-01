@@ -1,0 +1,20 @@
+# Reference: linear POD basis at d=32 (the linear floor). Own "architecture":
+# a fixed orthonormal basis fit on the v2.2 train pool, no neural training. The
+# recon flag records that POD is a linear reconstruction map for the audit matrix;
+# there is no anti-collapse and no supervision head (the state observables are read
+# out post-hoc through the frozen probes, exactly as for every other model).
+name: pod
+
+representation_objective:
+  recon: {on: true}
+
+anti_collapse:
+  on: false
+
+supervision:
+  lift_head: {on: false}
+  wake_head: {on: false}
+
+model:
+  encoder: pod_linear
+  latent: pooled

@@ -390,7 +390,14 @@ def run_q1(
     for name in models:
         run_dir = re._resolve(runs_base) / name
         print(f"\n[q1] === {name} ===", flush=True)
-        frozen = re.load_frozen_model(run_dir, checkpoint_name, device=device)
+        # References (fukami / fukami_wake / pod) use their OWN architectures and
+        # load through a dedicated path that yields a pooled-latent FrozenModel;
+        # the shared harness is otherwise byte-identical (encode_split broadcasts
+        # the pooled latent to the spatial grid, as for the jepa_pool ablation).
+        if name in re.REFERENCE_MODELS:
+            frozen = re.load_reference_model(run_dir, checkpoint_name, device=device)
+        else:
+            frozen = re.load_frozen_model(run_dir, checkpoint_name, device=device)
 
         enc_tr = re.encode_split(
             frozen,
@@ -416,9 +423,15 @@ def run_q1(
         )
         re.save_latents(cache_dir / f"latents_{name}_train.npz", enc_tr)
         re.save_latents(cache_dir / f"latents_{name}_test_b.npz", enc_tb)
+        # The normalised-field cache is model-independent (same encounter
+        # enumeration for every model), so write it once and never overwrite an
+        # existing one. This lets a reference-only Q1 run reuse the canonical
+        # fields without touching them, keeping Q2/Q3 row-alignment intact.
         if not fields_saved:
-            re.save_field_cache(cache_dir / "fields_train.npz", enc_tr)
-            re.save_field_cache(cache_dir / "fields_test_b.npz", enc_tb)
+            if not (cache_dir / "fields_train.npz").exists():
+                re.save_field_cache(cache_dir / "fields_train.npz", enc_tr)
+            if not (cache_dir / "fields_test_b.npz").exists():
+                re.save_field_cache(cache_dir / "fields_test_b.npz", enc_tb)
             fields_saved = True
 
         # --- decode floor (fit once on all train frames; eval all + windowed) ----

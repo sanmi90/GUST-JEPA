@@ -9395,3 +9395,33 @@ GATE E (ablation vs reference, key deltas; decode SSIM / C_L closure / merit / f
 Gate E STRONG on headline axes; the jepa_cnn/st_d64 merit drops are a real refinement to
 report. REMAINING (this session): fukami/fukami_wake/POD references. Ablation CIs +
 multi-seed deferred.
+
+### D215 (SESSION31 reference baselines fukami/fukami_wake/POD on v2p2) (2026-07-02, Session 31)
+
+Published-lineage comparators, own architectures, read through the SAME frozen probes.
+train_baseline only implements pldm (raises for fukami); added src/training/train_reference.py
++ rom_eval.load_reference_model (`_FukamiRefEncoder`, `_PODEncoder`, REFERENCE_MODELS).
+References emit a POOLED (B,T,d) latent and reuse the jepa_pool pooled->spatial broadcast,
+so every Q1/Q2/Q3 math path is byte-identical (canonical q*.json/numbers.json/fields
+sha256-verified unchanged; references in separate *_reference.json). fukami_wake wake
+support already existed (FukamiAEWrapper wake head, Session-11). POD d=32 fit on 32160
+train snapshots captures only 27.5% field energy (the linear-compressibility floor for
+turbulent vortex fields). bvae skipped (author-pending).
+
+REFERENCE ROWS (Test B in-window; decode VRMSE/SSIM | C_L probe | closure h8 | merit h8 |
+field VRMSE h8 | press->obs):
+  Fukami AE   0.954/0.708 | 0.79 | -0.05 | -0.20 | 1.016 | 0.13
+  Fukami+wake 0.968/0.705 | 0.72 |  0.44 |  0.20 | 1.026 | 0.11
+  POD d=32    0.812/0.775 | 0.72 |  0.54 |  0.29 | 0.930 | 0.22
+  (anchors: jepa_wake 0.717/0.871 | 0.83 | 0.76 | 0.73 ; ae_nowake 0.581/0.921 | 0.77 | 0.65 | 0.51)
+READ: references read C_L reasonably (lift head; sanity gate passed, none <0), decode the
+field only MODERATELY (0.81-0.97 vs spine 0.25-0.72), and forecast the wake observables
+CLEARLY WORSE (merit h8: jepa_wake 0.73 >> POD 0.29 > fukami_wake 0.20 > fukami -0.20).
+The POD>Fukami ordering reproduces v2.1. KEY: fukami_wake (0.20) vs jepa_wake (0.73)
+isolates the predictive-spatial advantage at MATCHED wake supervision. POD is the linear
+floor but decodes/forecasts the FIELD better than either neural Fukami variant while still
+losing the observable-closure merit to the spine. New tests test_reference_eval.py; 76
+touched tests green; reference LaTeX table compiles. run_references.sh = repro recipe.
+
+SESSION 31 experimental campaign COMPLETE (Tracks 0-F + E + references; gate F CIs, gate E,
+references). Deferred: multi-seed variance, reference/ablation CIs, bvae (author-pending).

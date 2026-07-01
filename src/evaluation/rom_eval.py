@@ -161,6 +161,156 @@ def load_frozen_model(
     )
 
 
+# --------------------------------------------------------------------------- references
+# Published-baseline references. They use their OWN architectures (fukami: native
+# lift-augmented CNN AE; pod: linear basis), so they cannot be rebuilt as a
+# CanonicalModel. Each produces a POOLED (B, T, d) latent; encode_split then lifts
+# it to the (B, T, d, h, w) spatial grid with the SAME parameter-free broadcast the
+# jepa_pool ablation uses, so every downstream Q1/Q2/Q3 helper is byte-identical.
+REFERENCE_MODELS = ("fukami", "fukami_wake", "pod")
+
+# The spatial grid the pooled reference latent is broadcast to, matched to the
+# shared backbone (HybridCNNViTEncoder default (24, 12)) so the decode-floor
+# decoder capacity is identical across references and the spine.
+REFERENCE_LATENT_GRID = (24, 12)
+
+
+class _FukamiRefEncoder(nn.Module):
+    """Frozen wrapper exposing a trained Fukami CNN encoder as a pooled encoder.
+
+    ``encode_split`` feeds pipeline-normalised omega ``(B, T, 1, H, W)`` (the same
+    space the Fukami AE was trained in, ``omega_scale=1.0``), so the reference
+    latent is simply the native CNN encoder output ``(B, T, d)``.
+    """
+
+    latent_mode = "pooled"
+
+    def __init__(self, cnn_encoder: nn.Module) -> None:
+        super().__init__()
+        self.cnn_encoder = cnn_encoder
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        return self.cnn_encoder(x)
+
+
+class _PODEncoder(nn.Module):
+    """Frozen linear POD projector as a pooled encoder.
+
+    Projects each pipeline-normalised frame onto the top-``d`` POD modes:
+    ``z = (flatten(omega_norm) - mean) @ components``. Computed in float32 (autocast
+    disabled) so the projection of the ~18k-dim field is not degraded to bf16.
+    """
+
+    latent_mode = "pooled"
+
+    def __init__(self, basis) -> None:
+        super().__init__()
+        self.register_buffer(
+            "mean", torch.from_numpy(np.asarray(basis.mean, dtype=np.float32)), persistent=False
+        )
+        self.register_buffer(
+            "components",
+            torch.from_numpy(np.asarray(basis.components, dtype=np.float32)),
+            persistent=False,
+        )
+        self._d = int(basis.components.shape[1])
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        # x: (B, T, 1, H, W) or (B, T, H, W). Flatten spatial dims to P.
+        if x.dim() == 5:
+            b, t = x.shape[0], x.shape[1]
+        elif x.dim() == 4:
+            b, t = x.shape[0], x.shape[1]
+        else:
+            raise ValueError(f"expected (B, T, 1, H, W) omega; got {tuple(x.shape)}")
+        flat = x.reshape(b, t, -1).float()
+        dev_type = "cuda" if flat.is_cuda else "cpu"
+        with torch.autocast(device_type=dev_type, enabled=False):
+            z = (flat - self.mean) @ self.components  # (B, T, d)
+        return z
+
+
+def load_reference_model(
+    run_dir: str | Path,
+    checkpoint_name: str = "checkpoint_iter010000.pt",
+    device: str | torch.device = "cpu",
+) -> FrozenModel:
+    """Load a published-baseline reference (fukami / fukami_wake / pod) as a FrozenModel.
+
+    POD is detected by a ``pod_basis.npz`` in ``run_dir`` (no checkpoint). Fukami
+    reads its training checkpoint, rebuilds the native
+    :class:`~src.baselines.fukami_ae.FukamiAEWrapper` and keeps only the frozen CNN
+    encoder. Both expose a pooled ``(B, T, d)`` latent through the shared harness.
+    """
+    from src.baselines.pod import load_pod_basis
+
+    run_path = Path(run_dir)
+
+    # ---- POD: linear basis, no neural checkpoint ----
+    pod_npz = run_path / "pod_basis.npz"
+    if pod_npz.exists():
+        basis = load_pod_basis(pod_npz)
+        encoder = _PODEncoder(basis)
+        freeze_encoder(encoder)
+        encoder.to(device)
+        cfg = load_model_config(_resolve("configs/reference/pod.yaml"))
+        return FrozenModel(
+            encoder=encoder,
+            cfg=cfg,
+            latent_dim=int(basis.d),
+            latent_grid=REFERENCE_LATENT_GRID,
+            name="pod",
+            checkpoint=pod_npz,
+        )
+
+    # ---- Fukami: native lift-augmented CNN AE ----
+    from src.baselines.fukami_ae import FukamiAEWrapper
+    from src.data.wake_observables import mode_output_dim
+    from src.models.observable_head import WakeObservableHead
+
+    ckpt_path = run_path if run_path.is_file() else run_path / checkpoint_name
+    if not ckpt_path.exists():
+        raise FileNotFoundError(f"reference checkpoint not found: {ckpt_path}")
+    blob = torch.load(ckpt_path, map_location="cpu", weights_only=False)
+    args = blob.get("args", {})
+    run_config = blob.get("run_config", {})
+    config_path = args.get("config") or run_config.get("config_path")
+    if config_path is None:
+        raise KeyError(f"reference checkpoint {ckpt_path} has no config path")
+    cfg = load_model_config(_resolve(config_path))
+    latent_dim = int(args.get("d", 32))
+
+    wake_on = "wake" in cfg.active_terms()
+    wake_head = (
+        WakeObservableHead(latent_dim=latent_dim, out_dim=mode_output_dim("patch_signed_spectrum"))
+        if wake_on
+        else None
+    )
+    wrapper = FukamiAEWrapper(
+        latent_dim=latent_dim,
+        n_deltas=1,
+        lambda_recon=1.0,
+        lambda_lift=1.0,
+        omega_scale=1.0,
+        recon_loss_type="mse",
+        encoder_kind="cnn",
+        wake_observable_head=wake_head,
+        wake_observable_weight=1.0 if wake_on else 0.0,
+    )
+    wrapper.load_state_dict(blob["model_state_dict"], strict=True)
+    encoder = _FukamiRefEncoder(wrapper.encoder)
+    freeze_encoder(encoder)
+    encoder.to(device)
+    return FrozenModel(
+        encoder=encoder,
+        cfg=cfg,
+        latent_dim=latent_dim,
+        latent_grid=REFERENCE_LATENT_GRID,
+        name=cfg.name,
+        checkpoint=ckpt_path,
+    )
+
+
 # --------------------------------------------------------------------------- split enum
 def enumerate_encounters(split: str, split_manifest: dict) -> list[tuple[str, int]]:
     """List ``(case_id, encounter_index)`` for a split, matching EpisodeDataset.
