@@ -12,27 +12,24 @@ matched latent dimension.
 
 Lead researcher: Carlos Sanmiguel Vila (INTA, UC3M).
 
-## Current focus (read first, set 2026-06-14, Session 28 / HANDOFF D196)
+## Current focus (read first, set 2026-06-30, Session 30)
 
-**The v2.1 UNCONDITIONED manuscript is COMPLETE; only the GO gate remains.**
-All four phases of `SESSION28 31 MASTER V2P1 UNCOND PHYSICS.md` are done (Phase A
-training, B closure/stats/baselines, C mechanism/physics/sensing, D manuscript).
-The paper on `main` now IS the v2.1 unconditioned manuscript: every result figure
-carries the `_v2p1` suffix (figB is a 3D `(G,D,Y)` view; the 3 tikz schematics are
-the only non-`_v2p1` includes), every printed number is a macro tracing to the
-provenance-stamped `outputs/session28/numbers.json` (18 parts), and the GI build
-gate passes (latexmk exit 0, 34 pp, 0 undefined/multiply-defined, 0 source
-em-dashes; D1 audit clean). Pushed to `origin/main` (HEAD `f004acd`), release
-candidate tag `v1.0.0-rc2`. See HANDOFF D196 for the full Phase D log.
+**v2.2 dataset staged; full retraining is next.**
+17 new run4 cases (G in {-4, -2, -1, -0.5, -0.25}, D in {0.5, 1.0}, Y in {+0.10, -0.10})
+integrated into split v2.2. All preprocessing and normalization artifacts are ready; no
+training has been run on v2.2 yet. The v2.1 manuscript on `main` (HEAD `f004acd`,
+tag `v1.0.0-rc2`) is unmodified and remains the submission candidate pending GO gate.
 
-**The ONLY work left is the GO gate, all author/collaborator-owned and NOT
-runnable here:** the DNS Table 1 seven `\pending{}` rows + sensitivity evidence
-from the simulation collaborators (package drafted at
-`scripts/session28/DNS_COLLABORATOR_PACKAGE.md`); the real Zenodo DOI minted from
-the rc2 tag (drops into README, `.zenodo.json`, `CITATION.cff`, and the
-data-availability statement, all carrying `10.xxxx/zenodo.PLACEHOLDER`); and the
-final license/institutional confirmation, CRediT roles, and funding statement. The
-paper does not go out with an empty Table 1.
+v2.2 retraining priority list (all require `--partition v2p2` and
+`--pipeline-manifest outputs/data_pipeline/v2p2/manifest.json`):
+- Tier 1 (headline table): jepa_tf_noc x3 seeds, fukami x3, bvae_match x3, pod x1
+- Tier 2 (ablations): jepa_lstm_noc x3, jepa_tf_cond x3, ctrl_recon_cnnvit x3
+- Tier 3 (optional): bvae_faith x3, ctrl_recon_cnn x3, ctrl_pred_cnn x3, ctrl_pred_vit_nowake x3
+W&B group for v2.2 runs: `partition_v2p2`.
+
+**The GO gate for v2.1 is still author/collaborator-owned and NOT runnable here:**
+DNS Table 1 seven `\pending{}` rows (package at `scripts/session28/DNS_COLLABORATOR_PACKAGE.md`),
+real Zenodo DOI, license/CRediT/funding. The paper does not go out with an empty Table 1.
 
 Invariants if any v2.1 number/figure is regenerated: split
 `configs/splits/split_v2p1.json`, pipeline manifest
@@ -90,10 +87,19 @@ Data
   Use v2 for any paper-load-bearing work; regenerate v2 via `build_split_manifest_v2.py`.
 - v2.1 (HANDOFF D177, 2026-06-05): a refreshed split
   `configs/splits/split_v2p1.json` (85 cases / 382 enc; +069/070 to train, -027
-  dropped, test_b/test_c frozen identical to v2; net +7 usable encounters) is
-  staged for the eventual rerun, but the retrain is DEFERRED (see "Current
-  focus"). The paper still runs on v2. Generator `build_split_manifest_v2p1.py`;
-  v2.1 omega pipeline `outputs/data_pipeline/v2p1/manifest.json` (train_std 3.6337).
+  dropped, test_b/test_c frozen identical to v2; net +7 usable encounters).
+  Generator `build_split_manifest_v2p1.py`;
+  omega pipeline `outputs/data_pipeline/v2p1/manifest.json` (train_std 3.6337).
+- v2.2 (2026-06-30, Session 30): 17 new run4 cases added (G in {-4,-2,-1,-0.5,-0.25},
+  D in {0.5,1.0}, Y in {+0.10,-0.10}). Split `configs/splits/split_v2p2.json`
+  (102 cases / 450 enc): 84 train / 10 test_b (unchanged) / 8 test_c (|G|=4,
+  symmetric -- 4 G=+4 periodic + 4 G=-4 run4) / val 100 enc. Test C extended to
+  both signs of extreme gust; G=-0.25 is a new G value going to train.
+  Generator `build_split_manifest_v2p2.py`; inventory
+  `data_manifest/raw_cases_inventory_v2p2.yaml` (102 cases, includes run4).
+  Omega pipeline `outputs/data_pipeline/v2p2/manifest.json` (train_std 3.5396,
+  SSIM L 8.487). Cache at `${VORTEX_JEPA_CACHE}/v2p2/` (87 symlinks to v2p1 +
+  17 extracted run4 encounters). No training run on v2.2 yet.
 - Split is locked at `configs/splits/split_v1.json` (sha256-anchored to inventory).
 - 55 train cases (180 encounters), 6 Test B cases (28 enc), 4 Test C cases (24 enc).
   65 cases total in v1 (post-Session 12 absorption of 5 new run3 cases:
@@ -258,9 +264,16 @@ frame-aware C_L/p_wall release-spike flag (`--cl-hard-cap 12`, `--pwall-hard-cap
 SSIM data range L (Wang K1 = 0.01, K2 = 0.03 on pipeline-normalised omega) is
 dataset-dependent (L = 2 * global p99.9(|target_norm|) over val) and NOT
 hardcoded: pinned per version in `configs/ssim_data_range.json` (split_v2 = 8.31,
-split_v2p1 = 8.45) and read via `src.data.omega_pipeline.ssim_data_range`
+split_v2p1 = 8.45, split_v2p2 = 8.487) and read via `src.data.omega_pipeline.ssim_data_range`
 (registry -> manifest -> compute). Keep the per-version values so SSIM stays
 comparable across reruns. See also the ssim-convention memory.
+
+Preprocessing script extended (2026-06-30): `scripts/preprocess.py` now accepts
+`--inventory <path>` (default: `data_manifest/raw_cases_inventory.yaml`) and
+`--partition <name>` with a non-fatal warning when the name differs from
+`preprocessing.yaml partition_target`. Use `--inventory data_manifest/raw_cases_inventory_v2p2.yaml
+--partition v2p2` for v2.2 extractions.
+`scripts/100c_raw_cases_inventory.py` now scans `run4/` alongside `periodic/` and `run3/`.
 
 ## Baselines to implement (matched latent dimension)
 

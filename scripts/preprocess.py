@@ -39,8 +39,10 @@ def load_config() -> dict:
         return yaml.safe_load(f)
 
 
-def load_inventory() -> dict:
-    with open(REPO / "data_manifest" / "raw_cases_inventory.yaml") as f:
+def load_inventory(path: Path | None = None) -> dict:
+    if path is None:
+        path = REPO / "data_manifest" / "raw_cases_inventory.yaml"
+    with open(path) as f:
         return yaml.safe_load(f)
 
 
@@ -172,21 +174,28 @@ def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--partition", default="v1",
-                    help="Partition version (must match preprocessing.yaml partition_target).")
+                    help="Partition version written to cache. Default v1; pass e.g. v2p2 "
+                         "to write to a different cache subdirectory.")
     ap.add_argument("--cases", nargs="*",
                     help="Optional list of case_ids to process; default = all in inventory.")
     ap.add_argument("--dry-run", action="store_true",
                     help="Print what would be written but do not extract.")
     ap.add_argument("--force", action="store_true",
                     help="Re-cache encounters even if already present.")
+    ap.add_argument("--inventory", type=Path, default=None,
+                    help="Path to inventory YAML (default: data_manifest/raw_cases_inventory.yaml). "
+                         "Use to target versioned inventories such as raw_cases_inventory_v2p2.yaml.")
     args = ap.parse_args()
 
     config = load_config()
     if args.partition != config["partition_target"]:
-        sys.exit(f"--partition {args.partition} does not match "
-                 f"preprocessing.yaml partition_target={config['partition_target']}")
+        print(f"[warn] --partition {args.partition!r} differs from "
+              f"preprocessing.yaml partition_target={config['partition_target']!r}; "
+              f"writing to {args.partition!r} cache subdirectory.")
+        config = dict(config)
+        config["partition_target"] = args.partition
 
-    inv = load_inventory()
+    inv = load_inventory(args.inventory)
     prevent_root = Path(os.environ.get("PREVENT_ROOT", "/home/carlos/PREVENT"))
     cache_root = resolve_cache_root(config)
 

@@ -1,9 +1,10 @@
 """Raw cases inventory — generates a parser manifest between on-disk
 HDF5 filenames and physical conditions (G, D, Y/c).
 
-Inspects two source directories:
+Inspects three source directories:
   - data/raw/periodic/        → 800-snapshot cases (1 Baseline + N gust)
   - data/raw/periodic/run3/   → 480-snapshot cases (run3 DoE-2 gust)
+  - data/raw/periodic/run4/   → 480-snapshot cases (run4 additional gust)
 
 For every `Gust_*` filename, parses (G, D, Y) via the locked Plan v3.3
 parser (Y back-solved from x_file / y_file rotation around α=14°,
@@ -13,7 +14,7 @@ snapped to the DoE-2 Y grid). Emits a YAML manifest with:
   - Cases list mapping filename ↔ case_id with G, D, Y, source group,
     n_frames.
 
-Re-runnable: new cases dropped into either directory are picked up on
+Re-runnable: new cases dropped into any directory are picked up on
 the next run. The output file is overwritten.
 
 CLI:
@@ -52,11 +53,13 @@ D_RE = re.compile(r"d(\d+\.\d)")
 
 PERIODIC_DIR = REPO / "data" / "raw" / "periodic"
 RUN3_DIR = PERIODIC_DIR / "run3"
+RUN4_DIR = PERIODIC_DIR / "run4"
 
 # Per-source frame counts (convention; not verified by HDF5 open).
 FRAMES_PER_SOURCE = {
     "periodic": 800,
     "run3": 480,
+    "run4": 480,
 }
 
 # Encounter length (locked Plan v3.3 / v3.4 convention).
@@ -203,6 +206,8 @@ def write_yaml(entries: list[dict], out_path: Path) -> None:
                 "# 6 full encounters + 80-frame trailing partial\n")
         f.write(f"    run3: {FRAMES_PER_SOURCE['run3']}        "
                 "# 4 full encounters, no trailing partial\n")
+        f.write(f"    run4: {FRAMES_PER_SOURCE['run4']}        "
+                "# 4 full encounters, no trailing partial\n")
         f.write("\n")
 
         f.write("# -------------------------------------------------------------\n")
@@ -305,6 +310,7 @@ def main() -> int:
     entries: list[dict] = []
     entries.extend(scan_dir(PERIODIC_DIR, "periodic"))
     entries.extend(scan_dir(RUN3_DIR, "run3"))
+    entries.extend(scan_dir(RUN4_DIR, "run4"))
 
     if not entries:
         print(f"FATAL: no *.h5 files found in {PERIODIC_DIR} or {RUN3_DIR}",
