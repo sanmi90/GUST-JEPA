@@ -1,0 +1,214 @@
+{
+  "numbers": {
+    "q1.floor.vrmse.jepa_cnn": {
+      "value": 0.7332758560990748,
+      "macro": "ReprFloorVrmseJepaCnn",
+      "fmt": "%.3f",
+      "model": "jepa_cnn",
+      "metric": "decode_floor_vrmse"
+    },
+    "q1.floor.ssim.jepa_cnn": {
+      "value": 0.8659975822867608,
+      "macro": "ReprFloorSsimJepaCnn",
+      "fmt": "%.3f",
+      "model": "jepa_cnn",
+      "metric": "decode_floor_ssim"
+    },
+    "q1.probe.mlp.C_L.jepa_cnn": {
+      "value": 0.7183733438254579,
+      "macro": "ReprMlpCLJepaCnn",
+      "fmt": "%.2f",
+      "model": "jepa_cnn",
+      "metric": "probe_mlp_r2"
+    },
+    "q2.closure.mlp.C_L.h8.jepa_cnn": {
+      "value": 0.7278724115079143,
+      "macro": "ForeClosCLJepaCnnHiEight",
+      "fmt": "%.2f",
+      "model": "jepa_cnn",
+      "metric": "closure_mlp_r2"
+    },
+    "q2.merit.mean_obs.h8.jepa_cnn": {
+      "value": 0.48543712412025747,
+      "macro": "ForeMeritJepaCnnHiEight",
+      "fmt": "%.2f",
+      "model": "jepa_cnn",
+      "metric": "merit"
+    },
+    "q2.field_vrmse.model.h8.jepa_cnn": {
+      "value": 0.8466024950693951,
+      "macro": "ForeFieldVrmseJepaCnnHiEight",
+      "fmt": "%.3f",
+      "model": "jepa_cnn",
+      "metric": "field_vrmse_model"
+    },
+    "q1.floor.vrmse.ae_cnn": {
+      "value": 0.5852903507095708,
+      "macro": "ReprFloorVrmseAeCnn",
+      "fmt": "%.3f",
+      "model": "ae_cnn",
+      "metric": "decode_floor_vrmse"
+    },
+    "q1.floor.ssim.ae_cnn": {
+      "value": 0.9163963609980387,
+      "macro": "ReprFloorSsimAeCnn",
+      "fmt": "%.3f",
+      "model": "ae_cnn",
+      "metric": "decode_floor_ssim"
+    },
+    "q1.probe.mlp.C_L.ae_cnn": {
+      "value": 0.7188178597995913,
+      "macro": "ReprMlpCLAeCnn",
+      "fmt": "%.2f",
+      "model": "ae_cnn",
+      "metric": "probe_mlp_r2"
+    },
+    "q2.closure.mlp.C_L.h8.ae_cnn": {
+      "value": 0.7673865190786684,
+      "macro": "ForeClosCLAeCnnHiEight",
+      "fmt": "%.2f",
+      "model": "ae_cnn",
+      "metric": "closure_mlp_r2"
+    },
+    "q2.merit.mean_obs.h8.ae_cnn": {
+      "value": 0.48656925392635186,
+      "macro": "ForeMeritAeCnnHiEight",
+      "fmt": "%.2f",
+      "model": "ae_cnn",
+      "metric": "merit"
+    },
+    "q2.field_vrmse.model.h8.ae_cnn": {
+      "value": 0.8609945895993684,
+      "macro": "ForeFieldVrmseAeCnnHiEight",
+      "fmt": "%.3f",
+      "model": "ae_cnn",
+      "metric": "field_vrmse_model"
+    },
+    "q1.floor.vrmse.st_d64": {
+      "value": 0.7287552762454188,
+      "macro": "ReprFloorVrmseStDsixtyfour",
+      "fmt": "%.3f",
+      "model": "st_d64",
+      "metric": "decode_floor_vrmse"
+    },
+    "q1.floor.ssim.st_d64": {
+      "value": 0.866897710500067,
+      "macro": "ReprFloorSsimStDsixtyfour",
+      "fmt": "%.3f",
+      "model": "st_d64",
+      "metric": "decode_floor_ssim"
+    },
+    "q1.probe.mlp.C_L.st_d64": {
+      "value": 0.8302856415324641,
+      "macro": "ReprMlpCLStDsixtyfour",
+      "fmt": "%.2f",
+      "model": "st_d64",
+      "metric": "probe_mlp_r2"
+    },
+    "q2.closure.mlp.C_L.h8.st_d64": {
+      "value": 0.718827806471004,
+      "macro": "ForeClosCLStDsixtyfourHiEight",
+      "fmt": "%.2f",
+      "model": "st_d64",
+      "metric": "closure_mlp_r2"
+    },
+    "q2.merit.mean_obs.h8.st_d64": {
+      "value": 0.5069404466737651,
+      "macro": "ForeMeritStDsixtyfourHiEight",
+      "fmt": "%.2f",
+      "model": "st_d64",
+      "metric": "merit"
+    },
+    "q2.field_vrmse.model.h8.st_d64": {
+      "value": 0.8709293024302868,
+      "macro": "ForeFieldVrmseStDsixtyfourHiEight",
+      "fmt": "%.3f",
+      "model": "st_d64",
+      "metric": "field_vrmse_model"
+    },
+    "q1.floor.vrmse.jepa_pool": {
+      "value": 0.8708491105156734,
+      "macro": "ReprFloorVrmseJepaPool",
+      "fmt": "%.3f",
+      "model": "jepa_pool",
+      "metric": "decode_floor_vrmse"
+    },
+    "q1.floor.ssim.jepa_pool": {
+      "value": 0.7780438142781496,
+      "macro": "ReprFloorSsimJepaPool",
+      "fmt": "%.3f",
+      "model": "jepa_pool",
+      "metric": "decode_floor_ssim"
+    },
+    "q1.probe.mlp.C_L.jepa_pool": {
+      "value": 0.8223383908441048,
+      "macro": "ReprMlpCLJepaPool",
+      "fmt": "%.2f",
+      "model": "jepa_pool",
+      "metric": "probe_mlp_r2"
+    },
+    "q2.closure.mlp.C_L.h8.jepa_pool": {
+      "value": 0.543732816723379,
+      "macro": "ForeClosCLJepaPoolHiEight",
+      "fmt": "%.2f",
+      "model": "jepa_pool",
+      "metric": "closure_mlp_r2"
+    },
+    "q2.merit.mean_obs.h8.jepa_pool": {
+      "value": 0.6392479820512291,
+      "macro": "ForeMeritJepaPoolHiEight",
+      "fmt": "%.2f",
+      "model": "jepa_pool",
+      "metric": "merit"
+    },
+    "q2.field_vrmse.model.h8.jepa_pool": {
+      "value": 0.9691949087326402,
+      "macro": "ForeFieldVrmseJepaPoolHiEight",
+      "fmt": "%.3f",
+      "model": "jepa_pool",
+      "metric": "field_vrmse_model"
+    },
+    "q1.floor.vrmse.jepa_vicreg": {
+      "value": 0.6852093658358839,
+      "macro": "ReprFloorVrmseJepaVicreg",
+      "fmt": "%.3f",
+      "model": "jepa_vicreg",
+      "metric": "decode_floor_vrmse"
+    },
+    "q1.floor.ssim.jepa_vicreg": {
+      "value": 0.8882537107045034,
+      "macro": "ReprFloorSsimJepaVicreg",
+      "fmt": "%.3f",
+      "model": "jepa_vicreg",
+      "metric": "decode_floor_ssim"
+    },
+    "q1.probe.mlp.C_L.jepa_vicreg": {
+      "value": 0.7900038047673309,
+      "macro": "ReprMlpCLJepaVicreg",
+      "fmt": "%.2f",
+      "model": "jepa_vicreg",
+      "metric": "probe_mlp_r2"
+    },
+    "q2.closure.mlp.C_L.h8.jepa_vicreg": {
+      "value": 0.7273008845654976,
+      "macro": "ForeClosCLJepaVicregHiEight",
+      "fmt": "%.2f",
+      "model": "jepa_vicreg",
+      "metric": "closure_mlp_r2"
+    },
+    "q2.merit.mean_obs.h8.jepa_vicreg": {
+      "value": 0.7285008686257208,
+      "macro": "ForeMeritJepaVicregHiEight",
+      "fmt": "%.2f",
+      "model": "jepa_vicreg",
+      "metric": "merit"
+    },
+    "q2.field_vrmse.model.h8.jepa_vicreg": {
+      "value": 0.828938192679544,
+      "macro": "ForeFieldVrmseJepaVicregHiEight",
+      "fmt": "%.3f",
+      "model": "jepa_vicreg",
+      "metric": "field_vrmse_model"
+    }
+  }
+}
