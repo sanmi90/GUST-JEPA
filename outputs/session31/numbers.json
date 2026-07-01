@@ -4,12 +4,12 @@
       "applied": true,
       "n_boot": 1000,
       "path": "outputs/session31/ci_dump.json",
-      "sha256": "0a6ef2f84879916c84ecac6f6cce163f0e6249d5130d8c93455741fd1af33fa9"
+      "sha256": "e374944cb45aa1dc3d5b49e466a7a1b53c0f0c34be1aaa73ff0c74bd2abb775f"
     },
-    "generated_iso": "2026-07-01T12:34:22.046571+00:00",
-    "git_commit": "639c5d4c4a932ee437f27d6ba1bfe1988f0f57c7",
+    "generated_iso": "2026-07-01T13:53:07.064013+00:00",
+    "git_commit": "df80847ddf1b8f9e5717e2a2af599b24129c390e",
     "n_numbers": 300,
-    "n_with_ci": 120,
+    "n_with_ci": 156,
     "sources": {
       "q1": {
         "path": "outputs/session31/q1_representation.json",
@@ -1120,6 +1120,8 @@
       "window": "windowed"
     },
     "q2.closure.mlp.C_D.h8.ae_nowake": {
+      "ci_high": 0.7631466553306248,
+      "ci_low": 0.4030629187465917,
       "fmt": "%.2f",
       "horizon": 8,
       "macro": "ForeClosCDAeNoWakeHiEight",
@@ -1133,6 +1135,8 @@
       "window": "windowed"
     },
     "q2.closure.mlp.C_D.h8.ae_wake": {
+      "ci_high": 0.816200165985682,
+      "ci_low": 0.3796299316640074,
       "fmt": "%.2f",
       "horizon": 8,
       "macro": "ForeClosCDAeWakeHiEight",
@@ -1146,6 +1150,8 @@
       "window": "windowed"
     },
     "q2.closure.mlp.C_D.h8.jepa_nowake": {
+      "ci_high": 0.8613260435811794,
+      "ci_low": 0.35058076520165915,
       "fmt": "%.2f",
       "horizon": 8,
       "macro": "ForeClosCDJepaNoWakeHiEight",
@@ -1159,6 +1165,8 @@
       "window": "windowed"
     },
     "q2.closure.mlp.C_D.h8.jepa_wake": {
+      "ci_high": 0.8514657022534525,
+      "ci_low": 0.6009634600118433,
       "fmt": "%.2f",
       "horizon": 8,
       "macro": "ForeClosCDJepaWakeHiEight",
@@ -1172,6 +1180,8 @@
       "window": "windowed"
     },
     "q2.closure.mlp.C_D.h8.regAE": {
+      "ci_high": 0.5744164252722894,
+      "ci_low": 0.01204177069072664,
       "fmt": "%.2f",
       "horizon": 8,
       "macro": "ForeClosCDRegAEHiEight",
@@ -1185,6 +1195,8 @@
       "window": "windowed"
     },
     "q2.closure.mlp.C_D.h8.supervised_only": {
+      "ci_high": 0.8236604965329849,
+      "ci_low": 0.5051564331850867,
       "fmt": "%.2f",
       "horizon": 8,
       "macro": "ForeClosCDSupOnlyHiEight",
@@ -1354,6 +1366,8 @@
       "window": "windowed"
     },
     "q2.closure.mlp.C_L.h8.ae_nowake": {
+      "ci_high": 0.8307057848932965,
+      "ci_low": 0.41808684920632005,
       "fmt": "%.2f",
       "horizon": 8,
       "macro": "ForeClosCLAeNoWakeHiEight",
@@ -1367,6 +1381,8 @@
       "window": "windowed"
     },
     "q2.closure.mlp.C_L.h8.ae_wake": {
+      "ci_high": 0.8838254241524295,
+      "ci_low": 0.4461332674619749,
       "fmt": "%.2f",
       "horizon": 8,
       "macro": "ForeClosCLAeWakeHiEight",
@@ -1380,6 +1396,8 @@
       "window": "windowed"
     },
     "q2.closure.mlp.C_L.h8.jepa_nowake": {
+      "ci_high": 0.9235793215673446,
+      "ci_low": 0.5639956316375082,
       "fmt": "%.2f",
       "horizon": 8,
       "macro": "ForeClosCLJepaNoWakeHiEight",
@@ -1393,6 +1411,8 @@
       "window": "windowed"
     },
     "q2.closure.mlp.C_L.h8.jepa_wake": {
+      "ci_high": 0.902005918635878,
+      "ci_low": 0.6032185459743216,
       "fmt": "%.2f",
       "horizon": 8,
       "macro": "ForeClosCLJepaWakeHiEight",
@@ -1406,6 +1426,8 @@
       "window": "windowed"
     },
     "q2.closure.mlp.C_L.h8.regAE": {
+      "ci_high": 0.49099564390941014,
+      "ci_low": -0.13588616895907837,
       "fmt": "%.2f",
       "horizon": 8,
       "macro": "ForeClosCLRegAEHiEight",
@@ -1419,6 +1441,8 @@
       "window": "windowed"
     },
     "q2.closure.mlp.C_L.h8.supervised_only": {
+      "ci_high": 0.8876390178074327,
+      "ci_low": 0.5217382032111527,
       "fmt": "%.2f",
       "horizon": 8,
       "macro": "ForeClosCLSupOnlyHiEight",
@@ -1588,6 +1612,8 @@
       "window": "windowed"
     },
     "q2.closure.mlp.circulation_neg.h8.ae_nowake": {
+      "ci_high": 0.6783612812896637,
+      "ci_low": 0.02752900349783251,
       "fmt": "%.2f",
       "horizon": 8,
       "macro": "ForeClosCircNegAeNoWakeHiEight",
@@ -1601,6 +1627,8 @@
       "window": "windowed"
     },
     "q2.closure.mlp.circulation_neg.h8.ae_wake": {
+      "ci_high": 0.8731680822758687,
+      "ci_low": 0.5866940568959719,
       "fmt": "%.2f",
       "horizon": 8,
       "macro": "ForeClosCircNegAeWakeHiEight",
@@ -1614,6 +1642,8 @@
       "window": "windowed"
     },
     "q2.closure.mlp.circulation_neg.h8.jepa_nowake": {
+      "ci_high": 0.8160282123576876,
+      "ci_low": 0.5354112296625168,
       "fmt": "%.2f",
       "horizon": 8,
       "macro": "ForeClosCircNegJepaNoWakeHiEight",
@@ -1627,6 +1657,8 @@
       "window": "windowed"
     },
     "q2.closure.mlp.circulation_neg.h8.jepa_wake": {
+      "ci_high": 0.887179921343653,
+      "ci_low": 0.6639603213357145,
       "fmt": "%.2f",
       "horizon": 8,
       "macro": "ForeClosCircNegJepaWakeHiEight",
@@ -1640,6 +1672,8 @@
       "window": "windowed"
     },
     "q2.closure.mlp.circulation_neg.h8.regAE": {
+      "ci_high": 0.8395151370438921,
+      "ci_low": 0.543555644671226,
       "fmt": "%.2f",
       "horizon": 8,
       "macro": "ForeClosCircNegRegAEHiEight",
@@ -1653,6 +1687,8 @@
       "window": "windowed"
     },
     "q2.closure.mlp.circulation_neg.h8.supervised_only": {
+      "ci_high": 0.8664457302190847,
+      "ci_low": 0.5784382058457561,
       "fmt": "%.2f",
       "horizon": 8,
       "macro": "ForeClosCircNegSupOnlyHiEight",
@@ -1822,6 +1858,8 @@
       "window": "windowed"
     },
     "q2.closure.mlp.circulation_pos.h8.ae_nowake": {
+      "ci_high": 0.6425977505509279,
+      "ci_low": 0.09587960160337457,
       "fmt": "%.2f",
       "horizon": 8,
       "macro": "ForeClosCircPosAeNoWakeHiEight",
@@ -1835,6 +1873,8 @@
       "window": "windowed"
     },
     "q2.closure.mlp.circulation_pos.h8.ae_wake": {
+      "ci_high": 0.862752857927389,
+      "ci_low": 0.5068336299147133,
       "fmt": "%.2f",
       "horizon": 8,
       "macro": "ForeClosCircPosAeWakeHiEight",
@@ -1848,6 +1888,8 @@
       "window": "windowed"
     },
     "q2.closure.mlp.circulation_pos.h8.jepa_nowake": {
+      "ci_high": 0.8301268572907899,
+      "ci_low": 0.486174435519346,
       "fmt": "%.2f",
       "horizon": 8,
       "macro": "ForeClosCircPosJepaNoWakeHiEight",
@@ -1861,6 +1903,8 @@
       "window": "windowed"
     },
     "q2.closure.mlp.circulation_pos.h8.jepa_wake": {
+      "ci_high": 0.8596892396438574,
+      "ci_low": 0.4725033062604255,
       "fmt": "%.2f",
       "horizon": 8,
       "macro": "ForeClosCircPosJepaWakeHiEight",
@@ -1874,6 +1918,8 @@
       "window": "windowed"
     },
     "q2.closure.mlp.circulation_pos.h8.regAE": {
+      "ci_high": 0.7937323887270203,
+      "ci_low": 0.5636492823884282,
       "fmt": "%.2f",
       "horizon": 8,
       "macro": "ForeClosCircPosRegAEHiEight",
@@ -1887,6 +1933,8 @@
       "window": "windowed"
     },
     "q2.closure.mlp.circulation_pos.h8.supervised_only": {
+      "ci_high": 0.8979781554497519,
+      "ci_low": 0.5372322019057427,
       "fmt": "%.2f",
       "horizon": 8,
       "macro": "ForeClosCircPosSupOnlyHiEight",
@@ -2056,6 +2104,8 @@
       "window": "windowed"
     },
     "q2.closure.mlp.wake_enstrophy.h8.ae_nowake": {
+      "ci_high": 0.6546556798338274,
+      "ci_low": 0.13140937009594006,
       "fmt": "%.2f",
       "horizon": 8,
       "macro": "ForeClosWakeEnsAeNoWakeHiEight",
@@ -2069,6 +2119,8 @@
       "window": "windowed"
     },
     "q2.closure.mlp.wake_enstrophy.h8.ae_wake": {
+      "ci_high": 0.7834980434282295,
+      "ci_low": 0.2909615083395818,
       "fmt": "%.2f",
       "horizon": 8,
       "macro": "ForeClosWakeEnsAeWakeHiEight",
@@ -2082,6 +2134,8 @@
       "window": "windowed"
     },
     "q2.closure.mlp.wake_enstrophy.h8.jepa_nowake": {
+      "ci_high": 0.679294912845919,
+      "ci_low": 0.26393676469384686,
       "fmt": "%.2f",
       "horizon": 8,
       "macro": "ForeClosWakeEnsJepaNoWakeHiEight",
@@ -2095,6 +2149,8 @@
       "window": "windowed"
     },
     "q2.closure.mlp.wake_enstrophy.h8.jepa_wake": {
+      "ci_high": 0.8449803721058986,
+      "ci_low": 0.6059748318286858,
       "fmt": "%.2f",
       "horizon": 8,
       "macro": "ForeClosWakeEnsJepaWakeHiEight",
@@ -2108,6 +2164,8 @@
       "window": "windowed"
     },
     "q2.closure.mlp.wake_enstrophy.h8.regAE": {
+      "ci_high": 0.7690591053930153,
+      "ci_low": 0.35440281060571527,
       "fmt": "%.2f",
       "horizon": 8,
       "macro": "ForeClosWakeEnsRegAEHiEight",
@@ -2121,6 +2179,8 @@
       "window": "windowed"
     },
     "q2.closure.mlp.wake_enstrophy.h8.supervised_only": {
+      "ci_high": 0.8332085761622684,
+      "ci_low": 0.530668558664782,
       "fmt": "%.2f",
       "horizon": 8,
       "macro": "ForeClosWakeEnsSupOnlyHiEight",
@@ -3142,6 +3202,8 @@
       "window": "windowed"
     },
     "q2.merit.mean_obs.h8.ae_nowake": {
+      "ci_high": 0.6699032376737358,
+      "ci_low": 0.3039586031906669,
       "fmt": "%.2f",
       "horizon": 8,
       "macro": "ForeMeritAeNoWakeHiEight",
@@ -3154,6 +3216,8 @@
       "window": "windowed"
     },
     "q2.merit.mean_obs.h8.ae_wake": {
+      "ci_high": 0.7909984453661059,
+      "ci_low": 0.573135565442488,
       "fmt": "%.2f",
       "horizon": 8,
       "macro": "ForeMeritAeWakeHiEight",
@@ -3166,6 +3230,8 @@
       "window": "windowed"
     },
     "q2.merit.mean_obs.h8.jepa_nowake": {
+      "ci_high": 0.7794708600303824,
+      "ci_low": 0.5388289783034167,
       "fmt": "%.2f",
       "horizon": 8,
       "macro": "ForeMeritJepaNoWakeHiEight",
@@ -3178,6 +3244,8 @@
       "window": "windowed"
     },
     "q2.merit.mean_obs.h8.jepa_wake": {
+      "ci_high": 0.8447488551688276,
+      "ci_low": 0.6597771175650509,
       "fmt": "%.2f",
       "horizon": 8,
       "macro": "ForeMeritJepaWakeHiEight",
@@ -3190,6 +3258,8 @@
       "window": "windowed"
     },
     "q2.merit.mean_obs.h8.regAE": {
+      "ci_high": 0.6288756479714831,
+      "ci_low": 0.40156305494089095,
       "fmt": "%.2f",
       "horizon": 8,
       "macro": "ForeMeritRegAEHiEight",
@@ -3202,6 +3272,8 @@
       "window": "windowed"
     },
     "q2.merit.mean_obs.h8.supervised_only": {
+      "ci_high": 0.8263674286742001,
+      "ci_low": 0.5898404353436897,
       "fmt": "%.2f",
       "horizon": 8,
       "macro": "ForeMeritSupOnlyHiEight",

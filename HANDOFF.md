@@ -9321,3 +9321,31 @@ re-run that dumps per-(anchor,horizon,case) num/den + closure residuals. Point v
 in numbers.json; bootstrap_cis.py has a documented `--with-q2` slot for this. Deferred
 (not blocking) -- the ROM verdict direction is established; CIs would tighten it. Also
 deferred: multi-seed variance (1 seed so far). Track F code committed.
+
+### D212 (SESSION31 rollout.py latent-indexing BUG found+fixed; Q2 closure CIs corrected) (2026-07-01, Session 31)
+
+BUG (systematic-debugging, root cause): `rollout.py` `_gather_spatial`/`_gather_gap`
+indexed the rolled-latent tensor by the ENUMERATE position `hi` (`rolled_np[idx, hi]`)
+instead of the horizon STEP `h-1`. These are equal only when `horizons == [1,2,...]`.
+`run_q2` ALWAYS passes `[1..16]` so it was CORRECT (q2_temporal.json + D209 numbers
+UNAFFECTED, the fix is a provable no-op there); but the Track-F closure-CI path
+(`bootstrap_cis.closure_cis`) passed a single `[8]`, so `hi=0` read STEP 1 (a barely-
+rolled latent) against the h=8 target -> a uniform ~0.12 closure deficit across all 6
+models, which put the merit point values OUTSIDE their bootstrap CIs. Found via a
+controlled determinism test (fit_matched_resunet is deterministic; rollout.py reproduces
+0.7344 twice; only the `[8]` vs `[1..16]` arg differed) + code inspection. FIX: index by
+`int(h)-1` in both gatherers; regression test `test_gather_spatial_reads_the_horizon_
+step_not_the_list_position` (fails on old, passes on new); 13 rollout tests green.
+
+Corrected closure CIs (re-ran `bootstrap_cis --closure-only`): the recompute now MATCHES
+rollout.py exactly and the CIs BRACKET the reported values --
+  jepa_wake  0.734 [0.660,0.845]   supervised 0.726 [0.590,0.826]
+  ae_wake    0.668 [0.573,0.791]   jepa_nowake 0.650 [0.539,0.779]
+  regAE      0.511 [0.402,0.629]   ae_nowake  0.508 [0.304,0.670]
+numbers.json now 156/300 cells with CI. GATE F: all HEADLINE ROM cells are CI'd (Q1
+probes + decode floor, Q2 observable closure + merit/ROM-figure-of-merit, Q3 pressure).
+The ONE remaining gate-F item is the Q2 FIELD-VRMSE forecast columns
+(model/floor/persistence, the secondary conservative pixel metric) -- they need a
+rolled-latent decode bootstrap (`--with-field-forecast`, another GPU decode pass); the
+ROM verdict rides on the observable closure (now CI'd), so this is secondary. The
+win/loss story (D209) is unchanged and now CI-supported on the ROM figure of merit.

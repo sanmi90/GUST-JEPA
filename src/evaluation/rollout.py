@@ -525,16 +525,17 @@ def _gather_spatial(
         rolled_np = rolled.float().cpu().numpy()  # (A, H, d, h, w)
         rolled_gap = rolled_np.mean(axis=(3, 4))  # (A, H, d)
         sel = window_horizon_samples(wm, anchors, horizons, context_length, L)
-        for hi, h in enumerate(horizons):
+        for h in horizons:
             idx = sel[int(h)]
             if idx.size == 0:
                 continue
             a = anchors[idx]
             tgt = a + int(h)
+            step = int(h) - 1  # rolled tensor holds steps 1..H at indices 0..H-1
             b = buckets[int(h)]
-            b.rolled_sp.append(rolled_np[idx, hi].astype(np.float16))
+            b.rolled_sp.append(rolled_np[idx, step].astype(np.float16))
             b.true_sp.append(Z[tgt].astype(np.float16))
-            b.rolled_gap.append(rolled_gap[idx, hi].astype(np.float32))
+            b.rolled_gap.append(rolled_gap[idx, step].astype(np.float32))
             b.true_gap.append(Z[tgt].mean(axis=(2, 3)).astype(np.float32))
             b.anchor_gap.append(Z[a].mean(axis=(2, 3)).astype(np.float32))
             b.target_row.append(enc.global_rows[tgt])
@@ -574,14 +575,15 @@ def _gather_gap(
                 rolled = _roll_transformer_batch(predictor, z_init, H)
         rolled_np = rolled.float().cpu().numpy()  # (A, H, d)
         sel = window_horizon_samples(wm, anchors, horizons, context_length, L)
-        for hi, h in enumerate(horizons):
+        for h in horizons:
             idx = sel[int(h)]
             if idx.size == 0:
                 continue
             a = anchors[idx]
             tgt = a + int(h)
+            step = int(h) - 1  # rolled tensor holds steps 1..H at indices 0..H-1
             b = buckets[int(h)]
-            b.rolled_gap.append(rolled_np[idx, hi].astype(np.float32))
+            b.rolled_gap.append(rolled_np[idx, step].astype(np.float32))
             b.true_gap.append(Zg[tgt].astype(np.float32))
             b.anchor_gap.append(Zg[a].astype(np.float32))
             b.target_row.append(enc.global_rows[tgt])

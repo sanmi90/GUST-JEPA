@@ -159,3 +159,45 @@ def test_window_horizon_samples_respects_context_validity():
     sel = window_horizon_samples(window_mask, anchors, horizons, context_length=2, n_frames=L)
     # anchor 0 -> needs frame -1 for context, dropped; anchors 1,2 kept.
     assert set(anchors[sel[1]]) == {1, 2}
+
+
+# --------------------------------------------------------------------------- gatherers
+def test_gather_spatial_reads_the_horizon_step_not_the_list_position():
+    """The h=H bucket must hold the step-H rolled latent regardless of the horizons list.
+
+    Regression for the ``rolled_np[idx, hi]`` bug: indexing the rolled tensor by the
+    enumerate position ``hi`` only equals the step ``h-1`` when ``horizons == [1,2,..]``.
+    Passing a single horizon ``[3]`` (as the closure-CI path did) made hi=0 read step 1,
+    scoring a barely-rolled latent against the h=3 target. Both ``[1,2,3]`` and ``[3]``
+    use H=max=3 (identical anchors/rollout), so the h=3 bucket must be identical.
+    """
+    import torch
+
+    from src.evaluation.rollout import Encounter, _gather_spatial
+    from src.models.resunet_predictor import ResUNetPredictor
+
+    L, d, h, w = 12, 4, 8, 8
+    rng = np.random.default_rng(0)
+    z_spatial = rng.standard_normal((L, d, h, w)).astype(np.float32)
+    window_mask = np.zeros(L, dtype=bool)
+    window_mask[4:9] = True
+    enc = Encounter(
+        key="case/00",
+        z_spatial=z_spatial,
+        z_gap=z_spatial.mean(axis=(2, 3)),
+        window_mask=window_mask,
+        global_rows=np.arange(L),
+        frames=np.arange(L),
+    )
+    torch.manual_seed(0)
+    predictor = ResUNetPredictor(latent_dim=d, context_length=2).eval()
+    device = torch.device("cpu")
+
+    b_full = _gather_spatial(predictor, [enc], [1, 2, 3], 2, device)
+    b_single = _gather_spatial(predictor, [enc], [3], 2, device)
+
+    rolled_full = np.concatenate(b_full[3].rolled_gap)
+    rolled_single = np.concatenate(b_single[3].rolled_gap)
+    assert rolled_full.shape == rolled_single.shape
+    # The h=3 rolled latent is deterministic; it must not depend on the horizons list.
+    assert np.allclose(rolled_full, rolled_single)
