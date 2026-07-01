@@ -9261,3 +9261,36 @@ THE WIN/LOSS BOUNDARY (defensible JFM story, not a single winner):
     observable readability. Field VRMSE is the conservative pixel metric (favours recon
     absolutely); the ROM verdict is the observable closure + the on-manifold gap.
 Q2 code committed; JSON gitignored. Q3 (pressure) next.
+
+### D210 (SESSION31 Track D Q3 -- pressure state inference; Track D COMPLETE) (2026-07-01, Session 31)
+
+`src/evaluation/pressure_infer.py` (+ test_pressure.py, 7 tests). Fit a pressure->latent
+estimator (StandardScaler -> Nystroem(RBF,400) -> Ridge, ENCOUNTER-GROUPED-CV alpha to
+avoid within-encounter temporal leakage -- the scalable equivalent of the Session-21
+KernelRidge(RBF) idea, since full 32k-row KernelRidge is infeasible) on each model's
+frozen latent, then read {field via Q1 decoder, 5 observables via Q1 probes}, scored on
+the anchored_local impact+relaxation windows. Readout ceilings reproduce Q1 windowed
+probe R2 (self-consistency confirmed). q3_pressure.json.
+
+RESULTS (Test B in-window, pressure R2 / latent-readout ceiling):
+  jepa_nowake latent 0.44 | C_L 0.20/0.82 | meanObs 0.14/0.59
+  jepa_wake   latent 0.31 | C_L 0.19/0.79 | meanObs 0.16/0.78
+  ae_nowake   latent 0.61 | C_L 0.21/0.80 | meanObs 0.16/0.50
+  ae_wake     latent 0.35 | C_L 0.20/0.77 | meanObs 0.16/0.74
+  supervised  latent 0.33 | C_L 0.20/0.68 | meanObs 0.14/0.74
+  regAE       latent 0.09 | C_L 0.09/0.11 | meanObs 0.06/0.45
+Per-obs pressure->R2: C_L ~0.20, circ ~0.22-0.25, wake_enstrophy NEGATIVE for all
+(pressure cannot infer wake enstrophy). K=8 ~= K=192 sensor sweep.
+
+Q3 ANSWER (honest, weaker than Q2): (1) INSTANTANEOUS wall pressure is a WEAK state-
+inference channel through EVERY latent (best obs closure ~0.25, well below the 0.5-0.85
+ceilings). (2) predictive (jepa) vs reconstruction (ae) latent are ESSENTIALLY TIED as
+pressure targets (meanObs ~0.14-0.16 both) -- unlike Q2, pressure does NOT favour the
+predictive latent. (3) regAE (the v2.1 winner, strongly-regularised recon) is the WORST
+pressure target (latent 0.09, pressure-opaque) despite the best field decode; ae_nowake
+is the most pressure-PREDICTABLE latent (0.61) but that does not convert to observable
+closure. CAVEAT for the manuscript: this uses CURRENT-FRAME pressure; the Session-21
+pressure_v2 work used a PRE-IMPACT WINDOW of pressure and got stronger lead-time results,
+so "pressure weak" is specific to the instantaneous protocol -- a pre-impact-window
+estimator is the recommended follow-up. The across-latent COMPARISON is valid (same
+protocol for all). TRACK D COMPLETE (Q1+Q2+Q3). Q3 code committed; JSON gitignored.
