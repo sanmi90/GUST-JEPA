@@ -115,6 +115,18 @@ def scalar_cis(models, *, n_boot: int, seed: int, verbose: bool = True) -> dict:
         groups = _row_groups(gap_tr["case_id"], gap_tr["encounter_index"])
         est = fit_pressure_estimator(p_tr, z_tr, n_components=400, seed=seed, groups=groups)
         z_tb_from_p = est.predict(p_tb)[mask]
+
+        # --- Q3 pressure -> GAP latent aggregated multi-output R^2 (per-row over dims) ---
+        z_true_w = z_tb[mask]
+        mean_col = z_true_w.mean(axis=0, keepdims=True)
+        lat_contribs = {
+            "ss_res": ((z_tb_from_p - z_true_w) ** 2).sum(axis=1),
+            "ss_tot": ((z_true_w - mean_col) ** 2).sum(axis=1),
+        }
+        rec = bootstrap_ci(case_w, lat_contribs, agg_r2, n_boot=n_boot, seed=seed)
+        rec["recompute_value"] = rec.pop("value")
+        out[name_and_macro("pres_latent_r2", m)[0]] = rec
+
         contribs_all: dict[str, np.ndarray] = {}
         for t in TARGETS:
             plin = fit_linear_probe(z_tr, gap_tr["targets"][t])
@@ -270,6 +282,103 @@ def field_cis(
     return out
 
 
+def closure_cis(
+    models,
+    *,
+    horizon: int,
+    n_boot: int,
+    seed: int,
+    gpu: int,
+    device_override,
+    predictor_steps: int,
+    verbose: bool = True,
+) -> dict:
+    """Q2 observable-closure CIs at one horizon via a fresh matched-ResUNet rollout.
+
+    Fits the matched predictor on TRAIN latents (the Q2 matched-predictor protocol),
+    rolls every in-window Test B anchor to ``horizon``, reads the five observables
+    from the rolled GAP latent through the frozen Q1 MLP probes, and bootstraps the
+    per-observable R^2 and the mean-obs ROM figure of merit over Test B cases. The
+    rolled latent is not cached, so this is a one-time GPU rollout (no field decode).
+    """
+    import torch
+
+    from src.evaluation.represent import fit_mlp_probe
+    from src.evaluation.rollout import (
+        _gather_spatial,
+        fit_matched_resunet,
+        group_encounters,
+        load_latent_split,
+    )
+
+    if device_override is not None:
+        device = torch.device(device_override)
+        gpu_name = device_override
+    else:
+        from src.utils.device import require_rtx6000
+
+        device = require_rtx6000(gpu_index=gpu)
+        gpu_name = torch.cuda.get_device_name(device.index)
+        if "RTX" not in gpu_name or "6000" not in gpu_name:
+            raise RuntimeError(f"hardware policy: gpu_name={gpu_name!r} is not an RTX 6000")
+
+    context_length = 2  # Q2 params: ResUNetPredictor(context_length=2)
+    print(f"[ci-closure] device={device} ({gpu_name}) horizon={horizon}", flush=True)
+    out: dict[str, dict] = {}
+    for m in models:
+        tr = load_latent_split(CACHE / f"latents_{m}_train.npz")
+        tb = load_latent_split(CACHE / f"latents_{m}_test_b.npz")
+        trajs = [enc.z_spatial for enc in group_encounters(tr)]
+        predictor = fit_matched_resunet(
+            trajs,
+            device=device,
+            horizon_train=8,
+            context_length=context_length,
+            steps=predictor_steps,
+            seed=seed,
+            verbose=verbose,
+        )
+        buckets = _gather_spatial(
+            predictor, group_encounters(tb), [horizon], context_length, device
+        )
+        b = buckets[int(horizon)]
+        rolled_gap = np.concatenate(b.rolled_gap)  # (A, d)
+        target_row = np.concatenate(b.target_row)  # (A,) rows into the flat cache
+        case_w = tb.case_id[target_row]
+
+        contribs_all: dict[str, np.ndarray] = {}
+        for t in TARGETS:
+            mlp = fit_mlp_probe(tr.z_gap, tr.targets[t], seed=seed)
+            y_true = tb.targets[t][target_row]
+            y_pred = mlp.predict(rolled_gap)
+            c = r2_contribs(y_true, y_pred)
+            rec = bootstrap_ci(case_w, c, agg_r2, n_boot=n_boot, seed=seed)
+            rec["recompute_value"] = rec.pop("value")
+            out[name_and_macro("fore_clos", m, target=t, h=horizon)[0]] = rec
+            contribs_all[f"ss_res_{t}"] = c["ss_res"]
+            contribs_all[f"ss_tot_{t}"] = c["ss_tot"]
+        agg = partial(_agg_mean_r2, targets=TARGETS)
+        point = agg(contribs_all)
+        samples = case_clustered_bootstrap(case_w, contribs_all, agg, n_boot=n_boot, seed=seed)
+        lo, hi = percentile_ci(samples)
+        out[name_and_macro("fore_merit", m, h=horizon)[0]] = {
+            "recompute_value": point,
+            "ci_low": lo,
+            "ci_high": hi,
+            "n": int(case_w.shape[0]),
+        }
+        if verbose:
+            print(
+                f"[ci-closure] {m}: mean-obs MLP R2 h{horizon} "
+                f"{point:.3f} [{lo:.3f},{hi:.3f}] (n={case_w.shape[0]})",
+                flush=True,
+            )
+        del predictor, tr, tb, buckets
+        if device.type == "cuda":
+            torch.cuda.empty_cache()
+    return out
+
+
 def main(argv: list[str] | None = None) -> int:
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument("--models", nargs="+", default=list(CANONICAL_MODELS))
@@ -277,6 +386,14 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--seed", type=int, default=0)
     p.add_argument("--with-field", action="store_true", help="Also compute GPU field CIs.")
     p.add_argument("--field-only", action="store_true", help="Skip scalar; field CIs only.")
+    p.add_argument(
+        "--with-closure",
+        action="store_true",
+        help="Also compute GPU Q2 observable-closure CIs (matched-predictor rollout).",
+    )
+    p.add_argument("--closure-only", action="store_true", help="Skip scalar; closure CIs only.")
+    p.add_argument("--closure-horizon", type=int, default=8)
+    p.add_argument("--predictor-steps", type=int, default=4000)
     p.add_argument("--gpu", type=int, default=0)
     p.add_argument("--device", default=None, help="Explicit device (bypasses require_rtx6000).")
     p.add_argument("--decoder-steps", type=int, default=6000)
@@ -284,7 +401,7 @@ def main(argv: list[str] | None = None) -> int:
     args = p.parse_args(argv)
 
     numbers = _load_ci_dump(Path(args.out))
-    if not args.field_only:
+    if not (args.field_only or args.closure_only):
         numbers.update(scalar_cis(args.models, n_boot=args.n_boot, seed=args.seed))
     if args.with_field or args.field_only:
         numbers.update(
@@ -295,6 +412,18 @@ def main(argv: list[str] | None = None) -> int:
                 gpu=args.gpu,
                 device_override=args.device,
                 decoder_steps=args.decoder_steps,
+            )
+        )
+    if args.with_closure or args.closure_only:
+        numbers.update(
+            closure_cis(
+                args.models,
+                horizon=args.closure_horizon,
+                n_boot=args.n_boot,
+                seed=args.seed,
+                gpu=args.gpu,
+                device_override=args.device,
+                predictor_steps=args.predictor_steps,
             )
         )
     blob = {"n_boot": args.n_boot, "seed": args.seed, "numbers": numbers}

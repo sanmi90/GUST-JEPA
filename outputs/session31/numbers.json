@@ -4,12 +4,12 @@
       "applied": true,
       "n_boot": 1000,
       "path": "outputs/session31/ci_dump.json",
-      "sha256": "909c5fc88380a874a0acf786ea5175b6584bf2cd2f7bb151abaf79adebdc71e1"
+      "sha256": "0a6ef2f84879916c84ecac6f6cce163f0e6249d5130d8c93455741fd1af33fa9"
     },
-    "generated_iso": "2026-07-01T12:14:28.376195+00:00",
-    "git_commit": "a1cd864a4096a20cfe12cca64d53fe60b5c3b3da",
+    "generated_iso": "2026-07-01T12:34:22.046571+00:00",
+    "git_commit": "639c5d4c4a932ee437f27d6ba1bfe1988f0f57c7",
     "n_numbers": 300,
-    "n_with_ci": 114,
+    "n_with_ci": 120,
     "sources": {
       "q1": {
         "path": "outputs/session31/q1_representation.json",
@@ -3292,55 +3292,73 @@
       "window": "windowed"
     },
     "q3.pressure_latent.r2.ae_nowake": {
+      "ci_high": 0.8144112829038198,
+      "ci_low": 0.32760474712600635,
       "fmt": "%.2f",
       "macro": "PresLatentRtwoAeNoWake",
       "metric": "pressure_latent_r2",
       "model": "ae_nowake",
+      "n": 2016,
       "source": "q3",
       "value": 0.6064320767786837,
       "window": "windowed"
     },
     "q3.pressure_latent.r2.ae_wake": {
+      "ci_high": 0.5128187184778475,
+      "ci_low": 0.18789157488072722,
       "fmt": "%.2f",
       "macro": "PresLatentRtwoAeWake",
       "metric": "pressure_latent_r2",
       "model": "ae_wake",
+      "n": 2016,
       "source": "q3",
       "value": 0.35433888767708177,
       "window": "windowed"
     },
     "q3.pressure_latent.r2.jepa_nowake": {
+      "ci_high": 0.6804903553891732,
+      "ci_low": 0.11175077845774084,
       "fmt": "%.2f",
       "macro": "PresLatentRtwoJepaNoWake",
       "metric": "pressure_latent_r2",
       "model": "jepa_nowake",
+      "n": 2016,
       "source": "q3",
       "value": 0.43759707898522116,
       "window": "windowed"
     },
     "q3.pressure_latent.r2.jepa_wake": {
+      "ci_high": 0.5058786400613569,
+      "ci_low": 0.08280616338193747,
       "fmt": "%.2f",
       "macro": "PresLatentRtwoJepaWake",
       "metric": "pressure_latent_r2",
       "model": "jepa_wake",
+      "n": 2016,
       "source": "q3",
       "value": 0.3129068420588611,
       "window": "windowed"
     },
     "q3.pressure_latent.r2.regAE": {
+      "ci_high": 0.23580274030297305,
+      "ci_low": -0.045692719611947825,
       "fmt": "%.2f",
       "macro": "PresLatentRtwoRegAE",
       "metric": "pressure_latent_r2",
       "model": "regAE",
+      "n": 2016,
       "source": "q3",
       "value": 0.09062064763942035,
       "window": "windowed"
     },
     "q3.pressure_latent.r2.supervised_only": {
+      "ci_high": 0.5121459639593353,
+      "ci_low": 0.14565416126658082,
       "fmt": "%.2f",
       "macro": "PresLatentRtwoSupOnly",
       "metric": "pressure_latent_r2",
       "model": "supervised_only",
+      "n": 2016,
       "source": "q3",
       "value": 0.33277566525791225,
       "window": "windowed"

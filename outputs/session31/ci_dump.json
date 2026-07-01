@@ -469,6 +469,42 @@
       "n": 2016,
       "recompute_value": 0.9891267378698961
     },
+    "q3.pressure_latent.r2.ae_nowake": {
+      "ci_high": 0.8144112829038198,
+      "ci_low": 0.32760474712600635,
+      "n": 2016,
+      "recompute_value": 0.60643207675441
+    },
+    "q3.pressure_latent.r2.ae_wake": {
+      "ci_high": 0.5128187184778475,
+      "ci_low": 0.18789157488072722,
+      "n": 2016,
+      "recompute_value": 0.35433888725499385
+    },
+    "q3.pressure_latent.r2.jepa_nowake": {
+      "ci_high": 0.6804903553891732,
+      "ci_low": 0.11175077845774084,
+      "n": 2016,
+      "recompute_value": 0.43759707890558974
+    },
+    "q3.pressure_latent.r2.jepa_wake": {
+      "ci_high": 0.5058786400613569,
+      "ci_low": 0.08280616338193747,
+      "n": 2016,
+      "recompute_value": 0.31290684257063905
+    },
+    "q3.pressure_latent.r2.regAE": {
+      "ci_high": 0.23580274030297305,
+      "ci_low": -0.045692719611947825,
+      "n": 2016,
+      "recompute_value": 0.0906206501659208
+    },
+    "q3.pressure_latent.r2.supervised_only": {
+      "ci_high": 0.5121459639593353,
+      "ci_low": 0.14565416126658082,
+      "n": 2016,
+      "recompute_value": 0.33277566311853624
+    },
     "q3.pressure_obs.linear.C_D.ae_nowake": {
       "ci_high": 0.8496936375187236,
       "ci_low": -0.22597307201639877,
