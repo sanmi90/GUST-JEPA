@@ -9294,3 +9294,30 @@ pressure_v2 work used a PRE-IMPACT WINDOW of pressure and got stronger lead-time
 so "pressure weak" is specific to the instantaneous protocol -- a pre-impact-window
 estimator is the recommended follow-up. The across-latent COMPARISON is valid (same
 protocol for all). TRACK D COMPLETE (Q1+Q2+Q3). Q3 code committed; JSON gitignored.
+
+### D211 (SESSION31 Track F -- numbers/macros/table/figure + bootstrap CIs) (2026-07-01, Session 31)
+
+`src/evaluation/report_session31.py` + `scripts/session31/{assemble_report,bootstrap_cis,
+make_figures,make_table}.py` (+ test_report_session31.py, 15 tests; 51 across the ROM
+suite). `outputs/session31/numbers.json` (300 headline cells keyed model/predictor/window/
+target/metric, full provenance: git commit + source sha256 + CI-dump sha) -> emits
+`paper/macros_session31.tex` (528 \providecommand macros, NO numeric literals; dup-name/
+macro validation). .gitignore gained a session31 ledger exception (numbers.json, ci_dump,
+tables/*.tex tracked). CASE-CLUSTERED BOOTSTRAP (B=1000, resample the 10 Test B cases;
+denominators fixed at full-sample per the num/den ratio-of-sums protocol): DONE for
+114/300 cells -- 96 scalar (Q1 probe lin+MLP R2, Q3 pressure->obs R2 + mean-obs) on CPU;
+18 field (Q1 decode-floor VRMSE+SSIM, Q3 pressure->field VRMSE) via a one-time decoder
+re-fit per model on RTX 6000 (recompute deltas ~0.003-0.005, recorded as notes; scalars
+match reported to delta=0). Three-curve field-VRMSE figure + canonical LaTeX comparison
+table (macros only, compiles under latexmk). Canonical table headline (CI-separated):
+regAE decode floor 0.249[0.200,0.299] << all (D-N3); regAE C_L readability 0.14[-0.55,0.68]
+vs JEPA 0.85[0.74,0.96]; wake term ~doubles Omega_w readability (JEPA 0.48->0.88);
+pressure->obs weak for all (0.06-0.16, CIs span 0).
+
+GATE F STATUS: WEAK-but-close. The remaining gate-F item = the Q2 FORECAST columns
+(field-VRMSE model/floor/persistence AND the observable-closure/merit, incl. the ROM
+figure of merit) lack case-clustered CIs -- they need a Q2 matched-predictor ROLLOUT
+re-run that dumps per-(anchor,horizon,case) num/den + closure residuals. Point values ARE
+in numbers.json; bootstrap_cis.py has a documented `--with-q2` slot for this. Deferred
+(not blocking) -- the ROM verdict direction is established; CIs would tighten it. Also
+deferred: multi-seed variance (1 seed so far). Track F code committed.

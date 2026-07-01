@@ -47,6 +47,15 @@ outputs/*
 !outputs/session28/
 outputs/session28/*
 !outputs/session28/numbers.json
+# Session 31 Track F ROM report ledger: numbers.json + CI dump + built table are
+# git-tracked so every manuscript ROM number traces to them via macros_session31.tex.
+!outputs/session31/
+outputs/session31/*
+!outputs/session31/numbers.json
+!outputs/session31/ci_dump.json
+!outputs/session31/tables/
+outputs/session31/tables/*
+!outputs/session31/tables/*.tex
 
 # Exception: paper manuscript figures live under paper/sections/figures/results/
 # even though the top-level results/ folder is ignored.
