@@ -9221,3 +9221,43 @@ objective-driven. MLP >= linear everywhere. The recon-wins-field / supervision-d
 observables split is the expected win/loss boundary; the DECISIVE predictive-vs-recon
 distinction is Q2 (forecast) + Q3 (pressure), pending. Q1 code committed; the JSON/
 latent artifacts are gitignored (flow to numbers.json at Track F).
+
+### D209 (SESSION31 Track D Q2 -- forecast; the decisive ROM result) (2026-07-01, Session 31)
+
+`src/evaluation/rollout.py` (+ test_rollout.py, 12 tests). Matched-predictor protocol
+verified: a FRESH ResUNet (context_length=2) is fit on each model's FROZEN precomputed
+latents (isolates encoder geometry), rolled autoregressively H=16, decoded via the Q1
+identical-capacity SpatialLatentFieldDecoder. Three-curve field VRMSE (floor=decode
+true z_{t+h}; model=decode rolled; persistence=held anchor) + 5-observable forward
+closure (Q1 frozen probes read from the rolled latent, linear+MLP) + drift rel-L2, on
+Test B restricted to impact+relaxation windows (anchored_local; kinematic variant also
+run as sensitivity). q2_temporal.json.
+
+RESULTS (resunet_matched, h8; field VRMSE floor/model/persist; obs-closure MLP R2):
+  jepa_nowake  0.715/0.841/1.255 gap0.126 | C_L 0.74 | meanObs 0.65
+  jepa_wake    0.713/0.839/1.255 gap0.126 | C_L 0.76 | meanObs 0.734 (BEST ROM)
+  ae_nowake    0.580/0.867/1.255 gap0.287 | C_L 0.65 | meanObs 0.508
+  ae_wake      0.589/0.872/1.255 gap0.283 | C_L 0.68 | meanObs 0.668
+  supervised   0.704/0.922/1.255 gap0.218 | C_L 0.72 | meanObs 0.726
+  regAE        0.251/0.795/1.255 gap0.544 | C_L 0.24 | meanObs 0.511
+persistence field VRMSE h8 = 1.255 (all models beat it).
+
+THE WIN/LOSS BOUNDARY (defensible JFM story, not a single winner):
+(1) Reconstruction wins the STATIC field decode floor (regAE 0.251/SSIM0.98, AEs ~0.58
+    vs jepa ~0.72) -- gray-scott predicted.
+(2) The PREDICTIVE OBJECTIVE owns on-manifold FORECAST: model-floor gap jepa 0.126 <<
+    ae 0.28 < regAE 0.544. The predictive latent rolls forward staying near its floor;
+    the best static decoder (regAE) degrades most under rollout (falls off manifold).
+(3) The predictive latent owns FORCE (C_L) forecast closure (jepa 0.74-0.76 > all).
+(4) The WAKE HEAD owns wake-observable readability/closure (jepa_wake/supervised/ae_wake
+    high on wake_enstrophy+circ); supervision-driven, consistent with Q1/D202-203.
+(5) jepa_wake (WAKE-SUPERVISED PREDICTIVE latent) is the best ROM (meanObs 0.734):
+    combines predictive dynamics (gap 0.126, C_L 0.76) with wake supervision. Neither
+    alone suffices -- supervised_only has good wake closure but the WORST absolute field
+    forecast (0.922); regAE decodes best statically but cannot forecast state (C_L 0.24).
+    This validates the Session-29 "wake-supervised predictive latent" framing on the
+    fresh v2.2 controlled matrix. D-N5 attribution CLEAN: matched predictor on every
+    frozen latent => predictive objective owns forecast geometry, wake head owns
+    observable readability. Field VRMSE is the conservative pixel metric (favours recon
+    absolutely); the ROM verdict is the observable closure + the on-manifold gap.
+Q2 code committed; JSON gitignored. Q3 (pressure) next.
