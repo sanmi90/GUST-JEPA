@@ -215,6 +215,29 @@ def vrmse_contribs(pred: np.ndarray, true: np.ndarray) -> dict[str, np.ndarray]:
     return {"num": num, "den": den}
 
 
+def three_curve_field_contribs(
+    model_pred: np.ndarray,
+    floor_pred: np.ndarray,
+    persist_pred: np.ndarray,
+    true: np.ndarray,
+) -> dict[str, dict[str, np.ndarray]]:
+    """Per-row (num, den) contribs for the Q2 three-curve field VRMSE.
+
+    ``model``, ``floor`` and ``persistence`` all score against the SAME ``true``
+    field at ``t + h`` (the DNS omega at the target frame), so they share the
+    aggregated-VRMSE denominator (variance about the single global mean of
+    ``true``); only the numerator differs. Returns ``{which: {num, den}}`` for
+    ``which in ('model', 'floor', 'persistence')`` so each curve can be
+    case-clustered-bootstrapped independently while ``agg_vrmse`` reproduces
+    ``aggregated_vrmse`` per curve.
+    """
+    return {
+        "model": vrmse_contribs(model_pred, true),
+        "floor": vrmse_contribs(floor_pred, true),
+        "persistence": vrmse_contribs(persist_pred, true),
+    }
+
+
 def r2_contribs(y_true: np.ndarray, y_pred: np.ndarray) -> dict[str, np.ndarray]:
     """Per-row (ss_res, ss_tot) for aggregated R^2, ybar fixed at the full-set mean."""
     y_true = np.asarray(y_true, dtype=np.float64).ravel()

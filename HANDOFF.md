@@ -9349,3 +9349,19 @@ The ONE remaining gate-F item is the Q2 FIELD-VRMSE forecast columns
 rolled-latent decode bootstrap (`--with-field-forecast`, another GPU decode pass); the
 ROM verdict rides on the observable closure (now CI'd), so this is secondary. The
 win/loss story (D209) is unchanged and now CI-supported on the ROM figure of merit.
+
+### D213 (SESSION31 GATE F FULLY CLOSED -- Q2 field-VRMSE forecast CIs) (2026-07-01, Session 31)
+
+`bootstrap_cis.py --with-field-forecast`: per model, fit matched ResUNet + decode-floor
+decoder, roll over [1..16] (matches run_q2's h8 sample set, n=2016), decode
+model/floor/persistence fields, per-CASE VRMSE num/den, case-clustered bootstrap. The
+mandatory recompute-vs-run_q2 check PASSED for all 6 models (max delta < 0.005;
+persistence exactly 0) -- the bug lesson (D212) applied. 18 new CIs (3 curves x 6 models),
+all bracket the reported values, e.g. jepa_nowake field model 0.841 [0.798,0.861], floor
+0.715 [0.662,0.747], persistence 1.255 [1.204,1.312]. numbers.json now 174/300 cells with
+CI. GATE F FULLY MET: every reported headline cell (Q1 probes + decode floor, Q2
+field-VRMSE forecast three-curve + observable closure + merit, Q3 pressure) carries a
+case-clustered bootstrap CI; the remaining 126 no-CI cells are context horizons (h1/h16),
+not reported. New pure helper three_curve_field_contribs (2 TDD tests); 30 report+rollout
+tests green. REMAINING (per Carlos, this session): Track E ablations + fukami/fukami_wake/
+POD references. Deferred: multi-seed; bvae author-pending.

@@ -29,6 +29,7 @@ from src.evaluation.report_session31 import (
     percentile_ci,
     r2_contribs,
     random_row_bootstrap,
+    three_curve_field_contribs,
     validate_record,
     vrmse_contribs,
 )
@@ -113,6 +114,38 @@ def test_case_drawn_multiple_times_counts_rows_multiply() -> None:
     c = r2_contribs(y, y * 0.9)
     samples = case_clustered_bootstrap(case_ids, c, agg_r2, n_boot=100, seed=0)
     assert np.allclose(samples, samples[0])
+
+
+def test_three_curve_field_contribs_shares_denominator() -> None:
+    """The model/floor/persistence field curves score against the SAME true field.
+
+    All three therefore share the aggregated-VRMSE denominator (variance about the
+    single global mean of ``true``); only the numerator differs. Each curve's
+    ``agg_vrmse`` must reproduce the direct ``aggregated_vrmse`` against ``true``.
+    """
+    from src.evaluation.represent import aggregated_vrmse
+
+    rng = np.random.default_rng(5)
+    true = rng.normal(size=(20, 4, 3))
+    model = true + rng.normal(scale=0.4, size=true.shape)
+    floor = true + rng.normal(scale=0.2, size=true.shape)
+    persist = true + rng.normal(scale=0.8, size=true.shape)
+    curves = three_curve_field_contribs(model, floor, persist, true)
+    assert set(curves) == {"model", "floor", "persistence"}
+    den_ref = curves["model"]["den"]
+    for which, pred in (("model", model), ("floor", floor), ("persistence", persist)):
+        c = curves[which]
+        # shared denominator (same true, same global mean)
+        assert np.allclose(c["den"], den_ref)
+        # each curve's ratio-of-sums reproduces the direct aggregated VRMSE
+        assert agg_vrmse(c) == pytest.approx(aggregated_vrmse(pred, true))
+        assert c["num"].shape == (20,)
+
+
+def test_three_curve_field_contribs_shape_mismatch_raises() -> None:
+    true = np.zeros((5, 4))
+    with pytest.raises(ValueError, match="shape mismatch"):
+        three_curve_field_contribs(np.zeros((5, 4)), np.zeros((5, 4)), np.zeros((4, 4)), true)
 
 
 def test_vrmse_num_den_aggregation_over_cases() -> None:

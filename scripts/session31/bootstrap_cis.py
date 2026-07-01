@@ -50,12 +50,14 @@ from src.evaluation.report_session31 import (  # noqa: E402
     name_and_macro,
     percentile_ci,
     r2_contribs,
+    three_curve_field_contribs,
     vrmse_contribs,
 )
 
 REPO = Path(__file__).resolve().parents[2]
 CACHE = REPO / "outputs" / "session31" / "q1_latents"
 CI_DUMP = REPO / "outputs" / "session31" / "ci_dump.json"
+Q2_TEMPORAL = REPO / "outputs" / "session31" / "q2_temporal.json"
 
 
 def _load_ci_dump(path: Path) -> dict:
@@ -379,6 +381,156 @@ def closure_cis(
     return out
 
 
+def _reported_field_vrmse(model: str, horizon: int) -> dict[str, float]:
+    """run_q2 reported field-VRMSE (model/floor/persistence) at ``horizon`` for ``model``."""
+    q2 = json.loads(Q2_TEMPORAL.read_text())
+    fv = q2["models"][model]["predictors"]["resunet_matched"]["field_vrmse"]
+    i = list(fv["horizons"]).index(int(horizon))
+    return {which: float(fv[which][i]) for which in ("model", "floor", "persistence")}
+
+
+def field_forecast_cis(
+    models,
+    *,
+    horizon: int = 8,
+    n_boot: int,
+    seed: int,
+    gpu: int,
+    device_override,
+    predictor_steps: int,
+    decoder_steps: int,
+    match_tol: float = 0.005,
+    verbose: bool = True,
+) -> dict:
+    """Q2 FIELD-VRMSE three-curve (model/floor/persistence) CIs at one horizon.
+
+    Mirrors run_q2's field-VRMSE recompute EXACTLY: per model, fit the matched
+    ResUNet predictor and the decode-floor decoder on TRAIN latents, roll every
+    in-window Test B anchor over ``1..DEFAULT_HORIZON`` (so ``_needed_anchors`` uses
+    H=16 and the ``horizon`` sample set matches run_q2 frame-for-frame), read the
+    ``horizon`` bucket, then form the three curves: ``model = decode(rolled z)``,
+    ``floor = decode(true z_{t+h})``, ``persistence = held anchor DNS field``, each
+    scored against the DNS field at ``t + h``. The aggregated VRMSE is a
+    ratio-of-sums, so the bootstrap resamples per-CASE (num, den) contributions and
+    recomputes ``sqrt(sum num / sum den)`` per resample.
+
+    Before bootstrapping, the recomputed point VRMSE per curve is asserted against
+    the run_q2 reported value within ``match_tol`` (bf16 decode/rollout
+    nondeterminism); a gross mismatch (the mis-indexed-horizon bug) raises so no CI
+    that fails to bracket the reported point is ever emitted.
+    """
+    import torch
+
+    from src.evaluation.represent import decode_fields, fit_decode_floor_decoder
+    from src.evaluation.rollout import (
+        DEFAULT_HORIZON,
+        _gather_spatial,
+        fit_matched_resunet,
+        group_encounters,
+        load_field_cache,
+        load_latent_split,
+    )
+
+    if device_override is not None:
+        device = torch.device(device_override)
+        gpu_name = device_override
+    else:
+        from src.utils.device import require_rtx6000
+
+        device = require_rtx6000(gpu_index=gpu)
+        gpu_name = torch.cuda.get_device_name(device.index)
+        if "RTX" not in gpu_name or "6000" not in gpu_name:
+            raise RuntimeError(f"hardware policy: gpu_name={gpu_name!r} is not an RTX 6000")
+
+    context_length = 2  # Q2 params: ResUNetPredictor(context_length=2)
+    horizons = list(range(1, DEFAULT_HORIZON + 1))  # H=16 so the h-bucket matches run_q2
+    omega_tr, *_ = load_field_cache(CACHE / "fields_train.npz")
+    omega_tb, *_ = load_field_cache(CACHE / "fields_test_b.npz")
+    omega_tb = np.asarray(omega_tb, dtype=np.float32)
+
+    print(
+        f"[ci-field-fore] device={device} ({gpu_name}) horizon={horizon} "
+        f"rollout_H={DEFAULT_HORIZON}",
+        flush=True,
+    )
+    out: dict[str, dict] = {}
+    for m in models:
+        tr = load_latent_split(CACHE / f"latents_{m}_train.npz")
+        tb = load_latent_split(CACHE / f"latents_{m}_test_b.npz")
+        grid = tr.latent_grid
+        trajs = [enc.z_spatial for enc in group_encounters(tr)]
+
+        decoder = fit_decode_floor_decoder(
+            tr.z_spatial,
+            omega_tr,
+            grid,
+            device=device,
+            steps=decoder_steps,
+            batch=64,
+            seed=seed,
+            verbose=verbose,
+        )
+        predictor = fit_matched_resunet(
+            trajs,
+            device=device,
+            horizon_train=8,
+            context_length=context_length,
+            steps=predictor_steps,
+            seed=seed,
+            verbose=verbose,
+        )
+        buckets = _gather_spatial(predictor, group_encounters(tb), horizons, context_length, device)
+        b = buckets[int(horizon)]
+        rolled_sp = np.concatenate(b.rolled_sp).astype(np.float32)
+        true_sp = np.concatenate(b.true_sp).astype(np.float32)
+        target_row = np.concatenate(b.target_row)
+        anchor_row = np.concatenate(b.anchor_row)
+        case_w = tb.case_id[target_row]
+
+        model_field = decode_fields(decoder, rolled_sp, device)
+        floor_field = decode_fields(decoder, true_sp, device)
+        true_field = omega_tb[target_row]
+        persist_field = omega_tb[anchor_row]
+
+        curves = three_curve_field_contribs(model_field, floor_field, persist_field, true_field)
+        reported = _reported_field_vrmse(m, horizon)
+        # MANDATORY: recompute must match run_q2 reported before any CI is emitted.
+        deltas = {which: abs(agg_vrmse(c) - reported[which]) for which, c in curves.items()}
+        worst = max(deltas.values())
+        if verbose:
+            print(
+                f"[ci-field-fore] {m} h{horizon} recompute-vs-reported deltas "
+                + " ".join(f"{w}={deltas[w]:.5f}" for w in ("model", "floor", "persistence"))
+                + f" (max {worst:.5f})",
+                flush=True,
+            )
+        if worst > match_tol:
+            raise RuntimeError(
+                f"field-VRMSE recompute for {m} at h{horizon} disagrees with run_q2 "
+                f"reported by {worst:.5f} > tol {match_tol} (deltas {deltas}). "
+                f"STOP: not emitting CIs that may not bracket the reported point."
+            )
+
+        for which, c in curves.items():
+            rec = bootstrap_ci(case_w, c, agg_vrmse, n_boot=n_boot, seed=seed)
+            rec["recompute_value"] = rec.pop("value")
+            out[name_and_macro("fore_field", m, which=which, h=horizon)[0]] = rec
+
+        if verbose:
+            for which in ("model", "floor", "persistence"):
+                rec = out[name_and_macro("fore_field", m, which=which, h=horizon)[0]]
+                print(
+                    f"[ci-field-fore] {m}: {which} VRMSE h{horizon} "
+                    f"{rec['recompute_value']:.3f} [{rec['ci_low']:.3f},{rec['ci_high']:.3f}] "
+                    f"(reported {reported[which]:.3f}, n={rec['n']})",
+                    flush=True,
+                )
+        del decoder, predictor, buckets, tr, tb
+        if device.type == "cuda":
+            torch.cuda.empty_cache()
+    return out
+
+
 def main(argv: list[str] | None = None) -> int:
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument("--models", nargs="+", default=list(CANONICAL_MODELS))
@@ -393,6 +545,17 @@ def main(argv: list[str] | None = None) -> int:
     )
     p.add_argument("--closure-only", action="store_true", help="Skip scalar; closure CIs only.")
     p.add_argument("--closure-horizon", type=int, default=8)
+    p.add_argument(
+        "--with-field-forecast",
+        action="store_true",
+        help="Also compute GPU Q2 field-VRMSE three-curve CIs (matched-predictor rollout).",
+    )
+    p.add_argument(
+        "--field-forecast-only",
+        action="store_true",
+        help="Skip scalar; field-VRMSE forecast CIs only.",
+    )
+    p.add_argument("--field-forecast-horizon", type=int, default=8)
     p.add_argument("--predictor-steps", type=int, default=4000)
     p.add_argument("--gpu", type=int, default=0)
     p.add_argument("--device", default=None, help="Explicit device (bypasses require_rtx6000).")
@@ -401,7 +564,8 @@ def main(argv: list[str] | None = None) -> int:
     args = p.parse_args(argv)
 
     numbers = _load_ci_dump(Path(args.out))
-    if not (args.field_only or args.closure_only):
+    scalar_skipped = args.field_only or args.closure_only or args.field_forecast_only
+    if not scalar_skipped:
         numbers.update(scalar_cis(args.models, n_boot=args.n_boot, seed=args.seed))
     if args.with_field or args.field_only:
         numbers.update(
@@ -424,6 +588,19 @@ def main(argv: list[str] | None = None) -> int:
                 gpu=args.gpu,
                 device_override=args.device,
                 predictor_steps=args.predictor_steps,
+            )
+        )
+    if args.with_field_forecast or args.field_forecast_only:
+        numbers.update(
+            field_forecast_cis(
+                args.models,
+                horizon=args.field_forecast_horizon,
+                n_boot=args.n_boot,
+                seed=args.seed,
+                gpu=args.gpu,
+                device_override=args.device,
+                predictor_steps=args.predictor_steps,
+                decoder_steps=args.decoder_steps,
             )
         )
     blob = {"n_boot": args.n_boot, "seed": args.seed, "numbers": numbers}
