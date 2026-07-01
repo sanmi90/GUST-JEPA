@@ -59,9 +59,10 @@ def test_encoder_projection_can_be_layernorm() -> None:
     torch.manual_seed(0)
     encoder = HybridCNNViTEncoder(projection_norm="layernorm")
     final = encoder.proj[-1]
-    assert isinstance(
-        final, nn.LayerNorm
-    ), f"expected nn.LayerNorm at proj[-1] with projection_norm='layernorm', got {type(final).__name__}"
+    assert isinstance(final, nn.LayerNorm), (
+        "expected nn.LayerNorm at proj[-1] with projection_norm='layernorm', "
+        f"got {type(final).__name__}"
+    )
 
     x = torch.randn(2, 4, 1, 192, 96)
     z = encoder(x)
@@ -216,3 +217,82 @@ def test_st_encoder_param_count_bound() -> None:
     base = sum(p.numel() for p in HybridCNNViTEncoder().parameters())
     st = sum(p.numel() for p in SpatioTemporalCNNViTEncoder().parameters())
     assert st < 1.5 * base, f"ST encoder {st} params exceeds 1.5x base {base}"
+
+
+# ---------------------------------------------------------------------------
+# Session 31 Track B.1: spatial-latent encoder tap.
+# ---------------------------------------------------------------------------
+
+
+def test_encoder_default_latent_mode_is_pooled() -> None:
+    """The default ``latent_mode`` keeps the prior pooled ``(B, T, d)`` contract."""
+    torch.manual_seed(0)
+    encoder = HybridCNNViTEncoder()
+    assert encoder.latent_mode == "pooled"
+    x = torch.randn(2, 4, 1, 192, 96)
+    z = encoder(x)
+    assert z.shape == (2, 4, 32)
+
+
+def test_encoder_pooled_mode_matches_prior_behavior() -> None:
+    """Explicit ``latent_mode='pooled'`` is bit-identical to the default path.
+
+    Guards against the spatial tap perturbing the pooled CLS path (e.g. by
+    consuming RNG draws during construction or rerouting the forward).
+    """
+    torch.manual_seed(0)
+    enc_default = HybridCNNViTEncoder()
+    torch.manual_seed(0)
+    enc_pooled = HybridCNNViTEncoder(latent_mode="pooled")
+    x = torch.randn(2, 4, 1, 192, 96)
+    assert torch.allclose(enc_default(x), enc_pooled(x), atol=1e-6)
+
+
+def test_encoder_spatial_mode_shape() -> None:
+    """``latent_mode='spatial'`` returns ``(B, T, d, h, w)`` with ``h, w = 24, 12``."""
+    torch.manual_seed(0)
+    encoder = HybridCNNViTEncoder(latent_mode="spatial", latent_dim=32)
+    x = torch.randn(2, 4, 1, 192, 96)
+    z = encoder(x)
+    assert z.shape == (2, 4, 32, 24, 12)
+
+
+def test_encoder_latent_grid_property() -> None:
+    """``latent_grid`` exposes the true ViT token grid ``(24, 12)``."""
+    encoder = HybridCNNViTEncoder(latent_mode="spatial")
+    assert encoder.latent_grid == (24, 12)
+
+
+def test_encoder_spatial_boundary_is_batchnorm_not_layernorm() -> None:
+    """The spatial latent boundary uses ``nn.BatchNorm2d`` (SIGReg invariant).
+
+    CLAUDE.md forbids LayerNorm at the latent boundary because SIGReg requires
+    a BatchNorm there. The spatial tap must use a channel-wise ``BatchNorm2d``
+    and must NOT introduce a ``LayerNorm`` at the latent boundary.
+    """
+    encoder = HybridCNNViTEncoder(latent_mode="spatial", latent_dim=32)
+    assert isinstance(encoder.spatial_norm, nn.BatchNorm2d)
+    assert encoder.spatial_norm.num_features == 32
+    assert not isinstance(encoder.spatial_norm, nn.LayerNorm)
+
+
+def test_encoder_spatial_rejects_unknown_latent_mode() -> None:
+    """Unknown ``latent_mode`` values raise a clear ``ValueError``."""
+    with pytest.raises(ValueError, match="latent_mode"):
+        HybridCNNViTEncoder(latent_mode="tokens")
+
+
+def test_encoder_spatial_gradient_flows() -> None:
+    """Backward on the spatial latent reaches the input."""
+    torch.manual_seed(0)
+    encoder = HybridCNNViTEncoder(latent_mode="spatial", latent_dim=16)
+    x = torch.randn(2, 3, 1, 192, 96, requires_grad=True)
+    z = encoder(x)
+    z.pow(2).sum().backward()
+    assert x.grad is not None and torch.any(x.grad != 0)
+
+
+def test_encoder_pooled_param_count_unchanged_by_flag() -> None:
+    """Pooled mode does not allocate the spatial tap modules."""
+    pooled = HybridCNNViTEncoder(latent_mode="pooled")
+    assert not hasattr(pooled, "spatial_proj") or pooled.spatial_proj is None

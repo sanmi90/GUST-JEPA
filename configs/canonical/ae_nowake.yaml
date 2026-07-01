@@ -1,0 +1,17 @@
+# Canonical: matched autoencoder, lift only, no wake supervision.
+# Track C row ae_nowake (reconstruction + lift, matched arch; approx matched Fukami).
+# Anti-collapse is held ON (sigreg) so it is constant across the recon-vs-predict
+# contrast (rule 2); regAE in v2.1 already carried SIGReg, so this matches the
+# real reconstruction baseline.
+name: ae_nowake
+
+representation_objective:
+  recon: {on: true}
+
+anti_collapse:
+  on: true
+  method: sigreg
+
+supervision:
+  lift_head: {on: true}
+  wake_head: {on: false}

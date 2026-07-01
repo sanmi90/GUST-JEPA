@@ -1,0 +1,15 @@
+# Canonical: dissociation control. Heads only, no recon, no pred, no anti-collapse.
+# Track C row supervised_only. Anti-collapse is OFF (rule 2): with no objective the
+# heads alone drive the encoder.
+name: supervised_only
+
+representation_objective:
+  recon: {on: false}
+  pred: {on: false}
+
+anti_collapse:
+  on: false
+
+supervision:
+  lift_head: {on: true}
+  wake_head: {on: true}

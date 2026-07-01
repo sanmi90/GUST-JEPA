@@ -1,0 +1,14 @@
+# Canonical: predictive JEPA, lift + wake supervision.
+# Track C row jepa_wake (predictive + wake; = old jepa_tf_noc, the +0.79 cell).
+name: jepa_wake
+
+representation_objective:
+  pred: {on: true}
+
+anti_collapse:
+  on: true
+  method: sigreg
+
+supervision:
+  lift_head: {on: true}
+  wake_head: {on: true}

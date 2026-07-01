@@ -1,0 +1,15 @@
+# Ablation: jepa_wake switch-set, VICReg anti-collapse (vs the canonical SIGReg).
+# Track E: does the one-knob anti-collapse hold up. Only anti_collapse.method
+# moves versus jepa_wake.
+name: jepa_vicreg
+
+representation_objective:
+  pred: {on: true}
+
+anti_collapse:
+  on: true
+  method: vicreg
+
+supervision:
+  lift_head: {on: true}
+  wake_head: {on: true}

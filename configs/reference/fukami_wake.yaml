@@ -1,0 +1,17 @@
+# Reference: v2.1 augmented Fukami WITH wake (own architecture).
+# Track C row fukami_wake: MSE recon + beta*lift + wake, NO anti-collapse.
+name: fukami_wake
+
+representation_objective:
+  recon: {on: true}
+
+anti_collapse:
+  on: false
+
+supervision:
+  lift_head: {on: true}
+  wake_head: {on: true}
+
+model:
+  encoder: fukami_native
+  latent: pooled

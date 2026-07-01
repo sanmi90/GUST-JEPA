@@ -133,13 +133,19 @@ class HybridCNNViTEncoder(nn.Module):
         latent_dim: int = 32,
         dropout: float = 0.0,
         projection_norm: str = "batchnorm",
+        latent_mode: str = "pooled",
     ) -> None:
         super().__init__()
         if projection_norm not in ("batchnorm", "layernorm"):
             raise ValueError(
                 f"projection_norm must be 'batchnorm' or 'layernorm', got {projection_norm!r}"
             )
+        if latent_mode not in ("pooled", "spatial"):
+            raise ValueError(f"latent_mode must be 'pooled' or 'spatial', got {latent_mode!r}")
         self.projection_norm = projection_norm
+        self.latent_mode = latent_mode
+        self.latent_dim = latent_dim
+        self.vit_hidden = vit_hidden
         c1, c2, c3 = cnn_channels
 
         # CNN stem (192x96 -> 96x48 -> 48x24 -> 24x12).
@@ -165,6 +171,7 @@ class HybridCNNViTEncoder(nn.Module):
 
         # 288 spatial tokens of dim c3 after the stem on a (192, 96) input.
         h_feat, w_feat = 192 // 8, 96 // 8
+        self._h_feat, self._w_feat = h_feat, w_feat
         self._num_spatial_tokens = h_feat * w_feat
 
         # Lift channels into the ViT hidden dim (identity if equal).
@@ -197,10 +204,31 @@ class HybridCNNViTEncoder(nn.Module):
             proj_norm,
         )
 
+        # Session 31 Track B.1: optional SPATIAL latent tap. Instead of the
+        # [CLS]-pooled vector, project the (h_feat, w_feat) ViT token map to a
+        # ``(latent_dim, h_feat, w_feat)`` feature map via a 1x1 conv, with a
+        # channel-wise ``BatchNorm2d`` at the latent boundary. BatchNorm (not
+        # LayerNorm) preserves the SIGReg-requires-BatchNorm invariant
+        # (CLAUDE.md). A pooled latent cannot be decoded back to a field (the
+        # gray-scott / eb_jepa lesson); the spatial tap keeps the per-token
+        # geometry that a convolutional field decoder / ResUNet predictor needs.
+        # The modules are only allocated in ``spatial`` mode so the pooled
+        # default keeps its exact parameter count.
+        self.spatial_proj: nn.Module | None = None
+        self.spatial_norm: nn.Module | None = None
+        if latent_mode == "spatial":
+            self.spatial_proj = nn.Conv2d(vit_hidden, latent_dim, kernel_size=1, bias=True)
+            self.spatial_norm = nn.BatchNorm2d(latent_dim)
+
     @property
     def num_spatial_tokens(self) -> int:
         """288 for the default 3-stage stem on a (192, 96) input."""
         return self._num_spatial_tokens
+
+    @property
+    def latent_grid(self) -> tuple[int, int]:
+        """The ``(h_feat, w_feat)`` ViT token grid, ``(24, 12)`` by default."""
+        return (self._h_feat, self._w_feat)
 
     def forward(self, x: Tensor) -> Tensor:
         """Encode a sub-trajectory of vorticity frames into per-frame latents.
@@ -210,7 +238,9 @@ class HybridCNNViTEncoder(nn.Module):
                 ``W = 96``.
 
         Returns:
-            ``z`` of shape ``(B, T, latent_dim)``.
+            In ``pooled`` mode, ``z`` of shape ``(B, T, latent_dim)``.
+            In ``spatial`` mode, ``z`` of shape
+            ``(B, T, latent_dim, h_feat, w_feat)``.
         """
         B, T = x.shape[0], x.shape[1]
         x_flat = x.flatten(0, 1)
@@ -231,6 +261,15 @@ class HybridCNNViTEncoder(nn.Module):
         for block in self.vit:
             h = block(h)
         h = self.norm(h)
+
+        if self.latent_mode == "spatial":
+            assert self.spatial_proj is not None and self.spatial_norm is not None
+            hf, wf = self._h_feat, self._w_feat
+            # Drop the [CLS] token, recover the (hf, wf) grid (row-major to match
+            # the encoder feature-map flatten order) -> (B*T, vit_hidden, hf, wf).
+            tokens = h[:, 1:, :].transpose(1, 2).reshape(B * T, self.vit_hidden, hf, wf)
+            z = self.spatial_norm(self.spatial_proj(tokens))
+            return z.view(B, T, self.latent_dim, hf, wf)
 
         z = self.proj(h[:, 0, :])
         return z.view(B, T, -1)

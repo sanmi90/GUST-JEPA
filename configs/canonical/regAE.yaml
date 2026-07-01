@@ -1,0 +1,15 @@
+# Canonical (optional): bare reconstruction autoencoder, no supervision heads.
+# Track C row regAE, the supervision floor. Recon + anti-collapse (sigreg), no
+# lift, no wake. Valid under rule 1 because a representation objective (recon) is on.
+name: regAE
+
+representation_objective:
+  recon: {on: true}
+
+anti_collapse:
+  on: true
+  method: sigreg
+
+supervision:
+  lift_head: {on: false}
+  wake_head: {on: false}

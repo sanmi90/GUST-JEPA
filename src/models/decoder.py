@@ -43,7 +43,6 @@ gust-airfoil dataset family.
 
 from __future__ import annotations
 
-import torch
 from torch import Tensor, nn
 
 from src.models.encoder import _ViTBlock, _sin_cos_2d_pos_embed
@@ -164,6 +163,135 @@ class HybridViTConvDecoder(nn.Module):
         h = self.norm(h)
 
         h = h.transpose(1, 2).reshape(z.shape[0], self.vit_hidden, self.feature_h, self.feature_w)
+        h = self.upsample(h)
+        x_hat = self.to_omega(h)
+
+        if squeeze_T:
+            x_hat = x_hat.view(B, T, *x_hat.shape[-3:])
+        return x_hat
+
+
+class SpatialLatentFieldDecoder(nn.Module):
+    """Decode a SPATIAL latent ``(B, d, h, w)`` back to vorticity ``omega_z``.
+
+    Sibling of :class:`HybridViTConvDecoder` for the Session 31 Track B probe
+    harness. Where ``HybridViTConvDecoder`` back-projects a pooled ``(B, d)``
+    vector to the token grid, this decoder consumes the per-token spatial
+    latent emitted by ``HybridCNNViTEncoder(latent_mode='spatial')`` directly:
+    a 1x1 conv lifts the ``d``-channel ``(h, w)`` map to ``vit_hidden``, adds
+    the 2D sin-cos positional embedding, runs the same ViT blocks over the
+    ``h * w`` tokens, then conv-upsamples to full ``(out_h, out_w)`` resolution.
+
+    This is the "identical capacity for every model" field readout: the same
+    module decodes the spatial latent of any encoder. Pooled-latent models are
+    matched to this capacity by a thin adapter (see
+    :class:`src.probes.PooledToSpatialAdapter`) that lifts ``(B, d)`` to
+    ``(B, d, h, w)`` before this decoder.
+
+    Args:
+        latent_dim: Channel dimension ``d`` of the spatial latent (default 32).
+        vit_depth: Number of ViT blocks (default 6 to match the encoder).
+        vit_hidden: Hidden width inside the ViT (default 256).
+        vit_heads: Number of attention heads (default 8).
+        vit_mlp_ratio: MLP expansion ratio inside the ViT (default 4.0).
+        dropout: Dropout in the ViT blocks (default 0.0).
+        out_h: Reconstruction height (default 192).
+        out_w: Reconstruction width (default 96).
+        feature_h: Spatial-latent grid height (default 24, == out_h // 8).
+        feature_w: Spatial-latent grid width (default 12, == out_w // 8).
+        n_upsample_stages: Number of 2x upsample stages (default 3).
+        c_mid: Channel dimensions at intermediate upsample stages
+            (default ``(128, 64, 32)``).
+    """
+
+    def __init__(
+        self,
+        latent_dim: int = 32,
+        vit_depth: int = 6,
+        vit_hidden: int = 256,
+        vit_heads: int = 8,
+        vit_mlp_ratio: float = 4.0,
+        dropout: float = 0.0,
+        out_h: int = 192,
+        out_w: int = 96,
+        feature_h: int = 24,
+        feature_w: int = 12,
+        n_upsample_stages: int = 3,
+        c_mid: tuple[int, int, int] = (128, 64, 32),
+    ) -> None:
+        super().__init__()
+        if feature_h * (2 ** n_upsample_stages) != out_h:
+            raise ValueError(
+                f"feature_h {feature_h} * 2^{n_upsample_stages} != out_h {out_h}"
+            )
+        if feature_w * (2 ** n_upsample_stages) != out_w:
+            raise ValueError(
+                f"feature_w {feature_w} * 2^{n_upsample_stages} != out_w {out_w}"
+            )
+        if len(c_mid) != n_upsample_stages:
+            raise ValueError(
+                f"c_mid must have {n_upsample_stages} entries, got {len(c_mid)}"
+            )
+
+        self.latent_dim = latent_dim
+        self.feature_h = feature_h
+        self.feature_w = feature_w
+        self.vit_hidden = vit_hidden
+        self.num_spatial_tokens = feature_h * feature_w
+
+        self.lift = nn.Conv2d(latent_dim, vit_hidden, kernel_size=1, bias=True)
+
+        pos_embed = _sin_cos_2d_pos_embed(feature_h, feature_w, vit_hidden)
+        self.register_buffer("pos_embed", pos_embed.unsqueeze(0), persistent=False)
+
+        self.vit = nn.ModuleList(
+            [_ViTBlock(vit_hidden, vit_heads, vit_mlp_ratio, dropout) for _ in range(vit_depth)]
+        )
+        self.norm = nn.LayerNorm(vit_hidden)
+
+        ch_in = vit_hidden
+        stages = []
+        for ch_out in c_mid:
+            stages.append(_upsample_block(ch_in, ch_out))
+            ch_in = ch_out
+        self.upsample = nn.Sequential(*stages)
+
+        self.to_omega = nn.Conv2d(c_mid[-1], 1, kernel_size=1, bias=True)
+
+    def forward(self, z: Tensor) -> Tensor:
+        """Decode a spatial latent to vorticity.
+
+        Args:
+            z: Tensor of shape ``(B, d, h, w)`` or ``(B, T, d, h, w)`` with
+                ``h == feature_h``, ``w == feature_w``.
+
+        Returns:
+            ``omega_z_hat`` of shape ``(B, 1, out_h, out_w)`` (or
+            ``(B, T, 1, out_h, out_w)`` when ``z`` was 5-D).
+        """
+        squeeze_T = False
+        if z.dim() == 5:
+            B, T = z.shape[0], z.shape[1]
+            z = z.reshape(B * T, *z.shape[2:])
+            squeeze_T = True
+        elif z.dim() != 4:
+            raise ValueError(
+                f"expected z of shape (B, d, h, w) or (B, T, d, h, w), got {tuple(z.shape)}"
+            )
+        if z.shape[1] != self.latent_dim:
+            raise ValueError(
+                f"channel dim must be latent_dim={self.latent_dim}; got {tuple(z.shape)}"
+            )
+
+        n = z.shape[0]
+        h = self.lift(z)  # (N, vit_hidden, feature_h, feature_w)
+        h = h.flatten(2).transpose(1, 2)  # (N, tokens, vit_hidden)
+        h = h + self.pos_embed
+        for block in self.vit:
+            h = block(h)
+        h = self.norm(h)
+
+        h = h.transpose(1, 2).reshape(n, self.vit_hidden, self.feature_h, self.feature_w)
         h = self.upsample(h)
         x_hat = self.to_omega(h)
 

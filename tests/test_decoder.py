@@ -9,9 +9,8 @@ from __future__ import annotations
 
 import pytest
 import torch
-from torch import nn
 
-from src.models.decoder import HybridViTConvDecoder
+from src.models.decoder import HybridViTConvDecoder, SpatialLatentFieldDecoder
 from src.models.encoder import HybridCNNViTEncoder
 
 
@@ -106,3 +105,59 @@ def test_decoder_finite_outputs_on_random_input() -> None:
         z = torch.randn(4, 32)
         x_hat = dec(z)
     assert torch.isfinite(x_hat).all()
+
+
+# ---------------------------------------------------------------------------
+# Session 31 Track B.2: shared spatial-latent field decoder (probe capacity).
+# ---------------------------------------------------------------------------
+
+
+def test_spatial_decoder_shape_4d() -> None:
+    """Spatial latent ``(B, d, h, w)`` -> field ``(B, 1, 192, 96)``."""
+    torch.manual_seed(0)
+    dec = SpatialLatentFieldDecoder(latent_dim=32, feature_h=24, feature_w=12)
+    z = torch.randn(3, 32, 24, 12)
+    x_hat = dec(z)
+    assert x_hat.shape == (3, 1, 192, 96)
+
+
+def test_spatial_decoder_shape_5d() -> None:
+    """Spatial latent ``(B, T, d, h, w)`` -> field ``(B, T, 1, 192, 96)``."""
+    torch.manual_seed(0)
+    dec = SpatialLatentFieldDecoder(latent_dim=16, feature_h=24, feature_w=12)
+    z = torch.randn(2, 5, 16, 24, 12)
+    x_hat = dec(z)
+    assert x_hat.shape == (2, 5, 1, 192, 96)
+
+
+def test_spatial_decoder_consumes_encoder_spatial_latent() -> None:
+    """Encoder spatial latent flows straight into the spatial decoder."""
+    torch.manual_seed(0)
+    enc = HybridCNNViTEncoder(latent_mode="spatial", latent_dim=32)
+    dec = SpatialLatentFieldDecoder(latent_dim=32)
+    x = torch.randn(2, 3, 1, 192, 96)
+    z = enc(x)
+    x_hat = dec(z)
+    assert x_hat.shape == (2, 3, 1, 192, 96)
+
+
+def test_spatial_decoder_nondegenerate_output() -> None:
+    """A random spatial latent decodes to a field with non-zero spatial variance."""
+    torch.manual_seed(0)
+    dec = SpatialLatentFieldDecoder(latent_dim=32).eval()
+    with torch.no_grad():
+        z = torch.randn(4, 32, 24, 12)
+        x_hat = dec(z)
+    assert torch.isfinite(x_hat).all()
+    var = x_hat.flatten(-2).var(dim=-1)
+    assert (var > 0).all(), f"degenerate (constant) field, var={var}"
+
+
+def test_spatial_decoder_gradient_flow() -> None:
+    """Backward reaches every spatial-decoder parameter."""
+    torch.manual_seed(0)
+    dec = SpatialLatentFieldDecoder(latent_dim=16)
+    z = torch.randn(2, 16, 24, 12, requires_grad=True)
+    dec(z).pow(2).mean().backward()
+    for n, p in dec.named_parameters():
+        assert p.grad is not None, f"no grad for {n}"

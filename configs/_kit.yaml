@@ -1,0 +1,62 @@
+# SESSION 31 loss-kit defaults (the fairness keystone).
+#
+# Every canonical / reference / ablation model is a switch-set over this menu.
+# Per-model files may ONLY override `on` flags, the supervision `on` flags,
+# `anti_collapse.method`, the `model.*` passthrough keys, and `name`. Everything
+# else here is frozen and enforced by src/config/kit_config.py (rules 3 and 4).
+
+name: _kit
+
+representation_objective:        # MUTUALLY EXCLUSIVE, the one axis of interest
+  recon:                         # autoencoder objective (matched AEs only)
+    on: false
+    loss: mse                    # plain MSE for the matched AEs (frozen)
+    field: omega_pipeline_norm   # pipeline-normalised omega (frozen)
+  pred:                          # JEPA objective
+    on: false
+    horizon: 8                   # H_roll, ONE value for ALL predictive models (frozen)
+    loss: mse_seq                # multi-step rollout MSE in latent space (frozen)
+    # online target per the gray-scott / SkyJEPA lineage this design follows and
+    # CLAUDE.md "No EMA"; EMA remains the documented alternative pending D-N4
+    # final sign-off at Track C.
+    target: online               # ema | online (frozen)
+
+anti_collapse:                   # JEPA only normally; also held ON for the matched AE
+  on: false
+  method: sigreg                 # sigreg | vicreg (vicreg is the ablation; per-model)
+  lambda: 0.02                   # PINNED: 0.02 for ALL anti-collapse runs (frozen)
+  sigreg: {projections: 256, knots: 17, knot_range: [0.2, 4.0]}
+  vicreg: {std: 25.0, cov: 1.0}  # ablation only
+  fallback: {to: vicreg, when_PR_below: 0.3, at_iter: 20000, and_probe_R2_below: 0.7}
+
+supervision:
+  lift_head:                     # L_obs: current-frame C_L augmentation (Fukami-standard)
+    on: false
+    target: [C_L]
+    loss: smooth_l1
+    weight: 1.0
+  wake_head:                     # L_wake: patch_signed_spectrum, the tested axis
+    on: false
+    target: patch_signed_spectrum
+    loss: smooth_l1
+    beta: 0.5
+    weight: 1.0
+
+# Passthrough encoder / latent flags consumed by Track B/C. Not part of the
+# frozen kit set; ablations override these to move one architectural axis.
+model:
+  encoder: cnn_vit               # cnn_only | cnn_vit | cnn_vit_temporal
+  latent: spatial                # spatial | pooled
+
+# Optimiser / schedule / batch / split / seed. Inherited by every model and
+# never set per-model (rule 4). Exact values are not load-bearing for Track A.
+training:
+  encoder_lr: 1.5e-4
+  predictor_lr: 5.0e-4
+  weight_decay: 0.05
+  batch_size: 16
+  iterations: 80000
+  partition: v2p2
+  pipeline_manifest: outputs/data_pipeline/v2p2/manifest.json
+  wandb_group: partition_v2p2
+  seed: null

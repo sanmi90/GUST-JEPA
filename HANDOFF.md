@@ -9076,3 +9076,124 @@ the live log -> continue at D204).
   as an author-layout + figure-regeneration step. Build clean (35pp, 0 undefined).
 Remaining narrative items (deferred, larger): full section reorder + physics-first
 intro rewrite (plan allows flexible renumbering); figure consolidation to 8.
+
+### D205 (SESSION31 Track 0 PASS; D-N1 resolved with dual impact trigger) (2026-06-30, Session 31)
+
+SESSION 31 (canonical v2.2 retrain) launched on branch `session31-canonical-v2p2`
+off `vjepa` (carrying the uncommitted v2.2 staging). Scope this session: Track 0
+(data + window integrity) only, then review, per the agreed checkpoint. Build-under-
+`src/` decision (the plan's `vortex_jepa.*` module names map to `src.*`); SIGReg
+lambda pinned at 0.02 (SkyJEPA) for the later JEPA training, unused in Track 0.
+
+Track 0.A pipeline certification (`src/data/verify.py`, new; `python -m src.data.verify`):
+STRONG, all four checks PASS over v2p2 (450 encounters). normalisation (train_std
+3.5396, SSIM L 8.487 match the manifest), split_disjoint, alignment (0/450 fail),
+pressure_alignment (0/450 fail). Cert at `outputs/session31/data_cert.json`.
+Reconciliation logged in the module: the plan's pre-flight "Train/val/Test B
+case-disjoint" box does not match the locked design where val is a contiguous
+*encounter-level* holdout WITHIN the 84 train cases (train enc [0-3], val enc [4-5]);
+the leakage-critical property is test_b/test_c case-disjoint from train, which holds
+(all pairwise case overlaps 0). The cert certifies that and surfaces val as the
+intended within-train holdout instead of failing it.
+
+Track 0.B impact windows (`src/evaluation/windows.py`, new): the plan's naive
+`t_impact = argmax_t |dC_L/dt|` over the full trace is only 26.7% clear (120/450) --
+WEAK gate, D-N1 triggered. Diagnosis: vortex shedding produces oscillatory C_L with
+comparable |dC_L/dt| slopes everywhere, so the *unimodality* test fails across ALL
+gust strengths (|G| in [2,4]: 71/96 ambiguous), not just weak gusts; 269/330 failures
+are well-separated-but-low-clarity, 28 wander to frame 0. The window FIT was never the
+problem. D-N1 RESOLVED (Carlos: keep both for sensitivity): a `--trigger` switch with
+two definitions, both 100% well-separated over all 450 encounters:
+  - `anchored_local` (canonical default, `windows_v2p2.json` +
+    `windows_v2p2.anchored_local.json`): argmax|dC_L/dt| restricted to the physics
+    window [25,55]. t_impact median 42, range [31,55], ~3-frame lag from kinematic
+    arrival. Keeps the plan's lift-transient intent, bounded so shedding cannot hijack.
+  - `kinematic` (`windows_v2p2.kinematic.json`): the constant `impact_frame_estimate`
+    = 40 attr (deterministic gust-centroid LE arrival), all 450 encounters.
+The acceptance gate is redefined for the anchored triggers: well-separation is the
+gate (100%); peak_clarity is reported as a diagnostic only (the kinematic anchoring,
+not unimodality, places the window). Track D will report both window definitions as a
+sensitivity check on the headline temporal numbers. Windows W_in/W_imp/W_relax =
+8/16/48 (W_relax measured from t_impact, so impact len 16, relaxation [t+16, t+48)).
+
+New code (TDD, build-under-src): `src/evaluation/windows.py`,
+`src/data/verify.py`, `tests/test_windows.py` (12), `tests/test_data_verify.py` (9).
+21 tests green, black + flake8 clean. GATE 0 STRONG -> proceed to Track A/B on the
+next go-ahead. Nothing committed yet (awaiting review).
+
+### D206 (SESSION31 Tracks A + B PASS; loss kit + spatial latent + frozen probes) (2026-06-30, Session 31)
+
+Executed via subagent-driven development (implementer + spec review + code-quality
+review per track, controller-verified gates). Both gates STRONG. Still nothing
+committed (working tree on session31-canonical-v2p2).
+
+TRACK A (loss kit, gate A STRONG). New: `src/losses/kit.py` (single loss menu:
+recon MSE, pred latent-rollout mse_seq, anti_collapse via existing SIGReg/VICReg,
+lift/wake smooth_l1 heads, `compute_total_loss`), `src/config/kit_config.py` (loader
+deep-merging `configs/_kit.yaml` + per-model file, 4 fail-loud rules via a deny-by-
+default override whitelist), `src/config/audit.py`, `tests/test_loss_kit.py` (43
+tests). Configs: `configs/_kit.yaml` + canonical/ (ae_nowake, ae_wake, jepa_nowake,
+jepa_wake, supervised_only, regAE) + reference/ (fukami, fukami_wake, bvae PENDING) +
+ablation/ (jepa_cnn, ae_cnn, st_d64, jepa_pool, jepa_vicreg). Audit matrix matches
+the Track C table exactly (`outputs/session31/config_audit.md`). The trainer rewrite
+("delete per-model loss from the v2.1 trainer") is DEFERRED to the start of Track C
+where it is exercised; the existing trainer and src/models/jepa.py are untouched.
+Decisions baked in: lambda 0.02 (Session-31 pin, supersedes CLAUDE.md's 0.1);
+H_roll=8; `pred.target: online` (gray-scott/SkyJEPA lineage + CLAUDE.md "No EMA";
+EMA is the documented alternative pending D-N4/D208 final sign-off at Track C). A
+code-review pass hardened the loader: on-flags must be real YAML booleans (bare
+`on/off/yes/no` values raise, since the custom loader keeps them as strings).
+
+TRACK B (backbone + probes, gate B STRONG). The v2.1 encoder was POOLED (CLS ->
+Linear -> BatchNorm1d); added a `latent_mode: "pooled"|"spatial"` to
+`HybridCNNViTEncoder` (encoder.py). spatial taps the (24,12)=288 ViT token grid ->
+1x1 Conv2d -> `[B,T,d,24,12]` with BatchNorm2d at the latent boundary (SIGReg-
+requires-BatchNorm invariant; reshape verified inverse of the encoder tokenization,
+no scramble). pooled path bit-identical (default; the jepa_pool ablation lever). New
+`src/probes/` frozen stop-gradient harness: base (eval + requires_grad_(False) +
+no_grad + .detach() chokepoint), decoder_probe, observable_probe, pressure_probe;
+plus `SpatialLatentFieldDecoder` in decoder.py. Stop-gradient is CI-PROVEN load-
+bearing (tests unfreeze the encoder and confirm the detach still blocks all gradient
+for every probe). The decode-floor decoder-probe is now CAPACITY-IDENTICAL across
+pooled vs spatial: the pooled->spatial lift is a PARAMETER-FREE broadcast/tile (the
+first review had a learned spatial_embed that biased the headline comparison in
+pooled's favour; removed). `src/models/resunet_predictor.py` stub
+(`[B,2d,h,w]->[B,d,h,w]`, context_length=2, U-Net skips) for the Track D spatial-
+latent predictor. Tests: probe_stopgrad 18, encoder/decoder/resunet spatial tests;
+90 pass with regression. Gate-B GPU smoke PASS on RTX 6000: real v2p2 case ->
+spatial latent (1,8,32,24,12) -> decoded field (1,8,1,192,96), non-degenerate.
+
+OPEN for Track C (the GPU campaign, NOT yet authorised): (1) migrate the trainer to
+consume the kit (delete inline jepa.py loss); build the anti-collapse module once and
+pass it in (the kit currently rebuilds SIGReg per compute_total_loss call). (2) Define
+how anti_collapse (SIGReg) applies to a spatial latent [B,T,d,h,w] (flatten
+(B*T*h*w, d) over the batch distribution, per the plan's batch-not-time note). (3)
+st_d64 needs a d=64 model.* passthrough (the kit has no latent_dim field; "d64" is
+cosmetic today). (4) D-N4/D208 EMA-vs-online final sign-off (provisional online). (5)
+bvae reference config still author-owned (Carlos). (6) regAE is the optional
+supervision-floor row.
+
+### D207 (SESSION31 Track C.2 canonical spine PASS; gate C STRONG) (2026-06-30, Session 31)
+
+Canonical spine trained on split_v2p2, 1 seed (0), 10k iters each, both RTX 6000s
+(core-split taskset 0-7 / 8-15, OMP=4, num-workers 3; L40S untouched). Trainer =
+`src/training/train_canonical.py` (kit-driven spatial-latent loop). All offline W&B
+under group partition_v2p2; checkpoints at outputs/runs/session31/<model>/. Note: the
+first launch was killed externally mid-training (both runs healthy at the time);
+relaunched per author and completed. GATE C STRONG -- all six converged, ZERO VICReg
+fallbacks, PR 13.6-29.4 (>> 0.3*d=9.6, no collapse), non-degenerate decode:
+  jepa_nowake  loss 0.047  PR 14.1  diagR2 0.960
+  jepa_wake    loss 0.174  PR 19.3  diagR2 0.964  (terms pred+lift+wake+ac)
+  ae_nowake    loss 0.027  PR 13.6  diagR2 0.864
+  ae_wake      loss 0.112  PR 21.1  diagR2 0.908
+  supervised_only loss 0.088 PR 18.3 diagR2 0.932 (heads only, no objective/ac)
+  regAE        loss 0.0015 PR 29.4  diagR2 0.670  (bare recon floor)
+diagR2 is the in-training closed-form readout diagnostic (small-N lstsq on a test_b
+batch), a SANITY signal, NOT the paper metric -- the ROM verdict is Track D's frozen-
+probe eval on the windows. Preliminary signal only: predictive latents read highest,
+bare regAE lowest. The wake-cache fix (D205-followup) verified end-to-end: jepa_wake/
+ae_wake/supervised_only trained with the wake term active on v2p2 run4 cases, no
+FileNotFoundError. STILL OPEN in Track C: references fukami/fukami_wake + POD need a
+baseline-trainer integration pass on v2p2 (train_baseline.py has no exposed wake-head
+flag for fukami_wake; confirm it consumes the v2p2 pipeline manifest and yields a
+Track-D-comparable latent); bvae author-pending. Nothing committed yet.

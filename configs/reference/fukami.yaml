@@ -1,0 +1,20 @@
+# Reference: faithful published lift-augmented autoencoder (own architecture).
+# Track C row fukami: MSE recon + beta*lift, NO wake, NO anti-collapse.
+# Fukami, Nakao & Taira (2024), eq 2.4. The model.encoder flag marks the native
+# architecture; references are trained on their own recipe (Track C), the kit just
+# records their active-term set for the audit.
+name: fukami
+
+representation_objective:
+  recon: {on: true}
+
+anti_collapse:
+  on: false
+
+supervision:
+  lift_head: {on: true}
+  wake_head: {on: false}
+
+model:
+  encoder: fukami_native
+  latent: pooled
