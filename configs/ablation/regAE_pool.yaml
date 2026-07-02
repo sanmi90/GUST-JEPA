@@ -1,0 +1,20 @@
+# Ablation: regAE switch-set, pooled-vector latent (vs the canonical spatial).
+# Session 32 Track P: pooled coefficient tier, supervision floor. Recon +
+# anti-collapse (sigreg), no lift, no wake. Only the latent flag moves versus
+# regAE (canonical spatial).
+name: regAE_pool
+
+representation_objective:
+  recon: {on: true}
+
+anti_collapse:
+  on: true
+  method: sigreg
+
+supervision:
+  lift_head: {on: false}
+  wake_head: {on: false}
+
+model:
+  encoder: cnn_vit
+  latent: pooled

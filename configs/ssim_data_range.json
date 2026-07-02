@@ -3,6 +3,7 @@
   "convention": "Wang et al. 2004, K1=0.01, K2=0.03, on pipeline-normalized omega (target_norm = preprocess_raw then /(3*train_std)).",
   "L_by_split": {
     "split_v2": 8.31,
-    "split_v2p1": 8.45
+    "split_v2p1": 8.45,
+    "split_v2p2": 8.487
   }
 }

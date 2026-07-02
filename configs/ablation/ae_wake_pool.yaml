@@ -1,0 +1,21 @@
+# Ablation: ae_wake switch-set, pooled-vector latent (vs the canonical spatial).
+# Session 32 Track P: pooled coefficient tier. Only the latent flag moves versus
+# ae_wake (canonical spatial). Recon decodes the pooled latent through the
+# parameter-free PooledToSpatialAdapter into the trainable SpatialLatentFieldDecoder
+# (verified wired in canonical_model.py); see B2 pre-launch smoke.
+name: ae_wake_pool
+
+representation_objective:
+  recon: {on: true}
+
+anti_collapse:
+  on: true
+  method: sigreg
+
+supervision:
+  lift_head: {on: true}
+  wake_head: {on: true}
+
+model:
+  encoder: cnn_vit
+  latent: pooled

@@ -1,12 +1,18 @@
 # Reference: Solera-Rico beta-VAE stochastic-latent baseline (own architecture).
-# Track C row bvae.
+# Track C / Session 32 Track P row bvae. Pooled-native (stochastic d-vector latent).
 #
-# PENDING: Carlos supplies the final recipe (beta at the L-curve elbow; wake head
-# TBC). The native objective is MSE recon + beta*KL, which the kit's frozen
-# recon.loss (plain MSE) cannot express. This stub records only the active-term
-# set (recon + native lift) so the audit can render a row; the audit flags it as
-# PENDING. It is loadable (valid under the four rules) but is NOT a kit-faithful
-# model: the KL term lives in the native bvae trainer, not in the kit.
+# RESOLVED (Session 32, D218): beta = 0.0025 (canonical sum-KL; v2.1 L-curve knee,
+# outputs/session28/bvae_beta_pin.json), beta_warmup_frac = 0.02, WITH the 80-d
+# patch_signed_spectrum wake head (parallels fukami_wake). The native objective is
+# MSE recon + beta*KL (+ lift + wake), which lives in the native bvae trainer, NOT
+# in the kit's frozen recon.loss; this file records the active-term set so the audit
+# renders the row. Training entrypoint is scripts/session9_train_fukami.py with
+#   --vae --beta 0.0025 --beta-warmup-frac 0.02 --recon-loss-type mse
+#   --wake-observable-type patch_signed_spectrum --wake-loss smooth_l1 --wake-loss-beta 0.5
+#   --encoder cnn --d 32 --partition v2p2   (beta passed on the CLI, not read here).
+# Caveat: the 0.0025 knee was picked at d=64 on v2.1; transfer to d=32 on v2.2 is a
+# low-risk assumption, guarded by the D218 re-sweep trigger (>half dims KL<0.01 nats,
+# or decode-floor VRMSE worse than fukami_wake).
 name: bvae
 
 representation_objective:
@@ -17,7 +23,13 @@ anti_collapse:
 
 supervision:
   lift_head: {on: true}     # native lift augmentation
-  wake_head: {on: false}    # TBC: Carlos decides whether bvae carries wake
+  wake_head: {on: true}     # D218: bvae carries the 80-d spectral wake head
+
+# Native beta-VAE recipe (consumed by the native trainer; here for provenance).
+bvae:
+  beta: 0.0025
+  beta_warmup_frac: 0.02
+  kl_convention: canonical_sum   # Higgins 2017 / Nat. Commun. Eq. (4)
 
 model:
   encoder: bvae_native

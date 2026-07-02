@@ -59,6 +59,12 @@ outputs/session31/*
 outputs/session31/tables/*
 !outputs/session31/tables/*.tex
 
+# Session 32: track the small result/gate JSONs (provenance for D217-D235); the
+# checkpoints, latent caches (q1_pool_latents/), and logs stay ignored.
+!outputs/session32/
+outputs/session32/*
+!outputs/session32/*.json
+
 # Exception: paper manuscript figures live under paper/sections/figures/results/
 # even though the top-level results/ folder is ignored.
 !paper/sections/figures/results/

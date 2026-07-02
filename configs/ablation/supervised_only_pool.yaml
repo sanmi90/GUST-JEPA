@@ -1,0 +1,19 @@
+# Ablation: supervised_only switch-set, pooled-vector latent (vs the canonical spatial).
+# Session 32 Track P: pooled coefficient tier. Heads only, no recon, no pred, no
+# anti-collapse. Only the latent flag moves versus supervised_only (canonical spatial).
+name: supervised_only_pool
+
+representation_objective:
+  recon: {on: false}
+  pred: {on: false}
+
+anti_collapse:
+  on: false
+
+supervision:
+  lift_head: {on: true}
+  wake_head: {on: true}
+
+model:
+  encoder: cnn_vit
+  latent: pooled
