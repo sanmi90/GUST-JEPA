@@ -9897,3 +9897,43 @@ fieldfree_Ew_r2_impact); rather than regenerate the frozen artifact the family i
 pre-registered at 3 tests and the limitation is stated.
 Annexes (descriptive, NOT Holm-adjusted): the same deltas on the |G| >= 1 test_b subset
 (weak-signal R2 caveat, D236 footnote) and on test_c (characterisation only).
+
+### D240 (SESSION33 no-train re-runs on v2.2 pooled: verdicts + PROSE FLAGS) (2026-07-03, Session 33)
+
+Items 3-7 of the SESSION_33_MANUSCRIPT_V3.md re-run list executed on the frozen pooled d=32
+v2.2 latents (scripts/session33/{spectrum_dmd,manifold_atlas,wake_code,topology}_v2p2.py,
+paired_stats_v3.py; JSONs committed under outputs/session33/).
+
+DMD (item 3): jepa_pool recovers the shedding clock (St 0.658, |lambda| 0.992; v2.1: 0.662,
+0.991) and both Fukami-AE families lose it entirely (St 0.18/0.15 at |lambda| 0.59/0.29,
+no marginally stable oscillatory pair). PROSE FLAG: regAE_pool (St 0.676, |lambda| 0.995)
+and POD (0.673, 0.996) ALSO recover it, so the v2.1 "predictive recovers / reconstructive
+damped" dichotomy does NOT survive as stated; the v3 sentence must be "the Fukami-lineage
+AE latents lose the shedding clock; the structured pooled latents (predictive, supervised,
+anti-collapse-regularised, linear) retain it".
+
+Atlas + parameter probes (item 4, IMPACT-FRAME regime): jepa_pool test_b G 0.76 / D 0.78 /
+Y 0.29 linear, Y 0.53 KernelRidge-RBF. PROSE FLAG (positive): Y is now READABLE (v2.1
+reference: -0.03); plausibly real, the 17 run4 cases sample Y at +-0.10 across five G
+values, making Y an interpolable axis. D rose 0.65 -> 0.78; G dipped 0.83 -> 0.76.
+fukami's pooled latent is near-2D (99.9% variance in 2 PCs), consistent with its DMD
+damping. supervised_only_pool nonlinear-Y overfits (cv 0.58 vs test_b 0.11) -- report
+linear for it.
+
+Distributed code (item 5): full-vs-best-coordinate wake gap test_b: jepa_pool 0.593,
+supervised_only_pool 0.534, regAE_pool 0.351 (low ceiling 0.33), fukami_wake -0.026, pod
+0.040. v2.1 ordering HOLDS and strengthens (v2.1 gap 0.36). Metric convention differs from
+v2.1 (same-frame linear probe at pooled d=32 vs Spearman at H=16 d=64): only the ordering
+transfers, caveat stored in the JSON.
+
+Topology (item 6, pooled appendix per D223): gate STRONG. Predictive-vs-regAE single-cycle
+gap +0.43 (gusted) and +0.50 (no-gust control), surviving whitening. PROSE FLAG: POD keeps
+the CLEANEST no-gust loop (0.62-0.69); the claim is "reconstructive-with-anti-collapse
+fragments", not "only the predictive latent has a loop".
+
+Paired stats (item 7, D239 pre-registered): F2 filter-vs-open-loop C_L survives Holm on
+test_b (p_holm 0.003, impact + relaxation). F1 filter-vs-static is ns on pooled test_b
+(static recovery is good at moderate |G|) and DECISIVE on the test_c |G|=4 annex (C_L
+impact AND relaxation p=0.0078, CI>0) -- the envelope claim as a per-encounter statistic.
+E_w at the |G|=4 boundary favours neither (honest null; wake enstrophy through the filter
+does not beat static there).
