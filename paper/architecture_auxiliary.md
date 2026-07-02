@@ -100,7 +100,7 @@ The JEPA objective lives entirely in latent space:
 - L_roll: scheduled-sampling open-loop rollout error over H_roll = 8 steps (the
   model is fed its own predictions so it tolerates its own error).
 - SIGReg(Z): the LeWM Epps-Pulley anti-collapse regulariser, M = 256 random
-  projections, weight lambda = 0.01. This is the only thing preventing latent
+  projections, weight lambda = 0.02. This is the only thing preventing latent
   collapse (no decoder, no stop-gradient), which is why a latent-space predictor
   with no anti-collapse term would degenerate to a constant.
 - Auxiliary observable heads read z during training with small weights: a
@@ -138,7 +138,7 @@ in-envelope forecaster and is far cheaper (1.40 M predictor).
 | decoder | LapFiLM 0.91 M (frozen-encoder stage) | LapFiLM 0.91 M | LapFiLM 0.91 M |
 | latent d | 64 | 64 | 64 |
 | context T | 32 (RoPE) | 32 (RoPE) | 32 (windowed history) |
-| loss | L_pred + 0.5 L_roll + 0.01 SIGReg | same | same |
+| loss | L_pred + 0.5 L_roll + 0.02 SIGReg | same | same |
 | iterations | 20k | 20k | 20k |
 
 ## 7. Checkpoint provenance

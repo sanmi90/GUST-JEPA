@@ -69,7 +69,9 @@ Architecture
 
 Training
 - Loss: L_pred (teacher forcing) + 0.5 * L_roll (scheduled sampling, H_roll = 8)
-  + 0.1 * SIGReg(Z). No EMA, no stop-gradient on target encoder.
+  + 0.02 * SIGReg(Z). No EMA, no stop-gradient on target encoder. (lambda_sigreg is
+  PINNED at 0.02 in configs/_kit.yaml and logged in every canonical/pooled run; the
+  original spec's 0.1 and the v2-era 0.01 are superseded.)
 - Anti-collapse default: SIGReg with M = 256 projections, 17 Epps-Pulley knots in [0.2, 4].
   Auto-fallback to VICReg if participation ratio PR(z) < 0.3 * d at iteration 20k AND
   linear probe R^2 for c < 0.7.
