@@ -9838,3 +9838,42 @@ blockers, Track P/O/B, envelope, MANUSCRIPT COMPARISON, H_roll, O2 fixed-delta).
 S32 pooled tier against paper/HEADLINE_NUMBERS.md; headline: S32 realizes the manuscript's
 Section-8 online-estimator pathway (static lead-time pressure->C_L R2=0.35 -> sequential filter
 0.71-0.90) with a measured operating envelope.
+
+### D238 (SESSION33 manuscript v3 campaign LOCKED: scope, decisions, tap policy, branch) (2026-07-02, Session 33)
+
+SCOPE (user-approved plan, ~/.claude/plans/manuscript-v3-addendum-valiant-brook.md): the FULL
+v3 campaign in one phased plan -- Track T (delay-coordinate estimability, new, no training) +
+the complete SESSION_33_MANUSCRIPT_V3.md Section 11 re-run list including the training items
+(dimension plateau {16,32,64} pooled, min-d panel, 3-seed spine pass) + the LaTeX v3
+restructure. Branch session33-manuscript-v3 (cut from session31-canonical-v2p2); v2.1
+submission candidate stays safe on main @ f004acd (tag v1.0.0-rc2). New code
+scripts/session33/, artifacts outputs/session33/, training runs outputs/runs/session33/.
+
+STANDING DOC: SESSION_33_MANUSCRIPT_V3.md at repo root -- the v3 revision guide merged with
+the delay-coordinate (Takens) addendum: theory section 5.4, drop-in prose per section, Tables
+T1/T2/T3, Track T spec as re-run items 10-12, JFM honesty caveats, citation list.
+
+DECISIONS RESOLVED (user, 2026-07-02): D-T title = T1 "Wake-supervised coefficient states for
+wall-pressure estimation of extreme vortex-gust airfoil encounters"; D-dim = d=32 headline
+with {16,32,64} plateau as robustness; D-tier = spatial tier to Discussion + Appendix C;
+D-primary = co-primary C_L + wake enstrophy; D-obs5 = skipped; D-lambda = 0.02 (already
+pinned, dda57b7); D-T1 = delay stride at cache cadence (dt_tc 0.05) with MI cross-check in
+Appendix B; D-T2 = reduced-budget filter (T2b) main-text figure; D-T3 = effective-dimension
+vs envelope overlay main text; D-havok = Brunton 2017 intermittently-forced framing kept as
+one light discussion sentence tied to the |G| envelope, NOT encounter phase.
+
+TAP POLICY (Track T): T1/T2 recovery grid on qDEIM target-blind NESTED prefixes
+(qdeim_taps_v2p2.json, QR pivot order, K1=perm[:1]) -- matches the addendum's "target-blind"
+wording and keeps the sensor-budget claim free of the model-conditioned-placement confound.
+ONE bridge cell (K=8, W=30) on osp_per_model jepa_pool taps reconciles with the Track O1
+headline (state R2 0.707) and the frozen filter's sensing. T2b filter stays osp_per_model
+nested prefixes with the D220 tuning FROZEN (rho=1.0, 64 members, stochastic, field-free O1
+init): ONLY K/taps change. K=1 tap sets come from a derived extended taps file
+(outputs/session33/taps_v2p2_ext.json, provenance-stamped prefixes); the frozen session32
+taps JSONs are never edited.
+
+KNOWN INPUTS HARVESTED, NOT RECOMPUTED: Section 11 item 1 (POD/Fukami wake-readability
+reference cells) is already measured on v2.2 in outputs/session31/q1_reference.json -- POD
++0.186 (SIGN FLIP vs v2.1's -0.16; the paper follows the measured value: still collapses vs
+0.75-0.79 wake-headed, but not negative), fukami -0.094, fukami_wake +0.432. Item 9 (pooling
+cost) is Track P4 in outputs/session32/track_p_gates.json.
