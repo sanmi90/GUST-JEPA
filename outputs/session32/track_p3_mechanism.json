@@ -1,0 +1,399 @@
+{
+  "task": "SESSION 32 Track P gate P3 -- near-null departure mechanism (pooled tier)",
+  "pre_registered_claim": "regAE_pool rollout departs along near-null directions of the encoded covariance while the anti-collapse+supervised latents stay in distribution (v2.1 geometric mechanism replicated on the pooled v2.2 matrix).",
+  "params": {
+    "candidate": "regAE_pool",
+    "comparators": [
+      "jepa_wake_pool",
+      "supervised_only_pool"
+    ],
+    "forecast_operator": "matched AR-transformer on the pooled d=32 state (D229; fit_matched_transformer, teacher-forced next-step, steps=4000, seed=0), fit fresh per model on frozen TRAIN latents",
+    "rollout": "open-loop from the pre-impact context (2-frame seed ending at t_impact-1), horizon=30 steps clamped to the encounter; departure d_h = rolled_h - encoded-true z_{a+h}, on Test B (Test C untouched)",
+    "covariance_estimators": {
+      "empirical": "np.cov(TRAIN pooled latents) + 1e-6 * I",
+      "ledoit_wolf": "sklearn.covariance.LedoitWolf on TRAIN pooled latents"
+    },
+    "near_null": "bottom-k smallest-eigenvalue eigenvectors of the TRAIN covariance; primary k=8 (bottom quartile of d=32); isotropic-null fraction = k/d",
+    "robust_measure": "near-null DEPARTURE-ENERGY fraction (direction). The Mahalanobis ratio is SECONDARY and collapses under shrinkage (plan P3 / D231); not used for verdict.",
+    "margin": 0.05,
+    "n_boot": 10000,
+    "gpu_name": "NVIDIA RTX PRO 6000 Blackwell Max-Q Workstation Edition",
+    "context_length": 2,
+    "d": 32
+  },
+  "models": {
+    "regAE_pool": {
+      "n_departures": 1260,
+      "n_encounters_rolled": 42,
+      "lw_shrinkage": 0.0031220962806600243,
+      "estimators": {
+        "empirical": {
+          "eigenvalues_ascending": [
+            0.18885020528301116,
+            0.22405853180376786,
+            0.2717496504348242,
+            0.33277172297923224,
+            0.35318496114379994,
+            0.36176986107682557,
+            0.41693575652244286,
+            0.42442351191535393,
+            0.48664782107303756,
+            0.4958021846442506,
+            0.5201544827060401,
+            0.562682640192931,
+            0.6108735744406062,
+            0.6388908010084318,
+            0.6475990900613244,
+            0.6927284528272993,
+            0.719892818623945,
+            0.7588277203264548,
+            0.8045088247573582,
+            0.8675804733098269,
+            0.8948216178795196,
+            0.9418075080161394,
+            0.9798458375720548,
+            1.066857539776321,
+            1.108084957316963,
+            1.1764278416781613,
+            1.2843563115444079,
+            1.3386631531518551,
+            1.4138086700819095,
+            1.687029740802658,
+            1.9920563805742408,
+            2.118185661633411
+          ],
+          "eig_condition_number": 11.216221123292375,
+          "near_null_energy_fraction": {
+            "4": 0.044996498882977576,
+            "8": 0.10040998533211218,
+            "16": 0.2946631901351189
+          },
+          "near_null_energy_fraction_primary_k": 0.10040998533211218,
+          "per_departure_frac_primary_k_mean": 0.1040594424094747,
+          "mahalanobis_ratio_mean": 0.890650775855721,
+          "mahalanobis_ratio_median": 0.90018735338
+        },
+        "ledoit_wolf": {
+          "eigenvalues_ascending": [
+            0.190827624259367,
+            0.22592493562660093,
+            0.27346567969062424,
+            0.3342953439208285,
+            0.354644217232173,
+            0.36320204817106544,
+            0.4181940003777583,
+            0.4256581461761033,
+            0.48768625625485834,
+            0.49681175525971233,
+            0.5210872682432225,
+            0.5634813304634816,
+            0.6115203141786378,
+            0.6394491998050985,
+            0.6481300308063985,
+            0.6931170964616923,
+            0.7201958104669197,
+            0.7590079467750753,
+            0.8045450144021129,
+            0.8674177921351215,
+            0.8945730428227308,
+            0.9414107820438605,
+            0.9793291731814311,
+            1.0660665193332226,
+            1.1071639429621996,
+            1.1752913358033705,
+            1.282879497088218,
+            1.3370151041340097,
+            1.4119236802059514,
+            1.6842832592822743,
+            1.9883481214691496,
+            2.1140797050833036
+          ],
+          "eig_condition_number": 11.07847835599479,
+          "near_null_energy_fraction": {
+            "4": 0.0449964988829775,
+            "8": 0.10040998533211214,
+            "16": 0.2946631901351191
+          },
+          "near_null_energy_fraction_primary_k": 0.10040998533211214,
+          "per_departure_frac_primary_k_mean": 0.10405944240947466,
+          "mahalanobis_ratio_mean": 0.8899926988329327,
+          "mahalanobis_ratio_median": 0.8993872100647871
+        }
+      },
+      "metrics_primitive_crosscheck_maxabsdiff": 1.1102230246251565e-16
+    },
+    "jepa_wake_pool": {
+      "n_departures": 1260,
+      "n_encounters_rolled": 42,
+      "lw_shrinkage": 0.0005292085350368861,
+      "estimators": {
+        "empirical": {
+          "eigenvalues_ascending": [
+            0.009767573941217982,
+            0.016592405377358448,
+            0.02023070465538762,
+            0.03370996336650189,
+            0.03755097191052579,
+            0.04692130725929471,
+            0.05818427654701454,
+            0.06602754365646651,
+            0.08889961241494011,
+            0.1019417556059854,
+            0.12137680395510171,
+            0.16861634008258794,
+            0.23757343370595385,
+            0.2541684577616371,
+            0.2799276708392556,
+            0.3304100314957734,
+            0.3999693556073502,
+            0.48475426755928913,
+            0.6252492061495519,
+            0.8097204461431231,
+            0.8440053163229025,
+            0.9920673465642622,
+            1.0677813167778016,
+            1.1728746799016643,
+            1.2365021044843842,
+            1.3597790349977306,
+            1.611081160868165,
+            2.1167111347548135,
+            2.285564054338458,
+            3.7262816832387546,
+            4.869156351218187,
+            5.984724481283823
+          ],
+          "eig_condition_number": 612.713506680406,
+          "near_null_energy_fraction": {
+            "4": 0.005153729196120123,
+            "8": 0.010304609662761356,
+            "16": 0.05976816901366365
+          },
+          "near_null_energy_fraction_primary_k": 0.010304609662761356,
+          "per_departure_frac_primary_k_mean": 0.02478024699649139,
+          "mahalanobis_ratio_mean": 1.7072690290252002,
+          "mahalanobis_ratio_median": 1.7239383188629274
+        },
+        "ledoit_wolf": {
+          "eigenvalues_ascending": [
+            0.010281332217732054,
+            0.01710233979222465,
+            0.020738600579896183,
+            0.03421030704288354,
+            0.0380491635212631,
+            0.047414248796633925,
+            0.0586709075935077,
+            0.06650978022544418,
+            0.0893690340701197,
+            0.10240386992300982,
+            0.12182802907483177,
+            0.16904109752290902,
+            0.23795955541026614,
+            0.2545452814962297,
+            0.2802900620317559,
+            0.33074413809771325,
+            0.4002644890516046,
+            0.48500189715290815,
+            0.6254181183107402,
+            0.8097860015391823,
+            0.8440516623653808,
+            0.9920307354342042,
+            1.0677022841242771,
+            1.1727367648443063,
+            1.2363285398332005,
+            1.3595363999334393,
+            1.6106977245884606,
+            2.116044400772687,
+            2.2848027143269514,
+            3.7247131284354347,
+            4.866947459045022,
+            5.981890551228278
+          ],
+          "eig_condition_number": 581.820568049674,
+          "near_null_energy_fraction": {
+            "4": 0.005153729196120085,
+            "8": 0.01030460966276132,
+            "16": 0.05976816901366362
+          },
+          "near_null_energy_fraction_primary_k": 0.01030460966276132,
+          "per_departure_frac_primary_k_mean": 0.024780246996491315,
+          "mahalanobis_ratio_mean": 1.6975750303807489,
+          "mahalanobis_ratio_median": 1.7185616357834066
+        }
+      },
+      "metrics_primitive_crosscheck_maxabsdiff": 1.7763568394002505e-15
+    },
+    "supervised_only_pool": {
+      "n_departures": 1260,
+      "n_encounters_rolled": 42,
+      "lw_shrinkage": 0.00043506746250106276,
+      "estimators": {
+        "empirical": {
+          "eigenvalues_ascending": [
+            0.007247859661177749,
+            0.011433660000692757,
+            0.02704769626637053,
+            0.031224043293060763,
+            0.05020337492137313,
+            0.06704088485975705,
+            0.07480615023947626,
+            0.0886370326558459,
+            0.11496454728606546,
+            0.13695979051813167,
+            0.18336003813419297,
+            0.21810727080338813,
+            0.23130864792126643,
+            0.25381552522083967,
+            0.2993354694774717,
+            0.3333294307934634,
+            0.37038976068200463,
+            0.4587083925086357,
+            0.5486162150862064,
+            0.6407615917731299,
+            0.6580220370918146,
+            0.7385355556773249,
+            0.8941937668563876,
+            0.9745424177142826,
+            1.0487557857869045,
+            1.2063478248477117,
+            1.441396647305624,
+            1.7335517470285533,
+            2.4209020122359948,
+            3.0324311773485957,
+            3.708640880228014,
+            7.542891662095801
+          ],
+          "eig_condition_number": 1040.7060863082593,
+          "near_null_energy_fraction": {
+            "4": 0.007035327945355614,
+            "8": 0.028902431160971635,
+            "16": 0.13614498793622476
+          },
+          "near_null_energy_fraction_primary_k": 0.028902431160971635,
+          "per_departure_frac_primary_k_mean": 0.03466604264403511,
+          "mahalanobis_ratio_mean": 1.3297266005798443,
+          "mahalanobis_ratio_median": 1.280640966645244
+        },
+        "ledoit_wolf": {
+          "eigenvalues_ascending": [
+            0.007645192363442499,
+            0.011829041498568314,
+            0.027435799305260584,
+            0.03161019953420867,
+            0.050580683976279774,
+            0.06741034513530811,
+            0.07517199074851619,
+            0.08899642592032418,
+            0.1153116680200997,
+            0.1372966582033699,
+            0.1836752764153846,
+            0.21840631171552496,
+            0.23160153503176778,
+            0.25409792078511156,
+            0.29959664598975405,
+            0.33357476107297307,
+            0.37061781534574845,
+            0.4588952775780185,
+            0.548761189762405,
+            0.640863613023738,
+            0.6581160124123895,
+            0.7385919997450698,
+            0.8941776510884482,
+            0.9744888475463502,
+            1.0486676211716115,
+            1.2061861989458427,
+            1.4411254537567542,
+            1.7331443658293852,
+            2.420174223768089,
+            3.0314183255011193,
+            3.7073128142677882,
+            7.53977626603204
+          ],
+          "eig_condition_number": 986.211452583648,
+          "near_null_energy_fraction": {
+            "4": 0.007035327945355752,
+            "8": 0.028902431160971714,
+            "16": 0.13614498793622487
+          },
+          "near_null_energy_fraction_primary_k": 0.028902431160971714,
+          "per_departure_frac_primary_k_mean": 0.03466604264403513,
+          "mahalanobis_ratio_mean": 1.3224800337944915,
+          "mahalanobis_ratio_median": 1.275785067189783
+        }
+      },
+      "metrics_primitive_crosscheck_maxabsdiff": 6.217248937900877e-15
+    }
+  },
+  "isotropic_null_fraction": 0.25,
+  "comparisons": {
+    "empirical": {
+      "regAE_pool_vs_jepa_wake_pool": {
+        "cand_frac": 0.10040998533211218,
+        "comp_frac": 0.010304609662761356,
+        "delta_cand_minus_comp": 0.09010537566935083,
+        "ci95": [
+          0.0807013972017063,
+          0.09877877694719124
+        ],
+        "exceeds_margin": true,
+        "ci_excludes_0": true
+      },
+      "regAE_pool_vs_supervised_only_pool": {
+        "cand_frac": 0.10040998533211218,
+        "comp_frac": 0.028902431160971635,
+        "delta_cand_minus_comp": 0.07150755417114055,
+        "ci95": [
+          0.06215147680610771,
+          0.08027574919404401
+        ],
+        "exceeds_margin": true,
+        "ci_excludes_0": true
+      },
+      "_summary": {
+        "cand_frac": 0.10040998533211218,
+        "max_comparator_frac": 0.028902431160971635,
+        "cand_minus_max_comparator": 0.07150755417114055,
+        "all_exceed_margin": true,
+        "all_ci_exclude_0": true,
+        "direction_pass": true
+      }
+    },
+    "ledoit_wolf": {
+      "regAE_pool_vs_jepa_wake_pool": {
+        "cand_frac": 0.10040998533211214,
+        "comp_frac": 0.01030460966276132,
+        "delta_cand_minus_comp": 0.09010537566935081,
+        "ci95": [
+          0.08070139720170628,
+          0.09877877694719123
+        ],
+        "exceeds_margin": true,
+        "ci_excludes_0": true
+      },
+      "regAE_pool_vs_supervised_only_pool": {
+        "cand_frac": 0.10040998533211214,
+        "comp_frac": 0.028902431160971714,
+        "delta_cand_minus_comp": 0.07150755417114042,
+        "ci95": [
+          0.06215147680610761,
+          0.08027574919404384
+        ],
+        "exceeds_margin": true,
+        "ci_excludes_0": true
+      },
+      "_summary": {
+        "cand_frac": 0.10040998533211214,
+        "max_comparator_frac": 0.028902431160971714,
+        "cand_minus_max_comparator": 0.07150755417114042,
+        "all_exceed_margin": true,
+        "all_ci_exclude_0": true,
+        "direction_pass": true
+      }
+    }
+  },
+  "verdict": {
+    "P3": "PASS",
+    "basis": "near-null departure-energy fraction (direction); regAE_pool must exceed BOTH comparators by > 0.05 with a paired case-clustered CI excluding 0, under BOTH covariance estimators. Mahalanobis ratios reported but NOT decisive (collapse under shrinkage, per plan P3 / D231).",
+    "direction_pass_empirical": true,
+    "direction_pass_ledoit_wolf": true
+  }
+}
