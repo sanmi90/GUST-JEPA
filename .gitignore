@@ -118,3 +118,6 @@ paper/edrfcm2026/*.fls
 
 # QC report is a small manifest, not data
 !data_manifest/raw_cases_qc.csv
+!outputs/session32/report/
+outputs/session32/report/*
+!outputs/session32/report/*.tex

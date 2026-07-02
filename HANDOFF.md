@@ -9803,3 +9803,38 @@ filter, not model selection. Caveat: forecast R2 magnitudes are extreme-negative
 long-horizon single-trajectory divergence (the "no positive forecast envelope" finding is
 robust to which forecast baseline is read). Deliverables: envelope_by_gust.json + .png.
 This is the Discussion's applicability-envelope result.
+
+### D237 (SESSION32 two follow-ups: O2 fixed-delta + H_roll ablation; + session report PDF) (2026-07-02, Session 32)
+
+O2 FIXED-DELTA (Carlos): re-ran the wall-visibility spectrum with a single fixed absolute
+perturbation delta=0.991 (RMS std) on every PC (raw energy, no 1/std^2) to test whether the raw
+ranking's near-null dominance was a normalization artifact. IT IS NOT: fixed-delta ranks
+near-identically to std-normalized (energy corr 0.9928; evr-energy corr -0.514 vs -0.515;
+top-visible still near-null dir20, top-hidden still highest-variance dir0 circulation_neg). So
+the near-null "visibility" is a GENUINE property of the estimation-tier AR-transformer -- large
+per-unit gain along the low-variance directions it never learned to damp (data-unconstrained,
+never excited in training). The robust claim stays the meaningful-direction ranking (evr>=0.02:
+force/enstrophy visible, wake-circulation blind), which holds under both metrics. FILTER-RELEVANT
+COROLLARY: that near-null gain is a plausible noise-injection mechanism in the filter's forecast
+step -- a candidate cause of the Track B calibration/divergence (D234) and the envelope's
+calibration ceiling (D236). Added ranking_fixed_delta to track_o2_visibility.json.
+
+H_ROLL ABLATION (Carlos; settles the question left open since D216 -- no v2.2 H_roll test
+existed): trained jepa_nowake_pool at H_roll=1 (new --horizon-override flag on train_canonical,
+non-destructive/default-off; kit_horizon=8 preserved) vs the existing H_roll=8, evaluated with
+matched/fresh downstream operators on frozen latents (isolates encoder-geometry effect).
+VERDICT: multi-step rollout DOES help on v2.2 pooled. Forecast (h8): observable merit 0.407->0.471
+(+0.064), C_L closure 0.429->0.691 (+0.262), wake 0.284->0.305, field VRMSE 1.006->0.983.
+On-manifold drift (h16): 0.731->0.618 (-0.113). The advantage GROWS with horizon: merit tied at
+h1 (~0.54) but by h16 H_roll=1 collapses to 0.046 vs H_roll=8 0.312 -- single-step latent falls
+off manifold under rollout; multi-step buys long-horizon stability (same on-manifold argument as
+JEPA-vs-recon, now for the horizon itself). Frozen-filter axis leans same (C_L R2 0.395->0.551
+per-model OSP) but noisy (n=3 test_a). Caveat: measures effect on the LEARNED REPRESENTATION
+(matched predictors), not the native co-trained predictors (gap likely larger). Deliverables:
+hroll_ablation.json, jepa_nowake_pool_hroll1 run, --horizon-override in train_canonical.py.
+
+SESSION REPORT: outputs/session32/report/session32_report.tex -> .pdf (10 sections: gate ledger,
+blockers, Track P/O/B, envelope, MANUSCRIPT COMPARISON, H_roll, O2 fixed-delta). Benchmarks the
+S32 pooled tier against paper/HEADLINE_NUMBERS.md; headline: S32 realizes the manuscript's
+Section-8 online-estimator pathway (static lead-time pressure->C_L R2=0.35 -> sequential filter
+0.71-0.90) with a measured operating envelope.

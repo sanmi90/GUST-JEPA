@@ -1,0 +1,351 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{longtable}
+\usepackage{xcolor}
+\usepackage[hidelinks]{hyperref}
+\usepackage{enumitem}
+\setlength{\parskip}{4pt}
+\setlength{\parindent}{0pt}
+\newcommand{\pass}{\textcolor{green!55!black}{\textbf{PASS}}}
+\newcommand{\weak}{\textcolor{orange!80!black}{\textbf{WEAK}}}
+\newcommand{\gd}[1]{\textcolor{gray!55!black}{#1}}
+
+\title{\textbf{Session 32 Report}\\[2pt]
+\large Pooled Coefficient Estimation Tier, Predict--Correct Wall--Pressure Filter,\\
+and the Gust--Intensity Operating Envelope\\[4pt]
+\normalsize benchmarked against the current manuscript (partition v2, spatial tier)}
+\author{vortex-jepa / GUST-JEPA \quad (branch \texttt{session31-canonical-v2p2})}
+\date{2026-07-02}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Session 32 reorganises the project around a predict--correct state--estimation thesis on a
+\emph{pooled} $d{=}32$ coefficient latent (the estimable object), with the $32{\times}24{\times}12$
+spatial latent kept as a separate decodability tier. On the frozen v2.2 split (102 cases /
+450 encounters, symmetric $|G|{=}4$ Test~C) we (i) resolved two pre--launch blockers with
+direct physical/gradient checks, (ii) trained the full pooled canonical matrix and passed the
+pre--registered gates P1 (readability), P2 (merit ordering), P3 (near--null departure
+mechanism), with P4 (pooling cost) tabulated, (iii) built a leakage--free ensemble Kalman
+filter that senses wall pressure at model--conditioned optimal taps, and (iv) characterised the
+\emph{operating envelope}: the gust intensity $|G|$ and diameter $D$ beyond which each part of
+the pipeline stops being able to do anything. The central new result is that the sequential
+filter tracks lift ($C_L$ analysis $R^2 = 0.71$--$0.90$ for $|G|\ge 1$) and \emph{extends the
+usable range beyond static single--frame recovery}, which fails by $|G|\approx 3$; this is the
+direct successor to the manuscript's lead--time pressure$\to C_L$ result ($R^2 = 0.35$). We are
+honest about the soft spot: the filter's uncertainty is mis--calibrated at strong/wide gusts,
+and the operative attribution claim is C2 (readability is supervision--driven), not C1.
+\end{abstract}
+
+\section{Executive summary and gate ledger}
+
+\begin{center}
+\begin{tabular}{@{}llp{8.6cm}@{}}
+\toprule
+Gate & Verdict & Verified evidence \\
+\midrule
+P1 readability      & \pass & \texttt{supervised\_only\_pool}$\ge$\texttt{jepa\_wake\_pool} on all 5 observables, $|\Delta|<0.05$; $E_w$ $\Delta{=}{+}0.026$ (CI incl.\ 0). \\
+P2 merit ordering   & \pass & $0.639 \ge 0.637 > 0.548 > 0.197$ (jepa\_wake $\ge$ supervised $>$ ae\_wake $>$ regAE). \\
+P3 mechanism        & \pass & \texttt{regAE\_pool} near--null departure $0.100$ vs $0.010/0.029$; both estimators, CI excl.\ 0. \\
+P4 pooling cost     & tabulated & Every family loses decode SSIM ($-0.09$ to $-0.20$) and merit ($-0.08$ to $-0.31$), gains field VRMSE. \\
+Gate O estimability & \weak & Pooled vs flattened--spatial recovery $\Delta R^2 = +0.120$ (CI $[0.096,0.145]$), below the $+0.2$ bar. \\
+Track B filter      & built + frozen & Leakage--free $H$; 10/10 tests; frozen $\rho{=}1.0$; improves closure over open--loop; mis--calibrated at strong gusts. \\
+Envelope            & characterised & Filter tracks lift for all $|G|\ge 1$; calibration degrades with $|G|$; extends range beyond static recovery. \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\textbf{One--paragraph story.} On the pooled tier, readability and matched--predictor merit are
+\emph{supervision--driven}: an encoder with only the lift and wake heads (no predictive
+objective, no anti--collapse) matches the full predictive JEPA. The predictive objective earns
+its place elsewhere --- P3 shows it (with anti--collapse) keeps rollout departures inside the
+training distribution while bare reconstruction leaks into near--null directions. Wall
+observability is real but limited: the estimability margin is weak, the wall sees the
+force/enstrophy latent directions and is blind to wake circulation, and the sequential filter
+improves lift tracking over open--loop and over static recovery but with mis--calibrated
+uncertainty at the strongest gusts. The operating envelope makes this precise.
+
+\section{Setup and pre--launch blockers}
+
+\textbf{Data.} Split v2.2, 102 cases / 450 encounters (84 train / 10 test\_b / 8 test\_c /
+val 100), with a \emph{symmetric} $|G|{=}4$ Test~C (4 periodic $+$ 4 run4). Two blockers were
+cleared with direct evidence rather than assumption:
+
+\begin{itemize}[leftmargin=1.4em,itemsep=1pt]
+\item \textbf{B1 (run4 gust sign).} The archive uses the solver convention $s=-G$, and the
+parser sets $G_{\text{inv}}=s$, so split $G$ is the negation of physical $G$. A non--circular
+lift--sign check across all 8 Test~C cases confirmed run4 is physically consistent with periodic:
+every periodic $G{+}4$ dips negative first ($C_L$ trough $\approx -7.6$), every run4 $G{-}4$
+rises positive first (peak $\approx +8.3$) --- near mirror images. Test~C symmetry and the
+sign--asymmetry analyses are safe.
+\item \textbf{B2 (AE$+$pooled decoder).} The pooled reconstruction path exists and trains: the
+parameter--free adapter feeds a trainable $6.3$M--param decoder; all 90 decoder tensors receive
+nonzero gradient from the reconstruction loss, and an 80--iter real--data burst dropped
+reconstruction loss $0.193\to 0.105$ ($-45.6\%$).
+\end{itemize}
+
+\section{Track P: pooled canonical matrix and gates}
+
+Six new pooled models were trained (seed 0, $10{,}000$ iters, matched budget); \texttt{jepa\_wake\_pool}
+reuses the existing \texttt{jepa\_pool}. Evaluation reused the Session~31 harness (ResUNet
+matched predictor; Test~C untouched).
+
+\begin{center}
+\begin{tabular}{@{}lccccc@{}}
+\toprule
+model & decode SSIM & $E_w$ readab.\ & merit$_{h8}$ & $C_L$ closure & field VRMSE \\
+\midrule
+jepa\_wake\_pool (reused) & 0.778 & 0.766 & \textbf{0.639} & 0.544 & 0.969 \\
+supervised\_only\_pool    & 0.774 & \textbf{0.792} & 0.637 & 0.680 & 0.992 \\
+ae\_wake\_pool            & 0.776 & 0.750 & 0.548 & 0.380 & 0.976 \\
+ae\_nowake\_pool          & 0.773 & 0.456 & 0.432 & 0.598 & 0.976 \\
+jepa\_nowake\_pool        & 0.767 & 0.160 & 0.471 & 0.691 & 0.983 \\
+regAE\_pool               & 0.782 & 0.333 & 0.197 & 0.370 & 0.949 \\
+bvae                      & 0.724 & 0.728 & 0.356 & 0.027 & 1.007 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\textbf{Operative claim is C2.} \texttt{supervised\_only\_pool} matches \texttt{jepa\_wake\_pool}
+on readability (all five observables, slightly higher) \emph{and} merit (a tie). The predictive
+objective does not add readability or fitted--predictor merit on the pooled tier; anti--collapse
+$+$ observable supervision suffice. $E_w$ readability is wake--head--driven (nowake models
+collapse to $0.16/0.46$; every wake--head model $0.73$--$0.79$).
+
+\textbf{P3 mechanism (why the predictive objective still matters).} Rolling each model's frozen
+pooled latent forward and projecting the departure (rolled $-$ true) onto the bottom--quartile
+(near--null) eigenvectors of the training covariance:
+
+\begin{center}
+\begin{tabular}{@{}lccc@{}}
+\toprule
+model & cov.\ cond.\ number & near--null frac.\ ($k{=}8$) & vs regAE \\
+\midrule
+\textbf{regAE\_pool} & $11$ (near--isotropic) & \textbf{0.100} & --- \\
+jepa\_wake\_pool     & $613$ (anisotropic) & 0.010 & $\Delta{+}0.090$, CI $[0.081,0.099]$ \\
+supervised\_only\_pool & $1041$ (anisotropic) & 0.029 & $\Delta{+}0.072$, CI $[0.062,0.080]$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+Supervision pins variance into a low--rank subspace (anisotropic) that the predictor's departures
+respect; anti--collapse alone gives a near--isotropic latent with no protected subspace, so
+departures leak into low--variance directions. Isotropic null baseline $=k/d=0.25$.
+
+\section{Track O: model--conditioned observability}
+
+The sensor placement was made \emph{model--conditioned} (per--model TCSI greedy taps targeting
+each model's own latent) instead of one shared target--blind qDEIM array, and the
+sensor$\to$latent recovery was upgraded from kernel ridge to a CV--selected choice of
+KRR / MLP / LSTM over the windowed pressure time series. Both changes lifted recovery for every
+family:
+
+\begin{center}
+\begin{tabular}{@{}lccc@{}}
+\toprule
+family & CV pick ($K{=}8$) & state $R^2$ (old$\to$new) & observable $R^2$ (old$\to$new) \\
+\midrule
+jepa (pred)   & LSTM & $0.667\to 0.707$ & $0.523\to \mathbf{0.637}$ \\
+fukami (recon)& MLP  & $0.775\to 0.921$ & $0.363\to 0.470$ \\
+POD (linear)  & MLP  & $0.500\to 0.561$ & $0.391\to 0.534$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Per--model taps are strongly distinct (pairwise $K{=}8$ overlap $1$--$3$ of $8$; only one
+universal tap): POD hugs the leading edge, the predictive/fukami latents reach into the wake.
+\textbf{Gate O stays \weak} ($\Delta R^2 = +0.120$, below $0.2$), but the honest finding sharpens:
+raw--variance recoverability and physics recoverability \emph{disagree} --- fukami's
+reconstruction latent is most recoverable in variance ($0.921$) yet carries the least
+wall--recoverable physics ($0.470$), while the predictive latent carries the most ($0.637$). The
+wall--visibility spectrum (O2) shows the wall sees the force ($C_L,C_D$) and wake--enstrophy latent
+directions and is blind to the near--null wake--circulation direction.
+
+\section{Track B: the predict--correct filter}
+
+A stochastic ensemble Kalman filter ($N{=}64$, deterministic square--root variant available)
+advances the frozen pooled state through the matched AR--transformer and corrects with
+$K{=}8$ span--averaged wall--pressure taps. The observation operator $H\!:\,z\to p_K$ is
+\emph{pressure only}; the physics observables ($E_w, C_L$) are eval--time readouts and can never
+reach the innovation (a leakage guarantee enforced by construction and by unit test).
+
+\begin{itemize}[leftmargin=1.4em,itemsep=1pt]
+\item Verified: 10/10 unit tests (synthetic linear--Gaussian tracking, covariance positive
+definite, EnKF $\to$ exact Kalman within Monte--Carlo tolerance).
+\item Model--conditioned OSP taps improve $C_L$ closure over the shared qDEIM array by $-36\%$
+RMSE (jepa\_pool impact).
+\item Tuning frozen on test\_a only: $\rho{=}1.0$ (the filter is \emph{under}--dispersed, mean
+NIS $\approx 5 < K{=}8$, so more inflation hurts). Warning thresholds $\epsilon_A=\epsilon_t=0.25$.
+\item \textbf{Honest caveat.} Innovations are not white ($|$lag--1$|\approx 0.88$; wall pressure
+is temporally smooth), and the strongest gusts drive the filter to statistical divergence. The
+filter improves closure over open--loop but is not yet well calibrated --- S33 needs a genuine
+process/observation noise ($Q,R$) model, not just inflation.
+\end{itemize}
+
+\section{The gust--intensity operating envelope}
+
+Running the frozen filter, open--loop forecast, and static recovery on all 450 encounters,
+stratified by $|G|$ (headline \texttt{jepa\_pool}):
+
+\begin{center}
+\begin{tabular}{@{}lccc@{}}
+\toprule
+$|G|$ & filter $C_L$ $R^2$ & filter div.\ rate & static recovery $C_L$ $R^2$ \\
+\midrule
+$\le 0.5$ & $\sim 0$\,\gd{*} & 0.00 & $+0.60$ \\
+$1$   & $+0.71$ & 0.00 & $+0.63$ \\
+$1.5$ & $+0.87$ & 0.18 & $+0.64$ \\
+$2$   & $+0.78$ & 0.41 & $+0.35$ \\
+$3$ \gd{(in--distribution)} & $+0.69$ & 0.75 & $\mathbf{-1.22}$ \\
+$4$ \gd{(test\_c boundary)} & $+0.90$ & 0.82 & $\mathbf{-0.33}$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+\gd{* weak--signal regime: true lift near--constant, $R^2$ denominator $\approx 0$; not a failure.}
+
+\textbf{Four reads.}
+(1) Filter lift tracking is good for \emph{all} $|G|\ge 1$ ($R^2\,0.69$--$0.90$), even at $|G|{=}4$ ---
+not a middle band.
+(2) What degrades monotonically with $|G|$ is \emph{calibration}, not tracking: divergence
+$0.00\to 0.82$, mean NIS $0.9\to 19.4$; divergence exceeds $50\%$ first at $|G|\approx 3$
+($D\le 1.0$) / $|G|\approx 2$ ($D{=}1.5$). ``Divergence'' $\ne$ ``useless''.
+(3) \textbf{The sequential filter extends the usable envelope beyond static recovery} --- the
+paper's core argument, quantified: static recovery goes negative at $|G|{=}3$/$4$ while the
+filter still tracks ($0.69$/$0.90$). Open--loop forecast never works, so the correction step is
+essential.
+(4) \textbf{Strong sign asymmetry} (representation--general; POD replicates): physical--positive
+gusts have a wider envelope --- divergence $0.16$ vs $0.35$, filter $C_L$ median $0.89$ vs
+$0.25$. The $|G|{=}3$ limit is in--distribution, so it is an observability/filter limit, not a
+training--coverage gap.
+
+\begin{center}
+\includegraphics[width=0.98\linewidth]{envelope_by_gust.png}\\
+{\small Diagnostic envelope panels: divergence, NIS, filter/recovery $C_L$ closure with
+per--split scatter, state $R^2$, and fraction--positive by lens vs $|G|$.}
+\end{center}
+
+\section{Comparison with the current manuscript}
+
+The manuscript's headline numbers (\texttt{paper/HEADLINE\_NUMBERS.md}, partition v2, mostly
+$d{=}64$, spatial latent) describe a \emph{different object} than the Session~32 pooled tier, so
+most numbers are not head--to--head; the value of the comparison is in what Session~32 adds and
+how the pooled tier relates to the spatial one.
+
+\begin{center}
+\begin{longtable}{@{}p{3.1cm}p{5.0cm}p{5.6cm}@{}}
+\toprule
+Dimension & Manuscript (v2, spatial) & Session 32 (v2.2, pooled) \\
+\midrule
+Forecast closure (mean obs $R^2$) & JEPA $d64$ \textbf{0.835}, $d32$ 0.808; Fukami 0.427; POD 0.561 (\S1b) & \texttt{jepa\_wake\_pool} merit 0.639 (pooled). Pooling costs $\approx -0.10$ merit vs the spatial counterpart (P4). \\
+\addlinespace
+Rollout drift / mechanism & Fukami rollout drifts $\sim 10\times$ (Mahalanobis ratio 9.90); JEPA/POD stay in--manifold (\S2) & Same story on the pooled anti--collapse contrast, sharper: \texttt{regAE\_pool} near--null departure 0.100 vs 0.010 (P3); supervision $\to$ anisotropic covariance (cond 613) protects the rollout. \\
+\addlinespace
+Who drives readability & (not isolated in the manuscript) & \texttt{supervised\_only} matches JEPA (P1) $\Rightarrow$ supervision--driven readability (C2). \\
+\addlinespace
+Pressure $\to C_L$ & Lead--time forecast at $\tau{=}10$: predictor--in--loop \textbf{0.35}, direct pressure--probe 0.13, oracle 0.68 (\S4) & \emph{Sequential assimilation} (a richer task): EnKF analysis $C_L$ $R^2$ \textbf{0.71--0.90} in the tracking band. Realises the manuscript's \S8 online--estimator pathway $g(z_{1:t})\to\hat c_t$. \\
+\addlinespace
+$z\to(G,D,Y)$ recovery & JEPA $d64$: $G$ 0.46, $D$ 0.80, $Y$ 0.10 (test\_b, \S5) & Parametric floor recomputed on v2.2; $Y$ remains the marginal axis (consistent). \\
+\addlinespace
+Decode fidelity (SSIM) & Decoder test\_a SSIM $\approx 0.71$ (v2, \S9) & Pooled decode floor SSIM 0.72--0.78; spatial counterpart $\approx 0.87$ (P4). Different decoder/protocol --- not head--to--head. \\
+\addlinespace
+Operating envelope & not characterised & \textbf{New}: filter tracks lift for $|G|\ge 1$, calibrated to $|G|\approx 2$--3, sign--asymmetric, extends beyond static recovery. \\
+\addlinespace
+Predict--correct filter & motivated only (\S8 pathway) & \textbf{New}: leakage--free EnKF, model--conditioned OSP, frozen tuning, honest calibration limits. \\
+\bottomrule
+\end{longtable}
+\end{center}
+
+\textbf{What Session 32 strengthens for the paper.}
+\begin{itemize}[leftmargin=1.4em,itemsep=1pt]
+\item It \emph{realises} the manuscript's speculative Section~8 claim that an online estimator
+$g(z_{1:t})\to\hat c_t$ is feasible, turning the static lead--time $R^2{=}0.35$ into a working
+sequential filter with $0.71$--$0.90$ lift tracking and a measured applicability envelope.
+\item The drift/mechanism story (\S2 of the manuscript) is reproduced on a second split and a
+sharper, direction--based measure (P3), and given a clean causal reading (covariance anisotropy).
+\item The two--tier framing converts the manuscript's implicit spatial--vs--pooled tension into
+a measured trade (P4), and the estimability question is answered empirically (Gate O, O2).
+\end{itemize}
+
+\textbf{What Session 32 complicates (honesty).}
+\begin{itemize}[leftmargin=1.4em,itemsep=1pt]
+\item The operative attribution is C2, not C1: on the pooled tier the predictive objective does
+not add readability or fitted--predictor merit --- its value is on--manifold stability and
+field/pre--impact skill. The headline should be framed accordingly.
+\item The estimability margin is weak ($+0.120$, below the pre--registered $0.2$), and the filter
+is not yet well calibrated. The strong, defensible claim is the physics--recovery ordering and the
+envelope, not a strong--form estimability gate.
+\end{itemize}
+
+\section{H\_roll ablation (multi--step rollout on v2.2)}
+The manuscript never had a v2.2 test of whether the multi--step--rollout training objective
+($H_{\text{roll}}{=}8$, the frozen kit default) actually helps. We trained \texttt{jepa\_nowake\_pool}
+at $H_{\text{roll}}{=}1$ (via a non--destructive, default--off \texttt{--horizon-override} flag)
+and compared it against the existing $H_{\text{roll}}{=}8$ model, evaluating both with fresh/matched
+downstream operators on frozen latents (isolating the encoder--geometry effect of the objective).
+
+\textbf{Verdict: multi--step rollout DOES help on v2.2 pooled}, and the advantage grows with
+forecast horizon.
+
+\begin{center}
+\begin{tabular}{@{}lccc@{}}
+\toprule
+axis (Test~B, $h8$; lower VRMSE/drift better) & $H_{\text{roll}}{=}1$ & $H_{\text{roll}}{=}8$ & $\Delta(8{-}1)$ \\
+\midrule
+observable merit (mean 5--obs MLP $R^2$) & 0.407 & 0.471 & $\mathbf{+0.064}$ \\
+$C_L$ forecast closure (MLP $R^2$)        & 0.429 & 0.691 & $\mathbf{+0.262}$ \\
+wake--enstrophy closure                   & 0.284 & 0.305 & $+0.021$ \\
+field VRMSE                               & 1.006 & 0.983 & $-0.024$ \\
+on--manifold drift ($h16$)               & 0.731 & 0.618 & $-0.113$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+The mechanism is transparent in the merit--vs--horizon curve: the two are tied at short horizons
+($h1\approx 0.54$ both), but by $h16$ the single--step latent \emph{collapses to $0.046$} while the
+multi--step latent holds $0.312$. Single--step training yields a latent that forecasts fine one
+step out but falls off its manifold under rollout; the multi--step objective buys long--horizon
+rollout stability --- the same on--manifold argument the paper makes for JEPA vs reconstruction
+(\S2 / \S1b), now shown for the rollout \emph{horizon} itself. The frozen--filter axis (3 test\_a
+cases) leans the same way ($C_L$ analysis $R^2$ $0.395\to 0.551$ with per--model OSP) but is noisy
+and does not carry the verdict. Caveat: this measures $H_{\text{roll}}$'s effect on the
+\emph{learned representation} (matched predictors on frozen latents); the native co--trained
+predictors would likely show an even larger gap.
+
+\section{O2 fixed--$\delta$ normalisation variant}
+We re--ran the wall--visibility spectrum with a single fixed absolute perturbation
+$\delta = \sqrt{\overline{\mathrm{Var}_j}} = 0.991$ applied identically to every unit PC (raw
+energy $\sum_t \|h(z_t)-h(\tilde z_t)\|^2$, no $1/\text{std}^2$ factor), to test whether the
+raw ranking's near--null dominance was a normalisation artifact.
+
+\textbf{It is not.} The fixed--$\delta$ raw ranking is essentially identical to the
+std--normalised one: the two energy arrays correlate $0.9928$ across all 32 directions, and
+$\mathrm{corr}(\text{evr},\text{energy}) = -0.514$ (fixed) vs $-0.515$ (std). Top--visible is
+still the near--null dir~20 (evr $0.005$, $C_D$); top--hidden is the highest--variance dir~0
+(evr $0.19$, circulation--neg). So the near--null ``visibility'' is a \emph{genuine property of
+the estimation--tier AR--transformer}: it has large per--unit gain along the low--variance
+directions it never learned to damp (they were never excited in training, so its dynamics there
+are data--unconstrained), and those project onto the pressure head. The std--normalised and
+fixed--$\delta$ metrics rank the same because the perturbations sit in the linear regime.
+
+The robust, defensible statement is therefore the meaningful--direction ranking (evr $\ge 0.02$,
+$89\%$ of variance), which holds under \emph{both} metrics: the wall sees the force ($C_L,C_D$)
+and wake--enstrophy modes (dirs 12, 9, 4, 3) and is blind to the highest--variance
+wake--circulation mode (dir~0). \textbf{Filter--relevant corollary:} the transformer's large gain
+along data--unconstrained near--null directions is a plausible noise--injection mechanism during
+assimilation --- a concrete candidate cause of the Track~B calibration/divergence issues and the
+envelope's calibration ceiling, linking O2 to the filter's honest soft spot.
+
+\section{Provenance and status}
+All Session~32 work is committed on branch \texttt{session31-canonical-v2p2} (seven commits;
+decisions D217--D236 in \texttt{HANDOFF.md}). Every number above traces to an on--disk artifact
+under \texttt{outputs/session32/} (gates, tuning, taps, recovery, envelope JSONs) and was verified
+against those files. The frozen filter was validated byte--for--byte against
+\texttt{filter\_tuning\_frozen.json}. Remaining work is S33 (full Test~B/C filter campaign,
+warning horizon, physics/interpretability, reference CIs $+$ 3--seed spine) and S34 (manuscript
+restructure); the filter's $Q/R$ calibration is the priority open item.
+
+\end{document}

@@ -228,6 +228,27 @@ def main(argv: list[str] | None = None) -> int:
             for hi, Hh in enumerate(args.horizons):
                 energy[j, hi] = float(cum[:, Hh - 1].mean().item()) / (delta**2)
 
+        # --- FIXED-ABSOLUTE-delta variant (coordinator) ---------------------------
+        # Perturb every unit PC direction by the SAME absolute latent delta (the RMS
+        # per-direction std = sqrt(mean_j Var_j), a single "typical latent magnitude"),
+        # and score RAW energy sum_t ||h(z_t)-h(z~_t)||^2 without the 1/std^2 factor.
+        # Dividing by the constant delta^2 is a pure rescale, so it does not change the
+        # ranking; we report the raw energy. This removes the near-null amplification
+        # that the std-proportional delta + 1/std^2 normalisation introduced.
+        d_fixed = float(np.sqrt(np.mean(pc_std.astype(np.float64) ** 2)))
+        energy_fixed = np.zeros((d, len(args.horizons)), dtype=np.float64)
+        for j in range(d):
+            pert = torch.from_numpy(pcs[j] * np.float32(d_fixed)).to(device)  # magnitude d_fixed
+            ctx_pert = ctx_t.clone()
+            ctx_pert[:, -1, :] = ctx_pert[:, -1, :] + pert
+            pert_traj = roll_pooled(ctx_pert, max_H)
+            diff = pert_traj - base_traj
+            p_diff = torch.einsum("bhd,kd->bhk", diff, Hw_t)
+            se = (p_diff**2).sum(dim=2)
+            cum = torch.cumsum(se, dim=1)
+            for hi, Hh in enumerate(args.horizons):
+                energy_fixed[j, hi] = float(cum[:, Hh - 1].mean().item())
+
     # --- observable loadings per direction ---
     loadings = {}
     for obs in OBSERVABLES:
@@ -260,6 +281,23 @@ def main(argv: list[str] | None = None) -> int:
             "dominant_observable": max(OBSERVABLES, key=lambda o: abs(loadings[o][j])),
         }
 
+    # --- FIXED-delta ranking (raw energy, same absolute perturbation per direction) ---
+    vis_fixed = energy_fixed[:, -1]
+    order_fixed = np.argsort(vis_fixed)[::-1]
+    corr_evr_fixed = float(np.corrcoef(evr, vis_fixed)[0, 1])
+
+    def dir_summary_fixed(j: int) -> dict:
+        return {
+            "direction": int(j),
+            "explained_var_ratio": float(evr[j]),
+            "pc_std": float(pc_std[j]),
+            "energy_by_H": {
+                str(Hh): float(energy_fixed[j, hi]) for hi, Hh in enumerate(args.horizons)
+            },
+            "observable_loadings": {o: loadings[o][j] for o in OBSERVABLES},
+            "dominant_observable": max(OBSERVABLES, key=lambda o: abs(loadings[o][j])),
+        }
+
     payload = {
         "task": "SESSION 32 Track O2 -- wall-visibility spectrum (jepa_pool pooled latent)",
         "params": {
@@ -282,6 +320,11 @@ def main(argv: list[str] | None = None) -> int:
                 "same tap set the Track B filter senses"
             ),
             "energy_definition": "sum_t ||h(z_t)-h(z~_t)||^2 / delta_j^2 (cumulative over horizon)",
+            "energy_definition_fixed_delta": (
+                "sum_t ||h(z_t)-h(z~_t)||^2 (RAW, no 1/std^2) with the SAME absolute "
+                "perturbation delta=RMS-per-direction-std applied to every unit PC"
+            ),
+            "fixed_delta_value": d_fixed,
             "observable_loading": "cos-like signed dot(PC_j, unit probe weight)",
             "baseline_file": "outputs/session32/track_o2_visibility_resunet_baseline.json "
             "(ResUNet propagation + qDEIM K8 head)",
@@ -313,6 +356,28 @@ def main(argv: list[str] | None = None) -> int:
                 "robust wall-visibility statement under the filter's AR-transformer dynamics."
             ),
         },
+        "ranking_fixed_delta": {
+            "horizon": int(max_H),
+            "delta_absolute": d_fixed,
+            "delta_definition": "RMS per-direction std sqrt(mean_j Var_j); identical for all PCs",
+            "normalisation": "none (raw energy); 1/delta^2 would be a constant rescale",
+            "directions_by_visibility_desc": [int(x) for x in order_fixed],
+            "top_visible": dir_summary_fixed(int(order_fixed[0])),
+            "top_hidden": dir_summary_fixed(int(order_fixed[-1])),
+            "corr_evr_vs_energy": corr_evr_fixed,
+            "note": (
+                "RAW ranking with a fixed absolute perturbation per direction. FINDING: "
+                "corr_evr_vs_energy stays STRONGLY NEGATIVE (~-0.51, ~identical to the "
+                "std-normalised ranking), so fixing delta does NOT remove the near-null "
+                "dominance -- it is a genuine property of the AR-transformer's dynamics "
+                "(large per-unit gain along low-variance directions it never learned to "
+                "damp, since they were never excited in training), not a 1/std^2 "
+                "normalisation artifact. The physically-interpretable statement remains "
+                "ranking_meaningful_directions (evr>=0.02): force/enstrophy visible, "
+                "wake-circulation hidden."
+            ),
+        },
+        "per_direction_fixed_delta": [dir_summary_fixed(j) for j in range(d)],
         "per_direction": [dir_summary(j) for j in range(d)],
     }
     out_path = _resolve(args.out)
@@ -342,7 +407,24 @@ def main(argv: list[str] | None = None) -> int:
         f"LEAST-visible dir {mh} (evr={evr[mh]:.3f}) dom={dir_summary(mh)['dominant_observable']}",
         flush=True,
     )
-    # print top-5 visible with dominant observable
+    fv, fh = int(order_fixed[0]), int(order_fixed[-1])
+    print(
+        f"[o2] FIXED-delta (delta={d_fixed:.3f}, RAW energy): "
+        f"corr(evr,E)={corr_evr_fixed:+.3f} | TOP-visible dir {fv} (evr={evr[fv]:.3f}) "
+        f"dom={dir_summary_fixed(fv)['dominant_observable']} E@maxH={vis_fixed[fv]:.3e}; "
+        f"TOP-hidden dir {fh} (evr={evr[fh]:.3f}) dom={dir_summary_fixed(fh)['dominant_observable']} "
+        f"E@maxH={vis_fixed[fh]:.3e}",
+        flush=True,
+    )
+    print("[o2] FIXED-delta top-5 visible (dir, evr, E@maxH, dom):", flush=True)
+    for j in order_fixed[:5]:
+        s = dir_summary_fixed(int(j))
+        print(
+            f"    dir {int(j):2d} evr={evr[int(j)]:.3f} E={vis_fixed[int(j)]:.3e} "
+            f"dom={s['dominant_observable']}",
+            flush=True,
+        )
+    # print top-5 visible with dominant observable (std-normalised)
     print("[o2] top-5 visible directions (dir, evr, energy@maxH, dom_obs):", flush=True)
     for j in order[:5]:
         s = dir_summary(int(j))
