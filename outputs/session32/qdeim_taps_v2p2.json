@@ -1,0 +1,127 @@
+{
+  "K2": [
+    11,
+    10
+  ],
+  "K4": [
+    11,
+    10,
+    12,
+    7
+  ],
+  "K8": [
+    11,
+    10,
+    12,
+    7,
+    106,
+    186,
+    19,
+    92
+  ],
+  "K16": [
+    11,
+    10,
+    12,
+    7,
+    106,
+    186,
+    19,
+    92,
+    30,
+    41,
+    81,
+    53,
+    174,
+    67,
+    112,
+    152
+  ],
+  "n_taps": 192,
+  "method": "qdeim",
+  "source": "v2p2 train p_wall SVD",
+  "schema": {
+    "K{k}": "physical span-averaged wall-tap indices 0..191, qDEIM pivot-importance order (most informative first); nested K2<K4<K8<K16",
+    "n_taps": "number of physical wall taps (span-averaged)",
+    "method": "POD/SVD of training p_wall then QR-column-pivot (qDEIM)",
+    "source": "training wall-pressure snapshots, split_v2p2"
+  },
+  "provenance": {
+    "pressure_snapshots": "outputs/session31/q1_latents/pressure_train.npz",
+    "n_snapshots": 32160,
+    "centered": true,
+    "n_modes_r": 16,
+    "energy_frac_top_r": 0.9923143189388384,
+    "singular_values_top": [
+      1355.6032056874587,
+      872.9399116932893,
+      634.9868412864844,
+      380.39916729320487,
+      325.62527819589235,
+      235.3213823411732,
+      219.60595616260431,
+      188.37502169244803,
+      164.14347652632694,
+      128.54059116198155,
+      123.41883409567431,
+      105.67816794881094,
+      98.54153612744985,
+      81.22563469754746,
+      77.61055510269415,
+      66.11649592553287
+    ],
+    "seed": 0,
+    "repo_selector_qdeim_overlap": {
+      "K2": {
+        "n_shared": 1,
+        "repo_uncentered_sorted": [
+          4,
+          11
+        ]
+      },
+      "K4": {
+        "n_shared": 1,
+        "repo_uncentered_sorted": [
+          9,
+          11,
+          30,
+          104
+        ]
+      },
+      "K8": {
+        "n_shared": 2,
+        "repo_uncentered_sorted": [
+          10,
+          11,
+          13,
+          49,
+          77,
+          104,
+          139,
+          185
+        ]
+      },
+      "K16": {
+        "n_shared": 15,
+        "repo_uncentered_sorted": [
+          7,
+          10,
+          11,
+          12,
+          18,
+          30,
+          41,
+          53,
+          67,
+          81,
+          92,
+          106,
+          112,
+          152,
+          174,
+          186
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,1804 @@
+{
+  "task": "SESSION 32 Track O1 -- static wall-pressure -> state recovery",
+  "params": {
+    "W_window": 30,
+    "Ks": [
+      2,
+      4,
+      8,
+      16
+    ],
+    "qdeim_taps_source": "/home/carlos/GUST-JEPA/outputs/session32/qdeim_taps_v2p2.json",
+    "taps": {
+      "2": [
+        11,
+        10
+      ],
+      "4": [
+        11,
+        10,
+        12,
+        7
+      ],
+      "8": [
+        11,
+        10,
+        12,
+        7,
+        106,
+        186,
+        19,
+        92
+      ],
+      "16": [
+        11,
+        10,
+        12,
+        7,
+        106,
+        186,
+        19,
+        92,
+        30,
+        41,
+        81,
+        53,
+        174,
+        67,
+        112,
+        152
+      ]
+    },
+    "estimator": "StandardScaler->Nystroem(RBF,n_components=400)->Ridge (encounter-grouped alpha); 5-fold GroupKFold BY ENCOUNTER over pooled train+test_b rows",
+    "window_scoring": "frozen impact-union-relaxation window_mask (cache)",
+    "preimpact_scoring": "strictly pre-impact lead-in [t_impact-8, t_impact)",
+    "observables": [
+      "C_L",
+      "C_D",
+      "wake_enstrophy",
+      "circulation_pos",
+      "circulation_neg"
+    ],
+    "n_splits": 5,
+    "n_boot_case": 2000,
+    "seed": 0,
+    "state_defs": {
+      "pooled": "pooled d=32 coefficient state (z_gap of the pooled model)",
+      "gap_spatial": "GAP of the family spatial latent (d=32)",
+      "flat_spatial": "full 9216-d spatial latent (negative control)"
+    }
+  },
+  "families": {
+    "jepa": {
+      "role": "predictive",
+      "pooled_model": "jepa_pool",
+      "spatial_model": "jepa_wake",
+      "spatial_is_broadcast": false,
+      "n_rows_total": 37200,
+      "n_window_rows": 14880,
+      "n_preimpact_rows": 2480,
+      "by_K": {
+        "2": {
+          "pooled": {
+            "state_r2_window": 0.5437872651368206,
+            "state_r2_preimpact": 0.46892550754598816,
+            "obs_window": {
+              "per_observable_recovered_r2": {
+                "C_L": 0.4959189817090406,
+                "C_D": 0.359827538229214,
+                "wake_enstrophy": 0.37866152414006515,
+                "circulation_pos": 0.45749848138871785,
+                "circulation_neg": 0.3643238103900981
+              },
+              "per_observable_ceiling_r2": {
+                "C_L": 0.9451015211705929,
+                "C_D": 0.7955584618882077,
+                "wake_enstrophy": 0.7734976654267113,
+                "circulation_pos": 0.7921123643979993,
+                "circulation_neg": 0.7871593140123659
+              },
+              "mean_recovered_r2": 0.4112460671714272,
+              "mean_ceiling_r2": 0.8186858653791754,
+              "n": 14880
+            },
+            "obs_preimpact": {
+              "per_observable_recovered_r2": {
+                "C_L": 0.7950308454662689,
+                "C_D": 0.7080874499861909,
+                "wake_enstrophy": 0.10245323044026189,
+                "circulation_pos": 0.36089936405379386,
+                "circulation_neg": 0.0023287198737416137
+              },
+              "per_observable_ceiling_r2": {
+                "C_L": 0.9483867471822297,
+                "C_D": 0.8407446603526545,
+                "wake_enstrophy": 0.7322980623471835,
+                "circulation_pos": 0.5941733822100562,
+                "circulation_neg": 0.606192879019223
+              },
+              "mean_recovered_r2": 0.3937599219640514,
+              "mean_ceiling_r2": 0.7443591462222694,
+              "n": 2480
+            },
+            "state_dim": 32
+          },
+          "gap_spatial": {
+            "state_r2_window": 0.558901100504299,
+            "state_r2_preimpact": 0.5208560203538786,
+            "obs_window": {
+              "per_observable_recovered_r2": {
+                "C_L": 0.49730528005949415,
+                "C_D": 0.3752673488246643,
+                "wake_enstrophy": 0.3896292859262763,
+                "circulation_pos": 0.45462101762088236,
+                "circulation_neg": 0.37456244453772825
+              },
+              "per_observable_ceiling_r2": {
+                "C_L": 0.9537847185102902,
+                "C_D": 0.8195788699011701,
+                "wake_enstrophy": 0.8374610693568569,
+                "circulation_pos": 0.8137619647756239,
+                "circulation_neg": 0.840139805656343
+              },
+              "mean_recovered_r2": 0.41827707539380904,
+              "mean_ceiling_r2": 0.8529452856400568,
+              "n": 14880
+            },
+            "obs_preimpact": {
+              "per_observable_recovered_r2": {
+                "C_L": 0.8070456207140323,
+                "C_D": 0.741297697642438,
+                "wake_enstrophy": -0.00928706207101282,
+                "circulation_pos": 0.23762191657730414,
+                "circulation_neg": -0.039359340648736696
+              },
+              "per_observable_ceiling_r2": {
+                "C_L": 0.9643670099227004,
+                "C_D": 0.9067045494712035,
+                "wake_enstrophy": 0.7076480130981337,
+                "circulation_pos": 0.6039059986193699,
+                "circulation_neg": 0.5920481360693379
+              },
+              "mean_recovered_r2": 0.34746376644280497,
+              "mean_ceiling_r2": 0.754934741436149,
+              "n": 2480
+            },
+            "state_dim": 32
+          },
+          "flat_spatial": {
+            "state_r2_window": 0.4928281504965084,
+            "state_r2_preimpact": 0.4661563673817032,
+            "obs_window": {
+              "per_observable_recovered_r2": {
+                "C_L": 0.4973052803427551,
+                "C_D": 0.37526734638343484,
+                "wake_enstrophy": 0.3896292864331976,
+                "circulation_pos": 0.45462101735947336,
+                "circulation_neg": 0.3745624553321887
+              },
+              "per_observable_ceiling_r2": {
+                "C_L": 0.9537847185102902,
+                "C_D": 0.8195788699011701,
+                "wake_enstrophy": 0.8374610693568569,
+                "circulation_pos": 0.8137619647756239,
+                "circulation_neg": 0.840139805656343
+              },
+              "mean_recovered_r2": 0.4182770771702099,
+              "mean_ceiling_r2": 0.8529452856400568,
+              "n": 14880
+            },
+            "obs_preimpact": {
+              "per_observable_recovered_r2": {
+                "C_L": 0.8070456187028604,
+                "C_D": 0.7412976985149637,
+                "wake_enstrophy": -0.009287054157926633,
+                "circulation_pos": 0.2376219242508354,
+                "circulation_neg": -0.03935927919182225
+              },
+              "per_observable_ceiling_r2": {
+                "C_L": 0.9643670099227004,
+                "C_D": 0.9067045494712035,
+                "wake_enstrophy": 0.7076480130981337,
+                "circulation_pos": 0.6039059986193699,
+                "circulation_neg": 0.5920481360693379
+              },
+              "mean_recovered_r2": 0.3474637816237821,
+              "mean_ceiling_r2": 0.754934741436149,
+              "n": 2480
+            },
+            "state_dim": 9216
+          }
+        },
+        "4": {
+          "pooled": {
+            "state_r2_window": 0.6065971175908471,
+            "state_r2_preimpact": 0.5924429181114493,
+            "obs_window": {
+              "per_observable_recovered_r2": {
+                "C_L": 0.5367670071417832,
+                "C_D": 0.45149476640006125,
+                "wake_enstrophy": 0.4705403774951312,
+                "circulation_pos": 0.5355348968078599,
+                "circulation_neg": 0.4954620486083998
+              },
+              "per_observable_ceiling_r2": {
+                "C_L": 0.9451015211705929,
+                "C_D": 0.7955584618882077,
+                "wake_enstrophy": 0.7734976654267113,
+                "circulation_pos": 0.7921123643979993,
+                "circulation_neg": 0.7871593140123659
+              },
+              "mean_recovered_r2": 0.49795981929064703,
+              "mean_ceiling_r2": 0.8186858653791754,
+              "n": 14880
+            },
+            "obs_preimpact": {
+              "per_observable_recovered_r2": {
+                "C_L": 0.8327826997121781,
+                "C_D": 0.761486434772371,
+                "wake_enstrophy": 0.3983729282112525,
+                "circulation_pos": 0.4096584675202727,
+                "circulation_neg": 0.19306513685110172
+              },
+              "per_observable_ceiling_r2": {
+                "C_L": 0.9483867471822297,
+                "C_D": 0.8407446603526545,
+                "wake_enstrophy": 0.7322980623471835,
+                "circulation_pos": 0.5941733822100562,
+                "circulation_neg": 0.606192879019223
+              },
+              "mean_recovered_r2": 0.5190731334134352,
+              "mean_ceiling_r2": 0.7443591462222694,
+              "n": 2480
+            },
+            "state_dim": 32
+          },
+          "gap_spatial": {
+            "state_r2_window": 0.6236276219680073,
+            "state_r2_preimpact": 0.6304678367126711,
+            "obs_window": {
+              "per_observable_recovered_r2": {
+                "C_L": 0.5402098024683744,
+                "C_D": 0.4650563321162836,
+                "wake_enstrophy": 0.48499668503271665,
+                "circulation_pos": 0.5337088475241876,
+                "circulation_neg": 0.5074036013366486
+              },
+              "per_observable_ceiling_r2": {
+                "C_L": 0.9537847185102902,
+                "C_D": 0.8195788699011701,
+                "wake_enstrophy": 0.8374610693568569,
+                "circulation_pos": 0.8137619647756239,
+                "circulation_neg": 0.840139805656343
+              },
+              "mean_recovered_r2": 0.5062750536956421,
+              "mean_ceiling_r2": 0.8529452856400568,
+              "n": 14880
+            },
+            "obs_preimpact": {
+              "per_observable_recovered_r2": {
+                "C_L": 0.8444041808608487,
+                "C_D": 0.8157057850905993,
+                "wake_enstrophy": 0.30447430114628216,
+                "circulation_pos": 0.2736277932119364,
+                "circulation_neg": 0.1287336621878069
+              },
+              "per_observable_ceiling_r2": {
+                "C_L": 0.9643670099227004,
+                "C_D": 0.9067045494712035,
+                "wake_enstrophy": 0.7076480130981337,
+                "circulation_pos": 0.6039059986193699,
+                "circulation_neg": 0.5920481360693379
+              },
+              "mean_recovered_r2": 0.47338914449949465,
+              "mean_ceiling_r2": 0.754934741436149,
+              "n": 2480
+            },
+            "state_dim": 32
+          },
+          "flat_spatial": {
+            "state_r2_window": 0.5518408466558546,
+            "state_r2_preimpact": 0.5656281532547518,
+            "obs_window": {
+              "per_observable_recovered_r2": {
+                "C_L": 0.540209802219031,
+                "C_D": 0.4650563316276918,
+                "wake_enstrophy": 0.4849966840200517,
+                "circulation_pos": 0.5337088466707431,
+                "circulation_neg": 0.5074036079272997
+              },
+              "per_observable_ceiling_r2": {
+                "C_L": 0.9537847185102902,
+                "C_D": 0.8195788699011701,
+                "wake_enstrophy": 0.8374610693568569,
+                "circulation_pos": 0.8137619647756239,
+                "circulation_neg": 0.840139805656343
+              },
+              "mean_recovered_r2": 0.5062750544929635,
+              "mean_ceiling_r2": 0.8529452856400568,
+              "n": 14880
+            },
+            "obs_preimpact": {
+              "per_observable_recovered_r2": {
+                "C_L": 0.8444041791073769,
+                "C_D": 0.8157057816485559,
+                "wake_enstrophy": 0.3044743126981966,
+                "circulation_pos": 0.27362779821055105,
+                "circulation_neg": 0.12873368845505717
+              },
+              "per_observable_ceiling_r2": {
+                "C_L": 0.9643670099227004,
+                "C_D": 0.9067045494712035,
+                "wake_enstrophy": 0.7076480130981337,
+                "circulation_pos": 0.6039059986193699,
+                "circulation_neg": 0.5920481360693379
+              },
+              "mean_recovered_r2": 0.47338915202394743,
+              "mean_ceiling_r2": 0.754934741436149,
+              "n": 2480
+            },
+            "state_dim": 9216
+          }
+        },
+        "8": {
+          "pooled": {
+            "state_r2_window": 0.6665284511587268,
+            "state_r2_preimpact": 0.6434738254011274,
+            "obs_window": {
+              "per_observable_recovered_r2": {
+                "C_L": 0.5849993903024697,
+                "C_D": 0.5058722580712549,
+                "wake_enstrophy": 0.48646631172884713,
+                "circulation_pos": 0.5490956242288609,
+                "circulation_neg": 0.49073023243932645
+              },
+              "per_observable_ceiling_r2": {
+                "C_L": 0.9451015211705929,
+                "C_D": 0.7955584618882077,
+                "wake_enstrophy": 0.7734976654267113,
+                "circulation_pos": 0.7921123643979993,
+                "circulation_neg": 0.7871593140123659
+              },
+              "mean_recovered_r2": 0.5234327633541518,
+              "mean_ceiling_r2": 0.8186858653791754,
+              "n": 14880
+            },
+            "obs_preimpact": {
+              "per_observable_recovered_r2": {
+                "C_L": 0.8681014872385109,
+                "C_D": 0.7831415702672269,
+                "wake_enstrophy": 0.5305894008735641,
+                "circulation_pos": 0.4474451556197925,
+                "circulation_neg": 0.19870417906518445
+              },
+              "per_observable_ceiling_r2": {
+                "C_L": 0.9483867471822297,
+                "C_D": 0.8407446603526545,
+                "wake_enstrophy": 0.7322980623471835,
+                "circulation_pos": 0.5941733822100562,
+                "circulation_neg": 0.606192879019223
+              },
+              "mean_recovered_r2": 0.5655963586128557,
+              "mean_ceiling_r2": 0.7443591462222694,
+              "n": 2480
+            },
+            "state_dim": 32
+          },
+          "gap_spatial": {
+            "state_r2_window": 0.677698564155798,
+            "state_r2_preimpact": 0.6705997274078053,
+            "obs_window": {
+              "per_observable_recovered_r2": {
+                "C_L": 0.5911048076629997,
+                "C_D": 0.5271759667823915,
+                "wake_enstrophy": 0.5078421327224106,
+                "circulation_pos": 0.5585053649049478,
+                "circulation_neg": 0.5137484110459616
+              },
+              "per_observable_ceiling_r2": {
+                "C_L": 0.9537847185102902,
+                "C_D": 0.8195788699011701,
+                "wake_enstrophy": 0.8374610693568569,
+                "circulation_pos": 0.8137619647756239,
+                "circulation_neg": 0.840139805656343
+              },
+              "mean_recovered_r2": 0.5396753366237423,
+              "mean_ceiling_r2": 0.8529452856400568,
+              "n": 14880
+            },
+            "obs_preimpact": {
+              "per_observable_recovered_r2": {
+                "C_L": 0.8795184356179705,
+                "C_D": 0.8347312990931111,
+                "wake_enstrophy": 0.47181510452952535,
+                "circulation_pos": 0.38581160668242076,
+                "circulation_neg": 0.1897931038994607
+              },
+              "per_observable_ceiling_r2": {
+                "C_L": 0.9643670099227004,
+                "C_D": 0.9067045494712035,
+                "wake_enstrophy": 0.7076480130981337,
+                "circulation_pos": 0.6039059986193699,
+                "circulation_neg": 0.5920481360693379
+              },
+              "mean_recovered_r2": 0.5523339099644977,
+              "mean_ceiling_r2": 0.754934741436149,
+              "n": 2480
+            },
+            "state_dim": 32
+          },
+          "flat_spatial": {
+            "state_r2_window": 0.6051316740184578,
+            "state_r2_preimpact": 0.6074234546348628,
+            "obs_window": {
+              "per_observable_recovered_r2": {
+                "C_L": 0.5902522616577037,
+                "C_D": 0.5261347865321795,
+                "wake_enstrophy": 0.5051724111036774,
+                "circulation_pos": 0.5563825237143216,
+                "circulation_neg": 0.5131645552676345
+              },
+              "per_observable_ceiling_r2": {
+                "C_L": 0.9537847185102902,
+                "C_D": 0.8195788699011701,
+                "wake_enstrophy": 0.8374610693568569,
+                "circulation_pos": 0.8137619647756239,
+                "circulation_neg": 0.840139805656343
+              },
+              "mean_recovered_r2": 0.5382213076551032,
+              "mean_ceiling_r2": 0.8529452856400568,
+              "n": 14880
+            },
+            "obs_preimpact": {
+              "per_observable_recovered_r2": {
+                "C_L": 0.880557522887927,
+                "C_D": 0.8351131040478588,
+                "wake_enstrophy": 0.469690829430934,
+                "circulation_pos": 0.38418818805523114,
+                "circulation_neg": 0.18959674506517443
+              },
+              "per_observable_ceiling_r2": {
+                "C_L": 0.9643670099227004,
+                "C_D": 0.9067045494712035,
+                "wake_enstrophy": 0.7076480130981337,
+                "circulation_pos": 0.6039059986193699,
+                "circulation_neg": 0.5920481360693379
+              },
+              "mean_recovered_r2": 0.551829277897425,
+              "mean_ceiling_r2": 0.754934741436149,
+              "n": 2480
+            },
+            "state_dim": 9216
+          },
+          "gateO_K8": {
+            "pooled_vs_gap_spatial": {
+              "delta_r2_window": {
+                "delta_r2": -0.011170112997071269,
+                "ci95": [
+                  -0.02975966338296753,
+                  0.007288712924270542
+                ],
+                "n_cases": 94,
+                "n_rows": 14880
+              },
+              "delta_r2_preimpact": {
+                "delta_r2": -0.02712590200667775,
+                "ci95": [
+                  -0.04954874053259865,
+                  -0.0028355816677934635
+                ],
+                "n_cases": 94,
+                "n_rows": 2480
+              }
+            },
+            "pooled_vs_flat_spatial": {
+              "delta_r2_window": {
+                "delta_r2": 0.061396777140267145,
+                "ci95": [
+                  0.04476011525316188,
+                  0.07754765849219492
+                ],
+                "n_cases": 94,
+                "n_rows": 14880
+              },
+              "delta_r2_preimpact": {
+                "delta_r2": 0.03605037076626527,
+                "ci95": [
+                  0.013619332518300654,
+                  0.058552650762657706
+                ],
+                "n_cases": 94,
+                "n_rows": 2480
+              }
+            }
+          }
+        },
+        "16": {
+          "pooled": {
+            "state_r2_window": 0.6796256139696422,
+            "state_r2_preimpact": 0.6379716343417052,
+            "obs_window": {
+              "per_observable_recovered_r2": {
+                "C_L": 0.5536986543848925,
+                "C_D": 0.46956147308702123,
+                "wake_enstrophy": 0.47958884404312907,
+                "circulation_pos": 0.5582857343838352,
+                "circulation_neg": 0.5291206902662182
+              },
+              "per_observable_ceiling_r2": {
+                "C_L": 0.9451015211705929,
+                "C_D": 0.7955584618882077,
+                "wake_enstrophy": 0.7734976654267113,
+                "circulation_pos": 0.7921123643979993,
+                "circulation_neg": 0.7871593140123659
+              },
+              "mean_recovered_r2": 0.5180510792330193,
+              "mean_ceiling_r2": 0.8186858653791754,
+              "n": 14880
+            },
+            "obs_preimpact": {
+              "per_observable_recovered_r2": {
+                "C_L": 0.8998248934823867,
+                "C_D": 0.803922655598902,
+                "wake_enstrophy": 0.5885870814012624,
+                "circulation_pos": 0.5203046404004836,
+                "circulation_neg": 0.29062710099743294
+              },
+              "per_observable_ceiling_r2": {
+                "C_L": 0.9483867471822297,
+                "C_D": 0.8407446603526545,
+                "wake_enstrophy": 0.7322980623471835,
+                "circulation_pos": 0.5941733822100562,
+                "circulation_neg": 0.606192879019223
+              },
+              "mean_recovered_r2": 0.6206532743760935,
+              "mean_ceiling_r2": 0.7443591462222694,
+              "n": 2480
+            },
+            "state_dim": 32
+          },
+          "gap_spatial": {
+            "state_r2_window": 0.6864001786198117,
+            "state_r2_preimpact": 0.6656567360794465,
+            "obs_window": {
+              "per_observable_recovered_r2": {
+                "C_L": 0.5581752798464004,
+                "C_D": 0.4880907174979039,
+                "wake_enstrophy": 0.5018555101167947,
+                "circulation_pos": 0.5616872326847888,
+                "circulation_neg": 0.5531372365624236
+              },
+              "per_observable_ceiling_r2": {
+                "C_L": 0.9537847185102902,
+                "C_D": 0.8195788699011701,
+                "wake_enstrophy": 0.8374610693568569,
+                "circulation_pos": 0.8137619647756239,
+                "circulation_neg": 0.840139805656343
+              },
+              "mean_recovered_r2": 0.5325891953416623,
+              "mean_ceiling_r2": 0.8529452856400568,
+              "n": 14880
+            },
+            "obs_preimpact": {
+              "per_observable_recovered_r2": {
+                "C_L": 0.910785717653656,
+                "C_D": 0.8549140679618354,
+                "wake_enstrophy": 0.5300172749137662,
+                "circulation_pos": 0.4687163757959857,
+                "circulation_neg": 0.3185497306315104
+              },
+              "per_observable_ceiling_r2": {
+                "C_L": 0.9643670099227004,
+                "C_D": 0.9067045494712035,
+                "wake_enstrophy": 0.7076480130981337,
+                "circulation_pos": 0.6039059986193699,
+                "circulation_neg": 0.5920481360693379
+              },
+              "mean_recovered_r2": 0.6165966333913507,
+              "mean_ceiling_r2": 0.754934741436149,
+              "n": 2480
+            },
+            "state_dim": 32
+          },
+          "flat_spatial": {
+            "state_r2_window": 0.6147545192418226,
+            "state_r2_preimpact": 0.608358658984129,
+            "obs_window": {
+              "per_observable_recovered_r2": {
+                "C_L": 0.5581752790621142,
+                "C_D": 0.48809071548682814,
+                "wake_enstrophy": 0.5018555066258048,
+                "circulation_pos": 0.5616872302947302,
+                "circulation_neg": 0.5531372465049536
+              },
+              "per_observable_ceiling_r2": {
+                "C_L": 0.9537847185102902,
+                "C_D": 0.8195788699011701,
+                "wake_enstrophy": 0.8374610693568569,
+                "circulation_pos": 0.8137619647756239,
+                "circulation_neg": 0.840139805656343
+              },
+              "mean_recovered_r2": 0.5325891955948862,
+              "mean_ceiling_r2": 0.8529452856400568,
+              "n": 14880
+            },
+            "obs_preimpact": {
+              "per_observable_recovered_r2": {
+                "C_L": 0.9107857161127689,
+                "C_D": 0.8549140677842306,
+                "wake_enstrophy": 0.5300172743844094,
+                "circulation_pos": 0.46871639033481527,
+                "circulation_neg": 0.3185497729854171
+              },
+              "per_observable_ceiling_r2": {
+                "C_L": 0.9643670099227004,
+                "C_D": 0.9067045494712035,
+                "wake_enstrophy": 0.7076480130981337,
+                "circulation_pos": 0.6039059986193699,
+                "circulation_neg": 0.5920481360693379
+              },
+              "mean_recovered_r2": 0.6165966443203282,
+              "mean_ceiling_r2": 0.754934741436149,
+              "n": 2480
+            },
+            "state_dim": 9216
+          }
+        }
+      }
+    },
+    "fukami": {
+      "role": "reconstruction",
+      "pooled_model": "fukami",
+      "spatial_model": "fukami",
+      "spatial_is_broadcast": true,
+      "n_rows_total": 37200,
+      "n_window_rows": 14880,
+      "n_preimpact_rows": 2480,
+      "by_K": {
+        "2": {
+          "pooled": {
+            "state_r2_window": 0.7087489552334094,
+            "state_r2_preimpact": 0.8485176758534339,
+            "obs_window": {
+              "per_observable_recovered_r2": {
+                "C_L": 0.49960627315726647,
+                "C_D": 0.3298066794227775,
+                "wake_enstrophy": 0.1758421556955747,
+                "circulation_pos": 0.18365125199487276,
+                "circulation_neg": 0.19399370389497594
+              },
+              "per_observable_ceiling_r2": {
+                "C_L": 0.9691111891109363,
+                "C_D": 0.7918569978507177,
+                "wake_enstrophy": 0.3050717598320283,
+                "circulation_pos": 0.30157907686423513,
+                "circulation_neg": 0.33776024508641467
+              },
+              "mean_recovered_r2": 0.27658001283309347,
+              "mean_ceiling_r2": 0.5410758537488665,
+              "n": 14880
+            },
+            "obs_preimpact": {
+              "per_observable_recovered_r2": {
+                "C_L": 0.8146029491289377,
+                "C_D": 0.7414946186779746,
+                "wake_enstrophy": -0.5975689298358058,
+                "circulation_pos": -1.267521872450232,
+                "circulation_neg": -0.4241141701329747
+              },
+              "per_observable_ceiling_r2": {
+                "C_L": 0.9859372382427619,
+                "C_D": 0.8941098792552724,
+                "wake_enstrophy": -0.49742320995133915,
+                "circulation_pos": -1.3695778437917392,
+                "circulation_neg": -0.4256624661391297
+              },
+              "mean_recovered_r2": -0.14662148092242,
+              "mean_ceiling_r2": -0.08252328047683477,
+              "n": 2480
+            },
+            "state_dim": 32
+          },
+          "gap_spatial": {
+            "state_r2_window": 0.7087489552334094,
+            "state_r2_preimpact": 0.8485176758534339,
+            "obs_window": {
+              "per_observable_recovered_r2": {
+                "C_L": 0.49960627315726647,
+                "C_D": 0.3298066794227775,
+                "wake_enstrophy": 0.1758421556955747,
+                "circulation_pos": 0.18365125199487276,
+                "circulation_neg": 0.19399370389497594
+              },
+              "per_observable_ceiling_r2": {
+                "C_L": 0.9691111891109363,
+                "C_D": 0.7918569978507177,
+                "wake_enstrophy": 0.3050717598320283,
+                "circulation_pos": 0.30157907686423513,
+                "circulation_neg": 0.33776024508641467
+              },
+              "mean_recovered_r2": 0.27658001283309347,
+              "mean_ceiling_r2": 0.5410758537488665,
+              "n": 14880
+            },
+            "obs_preimpact": {
+              "per_observable_recovered_r2": {
+                "C_L": 0.8146029491289377,
+                "C_D": 0.7414946186779746,
+                "wake_enstrophy": -0.5975689298358058,
+                "circulation_pos": -1.267521872450232,
+                "circulation_neg": -0.4241141701329747
+              },
+              "per_observable_ceiling_r2": {
+                "C_L": 0.9859372382427619,
+                "C_D": 0.8941098792552724,
+                "wake_enstrophy": -0.49742320995133915,
+                "circulation_pos": -1.3695778437917392,
+                "circulation_neg": -0.4256624661391297
+              },
+              "mean_recovered_r2": -0.14662148092242,
+              "mean_ceiling_r2": -0.08252328047683477,
+              "n": 2480
+            },
+            "state_dim": 32
+          },
+          "flat_spatial": {
+            "state_r2_window": 0.7087489552334094,
+            "state_r2_preimpact": 0.8485176758534339,
+            "obs_window": {
+              "per_observable_recovered_r2": {
+                "C_L": 0.49960626957770826,
+                "C_D": 0.3298066857387002,
+                "wake_enstrophy": 0.17584214832709355,
+                "circulation_pos": 0.18365126033381363,
+                "circulation_neg": 0.19399366728384793
+              },
+              "per_observable_ceiling_r2": {
+                "C_L": 0.9691111891109363,
+                "C_D": 0.7918569978507177,
+                "wake_enstrophy": 0.3050717598320283,
+                "circulation_pos": 0.30157907686423513,
+                "circulation_neg": 0.33776024508641467
+              },
+              "mean_recovered_r2": 0.2765800062522327,
+              "mean_ceiling_r2": 0.5410758537488665,
+              "n": 14880
+            },
+            "obs_preimpact": {
+              "per_observable_recovered_r2": {
+                "C_L": 0.8146029483053824,
+                "C_D": 0.7414946218640219,
+                "wake_enstrophy": -0.5975690288809368,
+                "circulation_pos": -1.2675219131889555,
+                "circulation_neg": -0.4241144175366347
+              },
+              "per_observable_ceiling_r2": {
+                "C_L": 0.9859372382427619,
+                "C_D": 0.8941098792552724,
+                "wake_enstrophy": -0.49742320995133915,
+                "circulation_pos": -1.3695778437917392,
+                "circulation_neg": -0.4256624661391297
+              },
+              "mean_recovered_r2": -0.1466215578874245,
+              "mean_ceiling_r2": -0.08252328047683477,
+              "n": 2480
+            },
+            "state_dim": 9216
+          }
+        },
+        "4": {
+          "pooled": {
+            "state_r2_window": 0.7503138881740457,
+            "state_r2_preimpact": 0.8882385681014552,
+            "obs_window": {
+              "per_observable_recovered_r2": {
+                "C_L": 0.5395972367627349,
+                "C_D": 0.4302983448236668,
+                "wake_enstrophy": 0.2240815191262141,
+                "circulation_pos": 0.223685919601887,
+                "circulation_neg": 0.27218647205924806
+              },
+              "per_observable_ceiling_r2": {
+                "C_L": 0.9691111891109363,
+                "C_D": 0.7918569978507177,
+                "wake_enstrophy": 0.3050717598320283,
+                "circulation_pos": 0.30157907686423513,
+                "circulation_neg": 0.33776024508641467
+              },
+              "mean_recovered_r2": 0.3379698984747502,
+              "mean_ceiling_r2": 0.5410758537488665,
+              "n": 14880
+            },
+            "obs_preimpact": {
+              "per_observable_recovered_r2": {
+                "C_L": 0.8542066755503867,
+                "C_D": 0.797054211749604,
+                "wake_enstrophy": -0.5286545500639963,
+                "circulation_pos": -1.2921315425787592,
+                "circulation_neg": -0.39429041315153746
+              },
+              "per_observable_ceiling_r2": {
+                "C_L": 0.9859372382427619,
+                "C_D": 0.8941098792552724,
+                "wake_enstrophy": -0.49742320995133915,
+                "circulation_pos": -1.3695778437917392,
+                "circulation_neg": -0.4256624661391297
+              },
+              "mean_recovered_r2": -0.11276312369886048,
+              "mean_ceiling_r2": -0.08252328047683477,
+              "n": 2480
+            },
+            "state_dim": 32
+          },
+          "gap_spatial": {
+            "state_r2_window": 0.7503138881740457,
+            "state_r2_preimpact": 0.8882385681014552,
+            "obs_window": {
+              "per_observable_recovered_r2": {
+                "C_L": 0.5395972367627349,
+                "C_D": 0.4302983448236668,
+                "wake_enstrophy": 0.2240815191262141,
+                "circulation_pos": 0.223685919601887,
+                "circulation_neg": 0.27218647205924806
+              },
+              "per_observable_ceiling_r2": {
+                "C_L": 0.9691111891109363,
+                "C_D": 0.7918569978507177,
+                "wake_enstrophy": 0.3050717598320283,
+                "circulation_pos": 0.30157907686423513,
+                "circulation_neg": 0.33776024508641467
+              },
+              "mean_recovered_r2": 0.3379698984747502,
+              "mean_ceiling_r2": 0.5410758537488665,
+              "n": 14880
+            },
+            "obs_preimpact": {
+              "per_observable_recovered_r2": {
+                "C_L": 0.8542066755503867,
+                "C_D": 0.797054211749604,
+                "wake_enstrophy": -0.5286545500639963,
+                "circulation_pos": -1.2921315425787592,
+                "circulation_neg": -0.39429041315153746
+              },
+              "per_observable_ceiling_r2": {
+                "C_L": 0.9859372382427619,
+                "C_D": 0.8941098792552724,
+                "wake_enstrophy": -0.49742320995133915,
+                "circulation_pos": -1.3695778437917392,
+                "circulation_neg": -0.4256624661391297
+              },
+              "mean_recovered_r2": -0.11276312369886048,
+              "mean_ceiling_r2": -0.08252328047683477,
+              "n": 2480
+            },
+            "state_dim": 32
+          },
+          "flat_spatial": {
+            "state_r2_window": 0.7503138881740455,
+            "state_r2_preimpact": 0.8882385681014551,
+            "obs_window": {
+              "per_observable_recovered_r2": {
+                "C_L": 0.5395972379312611,
+                "C_D": 0.4302983465813749,
+                "wake_enstrophy": 0.22408153648201012,
+                "circulation_pos": 0.223685935155453,
+                "circulation_neg": 0.27218647674798746
+              },
+              "per_observable_ceiling_r2": {
+                "C_L": 0.9691111891109363,
+                "C_D": 0.7918569978507177,
+                "wake_enstrophy": 0.3050717598320283,
+                "circulation_pos": 0.30157907686423513,
+                "circulation_neg": 0.33776024508641467
+              },
+              "mean_recovered_r2": 0.33796990657961734,
+              "mean_ceiling_r2": 0.5410758537488665,
+              "n": 14880
+            },
+            "obs_preimpact": {
+              "per_observable_recovered_r2": {
+                "C_L": 0.8542066755502136,
+                "C_D": 0.797054202914059,
+                "wake_enstrophy": -0.5286544871512111,
+                "circulation_pos": -1.292131490512181,
+                "circulation_neg": -0.39429022506497047
+              },
+              "per_observable_ceiling_r2": {
+                "C_L": 0.9859372382427619,
+                "C_D": 0.8941098792552724,
+                "wake_enstrophy": -0.49742320995133915,
+                "circulation_pos": -1.3695778437917392,
+                "circulation_neg": -0.4256624661391297
+              },
+              "mean_recovered_r2": -0.11276306485281799,
+              "mean_ceiling_r2": -0.08252328047683477,
+              "n": 2480
+            },
+            "state_dim": 9216
+          }
+        },
+        "8": {
+          "pooled": {
+            "state_r2_window": 0.7753535434541561,
+            "state_r2_preimpact": 0.8989214063462181,
+            "obs_window": {
+              "per_observable_recovered_r2": {
+                "C_L": 0.5913023118750077,
+                "C_D": 0.4893061734467685,
+                "wake_enstrophy": 0.23701953442319368,
+                "circulation_pos": 0.22482588173230755,
+                "circulation_neg": 0.27076787369711586
+              },
+              "per_observable_ceiling_r2": {
+                "C_L": 0.9691111891109363,
+                "C_D": 0.7918569978507177,
+                "wake_enstrophy": 0.3050717598320283,
+                "circulation_pos": 0.30157907686423513,
+                "circulation_neg": 0.33776024508641467
+              },
+              "mean_recovered_r2": 0.3626443550348787,
+              "mean_ceiling_r2": 0.5410758537488665,
+              "n": 14880
+            },
+            "obs_preimpact": {
+              "per_observable_recovered_r2": {
+                "C_L": 0.8904991531727693,
+                "C_D": 0.807997334752843,
+                "wake_enstrophy": -0.5365942828013681,
+                "circulation_pos": -1.312876648751097,
+                "circulation_neg": -0.4414711184043072
+              },
+              "per_observable_ceiling_r2": {
+                "C_L": 0.9859372382427619,
+                "C_D": 0.8941098792552724,
+                "wake_enstrophy": -0.49742320995133915,
+                "circulation_pos": -1.3695778437917392,
+                "circulation_neg": -0.4256624661391297
+              },
+              "mean_recovered_r2": -0.11848911240623199,
+              "mean_ceiling_r2": -0.08252328047683477,
+              "n": 2480
+            },
+            "state_dim": 32
+          },
+          "gap_spatial": {
+            "state_r2_window": 0.7753535434541561,
+            "state_r2_preimpact": 0.8989214063462181,
+            "obs_window": {
+              "per_observable_recovered_r2": {
+                "C_L": 0.5913023118750077,
+                "C_D": 0.4893061734467685,
+                "wake_enstrophy": 0.23701953442319368,
+                "circulation_pos": 0.22482588173230755,
+                "circulation_neg": 0.27076787369711586
+              },
+              "per_observable_ceiling_r2": {
+                "C_L": 0.9691111891109363,
+                "C_D": 0.7918569978507177,
+                "wake_enstrophy": 0.3050717598320283,
+                "circulation_pos": 0.30157907686423513,
+                "circulation_neg": 0.33776024508641467
+              },
+              "mean_recovered_r2": 0.3626443550348787,
+              "mean_ceiling_r2": 0.5410758537488665,
+              "n": 14880
+            },
+            "obs_preimpact": {
+              "per_observable_recovered_r2": {
+                "C_L": 0.8904991531727693,
+                "C_D": 0.807997334752843,
+                "wake_enstrophy": -0.5365942828013681,
+                "circulation_pos": -1.312876648751097,
+                "circulation_neg": -0.4414711184043072
+              },
+              "per_observable_ceiling_r2": {
+                "C_L": 0.9859372382427619,
+                "C_D": 0.8941098792552724,
+                "wake_enstrophy": -0.49742320995133915,
+                "circulation_pos": -1.3695778437917392,
+                "circulation_neg": -0.4256624661391297
+              },
+              "mean_recovered_r2": -0.11848911240623199,
+              "mean_ceiling_r2": -0.08252328047683477,
+              "n": 2480
+            },
+            "state_dim": 32
+          },
+          "flat_spatial": {
+            "state_r2_window": 0.7753535434541561,
+            "state_r2_preimpact": 0.8989214063462181,
+            "obs_window": {
+              "per_observable_recovered_r2": {
+                "C_L": 0.5913023129110924,
+                "C_D": 0.4893061806711919,
+                "wake_enstrophy": 0.23701952903065682,
+                "circulation_pos": 0.22482587770847795,
+                "circulation_neg": 0.2707678713578968
+              },
+              "per_observable_ceiling_r2": {
+                "C_L": 0.9691111891109363,
+                "C_D": 0.7918569978507177,
+                "wake_enstrophy": 0.3050717598320283,
+                "circulation_pos": 0.30157907686423513,
+                "circulation_neg": 0.33776024508641467
+              },
+              "mean_recovered_r2": 0.3626443543358631,
+              "mean_ceiling_r2": 0.5410758537488665,
+              "n": 14880
+            },
+            "obs_preimpact": {
+              "per_observable_recovered_r2": {
+                "C_L": 0.8904991494179592,
+                "C_D": 0.8079973259945206,
+                "wake_enstrophy": -0.5365944991400478,
+                "circulation_pos": -1.3128769556634232,
+                "circulation_neg": -0.44147107305592614
+              },
+              "per_observable_ceiling_r2": {
+                "C_L": 0.9859372382427619,
+                "C_D": 0.8941098792552724,
+                "wake_enstrophy": -0.49742320995133915,
+                "circulation_pos": -1.3695778437917392,
+                "circulation_neg": -0.4256624661391297
+              },
+              "mean_recovered_r2": -0.1184892104893835,
+              "mean_ceiling_r2": -0.08252328047683477,
+              "n": 2480
+            },
+            "state_dim": 9216
+          },
+          "gateO_K8": {
+            "pooled_vs_gap_spatial": {
+              "delta_r2_window": {
+                "delta_r2": 0.0,
+                "ci95": [
+                  0.0,
+                  0.0
+                ],
+                "n_cases": 94,
+                "n_rows": 14880
+              },
+              "delta_r2_preimpact": {
+                "delta_r2": 0.0,
+                "ci95": [
+                  0.0,
+                  0.0
+                ],
+                "n_cases": 94,
+                "n_rows": 2480
+              }
+            },
+            "pooled_vs_flat_spatial": {
+              "delta_r2_window": {
+                "delta_r2": 0.0,
+                "ci95": [
+                  -1.1102230246251565e-16,
+                  1.1102230246251565e-16
+                ],
+                "n_cases": 94,
+                "n_rows": 14880
+              },
+              "delta_r2_preimpact": {
+                "delta_r2": 0.0,
+                "ci95": [
+                  -1.1102230246251565e-16,
+                  1.1102230246251565e-16
+                ],
+                "n_cases": 94,
+                "n_rows": 2480
+              }
+            }
+          }
+        },
+        "16": {
+          "pooled": {
+            "state_r2_window": 0.7760147744598364,
+            "state_r2_preimpact": 0.9107425557543701,
+            "obs_window": {
+              "per_observable_recovered_r2": {
+                "C_L": 0.5618255685682638,
+                "C_D": 0.4574483817192848,
+                "wake_enstrophy": 0.25412235902004,
+                "circulation_pos": 0.24026681253633708,
+                "circulation_neg": 0.30010485692422106
+              },
+              "per_observable_ceiling_r2": {
+                "C_L": 0.9691111891109363,
+                "C_D": 0.7918569978507177,
+                "wake_enstrophy": 0.3050717598320283,
+                "circulation_pos": 0.30157907686423513,
+                "circulation_neg": 0.33776024508641467
+              },
+              "mean_recovered_r2": 0.36275359575362937,
+              "mean_ceiling_r2": 0.5410758537488665,
+              "n": 14880
+            },
+            "obs_preimpact": {
+              "per_observable_recovered_r2": {
+                "C_L": 0.9178102216094447,
+                "C_D": 0.8205287962870116,
+                "wake_enstrophy": -0.4869833614671606,
+                "circulation_pos": -1.2648553234766564,
+                "circulation_neg": -0.3758107795326131
+              },
+              "per_observable_ceiling_r2": {
+                "C_L": 0.9859372382427619,
+                "C_D": 0.8941098792552724,
+                "wake_enstrophy": -0.49742320995133915,
+                "circulation_pos": -1.3695778437917392,
+                "circulation_neg": -0.4256624661391297
+              },
+              "mean_recovered_r2": -0.07786208931599478,
+              "mean_ceiling_r2": -0.08252328047683477,
+              "n": 2480
+            },
+            "state_dim": 32
+          },
+          "gap_spatial": {
+            "state_r2_window": 0.7760147744598364,
+            "state_r2_preimpact": 0.9107425557543701,
+            "obs_window": {
+              "per_observable_recovered_r2": {
+                "C_L": 0.5618255685682638,
+                "C_D": 0.4574483817192848,
+                "wake_enstrophy": 0.25412235902004,
+                "circulation_pos": 0.24026681253633708,
+                "circulation_neg": 0.30010485692422106
+              },
+              "per_observable_ceiling_r2": {
+                "C_L": 0.9691111891109363,
+                "C_D": 0.7918569978507177,
+                "wake_enstrophy": 0.3050717598320283,
+                "circulation_pos": 0.30157907686423513,
+                "circulation_neg": 0.33776024508641467
+              },
+              "mean_recovered_r2": 0.36275359575362937,
+              "mean_ceiling_r2": 0.5410758537488665,
+              "n": 14880
+            },
+            "obs_preimpact": {
+              "per_observable_recovered_r2": {
+                "C_L": 0.9178102216094447,
+                "C_D": 0.8205287962870116,
+                "wake_enstrophy": -0.4869833614671606,
+                "circulation_pos": -1.2648553234766564,
+                "circulation_neg": -0.3758107795326131
+              },
+              "per_observable_ceiling_r2": {
+                "C_L": 0.9859372382427619,
+                "C_D": 0.8941098792552724,
+                "wake_enstrophy": -0.49742320995133915,
+                "circulation_pos": -1.3695778437917392,
+                "circulation_neg": -0.4256624661391297
+              },
+              "mean_recovered_r2": -0.07786208931599478,
+              "mean_ceiling_r2": -0.08252328047683477,
+              "n": 2480
+            },
+            "state_dim": 32
+          },
+          "flat_spatial": {
+            "state_r2_window": 0.7760147744598362,
+            "state_r2_preimpact": 0.9107425557543701,
+            "obs_window": {
+              "per_observable_recovered_r2": {
+                "C_L": 0.5618255684839075,
+                "C_D": 0.45744838307644975,
+                "wake_enstrophy": 0.2541223291764536,
+                "circulation_pos": 0.24026675842551548,
+                "circulation_neg": 0.30010487081481296
+              },
+              "per_observable_ceiling_r2": {
+                "C_L": 0.9691111891109363,
+                "C_D": 0.7918569978507177,
+                "wake_enstrophy": 0.3050717598320283,
+                "circulation_pos": 0.30157907686423513,
+                "circulation_neg": 0.33776024508641467
+              },
+              "mean_recovered_r2": 0.36275358199542784,
+              "mean_ceiling_r2": 0.5410758537488665,
+              "n": 14880
+            },
+            "obs_preimpact": {
+              "per_observable_recovered_r2": {
+                "C_L": 0.9178102242904235,
+                "C_D": 0.8205288016568124,
+                "wake_enstrophy": -0.4869833666801424,
+                "circulation_pos": -1.2648553409121899,
+                "circulation_neg": -0.375810872696958
+              },
+              "per_observable_ceiling_r2": {
+                "C_L": 0.9859372382427619,
+                "C_D": 0.8941098792552724,
+                "wake_enstrophy": -0.49742320995133915,
+                "circulation_pos": -1.3695778437917392,
+                "circulation_neg": -0.4256624661391297
+              },
+              "mean_recovered_r2": -0.07786211086841091,
+              "mean_ceiling_r2": -0.08252328047683477,
+              "n": 2480
+            },
+            "state_dim": 9216
+          }
+        }
+      }
+    },
+    "POD": {
+      "role": "linear_floor",
+      "pooled_model": "pod",
+      "spatial_model": "pod",
+      "spatial_is_broadcast": true,
+      "n_rows_total": 37200,
+      "n_window_rows": 14880,
+      "n_preimpact_rows": 2480,
+      "by_K": {
+        "2": {
+          "pooled": {
+            "state_r2_window": 0.3574144052556486,
+            "state_r2_preimpact": 0.47433491180741993,
+            "obs_window": {
+              "per_observable_recovered_r2": {
+                "C_L": 0.42960425526573376,
+                "C_D": 0.3452724472772051,
+                "wake_enstrophy": 0.21811382042657013,
+                "circulation_pos": 0.2896065303892078,
+                "circulation_neg": 0.2532122247416233
+              },
+              "per_observable_ceiling_r2": {
+                "C_L": 0.7497389246609871,
+                "C_D": 0.6711199478806318,
+                "wake_enstrophy": 0.28166066596072736,
+                "circulation_pos": 0.39898665841727066,
+                "circulation_neg": 0.3085632196714848
+              },
+              "mean_recovered_r2": 0.30716185562006804,
+              "mean_ceiling_r2": 0.4820138833182204,
+              "n": 14880
+            },
+            "obs_preimpact": {
+              "per_observable_recovered_r2": {
+                "C_L": 0.7742181554048018,
+                "C_D": 0.7125586619214039,
+                "wake_enstrophy": 0.15088921436672376,
+                "circulation_pos": 0.08657417540287793,
+                "circulation_neg": -0.16104385680773547
+              },
+              "per_observable_ceiling_r2": {
+                "C_L": 0.8546106640372876,
+                "C_D": 0.8256978464498814,
+                "wake_enstrophy": 0.30135914543239284,
+                "circulation_pos": 0.06663245668679807,
+                "circulation_neg": 0.01621320034852447
+              },
+              "mean_recovered_r2": 0.3126392700576144,
+              "mean_ceiling_r2": 0.4129026625909769,
+              "n": 2480
+            },
+            "state_dim": 32
+          },
+          "gap_spatial": {
+            "state_r2_window": 0.3574144052556486,
+            "state_r2_preimpact": 0.47433491180741993,
+            "obs_window": {
+              "per_observable_recovered_r2": {
+                "C_L": 0.42960425526573376,
+                "C_D": 0.3452724472772051,
+                "wake_enstrophy": 0.21811382042657013,
+                "circulation_pos": 0.2896065303892078,
+                "circulation_neg": 0.2532122247416233
+              },
+              "per_observable_ceiling_r2": {
+                "C_L": 0.7497389246609871,
+                "C_D": 0.6711199478806318,
+                "wake_enstrophy": 0.28166066596072736,
+                "circulation_pos": 0.39898665841727066,
+                "circulation_neg": 0.3085632196714848
+              },
+              "mean_recovered_r2": 0.30716185562006804,
+              "mean_ceiling_r2": 0.4820138833182204,
+              "n": 14880
+            },
+            "obs_preimpact": {
+              "per_observable_recovered_r2": {
+                "C_L": 0.7742181554048018,
+                "C_D": 0.7125586619214039,
+                "wake_enstrophy": 0.15088921436672376,
+                "circulation_pos": 0.08657417540287793,
+                "circulation_neg": -0.16104385680773547
+              },
+              "per_observable_ceiling_r2": {
+                "C_L": 0.8546106640372876,
+                "C_D": 0.8256978464498814,
+                "wake_enstrophy": 0.30135914543239284,
+                "circulation_pos": 0.06663245668679807,
+                "circulation_neg": 0.01621320034852447
+              },
+              "mean_recovered_r2": 0.3126392700576144,
+              "mean_ceiling_r2": 0.4129026625909769,
+              "n": 2480
+            },
+            "state_dim": 32
+          },
+          "flat_spatial": {
+            "state_r2_window": 0.35741440527342594,
+            "state_r2_preimpact": 0.47433491148633444,
+            "obs_window": {
+              "per_observable_recovered_r2": {
+                "C_L": 0.42960425488753573,
+                "C_D": 0.34527244756129916,
+                "wake_enstrophy": 0.21811382001015167,
+                "circulation_pos": 0.289606529763602,
+                "circulation_neg": 0.25321222599598325
+              },
+              "per_observable_ceiling_r2": {
+                "C_L": 0.7497389246609871,
+                "C_D": 0.6711199478806318,
+                "wake_enstrophy": 0.28166066596072736,
+                "circulation_pos": 0.39898665841727066,
+                "circulation_neg": 0.3085632196714848
+              },
+              "mean_recovered_r2": 0.30716185564371434,
+              "mean_ceiling_r2": 0.4820138833182204,
+              "n": 14880
+            },
+            "obs_preimpact": {
+              "per_observable_recovered_r2": {
+                "C_L": 0.774218156085559,
+                "C_D": 0.7125586634832595,
+                "wake_enstrophy": 0.15088921764811636,
+                "circulation_pos": 0.0865741770448919,
+                "circulation_neg": -0.16104386156053474
+              },
+              "per_observable_ceiling_r2": {
+                "C_L": 0.8546106640372876,
+                "C_D": 0.8256978464498814,
+                "wake_enstrophy": 0.30135914543239284,
+                "circulation_pos": 0.06663245668679807,
+                "circulation_neg": 0.01621320034852447
+              },
+              "mean_recovered_r2": 0.31263927054025836,
+              "mean_ceiling_r2": 0.4129026625909769,
+              "n": 2480
+            },
+            "state_dim": 9216
+          }
+        },
+        "4": {
+          "pooled": {
+            "state_r2_window": 0.4243833030687453,
+            "state_r2_preimpact": 0.573469289741672,
+            "obs_window": {
+              "per_observable_recovered_r2": {
+                "C_L": 0.4745742608826916,
+                "C_D": 0.4390692545254393,
+                "wake_enstrophy": 0.2685979133090022,
+                "circulation_pos": 0.3484537623022289,
+                "circulation_neg": 0.32523573378388215
+              },
+              "per_observable_ceiling_r2": {
+                "C_L": 0.7497389246609871,
+                "C_D": 0.6711199478806318,
+                "wake_enstrophy": 0.28166066596072736,
+                "circulation_pos": 0.39898665841727066,
+                "circulation_neg": 0.3085632196714848
+              },
+              "mean_recovered_r2": 0.3711861849606489,
+              "mean_ceiling_r2": 0.4820138833182204,
+              "n": 14880
+            },
+            "obs_preimpact": {
+              "per_observable_recovered_r2": {
+                "C_L": 0.8039149665514594,
+                "C_D": 0.7742966868503983,
+                "wake_enstrophy": 0.23862975900281147,
+                "circulation_pos": 0.08850147156796229,
+                "circulation_neg": -0.009953520353460643
+              },
+              "per_observable_ceiling_r2": {
+                "C_L": 0.8546106640372876,
+                "C_D": 0.8256978464498814,
+                "wake_enstrophy": 0.30135914543239284,
+                "circulation_pos": 0.06663245668679807,
+                "circulation_neg": 0.01621320034852447
+              },
+              "mean_recovered_r2": 0.3790778727238342,
+              "mean_ceiling_r2": 0.4129026625909769,
+              "n": 2480
+            },
+            "state_dim": 32
+          },
+          "gap_spatial": {
+            "state_r2_window": 0.4243833030687453,
+            "state_r2_preimpact": 0.573469289741672,
+            "obs_window": {
+              "per_observable_recovered_r2": {
+                "C_L": 0.4745742608826916,
+                "C_D": 0.4390692545254393,
+                "wake_enstrophy": 0.2685979133090022,
+                "circulation_pos": 0.3484537623022289,
+                "circulation_neg": 0.32523573378388215
+              },
+              "per_observable_ceiling_r2": {
+                "C_L": 0.7497389246609871,
+                "C_D": 0.6711199478806318,
+                "wake_enstrophy": 0.28166066596072736,
+                "circulation_pos": 0.39898665841727066,
+                "circulation_neg": 0.3085632196714848
+              },
+              "mean_recovered_r2": 0.3711861849606489,
+              "mean_ceiling_r2": 0.4820138833182204,
+              "n": 14880
+            },
+            "obs_preimpact": {
+              "per_observable_recovered_r2": {
+                "C_L": 0.8039149665514594,
+                "C_D": 0.7742966868503983,
+                "wake_enstrophy": 0.23862975900281147,
+                "circulation_pos": 0.08850147156796229,
+                "circulation_neg": -0.009953520353460643
+              },
+              "per_observable_ceiling_r2": {
+                "C_L": 0.8546106640372876,
+                "C_D": 0.8256978464498814,
+                "wake_enstrophy": 0.30135914543239284,
+                "circulation_pos": 0.06663245668679807,
+                "circulation_neg": 0.01621320034852447
+              },
+              "mean_recovered_r2": 0.3790778727238342,
+              "mean_ceiling_r2": 0.4129026625909769,
+              "n": 2480
+            },
+            "state_dim": 32
+          },
+          "flat_spatial": {
+            "state_r2_window": 0.42438330300756266,
+            "state_r2_preimpact": 0.5734692897154993,
+            "obs_window": {
+              "per_observable_recovered_r2": {
+                "C_L": 0.4745742594935074,
+                "C_D": 0.439069253841868,
+                "wake_enstrophy": 0.26859791317648396,
+                "circulation_pos": 0.34845376157863195,
+                "circulation_neg": 0.32523573612223633
+              },
+              "per_observable_ceiling_r2": {
+                "C_L": 0.7497389246609871,
+                "C_D": 0.6711199478806318,
+                "wake_enstrophy": 0.28166066596072736,
+                "circulation_pos": 0.39898665841727066,
+                "circulation_neg": 0.3085632196714848
+              },
+              "mean_recovered_r2": 0.3711861848425455,
+              "mean_ceiling_r2": 0.4820138833182204,
+              "n": 14880
+            },
+            "obs_preimpact": {
+              "per_observable_recovered_r2": {
+                "C_L": 0.8039149665460192,
+                "C_D": 0.774296686130494,
+                "wake_enstrophy": 0.23862976717527562,
+                "circulation_pos": 0.0885014717717234,
+                "circulation_neg": -0.00995352079520928
+              },
+              "per_observable_ceiling_r2": {
+                "C_L": 0.8546106640372876,
+                "C_D": 0.8256978464498814,
+                "wake_enstrophy": 0.30135914543239284,
+                "circulation_pos": 0.06663245668679807,
+                "circulation_neg": 0.01621320034852447
+              },
+              "mean_recovered_r2": 0.37907787416566063,
+              "mean_ceiling_r2": 0.4129026625909769,
+              "n": 2480
+            },
+            "state_dim": 9216
+          }
+        },
+        "8": {
+          "pooled": {
+            "state_r2_window": 0.4997230946550042,
+            "state_r2_preimpact": 0.6182493546295711,
+            "obs_window": {
+              "per_observable_recovered_r2": {
+                "C_L": 0.5220450678476318,
+                "C_D": 0.4808073039664825,
+                "wake_enstrophy": 0.2756006710028388,
+                "circulation_pos": 0.3635281390273253,
+                "circulation_neg": 0.3143519638562735
+              },
+              "per_observable_ceiling_r2": {
+                "C_L": 0.7497389246609871,
+                "C_D": 0.6711199478806318,
+                "wake_enstrophy": 0.28166066596072736,
+                "circulation_pos": 0.39898665841727066,
+                "circulation_neg": 0.3085632196714848
+              },
+              "mean_recovered_r2": 0.39126662914011046,
+              "mean_ceiling_r2": 0.4820138833182204,
+              "n": 14880
+            },
+            "obs_preimpact": {
+              "per_observable_recovered_r2": {
+                "C_L": 0.8290633413397401,
+                "C_D": 0.7871821018350718,
+                "wake_enstrophy": 0.3365622957740504,
+                "circulation_pos": 0.12527962141169535,
+                "circulation_neg": -0.07098870816665359
+              },
+              "per_observable_ceiling_r2": {
+                "C_L": 0.8546106640372876,
+                "C_D": 0.8256978464498814,
+                "wake_enstrophy": 0.30135914543239284,
+                "circulation_pos": 0.06663245668679807,
+                "circulation_neg": 0.01621320034852447
+              },
+              "mean_recovered_r2": 0.40141973043878076,
+              "mean_ceiling_r2": 0.4129026625909769,
+              "n": 2480
+            },
+            "state_dim": 32
+          },
+          "gap_spatial": {
+            "state_r2_window": 0.4997230946550042,
+            "state_r2_preimpact": 0.6182493546295711,
+            "obs_window": {
+              "per_observable_recovered_r2": {
+                "C_L": 0.5220450678476318,
+                "C_D": 0.4808073039664825,
+                "wake_enstrophy": 0.2756006710028388,
+                "circulation_pos": 0.3635281390273253,
+                "circulation_neg": 0.3143519638562735
+              },
+              "per_observable_ceiling_r2": {
+                "C_L": 0.7497389246609871,
+                "C_D": 0.6711199478806318,
+                "wake_enstrophy": 0.28166066596072736,
+                "circulation_pos": 0.39898665841727066,
+                "circulation_neg": 0.3085632196714848
+              },
+              "mean_recovered_r2": 0.39126662914011046,
+              "mean_ceiling_r2": 0.4820138833182204,
+              "n": 14880
+            },
+            "obs_preimpact": {
+              "per_observable_recovered_r2": {
+                "C_L": 0.8290633413397401,
+                "C_D": 0.7871821018350718,
+                "wake_enstrophy": 0.3365622957740504,
+                "circulation_pos": 0.12527962141169535,
+                "circulation_neg": -0.07098870816665359
+              },
+              "per_observable_ceiling_r2": {
+                "C_L": 0.8546106640372876,
+                "C_D": 0.8256978464498814,
+                "wake_enstrophy": 0.30135914543239284,
+                "circulation_pos": 0.06663245668679807,
+                "circulation_neg": 0.01621320034852447
+              },
+              "mean_recovered_r2": 0.40141973043878076,
+              "mean_ceiling_r2": 0.4129026625909769,
+              "n": 2480
+            },
+            "state_dim": 32
+          },
+          "flat_spatial": {
+            "state_r2_window": 0.4997230945413329,
+            "state_r2_preimpact": 0.6182493542026102,
+            "obs_window": {
+              "per_observable_recovered_r2": {
+                "C_L": 0.5220450676288941,
+                "C_D": 0.48080730426952045,
+                "wake_enstrophy": 0.27560066973212094,
+                "circulation_pos": 0.3635281370446729,
+                "circulation_neg": 0.3143519641702964
+              },
+              "per_observable_ceiling_r2": {
+                "C_L": 0.7497389246609871,
+                "C_D": 0.6711199478806318,
+                "wake_enstrophy": 0.28166066596072736,
+                "circulation_pos": 0.39898665841727066,
+                "circulation_neg": 0.3085632196714848
+              },
+              "mean_recovered_r2": 0.39126662856910094,
+              "mean_ceiling_r2": 0.4820138833182204,
+              "n": 14880
+            },
+            "obs_preimpact": {
+              "per_observable_recovered_r2": {
+                "C_L": 0.8290633391272061,
+                "C_D": 0.7871821008723714,
+                "wake_enstrophy": 0.33656228842062474,
+                "circulation_pos": 0.12527961431193235,
+                "circulation_neg": -0.0709887063452761
+              },
+              "per_observable_ceiling_r2": {
+                "C_L": 0.8546106640372876,
+                "C_D": 0.8256978464498814,
+                "wake_enstrophy": 0.30135914543239284,
+                "circulation_pos": 0.06663245668679807,
+                "circulation_neg": 0.01621320034852447
+              },
+              "mean_recovered_r2": 0.4014197272773716,
+              "mean_ceiling_r2": 0.4129026625909769,
+              "n": 2480
+            },
+            "state_dim": 9216
+          },
+          "gateO_K8": {
+            "pooled_vs_gap_spatial": {
+              "delta_r2_window": {
+                "delta_r2": 0.0,
+                "ci95": [
+                  0.0,
+                  0.0
+                ],
+                "n_cases": 94,
+                "n_rows": 14880
+              },
+              "delta_r2_preimpact": {
+                "delta_r2": 0.0,
+                "ci95": [
+                  0.0,
+                  0.0
+                ],
+                "n_cases": 94,
+                "n_rows": 2480
+              }
+            },
+            "pooled_vs_flat_spatial": {
+              "delta_r2_window": {
+                "delta_r2": 1.1367118357696882e-10,
+                "ci95": [
+                  -1.5156836896679238e-10,
+                  3.999017061939724e-10
+                ],
+                "n_cases": 94,
+                "n_rows": 14880
+              },
+              "delta_r2_preimpact": {
+                "delta_r2": 4.269604669815408e-10,
+                "ci95": [
+                  -6.292627197090894e-10,
+                  1.5692342147932686e-09
+                ],
+                "n_cases": 94,
+                "n_rows": 2480
+              }
+            }
+          }
+        },
+        "16": {
+          "pooled": {
+            "state_r2_window": 0.5168929078350376,
+            "state_r2_preimpact": 0.6286768162474725,
+            "obs_window": {
+              "per_observable_recovered_r2": {
+                "C_L": 0.4975848580155011,
+                "C_D": 0.4470309740010101,
+                "wake_enstrophy": 0.2717935610848926,
+                "circulation_pos": 0.3605928169812379,
+                "circulation_neg": 0.33030308372203365
+              },
+              "per_observable_ceiling_r2": {
+                "C_L": 0.7497389246609871,
+                "C_D": 0.6711199478806318,
+                "wake_enstrophy": 0.28166066596072736,
+                "circulation_pos": 0.39898665841727066,
+                "circulation_neg": 0.3085632196714848
+              },
+              "mean_recovered_r2": 0.38146105876093506,
+              "mean_ceiling_r2": 0.4820138833182204,
+              "n": 14880
+            },
+            "obs_preimpact": {
+              "per_observable_recovered_r2": {
+                "C_L": 0.8530509180664267,
+                "C_D": 0.8113743642447324,
+                "wake_enstrophy": 0.34826175378986934,
+                "circulation_pos": 0.1394093919287397,
+                "circulation_neg": -0.04533643891803352
+              },
+              "per_observable_ceiling_r2": {
+                "C_L": 0.8546106640372876,
+                "C_D": 0.8256978464498814,
+                "wake_enstrophy": 0.30135914543239284,
+                "circulation_pos": 0.06663245668679807,
+                "circulation_neg": 0.01621320034852447
+              },
+              "mean_recovered_r2": 0.421351997822347,
+              "mean_ceiling_r2": 0.4129026625909769,
+              "n": 2480
+            },
+            "state_dim": 32
+          },
+          "gap_spatial": {
+            "state_r2_window": 0.5168929078350376,
+            "state_r2_preimpact": 0.6286768162474725,
+            "obs_window": {
+              "per_observable_recovered_r2": {
+                "C_L": 0.4975848580155011,
+                "C_D": 0.4470309740010101,
+                "wake_enstrophy": 0.2717935610848926,
+                "circulation_pos": 0.3605928169812379,
+                "circulation_neg": 0.33030308372203365
+              },
+              "per_observable_ceiling_r2": {
+                "C_L": 0.7497389246609871,
+                "C_D": 0.6711199478806318,
+                "wake_enstrophy": 0.28166066596072736,
+                "circulation_pos": 0.39898665841727066,
+                "circulation_neg": 0.3085632196714848
+              },
+              "mean_recovered_r2": 0.38146105876093506,
+              "mean_ceiling_r2": 0.4820138833182204,
+              "n": 14880
+            },
+            "obs_preimpact": {
+              "per_observable_recovered_r2": {
+                "C_L": 0.8530509180664267,
+                "C_D": 0.8113743642447324,
+                "wake_enstrophy": 0.34826175378986934,
+                "circulation_pos": 0.1394093919287397,
+                "circulation_neg": -0.04533643891803352
+              },
+              "per_observable_ceiling_r2": {
+                "C_L": 0.8546106640372876,
+                "C_D": 0.8256978464498814,
+                "wake_enstrophy": 0.30135914543239284,
+                "circulation_pos": 0.06663245668679807,
+                "circulation_neg": 0.01621320034852447
+              },
+              "mean_recovered_r2": 0.421351997822347,
+              "mean_ceiling_r2": 0.4129026625909769,
+              "n": 2480
+            },
+            "state_dim": 32
+          },
+          "flat_spatial": {
+            "state_r2_window": 0.5168929076915469,
+            "state_r2_preimpact": 0.6286768157228506,
+            "obs_window": {
+              "per_observable_recovered_r2": {
+                "C_L": 0.497584859794157,
+                "C_D": 0.4470309743560027,
+                "wake_enstrophy": 0.2717935625099479,
+                "circulation_pos": 0.36059281740659466,
+                "circulation_neg": 0.3303030857825895
+              },
+              "per_observable_ceiling_r2": {
+                "C_L": 0.7497389246609871,
+                "C_D": 0.6711199478806318,
+                "wake_enstrophy": 0.28166066596072736,
+                "circulation_pos": 0.39898665841727066,
+                "circulation_neg": 0.3085632196714848
+              },
+              "mean_recovered_r2": 0.38146105996985835,
+              "mean_ceiling_r2": 0.4820138833182204,
+              "n": 14880
+            },
+            "obs_preimpact": {
+              "per_observable_recovered_r2": {
+                "C_L": 0.8530509189238682,
+                "C_D": 0.8113743648563196,
+                "wake_enstrophy": 0.3482617509717856,
+                "circulation_pos": 0.13940938359549493,
+                "circulation_neg": -0.04533645047499557
+              },
+              "per_observable_ceiling_r2": {
+                "C_L": 0.8546106640372876,
+                "C_D": 0.8256978464498814,
+                "wake_enstrophy": 0.30135914543239284,
+                "circulation_pos": 0.06663245668679807,
+                "circulation_neg": 0.01621320034852447
+              },
+              "mean_recovered_r2": 0.4213519935744946,
+              "mean_ceiling_r2": 0.4129026625909769,
+              "n": 2480
+            },
+            "state_dim": 9216
+          }
+        }
+      }
+    }
+  }
+}

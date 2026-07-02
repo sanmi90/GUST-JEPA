@@ -1,0 +1,744 @@
+{
+  "task": "SESSION 32 Track O2 -- wall-visibility spectrum (jepa_pool pooled latent)",
+  "params": {
+    "model": "jepa_pool",
+    "horizons": [
+      1,
+      4,
+      8
+    ],
+    "n_base_states": 120,
+    "n_per_phase": 40,
+    "context_length": 2,
+    "delta_scale_std": 1.0,
+    "predictor": "matched AR-transformer on the pooled d=32 state (fit_matched_transformer; the SAME dynamics the Track B filter advances, D229) -- REPLACES the broadcast->ResUNet->GAP path of the baseline",
+    "transformer_steps": 4000,
+    "K_taps": [
+      29,
+      85,
+      94,
+      12,
+      176,
+      8,
+      158,
+      11
+    ],
+    "K_taps_source": "osp[jepa_pool]['K8'] (per-model TCSI OSP, not qDEIM)",
+    "pressure_head": "Ridge(alpha=1.0) z_pool(32)->p_K(8 OSP taps), frozen on train; same tap set the Track B filter senses",
+    "energy_definition": "sum_t ||h(z_t)-h(z~_t)||^2 / delta_j^2 (cumulative over horizon)",
+    "observable_loading": "cos-like signed dot(PC_j, unit probe weight)",
+    "baseline_file": "outputs/session32/track_o2_visibility_resunet_baseline.json (ResUNet propagation + qDEIM K8 head)",
+    "seed": 0,
+    "gpu_name": "NVIDIA RTX PRO 6000 Blackwell Max-Q Workstation Edition"
+  },
+  "ranking_at_maxH": {
+    "horizon": 8,
+    "directions_by_visibility_desc": [
+      20,
+      29,
+      21,
+      31,
+      30,
+      17,
+      16,
+      12,
+      24,
+      28,
+      23,
+      9,
+      25,
+      27,
+      4,
+      3,
+      26,
+      22,
+      19,
+      15,
+      11,
+      18,
+      10,
+      8,
+      14,
+      7,
+      13,
+      1,
+      2,
+      6,
+      5,
+      0
+    ],
+    "top_visible": {
+      "direction": 20,
+      "explained_var_ratio": 0.005359985399991274,
+      "pc_std": 0.4106273353099823,
+      "energy_by_H": {
+        "1": 0.6055794511439393,
+        "4": 2.168115185677112,
+        "8": 3.6900398521687543
+      },
+      "observable_loadings": {
+        "C_L": 0.06647122651338577,
+        "C_D": -0.1332160085439682,
+        "wake_enstrophy": -0.05688515678048134,
+        "circulation_pos": 0.056583378463983536,
+        "circulation_neg": 0.024973519146442413
+      },
+      "dominant_observable": "C_D"
+    },
+    "top_hidden": {
+      "direction": 0,
+      "explained_var_ratio": 0.19024443626403809,
+      "pc_std": 2.4463694095611572,
+      "energy_by_H": {
+        "1": 0.020342647629515837,
+        "4": 0.07484891343749853,
+        "8": 0.17205474526710693
+      },
+      "observable_loadings": {
+        "C_L": -0.01758742146193981,
+        "C_D": 0.017600927501916885,
+        "wake_enstrophy": -0.04952019453048706,
+        "circulation_pos": -0.056071702390909195,
+        "circulation_neg": 0.10282831639051437
+      },
+      "dominant_observable": "circulation_neg"
+    },
+    "corr_evr_vs_energy": -0.5151008527882962,
+    "note": "raw ranking; negative corr_evr_vs_energy means near-null PCs score highest because the AR-transformer amplifies them and 1/delta^2 inflates their tiny natural scale (data-unconstrained). See ranking_meaningful_directions for the physically-interpretable ranking."
+  },
+  "ranking_meaningful_directions": {
+    "evr_threshold": 0.02,
+    "n_meaningful": 13,
+    "cum_evr": 0.892496895045042,
+    "directions_by_visibility_desc": [
+      12,
+      9,
+      4,
+      3,
+      11,
+      10,
+      8,
+      7,
+      1,
+      2,
+      6,
+      5,
+      0
+    ],
+    "top_visible": {
+      "direction": 12,
+      "explained_var_ratio": 0.02573961392045021,
+      "pc_std": 0.8998436331748962,
+      "energy_by_H": {
+        "1": 0.20369002592335306,
+        "4": 0.7921839542396313,
+        "8": 1.7405124501439313
+      },
+      "observable_loadings": {
+        "C_L": 0.2864995300769806,
+        "C_D": 0.28775984048843384,
+        "wake_enstrophy": 0.33766087889671326,
+        "circulation_pos": 0.28271397948265076,
+        "circulation_neg": -0.32482296228408813
+      },
+      "dominant_observable": "wake_enstrophy"
+    },
+    "top_hidden": {
+      "direction": 0,
+      "explained_var_ratio": 0.19024443626403809,
+      "pc_std": 2.4463694095611572,
+      "energy_by_H": {
+        "1": 0.020342647629515837,
+        "4": 0.07484891343749853,
+        "8": 0.17205474526710693
+      },
+      "observable_loadings": {
+        "C_L": -0.01758742146193981,
+        "C_D": 0.017600927501916885,
+        "wake_enstrophy": -0.04952019453048706,
+        "circulation_pos": -0.056071702390909195,
+        "circulation_neg": 0.10282831639051437
+      },
+      "dominant_observable": "circulation_neg"
+    },
+    "note": "restricted to PCs carrying real variance (evr>=0.02); this is the robust wall-visibility statement under the filter's AR-transformer dynamics."
+  },
+  "per_direction": [
+    {
+      "direction": 0,
+      "explained_var_ratio": 0.19024443626403809,
+      "pc_std": 2.4463694095611572,
+      "energy_by_H": {
+        "1": 0.020342647629515837,
+        "4": 0.07484891343749853,
+        "8": 0.17205474526710693
+      },
+      "observable_loadings": {
+        "C_L": -0.01758742146193981,
+        "C_D": 0.017600927501916885,
+        "wake_enstrophy": -0.04952019453048706,
+        "circulation_pos": -0.056071702390909195,
+        "circulation_neg": 0.10282831639051437
+      },
+      "dominant_observable": "circulation_neg"
+    },
+    {
+      "direction": 1,
+      "explained_var_ratio": 0.15478238463401794,
+      "pc_std": 2.206616163253784,
+      "energy_by_H": {
+        "1": 0.08661573288641942,
+        "4": 0.32513403467340335,
+        "8": 0.6080683439646324
+      },
+      "observable_loadings": {
+        "C_L": 0.12973180413246155,
+        "C_D": 0.12032672017812729,
+        "wake_enstrophy": -0.05281256139278412,
+        "circulation_pos": -0.030388012528419495,
+        "circulation_neg": 0.0421910434961319
+      },
+      "dominant_observable": "C_L"
+    },
+    {
+      "direction": 2,
+      "explained_var_ratio": 0.11845236271619797,
+      "pc_std": 1.9303581714630127,
+      "energy_by_H": {
+        "1": 0.1238955877340995,
+        "4": 0.33113409393630955,
+        "8": 0.548430096944652
+      },
+      "observable_loadings": {
+        "C_L": -0.12179743498563766,
+        "C_D": -0.09031529724597931,
+        "wake_enstrophy": -0.11132340133190155,
+        "circulation_pos": -0.06541714817285538,
+        "circulation_neg": 0.014822039753198624
+      },
+      "dominant_observable": "C_L"
+    },
+    {
+      "direction": 3,
+      "explained_var_ratio": 0.07265423983335495,
+      "pc_std": 1.5118075609207153,
+      "energy_by_H": {
+        "1": 0.19572238278346485,
+        "4": 0.7030744693548538,
+        "8": 1.379404222847139
+      },
+      "observable_loadings": {
+        "C_L": -0.040365807712078094,
+        "C_D": -0.1443270891904831,
+        "wake_enstrophy": -0.08086331188678741,
+        "circulation_pos": -0.08690040558576584,
+        "circulation_neg": 0.03950805217027664
+      },
+      "dominant_observable": "C_D"
+    },
+    {
+      "direction": 4,
+      "explained_var_ratio": 0.06728670001029968,
+      "pc_std": 1.4548916816711426,
+      "energy_by_H": {
+        "1": 0.135058467361899,
+        "4": 0.6125417095741528,
+        "8": 1.4039528433426849
+      },
+      "observable_loadings": {
+        "C_L": 0.08615431189537048,
+        "C_D": 0.028355730697512627,
+        "wake_enstrophy": 0.05214008316397667,
+        "circulation_pos": 0.037478260695934296,
+        "circulation_neg": 0.02886517532169819
+      },
+      "dominant_observable": "C_L"
+    },
+    {
+      "direction": 5,
+      "explained_var_ratio": 0.051213543862104416,
+      "pc_std": 1.2692830562591553,
+      "energy_by_H": {
+        "1": 0.0215188929222792,
+        "4": 0.10000397390117273,
+        "8": 0.2568250206078435
+      },
+      "observable_loadings": {
+        "C_L": -0.03350141644477844,
+        "C_D": -0.06726810336112976,
+        "wake_enstrophy": -0.07984809577465057,
+        "circulation_pos": -0.08979446440935135,
+        "circulation_neg": -0.017935385927557945
+      },
+      "dominant_observable": "circulation_pos"
+    },
+    {
+      "direction": 6,
+      "explained_var_ratio": 0.04322509095072746,
+      "pc_std": 1.1660951375961304,
+      "energy_by_H": {
+        "1": 0.07091696704925514,
+        "4": 0.22706515250874468,
+        "8": 0.42431171732630013
+      },
+      "observable_loadings": {
+        "C_L": 0.18788988888263702,
+        "C_D": 0.231367290019989,
+        "wake_enstrophy": 0.23000775277614594,
+        "circulation_pos": 0.10699521005153656,
+        "circulation_neg": -0.06821825355291367
+      },
+      "dominant_observable": "C_D"
+    },
+    {
+      "direction": 7,
+      "explained_var_ratio": 0.039306290447711945,
+      "pc_std": 1.1119801998138428,
+      "energy_by_H": {
+        "1": 0.1341140939912465,
+        "4": 0.40059434498565516,
+        "8": 0.6510979235895838
+      },
+      "observable_loadings": {
+        "C_L": 0.2537197470664978,
+        "C_D": 0.2565445005893707,
+        "wake_enstrophy": -0.1972448080778122,
+        "circulation_pos": -0.16174356639385223,
+        "circulation_neg": 0.2472802847623825
+      },
+      "dominant_observable": "C_D"
+    },
+    {
+      "direction": 8,
+      "explained_var_ratio": 0.037283673882484436,
+      "pc_std": 1.0829923152923584,
+      "energy_by_H": {
+        "1": 0.20709834577040812,
+        "4": 0.5609614319931502,
+        "8": 0.8537484925893976
+      },
+      "observable_loadings": {
+        "C_L": 0.3187768757343292,
+        "C_D": 0.30716684460639954,
+        "wake_enstrophy": 0.36079564690589905,
+        "circulation_pos": 0.3467591106891632,
+        "circulation_neg": -0.20780041813850403
+      },
+      "dominant_observable": "wake_enstrophy"
+    },
+    {
+      "direction": 9,
+      "explained_var_ratio": 0.033942949026823044,
+      "pc_std": 1.0333342552185059,
+      "energy_by_H": {
+        "1": 0.28522671413931633,
+        "4": 0.9413193788111663,
+        "8": 1.610473903599073
+      },
+      "observable_loadings": {
+        "C_L": 0.32021021842956543,
+        "C_D": 0.2929525673389435,
+        "wake_enstrophy": -0.1859169602394104,
+        "circulation_pos": -0.12203318625688553,
+        "circulation_neg": 0.12341823428869247
+      },
+      "dominant_observable": "C_L"
+    },
+    {
+      "direction": 10,
+      "explained_var_ratio": 0.03153613209724426,
+      "pc_std": 0.996025025844574,
+      "energy_by_H": {
+        "1": 0.12415650991777662,
+        "4": 0.44614572868014374,
+        "8": 0.9042120756695045
+      },
+      "observable_loadings": {
+        "C_L": -0.10066109895706177,
+        "C_D": -0.03704365715384483,
+        "wake_enstrophy": 0.02197936922311783,
+        "circulation_pos": 0.007647806312888861,
+        "circulation_neg": -0.05350727215409279
+      },
+      "dominant_observable": "C_L"
+    },
+    {
+      "direction": 11,
+      "explained_var_ratio": 0.02682947739958763,
+      "pc_std": 0.9186967015266418,
+      "energy_by_H": {
+        "1": 0.15622460286360146,
+        "4": 0.5083903347939562,
+        "8": 0.9319820569682971
+      },
+      "observable_loadings": {
+        "C_L": 0.19993647933006287,
+        "C_D": 0.13775941729545593,
+        "wake_enstrophy": 0.050576746463775635,
+        "circulation_pos": 0.09118698537349701,
+        "circulation_neg": 0.006339570973068476
+      },
+      "dominant_observable": "C_L"
+    },
+    {
+      "direction": 12,
+      "explained_var_ratio": 0.02573961392045021,
+      "pc_std": 0.8998436331748962,
+      "energy_by_H": {
+        "1": 0.20369002592335306,
+        "4": 0.7921839542396313,
+        "8": 1.7405124501439313
+      },
+      "observable_loadings": {
+        "C_L": 0.2864995300769806,
+        "C_D": 0.28775984048843384,
+        "wake_enstrophy": 0.33766087889671326,
+        "circulation_pos": 0.28271397948265076,
+        "circulation_neg": -0.32482296228408813
+      },
+      "dominant_observable": "wake_enstrophy"
+    },
+    {
+      "direction": 13,
+      "explained_var_ratio": 0.019875584170222282,
+      "pc_std": 0.7907259464263916,
+      "energy_by_H": {
+        "1": 0.06730094117748617,
+        "4": 0.2795497516339282,
+        "8": 0.6270167031466983
+      },
+      "observable_loadings": {
+        "C_L": 0.10800208151340485,
+        "C_D": 0.11033490300178528,
+        "wake_enstrophy": 0.1038631722331047,
+        "circulation_pos": 0.09270210564136505,
+        "circulation_neg": -0.023310499265789986
+      },
+      "dominant_observable": "C_D"
+    },
+    {
+      "direction": 14,
+      "explained_var_ratio": 0.015409487299621105,
+      "pc_std": 0.6962418556213379,
+      "energy_by_H": {
+        "1": 0.06398574951100167,
+        "4": 0.29667241528847493,
+        "8": 0.7272078729085032
+      },
+      "observable_loadings": {
+        "C_L": -0.15797068178653717,
+        "C_D": -0.13187411427497864,
+        "wake_enstrophy": -0.14309397339820862,
+        "circulation_pos": -0.24998624622821808,
+        "circulation_neg": -0.1029529795050621
+      },
+      "dominant_observable": "circulation_pos"
+    },
+    {
+      "direction": 15,
+      "explained_var_ratio": 0.012714304961264133,
+      "pc_std": 0.632429838180542,
+      "energy_by_H": {
+        "1": 0.1052208892705032,
+        "4": 0.43227332823637316,
+        "8": 0.9697200723744364
+      },
+      "observable_loadings": {
+        "C_L": 0.08686964958906174,
+        "C_D": 0.11116164177656174,
+        "wake_enstrophy": -0.09514802694320679,
+        "circulation_pos": -0.07013951987028122,
+        "circulation_neg": 0.16710560023784637
+      },
+      "dominant_observable": "circulation_neg"
+    },
+    {
+      "direction": 16,
+      "explained_var_ratio": 0.010503138415515423,
+      "pc_std": 0.5748116970062256,
+      "energy_by_H": {
+        "1": 0.16510950961693985,
+        "4": 0.6936200966998113,
+        "8": 1.9031380652823329
+      },
+      "observable_loadings": {
+        "C_L": -0.04860148951411247,
+        "C_D": -0.12023892253637314,
+        "wake_enstrophy": -0.08616301417350769,
+        "circulation_pos": 0.001581360469572246,
+        "circulation_neg": 0.11597027629613876
+      },
+      "dominant_observable": "C_D"
+    },
+    {
+      "direction": 17,
+      "explained_var_ratio": 0.008898374624550343,
+      "pc_std": 0.5290800333023071,
+      "energy_by_H": {
+        "1": 0.31076254075926335,
+        "4": 1.0340720070369103,
+        "8": 1.927697138953866
+      },
+      "observable_loadings": {
+        "C_L": -0.029376309365034103,
+        "C_D": -0.1600644588470459,
+        "wake_enstrophy": 0.15709957480430603,
+        "circulation_pos": 0.20840825140476227,
+        "circulation_neg": -0.20399972796440125
+      },
+      "dominant_observable": "circulation_pos"
+    },
+    {
+      "direction": 18,
+      "explained_var_ratio": 0.008079539984464645,
+      "pc_std": 0.5041495561599731,
+      "energy_by_H": {
+        "1": 0.15936357124868544,
+        "4": 0.5413787715729381,
+        "8": 0.9292985520612839
+      },
+      "observable_loadings": {
+        "C_L": -0.07538972795009613,
+        "C_D": -0.1584816724061966,
+        "wake_enstrophy": 0.04886521399021149,
+        "circulation_pos": -0.1367570459842682,
+        "circulation_neg": 0.141066774725914
+      },
+      "dominant_observable": "C_D"
+    },
+    {
+      "direction": 19,
+      "explained_var_ratio": 0.00755201606079936,
+      "pc_std": 0.4874134361743927,
+      "energy_by_H": {
+        "1": 0.22337561013752955,
+        "4": 0.6726873613994804,
+        "8": 1.0847639379125071
+      },
+      "observable_loadings": {
+        "C_L": 0.10857964307069778,
+        "C_D": 0.14256545901298523,
+        "wake_enstrophy": -0.26801547408103943,
+        "circulation_pos": -0.18982288241386414,
+        "circulation_neg": 0.18530312180519104
+      },
+      "dominant_observable": "wake_enstrophy"
+    },
+    {
+      "direction": 20,
+      "explained_var_ratio": 0.005359985399991274,
+      "pc_std": 0.4106273353099823,
+      "energy_by_H": {
+        "1": 0.6055794511439393,
+        "4": 2.168115185677112,
+        "8": 3.6900398521687543
+      },
+      "observable_loadings": {
+        "C_L": 0.06647122651338577,
+        "C_D": -0.1332160085439682,
+        "wake_enstrophy": -0.05688515678048134,
+        "circulation_pos": 0.056583378463983536,
+        "circulation_neg": 0.024973519146442413
+      },
+      "dominant_observable": "C_D"
+    },
+    {
+      "direction": 21,
+      "explained_var_ratio": 0.00385831156745553,
+      "pc_std": 0.348389208316803,
+      "energy_by_H": {
+        "1": 0.3756311698240254,
+        "4": 1.4714077503196397,
+        "8": 3.0087879374541497
+      },
+      "observable_loadings": {
+        "C_L": -0.02430039644241333,
+        "C_D": -0.12103649228811264,
+        "wake_enstrophy": -0.0224821288138628,
+        "circulation_pos": -0.052170734852552414,
+        "circulation_neg": 0.017942965030670166
+      },
+      "dominant_observable": "C_D"
+    },
+    {
+      "direction": 22,
+      "explained_var_ratio": 0.0032405105885118246,
+      "pc_std": 0.3192807734012604,
+      "energy_by_H": {
+        "1": 0.13301021001575533,
+        "4": 0.5190284800377805,
+        "8": 1.1503544584665286
+      },
+      "observable_loadings": {
+        "C_L": -0.042380984872579575,
+        "C_D": -0.0020771848503500223,
+        "wake_enstrophy": -0.10169170796871185,
+        "circulation_pos": 0.012461967766284943,
+        "circulation_neg": 0.11912831664085388
+      },
+      "dominant_observable": "circulation_neg"
+    },
+    {
+      "direction": 23,
+      "explained_var_ratio": 0.002825917676091194,
+      "pc_std": 0.29815754294395447,
+      "energy_by_H": {
+        "1": 0.27430813178214636,
+        "4": 0.9134737798863539,
+        "8": 1.669087267755131
+      },
+      "observable_loadings": {
+        "C_L": 0.03115583024919033,
+        "C_D": -0.04434947669506073,
+        "wake_enstrophy": -0.23879142105579376,
+        "circulation_pos": -0.08703456073999405,
+        "circulation_neg": 0.2132783681154251
+      },
+      "dominant_observable": "wake_enstrophy"
+    },
+    {
+      "direction": 24,
+      "explained_var_ratio": 0.0020988525357097387,
+      "pc_std": 0.25695496797561646,
+      "energy_by_H": {
+        "1": 0.20177510367198773,
+        "4": 0.8245773714312573,
+        "8": 1.7189437457583971
+      },
+      "observable_loadings": {
+        "C_L": -0.09085205942392349,
+        "C_D": 0.0618249773979187,
+        "wake_enstrophy": 0.07927221059799194,
+        "circulation_pos": 0.037216924130916595,
+        "circulation_neg": 0.07477319985628128
+      },
+      "dominant_observable": "C_L"
+    },
+    {
+      "direction": 25,
+      "explained_var_ratio": 0.0018495287513360381,
+      "pc_std": 0.2412106990814209,
+      "energy_by_H": {
+        "1": 0.19442211861031425,
+        "4": 0.7759477570275978,
+        "8": 1.5968878121393228
+      },
+      "observable_loadings": {
+        "C_L": 0.07823918759822845,
+        "C_D": 0.009274590760469437,
+        "wake_enstrophy": -0.24731793999671936,
+        "circulation_pos": -0.3506098985671997,
+        "circulation_neg": -0.24301110208034515
+      },
+      "dominant_observable": "circulation_pos"
+    },
+    {
+      "direction": 26,
+      "explained_var_ratio": 0.0014914958737790585,
+      "pc_std": 0.21660928428173065,
+      "energy_by_H": {
+        "1": 0.24021974756929806,
+        "4": 0.7256394213988289,
+        "8": 1.2198598742183435
+      },
+      "observable_loadings": {
+        "C_L": 0.024188226088881493,
+        "C_D": 0.09449352324008942,
+        "wake_enstrophy": 0.33203375339508057,
+        "circulation_pos": 0.29260310530662537,
+        "circulation_neg": -0.23144061863422394
+      },
+      "dominant_observable": "wake_enstrophy"
+    },
+    {
+      "direction": 27,
+      "explained_var_ratio": 0.0011936321388930082,
+      "pc_std": 0.19377659261226654,
+      "energy_by_H": {
+        "1": 0.2844450137983032,
+        "4": 0.8586323594479847,
+        "8": 1.4180324594822773
+      },
+      "observable_loadings": {
+        "C_L": 0.09447638690471649,
+        "C_D": 0.31000781059265137,
+        "wake_enstrophy": -0.3987034261226654,
+        "circulation_pos": -0.390724778175354,
+        "circulation_neg": 0.45522063970565796
+      },
+      "dominant_observable": "circulation_neg"
+    },
+    {
+      "direction": 28,
+      "explained_var_ratio": 0.0010715380776673555,
+      "pc_std": 0.18359880149364471,
+      "energy_by_H": {
+        "1": 0.31229282919631884,
+        "4": 0.9056587199935084,
+        "8": 1.6838043598886645
+      },
+      "observable_loadings": {
+        "C_L": -0.5170394778251648,
+        "C_D": -0.3821479082107544,
+        "wake_enstrophy": 0.0613575279712677,
+        "circulation_pos": 0.1766124814748764,
+        "circulation_neg": 0.1285170167684555
+      },
+      "dominant_observable": "C_L"
+    },
+    {
+      "direction": 29,
+      "explained_var_ratio": 0.000643046572804451,
+      "pc_std": 0.14222870767116547,
+      "energy_by_H": {
+        "1": 0.8813384656960304,
+        "4": 2.46125643011623,
+        "8": 3.59115386414731
+      },
+      "observable_loadings": {
+        "C_L": -0.1538907140493393,
+        "C_D": 0.09656785428524017,
+        "wake_enstrophy": 0.06880342215299606,
+        "circulation_pos": -0.026280853897333145,
+        "circulation_neg": -0.39537861943244934
+      },
+      "dominant_observable": "circulation_neg"
+    },
+    {
+      "direction": 30,
+      "explained_var_ratio": 0.0005273905699141324,
+      "pc_std": 0.12880484759807587,
+      "energy_by_H": {
+        "1": 0.34503973458852616,
+        "4": 1.2566587911303082,
+        "8": 2.270334326790997
+      },
+      "observable_loadings": {
+        "C_L": 0.17039063572883606,
+        "C_D": 0.019024131819605827,
+        "wake_enstrophy": 0.17127060890197754,
+        "circulation_pos": 0.3069345951080322,
+        "circulation_neg": -0.17609134316444397
+      },
+      "dominant_observable": "circulation_pos"
+    },
+    {
+      "direction": 31,
+      "explained_var_ratio": 0.00031044078059494495,
+      "pc_std": 0.09882240742444992,
+      "energy_by_H": {
+        "1": 1.0678054951820857,
+        "4": 2.201267543078992,
+        "8": 2.6036045155229046
+      },
+      "observable_loadings": {
+        "C_L": -0.3244403898715973,
+        "C_D": -0.3489217162132263,
+        "wake_enstrophy": 0.029841627925634384,
+        "circulation_pos": -0.1925409585237503,
+        "circulation_neg": 0.11749182641506195
+      },
+      "dominant_observable": "C_D"
+    }
+  ]
+}
