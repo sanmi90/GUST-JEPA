@@ -167,7 +167,7 @@ def load_frozen_model(
 # CanonicalModel. Each produces a POOLED (B, T, d) latent; encode_split then lifts
 # it to the (B, T, d, h, w) spatial grid with the SAME parameter-free broadcast the
 # jepa_pool ablation uses, so every downstream Q1/Q2/Q3 helper is byte-identical.
-REFERENCE_MODELS = ("fukami", "fukami_wake", "pod")
+REFERENCE_MODELS = ("fukami", "fukami_wake", "pod", "bvae")
 
 # The spatial grid the pooled reference latent is broadcast to, matched to the
 # shared backbone (HybridCNNViTEncoder default (24, 12)) so the decode-floor
@@ -274,6 +274,55 @@ def load_reference_model(
     blob = torch.load(ckpt_path, map_location="cpu", weights_only=False)
     args = blob.get("args", {})
     run_config = blob.get("run_config", {})
+
+    # ---- bvae: Solera-Rico beta-VAE (session9 native trainer, wrapper_state_dict) ----
+    # Session 32 Track P: native beta-VAE (BetaVAEWrapper = FukamiAEWrapper + variational
+    # head + KL). encode returns the deterministic latent mu; the shared harness broadcasts
+    # the pooled (B, T, d) mu to the spatial grid, byte-identical to the fukami reference.
+    if "wrapper_state_dict" in blob and bool(args.get("vae")):
+        from src.baselines.solera_rico import BetaVAEWrapper
+
+        # bvae.yaml carries a provenance-only `bvae:` block the kit whitelist rejects;
+        # fukami_wake.yaml has the identical active-term set (recon+lift+wake, objective
+        # recon), so it supplies accurate metadata while name is forced to "bvae".
+        cfg = load_model_config(_resolve("configs/reference/fukami_wake.yaml"))
+        latent_dim = int(args.get("d", 32))
+        wake_on = "wake" in cfg.active_terms()
+        wake_head_b = (
+            WakeObservableHead(
+                latent_dim=latent_dim, out_dim=mode_output_dim("patch_signed_spectrum")
+            )
+            if wake_on
+            else None
+        )
+        wrapper = BetaVAEWrapper(
+            latent_dim=latent_dim,
+            n_deltas=1,
+            lambda_recon=1.0,
+            lambda_lift=1.0,
+            omega_scale=1.0,
+            recon_loss_type="mse",
+            encoder_kind="cnn",
+            wake_observable_head=wake_head_b,
+            wake_observable_weight=1.0 if wake_on else 0.0,
+            beta=float(args.get("beta", 2.5e-3)),
+            beta_warmup_steps=int(
+                float(args.get("beta_warmup_frac", 0.02)) * int(args.get("max_iters", 10000))
+            ),
+        )
+        wrapper.load_state_dict(blob["wrapper_state_dict"], strict=True)
+        encoder = _FukamiRefEncoder(wrapper.encoder)
+        freeze_encoder(encoder)
+        encoder.to(device)
+        return FrozenModel(
+            encoder=encoder,
+            cfg=cfg,
+            latent_dim=latent_dim,
+            latent_grid=REFERENCE_LATENT_GRID,
+            name="bvae",
+            checkpoint=ckpt_path,
+        )
+
     config_path = args.get("config") or run_config.get("config_path")
     if config_path is None:
         raise KeyError(f"reference checkpoint {ckpt_path} has no config path")
