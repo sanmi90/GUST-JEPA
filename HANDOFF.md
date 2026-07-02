@@ -9877,3 +9877,23 @@ reference cells) is already measured on v2.2 in outputs/session31/q1_reference.j
 +0.186 (SIGN FLIP vs v2.1's -0.16; the paper follows the measured value: still collapses vs
 0.75-0.79 wake-headed, but not negative), fukami -0.094, fukami_wake +0.432. Item 9 (pooling
 cost) is Track P4 in outputs/session32/track_p_gates.json.
+
+### D239 (SESSION33 PRE-REGISTERED paired-stats endpoint family for v3 Section 4.4/4.5) (2026-07-02, Session 33)
+
+Recorded BEFORE any test statistic is computed (scripts/session33/paired_stats_v3.py runs
+after this commit). Data = the frozen per-encounter records in
+outputs/session32/envelope_by_gust.json (jepa_pool, frozen filter); primary split = test_b
+(42 encounters, 10 cases); statistics via scripts/session28/stats_lib.py VERBATIM
+(case-clustered bootstrap, case-level Wilcoxon + sign one-sided, Holm step-down, mixedlm
+annex). Direction pre-registered: delta = R2_filter_analysis - R2_baseline > 0 (filter
+better). Non-finite pairs dropped and counted.
+
+Family F1 (PRIMARY, 4 tests, Holm within family): filter analysis vs STATIC single-frame
+recovery, endpoints {C_L, E_w} x phases {impact, relaxation}.
+Family F2 (SECONDARY, 3 tests, Holm within family): filter analysis vs FIELD-FREE OPEN-LOOP
+forecast, cells {C_L impact, C_L relaxation, E_w impact}. The E_w-relaxation cell is
+unavailable in the frozen envelope record schema (flatten_record kept only
+fieldfree_Ew_r2_impact); rather than regenerate the frozen artifact the family is
+pre-registered at 3 tests and the limitation is stated.
+Annexes (descriptive, NOT Holm-adjusted): the same deltas on the |G| >= 1 test_b subset
+(weak-signal R2 caveat, D236 footnote) and on test_c (characterisation only).
