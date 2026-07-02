@@ -1,0 +1,191 @@
+"""Session 31 Track D: assemble the phase-resolved forecast table (all 14 models).
+
+Reads ``outputs/session31/q2_phase.json`` (canonical spine + references) and,
+when present, ``outputs/session31/q2_phase_ablation.json`` (the five Track E
+one-axis ablations, encoded from the ablation cache) and merges them into one
+model x phase table grouped by tier: canonical spine, ablation, reference.
+
+Each phase (pre-impact | impact | post-impact) shows the matched-predictor field
+VRMSE (model curve) and the observable forward-closure merit (mean MLP R^2 over
+the five observables), with the sample count ``n`` per phase. The pooled
+(horizons 1..H) block is primary; the fixed h=8 split is written to the markdown.
+
+Interpretive question: is the predictive latent's forecast advantage concentrated
+in the impact / post-impact transient (the Gray-Scott expectation), and how does
+gust-arrival (pre-impact) forecasting compare to aftermath (post-impact)?
+
+Outputs (under outputs/session31/tables/):
+    phase_comparison.tex   -- self-contained booktabs table (literal values)
+    phase_comparison.md    -- readable markdown (pooled + h8 blocks, per tier)
+
+    python scripts/session31/make_phase_table.py
+"""
+
+from __future__ import annotations
+
+import argparse
+import json
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+
+from src.evaluation.report_session31 import (  # noqa: E402
+    ABLATION_MODELS,
+    CANONICAL_MODELS,
+    MODEL_LABEL,
+    REFERENCE_MODELS,
+)
+from src.evaluation.rollout import PHASE_NAMES  # noqa: E402
+
+REPO = Path(__file__).resolve().parents[2]
+S31 = REPO / "outputs" / "session31"
+
+PHASE_LABEL = {
+    "pre_impact": "pre-impact",
+    "impact": "impact",
+    "post_impact": "post-impact",
+}
+
+# (tier label, model tuple) in report order.
+TIERS = (
+    ("canonical spine", CANONICAL_MODELS),
+    ("ablation (one-axis)", ABLATION_MODELS),
+    ("reference (published baselines)", REFERENCE_MODELS),
+)
+
+
+def _load(path: Path) -> dict:
+    with open(path) as fh:
+        return json.load(fh)
+
+
+def _cells(block: dict, phase: str) -> dict:
+    """field VRMSE (model/floor/persist) + observable merit + n for one phase."""
+    ph = block.get(phase, {}) if block else {}
+    fv = ph.get("field_vrmse")
+    om = ph.get("observable_merit")
+    return {
+        "vrmse_model": float(fv["model"]) if fv else float("nan"),
+        "vrmse_floor": float(fv["floor"]) if fv else float("nan"),
+        "vrmse_persist": float(fv["persistence"]) if fv else float("nan"),
+        "merit": float(om["merit_mlp_r2"]) if om else float("nan"),
+        "n": int(ph.get("n", 0)),
+    }
+
+
+def _fmt(v: float, fmt: str) -> str:
+    return "--" if v != v else fmt % v  # NaN check
+
+
+def _tiered_present(models: dict) -> list[tuple[str, list[str]]]:
+    """(tier label, [present model names]) restricted to models in the payload."""
+    out = []
+    for label, names in TIERS:
+        present = [m for m in names if m in models]
+        if present:
+            out.append((label, present))
+    return out
+
+
+def markdown(models: dict, ref_h: int) -> str:
+    out = ["# Session 31 Track D -- phase-resolved forecast (Test B, matched predictor)\n"]
+    out.append(
+        "All 14 models. Every (anchor, horizon) sample is bucketed by the phase of "
+        "its TARGET frame relative to the gust impact instant. Field VRMSE = "
+        "matched-ResUNet model curve (decode of the rolled latent vs DNS, lower is "
+        "better); merit = mean MLP closure R^2 over the five observables (higher is "
+        "better); n = pooled (anchor, horizon) sample count in that phase.\n"
+    )
+    tiers = _tiered_present(models)
+
+    def _block(title: str, key: str) -> None:
+        out.append(f"\n## {title}\n")
+        header = ["model"]
+        for phase in PHASE_NAMES:
+            header += [
+                f"{PHASE_LABEL[phase]} VRMSE",
+                f"{PHASE_LABEL[phase]} merit",
+                f"{PHASE_LABEL[phase]} n",
+            ]
+        out.append("| " + " | ".join(header) + " |")
+        out.append("|" + "|".join(["---"] * len(header)) + "|")
+        ncol = len(header)
+        for label, names in tiers:
+            out.append(f"| **{label}** |" + " |" * (ncol - 1))
+            for m in names:
+                cells = [MODEL_LABEL.get(m, m)]
+                block = models[m][key]
+                for phase in PHASE_NAMES:
+                    c = _cells(block, phase)
+                    cells += [
+                        _fmt(c["vrmse_model"], "%.3f"),
+                        _fmt(c["merit"], "%.2f"),
+                        str(c["n"]),
+                    ]
+                out.append("| " + " | ".join(cells) + " |")
+
+    _block("Pooled over horizons 1..H", "phases_pooled")
+    _block(f"Fixed reference horizon h={ref_h}", "phases_at_ref_h")
+    return "\n".join(out) + "\n"
+
+
+def latex(models: dict) -> str:
+    lines = [
+        "% AUTO-GENERATED by scripts/session31/make_phase_table.py. DO NOT EDIT.",
+        "% Phase-resolved forecast (Test B, matched predictor, horizons 1..H pooled).",
+        r"\begin{tabular}{lcccccc}",
+        r"\toprule",
+        r" & \multicolumn{2}{c}{pre-impact} & \multicolumn{2}{c}{impact}"
+        r" & \multicolumn{2}{c}{post-impact} \\",
+        r"\cmidrule(lr){2-3}\cmidrule(lr){4-5}\cmidrule(lr){6-7}",
+        r"model & VRMSE & merit & VRMSE & merit & VRMSE & merit \\",
+        r"\midrule",
+    ]
+    tiers = _tiered_present(models)
+    for ti, (label, names) in enumerate(tiers):
+        if ti > 0:
+            lines.append(r"\midrule")
+        lines.append(r"\multicolumn{7}{l}{\textit{" + label + r"}} \\")
+        for m in names:
+            block = models[m]["phases_pooled"]
+            cells = []
+            for phase in PHASE_NAMES:
+                c = _cells(block, phase)
+                cells += [_fmt(c["vrmse_model"], "%.3f"), _fmt(c["merit"], "%.2f")]
+            lines.append(f"{MODEL_LABEL.get(m, m)} & " + " & ".join(cells) + r" \\")
+    lines += [r"\bottomrule", r"\end{tabular}", ""]
+    return "\n".join(lines)
+
+
+def main() -> int:
+    p = argparse.ArgumentParser()
+    p.add_argument("--q2-phase", default=str(S31 / "q2_phase.json"))
+    p.add_argument("--q2-phase-ablation", default=str(S31 / "q2_phase_ablation.json"))
+    args = p.parse_args()
+
+    q2p = _load(Path(args.q2_phase))
+    models = dict(q2p["models"])
+    abl_path = Path(args.q2_phase_ablation)
+    if abl_path.exists():
+        abl = _load(abl_path)
+        for name, rec in abl["models"].items():
+            models[name] = rec
+        print(f"[phase-table] merged {len(abl['models'])} ablation models from {abl_path}")
+    else:
+        print(f"[phase-table] no ablation payload at {abl_path}; canonical + reference only")
+
+    ref_h = int(q2p["params"].get("ref_horizon", 8))
+    tables = S31 / "tables"
+    tables.mkdir(parents=True, exist_ok=True)
+    md = markdown(models, ref_h)
+    (tables / "phase_comparison.tex").write_text(latex(models))
+    (tables / "phase_comparison.md").write_text(md)
+    print(md)
+    print(f"[phase-table] {len(models)} models total")
+    print(f"[phase-table] wrote {tables / 'phase_comparison.tex'} and .md")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

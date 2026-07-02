@@ -80,6 +80,16 @@ OBSERVABLES = (
 CONTEXT_LENGTH = 2
 DEFAULT_HORIZON = 16
 
+# Session 31 phase-resolved forecast: the gust impact instant partitions each
+# encounter into three non-overlapping windows relative to t_impact.
+# pre_impact  = lead_in    = [t_imp - 8,  t_imp)
+# impact      = impact     = [t_imp,      t_imp + 16)
+# post_impact = relaxation = [t_imp + 16, t_imp + 48)
+PHASE_NAMES = ("pre_impact", "impact", "post_impact")
+PHASE_WINDOW = {"pre_impact": "lead_in", "impact": "impact", "post_impact": "relaxation"}
+PHASE_ID = {"pre_impact": 0, "impact": 1, "post_impact": 2}
+PHASE_BY_ID = {v: k for k, v in PHASE_ID.items()}
+
 
 def _resolve(path: str | Path) -> Path:
     p = Path(path)
@@ -196,6 +206,144 @@ def window_horizon_samples(
         inwin = np.zeros(anchor_frames.shape[0], dtype=bool)
         inwin[in_range] = window_mask[tgt[in_range]]
         out[int(h)] = np.where(ctx_ok & in_range & inwin)[0]
+    return out
+
+
+# =========================================================================== phase
+def frame_phase_ids(entry: dict | None, n_frames: int) -> np.ndarray:
+    """Per-frame phase id for one encounter's Track 0.B window entry.
+
+    Maps every frame index to its phase relative to the gust impact instant:
+    ``lead_in -> pre_impact (0)``, ``impact -> impact (1)``,
+    ``relaxation -> post_impact (2)``; everything else is ``-1`` (no phase).
+    The three phase windows are half-open ``[lo, hi)`` and non-overlapping by
+    construction, so the assignment is unambiguous. Ranges are clamped to
+    ``[0, n_frames)``.
+
+    Args:
+        entry: A windows entry with ``lead_in`` / ``impact`` / ``relaxation`` =
+            ``[lo, hi)`` bounds, or ``None`` (returns an all ``-1`` array).
+        n_frames: Number of frames in the encounter.
+    """
+    ids = np.full(int(n_frames), -1, dtype=np.int64)
+    if entry is None:
+        return ids
+    for phase in PHASE_NAMES:
+        rng = entry.get(PHASE_WINDOW[phase])
+        if rng is None:
+            continue
+        lo = max(0, int(rng[0]))
+        hi = min(int(n_frames), int(rng[1]))
+        if hi > lo:
+            ids[lo:hi] = PHASE_ID[phase]
+    return ids
+
+
+def phase_row_labels(
+    case_id: np.ndarray,
+    encounter_index: np.ndarray,
+    frame: np.ndarray,
+    windows: dict,
+) -> np.ndarray:
+    """Per-row phase id aligned to a flat latent/field cache.
+
+    For each cache row ``(case_id, encounter_index, frame)`` look up its
+    encounter's windows entry (key ``"<case_id>/<enc:02d>"``) and return the
+    phase id of that frame (``-1`` if the encounter has no entry or the frame
+    falls outside all three phases). The result indexes 1:1 with the flat cache
+    rows, so ``phase_row_labels(...)[target_row]`` gives the target's phase.
+    """
+    case_id = np.asarray(case_id).astype(str)
+    encounter_index = np.asarray(encounter_index)
+    frame = np.asarray(frame)
+    n = case_id.shape[0]
+    labels = np.full(n, -1, dtype=np.int64)
+    # cache per-encounter frame->phase arrays so each entry is parsed once.
+    cache: dict[str, np.ndarray] = {}
+    for i in range(n):
+        key = f"{case_id[i]}/{int(encounter_index[i]):02d}"
+        ids = cache.get(key)
+        if ids is None:
+            entry = windows.get(key)
+            n_frames = (
+                int(entry["n_frames"]) if entry and "n_frames" in entry else int(frame.max()) + 1
+            )
+            ids = frame_phase_ids(entry, n_frames)
+            cache[key] = ids
+        f = int(frame[i])
+        if 0 <= f < ids.shape[0]:
+            labels[i] = ids[f]
+    return labels
+
+
+def encounter_union_mask(entry: dict | None, frames: np.ndarray) -> np.ndarray:
+    """Boolean mask over ``frames`` that is True inside any of the three phases.
+
+    ``frames`` is the per-encounter frame index array (as stored in the cache);
+    the mask aligns with it row-for-row. Used to widen the rollout window from
+    the baked impact+relaxation mask to the full lead_in + impact + relaxation
+    union so pre-impact anchors are rolled too.
+    """
+    frames = np.asarray(frames)
+    if entry is None:
+        return np.zeros(frames.shape[0], dtype=bool)
+    n_frames = int(entry.get("n_frames", int(frames.max()) + 1))
+    ids = frame_phase_ids(entry, n_frames)
+    out = np.zeros(frames.shape[0], dtype=bool)
+    in_range = (frames >= 0) & (frames < n_frames)
+    out[in_range] = ids[frames[in_range]] >= 0
+    return out
+
+
+def pool_phase_samples(
+    buckets: dict[int, "HorizonBucket"],
+    horizons: Sequence[int],
+    phase_of_row: np.ndarray,
+    phase_id: int,
+) -> dict | None:
+    """Pool (over horizons) the rolled samples whose TARGET row is in one phase.
+
+    For each horizon bucket, concatenate its per-encounter sample arrays, select
+    the samples whose target row maps to ``phase_id`` (via ``phase_of_row``), and
+    accumulate across all requested horizons. Returns a dict of concatenated
+    arrays (``rolled_sp``/``true_sp`` present only for spatial buckets;
+    ``rolled_gap``/``true_gap``/``anchor_gap`` for any bucket, plus
+    ``target_row``/``anchor_row``) or ``None`` if no sample of that phase exists.
+    """
+    phase_of_row = np.asarray(phase_of_row)
+    keys = (
+        "rolled_sp",
+        "true_sp",
+        "rolled_gap",
+        "true_gap",
+        "anchor_gap",
+        "target_row",
+        "anchor_row",
+    )
+    acc: dict[str, list] = {k: [] for k in keys}
+    for h in horizons:
+        b = buckets[int(h)]
+        if not b.target_row:
+            continue
+        tr = np.concatenate([np.atleast_1d(x) for x in b.target_row])
+        m = phase_of_row[tr] == int(phase_id)
+        if not m.any():
+            continue
+        acc["target_row"].append(tr[m])
+        acc["anchor_row"].append(np.concatenate([np.atleast_1d(x) for x in b.anchor_row])[m])
+        if b.rolled_sp:
+            acc["rolled_sp"].append(np.concatenate(b.rolled_sp)[m])
+            acc["true_sp"].append(np.concatenate(b.true_sp)[m])
+        if b.rolled_gap:
+            acc["rolled_gap"].append(np.concatenate(b.rolled_gap)[m])
+            acc["true_gap"].append(np.concatenate(b.true_gap)[m])
+            acc["anchor_gap"].append(np.concatenate(b.anchor_gap)[m])
+    out: dict[str, np.ndarray] = {}
+    for k in keys:
+        if acc[k]:
+            out[k] = np.concatenate(acc[k])
+    if "target_row" not in out or out["target_row"].size == 0:
+        return None
     return out
 
 
@@ -699,6 +847,62 @@ def _drift_curve(buckets: dict[int, HorizonBucket], horizons: Sequence[int], spa
     return {"horizons": hs, "rel_l2": vals, "n": ns}
 
 
+def phase_field_vrmse(samples: dict, decoder, omega: np.ndarray, device) -> dict:
+    """Three-curve field VRMSE (model/floor/persistence) on one pooled phase set."""
+    from src.evaluation.represent import aggregated_vrmse, decode_fields
+
+    rolled_sp = samples["rolled_sp"].astype(np.float32)
+    true_sp = samples["true_sp"].astype(np.float32)
+    target_row = samples["target_row"]
+    anchor_row = samples["anchor_row"]
+    model_field = decode_fields(decoder, rolled_sp, device)
+    floor_field = decode_fields(decoder, true_sp, device)
+    true_field = omega[target_row]
+    persist_field = omega[anchor_row]
+    return {
+        "model": aggregated_vrmse(model_field, true_field),
+        "floor": aggregated_vrmse(floor_field, true_field),
+        "persistence": aggregated_vrmse(persist_field, true_field),
+        "n": int(true_field.shape[0]),
+    }
+
+
+def phase_observable_merit(
+    samples: dict, probes: dict[str, dict], flat_targets: dict[str, np.ndarray]
+) -> dict:
+    """Observable forward-closure merit on one pooled phase set.
+
+    Merit = mean over the five observables of the MLP closure R^2 read from the
+    rolled GAP latent (matches ``make_ablation_table`` merit). Per-observable
+    linear/MLP model R^2 and the linear decode floor are recorded for context.
+    """
+    from src.evaluation.represent import r2_score_np
+
+    rolled_gap = samples["rolled_gap"]
+    true_gap = samples["true_gap"]
+    target_row = samples["target_row"]
+    per_obs: dict[str, dict] = {}
+    mlp_r2s: list[float] = []
+    for obs in OBSERVABLES:
+        lin = probes[obs]["linear"]
+        mlp = probes[obs]["mlp"]
+        y_true = flat_targets[obs][target_row]
+        r2_mlp = r2_score_np(y_true, mlp.predict(rolled_gap))
+        r2_lin = r2_score_np(y_true, lin.predict(rolled_gap))
+        r2_floor = r2_score_np(y_true, lin.predict(true_gap))
+        per_obs[obs] = {
+            "model_mlp_r2": r2_mlp,
+            "model_linear_r2": r2_lin,
+            "floor_linear_r2": r2_floor,
+        }
+        mlp_r2s.append(r2_mlp)
+    return {
+        "merit_mlp_r2": float(np.mean(mlp_r2s)),
+        "observables": per_obs,
+        "n": int(target_row.shape[0]),
+    }
+
+
 def fit_observable_probes(z_gap_train: np.ndarray, targets_train: dict[str, np.ndarray]) -> dict:
     """Fit the Q1 frozen GAP-latent readout (linear + MLP) for each observable."""
     from src.evaluation.represent import fit_linear_probe, fit_mlp_probe
@@ -941,6 +1145,271 @@ def run_q2(
     print(f"\n[q2] wrote {out_path}", flush=True)
     _print_summary(payload)
     return payload
+
+
+def _phase_block(
+    buckets: dict[int, HorizonBucket],
+    phase_of_row: np.ndarray,
+    decoder,
+    omega: np.ndarray,
+    probes: dict,
+    flat_targets: dict[str, np.ndarray],
+    horizons: Sequence[int],
+    device,
+    min_samples: int,
+) -> dict:
+    """Per-phase field VRMSE + observable merit for one horizon selection."""
+    out: dict[str, dict] = {}
+    for phase in PHASE_NAMES:
+        samples = pool_phase_samples(buckets, horizons, phase_of_row, PHASE_ID[phase])
+        if samples is None:
+            out[phase] = {"n": 0, "field_vrmse": None, "observable_merit": None}
+            continue
+        n = int(samples["target_row"].shape[0])
+        if n < min_samples:
+            out[phase] = {
+                "n": n,
+                "field_vrmse": None,
+                "observable_merit": None,
+                "skipped_low_n": True,
+            }
+            continue
+        out[phase] = {
+            "n": n,
+            "field_vrmse": phase_field_vrmse(samples, decoder, omega, device),
+            "observable_merit": phase_observable_merit(samples, probes, flat_targets),
+        }
+    return out
+
+
+def run_q2_phase(
+    models: Sequence[str] = CANONICAL_MODELS + ("fukami", "fukami_wake", "pod"),
+    *,
+    runs_base: str | Path = "outputs/runs/session31",
+    checkpoint_name: str = "checkpoint_iter010000.pt",
+    cache_dir: str | Path = "outputs/session31/q1_latents",
+    out_json: str | Path = "outputs/session31/q2_phase.json",
+    horizon: int = DEFAULT_HORIZON,
+    horizon_train: int = 8,
+    predictor_steps: int = 4000,
+    predictor_batch: int = 64,
+    predictor_lr: float = 5e-4,
+    ref_horizon: int = 8,
+    min_samples: int = 10,
+    windows_tag: str = "anchored_local",
+    windows_path: str | Path = "outputs/session31/windows_v2p2.json",
+    gpu: int = 0,
+    device_override: str | None = None,
+    decoder_steps: int = 6000,
+    decoder_batch: int = 64,
+    seed: int = 0,
+) -> dict:
+    """Phase-resolved forecast eval: bucket rolled samples by the TARGET's phase.
+
+    Using the gust impact instant as reference, each Test B (anchor, horizon)
+    sample is bucketed by which phase its target frame ``a+h`` falls in
+    (pre_impact / impact / post_impact), and field VRMSE + observable merit are
+    computed PER phase, pooled over horizons 1..H (plus a fixed h=``ref_horizon``
+    split). The matched ResUNet predictor and decode-floor decoder are fit ONCE
+    per model, exactly as :func:`run_q2`. Isolates the encoder geometry; answers
+    whether the predictive latent's forecast edge sits in the impact/post-impact
+    transient versus the pre-impact approach.
+    """
+    import torch
+
+    from src.evaluation.represent import fit_decode_floor_decoder
+
+    if device_override is not None:
+        device = torch.device(device_override)
+        gpu_name = device_override
+    else:
+        from src.utils.device import require_rtx6000
+
+        device = require_rtx6000(gpu_index=gpu)
+        gpu_name = torch.cuda.get_device_name(device.index)
+        if "RTX" not in gpu_name or "6000" not in gpu_name:
+            raise RuntimeError(f"hardware policy: gpu_name={gpu_name!r} is not an RTX 6000")
+
+    horizons = list(range(1, horizon + 1))
+    cache_dir = _resolve(cache_dir)
+    out_path = _resolve(out_json)
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+
+    windows = json.loads(_resolve(windows_path).read_text())["windows"]
+
+    omega_tb, *_ = load_field_cache(cache_dir / "fields_test_b.npz")
+    omega_tr, *_ = load_field_cache(cache_dir / "fields_train.npz")
+
+    print(
+        f"[q2-phase] device={device} ({gpu_name}) horizon={horizon} ref_h={ref_horizon} "
+        f"windows={windows_tag} models={list(models)}",
+        flush=True,
+    )
+
+    payload: dict = {
+        "task": "SESSION 31 Track D Q2-phase -- phase-resolved forecast ROM eval",
+        "params": {
+            "checkpoint": checkpoint_name,
+            "gpu_name": gpu_name,
+            "horizon": horizon,
+            "ref_horizon": ref_horizon,
+            "min_samples": min_samples,
+            "context_length": CONTEXT_LENGTH,
+            "windows_tag": windows_tag,
+            "windows_path": str(windows_path),
+            "phases": {
+                "pre_impact": "lead_in = [t_imp-8, t_imp)",
+                "impact": "impact = [t_imp, t_imp+16)",
+                "post_impact": "relaxation = [t_imp+16, t_imp+48)",
+            },
+            "bucketing": (
+                "every (anchor, horizon) sample whose target frame a+h lands in "
+                "lead_in union impact union relaxation is rolled, then bucketed by "
+                "the phase of its TARGET frame; metrics pooled over horizons per phase"
+            ),
+            "field_vrmse_definition": (
+                "aggregated_vrmse(pred, DNS at t+h) with the shared "
+                "SpatialLatentFieldDecoder; floor=decode(true z_{t+h}), "
+                "model=decode(rolled), persistence=held last-context DNS field"
+            ),
+            "observable_merit": (
+                "mean over the 5 observables of the MLP closure R^2 read from the "
+                "rolled GAP latent through the Q1 frozen probes"
+            ),
+            "observables": list(OBSERVABLES),
+            "predictor": _resunet_param_block(
+                horizon_train, predictor_steps, predictor_batch, predictor_lr
+            ),
+            "decode_floor_decoder": {
+                "arch": "SpatialLatentFieldDecoder (Q1 identical-capacity), refit on TRAIN latents",
+                "steps": decoder_steps,
+                "batch": decoder_batch,
+            },
+            "seed": seed,
+        },
+        "models": {},
+    }
+
+    def _write():
+        out_path.write_text(json.dumps(payload, indent=2))
+
+    _write()
+
+    for name in models:
+        print(f"\n[q2-phase] === {name} ===", flush=True)
+        tr = load_latent_split(cache_dir / f"latents_{name}_train.npz")
+        tb = load_latent_split(cache_dir / f"latents_{name}_test_b.npz")
+        trajs = encounter_trajectories(tr)
+        encounters_tb = group_encounters(tb)
+        latent_grid = tr.latent_grid
+
+        # widen every encounter's rollout window to the full phase union so that
+        # pre-impact targets are rolled too (baked mask excludes lead_in).
+        for enc in encounters_tb:
+            enc.window_mask = encounter_union_mask(windows.get(enc.key), enc.frames)
+
+        # per-row phase id for Test B targets (aligned to the flat cache rows).
+        phase_of_row = phase_row_labels(tb.case_id, tb.encounter_index, tb.frame, windows)
+
+        decoder = fit_decode_floor_decoder(
+            tr.z_spatial,
+            omega_tr,
+            latent_grid,
+            device=device,
+            steps=decoder_steps,
+            batch=decoder_batch,
+            seed=seed,
+            verbose=True,
+        )
+        probes = fit_observable_probes(tr.z_gap, tr.targets)
+
+        pred_rn = fit_matched_resunet(
+            trajs,
+            device=device,
+            horizon_train=horizon_train,
+            steps=predictor_steps,
+            batch=predictor_batch,
+            lr=predictor_lr,
+            seed=seed,
+        )
+        buckets = _gather_spatial(pred_rn, encounters_tb, horizons, CONTEXT_LENGTH, device)
+
+        pooled = _phase_block(
+            buckets,
+            phase_of_row,
+            decoder,
+            omega_tb,
+            probes,
+            tb.targets,
+            horizons,
+            device,
+            min_samples,
+        )
+        at_ref = _phase_block(
+            buckets,
+            phase_of_row,
+            decoder,
+            omega_tb,
+            probes,
+            tb.targets,
+            [ref_horizon],
+            device,
+            min_samples,
+        )
+
+        payload["models"][name] = {
+            "objective": _objective_of(runs_base, name, checkpoint_name),
+            "phases_pooled": pooled,  # horizons 1..H pooled per phase
+            "phases_at_ref_h": at_ref,  # fixed reference horizon h=ref_horizon
+        }
+        _write()
+        _print_phase_rows(name, pooled)
+
+        del pred_rn, buckets, decoder, tr, tb, trajs, encounters_tb
+        if device.type == "cuda":
+            torch.cuda.empty_cache()
+
+    _write()
+    print(f"\n[q2-phase] wrote {out_path}", flush=True)
+    _print_phase_summary(payload)
+    return payload
+
+
+def _phase_cells(block: dict, phase: str) -> tuple[float, float, int]:
+    """(field VRMSE model, observable merit, n) for one phase block, NaN if skipped."""
+    ph = block.get(phase, {})
+    n = int(ph.get("n", 0))
+    fv = ph.get("field_vrmse")
+    om = ph.get("observable_merit")
+    vr = float(fv["model"]) if fv else float("nan")
+    me = float(om["merit_mlp_r2"]) if om else float("nan")
+    return vr, me, n
+
+
+def _print_phase_rows(name: str, pooled: dict) -> None:
+    parts = [f"[q2-phase] {name} (pooled h1..H):"]
+    for phase in PHASE_NAMES:
+        vr, me, n = _phase_cells(pooled, phase)
+        parts.append(f"{phase} VRMSE={vr:.3f} merit={me:.2f} n={n}")
+    print("  ".join(parts), flush=True)
+
+
+def _print_phase_summary(payload: dict) -> None:
+    print(
+        "\n[q2-phase] ===== PHASE SUMMARY (pooled h1..H): field VRMSE model / "
+        "observable merit / n ====="
+    )
+    header = f"{'model':<16}"
+    for phase in PHASE_NAMES:
+        header += f"{phase + ' VRMSE/merit/n':>30}"
+    print(header)
+    for name, m in payload["models"].items():
+        row = f"{name:<16}"
+        for phase in PHASE_NAMES:
+            vr, me, n = _phase_cells(m["phases_pooled"], phase)
+            row += f"{f'{vr:.3f}/{me:.2f}/{n}':>30}"
+        print(row)
+    print("[q2-phase] ==============================================================\n")
 
 
 def _objective_of(runs_base, name, checkpoint_name) -> str:

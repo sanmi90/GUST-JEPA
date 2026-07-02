@@ -9425,3 +9425,30 @@ touched tests green; reference LaTeX table compiles. run_references.sh = repro r
 
 SESSION 31 experimental campaign COMPLETE (Tracks 0-F + E + references; gate F CIs, gate E,
 references). Deferred: multi-seed variance, reference/ablation CIs, bvae (author-pending).
+
+### D216 (SESSION31 phase-resolved forecast: pre/impact/post, all 14 models) (2026-07-02, Session 31)
+
+New `run_q2_phase` (rollout.py) + `eval_phase.py` + `make_phase_table.py`: forecast metrics
+bucketed by the phase of the TARGET frame relative to per-encounter t_impact --
+pre_impact (lead-in [t-8,t)), impact ([t,t+16)), post_impact (relaxation [t+16,t+48)),
+pooled over horizons 1..16 (+ an h=8 split). All 14 models (canonical q2_phase.json,
+ablations q2_phase_ablation.json; make_phase_table merges). Canonical q*.json/numbers*.json
+md5-identical; three-curve floor<=model<=persistence holds for all 14 x 3 phases; n per phase
+1:2:4 (5376/10752/21504), none under-sampled. 20 rollout tests, black+flake8 clean.
+
+FINDINGS (field VRMSE model / observable merit, pre|impact|post):
+  jepa_wake  0.802/0.84 | 0.834/0.75 | 0.844/0.71     jepa_nowake 0.788/0.81 | 0.820/0.74 | 0.846/0.56
+  ae_wake    0.850/0.76 | 0.868/0.66 | 0.868/0.60     ae_nowake   0.843/0.55 | 0.863/0.60 | 0.863/0.42
+  regAE      0.757/0.61 | 0.778/0.58 | 0.802/0.36 (best FIELD VRMSE every phase)
+  jepa_pool  0.927/0.65 | 0.960/0.61 | 0.982/0.60 (WORST field forecaster; pooling discards spatial info)
+  fukami -0.75/-0.66/-0.38 (unusable) ; fukami_wake 0.21/0.03/0.13 ; POD 0.34/0.32/0.22 (flat floor)
+READS: (1) field VRMSE degrades monotonically pre->impact->post for ALL models (the AFTERMATH
+is hardest, not the strike); reconstruction (regAE) wins the FIELD metric in every phase.
+(2) predictive latents lead the OBSERVABLE forecast in every phase, but the lead is NOT cleanly
+transient-concentrated: JEPA-AE merit gap nowake +0.25(pre)/+0.14/+0.15, wake +0.07/+0.09/+0.11
+-- for nowake the advantage is LARGEST PRE-IMPACT; only the wake variant mildly grows into the
+aftermath. So the gray-scott "advantage lives in the transient" expectation is only WEAKLY/mixed
+supported here. This CORRECTS an earlier partial-data (5-model) read that claimed the predictive
+advantage concentrates in the aftermath. Honest phase story for the manuscript: arrival is the
+easiest phase to forecast, aftermath the hardest; the predictive-observable-readout advantage is
+broad-phase, not transient-specific; recon owns the pixel field throughout.

@@ -12,8 +12,13 @@ from __future__ import annotations
 import numpy as np
 
 from src.evaluation.rollout import (
+    PHASE_ID,
     assemble_three_curve,
     drift_rel_l2,
+    encounter_union_mask,
+    frame_phase_ids,
+    phase_row_labels,
+    pool_phase_samples,
     roll_autoregressive,
     window_horizon_samples,
 )
@@ -201,3 +206,116 @@ def test_gather_spatial_reads_the_horizon_step_not_the_list_position():
     assert rolled_full.shape == rolled_single.shape
     # The h=3 rolled latent is deterministic; it must not depend on the horizons list.
     assert np.allclose(rolled_full, rolled_single)
+
+
+# --------------------------------------------------------------------------- phase
+_ENTRY = {
+    "t_impact": 40,
+    "n_frames": 60,
+    "lead_in": [32, 40],
+    "impact": [40, 56],
+    "relaxation": [56, 88],  # clamped to 60
+}
+
+
+def test_frame_phase_ids_partitions_the_union():
+    ids = frame_phase_ids(_ENTRY, 60)
+    assert ids.shape == (60,)
+    # pre-impact = lead_in [32,40) -> id 0
+    assert set(ids[32:40]) == {PHASE_ID["pre_impact"]}
+    # impact [40,56) -> id 1
+    assert set(ids[40:56]) == {PHASE_ID["impact"]}
+    # post-impact relaxation [56,88) clamped to [56,60) -> id 2
+    assert set(ids[56:60]) == {PHASE_ID["post_impact"]}
+    # everything before lead_in is unassigned
+    assert set(ids[:32]) == {-1}
+
+
+def test_frame_phase_ids_none_entry_all_unassigned():
+    ids = frame_phase_ids(None, 10)
+    assert np.all(ids == -1)
+
+
+def test_frame_phase_ids_phases_are_disjoint():
+    ids = frame_phase_ids(_ENTRY, 60)
+    for pid in (PHASE_ID["pre_impact"], PHASE_ID["impact"], PHASE_ID["post_impact"]):
+        assert (ids == pid).sum() > 0
+    # every in-union frame carries exactly one phase (no overlap): union count ==
+    # sum of the three individual phase counts.
+    union = (ids >= 0).sum()
+    per = sum(int((ids == PHASE_ID[p]).sum()) for p in ("pre_impact", "impact", "post_impact"))
+    assert union == per
+
+
+def test_encounter_union_mask_matches_phase_union():
+    frames = np.arange(60)
+    mask = encounter_union_mask(_ENTRY, frames)
+    ids = frame_phase_ids(_ENTRY, 60)
+    assert np.array_equal(mask, ids >= 0)
+    # a frame-subset (non-contiguous) still aligns row-for-row.
+    sub = np.array([10, 33, 41, 57])
+    msub = encounter_union_mask(_ENTRY, sub)
+    assert list(msub) == [False, True, True, True]
+
+
+def test_phase_row_labels_maps_rows_to_target_phase():
+    windows = {"caseA/00": _ENTRY, "caseB/01": _ENTRY}
+    case_id = np.array(["caseA", "caseA", "caseB", "caseC"])
+    enc = np.array([0, 0, 1, 0])
+    frame = np.array([33, 41, 57, 33])  # pre, impact, post, (no entry -> -1)
+    labels = phase_row_labels(case_id, enc, frame, windows)
+    assert labels[0] == PHASE_ID["pre_impact"]
+    assert labels[1] == PHASE_ID["impact"]
+    assert labels[2] == PHASE_ID["post_impact"]
+    assert labels[3] == -1  # caseC has no windows entry
+
+
+def test_pool_phase_samples_selects_by_target_phase():
+    from src.evaluation.rollout import HorizonBucket
+
+    # phase_of_row: rows 0-2 pre(0), rows 3-5 impact(1), rows 6-8 post(2)
+    phase_of_row = np.array([0, 0, 0, 1, 1, 1, 2, 2, 2])
+    # one horizon bucket, two encounters' worth of samples.
+    b = HorizonBucket()
+    b.rolled_gap = [np.array([[1.0], [2.0]]), np.array([[3.0]])]
+    b.true_gap = [np.array([[10.0], [20.0]]), np.array([[30.0]])]
+    b.anchor_gap = [np.array([[100.0], [200.0]]), np.array([[300.0]])]
+    b.target_row = [np.array([0, 3]), np.array([6])]  # phases pre, impact, post
+    b.anchor_row = [np.array([0, 1]), np.array([2])]
+    buckets = {8: b}
+
+    pre = pool_phase_samples(buckets, [8], phase_of_row, PHASE_ID["pre_impact"])
+    assert pre is not None
+    assert pre["target_row"].tolist() == [0]
+    assert pre["rolled_gap"].ravel().tolist() == [1.0]
+
+    imp = pool_phase_samples(buckets, [8], phase_of_row, PHASE_ID["impact"])
+    assert imp["target_row"].tolist() == [3]
+    assert imp["rolled_gap"].ravel().tolist() == [2.0]
+
+    post = pool_phase_samples(buckets, [8], phase_of_row, PHASE_ID["post_impact"])
+    assert post["target_row"].tolist() == [6]
+    assert post["rolled_gap"].ravel().tolist() == [3.0]
+
+
+def test_pool_phase_samples_pools_over_horizons_and_returns_none_when_empty():
+    from src.evaluation.rollout import HorizonBucket
+
+    phase_of_row = np.array([1, 1, 0, 0])  # rows 0,1 impact; 2,3 pre
+    b1 = HorizonBucket()
+    b1.rolled_gap = [np.array([[1.0]])]
+    b1.true_gap = [np.array([[1.0]])]
+    b1.anchor_gap = [np.array([[1.0]])]
+    b1.target_row = [np.array([0])]  # impact
+    b1.anchor_row = [np.array([2])]
+    b2 = HorizonBucket()
+    b2.rolled_gap = [np.array([[2.0]])]
+    b2.true_gap = [np.array([[2.0]])]
+    b2.anchor_gap = [np.array([[2.0]])]
+    b2.target_row = [np.array([1])]  # impact
+    b2.anchor_row = [np.array([3])]
+    buckets = {1: b1, 2: b2}
+    imp = pool_phase_samples(buckets, [1, 2], phase_of_row, PHASE_ID["impact"])
+    assert imp["target_row"].tolist() == [0, 1]  # pooled across both horizons
+    # no post_impact target anywhere -> None
+    assert pool_phase_samples(buckets, [1, 2], phase_of_row, PHASE_ID["post_impact"]) is None
