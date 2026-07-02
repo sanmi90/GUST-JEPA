@@ -1,0 +1,251 @@
+{
+  "_provenance": {
+    "script": "scripts/session33/manifold_atlas_v2p2.py",
+    "created_iso": "2026-07-02T23:33:52",
+    "git_head": "85dfda5f36bb0ccf9dd0027e302de5d8ccdebce6",
+    "split_manifest": "configs/splits/split_v2p2.json",
+    "windows": "outputs/session31/windows_v2p2.json",
+    "inputs": {
+      "jepa_pool": {
+        "train": "outputs/session31/q1_latents/latents_jepa_pool_train.npz",
+        "test_b": "outputs/session31/q1_latents/latents_jepa_pool_test_b.npz"
+      },
+      "supervised_only_pool": {
+        "train": "outputs/session32/q1_pool_latents/latents_supervised_only_pool_train.npz",
+        "test_b": "outputs/session32/q1_pool_latents/latents_supervised_only_pool_test_b.npz"
+      },
+      "fukami": {
+        "train": "outputs/session31/q1_latents/latents_fukami_train.npz",
+        "test_b": "outputs/session31/q1_latents/latents_fukami_test_b.npz"
+      },
+      "pod": {
+        "train": "outputs/session31/q1_latents/latents_pod_train.npz",
+        "test_b": "outputs/session31/q1_latents/latents_pod_test_b.npz"
+      }
+    },
+    "coords_npz": "outputs/session33/manifold_atlas_v2p2_coords.npz",
+    "seed": 0
+  },
+  "params": {
+    "latent_key": "z_gap",
+    "pca_components": 3,
+    "pca_fit_on": "train per-frame z_gap",
+    "probe_regime": "impact-frame (one row per encounter at windows t_impact)",
+    "probe_cv": "nested OOF: outer GroupKFold(5) by case_id, inner grouped alpha search",
+    "ridge_alphas": [
+      0.001,
+      0.01,
+      0.1,
+      1.0,
+      10.0,
+      100.0,
+      1000.0
+    ],
+    "krr_alphas": [
+      0.0001,
+      0.001,
+      0.01,
+      0.1,
+      1.0
+    ],
+    "krr_gammas": [
+      0.003,
+      0.01,
+      0.03,
+      0.1,
+      0.3
+    ]
+  },
+  "v2p1_reference_test_b": {
+    "G": 0.83,
+    "D": 0.65,
+    "Y": -0.03,
+    "note": "v2.1 linear-probe test_b R^2; qualitative expectation on v2.2 is G strong, D medium, Y marginal (Y needed a nonlinear probe in v2.1)"
+  },
+  "families": {
+    "jepa_pool": {
+      "pca_explained_variance_ratio": [
+        0.19024434448975114,
+        0.1547823004535133,
+        0.11845222727241322
+      ],
+      "n_train_frames": 32160,
+      "n_test_b_frames": 5040,
+      "n_train_impact_rows": 268,
+      "n_test_b_impact_rows": 42,
+      "n_train_cases": 84,
+      "probes": {
+        "G": {
+          "probe_kind": "ridge",
+          "train_cv_r2": 0.7940081642102191,
+          "test_b_r2": 0.7562142463494707,
+          "best_params": {
+            "alpha": 1.0
+          }
+        },
+        "D": {
+          "probe_kind": "ridge",
+          "train_cv_r2": 0.7509044222327637,
+          "test_b_r2": 0.7805496634576675,
+          "best_params": {
+            "alpha": 10.0
+          }
+        },
+        "Y": {
+          "probe_kind": "ridge",
+          "train_cv_r2": 0.3962463230601809,
+          "test_b_r2": 0.2879717353520592,
+          "best_params": {
+            "alpha": 10.0
+          },
+          "krr_rbf": {
+            "train_cv_r2": 0.5170209070597868,
+            "test_b_r2": 0.5286907995162006,
+            "best_params": {
+              "alpha": 0.0001,
+              "gamma": 0.03
+            }
+          }
+        }
+      }
+    },
+    "supervised_only_pool": {
+      "pca_explained_variance_ratio": [
+        0.2552803641598023,
+        0.1255146046222973,
+        0.10262907347348897
+      ],
+      "n_train_frames": 32160,
+      "n_test_b_frames": 5040,
+      "n_train_impact_rows": 268,
+      "n_test_b_impact_rows": 42,
+      "n_train_cases": 84,
+      "probes": {
+        "G": {
+          "probe_kind": "ridge",
+          "train_cv_r2": 0.6811992983104197,
+          "test_b_r2": 0.8038609427199892,
+          "best_params": {
+            "alpha": 10.0
+          }
+        },
+        "D": {
+          "probe_kind": "ridge",
+          "train_cv_r2": 0.49208657264511635,
+          "test_b_r2": 0.5558171567806234,
+          "best_params": {
+            "alpha": 1.0
+          }
+        },
+        "Y": {
+          "probe_kind": "ridge",
+          "train_cv_r2": 0.4270040876239741,
+          "test_b_r2": 0.16781511080005418,
+          "best_params": {
+            "alpha": 10.0
+          },
+          "krr_rbf": {
+            "train_cv_r2": 0.5769070838513539,
+            "test_b_r2": 0.10683732517508915,
+            "best_params": {
+              "alpha": 0.01,
+              "gamma": 0.01
+            }
+          }
+        }
+      }
+    },
+    "fukami": {
+      "pca_explained_variance_ratio": [
+        0.7375643948187538,
+        0.25935613646827066,
+        0.001518471323515083
+      ],
+      "n_train_frames": 32160,
+      "n_test_b_frames": 5040,
+      "n_train_impact_rows": 268,
+      "n_test_b_impact_rows": 42,
+      "n_train_cases": 84,
+      "probes": {
+        "G": {
+          "probe_kind": "ridge",
+          "train_cv_r2": 0.6388997081027796,
+          "test_b_r2": 0.6406197233648208,
+          "best_params": {
+            "alpha": 1.0
+          }
+        },
+        "D": {
+          "probe_kind": "ridge",
+          "train_cv_r2": 0.284124137614852,
+          "test_b_r2": 0.3680566373273845,
+          "best_params": {
+            "alpha": 0.01
+          }
+        },
+        "Y": {
+          "probe_kind": "ridge",
+          "train_cv_r2": -0.12735412985043193,
+          "test_b_r2": -0.052536721242082196,
+          "best_params": {
+            "alpha": 1000.0
+          },
+          "krr_rbf": {
+            "train_cv_r2": -0.12931997813463947,
+            "test_b_r2": -0.09662115030667229,
+            "best_params": {
+              "alpha": 1.0,
+              "gamma": 0.003
+            }
+          }
+        }
+      }
+    },
+    "pod": {
+      "pca_explained_variance_ratio": [
+        0.11484454559030328,
+        0.0905977094065622,
+        0.06999265590155211
+      ],
+      "n_train_frames": 32160,
+      "n_test_b_frames": 5040,
+      "n_train_impact_rows": 268,
+      "n_test_b_impact_rows": 42,
+      "n_train_cases": 84,
+      "probes": {
+        "G": {
+          "probe_kind": "ridge",
+          "train_cv_r2": 0.6859006186442258,
+          "test_b_r2": 0.7319417432718975,
+          "best_params": {
+            "alpha": 100.0
+          }
+        },
+        "D": {
+          "probe_kind": "ridge",
+          "train_cv_r2": 0.6136016716596144,
+          "test_b_r2": 0.6263649988056228,
+          "best_params": {
+            "alpha": 10.0
+          }
+        },
+        "Y": {
+          "probe_kind": "ridge",
+          "train_cv_r2": -0.1834342424330404,
+          "test_b_r2": -0.11572563879311426,
+          "best_params": {
+            "alpha": 1000.0
+          },
+          "krr_rbf": {
+            "train_cv_r2": 0.4040900732667415,
+            "test_b_r2": 0.16360468089787072,
+            "best_params": {
+              "alpha": 0.01,
+              "gamma": 0.01
+            }
+          }
+        }
+      }
+    }
+  }
+}
