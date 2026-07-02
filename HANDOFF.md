@@ -9759,3 +9759,47 @@ built+pilot+frozen (rho=1.0; improves closure over open-loop, per-model OSP shar
 honest weak-wall-sensor + strong-gust divergence). Remaining = S33 full Test B/C filter
 campaign + Track D warning horizon + Track E physics; S34 manuscript; + commit the S32 work
 (uncommitted on session31-canonical-v2p2).
+
+### D236 (SESSION32 gust-intensity OPERATING ENVELOPE: sequential filter extends usable range beyond static recovery) (2026-07-02, Session 32)
+
+Per Carlos: report results stratified by gust intensity to find "till which effect it is
+possible to do something." scripts/session32/envelope_by_gust.py (+ _fig.py) runs the FROZEN
+Track B filter (rho=1.0, osp_per_model, field-free init -- validated byte-for-byte vs
+filter_tuning_frozen.json) + open-loop forecast + static O1 recovery on ALL 450 encounters
+(labelled by split), jepa_pool headline + POD reference. Numbers verified from the JSON myself.
+
+ENVELOPE by |G| (jepa_pool, impact phase, median): filter CL analysis R2 / div-rate / static
+recovery CL R2:
+  |G|=0        -4.74* / 0.00 / -4.33*   (weak-signal: true lift near-constant, R2 unreliable)
+  |G|=0.25-0.5 +0.02* / 0.00 / +0.60
+  |G|=1        +0.71  / 0.00 / +0.63
+  |G|=1.5      +0.87  / 0.18 / +0.64
+  |G|=2        +0.78  / 0.41 / +0.35
+  |G|=3        +0.69  / 0.75 / -1.22   (IN-DISTRIBUTION train/val)
+  |G|=4        +0.90  / 0.82 / -0.33   (test_c extrapolation boundary)
+
+FOUR HEADLINE READS (corrects an earlier mid-run "middle-band" framing):
+(1) FILTER LIFT TRACKING is good for ALL |G|>=1 (CL R2 0.69-0.90), even at |G|=4 -- NOT a
+middle band. The low-|G| "poor" R2 is a weak-signal artifact (near-constant true lift,
+denominator ~0), not a method failure.
+(2) What degrades monotonically with |G| is CALIBRATION, not tracking: divergence-rate
+0.00->0.82 and mean NIS 0.9->19.4 (ensemble over-confident). Divergence >50% first at |G|~3
+(D<=1.0) / |G|~2 (D=1.5). So "divergence" != "tracking failure": at |G|=4 the analysis mean
+still tracks lift (0.90) while the uncertainty is mis-calibrated. Report both limits.
+(3) THE SEQUENTIAL FILTER EXTENDS THE USABLE ENVELOPE BEYOND STATIC RECOVERY -- the paper's
+core argument, now quantified: static O1 recovery CL goes negative at |G|=3 (-1.22) and |G|=4
+(-0.33), while the filter still tracks (0.69, 0.90). Open-loop FORECAST never works (CL
+closure negative at every |G|, frac_pos~0), so the correction step is essential.
+(4) STRONG SIGN ASYMMETRY (representation-general, POD replicates): physical-POSITIVE gusts
+(inventory G<0, neg_Ginv) have a WIDER envelope -- div 0.16 vs 0.35, filter CL median 0.89 vs
+0.25; at |G|=2 the physical-positive filter CL is 0.96 (div 0.11) vs -0.32 (div 0.66) for
+physical-negative. Envelope ~1-2 |G| units wider for physical-positive gusts -- a
+physical/observability effect.
+D-DEPENDENCE: larger diameter moves the filter-divergence threshold DOWN (|G|~3 at D<=1.0 ->
+|G|~2 at D=1.5); thin D=0.5 static recovery is the most robust at high |G|. HONESTY: the
+|G|=3 divergence limit is IN-DISTRIBUTION (train/val), so it is an OBSERVABILITY/filter limit,
+not a training-coverage gap; |G|=4 is the test_c boundary; characterization with the frozen
+filter, not model selection. Caveat: forecast R2 magnitudes are extreme-negative from
+long-horizon single-trajectory divergence (the "no positive forecast envelope" finding is
+robust to which forecast baseline is read). Deliverables: envelope_by_gust.json + .png.
+This is the Discussion's applicability-envelope result.
