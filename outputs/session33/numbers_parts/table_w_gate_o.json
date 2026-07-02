@@ -1,0 +1,57 @@
+{
+  "part": "table_w_gate_o",
+  "numbers": {
+    "w_state_Jepa": {
+      "value": 0.7068691393889431,
+      "macro": "WstateJepa",
+      "fmt": "%.3f"
+    },
+    "w_obs_Jepa": {
+      "value": 0.6369532594401084,
+      "macro": "WobsJepa",
+      "fmt": "%.3f"
+    },
+    "w_pick_Jepa": {
+      "value": "lstm",
+      "macro": "WpickJepa",
+      "fmt": "%s"
+    },
+    "w_state_Fukami": {
+      "value": 0.9211295647451707,
+      "macro": "WstateFukami",
+      "fmt": "%.3f"
+    },
+    "w_obs_Fukami": {
+      "value": 0.46999104006349784,
+      "macro": "WobsFukami",
+      "fmt": "%.3f"
+    },
+    "w_pick_Fukami": {
+      "value": "lstm",
+      "macro": "WpickFukami",
+      "fmt": "%s"
+    },
+    "w_state_Pod": {
+      "value": 0.5609549468580752,
+      "macro": "WstatePod",
+      "fmt": "%.3f"
+    },
+    "w_obs_Pod": {
+      "value": 0.5337862625967579,
+      "macro": "WobsPod",
+      "fmt": "%.3f"
+    },
+    "w_pick_Pod": {
+      "value": "mlp",
+      "macro": "WpickPod",
+      "fmt": "%s"
+    },
+    "gate_o_delta": {
+      "value": 0.12004991695544298,
+      "macro": "GateODelta",
+      "fmt": "%.3f",
+      "ci_lo": 0.09577619437196355,
+      "ci_hi": 0.14493266092841273
+    }
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "part": "paired_stats",
+  "numbers": {
+    "stats_f2_CL_impact_vs_openloop": {
+      "value": 0.0029296875,
+      "macro": "HolmFCLimpact",
+      "fmt": "%.3f",
+      "note": "Holm-adjusted, one-sided"
+    },
+    "stats_f2_CL_relax_vs_openloop": {
+      "value": 0.0029296875,
+      "macro": "HolmFCLrelax",
+      "fmt": "%.3f",
+      "note": "Holm-adjusted, one-sided"
+    },
+    "stats_f2_Ew_impact_vs_openloop": {
+      "value": 0.052734375,
+      "macro": "HolmFEwimpact",
+      "fmt": "%.3f",
+      "note": "Holm-adjusted, one-sided"
+    },
+    "stats_testc_CL_impact_vs_static_p": {
+      "value": 0.0078125,
+      "fmt": "%.4f",
+      "note": "test_c annex, characterisation"
+    },
+    "stats_testc_CL_relax_vs_static_p": {
+      "value": 0.0078125,
+      "fmt": "%.4f",
+      "note": "test_c annex, characterisation"
+    }
+  }
+}

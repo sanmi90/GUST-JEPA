@@ -1,0 +1,83 @@
+{
+  "part": "constants",
+  "numbers": {
+    "train_std_v2p2": {
+      "value": 3.5396,
+      "macro": "TrainStd",
+      "fmt": "%.4f",
+      "source": "v2p2 manifest"
+    },
+    "ssim_L_v2p2": {
+      "value": 8.487,
+      "macro": "SsimL",
+      "fmt": "%.3f",
+      "source": "configs/ssim_data_range.json"
+    },
+    "lambda_sigreg": {
+      "value": 0.02,
+      "macro": "LambdaSigreg",
+      "fmt": "%.2f",
+      "source": "D238/dda57b7"
+    },
+    "n_cases": {
+      "value": 102,
+      "macro": "NCases",
+      "fmt": "%d"
+    },
+    "n_encounters": {
+      "value": 450,
+      "macro": "NEncounters",
+      "fmt": "%d"
+    },
+    "n_train_cases": {
+      "value": 84,
+      "macro": "NTrainCases",
+      "fmt": "%d"
+    },
+    "n_testb_cases": {
+      "value": 10,
+      "macro": "NTestBCases",
+      "fmt": "%d"
+    },
+    "n_testc_cases": {
+      "value": 8,
+      "macro": "NTestCCases",
+      "fmt": "%d"
+    },
+    "n_val_encounters": {
+      "value": 100,
+      "macro": "NValEnc",
+      "fmt": "%d"
+    },
+    "latent_dim": {
+      "value": 32,
+      "macro": "LatentDim",
+      "fmt": "%d"
+    },
+    "filter_taps": {
+      "value": 8,
+      "macro": "FilterTaps",
+      "fmt": "%d"
+    },
+    "filter_members": {
+      "value": 64,
+      "macro": "FilterMembers",
+      "fmt": "%d"
+    },
+    "assim_pre": {
+      "value": 24,
+      "macro": "AssimPre",
+      "fmt": "%d"
+    },
+    "assim_post": {
+      "value": 48,
+      "macro": "AssimPost",
+      "fmt": "%d"
+    },
+    "dt_tc": {
+      "value": 0.05,
+      "macro": "DtTc",
+      "fmt": "%.2f"
+    }
+  }
+}

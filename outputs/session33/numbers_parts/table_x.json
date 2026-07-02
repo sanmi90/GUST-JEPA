@@ -1,0 +1,279 @@
+{
+  "part": "table_x",
+  "numbers": {
+    "x_wake_JepaWake": {
+      "value": 0.7654353819969092,
+      "macro": "XwakeJepaWake",
+      "fmt": "%.3f",
+      "split": "test_b",
+      "observable": "wake_enstrophy",
+      "probe": "linear windowed"
+    },
+    "x_merit_JepaWake": {
+      "value": 0.6392479820512291,
+      "macro": "XmeritJepaWake",
+      "fmt": "%.3f",
+      "horizon": 8
+    },
+    "x_vrmse_JepaWake": {
+      "value": 0.9691949087326402,
+      "macro": "XvrmseJepaWake",
+      "fmt": "%.3f",
+      "horizon": 8
+    },
+    "x_ssim_JepaWake": {
+      "value": 0.7780438142781496,
+      "macro": "XssimJepaWake",
+      "fmt": "%.3f"
+    },
+    "x_cl_JepaWake": {
+      "value": 0.543732816723379,
+      "macro": "XclJepaWake",
+      "fmt": "%.3f",
+      "horizon": 8
+    },
+    "x_wake_SupOnly": {
+      "value": 0.792274306281295,
+      "macro": "XwakeSupOnly",
+      "fmt": "%.3f",
+      "split": "test_b",
+      "observable": "wake_enstrophy",
+      "probe": "linear windowed"
+    },
+    "x_merit_SupOnly": {
+      "value": 0.6369504615593259,
+      "macro": "XmeritSupOnly",
+      "fmt": "%.3f",
+      "horizon": 8
+    },
+    "x_vrmse_SupOnly": {
+      "value": 0.9916244653720641,
+      "macro": "XvrmseSupOnly",
+      "fmt": "%.3f",
+      "horizon": 8
+    },
+    "x_ssim_SupOnly": {
+      "value": 0.7743065476421135,
+      "macro": "XssimSupOnly",
+      "fmt": "%.3f"
+    },
+    "x_cl_SupOnly": {
+      "value": 0.6798881420511099,
+      "macro": "XclSupOnly",
+      "fmt": "%.3f",
+      "horizon": 8
+    },
+    "x_wake_AeWake": {
+      "value": 0.7495265504814278,
+      "macro": "XwakeAeWake",
+      "fmt": "%.3f",
+      "split": "test_b",
+      "observable": "wake_enstrophy",
+      "probe": "linear windowed"
+    },
+    "x_merit_AeWake": {
+      "value": 0.5478259334310612,
+      "macro": "XmeritAeWake",
+      "fmt": "%.3f",
+      "horizon": 8
+    },
+    "x_vrmse_AeWake": {
+      "value": 0.9760097588703832,
+      "macro": "XvrmseAeWake",
+      "fmt": "%.3f",
+      "horizon": 8
+    },
+    "x_ssim_AeWake": {
+      "value": 0.7757894522378035,
+      "macro": "XssimAeWake",
+      "fmt": "%.3f"
+    },
+    "x_cl_AeWake": {
+      "value": 0.38033650961244614,
+      "macro": "XclAeWake",
+      "fmt": "%.3f",
+      "horizon": 8
+    },
+    "x_wake_JepaNowake": {
+      "value": 0.16047708246555004,
+      "macro": "XwakeJepaNowake",
+      "fmt": "%.3f",
+      "split": "test_b",
+      "observable": "wake_enstrophy",
+      "probe": "linear windowed"
+    },
+    "x_merit_JepaNowake": {
+      "value": 0.4706951293868123,
+      "macro": "XmeritJepaNowake",
+      "fmt": "%.3f",
+      "horizon": 8
+    },
+    "x_vrmse_JepaNowake": {
+      "value": 0.9825563868326171,
+      "macro": "XvrmseJepaNowake",
+      "fmt": "%.3f",
+      "horizon": 8
+    },
+    "x_ssim_JepaNowake": {
+      "value": 0.7667058699678407,
+      "macro": "XssimJepaNowake",
+      "fmt": "%.3f"
+    },
+    "x_cl_JepaNowake": {
+      "value": 0.6907843247463056,
+      "macro": "XclJepaNowake",
+      "fmt": "%.3f",
+      "horizon": 8
+    },
+    "x_wake_AeNowake": {
+      "value": 0.456138683798082,
+      "macro": "XwakeAeNowake",
+      "fmt": "%.3f",
+      "split": "test_b",
+      "observable": "wake_enstrophy",
+      "probe": "linear windowed"
+    },
+    "x_merit_AeNowake": {
+      "value": 0.43239314193480194,
+      "macro": "XmeritAeNowake",
+      "fmt": "%.3f",
+      "horizon": 8
+    },
+    "x_vrmse_AeNowake": {
+      "value": 0.9756632849564602,
+      "macro": "XvrmseAeNowake",
+      "fmt": "%.3f",
+      "horizon": 8
+    },
+    "x_ssim_AeNowake": {
+      "value": 0.7725440246344284,
+      "macro": "XssimAeNowake",
+      "fmt": "%.3f"
+    },
+    "x_cl_AeNowake": {
+      "value": 0.5977339834663904,
+      "macro": "XclAeNowake",
+      "fmt": "%.3f",
+      "horizon": 8
+    },
+    "x_wake_RegAE": {
+      "value": 0.33297701281544845,
+      "macro": "XwakeRegAE",
+      "fmt": "%.3f",
+      "split": "test_b",
+      "observable": "wake_enstrophy",
+      "probe": "linear windowed"
+    },
+    "x_merit_RegAE": {
+      "value": 0.19674223615494013,
+      "macro": "XmeritRegAE",
+      "fmt": "%.3f",
+      "horizon": 8
+    },
+    "x_vrmse_RegAE": {
+      "value": 0.9490835500365685,
+      "macro": "XvrmseRegAE",
+      "fmt": "%.3f",
+      "horizon": 8
+    },
+    "x_ssim_RegAE": {
+      "value": 0.7819114950727337,
+      "macro": "XssimRegAE",
+      "fmt": "%.3f"
+    },
+    "x_cl_RegAE": {
+      "value": 0.3697984500456961,
+      "macro": "XclRegAE",
+      "fmt": "%.3f",
+      "horizon": 8
+    },
+    "x_wake_Bvae": {
+      "value": 0.727864986678175,
+      "macro": "XwakeBvae",
+      "fmt": "%.3f",
+      "split": "test_b",
+      "observable": "wake_enstrophy",
+      "probe": "linear windowed"
+    },
+    "x_merit_Bvae": {
+      "value": 0.35627680919609783,
+      "macro": "XmeritBvae",
+      "fmt": "%.3f",
+      "horizon": 8
+    },
+    "x_vrmse_Bvae": {
+      "value": 1.0070122597029225,
+      "macro": "XvrmseBvae",
+      "fmt": "%.3f",
+      "horizon": 8
+    },
+    "x_ssim_Bvae": {
+      "value": 0.7237924585575064,
+      "macro": "XssimBvae",
+      "fmt": "%.3f"
+    },
+    "x_cl_Bvae": {
+      "value": 0.027417685219299104,
+      "macro": "XclBvae",
+      "fmt": "%.3f",
+      "horizon": 8
+    },
+    "x_wake_Fukami": {
+      "value": -0.09351263733110815,
+      "macro": "XwakeFukami",
+      "fmt": "%.3f",
+      "split": "test_b",
+      "observable": "wake_enstrophy",
+      "probe": "linear windowed"
+    },
+    "x_wake_FukamiWake": {
+      "value": 0.432307418183996,
+      "macro": "XwakeFukamiWake",
+      "fmt": "%.3f",
+      "split": "test_b",
+      "observable": "wake_enstrophy",
+      "probe": "linear windowed"
+    },
+    "x_wake_Pod": {
+      "value": 0.18588590561209983,
+      "macro": "XwakePod",
+      "fmt": "%.3f",
+      "split": "test_b",
+      "observable": "wake_enstrophy",
+      "probe": "linear windowed"
+    },
+    "x_merit_Fukami": {
+      "value": -0.1997793707280683,
+      "macro": "XmeritFukami",
+      "fmt": "%.3f",
+      "horizon": 8
+    },
+    "x_ssim_Fukami": {
+      "value": 0.7077320052706405,
+      "macro": "XssimFukami",
+      "fmt": "%.3f"
+    },
+    "x_merit_FukamiWake": {
+      "value": 0.2034922374939243,
+      "macro": "XmeritFukamiWake",
+      "fmt": "%.3f",
+      "horizon": 8
+    },
+    "x_ssim_FukamiWake": {
+      "value": 0.7048116745663372,
+      "macro": "XssimFukamiWake",
+      "fmt": "%.3f"
+    },
+    "x_merit_Pod": {
+      "value": 0.2904001766231986,
+      "macro": "XmeritPod",
+      "fmt": "%.3f",
+      "horizon": 8
+    },
+    "x_ssim_Pod": {
+      "value": 0.774961637159701,
+      "macro": "XssimPod",
+      "fmt": "%.3f"
+    }
+  }
+}

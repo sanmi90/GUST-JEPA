@@ -1,0 +1,167 @@
+{
+  "part": "table_v_envelope",
+  "numbers": {
+    "v_filt_cl_Zero": {
+      "value": -4.73943057007158,
+      "macro": "VfiltCLGZero",
+      "fmt": "%.2f",
+      "note": "median analysis C_L R2, impact"
+    },
+    "v_div_Zero": {
+      "value": 0.0,
+      "macro": "VdivGZero",
+      "fmt": "%.2f"
+    },
+    "v_rec_cl_Zero": {
+      "value": -4.333859455509206,
+      "macro": "VrecCLGZero",
+      "fmt": "%.2f"
+    },
+    "v_nis_Zero": {
+      "value": 0.9077692880668514,
+      "macro": "VnisGZero",
+      "fmt": "%.1f"
+    },
+    "v_filt_cl_Half": {
+      "value": 0.020845123683902456,
+      "macro": "VfiltCLGHalf",
+      "fmt": "%.2f",
+      "note": "median analysis C_L R2, impact"
+    },
+    "v_div_Half": {
+      "value": 0.0,
+      "macro": "VdivGHalf",
+      "fmt": "%.2f"
+    },
+    "v_rec_cl_Half": {
+      "value": 0.6046378045943231,
+      "macro": "VrecCLGHalf",
+      "fmt": "%.2f"
+    },
+    "v_nis_Half": {
+      "value": 1.3603887831981356,
+      "macro": "VnisGHalf",
+      "fmt": "%.1f"
+    },
+    "v_filt_cl_One": {
+      "value": 0.7063109596117505,
+      "macro": "VfiltCLGOne",
+      "fmt": "%.2f",
+      "note": "median analysis C_L R2, impact"
+    },
+    "v_div_One": {
+      "value": 0.0,
+      "macro": "VdivGOne",
+      "fmt": "%.2f"
+    },
+    "v_rec_cl_One": {
+      "value": 0.6347746693181264,
+      "macro": "VrecCLGOne",
+      "fmt": "%.2f"
+    },
+    "v_nis_One": {
+      "value": 2.209122833404313,
+      "macro": "VnisGOne",
+      "fmt": "%.1f"
+    },
+    "v_filt_cl_OneHalf": {
+      "value": 0.8735580114400439,
+      "macro": "VfiltCLGOneHalf",
+      "fmt": "%.2f",
+      "note": "median analysis C_L R2, impact"
+    },
+    "v_div_OneHalf": {
+      "value": 0.17857142857142858,
+      "macro": "VdivGOneHalf",
+      "fmt": "%.2f"
+    },
+    "v_rec_cl_OneHalf": {
+      "value": 0.6435218106271248,
+      "macro": "VrecCLGOneHalf",
+      "fmt": "%.2f"
+    },
+    "v_nis_OneHalf": {
+      "value": 5.383949818339283,
+      "macro": "VnisGOneHalf",
+      "fmt": "%.1f"
+    },
+    "v_filt_cl_Two": {
+      "value": 0.7841885272869611,
+      "macro": "VfiltCLGTwo",
+      "fmt": "%.2f",
+      "note": "median analysis C_L R2, impact"
+    },
+    "v_div_Two": {
+      "value": 0.4125,
+      "macro": "VdivGTwo",
+      "fmt": "%.2f"
+    },
+    "v_rec_cl_Two": {
+      "value": 0.35496401107908965,
+      "macro": "VrecCLGTwo",
+      "fmt": "%.2f"
+    },
+    "v_nis_Two": {
+      "value": 10.152209989804934,
+      "macro": "VnisGTwo",
+      "fmt": "%.1f"
+    },
+    "v_filt_cl_Three": {
+      "value": 0.6897836208862795,
+      "macro": "VfiltCLGThree",
+      "fmt": "%.2f",
+      "note": "median analysis C_L R2, impact"
+    },
+    "v_div_Three": {
+      "value": 0.75,
+      "macro": "VdivGThree",
+      "fmt": "%.2f"
+    },
+    "v_rec_cl_Three": {
+      "value": -1.2203332051544242,
+      "macro": "VrecCLGThree",
+      "fmt": "%.2f"
+    },
+    "v_nis_Three": {
+      "value": 18.134237602167353,
+      "macro": "VnisGThree",
+      "fmt": "%.1f"
+    },
+    "v_filt_cl_Four": {
+      "value": 0.8960931377661643,
+      "macro": "VfiltCLGFour",
+      "fmt": "%.2f",
+      "note": "median analysis C_L R2, impact"
+    },
+    "v_div_Four": {
+      "value": 0.825,
+      "macro": "VdivGFour",
+      "fmt": "%.2f"
+    },
+    "v_rec_cl_Four": {
+      "value": -0.3282107953976737,
+      "macro": "VrecCLGFour",
+      "fmt": "%.2f"
+    },
+    "v_nis_Four": {
+      "value": 19.383413714131628,
+      "macro": "VnisGFour",
+      "fmt": "%.1f"
+    },
+    "v_divthresh_DHalf": {
+      "value": 3.0,
+      "macro": "VdivThreshDHalf",
+      "fmt": "%.1f"
+    },
+    "v_divthresh_DOne": {
+      "value": 3.0,
+      "macro": "VdivThreshDOne",
+      "fmt": "%.1f"
+    },
+    "v_divthresh_DOneHalf": {
+      "value": 2.0,
+      "macro": "VdivThreshDOneHalf",
+      "fmt": "%.1f"
+    }
+  }
+}

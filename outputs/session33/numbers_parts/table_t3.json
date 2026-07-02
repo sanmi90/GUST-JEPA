@@ -1,0 +1,179 @@
+{
+  "part": "table_t3",
+  "numbers": {
+    "t3_deff_Zero": {
+      "value": 3.729270783486033,
+      "macro": "TthreeDeffGZero",
+      "fmt": "%.1f",
+      "ci_lo": 1.5375775893918116,
+      "ci_hi": 4.700428056421483
+    },
+    "t3_pr_Zero": {
+      "value": 4.924871233040837,
+      "macro": "TthreePrGZero",
+      "fmt": "%.1f"
+    },
+    "t3_npc_Zero": {
+      "value": 6,
+      "macro": "TthreeNpcGZero",
+      "fmt": "%d"
+    },
+    "t3_chi_Zero": {
+      "value": 0.21742402810888223,
+      "macro": "TthreeChiGZero",
+      "fmt": "%.2f"
+    },
+    "t3_deff_Half": {
+      "value": 3.731458065459335,
+      "macro": "TthreeDeffGHalf",
+      "fmt": "%.1f",
+      "ci_lo": 3.3051828169652278,
+      "ci_hi": 4.019589897563919
+    },
+    "t3_pr_Half": {
+      "value": 5.47063219050233,
+      "macro": "TthreePrGHalf",
+      "fmt": "%.1f"
+    },
+    "t3_npc_Half": {
+      "value": 9,
+      "macro": "TthreeNpcGHalf",
+      "fmt": "%d"
+    },
+    "t3_chi_Half": {
+      "value": 0.18343445172247927,
+      "macro": "TthreeChiGHalf",
+      "fmt": "%.2f"
+    },
+    "t3_mneed_Half": {
+      "value": 1,
+      "macro": "TthreeMneedGHalf",
+      "fmt": "%d"
+    },
+    "t3_deff_One": {
+      "value": 3.8655353381921413,
+      "macro": "TthreeDeffGOne",
+      "fmt": "%.1f",
+      "ci_lo": 2.588852733912803,
+      "ci_hi": 4.5317849507996595
+    },
+    "t3_pr_One": {
+      "value": 8.410380424990239,
+      "macro": "TthreePrGOne",
+      "fmt": "%.1f"
+    },
+    "t3_npc_One": {
+      "value": 12,
+      "macro": "TthreeNpcGOne",
+      "fmt": "%d"
+    },
+    "t3_chi_One": {
+      "value": 0.18660795016315426,
+      "macro": "TthreeChiGOne",
+      "fmt": "%.2f"
+    },
+    "t3_mneed_One": {
+      "value": 1,
+      "macro": "TthreeMneedGOne",
+      "fmt": "%d"
+    },
+    "t3_deff_OneHalf": {
+      "value": 5.015015228233161,
+      "macro": "TthreeDeffGOneHalf",
+      "fmt": "%.1f",
+      "ci_lo": 1.6137607691716307,
+      "ci_hi": 5.128728616299853
+    },
+    "t3_pr_OneHalf": {
+      "value": 10.500375532036646,
+      "macro": "TthreePrGOneHalf",
+      "fmt": "%.1f"
+    },
+    "t3_npc_OneHalf": {
+      "value": 14,
+      "macro": "TthreeNpcGOneHalf",
+      "fmt": "%d"
+    },
+    "t3_chi_OneHalf": {
+      "value": 0.20571860085013607,
+      "macro": "TthreeChiGOneHalf",
+      "fmt": "%.2f"
+    },
+    "t3_mneed_OneHalf": {
+      "value": 4,
+      "macro": "TthreeMneedGOneHalf",
+      "fmt": "%d"
+    },
+    "t3_deff_Two": {
+      "value": 5.103891043069879,
+      "macro": "TthreeDeffGTwo",
+      "fmt": "%.1f",
+      "ci_lo": 2.1654919048266876,
+      "ci_hi": 5.1246361255633746
+    },
+    "t3_pr_Two": {
+      "value": 11.491880341767326,
+      "macro": "TthreePrGTwo",
+      "fmt": "%.1f"
+    },
+    "t3_npc_Two": {
+      "value": 14,
+      "macro": "TthreeNpcGTwo",
+      "fmt": "%d"
+    },
+    "t3_chi_Two": {
+      "value": 0.17802811621368564,
+      "macro": "TthreeChiGTwo",
+      "fmt": "%.2f"
+    },
+    "t3_mneed_Two": {
+      "value": 8,
+      "macro": "TthreeMneedGTwo",
+      "fmt": "%d"
+    },
+    "t3_deff_Three": {
+      "value": 4.725521679794386,
+      "macro": "TthreeDeffGThree",
+      "fmt": "%.1f",
+      "ci_lo": 2.027019644276564,
+      "ci_hi": 5.483435178711001
+    },
+    "t3_pr_Three": {
+      "value": 11.031559006069791,
+      "macro": "TthreePrGThree",
+      "fmt": "%.1f"
+    },
+    "t3_npc_Three": {
+      "value": 14,
+      "macro": "TthreeNpcGThree",
+      "fmt": "%d"
+    },
+    "t3_chi_Three": {
+      "value": 0.3031051855905995,
+      "macro": "TthreeChiGThree",
+      "fmt": "%.2f"
+    },
+    "t3_deff_Four": {
+      "value": 3.991128868030819,
+      "macro": "TthreeDeffGFour",
+      "fmt": "%.1f",
+      "ci_lo": 2.3963827124934025,
+      "ci_hi": 3.791304188713585
+    },
+    "t3_pr_Four": {
+      "value": 10.040450343267292,
+      "macro": "TthreePrGFour",
+      "fmt": "%.1f"
+    },
+    "t3_npc_Four": {
+      "value": 13,
+      "macro": "TthreeNpcGFour",
+      "fmt": "%d"
+    },
+    "t3_chi_Four": {
+      "value": 0.555324156601579,
+      "macro": "TthreeChiGFour",
+      "fmt": "%.2f"
+    }
+  }
+}

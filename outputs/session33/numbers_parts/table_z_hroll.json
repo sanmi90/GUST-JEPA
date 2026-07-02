@@ -1,0 +1,77 @@
+{
+  "part": "table_z_hroll",
+  "numbers": {
+    "z_merit_Hone": {
+      "value": 0.40717569060508596,
+      "macro": "ZmeritHone",
+      "fmt": "%.3f",
+      "horizon": 8
+    },
+    "z_cl_Hone": {
+      "value": 0.4291339090487817,
+      "macro": "ZclHone",
+      "fmt": "%.3f",
+      "horizon": 8
+    },
+    "z_wake_Hone": {
+      "value": 0.2841167661725803,
+      "macro": "ZwakeHone",
+      "fmt": "%.3f",
+      "horizon": 8
+    },
+    "z_vrmse_Hone": {
+      "value": 1.0061839058351394,
+      "macro": "ZvrmseHone",
+      "fmt": "%.3f",
+      "horizon": 8
+    },
+    "z_drift_Hone": {
+      "value": 0.7314114944401469,
+      "macro": "ZdriftHone",
+      "fmt": "%.3f",
+      "horizon": 16
+    },
+    "z_merit_hsixteen_Hone": {
+      "value": 0.04581689290491486,
+      "macro": "ZmeritSixteenHone",
+      "fmt": "%.3f",
+      "horizon": 16
+    },
+    "z_merit_Height": {
+      "value": 0.4706951293868123,
+      "macro": "ZmeritHeight",
+      "fmt": "%.3f",
+      "horizon": 8
+    },
+    "z_cl_Height": {
+      "value": 0.6907843247463056,
+      "macro": "ZclHeight",
+      "fmt": "%.3f",
+      "horizon": 8
+    },
+    "z_wake_Height": {
+      "value": 0.30519394239448305,
+      "macro": "ZwakeHeight",
+      "fmt": "%.3f",
+      "horizon": 8
+    },
+    "z_vrmse_Height": {
+      "value": 0.9825563868326171,
+      "macro": "ZvrmseHeight",
+      "fmt": "%.3f",
+      "horizon": 8
+    },
+    "z_drift_Height": {
+      "value": 0.6179836235745667,
+      "macro": "ZdriftHeight",
+      "fmt": "%.3f",
+      "horizon": 16
+    },
+    "z_merit_hsixteen_Height": {
+      "value": 0.3121109653793884,
+      "macro": "ZmeritSixteenHeight",
+      "fmt": "%.3f",
+      "horizon": 16
+    }
+  }
+}

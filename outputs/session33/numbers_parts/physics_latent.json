@@ -1,0 +1,135 @@
+{
+  "part": "physics_latent",
+  "numbers": {
+    "dmd_st_Jepa": {
+      "value": 0.6582934434241959,
+      "macro": "DmdStJepa",
+      "fmt": "%.3f"
+    },
+    "dmd_lam_Jepa": {
+      "value": 0.9920109323074077,
+      "macro": "DmdLamJepa",
+      "fmt": "%.3f"
+    },
+    "dmd_st_SupOnly": {
+      "value": 0.654283781336297,
+      "macro": "DmdStSupOnly",
+      "fmt": "%.3f"
+    },
+    "dmd_lam_SupOnly": {
+      "value": 0.9893349731198577,
+      "macro": "DmdLamSupOnly",
+      "fmt": "%.3f"
+    },
+    "dmd_st_RegAE": {
+      "value": 0.6758358991512501,
+      "macro": "DmdStRegAE",
+      "fmt": "%.3f"
+    },
+    "dmd_lam_RegAE": {
+      "value": 0.9950364668467082,
+      "macro": "DmdLamRegAE",
+      "fmt": "%.3f"
+    },
+    "dmd_st_Fukami": {
+      "value": 0.18150036320737903,
+      "macro": "DmdStFukami",
+      "fmt": "%.3f"
+    },
+    "dmd_lam_Fukami": {
+      "value": 0.5904418147084455,
+      "macro": "DmdLamFukami",
+      "fmt": "%.3f"
+    },
+    "dmd_st_FukamiWake": {
+      "value": 0.14698121932840424,
+      "macro": "DmdStFukamiWake",
+      "fmt": "%.3f"
+    },
+    "dmd_lam_FukamiWake": {
+      "value": 0.29367511976635496,
+      "macro": "DmdLamFukamiWake",
+      "fmt": "%.3f"
+    },
+    "dmd_st_Pod": {
+      "value": 0.6733058562423581,
+      "macro": "DmdStPod",
+      "fmt": "%.3f"
+    },
+    "dmd_lam_Pod": {
+      "value": 0.9955378025929718,
+      "macro": "DmdLamPod",
+      "fmt": "%.3f"
+    },
+    "probe_G_jepa": {
+      "value": 0.7562142463494707,
+      "macro": "ProbeGJepa",
+      "fmt": "%.2f"
+    },
+    "probe_D_jepa": {
+      "value": 0.7805496634576675,
+      "macro": "ProbeDJepa",
+      "fmt": "%.2f"
+    },
+    "probe_Y_jepa": {
+      "value": 0.2879717353520592,
+      "macro": "ProbeYJepa",
+      "fmt": "%.2f"
+    },
+    "probe_Y_krr_jepa": {
+      "value": 0.5286907995162006,
+      "macro": "ProbeYkrrJepa",
+      "fmt": "%.2f"
+    },
+    "wakecode_full_Jepa": {
+      "value": 0.766159355677616,
+      "macro": "WcFullJepa",
+      "fmt": "%.2f"
+    },
+    "wakecode_gap_Jepa": {
+      "value": 0.5933856511677867,
+      "macro": "WcGapJepa",
+      "fmt": "%.2f"
+    },
+    "wakecode_full_SupOnly": {
+      "value": 0.7922743040295519,
+      "macro": "WcFullSupOnly",
+      "fmt": "%.2f"
+    },
+    "wakecode_gap_SupOnly": {
+      "value": 0.5340696127218297,
+      "macro": "WcGapSupOnly",
+      "fmt": "%.2f"
+    },
+    "wakecode_full_FukamiWake": {
+      "value": 0.4323073912355384,
+      "macro": "WcFullFukamiWake",
+      "fmt": "%.2f"
+    },
+    "wakecode_gap_FukamiWake": {
+      "value": -0.025512589924608586,
+      "macro": "WcGapFukamiWake",
+      "fmt": "%.2f"
+    },
+    "wakecode_full_Pod": {
+      "value": 0.1858859089179612,
+      "macro": "WcFullPod",
+      "fmt": "%.2f"
+    },
+    "wakecode_gap_Pod": {
+      "value": 0.03990143886296704,
+      "macro": "WcGapPod",
+      "fmt": "%.2f"
+    },
+    "wakecode_full_RegAE": {
+      "value": 0.3329770121294784,
+      "macro": "WcFullRegAE",
+      "fmt": "%.2f"
+    },
+    "wakecode_gap_RegAE": {
+      "value": 0.35147453376130566,
+      "macro": "WcGapRegAE",
+      "fmt": "%.2f"
+    }
+  }
+}

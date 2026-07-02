@@ -1,0 +1,73 @@
+{
+  "part": "gates_p_and_table_y",
+  "numbers": {
+    "p1_wake_delta": {
+      "value": 0.026114951499611405,
+      "macro": "PoneWakeDelta",
+      "fmt": "%.3f",
+      "ci_lo": -0.01696508426980604,
+      "ci_hi": 0.11528303693638912,
+      "note": "supervised_only - jepa_wake, windowed test_b"
+    },
+    "y_cond_RegAE": {
+      "value": 11.216221123292375,
+      "macro": "YcondRegAE",
+      "fmt": "%.0f"
+    },
+    "y_nearnull_RegAE": {
+      "value": 0.10040998533211218,
+      "macro": "YnearnullRegAE",
+      "fmt": "%.3f"
+    },
+    "y_cond_JepaWake": {
+      "value": 612.713506680406,
+      "macro": "YcondJepaWake",
+      "fmt": "%.0f"
+    },
+    "y_nearnull_JepaWake": {
+      "value": 0.010304609662761356,
+      "macro": "YnearnullJepaWake",
+      "fmt": "%.3f"
+    },
+    "y_cond_SupOnly": {
+      "value": 1040.7060863082593,
+      "macro": "YcondSupOnly",
+      "fmt": "%.0f"
+    },
+    "y_nearnull_SupOnly": {
+      "value": 0.028902431160971635,
+      "macro": "YnearnullSupOnly",
+      "fmt": "%.3f"
+    },
+    "p3_delta_vs_JepaWake": {
+      "value": 0.09010537566935083,
+      "macro": "PthreeDeltaJepaWake",
+      "fmt": "%.3f",
+      "ci_lo": 0.0807013972017063,
+      "ci_hi": 0.09877877694719124
+    },
+    "p3_delta_vs_SupOnly": {
+      "value": 0.07150755417114055,
+      "macro": "PthreeDeltaSupOnly",
+      "fmt": "%.3f",
+      "ci_lo": 0.06215147680610771,
+      "ci_hi": 0.08027574919404401
+    },
+    "y_isotropic_null": {
+      "value": 0.25,
+      "macro": "YisoNull",
+      "fmt": "%.2f",
+      "note": "k/d = 8/32"
+    },
+    "p4_ssim_delta_jepa": {
+      "value": -0.09250650830922125,
+      "macro": "PfourSsimDeltaJepa",
+      "fmt": "%.3f"
+    },
+    "p4_merit_delta_jepa": {
+      "value": -0.09513192227008771,
+      "macro": "PfourMeritDeltaJepa",
+      "fmt": "%.3f"
+    }
+  }
+}
