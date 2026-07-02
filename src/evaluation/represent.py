@@ -394,7 +394,9 @@ def run_q1(
         # load through a dedicated path that yields a pooled-latent FrozenModel;
         # the shared harness is otherwise byte-identical (encode_split broadcasts
         # the pooled latent to the spatial grid, as for the jepa_pool ablation).
-        if name in re.REFERENCE_MODELS:
+        # Suffixed variants (e.g. fukami_wake_d16, Session 33 min-d panel) route
+        # through the same reference loader via the prefix match.
+        if any(name == m or name.startswith(m + "_") for m in re.REFERENCE_MODELS):
             frozen = re.load_reference_model(run_dir, checkpoint_name, device=device)
         else:
             frozen = re.load_frozen_model(run_dir, checkpoint_name, device=device)
