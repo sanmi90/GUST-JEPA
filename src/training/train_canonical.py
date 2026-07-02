@@ -171,6 +171,19 @@ def parse_args() -> argparse.Namespace:
     p.add_argument(
         "--projection-norm", type=str, choices=["batchnorm", "layernorm"], default="batchnorm"
     )
+    p.add_argument(
+        "--horizon-override",
+        type=int,
+        default=None,
+        help=(
+            "ABLATION ONLY. Override the FROZEN kit rollout horizon H_roll "
+            "(configs/_kit.yaml pred.horizon=8) after config load. Default off "
+            "(None) => frozen kit behavior unchanged. When set, the predictive "
+            "objective rolls this many steps instead of 8; requires "
+            "T >= context_length + H_roll. Recorded as horizon_override in the "
+            "run_config / W&B."
+        ),
+    )
     return p.parse_args()
 
 
@@ -342,6 +355,31 @@ def main() -> None:
     # --- model -------------------------------------------------------------
     model = CanonicalModel(cfg, latent_dim=args.d, projection_norm=args.projection_norm).to(device)
 
+    # --- ABLATION: explicit rollout-horizon override -----------------------
+    # The kit FREEZES pred.horizon=8 as the one value for every predictive model
+    # (configs/_kit.yaml). --horizon-override is the ONLY sanctioned way to move
+    # that axis, for the Session 32 H_roll ablation. Default-off: when the flag is
+    # absent the frozen behavior is byte-unchanged. When set we override the built
+    # model's horizon (the value the rollout uses in build_outputs) and log loudly.
+    kit_horizon = model.horizon
+    horizon_override = args.horizon_override
+    if horizon_override is not None:
+        if horizon_override < 1:
+            raise ValueError(f"--horizon-override must be >= 1, got {horizon_override}")
+        if cfg.objective != "pred":
+            print(
+                f"[train_canonical] WARNING: --horizon-override={horizon_override} set but "
+                f"objective={cfg.objective!r} has no rollout; override is a no-op.",
+                flush=True,
+            )
+        model.horizon = int(horizon_override)
+        print(
+            f"[train_canonical] ABLATION: horizon overridden from kit default "
+            f"{kit_horizon} to {model.horizon} (H_roll). Frozen kit value NOT changed; "
+            f"this run only.",
+            flush=True,
+        )
+
     ac = cfg.anti_collapse
     ac_on = bool(ac["on"])
     lambda_anticollapse = float(ac["lambda"]) if ac_on else 0.0
@@ -382,6 +420,8 @@ def main() -> None:
         "T": args.T,
         "d": args.d,
         "H_roll": model.horizon,
+        "kit_horizon": kit_horizon,
+        "horizon_override": horizon_override,
         "lr_encoder": lr_encoder,
         "lr_predictor": lr_predictor,
         "weight_decay": weight_decay,
