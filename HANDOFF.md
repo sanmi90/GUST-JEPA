@@ -9937,3 +9937,48 @@ test_b (p_holm 0.003, impact + relaxation). F1 filter-vs-static is ns on pooled 
 impact AND relaxation p=0.0078, CI>0) -- the envelope claim as a per-encounter statistic.
 E_w at the |G|=4 boundary favours neither (honest null; wake enstrophy through the filter
 does not beat static there).
+
+### D241 (SESSION33 TRACK T RESULTS: the delay-coordinate layer, quantified) (2026-07-03, Session 33)
+
+All Track T runs on the frozen jepa_pool checkpoint; no training, no re-tuning; artifacts
+committed (track_t_recovery_grid.json, t2b_reduced_filter.json + t2b_k8_check.json,
+track_t3_effective_dimension.json).
+
+GATE T1 (delays recover the wall-blind coordinate): WEAK by the strict pre-registered
+criterion (one 0.025 dip at W=2 breaks monotonicity) but the substantive claim is
+CI-supported: circulation_neg recovered R2 at K=8 rises 0.187 (W=1) -> 0.477 (W=30) on all
+OOF rows (test_b 0.118 -> 0.372), delta(W30-W1) = +0.290, case-clustered CI [0.222, 0.388].
+The force barely moves (C_L 0.79 -> 0.83 test_b): delays recover the coordinate the sensors
+cannot, exactly the Takens prediction.
+
+GATE T2 (spatial-for-temporal trade, STATIC recovery): STRONG. K1_W30, K2_W16, K2_W30 match
+the (K=8, W=1) coefficient-state recovery within case-clustered CI; the trade surface is
+monotone in both K and W (tol 0.02). T2b selection (TRAIN rows only, D239): K_min=1,
+W_min=30. Bridge cell (OSP jepa_pool taps, K8 W30) reconciles with the Track O1 headline
+EXACTLY (state R2 0.707 = 0.707). MI stride cross-check: tau_first_min ~ 29 frames (~one
+shedding period); windows stay at the cache cadence (D-T1).
+
+GATE T2b (reduced-budget FILTER): FAIL, and the failure is real and informative. K in
+{1,2,4} paired vs the frozen K=8 filter: analysis C_L (impact) deltas uniformly negative
+with CIs excluding zero on every stratum |G|>=1; reduced-K analyses sit at/below the
+climatological mean although they still improve on open loop (positive RMSE gain).
+HARNESS FIDELITY: K=8 through the same path reproduces the frozen envelope records
+bit-exactly (delta 0.000, CI [0,0]). Mechanism: rank-K innovations with the frozen (Q, R)
+under-weight the wall (NIS/dof ~0.25 at K=1 vs 0.38 at K=8) and leave the unobserved
+subspace to the near-null-amplifying predictor (D237). READING FOR THE PAPER: the
+spatial-for-temporal trade is a property of the static delay-coordinate reconstruction
+(one tap over one shedding period places the state as well as eight taps at an instant);
+the frozen-tuned sequential filter does NOT inherit it -- its sensor budget is a
+calibration constraint, which sharpens the (Q, R) outlook rather than adding a "fewer
+sensors" filter claim. D-T2's main-text figure becomes the filter-tracking-vs-K panel
+(honest negative), not a reduced-budget hero.
+
+GATE T3 (dimension and the bound): CONSISTENT (descriptive, as pre-registered). d_eff (GP,
+Theiler 30, encounter bootstrap) rises 3.7 -> 5.0-5.1 across |G| 0 -> 2 with PR (4.9 ->
+11.5) and nPC90 (6 -> 14) monotone alongside; at |G|=4 the ENCODED d_eff saturates (~4.0)
+exactly where chi3d jumps (0.30 -> 0.56): the mid-plane observable stops seeing the growth,
+the same observability boundary read from the latent. The sensing requirement m_needed(K=8,
+R2>=0.5) grows 1 -> 4 -> 8 frames and becomes unreachable (<=30) at |G|>=3, coinciding with
+the envelope divergence boundary (3.0 at D<=1.0, 2.0 at D=1.5). The naive generic bound
+2*d_eff/K (~1 frame) underestimates the requirement, as the addendum's noise/finiteness
+caveats anticipate; the paper claims the trend consistency, never the constant.
