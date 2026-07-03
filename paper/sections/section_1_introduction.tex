@@ -1,182 +1,152 @@
-% Introduction. Related work (former Section 2) is folded in here, in the JFM
-% idiom (no standalone "Related work" section). The SIGReg-vs-PLDM "second paper"
-% that headed Section 1.2 of the original draft has been removed; the regulariser
-% choice is now a methods detail (Sec. 3) and an appendix. Reframed 2026-06-08 for
-% the fully UNCONDITIONED model: no gust parameters enter the encoder or the
-% predictor. Contributions are reframed around the representational wake closure
-% the predictive objective produces, with the rollout shown but not headlined as
-% forward closure, and the world-model reading kept as motivation only.
+% Introduction, v3. Base prose: Carlos's narrative rewrite (JEPA_JFM.pdf,
+% 2026-07-03), reconstructed verbatim from the compiled PDF and integrated with
+% the v3 estimation thesis: (i) the Bayesian-estimation lineage added to the
+% deployment paragraph; (ii) the three contributions replaced with the v3 set
+% (division of labour, leakage-free filter, operating envelope) per HANDOFF
+% D244 (honest T2b, no overselling); (iii) the closing question extended to
+% estimability. Citation callouts mapped to repo bib keys; haughn2024, chen2026
+% and fukagata2025 are AUTHOR-FILL stubs in refs_to_add.bib pending Carlos's
+% source entries.
 
-A discrete vortex gust striking a post-stall airfoil does not merely perturb the
-force coefficients: it reorganises the separated wake. The lift excursion it
-produces is the surface signature of leading-edge-vortex roll-up, growth, and
-shedding, the dominant unsteady mechanism in these encounters
-\citep{eldredge2019leading}, together with the trailing-edge and wake structures
-it leaves behind, and it is set by the timing of the vortex impact relative to the
-airfoil's own shedding, the wall-normal offset of the vortex core, and the gust
-strength and core size. Such extreme gusts arise wherever the gust velocity is
-comparable to or larger than the flight speed, for small uncrewed and micro air
-vehicles in urban canyons, mountainous terrain, and the wakes of buildings and
-ships \citep{jones2022,mohamed2023gusts}: the gust ratio $G$, the ratio of the
-characteristic gust velocity to the free-stream velocity, then exceeds unity, and
-conventional gust models do not capture the resulting large, fast load transients
-\citep{fukami2024control,fukami2025prf}. Even at the moderate chord Reynolds number
-$\vRe = 5000$, the post-stall flow at $\alpha = 14^\circ$ is massively
-separated, and the gust-induced disturbance interacts nonlinearly with the
-natural shedding cycle \citep{fukami2025prf}; the vortical organisation of the
-encounter is moreover similar across laminar and turbulent regimes
-\citep{odaka2026}, so this case is representative of the wider extreme-aerodynamic
-family. Resolving the full parametric
-envelope by simulation is expensive, so reduced-order models (ROMs) of the
-encounter-to-encounter and case-to-case variability are an active line of work.
-A reduced model for such an encounter must do more than reproduce a vorticity
-snapshot or the instantaneous force: it must retain the wake variables that
-determine the post-impact transient and organise them into a state on which a
-forward model can be queried without leaving the data manifold. This is the
-predictive-state problem that organises the present study.
+Small uncrewed aerial vehicles are increasingly expected to operate in
+environments where the incoming flow is neither steady nor weakly disturbed.
+Urban canyons, mountainous terrain, coastal regions and ship or building wakes
+can expose these vehicles to gusts whose characteristic length scale is
+comparable to the wing chord and whose velocity is of the same order as the
+flight speed \citep{jones2022,mohamed2023gusts,fukami2023}. In this regime,
+gusts cannot be treated as small perturbations of an otherwise steady
+aerodynamic state. They interact with separation, vortex shedding and wake
+recovery, producing large transient loads and rapid changes in the surrounding
+flow organisation. For small vehicles, this coupling directly affects
+navigability, control authority and flight safety.
 
-Reduced-order models of such flows form a ladder of increasing nonlinearity.
-Energy-optimal linear bases, proper orthogonal decomposition
-\citep{berkooz1993pod} and dynamic mode decomposition \citep{schmid2010dmd}, are
-compact and interpretable but limited for strongly nonlinear separation; their
-Koopman-operator reading \citep{lusch2018deep} nonetheless makes a linear latent a
-principled comparator rather than a strawman. Nonlinear autoencoders compress
-further at matched latent dimension \citep{murata2020nonlinear,lee2020model}, and
-coupling an
-autoencoder to a learned latent dynamics forecasts better than dynamics confined
-to a linear subspace \citep{linot2023dynamics}. Read as a design ladder, these
-methods progress from field reconstruction and energy compression, through
-observable readability, toward forward-state usability, which is the property a
-reduced state needs to serve a predictor; the extreme-aerodynamic reduced models we
-build on sit at the nonlinear, observable-augmented rung, and the question we pursue
-is what carries a state the rest of the way.
+This regime has motivated a growing body of work on extreme aerodynamics
+\citep{taira2026extreme}. A canonical example is the interaction between a
+discrete vortex gust and a wing or airfoil, where the disturbance has
+sufficient strength to reorganise the near wake rather than merely modulate the
+instantaneous force \citep{fukami2025prf}. Recent studies have shown that
+apparently complex gust encounters can exhibit unexpectedly low-dimensional
+structure when viewed in suitable coordinates. Lift-augmented autoencoders have
+revealed compact manifolds for extreme vortex-gust airfoil interactions
+\citep{fukami2023}, and the same reduced description has been used to support
+phase-amplitude analysis and data-driven transient lift attenuation
+\citep{fukami2024control}. Related work has also shown that large-scale
+vortical structures can display similarities across laminar and turbulent
+extreme-gust encounters \citep{odaka2026}. These results suggest that the
+dynamical organisation of extreme aerodynamic flows may be simpler than the
+full flow-field dimension implies.
 
-Recent ROMs for separated and extreme-aerodynamic flows, increasingly built with
-machine learning \citep{brunton2020machine}, share a common
-ingredient: a reconstruction-trained autoencoder whose bottleneck is shaped by
-an auxiliary aerodynamic observable. Fukami \& Taira \citeyearpar{fukami2023} trained
-a convolutional autoencoder jointly with a lift-prediction head and found that
-the auxiliary loss reduced the intrinsic dimension of the discovered manifold
-for extreme vortex-gust flows from roughly ten to three. The same
-observable-augmentation idea was extended across multi-source turbulent data
-\citep{fukami2025}, and was used by Solera-Rico et al. \citeyearpar{solera2024} with a
-$\beta$-variational autoencoder and a transformer ROM on a vortex-gust airfoil
-dataset of the same family considered here. Across this lineage the
-reconstruction term anchors the latent geometry to the instantaneous flow
-field, and an observable-prediction term orients it along aerodynamically
-relevant directions. A recurring theme of the geometric-analysis literature,
-however, is that the latent coordinates of an autoencoder are unique only up to
-a diffeomorphism, so reconstruction leaves the geometry of the latent largely
-unconstrained, which complicates any downstream task that relies on that
-geometry, including dynamics, interpolation, and comparison
-\citep{tran2026,kelshaw2024}. Observable augmentation solves only one part of the
-predictive-state problem: it tells the encoder which aerodynamic quantity to
-represent, but it does not by itself fix whether the latent coordinates are
-suitable for time advancement. A reduced state that is linearly readable at a single
-instant may still be unusable once an autoregressive predictor queries the points
-its own rollout produces.
+For practical deployment, however, compactness alone is not sufficient. A
+reduced description intended for gust mitigation must be usable as a plant
+state: it must be estimated from available sensors, advanced in time by a
+predictive model and queried by a controller or decision algorithm
+\citep{loiseau2018}. This requirement places the problem closer to state
+estimation and model-based control than to flow-field compression alone.
+Surface pressure is especially important in this context, because it is one of
+the few measurements that can be obtained at high bandwidth on an aerodynamic
+body. Recent gust-modelling studies have therefore used sparse surface-pressure
+histories to infer unsteady aerodynamic loads and, more broadly, to bridge
+spatial pressure correlations and temporal flow memory
+\citep{zhong2023,haughn2024,chen2026}, and Bayesian sequential estimation has
+begun to close the loop between sparse pressure and low-order aerodynamic
+states, with uncertainty carried alongside the estimate
+\citep{mousavi2025,eldredge2025guide}. Such approaches indicate a path towards
+deployable gust-response models, but they also sharpen the central question:
+what reduced state should be estimated from the wall in the first place?
 
-A parallel and fast-growing line reads these flows through the information their
-reduced states carry rather than their energy. Transfer-entropy causality among
-proper-orthogonal-decomposition modes ranks which modes drive the formation of
-coherent structures \citep{martinezsanchez2023}, and an informative/non-informative
-decomposition splits a field into the part that carries information about a
-target's future and a residual that carries none \citep{arranz2024}. This
-informative-decomposition idea has very recently been brought to extreme
-vortex-gust airfoil interactions of the present family, extracting the field
-structures informative about the future lift \citep{koshikawa2026,fukamiaraki2026},
-alongside time-dependent modal bases for the same interaction
-\citep{zhong2025,zamaniashtiani2025} and latent-causality attributions in physical
-space \citep{cremades2026xcal}. Our study is complementary: rather than mapping the
-informative or causal modes of a single representation, we ask which encoder
-objective produces a latent whose forward evolution closes the full set of
-observables, the wake included, and we use the information lens only as a held-out
-diagnostic of the resulting latent (\S\ref{sec:disc_mechanism}).
+Most current nonlinear reduced-order models for extreme aerodynamic flows are
+built around reconstruction-trained autoencoders. In this approach, a
+convolutional encoder maps the flow field to a low-dimensional latent vector,
+and a decoder reconstructs the original field. Aerodynamic observables, such as
+lift, can be added as auxiliary losses to orient the latent space towards
+physically relevant quantities \citep{fukami2023,fukami2025}. This strategy is
+powerful because it preserves a direct connection between the latent variables
+and the resolved flow. It also provides a natural route to visualisation and
+interpretation, since the decoder maps latent coordinates back to physical
+space. Similar ideas have been combined with variational autoencoders and
+sequence models to build predictive reduced-order models of chaotic flows
+\citep{solera2024,fukagata2025}.
 
-A complementary route to a reduced state is to drop the reconstruction term
-altogether and to train the encoder and a predictor end to end on
-latent-space forecasting, with an explicit anti-collapse regulariser in place
-of the decoder. This is the joint-embedding predictive architecture (JEPA)
-\citep{lecun2022}: an encoder maps the input to a representation, a predictor
-advances that representation in time, and the loss never reconstructs the
-field. The encoder is thereby trained in the same coordinates in which the
-predictor will later operate, which makes JEPA a useful instrument for testing
-whether predictive training produces a latent state that remains usable when rolled
-forward, rather than merely readable when encoded from the DNS field; the predictor
-also cannot exploit pixel-level shortcuts, because no field-space signal reaches it. The image and video
-instantiations \citep{ijepa,vjepa2} and the recent from-pixels variants that
-remove the moving-target encoder in favour of a characteristic-function
-regulariser \citep{lewm,lejepa} or a variance-covariance objective
-\citep{pldm,vicreg} have so far been evaluated on gridworld and toy visual
-domains. Their behaviour on a low-intrinsic-dimension physics dataset, where
-the data sit on a roughly five- to ten-dimensional manifold, is uncharacterised.
+Yet a reconstruction-trained latent space is not necessarily the best space for
+prediction. The decoder encourages the encoder to preserve information needed
+to reproduce the instantaneous field, but the time-advancing model requires
+coordinates that remain stable and informative under autoregressive rollout.
+These two requirements need not coincide. Recent comparisons in controlled wake
+flows indicate that convolutional-autoencoder-based predictors can be more
+prone to long-horizon divergence, whereas POD-based predictors, despite their
+linear and less compact representation, may retain higher median forecast
+accuracy and a narrower spread \citep{solerarico_compactness_underreview}. This
+does not make POD preferable as a general representation of nonlinear separated
+flows. Rather, it exposes a tension: nonlinear encoders can compress more
+aggressively, but reconstruction compactness does not guarantee forecast
+robustness. The question is therefore whether one can construct nonlinear
+reduced states that retain the compactness of learned manifolds while improving
+their predictive usability.
 
-Reconstruction-trained nonlinear encoders compress aggressively but yield latent
-dynamics that are harder to forecast than an energy-optimal linear basis, a
-compactness-versus-forecast tradeoff documented for controlled wake flows in a
-companion study under review \citep{solerarico_compactness_underreview}. We show
-this tradeoff is a consequence of the reconstruction objective: a predictive
-latent recovers nonlinear compactness without surrendering forecast stability.
-The division of labour with that companion study
-\citep{solerarico_compactness_underreview} is explicit: there, controlled
-canonical wakes and the compactness-versus-forecast tradeoff; here, the
-parametric vortex gust, the latent-drift mechanism we identify as the common
-cure, and its geometric and topological characterisation.
+This question motivates the use of a joint-embedding predictive architecture
+(JEPA) \citep{lecun2022}. In contrast with an autoencoder, a JEPA does not
+train the representation by reconstructing the input field. Instead, it learns
+an encoder and a predictor such that the present latent state predicts a future
+latent state. In computer vision, image- and video-based JEPAs have been
+introduced as non-generative self-supervised models that predict in
+representation space rather than pixel space \citep{ijepa,vjepa2}. For the
+present fluid-mechanics problem, the relevance of JEPA is more specific: it
+provides a way to train the reduced coordinates in the same space in which the
+forward model will later operate. The architecture is therefore used here as a
+diagnostic tool to test whether predictive training can produce a nonlinear
+state that is more stable under rollout than a reconstruction-trained latent.
 
-The model we adopt takes no gust parameters: $(G, D, Y)$ enter neither the encoder
-nor the predictor. The encoder is a pure state map and the predictor advances the
-latent from its own history alone. The world-model framework of
-\citet{lecun2022,ha2018world} motivates this split as an analogy and not a property
-we claim, since the latent dynamics function is the object a controller would plan
-against, and a recent gust-airfoil instance couples a physics-augmented autoencoder
-to a latent dynamics model \citep{liu2025modelbased}. We treat that reading as
-motivation: the rollout is shown as a consistent latent trajectory rather than
-advanced as a validated forecast, and its interventional or causal interpretation is
-left for future work (\S\ref{sec:discussion}). What this leaves is the
-property our study turns on: an established reconstruction-trained autoencoder and an
-energy-optimal proper orthogonal decomposition basis, lacking wake supervision, do
-not keep the dynamically relevant wake observables linearly readable, and even a
-wake-readable state is not automatically usable once a forward model advances it.
-The drift mechanism of \S\ref{sec:res_drift} and the division of labour we identify
-are the empirical consequences.
+This choice creates a second question. Because the JEPA state is trained
+without a decoder, it is not obvious what physical information is retained by
+its coordinates. A low forecast error in latent space would be insufficient if
+the state did not carry the wake variables that matter for gust response. We
+therefore treat decoding not as part of the training objective, but as an
+a-posteriori diagnostic. After training the reduced state, we ask what can be
+recovered from it: aerodynamic observables, wake enstrophy, flow-field
+structures and, ultimately, the latent coordinates themselves from sparse wall
+pressure. This separation between predictive training and diagnostic decoding
+allows us to distinguish three properties that are often conflated: whether a
+state is compact, whether it is physically readable and whether it remains
+usable when advanced by its own dynamics.
 
-The question this paper addresses is therefore not which encoder reconstructs
-the flow best, nor even which produces a reduced state from which the wake is
-readable at a single instant, but which produces a state that is also usable once a
-forward model advances it. We treat this as a fluid-mechanics question with a
-geometric answer, and find a division of labour: wake-observable supervision makes
-the wake readable, an anti-collapse regulariser keeps the latent in distribution
-under rollout, and the predictive objective makes the supervised state dynamically
-trackable. The joint-embedding predictive architecture is the instrument we use to
-test this principle, not the subject of the paper. We make three contributions.
+The present work examines these questions using a canonical post-stall
+vortex-gust interaction. The gust parameters are not supplied to the predictive
+model; the encoder receives only the instantaneous flow state, and the
+predictor advances the latent state from its own history. We compare a
+predictive joint-embedding model with reconstruction-trained nonlinear encoders
+and a linear POD representation at matched latent dimension. The comparison is
+not designed to identify the method that reconstructs the vorticity field most
+accurately. Instead, it asks which representation supplies a reduced
+aerodynamic state that can be forecast, decoded and estimated in a form
+relevant to future gust-mitigation systems.
 
-First, we formulate the vortex-gust encounter as a predictive-state benchmark. The
-primary endpoint is the wake enstrophy at a fixed post-impact readout ($H = 16$),
-because it summarises the leading-edge-vortex roll-up and wake reorganisation that
-the scalar force can miss; all encoders, a predictive one (JEPA), a reconstructive
-one in the Fukami lineage, and a POD basis, are compared at matched latent dimension
-under a single shared probe and autoregressive predictor (\S\ref{sec:methods}). The
-question is then not field-reconstruction quality but whether the reduced state
-carries the wake variables a forward model needs (\S\ref{sec:res_closure}).
-
-Second, we separate the ingredients of a usable predictive state
-(\S\ref{sec:res_controls}). Wake-observable supervision supplies the instantaneous
-readability: on held-out fields the wake-supervised states make the wake enstrophy
-linearly readable ($R^2 = \NumReprWakeJepaTf$) where the no-wake reconstructive and
-linear baselines are at or below zero, but an objective-free supervised encoder
-reads it as well, and a matched reconstructive control reads it comparably once
-retrained out of sample, so the readability is the supervision's, not the
-objective's. Anti-collapse regularisation supplies an in-distribution geometry: the
-supervision-only and predictive rollouts both stay on the encoded manifold, where
-the reconstructive rollout departs along directions of negligible encoded variance
-(\S\ref{sec:res_drift}). The predictive objective supplies the dynamic usability: its
-rollout stays closer to the encoded simulation trajectory and forecasts the wake
-better than the objective-free and reconstructive alternatives.
-
-Third, we interpret the resulting state physically and observationally
-(\S\ref{sec:res_flow_physics}, \S\ref{sec:res_observability}). The predictive state
-keeps the undisturbed shedding orbit as a single loop under a metric that removes
-coordinate scale, carries the wake response across the tested readout horizons, and
-is the most recoverable of the three from sparse pre-impact wall pressure. These
-results motivate the state as an input to a future estimator or controller; the
-present paper does not claim a validated forecast or a closed-loop controller.
+The paper makes three contributions. First, we pose the extreme vortex-gust
+encounter as a predictive-state estimation problem and fix its endpoints in
+advance: the reduced state must carry the post-impact wake response, summarised
+by the wake enstrophy and complementary flow diagnostics that scalar force
+histories alone can miss, and it must be recoverable from wall pressure and
+advanced by a forward model without leaving the region on which that recovery
+was fitted. Second, we separate the ingredients of such a state with matched
+controls, and reach a division of labour. Observable supervision on the wake
+supplies both its instantaneous readability and an anisotropic latent geometry
+into which the forward rollout settles, where an anti-collapse regulariser
+applied to a bare reconstruction leaves the latent near-isotropic and its
+rollout departs along low-variance directions; the multi-step predictive
+objective supplies the long-horizon rollout stability that neither a
+single-step objective nor an objective-free supervised encoder provides. Latent
+drift is the mechanism through which an apparently accurate reconstructive
+state loses this physics over the rollout. Third, we demonstrate the state in a
+leakage-free sequential filter that senses only wall pressure and never
+observes the vorticity field, and we map the gust-intensity envelope over which
+it holds. The filter tracks the transient load through the encounter and
+extends the usable gust range beyond what a single pressure frame can invert,
+and a delay-coordinate reading explains why: the encounter is low-dimensional,
+so a short window of pressure reconstructs the state a single frame cannot, and
+the envelope closes where the strengthening gust drives the interaction
+three-dimensional and its effective dimension outruns a fixed sensing budget.
+We are explicit about the limits: the state's recoverability margin over a raw
+field latent is modest, and the filter is under-dispersed at the strongest
+gusts. This study investigates a fluid-mechanics question through a learning
+architecture: what kind of reduced state can carry the wake dynamics of an
+extreme gust encounter while remaining estimable from the wall and predictive
+enough to serve as a future plant model?
