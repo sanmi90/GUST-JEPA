@@ -1,7 +1,7 @@
 {
   "_provenance": {
-    "generated_iso": "2026-07-03T21:37:26.290451+00:00",
-    "git_commit": "524aae40833f3107f8234705694b360e731e79a0",
+    "generated_iso": "2026-07-03T22:13:09.746800+00:00",
+    "git_commit": "ab00a8b922fe0f1176ed86f1f002bcc54a94bbd6",
     "n_parts": 15,
     "parts": [
       "constants.json",
@@ -2334,7 +2334,7 @@
       "fmt": "%.3f",
       "horizon": 8,
       "macro": "XmeritJepaWake",
-      "note": "matched-ResUNet operator, comparable to the baseline rows",
+      "note": "common matched-ResUNet yardstick; off-class for the transformer flagship",
       "source": "table_x",
       "value": 0.5911740890886588
     },
@@ -2345,6 +2345,14 @@
       "note": "as-built ROM: the flagship's own co-trained vector predictor",
       "source": "table_x",
       "value": 0.7550533206314364
+    },
+    "x_merit_JepaWake_tf": {
+      "fmt": "%.3f",
+      "horizon": 8,
+      "macro": "XmeritJepaWakeTf",
+      "note": "matched transformer of the training class on the frozen latent",
+      "source": "table_x",
+      "value": 0.6549048507294434
     },
     "x_merit_Pod": {
       "fmt": "%.3f",

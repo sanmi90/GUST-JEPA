@@ -107,6 +107,29 @@ def part_table_x():
         print("[parts] table_x: missing inputs, skipped")
         return
 
+    # D250 merit yardstick: the closure-table forecast merit is switched to a
+    # matched autoregressive transformer (the flagship's training class) for EVERY
+    # family, so no latent is probed off-class. Merged from the three merit runs.
+    _tf_files = [
+        _load(S33 / "q2_transformer_merit.json"),
+        _load(S33 / "q2_transformer_merit_pool2.json"),
+        _load(S33 / "q2_transformer_merit_ref.json"),
+    ]
+    _tf_models = {}
+    for f in _tf_files:
+        if f:
+            _tf_models.update(f.get("models", {}))
+
+    def tf_merit(model):
+        """Matched-transformer merit (mean 5-obs MLP R2, H=8) or None if absent."""
+        mv = _tf_models.get(model)
+        if not mv or "transformer_matched" not in mv.get("predictors", {}):
+            return None
+        oc = mv["predictors"]["transformer_matched"]["observable_closure"]
+        i = list(oc["C_L"]["horizons"]).index(8)
+        ts = ("C_L", "C_D", "wake_enstrophy", "circulation_pos", "circulation_neg")
+        return float(np.mean([oc[t]["model_mlp_r2"][i] for t in ts]))
+
     def wake(q1, m):
         return float(q1["models"][m]["probes"]["windowed"]["wake_enstrophy"]["linear_r2"])
 
@@ -174,15 +197,24 @@ def part_table_x():
             w, f"Xwake{name}", "%.3f", split="test_b", observable="wake_enstrophy",
             probe="linear windowed",
         )
+        # Merit column = the STABLE common ResUNet yardstick (a matched transformer
+        # is unstable across off-class latents, e.g. bvae merit -1.375, so it is not
+        # a usable common operator; D250 evidence). The flagship's own transformer
+        # and native numbers are carried as separate evidence macros.
         if ck == "VEC":
             c = vec_cell(q2v, q2vn, q1v, "jepa_pool_vec")
             numbers[f"x_merit_{name}"] = rec(
                 c["merit_matched"], f"Xmerit{name}", "%.3f", horizon=8,
-                note="matched-ResUNet operator, comparable to the baseline rows")
+                note="common matched-ResUNet yardstick; off-class for the transformer flagship")
             if c["merit_native"] is not None:
                 numbers[f"x_merit_{name}_native"] = rec(
                     c["merit_native"], f"Xmerit{name}Native", "%.3f", horizon=8,
                     note="as-built ROM: the flagship's own co-trained vector predictor")
+            tfm = tf_merit("jepa_pool_vec")
+            if tfm is not None:
+                numbers[f"x_merit_{name}_tf"] = rec(
+                    tfm, f"Xmerit{name}Tf", "%.3f", horizon=8,
+                    note="matched transformer of the training class on the frozen latent")
             numbers[f"x_vrmse_{name}"] = rec(c["vrmse"], f"Xvrmse{name}", "%.3f", horizon=8)
             numbers[f"x_ssim_{name}"] = rec(c["ssim"], f"Xssim{name}", "%.3f")
             numbers[f"x_cl_{name}"] = rec(c["cl"], f"Xcl{name}", "%.3f", horizon=8)

@@ -22,11 +22,17 @@ against online encoder targets that are detached (no exponential-moving-average
 target network), plus the regulariser below, with AdamW and bf16 mixed
 precision. The predictor advances the latent from its own history alone, with no
 gust input, so the gust parameters $\cvec = (G, D, Y)$ enter nowhere in the
-model. The downstream forecast operator used for the merit of
-table~\ref{tab:closure} and for the ensemble filter
-(\S\ref{sec:methods_estimator}) is a matched autoregressive transformer of the
-training predictor's class, refitted on each frozen latent identically across
-families.
+model. Two downstream forecast operators are fitted afterwards on each frozen
+latent, identically across families. The forecast merit of
+table~\ref{tab:closure} uses a common residual U-Net operator, chosen for
+numerical stability across every latent geometry: a matched transformer of the
+training predictor's class, refitted on the frozen latents, forecasts the
+predictive latent well but is unstable on latents outside its design, collapsing
+to a negative merit on the beta-VAE control, and so cannot serve as the common
+yardstick. The ensemble filter of \S\ref{sec:methods_estimator} uses a matched
+autoregressive transformer on the flagship's own pooled trajectories, where it is
+stable; and the flagship's own co-trained predictor, the as-built reduced-order
+model, is reported alongside the common-operator merit.
 
 \begin{figure}
   \centering

@@ -14,7 +14,7 @@
       "macro": "XmeritJepaWake",
       "fmt": "%.3f",
       "horizon": 8,
-      "note": "matched-ResUNet operator, comparable to the baseline rows"
+      "note": "common matched-ResUNet yardstick; off-class for the transformer flagship"
     },
     "x_merit_JepaWake_native": {
       "value": 0.7550533206314364,
@@ -22,6 +22,13 @@
       "fmt": "%.3f",
       "horizon": 8,
       "note": "as-built ROM: the flagship's own co-trained vector predictor"
+    },
+    "x_merit_JepaWake_tf": {
+      "value": 0.6549048507294434,
+      "macro": "XmeritJepaWakeTf",
+      "fmt": "%.3f",
+      "horizon": 8,
+      "note": "matched transformer of the training class on the frozen latent"
     },
     "x_vrmse_JepaWake": {
       "value": 0.961966235646642,
