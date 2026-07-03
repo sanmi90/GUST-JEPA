@@ -1,0 +1,14 @@
+{
+  "task": "SESSION 33 D250 -- P1 paired wake readability, supervised_only vs jepa_pool_vec",
+  "P1_readability": {
+    "primary_wake_enstrophy": {
+      "delta_a_minus_b": 0.041268440311206134,
+      "ci95": [
+        -0.04721900705928099,
+        0.16180408332163662
+      ],
+      "verdict": "PASS"
+    },
+    "note": "arm A = supervised_only_pool, arm B = jepa_pool_vec (native vector flagship)"
+  }
+}

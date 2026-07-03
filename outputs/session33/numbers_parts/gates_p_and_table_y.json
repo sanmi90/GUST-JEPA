@@ -2,11 +2,11 @@
   "part": "gates_p_and_table_y",
   "numbers": {
     "p1_wake_delta": {
-      "value": 0.026114951499611405,
+      "value": 0.041268440311206134,
       "macro": "PoneWakeDelta",
       "fmt": "%.3f",
-      "ci_lo": -0.01696508426980604,
-      "ci_hi": 0.11528303693638912,
+      "ci_lo": -0.04721900705928099,
+      "ci_hi": 0.16180408332163662,
       "note": "supervised_only - jepa_wake, windowed test_b"
     },
     "y_cond_RegAE": {

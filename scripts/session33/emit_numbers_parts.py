@@ -249,7 +249,9 @@ def part_gates_p():
         print("[parts] gates_p: missing inputs, skipped")
         return
     numbers = {}
-    p1 = gates.get("P1_readability", {})
+    # D250: the P1 paired readability gap recomputed with arm B = jepa_pool_vec.
+    p1_vec = _load(S33 / "p1_readability_vec.json")
+    p1 = (p1_vec or {}).get("P1_readability") or gates.get("P1_readability", {})
     if "primary_wake_enstrophy" in p1:
         pw = p1["primary_wake_enstrophy"]
         numbers["p1_wake_delta"] = rec(
