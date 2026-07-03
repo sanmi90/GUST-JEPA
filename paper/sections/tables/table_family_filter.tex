@@ -1,0 +1,35 @@
+% Family-filter audit table (D247): the frozen filter run on every family.
+% tab:family_filter. All numbers macros_v3 (envelope_family_audit + envelope).
+\begin{table}
+  \centering
+  \caption{The frozen filter run identically on every family: median analysis
+  lift closure by gust strength, with the divergence rate at the $|G| = 4$
+  boundary, and the direct no-latent baseline (windowed regression from the same
+  eight taps straight to the lift) beneath. Load-tracking inside the training
+  range is a property of the nonlinear latents generally, not of any one
+  objective; the families separate at the strongest gusts, in calibration, and
+  in what else the tracked state carries (\S\ref{sec:res_tracking}). The linear
+  basis and the no-latent regression both fail beyond $|G| = 2$.}
+  \label{tab:family_filter}
+  \small
+  \fittab{\begin{tabular}{l c c c c c c}
+    \toprule
+    state & $|G|=1$ & $1.5$ & $2$ & $3$ & $4$ & div.\ rate at $4$ \\
+    \midrule
+    JEPA (wake)      & $\VfiltCLGOne$ & $\VfiltCLGOneHalf$ & $\VfiltCLGTwo$ &
+      $\VfiltCLGThree$ & $\VfiltCLGFour$ & $\VdivGFour$ \\
+    AE (wake)        & $\FfCLAeWakeGOne$ & $\FfCLAeWakeGOneHalf$ & $\FfCLAeWakeGTwo$ &
+      $\FfCLAeWakeGThree$ & $\FfCLAeWakeGFour$ & $\FfDivAeWakeGFour$ \\
+    Fukami           & $\FfCLFukamiGOne$ & $\FfCLFukamiGOneHalf$ & $\FfCLFukamiGTwo$ &
+      $\FfCLFukamiGThree$ & $\FfCLFukamiGFour$ & $\FfDivFukamiGFour$ \\
+    Fukami (wake)    & $\FfCLFukamiWakeGOne$ & $\FfCLFukamiWakeGOneHalf$ &
+      $\FfCLFukamiWakeGTwo$ & $\FfCLFukamiWakeGThree$ & $\FfCLFukamiWakeGFour$ &
+      $\FfDivFukamiWakeGFour$ \\
+    POD              & $\FfCLPodGOne$ & $\FfCLPodGOneHalf$ & $\FfCLPodGTwo$ &
+      $\FfCLPodGThree$ & $\FfCLPodGFour$ & $\FfDivPodGFour$ \\
+    \midrule
+    direct regression (no latent) & $\DirectCLKeightGOne$ & $\DirectCLKeightGOneHalf$ &
+      $\DirectCLKeightGTwo$ & $\DirectCLKeightGThree$ & $\DirectCLKeightGFour$ & -- \\
+    \bottomrule
+  \end{tabular}}
+\end{table}

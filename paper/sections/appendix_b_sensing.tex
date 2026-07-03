@@ -1,124 +1,84 @@
-% Appendix: sparse wall-pressure state estimation, redone on the v2.1
-% unconditioned rebuild. Placement is the target-blind qDEIM optimum of the
-% pressure modes (so the cross-family ordering cannot be a latent-aware-placement
-% artefact); the comparison is which representation, estimated from sparse wall
-% pressure, best recovers the latent STATE and the flow FIELD. The central honest
-% point is that latent recoverability and physical decode quality are different
-% axes: the state-recovery winner is not the field-recovery winner, because the
-% field score also carries the decoder's reconstruction ceiling. The earlier
-% pressure-to-wake-enstrophy claim is reported only as a non-result.
+% Appendix: sparse wall-pressure sensing detail, v3 (Session 33 / D247).
+% Rewritten on the v2.2 pooled artifacts (track_o1_recovery, track_t grid,
+% envelope + family audit); the previous version carried v2.1 d=64 spatial
+% numbers whose recovery ordering CONTRADICTED Section 4.3 (predictive most
+% recoverable there; fukami most recoverable here) -- that split-brain is the
+% audit finding this rewrite removes. Every number is a macros_v3 macro.
 
-At deployment the vorticity field is not available; only the wall pressure is. We
-ask how much of the latent state, the gust parameters, and the recovered flow field
-can be read from a sparse set of $K$ wall-pressure taps,
-and through which representation. The input is the span-averaged pressure on the
-$192$ surface taps; the pressure-to-latent map is a kernel-ridge regressor with a
-radial-basis kernel on the flattened $K$-sensor by window feature
-vector, fitted on the training encounters and applied unchanged on the held-out
-set. Two windows are reported. The primary feasibility comparison uses a window of
-$W = 30$ frames ending at the readout instant (impact plus
-$H = 16$, the closure-matrix primary endpoint), so the pressure is available up to
-but not beyond the readout; this is a feasibility comparison across
-representations, not a closed controller. The causal claim of
-\S\ref{sec:res_observability} instead uses a strictly pre-impact window of the same
-length ending at the impact frame, so the pressure ends before the gust reaches the
-leading edge: under that window the family ordering is preserved and in fact
-strengthens (predictive $\SenseStateCausalJepaTf$ against $\SenseStateCausalFukami$
-for the reconstructive autoencoder and $\SenseStateCausalPod$ for the linear basis).
+At deployment the vorticity field is not available; only the wall pressure is.
+This appendix records the sensing conventions behind \S\ref{sec:res_wall} and
+\S\ref{sec:res_tracking} and the placement-robustness checks that the main text
+summarises. The input throughout is the span-averaged pressure on the $192$
+surface taps; the recovery estimator is selected per family by encounter-grouped
+cross-validation among a kernel-ridge regressor on the flattened window, a
+multilayer perceptron, and a recurrent network over the window sequence, and the
+recovered state is read by the same frozen probes as everywhere else.
 
-\subsubsection*{Target-blind placement}
-The placement we use throughout is qDEIM, the QR-pivot optimum of the wall-pressure
-modes \citep{manohar2018sensors}. It is target-blind and family-independent: it
-places taps to reconstruct the pressure field, with no knowledge of the latent it
-is later asked to recover, and the same eight taps are used for every
-representation. The cross-family recoverability ordering of
-\S\ref{sec:res_observability} therefore cannot be an artefact of a bespoke
-latent-aware sensor selection. A target-aware greedy selection (target-conditioned
-sensor importance, which adds at each step the tap that most improves recovery of
-the leading latent component from the already-selected taps) is also available, and
-its only measurable advantage over qDEIM is in the scarce-sensor regime; by $K = 8$
-the wall pressure is information-rich enough that the placement choice no longer
-separates the families, which is why we report the target-blind optimum.
+\subsubsection*{Placement, and why it does not drive the ordering}
+Two placements are used, deliberately. The filter and the recovery of
+table~\ref{tab:recovery} sense at each family's own model-conditioned taps, the
+greedy selection that best exposes that family's latent, because the estimator
+comparison should give every family its best sensing. The delay-trade grid of
+\S\ref{sec:res_delays} instead uses a single target-blind array, the QR-pivot
+optimum of the wall-pressure modes \citep{manohar2018sensors}, nested so that
+every tap count is a prefix of the next, because a sensor-budget claim must not
+depend on a placement tuned to any model. The two meet where their sensing
+coincides: the grid's eight-tap, thirty-frame cell rerun on the
+model-conditioned taps reproduces the table's recovery exactly
+($\TbridgeState$). The energy-versus-information split of \S\ref{sec:res_wall}
+is also placement-robust: under the shared target-blind array with the
+kernel-ridge estimator alone, the reconstructive state remains the most
+recoverable in variance ($\WqStateFukami$ against $\WqStateJepa$ for the
+predictive and $\WqStatePod$ for the linear basis) and the predictive state
+retains the most recoverable physics ($\WqObsJepa$ against $\WqObsFukami$ and
+$\WqObsPod$), so neither ordering is an artefact of the model-conditioned
+placement.
 
-\subsubsection*{State recovery and its anisotropy}
-Over the feasibility window, with $K = 8$ taps the held-out test\_b state $R^2$
-orders the families as in the
-main text (\S\ref{sec:res_observability}): predictive $\SenseStateJepaTf$,
-reconstructive autoencoder $\SenseStateFukami$, variational baseline
-$\SenseStateBvae$, linear basis $\SenseStatePod$. The variance-weighted $R^2$ is
-reported alongside the mean canonical correlation between the estimated and true
-latent, because the two expose different things. The linear basis has the highest
-canonical correlation ($\SenseCcPod$ against $\SenseCcJepaTf$ for the predictive)
-yet the lowest state $R^2$: the wall pressure aligns with many POD directions but
-those are largely the low-variance ones, so a high directional agreement
-recovers little of the state's energy. The predictive latent has the lower
-canonical correlation but recovers the high-variance directions that carry the
-state, which is the quantity a downstream probe reads.
+\subsubsection*{What the window recovers that the instant cannot}
+At a single frame the wall is blind to the wake-circulation direction of the
+predictive state (\S\ref{sec:res_wall}); over the thirty-frame window the blind
+coordinate becomes partially recoverable ($\ToneCircNegWThirty$ held-out, from
+near zero at one frame), and the wake enstrophy read through the recovered state
+reaches $\ToneEwWThirty$. The window, not the tap count, is what carries this:
+the same quantities barely move as taps are added at a fixed single frame. This
+is the delay-coordinate content of the sensing result, quantified in the grid of
+\S\ref{sec:res_delays}; it is a statement about the static reconstruction, and
+the filter inherits the sequential version of it through its assimilation
+window rather than through any explicit delay embedding.
 
-\subsubsection*{Recovered field is a different axis from recovered state}
-Decoding the pressure-estimated latent through each family's frozen decoder gives a
-recovered flow field (figure~\ref{fig:flow_recovery}). Scored by structural
-similarity, the predictive latent reaches $\FieldPrSsimJepaTf$, the linear basis
-$\FieldPrSsimPod$, and the reconstructive $\FieldPrSsimFukami$: the predictive
-latent beats the reconstructive but ties the linear basis, and the tie is not
-significant (one-sided sign test $p = \FieldPrSsimSignP$). The tie is a decoder
-property, not a state-recovery one. The decode ceiling, the similarity of the field
-decoded from the \emph{true} encoded latent with no pressure step, is highest for
-the linear basis ($\FieldCeilSsimPod$ against $\FieldCeilSsimJepaTf$ for the
-predictive and $\FieldCeilSsimFukami$ for the reconstructive), so the linear basis
-reaches field parity through its decoder's reconstruction ceiling while having the
-weakest state recovery of the three. The pressure-to-state gap, the ceiling minus
-the pressure-recovered similarity, is correspondingly largest for the linear basis
-($\FieldSsimGapPod$ against $\FieldSsimGapJepaTf$ for the predictive): the part of
-the field error attributable to imperfect pressure-to-state recovery is smallest
-for the predictive latent. The volume relative error and peak-vorticity retention
-agree with the similarity ordering at the impingement scale (predictive
-$\FieldPrEpsJepaTf$ relative error and $\FieldPrPeakJepaTf$ peak retention, against
-$\FieldPrPeakPod$ for the linear basis). The state-recovery winner is therefore not
-the field-recovery winner ($\FieldStateWinnerMatches$ of the two orderings
-coincide), and the clean comparison is the state recovery, where the predictive
-latent is unambiguously the most recoverable.
+\subsubsection*{The recovered field}
+Decoding the pressure-recovered state through each family's diagnostic decoder
+makes the recovery visible in physical space
+(figure~\ref{fig:field_recovery}). The comparison within each row, recovered
+field against that family's own decode ceiling, isolates the pressure step from
+the decoder's reconstruction limit: the loss from ceiling to recovery is the
+part attributable to the eight-tap window, and the panels show it concentrating
+in the wake structures rather than in the near-body field, consistent with the
+wall reading the force-carrying directions best (\S\ref{sec:res_wall}).
 
 \begin{figure}
   \centering
-  \includegraphics[width=\linewidth]{sections/figures/results/figG_flow_recovery_v2p1.pdf}
-  \caption{Flow recovered from $K = 8$ target-blind (qDEIM) wall-pressure taps on a
-  representative held-out encounter (the typical-difficulty case
-  $G = -1.50$, $D = 1.50$, $Y = +0.10$), one row per family. Columns: the field
-  decoded from the pressure-estimated latent, the decode ceiling (the same decoder
-  applied to the true encoded latent, with no pressure step), and the simulation.
-  The per-panel similarity makes the appendix point visible: the linear basis
-  reaches field parity through the highest decode ceiling, not through better
-  pressure-to-state recovery, where the predictive latent has the smallest ceiling
-  gap. The decoder is blurry by design (\S\ref{sec:res_physical}); the comparison
-  is between the columns of the same row.}
-  \label{fig:flow_recovery}
+  \includegraphics[width=\linewidth]{sections/figures/results/fig_field_recovery_v3.pdf}
+  \caption{Flow recovered from eight wall-pressure taps on the representative
+  held-out encounter of figure~\ref{fig:hero}, at the impact-side frame, one row
+  per family. Columns: the field decoded from the pressure-recovered coefficient
+  state, the decode ceiling (the same decoder applied to the encoded state, no
+  pressure step), and the simulation; per-panel structural similarity annotated.
+  The comparison is within each row, since the decoders' ceilings differ
+  (\S\ref{sec:disc_decode}); the ceiling-to-recovered gap is the cost of the
+  pressure step.}
+  \label{fig:field_recovery}
 \end{figure}
 
-\subsubsection*{Parameters and the out-of-distribution boundary}
-The gust parameters recover directly from the same eight taps, with the
-wall-normal offset the weakest ($Y$ at $R^2 = \SensePY$ on test\_b), consistent
-with $Y$'s weak resolution throughout the paper and confirming that the limit is
-the mid-plane vorticity observable and the offset sampling, not the pressure
-signal. The impact lift read through the latent ($R^2 = \SensePClVia$) is no better
-than reading it straight off the pressure, in keeping with the main-text point that
-the wall reads the scalar lift well but the wake structure only through the
-representation. On the out-of-distribution test\_c set ($|G| = 4$) every estimator
-and every family gives negative state $R^2$, the same three-dimensional
-observability boundary of \S\ref{sec:disc_limits} that bounds the rest of the
-model.
-
-\subsubsection*{Robustness and a non-result}
-The frame-0 gust-release clip of the re-release encounters leaves the result
-unchanged: removing the clipped frame from the pressure window shifts the
-predictive state recovery by $\SenseCausalDelta$ in $R^2$, within noise. The wall
-pressure does not recover the wake: a pressure-to-latent-to-frozen-wake-probe route
-reaches only $R^2 = \SensePWakeJepaTf$ for the predictive latent, a direct
-pressure-to-wake regression $\SensePWakeDirect$, and the predictive advantage over
-the best reconstructive family is not significant (one-sided sign test
-$p = \SensePWakeSignP$). The wake is linearly readable from the encoded field
-(\S\ref{sec:res_closure}) but not from this many wall taps over this window; the
-deployment comparison is the state and the field, not the wake.
+\subsubsection*{The out-of-distribution boundary from the sensing side}
+At the $|G| = 4$ boundary every static approach fails on the load, the
+via-latent recovery at $\VrecCLGFour$ and the direct no-latent regression at
+$\DirectCLKeightGFour$ from the same taps ($\DirectCLAllTapsGFour$ with the full
+array), while the filters still track it (table~\ref{tab:family_filter}). The
+boundary is the same three-dimensional observability limit the field reaches
+(\S\ref{sec:flow_physics}): the mid-plane state no longer determines the
+dynamics there, so a static inverse has nothing to invert, and only the
+accumulated pressure history carries the load through.
 
 \subsubsection*{Delay-coordinate knobs}
 The window sweeps of \S\ref{sec:res_delays} keep the delay stride at the cache

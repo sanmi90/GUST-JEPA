@@ -62,6 +62,18 @@ enstrophy that a supervised nonlinear state does.
 
 \input{sections/tables/table_closure.tex}
 
+\begin{figure}
+  \centering
+  \includegraphics[width=\linewidth]{sections/figures/results/fig_readability_matrix_v3.pdf}
+  \caption{The attribution result of table~\ref{tab:closure}, at a glance. (a)
+  Held-out wake-enstrophy readability and (b) matched-predictor merit, with the
+  models grouped by whether they carry the wake-supervision head; every
+  wake-headed state reads the wake and every bare state collapses, whatever the
+  training objective. The right-hand column lists the decode similarity, which
+  barely separates the families.}
+  \label{fig:readability_matrix}
+\end{figure}
+
 \subsection{Why the state stays usable under rollout}
 \label{sec:res_rollout}
 \label{sec:res_controls} % v2.1 alias
@@ -102,6 +114,18 @@ instantaneous: it keeps the rolled state both in distribution and near the true
 trajectory, which is exactly what a sequential estimator queries.
 
 \input{sections/tables/table_mechanism.tex}
+
+\begin{figure}
+  \centering
+  \includegraphics[width=\linewidth]{sections/figures/results/fig_mechanism_hroll_v3.pdf}
+  \caption{The rollout mechanism and what the multi-step objective adds. (a)
+  Near-null departure fraction by family against the isotropic null, annotated
+  with each latent covariance condition number: supervision builds the protected
+  subspace. (b) Forecast merit and (c) rollout drift against horizon for the
+  single-step and multi-step objectives, tied at one step and separated by
+  sixteen.}
+  \label{fig:mechanism_hroll}
+\end{figure}
 
 \subsection{What the wall can see}
 \label{sec:res_wall}
@@ -157,16 +181,22 @@ recovery above ($\TbridgeState$), and the delay stride sits at the cache cadence
 close to the first mutual-information minimum of the tap signals at
 $\TmiTau$ frames.
 
-This trade belongs to the static delay-coordinate reconstruction, and it does not
-transfer to the frozen sequential filter, which needs its eight taps. Rerunning the
-filter with only its own leading taps, and changing nothing else, drives the
-analysis lift below the skill of the encounter mean at every gust strength the
-eight-tap filter tracks (at $|G| = 1$ the single-tap analysis falls by
-$\TtwobKOneDeltaGOne$ in $R^2$ against the eight-tap filter). The rank of the
-innovation, with the process and observation noise held at their calibrated values,
-is what the filter cannot spare: its sensor budget is a calibration constraint, not
-a delay-embedding one, which points at the noise model of \S\ref{sec:disc_limits}
-rather than at fewer sensors.
+The grid uses a shared target-blind tap array so that the trade is free of any
+model-conditioned placement; rerunning its eight-tap, thirty-frame cell on the
+model-conditioned taps of table~\ref{tab:recovery} reproduces that table's
+recovery exactly ($\TbridgeState$ against $\WstateJepa$), so the two analyses
+meet where their sensing coincides. This trade belongs to the static delay-coordinate
+reconstruction, and it does not transfer to the frozen sequential filter, which
+needs its eight taps. Rerunning the filter with only its own leading taps, and
+changing nothing else, drives the analysis lift below the skill of the
+encounter mean at every gust strength the eight-tap filter tracks (at
+$|G| = 1$ the single-tap analysis loses $22.5$ in median paired $R^2$ against
+the eight-tap filter, interval $[\TtwobKOneDeltaGOnelo,
+\TtwobKOneDeltaGOnehi]$). The rank of the innovation, with the process and
+observation noise held at their calibrated values, is what the filter cannot
+spare: its sensor budget is a calibration constraint, not a delay-embedding
+one, which points at the noise model of \S\ref{sec:disc_limits} rather than at
+fewer sensors.
 
 \input{sections/tables/table_recovery.tex}
 
@@ -199,8 +229,37 @@ wake-supervised coefficient state, the online-estimation pathway the
 extreme-aerodynamic control literature has named but not closed
 \citep{fukami2024control,mousavi2025,eldredge2025guide}: the state a real-time
 controller would need is recovered from sparse wall pressure and advanced by the
-learned dynamics, without ever measuring the field. How far into the gust that
-recovery holds is the operating envelope of \S\ref{sec:res_envelope}.
+learned dynamics, without ever measuring the field.
+
+Two honest boundaries frame what this demonstration does and does not establish,
+and we state them before the envelope. First, tracking the load inside the
+training range is not unique to this state. Running the identical frozen filter
+on every family (table~\ref{tab:family_filter}), the nonlinear latents all track
+the lift for $|G|$ between one and two, and the wake-supervised reconstructive
+control is the best of them at the mildest gusts ($\FfCLAeWakeGOne$ at
+$|G| = 1$ against $\VfiltCLGOne$ for the predictive state); only the linear
+basis fails outright. What no static approach achieves is the strong-gust range:
+a windowed regression from the same taps straight to the lift, with no latent at
+all, fades to $\DirectCLKeightGThree$ by a gust ratio of three, and even the
+full wall array recovers only $\DirectCLAllTapsGFour$ at the boundary, so the
+sequential accumulation of pressure through a learned nonlinear state, rather
+than any particular training objective, is what carries the load into the
+strong-gust regime. Where the objectives separate is at that boundary and in the
+filter's statistical health: the predictive state alone combines the highest
+boundary closure ($\VfiltCLGFour$ against $\FfCLAeWakeGFour$ to
+$\FfCLFukamiWakeGFour$ for the alternatives), the lowest divergence rate at
+every gust strength, and the least-degraded wake readout. Second, no family's
+filter tracks the wake enstrophy: the analysis wake closure is below the mean
+predictor for every state, least badly for the predictive one, so the wake
+content of the encounter is established at the representational tier
+(\S\ref{sec:res_carries}) and is not yet recoverable through the assimilation.
+The filter is a load estimator whose state carries wake information; it is not a
+wake estimator, and we say so plainly.
+
+\input{sections/tables/table_family_filter.tex}
+
+How far into the gust the load recovery holds is the operating envelope of
+\S\ref{sec:res_envelope}.
 
 \begin{figure}
   \centering
@@ -270,8 +329,13 @@ gust drives the interaction three-dimensional and the encounter's effective
 dimension outgrows what a fixed tap count and delay window can embed
 (\S\ref{sec:res_wall}). Only at $|G| = 4$ does the mid-plane representation meet the
 genuine three-dimensional observability boundary the field itself reaches
-(\S\ref{sec:flow_physics}), now seen from the filter. This envelope, not the
-single-instant readability, is what a wall-estimable reduced state is for.
+(\S\ref{sec:flow_physics}), now seen from the filter. The envelope is therefore two
+claims with different owners: its extension beyond every static inverse belongs to
+the sequential estimator on a nonlinear latent, a property the family comparison of
+\S\ref{sec:res_tracking} shows is shared; its width at the strongest gusts, its
+calibration margin, and the wake content of the state being tracked belong to the
+wake-supervised predictive state. This envelope, not the single-instant
+readability, is what a wall-estimable reduced state is for.
 
 \begin{figure}
   \centering

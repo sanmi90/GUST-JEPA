@@ -40,8 +40,7 @@ Table~\ref{tab:architecture} summarises the two networks.
 \begin{table}
   \centering
   \caption{Encoder and predictor configuration. The model is unconditional: no
-  gust parameters $\cvec = (G,D,Y)$ enter the encoder or the predictor. Parameter
-  counts are for the $d = 64$ configuration; two small auxiliary heads read
+  gust parameters $\cvec = (G,D,Y)$ enter the encoder or the predictor. Parameter counts are for the $d = \LatentDim$ headline configuration; two small auxiliary heads read
   observables off the encoder output during training (a lift head,
   $4\times10^{3}$ parameters, and an $80$-dimensional wake-spectrum head,
   $3.5\times10^{4}$ parameters; \S\ref{sec:methods_loss}).}

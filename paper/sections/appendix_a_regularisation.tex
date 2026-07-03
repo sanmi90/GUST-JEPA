@@ -58,7 +58,7 @@ determination and mean absolute error in the paper carries three independent
 uncertainty signals, following the reporting protocol fixed with the split. The
 first is a bootstrap confidence interval from $2000$ resamples over the held-out
 test encounters, which is the dominant source of scatter at the present sample
-size ($n = 42$ for test\_b, $n = 24$ for test\_c) and is wide for the individual
+size ($n = \NTestBEnc$ for test\_b, $n = \NTestCEnc$ for test\_c) and is wide for the individual
 wake observables, as noted in \S\ref{sec:res_closure}. The second is the variance
 across three encoder retrains from independent random seeds, reported as the
 standard deviation in the objective-times-architecture controls of
@@ -121,25 +121,22 @@ shedding history of a case's encounters.
   \end{tabular}}
 \end{table}
 
-\subsubsection*{Topological robustness}
-The significant-$H_1$ generator count of
-\S\ref{sec:res_drift} declares a generator significant when its persistence exceeds
-a noise floor set at a fraction of the cloud diameter (the largest finite $H_0$
-death), the canonical analysis using $5\%$ of that diameter and all $120$
-trajectory frames. Following the convergence protocol of \citet{smith2024} we sweep
-the floor over $\{2, 5, 10, 15, 20\}\%$ and the points per encounter over
-$\{120, 60, 40, 30\}$ (uniform subsampling), $20$ settings in all. The predictive
-median is one generator in every setting. The predictive-versus-reconstructive
-Mann--Whitney separation is below $10^{-3}$ for floors from $2\%$ to $15\%$ at full
-($120$-point) sampling and for floors up to $5\%$ at half ($60$-point) sampling
-(the canonical $5\%$, $120$-point value is $4.9\times10^{-9}$), while the
-reconstructive median falls from six generators at a $2\%$ floor to one at a $20\%$
-floor as the aggressive floor filters the spurious generators. Under heavy
-subsampling to $30$ points both medians approach one and the separation washes out.
-The robust statement is therefore the median-count separation over a defensible
-floor and sampling range, not the exact $p$; the case-clustered signed-rank test
-($10$ of $10$ cases at the canonical setting) holds across the same range. The full
-grid is in the released analysis package.
+\subsubsection*{Topology of the encoded encounter}
+A coordinate-free check on the geometric mechanism of \S\ref{sec:res_rollout}:
+Vietoris--Rips persistence of the encoded trajectories, per family, with a
+generator declared significant when its persistence exceeds a noise floor set at
+a fraction of the cloud diameter, after per-family standardisation so that
+coordinate scale cannot carry the result. On the gusted held-out encounters the
+supervised states keep a single clean $H_1$ cycle in about half the encounters
+($\TopoFracJepa$ for the predictive and $\TopoFracSupOnly$ for the
+objective-free supervised state) where the anti-collapse reconstruction
+fragments ($\TopoFracRegAE$); on the single-period no-gust control the same
+separation holds ($\TopoCtrlJepa$ against $\TopoCtrlRegAE$), and it survives
+whitening, so the fragmentation is a property of the reconstructive encoding
+rather than of any coordinate scale. The linear basis keeps the cleanest no-gust
+loop of all ($\TopoCtrlPod$), consistent with a linear projection of a smooth
+field; the claim is that the anti-collapse reconstruction fragments, not that
+only the predictive latent carries a loop.
 
 \subsubsection*{Preprocessing robustness}
 The wake enstrophy squares the vorticity, so the per-encounter high-percentile
@@ -157,11 +154,15 @@ source of the wake result.
 
 \begin{table}
   \centering
-  \caption{Preprocessing robustness of the representational wake closure. Held-out
-  test\_b wake-enstrophy $R^2$ at $H = 16$ from a frozen-latent ridge probe (no
-  retraining), recomputed under three training-only amplitude-clip treatments of the
-  raw $\omegaz$ field. The predictive latent leads the wake under every treatment;
-  the advantage keeps its sign and approximate magnitude.}
+  \caption{Preprocessing robustness of the representational wake closure,
+  established on the previous-generation spatial encoders ($d = 64$, the 85-case
+  v2.1 split) and retained as evidence that the amplitude clip does not shape the
+  endpoint; the pipeline is unchanged in the present dataset revision, and the
+  probe protocol is identical. Held-out test\_b wake-enstrophy $R^2$ from a
+  frozen-latent ridge probe (no retraining), recomputed under three training-only
+  amplitude-clip treatments of the raw $\omegaz$ field. The predictive latent
+  leads the wake under every treatment; the advantage keeps its sign and
+  approximate magnitude.}
   \label{tab:prepsens}
   \small
   \begin{tabular}{l c c c}
@@ -175,70 +176,9 @@ source of the wake result.
   \end{tabular}
 \end{table}
 
-\subsubsection*{Return to the baseline orbit within the encounter window}
-The load-bearing caveat of \S\ref{sec:res_drift}, that the simulation gust
-trajectories do not fully return to the baseline orbit within the $120$-frame
-encounter, is a consequence of the gust-release cadence rather than a
-strength-dependent failure to recover. Figure~\ref{fig:appA_return} holds the
-core diameter fixed at $D = 1.0$ with $G < 0$, averages the distance to the
-baseline orbit over each case's encounters, and sweeps $|G|$. The departure
-amplitude near impact is nearly independent of gust strength (peak distance
-$\OrbitReturnPeakMin$ to $\OrbitReturnPeakMax$ orbit diameters across
-$|G| \in [0.5, 3.0]$), every trajectory is
-still contracting toward the orbit at the end of the window, and the strongest
-gust ends closest rather than farthest. The residual offset at the window's end
-is therefore set by the $\sim 4\,t/c$ of post-impact relaxation the cadence
-allows and by the core diameter, a larger core leaving a more persistent wake,
-not by $|G|$. This window-truncated return is common to all three encoders and
-does not affect the relative drift comparison of \S\ref{sec:res_drift}, which
-contrasts the predictive and reconstructive rollouts over the same window.
-
-\begin{figure}
-  \centering
-  \includegraphics[width=0.82\linewidth]{sections/figures/results/appA_orbit_return_v2p1.pdf}
-  \caption{Diameter-controlled return to the baseline orbit. Distance of the
-  encoded gust trajectory to the no-gust orbit (predictive latent, in orbit
-  diameters; grey band is the orbit thickness), at fixed core diameter $D = 1.0$
-  and $G < 0$, averaged over each case's encounters, for five gust strengths. The
-  departure amplitude is nearly independent of $|G|$ and all strengths are still
-  contracting when the next gust is released at $+79$ frames, so the non-return is
-  a window-length effect, not a strength-dependent one.}
-  \label{fig:appA_return}
-\end{figure}
-
-\subsubsection*{What the latent encodes}
-The closure of \S\ref{sec:res_closure} reads single observables at the readout
-instant; the latent's broader content is summarised in
-figure~\ref{fig:latent_readability}, the held-out $R^2$ of a single linear readout
-of the full $64$-dimensional latent to each per-frame flow-state descriptor, on
-test\_b, for the three families. The wake-supervised predictive latent is the most
-readable on every descriptor: the signed circulations ($\NumLatReadCircPosJepa$
-and $\NumLatReadCircNegJepa$), the wake centroid ($\NumLatReadCentroidXJepa$), the
-body forces ($C_L$ at $\NumLatReadCliftJepa$), and the wake enstrophy, with the
-weakest descriptor still at $\NumLatReadWeakestJepa$. This is a collective property
-of the latent, not of any single coordinate: no individual coordinate approaches
-the readability of the full latent (the distributed-code gap of
-\S\ref{sec:res_code}), and the linear coordinate frame is seed-arbitrary, the
-leading subspaces of independent retrains overlapping at the random-rotation level
-(squared cosine near $K/d$), so the figure measures how much of each observable is
-linearly available in the whole code, not the meaning of any axis. The readout
-here pools all post-release frames and is therefore a broader and lower number than
-the readout-instant closure: for the wake enstrophy it is $\NumLatReadWakeEnstJepa$
-over the full window against $\NumReprWakeJepaTf$ at the impact-plus-$H$ readout,
-two regimes of the same encoder rather than a discrepancy. The gust parameters are
-omitted because they are an impact-frame quantity (\S\ref{sec:res_param_phase}),
-not a per-frame one.
-
-\begin{figure}
-  \centering
-  \includegraphics[width=\linewidth]{sections/figures/results/fig_latent_readability_v2p1.pdf}
-  \caption{Collective readability of the latent. Held-out test\_b $R^2$ of a single
-  linear readout of the full $64$-dimensional latent to each per-frame flow-state
-  descriptor, for the predictive (JEPA), reconstructive (Fukami), and linear (POD)
-  families; error bars are case-clustered bootstrap $95\%$ intervals and the faint
-  open markers are the $|G| = 4$ extrapolation (test\_c). The bars measure how much
-  of each descriptor is linearly available in the whole code, not the semantics of
-  any individual coordinate; the latent is a distributed representation. The gust
-  parameters are omitted as an impact-frame, not a per-frame, quantity.}
-  \label{fig:latent_readability}
-\end{figure}
+% The v2.1-era "Return to the baseline orbit" and "What the latent encodes"
+% subsections (and their figures appA_orbit_return_v2p1, fig_latent_readability_v2p1)
+% were removed in the D247 audit: both anchored to deleted v2.1 main-text claims and
+% presented previous-generation d=64 spatial encoders as "the latent". The
+% distributed-code and readability content lives, recomputed on v2.2 pooled, in
+% \S\ref{sec:res_latent_physics}.

@@ -139,14 +139,16 @@ state loses this physics over the rollout. Third, we demonstrate the state in a
 leakage-free sequential filter that senses only wall pressure and never
 observes the vorticity field, and we map the gust-intensity envelope over which
 it holds. The filter tracks the transient load through the encounter and
-extends the usable gust range beyond what a single pressure frame can invert,
-and a delay-coordinate reading explains why: the encounter is low-dimensional,
-so a short window of pressure reconstructs the state a single frame cannot, and
-the envelope closes where the strengthening gust drives the interaction
+extends the usable gust range beyond what any static inverse achieves, and a
+delay-coordinate reading explains why: the encounter is low-dimensional, so a
+short window of pressure reconstructs the state a single frame cannot, and the
+envelope closes where the strengthening gust drives the interaction
 three-dimensional and its effective dimension outruns a fixed sensing budget.
-We are explicit about the limits: the state's recoverability margin over a raw
-field latent is modest, and the filter is under-dispersed at the strongest
-gusts. This study investigates a fluid-mechanics question through a learning
+We are explicit about the limits: run identically on every family, the filter
+tracks the load through any nonlinear latent, and the predictive state's
+distinctions are the strongest gusts, the calibration margin, and the wake
+content of the tracked state; its recoverability margin over a raw field latent
+is modest; and the filter is under-dispersed at the strongest gusts. This study investigates a fluid-mechanics question through a learning
 architecture: what kind of reduced state can carry the wake dynamics of an
 extreme gust encounter while remaining estimable from the wall and predictive
 enough to serve as a future plant model?

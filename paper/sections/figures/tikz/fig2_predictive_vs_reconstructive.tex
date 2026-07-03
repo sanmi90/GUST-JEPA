@@ -49,7 +49,7 @@
   % ===================== LEFT: reconstructive autoencoder =====================
   \node[tbox] (aein) {$\boldsymbol{\omega}_z(t)$ \\[1pt] $(B,\,1,\,192,\,96)$};
   \node[encoder, below=of aein] (aeenc) {CNN};
-  \node[tbox, below=of aeenc] (aez) {$\mathbf{z}_t$ \\[1pt] $(B,\,d),\ d=64$};
+  \node[tbox, below=of aeenc] (aez) {$\mathbf{z}_t$ \\[1pt] $(B,\,d),\ d=32$};
   \node[decoder, below=of aez] (aedec) {transposed CNN};
   \node[tbox, below=of aedec] (aeout) {$\widehat{\boldsymbol{\omega}}_z(t)$ \\[1pt] $(B,\,1,\,192,\,96)$};
 

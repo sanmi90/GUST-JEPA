@@ -1,11 +1,12 @@
 {
   "_provenance": {
-    "generated_iso": "2026-07-03T09:06:33.978191+00:00",
-    "git_commit": "6a40d10f00511c22d0a2e35aa1b8ccc26cd6748f",
-    "n_parts": 14,
+    "generated_iso": "2026-07-03T16:17:44.072612+00:00",
+    "git_commit": "b144e3175c2660d90e6534bd14f78f5863843276",
+    "n_parts": 15,
     "parts": [
       "constants.json",
       "dim_plateau.json",
+      "family_filter_audit.json",
       "gates_p_and_table_y.json",
       "min_d_panel.json",
       "paired_stats.json",
@@ -34,6 +35,78 @@
       "macro": "AssimPre",
       "source": "constants",
       "value": 24
+    },
+    "dcl_K8_qdeim_Four": {
+      "fmt": "%.2f",
+      "macro": "DirectCLKeightGFour",
+      "source": "family_filter_audit",
+      "value": 0.08024109240861665
+    },
+    "dcl_K8_qdeim_Half": {
+      "fmt": "%.2f",
+      "macro": "DirectCLKeightGHalf",
+      "source": "family_filter_audit",
+      "value": 0.4715043592778872
+    },
+    "dcl_K8_qdeim_One": {
+      "fmt": "%.2f",
+      "macro": "DirectCLKeightGOne",
+      "source": "family_filter_audit",
+      "value": 0.4121061703879493
+    },
+    "dcl_K8_qdeim_OneHalf": {
+      "fmt": "%.2f",
+      "macro": "DirectCLKeightGOneHalf",
+      "source": "family_filter_audit",
+      "value": 0.2945845638025641
+    },
+    "dcl_K8_qdeim_Three": {
+      "fmt": "%.2f",
+      "macro": "DirectCLKeightGThree",
+      "source": "family_filter_audit",
+      "value": 0.08359520428661732
+    },
+    "dcl_K8_qdeim_Two": {
+      "fmt": "%.2f",
+      "macro": "DirectCLKeightGTwo",
+      "source": "family_filter_audit",
+      "value": 0.20829347331533515
+    },
+    "dcl_all192_Four": {
+      "fmt": "%.2f",
+      "macro": "DirectCLAllTapsGFour",
+      "source": "family_filter_audit",
+      "value": 0.1426120305353029
+    },
+    "dcl_all192_Half": {
+      "fmt": "%.2f",
+      "macro": "DirectCLAllTapsGHalf",
+      "source": "family_filter_audit",
+      "value": 0.5446931630127387
+    },
+    "dcl_all192_One": {
+      "fmt": "%.2f",
+      "macro": "DirectCLAllTapsGOne",
+      "source": "family_filter_audit",
+      "value": 0.4426682824767733
+    },
+    "dcl_all192_OneHalf": {
+      "fmt": "%.2f",
+      "macro": "DirectCLAllTapsGOneHalf",
+      "source": "family_filter_audit",
+      "value": 0.35466903829591506
+    },
+    "dcl_all192_Three": {
+      "fmt": "%.2f",
+      "macro": "DirectCLAllTapsGThree",
+      "source": "family_filter_audit",
+      "value": 0.07959089610015341
+    },
+    "dcl_all192_Two": {
+      "fmt": "%.2f",
+      "macro": "DirectCLAllTapsGTwo",
+      "source": "family_filter_audit",
+      "value": 0.27094733728980835
     },
     "dmd_lam_Fukami": {
       "fmt": "%.3f",
@@ -112,6 +185,246 @@
       "macro": "DtTc",
       "source": "constants",
       "value": 0.05
+    },
+    "ff_cl_ae_wake_pool_Four": {
+      "fmt": "%.2f",
+      "macro": "FfCLAeWakeGFour",
+      "source": "family_filter_audit",
+      "value": 0.657004249911127
+    },
+    "ff_cl_ae_wake_pool_One": {
+      "fmt": "%.2f",
+      "macro": "FfCLAeWakeGOne",
+      "source": "family_filter_audit",
+      "value": 0.8562127854779984
+    },
+    "ff_cl_ae_wake_pool_OneHalf": {
+      "fmt": "%.2f",
+      "macro": "FfCLAeWakeGOneHalf",
+      "source": "family_filter_audit",
+      "value": 0.855274940314336
+    },
+    "ff_cl_ae_wake_pool_Three": {
+      "fmt": "%.2f",
+      "macro": "FfCLAeWakeGThree",
+      "source": "family_filter_audit",
+      "value": 0.48584769780012593
+    },
+    "ff_cl_ae_wake_pool_Two": {
+      "fmt": "%.2f",
+      "macro": "FfCLAeWakeGTwo",
+      "source": "family_filter_audit",
+      "value": 0.8073097161970872
+    },
+    "ff_cl_fukami_Four": {
+      "fmt": "%.2f",
+      "macro": "FfCLFukamiGFour",
+      "source": "family_filter_audit",
+      "value": 0.7574769553900444
+    },
+    "ff_cl_fukami_One": {
+      "fmt": "%.2f",
+      "macro": "FfCLFukamiGOne",
+      "source": "family_filter_audit",
+      "value": 0.7908861961351608
+    },
+    "ff_cl_fukami_OneHalf": {
+      "fmt": "%.2f",
+      "macro": "FfCLFukamiGOneHalf",
+      "source": "family_filter_audit",
+      "value": 0.8661301404808224
+    },
+    "ff_cl_fukami_Three": {
+      "fmt": "%.2f",
+      "macro": "FfCLFukamiGThree",
+      "source": "family_filter_audit",
+      "value": 0.6840800086824108
+    },
+    "ff_cl_fukami_Two": {
+      "fmt": "%.2f",
+      "macro": "FfCLFukamiGTwo",
+      "source": "family_filter_audit",
+      "value": 0.7798465777583529
+    },
+    "ff_cl_fukami_wake_Four": {
+      "fmt": "%.2f",
+      "macro": "FfCLFukamiWakeGFour",
+      "source": "family_filter_audit",
+      "value": 0.8500110623536183
+    },
+    "ff_cl_fukami_wake_One": {
+      "fmt": "%.2f",
+      "macro": "FfCLFukamiWakeGOne",
+      "source": "family_filter_audit",
+      "value": -0.39103615924195056
+    },
+    "ff_cl_fukami_wake_OneHalf": {
+      "fmt": "%.2f",
+      "macro": "FfCLFukamiWakeGOneHalf",
+      "source": "family_filter_audit",
+      "value": 0.7196469952173361
+    },
+    "ff_cl_fukami_wake_Three": {
+      "fmt": "%.2f",
+      "macro": "FfCLFukamiWakeGThree",
+      "source": "family_filter_audit",
+      "value": 0.7660231743850346
+    },
+    "ff_cl_fukami_wake_Two": {
+      "fmt": "%.2f",
+      "macro": "FfCLFukamiWakeGTwo",
+      "source": "family_filter_audit",
+      "value": 0.6776354741719275
+    },
+    "ff_cl_pod_Four": {
+      "fmt": "%.2f",
+      "macro": "FfCLPodGFour",
+      "source": "family_filter_audit",
+      "value": 0.24917005951800908
+    },
+    "ff_cl_pod_One": {
+      "fmt": "%.2f",
+      "macro": "FfCLPodGOne",
+      "source": "family_filter_audit",
+      "value": 0.5329236271883573
+    },
+    "ff_cl_pod_OneHalf": {
+      "fmt": "%.2f",
+      "macro": "FfCLPodGOneHalf",
+      "source": "family_filter_audit",
+      "value": 0.5186646367006748
+    },
+    "ff_cl_pod_Three": {
+      "fmt": "%.2f",
+      "macro": "FfCLPodGThree",
+      "source": "family_filter_audit",
+      "value": -0.27233338204641266
+    },
+    "ff_cl_pod_Two": {
+      "fmt": "%.2f",
+      "macro": "FfCLPodGTwo",
+      "source": "family_filter_audit",
+      "value": -0.3349165896717575
+    },
+    "ff_div_ae_wake_pool_Four": {
+      "fmt": "%.2f",
+      "macro": "FfDivAeWakeGFour",
+      "source": "family_filter_audit",
+      "value": 0.925
+    },
+    "ff_div_ae_wake_pool_One": {
+      "fmt": "%.2f",
+      "macro": "FfDivAeWakeGOne",
+      "source": "family_filter_audit",
+      "value": 0.0
+    },
+    "ff_div_ae_wake_pool_OneHalf": {
+      "fmt": "%.2f",
+      "macro": "FfDivAeWakeGOneHalf",
+      "source": "family_filter_audit",
+      "value": 0.21428571428571427
+    },
+    "ff_div_ae_wake_pool_Three": {
+      "fmt": "%.2f",
+      "macro": "FfDivAeWakeGThree",
+      "source": "family_filter_audit",
+      "value": 0.7142857142857143
+    },
+    "ff_div_ae_wake_pool_Two": {
+      "fmt": "%.2f",
+      "macro": "FfDivAeWakeGTwo",
+      "source": "family_filter_audit",
+      "value": 0.3625
+    },
+    "ff_div_fukami_Four": {
+      "fmt": "%.2f",
+      "macro": "FfDivFukamiGFour",
+      "source": "family_filter_audit",
+      "value": 0.975
+    },
+    "ff_div_fukami_One": {
+      "fmt": "%.2f",
+      "macro": "FfDivFukamiGOne",
+      "source": "family_filter_audit",
+      "value": 0.056818181818181816
+    },
+    "ff_div_fukami_OneHalf": {
+      "fmt": "%.2f",
+      "macro": "FfDivFukamiGOneHalf",
+      "source": "family_filter_audit",
+      "value": 0.3392857142857143
+    },
+    "ff_div_fukami_Three": {
+      "fmt": "%.2f",
+      "macro": "FfDivFukamiGThree",
+      "source": "family_filter_audit",
+      "value": 0.7678571428571429
+    },
+    "ff_div_fukami_Two": {
+      "fmt": "%.2f",
+      "macro": "FfDivFukamiGTwo",
+      "source": "family_filter_audit",
+      "value": 0.575
+    },
+    "ff_div_fukami_wake_Four": {
+      "fmt": "%.2f",
+      "macro": "FfDivFukamiWakeGFour",
+      "source": "family_filter_audit",
+      "value": 0.95
+    },
+    "ff_div_fukami_wake_One": {
+      "fmt": "%.2f",
+      "macro": "FfDivFukamiWakeGOne",
+      "source": "family_filter_audit",
+      "value": 0.9772727272727273
+    },
+    "ff_div_fukami_wake_OneHalf": {
+      "fmt": "%.2f",
+      "macro": "FfDivFukamiWakeGOneHalf",
+      "source": "family_filter_audit",
+      "value": 1.0
+    },
+    "ff_div_fukami_wake_Three": {
+      "fmt": "%.2f",
+      "macro": "FfDivFukamiWakeGThree",
+      "source": "family_filter_audit",
+      "value": 0.9464285714285714
+    },
+    "ff_div_fukami_wake_Two": {
+      "fmt": "%.2f",
+      "macro": "FfDivFukamiWakeGTwo",
+      "source": "family_filter_audit",
+      "value": 0.9125
+    },
+    "ff_div_pod_Four": {
+      "fmt": "%.2f",
+      "macro": "FfDivPodGFour",
+      "source": "family_filter_audit",
+      "value": 0.925
+    },
+    "ff_div_pod_One": {
+      "fmt": "%.2f",
+      "macro": "FfDivPodGOne",
+      "source": "family_filter_audit",
+      "value": 0.011363636363636364
+    },
+    "ff_div_pod_OneHalf": {
+      "fmt": "%.2f",
+      "macro": "FfDivPodGOneHalf",
+      "source": "family_filter_audit",
+      "value": 0.14285714285714285
+    },
+    "ff_div_pod_Three": {
+      "fmt": "%.2f",
+      "macro": "FfDivPodGThree",
+      "source": "family_filter_audit",
+      "value": 0.6071428571428571
+    },
+    "ff_div_pod_Two": {
+      "fmt": "%.2f",
+      "macro": "FfDivPodGTwo",
+      "source": "family_filter_audit",
+      "value": 0.4875
     },
     "filter_members": {
       "fmt": "%d",
@@ -1426,6 +1739,62 @@
       "unit": "frames",
       "value": 28.571428571428573
     },
+    "topo_ctrl_Jepa": {
+      "fmt": "%.2f",
+      "macro": "TopoCtrlJepa",
+      "note": "single-period no-gust control",
+      "source": "physics_latent",
+      "value": 0.5
+    },
+    "topo_ctrl_Pod": {
+      "fmt": "%.2f",
+      "macro": "TopoCtrlPod",
+      "note": "single-period no-gust control",
+      "source": "physics_latent",
+      "value": 0.625
+    },
+    "topo_ctrl_RegAE": {
+      "fmt": "%.2f",
+      "macro": "TopoCtrlRegAE",
+      "note": "single-period no-gust control",
+      "source": "physics_latent",
+      "value": 0.0
+    },
+    "topo_ctrl_SupOnly": {
+      "fmt": "%.2f",
+      "macro": "TopoCtrlSupOnly",
+      "note": "single-period no-gust control",
+      "source": "physics_latent",
+      "value": 0.375
+    },
+    "topo_frac_Jepa": {
+      "fmt": "%.2f",
+      "macro": "TopoFracJepa",
+      "note": "stdz metric, 5pct floor, gusted test_b",
+      "source": "physics_latent",
+      "value": 0.5238095238095238
+    },
+    "topo_frac_Pod": {
+      "fmt": "%.2f",
+      "macro": "TopoFracPod",
+      "note": "stdz metric, 5pct floor, gusted test_b",
+      "source": "physics_latent",
+      "value": 0.42857142857142855
+    },
+    "topo_frac_RegAE": {
+      "fmt": "%.2f",
+      "macro": "TopoFracRegAE",
+      "note": "stdz metric, 5pct floor, gusted test_b",
+      "source": "physics_latent",
+      "value": 0.09523809523809523
+    },
+    "topo_frac_SupOnly": {
+      "fmt": "%.2f",
+      "macro": "TopoFracSupOnly",
+      "note": "stdz metric, 5pct floor, gusted test_b",
+      "source": "physics_latent",
+      "value": 0.5238095238095238
+    },
     "train_std_v2p2": {
       "fmt": "%.4f",
       "macro": "TrainStd",
@@ -1738,6 +2107,45 @@
       "macro": "WcGapSupOnly",
       "source": "physics_latent",
       "value": 0.5340696127218297
+    },
+    "wq_obs_Fukami": {
+      "fmt": "%.3f",
+      "macro": "WqObsFukami",
+      "source": "table_w_gate_o",
+      "value": 0.3626443550348787
+    },
+    "wq_obs_Jepa": {
+      "fmt": "%.3f",
+      "macro": "WqObsJepa",
+      "source": "table_w_gate_o",
+      "value": 0.5234327633541518
+    },
+    "wq_obs_Pod": {
+      "fmt": "%.3f",
+      "macro": "WqObsPod",
+      "source": "table_w_gate_o",
+      "value": 0.39126662914011046
+    },
+    "wq_state_Fukami": {
+      "fmt": "%.3f",
+      "macro": "WqStateFukami",
+      "note": "shared qDEIM taps + KRR baseline",
+      "source": "table_w_gate_o",
+      "value": 0.7753535434541561
+    },
+    "wq_state_Jepa": {
+      "fmt": "%.3f",
+      "macro": "WqStateJepa",
+      "note": "shared qDEIM taps + KRR baseline",
+      "source": "table_w_gate_o",
+      "value": 0.6665284511587268
+    },
+    "wq_state_Pod": {
+      "fmt": "%.3f",
+      "macro": "WqStatePod",
+      "note": "shared qDEIM taps + KRR baseline",
+      "source": "table_w_gate_o",
+      "value": 0.4997230946550042
     },
     "x_cl_AeNowake": {
       "fmt": "%.3f",

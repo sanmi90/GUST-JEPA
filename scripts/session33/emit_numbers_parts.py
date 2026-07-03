@@ -257,6 +257,16 @@ def part_table_w():
     d = g["delta_r2_window"]
     numbers["gate_o_delta"] = rec(
         d["delta_r2"], "GateODelta", "%.3f", ci_lo=d["ci95"][0], ci_hi=d["ci95"][1])
+    # shared target-blind (qDEIM + KRR) baseline: placement-robustness of the ordering
+    base = o1.get("baseline_qdeim_krr", {}).get("K8", {})
+    for fam, s in (("jepa", "Jepa"), ("fukami", "Fukami"), ("POD", "Pod")):
+        blk = base.get(fam, base.get(fam.lower(), {}))
+        if "pooled_state_r2_window" in blk:
+            numbers[f"wq_state_{s}"] = rec(
+                blk["pooled_state_r2_window"], f"WqState{s}", "%.3f",
+                note="shared qDEIM taps + KRR baseline")
+            numbers[f"wq_obs_{s}"] = rec(
+                blk["pooled_obs_r2_window"], f"WqObs{s}", "%.3f")
     write_part("table_w_gate_o", numbers)
 
 
@@ -477,10 +487,53 @@ def part_physics():
                 numbers[f"wakecode_full_{short}"] = rec(full, f"WcFull{short}", "%.2f")
                 numbers[f"wakecode_gap_{short}"] = rec(
                     full - best, f"WcGap{short}", "%.2f")
+    topo = _load(S33 / "topology_v2p2.json")
+    if topo and "summary" in topo:
+        for m, s in (("jepa_pool", "Jepa"), ("supervised_only_pool", "SupOnly"),
+                     ("regAE_pool", "RegAE"), ("pod", "Pod")):
+            blk = topo["summary"].get(m, {}).get("by_metric", {}).get("stdz")
+            if blk:
+                numbers[f"topo_frac_{s}"] = rec(
+                    blk["gusted_frac_single"], f"TopoFrac{s}", "%.2f",
+                    note="stdz metric, 5pct floor, gusted test_b")
+                numbers[f"topo_ctrl_{s}"] = rec(
+                    blk["baseline_period_frac_single"], f"TopoCtrl{s}", "%.2f",
+                    note="single-period no-gust control")
     if numbers:
         write_part("physics_latent", numbers)
     else:
         print("[parts] physics: no harvestable keys found (schema check needed)")
+
+
+# ------------------------------------------------------------ audit (D247)
+def part_family_filter():
+    fam = _load(S33 / "envelope_family_audit.json")
+    dcl = _load(S33 / "direct_pressure_cl_baseline.json")
+    if not fam or not dcl:
+        print("[parts] family_filter: missing inputs, skipped")
+        return
+    env = _load(S32 / "envelope_by_gust.json")
+    numbers = {}
+    short = {"ae_wake_pool": "AeWake", "fukami": "Fukami", "fukami_wake": "FukamiWake",
+             "pod": "Pod"}
+    for m, s in short.items():
+        src = env if m == "pod" else fam
+        byg = src["models"][m]["aggregates"]["by_G"]
+        for g, word in GWORD.items():
+            if g in ("0", "0.25-0.5") or byg.get(g, {}).get("n", 0) == 0:
+                continue
+            numbers[f"ff_cl_{m}_{word}"] = rec(
+                byg[g]["filter_CL_analysis_r2_impact"]["median"],
+                f"FfCL{s}G{word}", "%.2f")
+            numbers[f"ff_div_{m}_{word}"] = rec(
+                byg[g]["div_rate"], f"FfDiv{s}G{word}", "%.2f")
+    for tapname, s in (("K8_qdeim", "Keight"), ("all192", "AllTaps")):
+        for g, blk in dcl["direct"][tapname].items():
+            word = GWORD.get(g)
+            if word:
+                numbers[f"dcl_{tapname}_{word}"] = rec(
+                    blk["median_r2"], f"DirectCL{s}G{word}", "%.2f")
+    write_part("family_filter_audit", numbers)
 
 
 # ------------------------------------------------------------------ training-dependent
@@ -583,6 +636,7 @@ def main() -> int:
     part_table_t3()
     part_paired_stats()
     part_physics()
+    part_family_filter()
     part_training_dependent()
     return 1 if verify() else 0
 

@@ -1,0 +1,265 @@
+{
+  "part": "family_filter_audit",
+  "numbers": {
+    "ff_cl_ae_wake_pool_One": {
+      "value": 0.8562127854779984,
+      "macro": "FfCLAeWakeGOne",
+      "fmt": "%.2f"
+    },
+    "ff_div_ae_wake_pool_One": {
+      "value": 0.0,
+      "macro": "FfDivAeWakeGOne",
+      "fmt": "%.2f"
+    },
+    "ff_cl_ae_wake_pool_OneHalf": {
+      "value": 0.855274940314336,
+      "macro": "FfCLAeWakeGOneHalf",
+      "fmt": "%.2f"
+    },
+    "ff_div_ae_wake_pool_OneHalf": {
+      "value": 0.21428571428571427,
+      "macro": "FfDivAeWakeGOneHalf",
+      "fmt": "%.2f"
+    },
+    "ff_cl_ae_wake_pool_Two": {
+      "value": 0.8073097161970872,
+      "macro": "FfCLAeWakeGTwo",
+      "fmt": "%.2f"
+    },
+    "ff_div_ae_wake_pool_Two": {
+      "value": 0.3625,
+      "macro": "FfDivAeWakeGTwo",
+      "fmt": "%.2f"
+    },
+    "ff_cl_ae_wake_pool_Three": {
+      "value": 0.48584769780012593,
+      "macro": "FfCLAeWakeGThree",
+      "fmt": "%.2f"
+    },
+    "ff_div_ae_wake_pool_Three": {
+      "value": 0.7142857142857143,
+      "macro": "FfDivAeWakeGThree",
+      "fmt": "%.2f"
+    },
+    "ff_cl_ae_wake_pool_Four": {
+      "value": 0.657004249911127,
+      "macro": "FfCLAeWakeGFour",
+      "fmt": "%.2f"
+    },
+    "ff_div_ae_wake_pool_Four": {
+      "value": 0.925,
+      "macro": "FfDivAeWakeGFour",
+      "fmt": "%.2f"
+    },
+    "ff_cl_fukami_One": {
+      "value": 0.7908861961351608,
+      "macro": "FfCLFukamiGOne",
+      "fmt": "%.2f"
+    },
+    "ff_div_fukami_One": {
+      "value": 0.056818181818181816,
+      "macro": "FfDivFukamiGOne",
+      "fmt": "%.2f"
+    },
+    "ff_cl_fukami_OneHalf": {
+      "value": 0.8661301404808224,
+      "macro": "FfCLFukamiGOneHalf",
+      "fmt": "%.2f"
+    },
+    "ff_div_fukami_OneHalf": {
+      "value": 0.3392857142857143,
+      "macro": "FfDivFukamiGOneHalf",
+      "fmt": "%.2f"
+    },
+    "ff_cl_fukami_Two": {
+      "value": 0.7798465777583529,
+      "macro": "FfCLFukamiGTwo",
+      "fmt": "%.2f"
+    },
+    "ff_div_fukami_Two": {
+      "value": 0.575,
+      "macro": "FfDivFukamiGTwo",
+      "fmt": "%.2f"
+    },
+    "ff_cl_fukami_Three": {
+      "value": 0.6840800086824108,
+      "macro": "FfCLFukamiGThree",
+      "fmt": "%.2f"
+    },
+    "ff_div_fukami_Three": {
+      "value": 0.7678571428571429,
+      "macro": "FfDivFukamiGThree",
+      "fmt": "%.2f"
+    },
+    "ff_cl_fukami_Four": {
+      "value": 0.7574769553900444,
+      "macro": "FfCLFukamiGFour",
+      "fmt": "%.2f"
+    },
+    "ff_div_fukami_Four": {
+      "value": 0.975,
+      "macro": "FfDivFukamiGFour",
+      "fmt": "%.2f"
+    },
+    "ff_cl_fukami_wake_One": {
+      "value": -0.39103615924195056,
+      "macro": "FfCLFukamiWakeGOne",
+      "fmt": "%.2f"
+    },
+    "ff_div_fukami_wake_One": {
+      "value": 0.9772727272727273,
+      "macro": "FfDivFukamiWakeGOne",
+      "fmt": "%.2f"
+    },
+    "ff_cl_fukami_wake_OneHalf": {
+      "value": 0.7196469952173361,
+      "macro": "FfCLFukamiWakeGOneHalf",
+      "fmt": "%.2f"
+    },
+    "ff_div_fukami_wake_OneHalf": {
+      "value": 1.0,
+      "macro": "FfDivFukamiWakeGOneHalf",
+      "fmt": "%.2f"
+    },
+    "ff_cl_fukami_wake_Two": {
+      "value": 0.6776354741719275,
+      "macro": "FfCLFukamiWakeGTwo",
+      "fmt": "%.2f"
+    },
+    "ff_div_fukami_wake_Two": {
+      "value": 0.9125,
+      "macro": "FfDivFukamiWakeGTwo",
+      "fmt": "%.2f"
+    },
+    "ff_cl_fukami_wake_Three": {
+      "value": 0.7660231743850346,
+      "macro": "FfCLFukamiWakeGThree",
+      "fmt": "%.2f"
+    },
+    "ff_div_fukami_wake_Three": {
+      "value": 0.9464285714285714,
+      "macro": "FfDivFukamiWakeGThree",
+      "fmt": "%.2f"
+    },
+    "ff_cl_fukami_wake_Four": {
+      "value": 0.8500110623536183,
+      "macro": "FfCLFukamiWakeGFour",
+      "fmt": "%.2f"
+    },
+    "ff_div_fukami_wake_Four": {
+      "value": 0.95,
+      "macro": "FfDivFukamiWakeGFour",
+      "fmt": "%.2f"
+    },
+    "ff_cl_pod_One": {
+      "value": 0.5329236271883573,
+      "macro": "FfCLPodGOne",
+      "fmt": "%.2f"
+    },
+    "ff_div_pod_One": {
+      "value": 0.011363636363636364,
+      "macro": "FfDivPodGOne",
+      "fmt": "%.2f"
+    },
+    "ff_cl_pod_OneHalf": {
+      "value": 0.5186646367006748,
+      "macro": "FfCLPodGOneHalf",
+      "fmt": "%.2f"
+    },
+    "ff_div_pod_OneHalf": {
+      "value": 0.14285714285714285,
+      "macro": "FfDivPodGOneHalf",
+      "fmt": "%.2f"
+    },
+    "ff_cl_pod_Two": {
+      "value": -0.3349165896717575,
+      "macro": "FfCLPodGTwo",
+      "fmt": "%.2f"
+    },
+    "ff_div_pod_Two": {
+      "value": 0.4875,
+      "macro": "FfDivPodGTwo",
+      "fmt": "%.2f"
+    },
+    "ff_cl_pod_Three": {
+      "value": -0.27233338204641266,
+      "macro": "FfCLPodGThree",
+      "fmt": "%.2f"
+    },
+    "ff_div_pod_Three": {
+      "value": 0.6071428571428571,
+      "macro": "FfDivPodGThree",
+      "fmt": "%.2f"
+    },
+    "ff_cl_pod_Four": {
+      "value": 0.24917005951800908,
+      "macro": "FfCLPodGFour",
+      "fmt": "%.2f"
+    },
+    "ff_div_pod_Four": {
+      "value": 0.925,
+      "macro": "FfDivPodGFour",
+      "fmt": "%.2f"
+    },
+    "dcl_K8_qdeim_Half": {
+      "value": 0.4715043592778872,
+      "macro": "DirectCLKeightGHalf",
+      "fmt": "%.2f"
+    },
+    "dcl_K8_qdeim_One": {
+      "value": 0.4121061703879493,
+      "macro": "DirectCLKeightGOne",
+      "fmt": "%.2f"
+    },
+    "dcl_K8_qdeim_OneHalf": {
+      "value": 0.2945845638025641,
+      "macro": "DirectCLKeightGOneHalf",
+      "fmt": "%.2f"
+    },
+    "dcl_K8_qdeim_Two": {
+      "value": 0.20829347331533515,
+      "macro": "DirectCLKeightGTwo",
+      "fmt": "%.2f"
+    },
+    "dcl_K8_qdeim_Three": {
+      "value": 0.08359520428661732,
+      "macro": "DirectCLKeightGThree",
+      "fmt": "%.2f"
+    },
+    "dcl_K8_qdeim_Four": {
+      "value": 0.08024109240861665,
+      "macro": "DirectCLKeightGFour",
+      "fmt": "%.2f"
+    },
+    "dcl_all192_Half": {
+      "value": 0.5446931630127387,
+      "macro": "DirectCLAllTapsGHalf",
+      "fmt": "%.2f"
+    },
+    "dcl_all192_One": {
+      "value": 0.4426682824767733,
+      "macro": "DirectCLAllTapsGOne",
+      "fmt": "%.2f"
+    },
+    "dcl_all192_OneHalf": {
+      "value": 0.35466903829591506,
+      "macro": "DirectCLAllTapsGOneHalf",
+      "fmt": "%.2f"
+    },
+    "dcl_all192_Two": {
+      "value": 0.27094733728980835,
+      "macro": "DirectCLAllTapsGTwo",
+      "fmt": "%.2f"
+    },
+    "dcl_all192_Three": {
+      "value": 0.07959089610015341,
+      "macro": "DirectCLAllTapsGThree",
+      "fmt": "%.2f"
+    },
+    "dcl_all192_Four": {
+      "value": 0.1426120305353029,
+      "macro": "DirectCLAllTapsGFour",
+      "fmt": "%.2f"
+    }
+  }
+}

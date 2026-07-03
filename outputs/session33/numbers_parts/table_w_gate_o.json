@@ -52,6 +52,39 @@
       "fmt": "%.3f",
       "ci_lo": 0.09577619437196355,
       "ci_hi": 0.14493266092841273
+    },
+    "wq_state_Jepa": {
+      "value": 0.6665284511587268,
+      "macro": "WqStateJepa",
+      "fmt": "%.3f",
+      "note": "shared qDEIM taps + KRR baseline"
+    },
+    "wq_obs_Jepa": {
+      "value": 0.5234327633541518,
+      "macro": "WqObsJepa",
+      "fmt": "%.3f"
+    },
+    "wq_state_Fukami": {
+      "value": 0.7753535434541561,
+      "macro": "WqStateFukami",
+      "fmt": "%.3f",
+      "note": "shared qDEIM taps + KRR baseline"
+    },
+    "wq_obs_Fukami": {
+      "value": 0.3626443550348787,
+      "macro": "WqObsFukami",
+      "fmt": "%.3f"
+    },
+    "wq_state_Pod": {
+      "value": 0.4997230946550042,
+      "macro": "WqStatePod",
+      "fmt": "%.3f",
+      "note": "shared qDEIM taps + KRR baseline"
+    },
+    "wq_obs_Pod": {
+      "value": 0.39126662914011046,
+      "macro": "WqObsPod",
+      "fmt": "%.3f"
     }
   }
 }

@@ -36,6 +36,13 @@ FAMS = {
         1: ("supervised_only_pool_s1", "s33"),
         2: ("supervised_only_pool_s2", "s33"),
     },
+    # D247 audit: the merit-ordering claim (P2) rested on one seed of the
+    # matched reconstructive control; its band closes that gap.
+    "ae_wake_pool": {
+        0: ("ae_wake_pool", "anchor_pool"),
+        1: ("ae_wake_pool_s1", "s33aw"),
+        2: ("ae_wake_pool_s2", "s33aw"),
+    },
 }
 
 
@@ -76,6 +83,8 @@ def main(argv=None):
     ap = argparse.ArgumentParser(description="3-seed spine variance pass")
     ap.add_argument("--q1-seeds", default="outputs/session33/q1_seeds.json")
     ap.add_argument("--q2-seeds", default="outputs/session33/q2_seeds.json")
+    ap.add_argument("--q1-aw", default="outputs/session33/q1_aewake_seeds.json")
+    ap.add_argument("--q2-aw", default="outputs/session33/q2_aewake_seeds.json")
     ap.add_argument("--q1-abl", default="outputs/session31/q1_ablation.json")
     ap.add_argument("--q2-abl", default="outputs/session31/q2_ablation.json")
     ap.add_argument("--q1-pool", default="outputs/session32/q1_pool.json")
@@ -88,6 +97,11 @@ def main(argv=None):
         "anchor_abl": (_load(args.q1_abl), _load(args.q2_abl)),
         "anchor_pool": (_load(args.q1_pool), _load(args.q2_pool)),
     }
+    try:
+        ctx["s33aw"] = (_load(args.q1_aw), _load(args.q2_aw))
+    except FileNotFoundError:
+        FAMS.pop("ae_wake_pool", None)
+        print("[seeds] ae_wake seed evals not found; band limited to the spine pair")
 
     metrics = ("wake_linear_r2", "merit_mean_obs_h8", "cl_closure_mlp_h8", "floor_ssim")
     fams = {}

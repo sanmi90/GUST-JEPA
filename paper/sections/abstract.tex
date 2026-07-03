@@ -15,18 +15,19 @@ airfoil at $\alpha = 14^\circ$ and $\vRe = 5000$, perturbed by Taylor vortices
 spanning gust strength, core diameter and wall-normal offset, we ask which
 reduced coefficient state a sequential wall-pressure estimator can track through
 the encounter. At fixed dimension, under one shared probe and predictor, we
-compare a wake-supervised predictive state (a joint-embedding predictive
-architecture), a reconstructive autoencoder in the Fukami-Taira lineage and a
+compare a wake-supervised predictive joint-embedding state, a reconstructive
+autoencoder in the Fukami-Taira lineage and a
 proper orthogonal decomposition basis, with matched controls separating
 objective from supervision. We find a division of labour: the supervision
 supplies the wake's instantaneous readability and an anisotropic latent geometry
 the forward rollout respects, while the multi-step predictive objective supplies
-retrain-robust, long-horizon rollout stability. On this state a leakage-free
-ensemble Kalman filter sensing eight wall-pressure taps tracks the lift
-(analysis $R^2$ of $\VfiltCLGOne$ to $\VfiltCLGFour$ for gust ratios of unity
-and above) and extends the usable envelope beyond single-frame recovery, which
-fails near a gust ratio of three. The encounter is low-dimensional: one tap read
-over a thirty-frame window recovers the state as well as eight taps at an
+retrain-robust, long-horizon rollout stability. A leakage-free ensemble Kalman
+filter sensing eight wall-pressure taps tracks the lift (analysis $R^2$ of $\VfiltCLGOne$ to $\VfiltCLGFour$ for gust ratios of unity
+and above) where every static inverse fails by a gust ratio of three; run
+identically on each family, the filter tracks the load through any nonlinear
+latent, and the predictive state is distinguished at the
+strongest gusts, in calibration, and in carrying a wake-readable state. One tap
+read over a thirty-frame window recovers the state as well as eight taps at an
 instant, a trade read through the delay-embedding theorem, and the envelope
 closes where the strengthening gust drives the interaction three-dimensional.
 The filter is under-dispersed at the strongest gusts, where a calibrated noise

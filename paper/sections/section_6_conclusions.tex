@@ -15,9 +15,14 @@ single-step objective and an objective-free supervised encoder both lack. On
 this state we built a leakage-free ensemble Kalman filter that senses eight
 wall-pressure taps and never observes the vorticity field: it tracks the lift
 through the encounter, from an analysis closure of $\VfiltCLGOne$ to
-$\VfiltCLGFour$ for gust ratios of unity and above, and extends the usable
-gust-intensity range beyond single-frame recovery, which falls below the mean
-predictor near a ratio of three. The recovery is a delay-coordinate
+$\VfiltCLGFour$ for gust ratios of unity and above, where every static inverse,
+via any latent or straight from the full wall array, falls below the mean
+predictor by a ratio of three. Run identically on each family, the filter
+tracks the load through any nonlinear latent and fails only on the linear
+basis, so the extension of the envelope belongs to sequential estimation on a
+nonlinear state; what belongs to the wake-supervised predictive state is the
+boundary of that envelope, the calibration margin, and a tracked state that
+carries the wake at all. The recovery is a delay-coordinate
 reconstruction: the encounter is low-dimensional, so a few wall taps read over a
 short window place the state, one tap over a thirty-frame window matching eight
 taps at an instant in the static reconstruction, and the wake circulation the

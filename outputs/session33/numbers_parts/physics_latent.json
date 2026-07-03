@@ -130,6 +130,54 @@
       "value": 0.35147453376130566,
       "macro": "WcGapRegAE",
       "fmt": "%.2f"
+    },
+    "topo_frac_Jepa": {
+      "value": 0.5238095238095238,
+      "macro": "TopoFracJepa",
+      "fmt": "%.2f",
+      "note": "stdz metric, 5pct floor, gusted test_b"
+    },
+    "topo_ctrl_Jepa": {
+      "value": 0.5,
+      "macro": "TopoCtrlJepa",
+      "fmt": "%.2f",
+      "note": "single-period no-gust control"
+    },
+    "topo_frac_SupOnly": {
+      "value": 0.5238095238095238,
+      "macro": "TopoFracSupOnly",
+      "fmt": "%.2f",
+      "note": "stdz metric, 5pct floor, gusted test_b"
+    },
+    "topo_ctrl_SupOnly": {
+      "value": 0.375,
+      "macro": "TopoCtrlSupOnly",
+      "fmt": "%.2f",
+      "note": "single-period no-gust control"
+    },
+    "topo_frac_RegAE": {
+      "value": 0.09523809523809523,
+      "macro": "TopoFracRegAE",
+      "fmt": "%.2f",
+      "note": "stdz metric, 5pct floor, gusted test_b"
+    },
+    "topo_ctrl_RegAE": {
+      "value": 0.0,
+      "macro": "TopoCtrlRegAE",
+      "fmt": "%.2f",
+      "note": "single-period no-gust control"
+    },
+    "topo_frac_Pod": {
+      "value": 0.42857142857142855,
+      "macro": "TopoFracPod",
+      "fmt": "%.2f",
+      "note": "stdz metric, 5pct floor, gusted test_b"
+    },
+    "topo_ctrl_Pod": {
+      "value": 0.625,
+      "macro": "TopoCtrlPod",
+      "fmt": "%.2f",
+      "note": "single-period no-gust control"
     }
   }
 }

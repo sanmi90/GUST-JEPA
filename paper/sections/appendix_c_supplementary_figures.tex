@@ -1,58 +1,29 @@
-% Appendix: supplementary figures moved out of the main text in the JFM narrative
-% cull (Session 29.2). These are diagnostic / qualitative panels referenced from
-% the Results: the qualitative rollout traces, the per-axis error map, and the
-% decode-ceiling vorticity panels. They support the main claims but are not
-% themselves narrative steps, so they live here to keep the main figure set tight.
+% Appendix: supplementary figures. Rebuilt in the D247 audit: the v2.1-era
+% rollout traces and per-axis error map (previous-generation d=64 spatial
+% models, one an unre-tested significance claim) were removed; the decode
+% gallery is regenerated on the v2.2 pooled states with the same diagnostic
+% decoder as the decode-floor numbers (scripts/session33/fig_reconstructions_v3.py).
 
-The figures below are referenced from the Results and collected here to keep the
-main-text figure sequence focused on the narrative steps. They are diagnostic and
-qualitative: the predictor rollout traces (figure~\ref{fig:traces}), the per-axis
-breakdown of the paired wake advantage (figure~\ref{fig:error_maps}), and the
-decode-ceiling vorticity panels (figure~\ref{fig:recon}).
-
-\begin{figure}
-  \centering
-  \includegraphics[width=\linewidth]{sections/figures/results/figA_traces_v2p1.pdf}
-  \caption{The predictive rollout tracks the encounter, shown qualitatively.
-  Predicted observables through representative held-out encounters (rows), for the
-  lift coefficient, the wake enstrophy, and the negative circulation (columns). The
-  simulation is the bold reference; the rollout of the predictor, started from the
-  pre-impact context, is the coloured line, and the dashed line is the
-  reconstruction from the encoded latent. The rollout tracks the
-  wake observables through the leading-edge-vortex peak and into recovery before
-  drifting gently at long times. We report this as qualitative tracking, not as a
-  closure $R^2$. Numbered glyphs mark the four encounter stages used throughout:
-  baseline, impact, peak load, and recovery.}
-  \label{fig:traces}
-\end{figure}
+The figures below are referenced from the Results and Discussion and collected
+here to keep the main-text figure sequence focused on the narrative steps: the
+decoded vorticity fields behind the decode-similarity column of
+table~\ref{tab:closure} (figure~\ref{fig:recon}) and the
+decodability-versus-estimability trade behind \S\ref{sec:disc_decode}
+(figure~\ref{fig:pooling_cost}).
 
 \begin{figure}
   \centering
-  \includegraphics[width=\linewidth]{sections/figures/results/fig_error_maps_v2p1.png}
-  \caption{Per-encounter paired improvement
-  $\Delta e = e_{\text{AE}} - e_{\text{JEPA}}$ in held-out wake-enstrophy error
-  against the gust strength $G$, core diameter $D$, wall-normal offset $Y$, and
-  the baseline shedding phase at impact $\phi$ (test\_b, $n = 42$); positive
-  $\Delta e$ means the predictive latent carries the smaller error. Each panel
-  shows the per-encounter values, a locally weighted (LOWESS) trend, and a
-  bootstrap band over encounters. The predictive advantage grows with $D$
-  (significant) but shows no significant $G$ or $Y$ trend; the shedding-phase axis
-  falls into two clusters because impact is fixed near a single convective instant.}
-  \label{fig:error_maps}
-\end{figure}
-
-\begin{figure}
-  \centering
-  \includegraphics[width=\linewidth]{sections/figures/results/figD_reconstructions_v2p1.pdf}
-  \caption{Decoded vorticity at the impact frame on held-out encounters (rows: an
-  interpolation test\_b encounter and a $|G| = 4$ test\_c encounter) for the
-  simulation and the predictive, reconstructive, and POD decodes (columns). The
-  predictive decoder is blurry by design but localises the impingement; the
-  reconstructive autoencoder collapses toward a near-uniform field on the held-out
-  interpolation condition, while the linear basis is amplitude-accurate. All
-  families degrade in the $|G| = 4$ regime, reported as the observability boundary
-  of \S\ref{sec:flow_physics} rather than as a generalisation claim. Field-space
-  similarity is read only as a labelled decode ceiling (\S\ref{sec:res_physical}).}
+  \includegraphics[width=\linewidth]{sections/figures/results/fig_reconstructions_v3.pdf}
+  \caption{Decoded vorticity through the encounter on the representative held-out
+  test\_b case ($|G| = 1.5$, the same encounter as figure~\ref{fig:hero}). Rows:
+  the simulation and the fields decoded from the encoded coefficient state of the
+  predictive, reconstructive, and linear families; columns: a pre-impact, an
+  impact, and a relaxation frame. Each decode is produced by the same diagnostic
+  decoder that defines the decode-floor similarity of table~\ref{tab:closure},
+  trained on the frozen encoder; the per-panel structural similarity is annotated.
+  The pooled decode is soft by construction (\S\ref{sec:disc_decode}); the
+  comparison is between rows at matched frames, and no family's decode is part of
+  any training loss.}
   \label{fig:recon}
 \end{figure}
 
