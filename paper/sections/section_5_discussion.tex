@@ -126,13 +126,18 @@ field-reconstruction objective produces.
 
 Five limitations bound the claims. First, the attribution of the instantaneous
 results is honest but unglamorous: the wake readability is supplied by the
-observable supervision, and the single-seed tie in matched-predictor merit between
-the full predictive state and the objective-free supervised control does not
-replicate across retrains. Over three seeds the supervised control's merit is
-seed-fragile (one healthy retrain in three collapses) while the predictive
-latent's is stable, so the defensible dynamical claim is that the predictive
-objective supplies seed-robust forecastability and long-horizon stability, not a
-larger instantaneous margin. Second, the wall-normal offset $Y$ remains the least
+observable supervision and its tie between the predictive and reconstructive
+wake-headed states is seed-robust ($\SeedWakeJepaWake \pm \SeedWakeSdJepaWake$
+against $\SeedWakeAeWake \pm \SeedWakeSdAeWake$), and the single-seed tie in
+matched-predictor merit between the full predictive state and the
+objective-free supervised control does not replicate across retrains. Over
+three seeds the supervised control's merit is seed-fragile (one healthy retrain
+in three collapses, spread $\SeedMeritSdSupOnly$) while the predictive latent's
+is stable ($\pm \SeedMeritSdJepaWake$) and its margin over the matched
+reconstructive control persists ($\SeedMeritJepaWake$ against
+$\SeedMeritAeWake$), so the defensible dynamical claim is that the predictive
+objective supplies seed-robust forecastability and long-horizon stability, not
+a larger instantaneous readability margin. Second, the wall-normal offset $Y$ remains the least
 resolved release parameter because the training mass concentrates near
 $Y \approx 0$; the additional cases make it weakly readable where it was
 unreadable before (\S\ref{sec:res_latent_physics}), and we note this without

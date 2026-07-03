@@ -571,13 +571,21 @@ def part_training_dependent():
     if sb:
         numbers = {}
         for fam, short in (("jepa_wake_pool", "JepaWake"),
-                           ("supervised_only_pool", "SupOnly")):
+                           ("supervised_only_pool", "SupOnly"),
+                           ("ae_wake_pool", "AeWake")):
+            if fam not in sb["families"]:
+                continue
             b = sb["families"][fam]["bands"]
             numbers[f"seed_wake_{short}"] = rec(
                 b["wake_linear_r2"]["mean"], f"SeedWake{short}", "%.3f",
                 seed_mean=b["wake_linear_r2"]["mean"], seed_sd=b["wake_linear_r2"]["sd"])
             numbers[f"seed_wake_sd_{short}"] = rec(
                 b["wake_linear_r2"]["sd"], f"SeedWakeSd{short}", "%.3f")
+            if b["merit_mean_obs_h8"]["mean"] is not None:
+                numbers[f"seed_merit_{short}"] = rec(
+                    b["merit_mean_obs_h8"]["mean"], f"SeedMerit{short}", "%.3f")
+                numbers[f"seed_merit_sd_{short}"] = rec(
+                    b["merit_mean_obs_h8"]["sd"], f"SeedMeritSd{short}", "%.3f")
         write_part("seed_band", numbers)
     else:
         print("[parts] seed_band: pending (training)")

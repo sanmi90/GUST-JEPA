@@ -10152,3 +10152,32 @@ jepa 0.639 vs ae_wake 0.548 rests on 1 seed). REFRAME REQUIRED (user sign-off): 
 4.4/4.5 from "which state can a filter track" to "sequentiality + a nonlinear latent
 track the load; the states differ at the boundary, in calibration, and in what else the
 tracked state carries"; state plainly that no filter tracks the wake.
+
+### D248 (SESSION33 audit CLOSED: reframe executed, seed bands close the merit claim, galleries on v2.2) (2026-07-03, Session 33)
+
+All D247 findings executed and committed. (1) REFRAME: Section 4.4 carries the family-filter
+table (all five states + the direct no-latent baseline under the frozen filter) and states
+the two honest boundaries: in-range load-tracking is representation-general among nonlinear
+latents (ae_wake beats jepa at |G|=1-2); no family's filter tracks the wake (the filter is
+"a load estimator whose state carries wake information; not a wake estimator, and we say so
+plainly"). 4.5 splits the envelope's ownership: extension-beyond-static belongs to
+sequential estimation on a nonlinear latent; boundary width + calibration + wake content
+belong to the predictive state. Abstract/intro/conclusions/5.2 aligned. (2) SEED BANDS
+(ae_wake_pool s1/s2 trained + evaled): merit jepa 0.633+-0.006 > ae_wake 0.563+-0.033 --
+the P2 gap over the matched reconstructive control IS seed-robust; wake readability tie
+0.763+-0.016 vs 0.760+-0.019 also seed-robust; supervised_only merit stays fragile
+(+-0.163). The merit-ordering claim STANDS with bands and is now stated with them in 4.1 +
+5.4. (3) APPENDICES: B rewritten on v3 artifacts (split-brain removed; placement-robustness
+via the frozen qDEIM baseline: state fukami 0.775 > jepa 0.667 / physics jepa 0.523 >
+fukami under target-blind taps too); A topology on v2.2 pooled, orbit-return +
+latent-readability v2.1 subsections cut, n=24->NTestCEnc, prepsens era-labelled.
+(4) FIELD-RECONSTRUCTION FIGURES (user-required): decode gallery + pressure-recovered
+fields regenerated on v2.2 pooled with the decode-floor diagnostic decoder
+(fig_reconstructions_v3, fig_field_recovery_v3; per-panel SSIM, Wang L=8.487; honest: POD
+decode ~ jepa, fukami near-uniform). Freeze now 461 macros / 14 anchors PASS. Build 32pp,
+0 undefined, abstract fits p.1.
+
+Remaining before submission-grade (carried from D246, updated): fresh-eyes
+jfm_project_writing_style pass; F3 TikZ filter-loop; methods d-sweep language
+reconciliation; author-owned GO-gate items; OPTIONAL prepsens v2.2 rerun (currently
+era-labelled); OPTIONAL error-map D-trend retest on v2.2 (figure was cut).

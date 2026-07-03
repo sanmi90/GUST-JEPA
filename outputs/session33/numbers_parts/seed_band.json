@@ -13,6 +13,16 @@
       "macro": "SeedWakeSdJepaWake",
       "fmt": "%.3f"
     },
+    "seed_merit_JepaWake": {
+      "value": 0.6329545381363192,
+      "macro": "SeedMeritJepaWake",
+      "fmt": "%.3f"
+    },
+    "seed_merit_sd_JepaWake": {
+      "value": 0.006165642299340061,
+      "macro": "SeedMeritSdJepaWake",
+      "fmt": "%.3f"
+    },
     "seed_wake_SupOnly": {
       "value": 0.7819021086371502,
       "macro": "SeedWakeSupOnly",
@@ -23,6 +33,38 @@
     "seed_wake_sd_SupOnly": {
       "value": 0.02198386893429618,
       "macro": "SeedWakeSdSupOnly",
+      "fmt": "%.3f"
+    },
+    "seed_merit_SupOnly": {
+      "value": 0.5403258758425209,
+      "macro": "SeedMeritSupOnly",
+      "fmt": "%.3f"
+    },
+    "seed_merit_sd_SupOnly": {
+      "value": 0.1632689747009143,
+      "macro": "SeedMeritSdSupOnly",
+      "fmt": "%.3f"
+    },
+    "seed_wake_AeWake": {
+      "value": 0.7601264762589048,
+      "macro": "SeedWakeAeWake",
+      "fmt": "%.3f",
+      "seed_mean": 0.7601264762589048,
+      "seed_sd": 0.01863629934973313
+    },
+    "seed_wake_sd_AeWake": {
+      "value": 0.01863629934973313,
+      "macro": "SeedWakeSdAeWake",
+      "fmt": "%.3f"
+    },
+    "seed_merit_AeWake": {
+      "value": 0.5633821370666698,
+      "macro": "SeedMeritAeWake",
+      "fmt": "%.3f"
+    },
+    "seed_merit_sd_AeWake": {
+      "value": 0.03279421043250581,
+      "macro": "SeedMeritSdAeWake",
       "fmt": "%.3f"
     }
   }

@@ -46,7 +46,13 @@ $\PoneWakeDelta$ in the wake with a confidence interval
 $[\PoneWakeDeltalo, \PoneWakeDeltahi]$ that includes zero, and the merit ordering
 places the two supervised states together and above the reconstructive and
 anti-collapse recipes ($\XmeritJepaWake \ge \XmeritSupOnly > \XmeritAeWake >
-\XmeritRegAE$). We state the representational result as the supervision's, and turn
+\XmeritRegAE$). The gap between the predictive state and the matched
+reconstructive control survives independent retraining, at
+$\SeedMeritJepaWake \pm \SeedMeritSdJepaWake$ against
+$\SeedMeritAeWake \pm \SeedMeritSdAeWake$ over three seeds each, whereas the
+objective-free control's merit does not (its three seeds spread by
+$\SeedMeritSdSupOnly$), a reliability point we return to in
+\S\ref{sec:disc_limits}. We state the representational result as the supervision's, and turn
 to what the predictive objective does add, which is dynamical.
 
 One inversion in the table fixes the coordinate-level reading. The predictive

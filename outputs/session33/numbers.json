@@ -1,7 +1,7 @@
 {
   "_provenance": {
-    "generated_iso": "2026-07-03T16:17:44.072612+00:00",
-    "git_commit": "b144e3175c2660d90e6534bd14f78f5863843276",
+    "generated_iso": "2026-07-03T16:49:04.929240+00:00",
+    "git_commit": "6c91a6e44f007831d6a0769a23c0db17ccf22e86",
     "n_parts": 15,
     "parts": [
       "constants.json",
@@ -787,6 +787,50 @@
       "source": "paired_stats",
       "value": 0.75390625
     },
+    "seed_merit_AeWake": {
+      "fmt": "%.3f",
+      "macro": "SeedMeritAeWake",
+      "source": "seed_band",
+      "value": 0.5633821370666698
+    },
+    "seed_merit_JepaWake": {
+      "fmt": "%.3f",
+      "macro": "SeedMeritJepaWake",
+      "source": "seed_band",
+      "value": 0.6329545381363192
+    },
+    "seed_merit_SupOnly": {
+      "fmt": "%.3f",
+      "macro": "SeedMeritSupOnly",
+      "source": "seed_band",
+      "value": 0.5403258758425209
+    },
+    "seed_merit_sd_AeWake": {
+      "fmt": "%.3f",
+      "macro": "SeedMeritSdAeWake",
+      "source": "seed_band",
+      "value": 0.03279421043250581
+    },
+    "seed_merit_sd_JepaWake": {
+      "fmt": "%.3f",
+      "macro": "SeedMeritSdJepaWake",
+      "source": "seed_band",
+      "value": 0.006165642299340061
+    },
+    "seed_merit_sd_SupOnly": {
+      "fmt": "%.3f",
+      "macro": "SeedMeritSdSupOnly",
+      "source": "seed_band",
+      "value": 0.1632689747009143
+    },
+    "seed_wake_AeWake": {
+      "fmt": "%.3f",
+      "macro": "SeedWakeAeWake",
+      "seed_mean": 0.7601264762589048,
+      "seed_sd": 0.01863629934973313,
+      "source": "seed_band",
+      "value": 0.7601264762589048
+    },
     "seed_wake_JepaWake": {
       "fmt": "%.3f",
       "macro": "SeedWakeJepaWake",
@@ -802,6 +846,12 @@
       "seed_sd": 0.02198386893429618,
       "source": "seed_band",
       "value": 0.7819021086371502
+    },
+    "seed_wake_sd_AeWake": {
+      "fmt": "%.3f",
+      "macro": "SeedWakeSdAeWake",
+      "source": "seed_band",
+      "value": 0.01863629934973313
     },
     "seed_wake_sd_JepaWake": {
       "fmt": "%.3f",
