@@ -199,10 +199,10 @@ meet where their sensing coincides. This trade belongs to the static delay-coord
 reconstruction, and it does not transfer to the frozen sequential filter, which
 needs its eight taps. Rerunning the filter with only its own leading taps, and
 changing nothing else, drives the analysis lift below the skill of the
-encounter mean at every gust strength the eight-tap filter tracks (at
-$|G| = 1$ the single-tap analysis loses $22.5$ in median paired $R^2$ against
-the eight-tap filter, interval $[\TtwobKOneDeltaGOnelo,
-\TtwobKOneDeltaGOnehi]$). The rank of the innovation, with the process and
+encounter mean at every gust strength the eight-tap filter tracks: at
+$|G| = 1$ the single-tap analysis is worse than the eight-tap filter by a paired
+margin whose interval $[\TtwobKOneDeltaGOnelo, \TtwobKOneDeltaGOnehi]$ excludes
+zero, and the loss stays significant at $|G| = 1.5$ and $|G| = 2$. The rank of the innovation, with the process and
 observation noise held at their calibrated values, is what the filter cannot
 spare: its sensor budget is a calibration constraint, not a delay-embedding
 one, which points at the noise model of \S\ref{sec:disc_limits} rather than at

@@ -1,7 +1,7 @@
 {
   "_provenance": {
-    "generated_iso": "2026-07-03T22:24:47.375226+00:00",
-    "git_commit": "e6ce7f4dc6876df3cd1123af1054a09abaca8376",
+    "generated_iso": "2026-07-03T22:38:03.712816+00:00",
+    "git_commit": "f88f8e19fdc933e08faa94e0dfd2bb293a452188",
     "n_parts": 15,
     "parts": [
       "constants.json",
@@ -1395,214 +1395,214 @@
       "value": 30
     },
     "t2b_K1_d_Four": {
-      "ci_hi": -0.9348049922347551,
-      "ci_lo": -8.675149507556561,
+      "ci_hi": -1.0523549294023218,
+      "ci_lo": -3.6944357736120654,
       "fmt": "%.2f",
       "macro": "TtwobKOneDeltaGFour",
       "source": "t2b_filter",
-      "value": -4.609558745444388
+      "value": -2.4106900333828563
     },
     "t2b_K1_d_One": {
-      "ci_hi": -2.569667942319725,
-      "ci_lo": -62.04718354054763,
+      "ci_hi": -4.776743683550725,
+      "ci_lo": -107.95995161631237,
       "fmt": "%.2f",
       "macro": "TtwobKOneDeltaGOne",
       "source": "t2b_filter",
-      "value": -22.531333381568626
+      "value": -39.297278498302035
     },
     "t2b_K1_d_OneHalf": {
-      "ci_hi": -0.8560951196699979,
-      "ci_lo": -6.204433111236023,
+      "ci_hi": -1.1522231029973065,
+      "ci_lo": -7.291835066556454,
       "fmt": "%.2f",
       "macro": "TtwobKOneDeltaGOneHalf",
       "source": "t2b_filter",
-      "value": -3.0856796297845563
+      "value": -3.6870232328884094
     },
     "t2b_K1_d_Three": {
-      "ci_hi": -1.4925523437737331,
-      "ci_lo": -11.805666552844178,
+      "ci_hi": -1.2076497674053102,
+      "ci_lo": -17.520301438252428,
       "fmt": "%.2f",
       "macro": "TtwobKOneDeltaGThree",
       "source": "t2b_filter",
-      "value": -5.292787832879199
+      "value": -6.829632707076686
     },
     "t2b_K1_d_Two": {
-      "ci_hi": -1.235213430844305,
-      "ci_lo": -3.8057143289358293,
+      "ci_hi": -0.8767401193461736,
+      "ci_lo": -3.1464115265268795,
       "fmt": "%.2f",
       "macro": "TtwobKOneDeltaGTwo",
       "source": "t2b_filter",
-      "value": -2.27768911517414
+      "value": -1.9314552354576862
     },
     "t2b_K1_med_Four": {
       "fmt": "%.2f",
       "macro": "TtwobKOneMedGFour",
       "source": "t2b_filter",
-      "value": -0.19447420195902188
+      "value": -0.38911279757862993
     },
     "t2b_K1_med_One": {
       "fmt": "%.2f",
       "macro": "TtwobKOneMedGOne",
       "source": "t2b_filter",
-      "value": -1.2198794596721234
+      "value": -2.6258052785042074
     },
     "t2b_K1_med_OneHalf": {
       "fmt": "%.2f",
       "macro": "TtwobKOneMedGOneHalf",
       "source": "t2b_filter",
-      "value": 0.008669364811181746
+      "value": -0.0917185853915719
     },
     "t2b_K1_med_Three": {
       "fmt": "%.2f",
       "macro": "TtwobKOneMedGThree",
       "source": "t2b_filter",
-      "value": -0.8274613740088231
+      "value": -0.9397731745451254
     },
     "t2b_K1_med_Two": {
       "fmt": "%.2f",
       "macro": "TtwobKOneMedGTwo",
       "source": "t2b_filter",
-      "value": -1.0933946808706887
+      "value": -0.7587708074403092
     },
     "t2b_K2_d_Four": {
-      "ci_hi": -0.9055256734216026,
-      "ci_lo": -5.095844204905898,
+      "ci_hi": 1.2682331428901252,
+      "ci_lo": -2.051118282773404,
       "fmt": "%.2f",
       "macro": "TtwobKTwoDeltaGFour",
       "source": "t2b_filter",
-      "value": -2.9565120935684868
+      "value": -0.3940026473823258
     },
     "t2b_K2_d_One": {
-      "ci_hi": -3.2444072775689774,
-      "ci_lo": -91.56937710881203,
+      "ci_hi": -0.5528474157923263,
+      "ci_lo": -10.612379622254144,
       "fmt": "%.2f",
       "macro": "TtwobKTwoDeltaGOne",
       "source": "t2b_filter",
-      "value": -32.625639603158575
+      "value": -3.9829509511265813
     },
     "t2b_K2_d_OneHalf": {
-      "ci_hi": -0.8214597289072675,
-      "ci_lo": -5.188842875042651,
+      "ci_hi": -0.6074240217434587,
+      "ci_lo": -2.920573091740005,
       "fmt": "%.2f",
       "macro": "TtwobKTwoDeltaGOneHalf",
       "source": "t2b_filter",
-      "value": -2.6381259707761413
+      "value": -1.5026488605461135
     },
     "t2b_K2_d_Three": {
-      "ci_hi": -1.3099315273424432,
-      "ci_lo": -12.684841446906017,
+      "ci_hi": -0.7967086310471297,
+      "ci_lo": -2.3207541485752197,
       "fmt": "%.2f",
       "macro": "TtwobKTwoDeltaGThree",
       "source": "t2b_filter",
-      "value": -5.316785276650752
+      "value": -1.4822988174312342
     },
     "t2b_K2_d_Two": {
-      "ci_hi": -0.6343716311674271,
-      "ci_lo": -3.8614776023077946,
+      "ci_hi": -0.43906226262026515,
+      "ci_lo": -1.9021334235318752,
       "fmt": "%.2f",
       "macro": "TtwobKTwoDeltaGTwo",
       "source": "t2b_filter",
-      "value": -1.936860001497454
+      "value": -1.1735397842968016
     },
     "t2b_K2_med_Four": {
       "fmt": "%.2f",
       "macro": "TtwobKTwoMedGFour",
       "source": "t2b_filter",
-      "value": -0.06888912253735702
+      "value": -0.3333146040438588
     },
     "t2b_K2_med_One": {
       "fmt": "%.2f",
       "macro": "TtwobKTwoMedGOne",
       "source": "t2b_filter",
-      "value": -1.530692966512589
+      "value": 0.4171961234060242
     },
     "t2b_K2_med_OneHalf": {
       "fmt": "%.2f",
       "macro": "TtwobKTwoMedGOneHalf",
       "source": "t2b_filter",
-      "value": -6.781373326253393e-05
+      "value": 0.3080045837193237
     },
     "t2b_K2_med_Three": {
       "fmt": "%.2f",
       "macro": "TtwobKTwoMedGThree",
       "source": "t2b_filter",
-      "value": -0.6473162779519699
+      "value": -0.49674466189883404
     },
     "t2b_K2_med_Two": {
       "fmt": "%.2f",
       "macro": "TtwobKTwoMedGTwo",
       "source": "t2b_filter",
-      "value": -0.18200511835953848
+      "value": -0.21721509260826122
     },
     "t2b_K4_d_Four": {
-      "ci_hi": -0.8266246538314502,
-      "ci_lo": -5.0977079420879745,
+      "ci_hi": 0.8326062518941575,
+      "ci_lo": -0.7633657497343226,
       "fmt": "%.2f",
       "macro": "TtwobKFourDeltaGFour",
       "source": "t2b_filter",
-      "value": -2.914108049460201
+      "value": -0.03259548842727176
     },
     "t2b_K4_d_One": {
-      "ci_hi": -5.6037983644872735,
-      "ci_lo": -131.59411960185489,
+      "ci_hi": -0.48358704168805905,
+      "ci_lo": -4.3883451929155015,
       "fmt": "%.2f",
       "macro": "TtwobKFourDeltaGOne",
       "source": "t2b_filter",
-      "value": -47.37097645782318
+      "value": -1.9198942371415344
     },
     "t2b_K4_d_OneHalf": {
-      "ci_hi": -1.4079099188231918,
-      "ci_lo": -7.550782200697011,
+      "ci_hi": -0.13278547688178025,
+      "ci_lo": -1.4847045602916837,
       "fmt": "%.2f",
       "macro": "TtwobKFourDeltaGOneHalf",
       "source": "t2b_filter",
-      "value": -3.684090598709082
+      "value": -0.6251206625809912
     },
     "t2b_K4_d_Three": {
-      "ci_hi": -1.9438426315177855,
-      "ci_lo": -20.462606008643654,
+      "ci_hi": 0.0522647657731603,
+      "ci_lo": -0.4339676426329935,
       "fmt": "%.2f",
       "macro": "TtwobKFourDeltaGThree",
       "source": "t2b_filter",
-      "value": -8.496121154087247
+      "value": -0.18126921733192072
     },
     "t2b_K4_d_Two": {
-      "ci_hi": -1.6489644712692169,
-      "ci_lo": -4.959939778210532,
+      "ci_hi": -0.16149829347070951,
+      "ci_lo": -0.6934359929112399,
       "fmt": "%.2f",
       "macro": "TtwobKFourDeltaGTwo",
       "source": "t2b_filter",
-      "value": -3.1283490283137487
+      "value": -0.4160997647291582
     },
     "t2b_K4_med_Four": {
       "fmt": "%.2f",
       "macro": "TtwobKFourMedGFour",
       "source": "t2b_filter",
-      "value": -0.40581035163063295
+      "value": 0.760114921840759
     },
     "t2b_K4_med_One": {
       "fmt": "%.2f",
       "macro": "TtwobKFourMedGOne",
       "source": "t2b_filter",
-      "value": -2.710807380098356
+      "value": 0.37592811892264044
     },
     "t2b_K4_med_OneHalf": {
       "fmt": "%.2f",
       "macro": "TtwobKFourMedGOneHalf",
       "source": "t2b_filter",
-      "value": -0.5024185994433901
+      "value": 0.710055443314608
     },
     "t2b_K4_med_Three": {
       "fmt": "%.2f",
       "macro": "TtwobKFourMedGThree",
       "source": "t2b_filter",
-      "value": -1.1897597223559204
+      "value": 0.5142041706505387
     },
     "t2b_K4_med_Two": {
       "fmt": "%.2f",
       "macro": "TtwobKFourMedGTwo",
       "source": "t2b_filter",
-      "value": -0.9911207492561337
+      "value": 0.5607536738590018
     },
     "t2b_pass": {
       "fmt": "%s",

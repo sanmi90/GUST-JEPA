@@ -1,0 +1,274 @@
+{
+  "schema": {
+    "<model>": {
+      "method": "tcsi_greedy",
+      "target": "latent_pc1",
+      "K2/K4/K8/K16": "physical wall-tap indices 0..191, greedy addition order, nested (warm-start staircase)"
+    },
+    "qdeim_shared": "target-blind qDEIM baseline (same taps for every model)",
+    "n_taps": 192
+  },
+  "params": {
+    "W_window": 30,
+    "target": "PCA(n_components=1) of pooled latent at t_impact",
+    "primitive": "scripts/session14_tcsi_pilot.greedy_forward_selection",
+    "seed": 0
+  },
+  "jepa_pool": {
+    "method": "tcsi_greedy",
+    "target": "latent_pc1",
+    "n_encounters": 268,
+    "K2": [
+      29,
+      85
+    ],
+    "K4": [
+      29,
+      85,
+      94,
+      12
+    ],
+    "K8": [
+      29,
+      85,
+      94,
+      12,
+      176,
+      8,
+      158,
+      11
+    ],
+    "K16": [
+      29,
+      85,
+      94,
+      12,
+      176,
+      8,
+      158,
+      11,
+      38,
+      21,
+      108,
+      186,
+      10,
+      16,
+      14,
+      3
+    ]
+  },
+  "jepa_wake": {
+    "method": "tcsi_greedy",
+    "target": "latent_pc1",
+    "n_encounters": 268,
+    "K2": [
+      23,
+      11
+    ],
+    "K4": [
+      23,
+      11,
+      172,
+      98
+    ],
+    "K8": [
+      23,
+      11,
+      172,
+      98,
+      42,
+      3,
+      14,
+      186
+    ],
+    "K16": [
+      23,
+      11,
+      172,
+      98,
+      42,
+      3,
+      14,
+      186,
+      107,
+      10,
+      12,
+      31,
+      7,
+      191,
+      50,
+      13
+    ]
+  },
+  "pod": {
+    "method": "tcsi_greedy",
+    "target": "latent_pc1",
+    "n_encounters": 268,
+    "K2": [
+      15,
+      10
+    ],
+    "K4": [
+      15,
+      10,
+      9,
+      12
+    ],
+    "K8": [
+      15,
+      10,
+      9,
+      12,
+      105,
+      19,
+      11,
+      23
+    ],
+    "K16": [
+      15,
+      10,
+      9,
+      12,
+      105,
+      19,
+      11,
+      23,
+      102,
+      3,
+      14,
+      34,
+      97,
+      87,
+      67,
+      164
+    ]
+  },
+  "fukami": {
+    "method": "tcsi_greedy",
+    "target": "latent_pc1",
+    "n_encounters": 268,
+    "K2": [
+      11,
+      14
+    ],
+    "K4": [
+      11,
+      14,
+      164,
+      5
+    ],
+    "K8": [
+      11,
+      14,
+      164,
+      5,
+      107,
+      40,
+      186,
+      35
+    ],
+    "K16": [
+      11,
+      14,
+      164,
+      5,
+      107,
+      40,
+      186,
+      35,
+      49,
+      28,
+      104,
+      10,
+      8,
+      68,
+      174,
+      58
+    ]
+  },
+  "qdeim_shared": {
+    "method": "qdeim",
+    "target": "none (target-blind)",
+    "K2": [
+      11,
+      10
+    ],
+    "K4": [
+      11,
+      10,
+      12,
+      7
+    ],
+    "K8": [
+      11,
+      10,
+      12,
+      7,
+      106,
+      186,
+      19,
+      92
+    ],
+    "K16": [
+      11,
+      10,
+      12,
+      7,
+      106,
+      186,
+      19,
+      92,
+      30,
+      41,
+      81,
+      53,
+      174,
+      67,
+      112,
+      152
+    ]
+  },
+  "jepa_pool_vec": {
+    "method": "tcsi_greedy",
+    "target": "latent_pc1",
+    "n_encounters": 268,
+    "K2": [
+      29,
+      10
+    ],
+    "K4": [
+      29,
+      10,
+      11,
+      170
+    ],
+    "K8": [
+      29,
+      10,
+      11,
+      170,
+      118,
+      40,
+      20,
+      183
+    ],
+    "K16": [
+      29,
+      10,
+      11,
+      170,
+      118,
+      40,
+      20,
+      183,
+      5,
+      85,
+      56,
+      12,
+      15,
+      2,
+      25,
+      65
+    ]
+  }
+}
