@@ -1,33 +1,33 @@
-% Abstract. Reframed 2026-06-14 (Session 29 Track E / D202) and TIGHTENED for the
-% JFM narrative (Session 29.2 / D204): ~225 words, one physics question, one
-% dataset, one primary result, the supervision-vs-prediction attribution, the
-% geometric mechanism, closing on the deployable-sensing result. No scope
-% disclaimers or future-work in the abstract (those live in the conclusions);
-% it ends on a fact. Topology claim is NO-GUST only (the gusted topology
-% difference does not survive whitening, Track H). Sensing is causal state
-% recovery (Track I) from a strictly pre-impact window. Numbers are macros. No em-dashes.
+% Abstract, v3 (Session 33 / D238-D245). One physics question (which reduced
+% state can a wall-pressure estimator track), the division-of-labour attribution,
+% the filter + operating envelope as the operational claim, the delay-coordinate
+% sentence, honest limits. ~250 words (must not spill to p.2). Numbers are
+% macros_v3 macros. No em-dashes; ends on a fact; no future work.
 
 Extreme vortex-gust encounters of a post-stall airfoil are wake-reorganisation
-events: the load spike is the surface signature of leading-edge-vortex roll-up and
-shedding, and the release parameters alone do not fix the wake after impact. Using
-direct numerical simulations of a NACA~0012 airfoil at $\alpha = 14^\circ$ and
-$\vRe = 5000$, perturbed by Taylor vortices spanning gust strength, core diameter
-and wall-normal offset, we ask which reduced state preserves that wake. At fixed
-dimension, under one shared probe and predictor, we compare a wake-supervised
-predictive state, a lift-augmented reconstructive autoencoder (Fukami-Taira
-lineage), and a proper orthogonal decomposition basis; matched
-controls separate objective from supervision.
-Probed from held-out fields sixteen frames after impact, the wake-supervised state
-reads the wake enstrophy ($R^2 = \NumReprWakeJepaTf$) where the no-wake baselines
-are at or below the mean predictor; but an objective-free supervised encoder reads
-it equally well, and a matched reconstructive control reads it comparably under
-case-disjoint retraining, so the wake supervision, not the objective, supplies the
-readability. The predictive objective is distinguished dynamically: it gives the
-most accurate wake rollout, reported as secondary.
-The mechanism is geometric: the anti-collapse regulariser keeps the predictive
-and supervised rollouts on the encoded manifold
-while the reconstructive rollout departs along low-variance
-directions, and the predictive no-gust shedding orbit stays a single loop
-where the reconstructive one fragments. Sparse wall pressure recovers the predictive
-state best from a strictly pre-impact window, a state-recovery property rather than
-direct wake recovery.
+events: the transient load is the surface signature of leading-edge-vortex
+roll-up and shedding, and the release parameters alone do not fix the wake once
+the gust has passed. A reduced-order model of such an encounter is useful in
+deployment only if its state can be recovered from the sensors actually
+available, the wall pressure, and advanced without leaving the region on which
+that recovery was calibrated. Using direct numerical simulations of a NACA~0012
+airfoil at $\alpha = 14^\circ$ and $\vRe = 5000$, perturbed by Taylor vortices
+spanning gust strength, core diameter and wall-normal offset, we ask which
+reduced coefficient state a sequential wall-pressure estimator can track through
+the encounter. At fixed dimension, under one shared probe and predictor, we
+compare a wake-supervised predictive state (a joint-embedding predictive
+architecture), a reconstructive autoencoder in the Fukami-Taira lineage and a
+proper orthogonal decomposition basis, with matched controls separating
+objective from supervision. We find a division of labour: the supervision
+supplies the wake's instantaneous readability and an anisotropic latent geometry
+the forward rollout respects, while the multi-step predictive objective supplies
+retrain-robust, long-horizon rollout stability. On this state a leakage-free
+ensemble Kalman filter sensing eight wall-pressure taps tracks the lift
+(analysis $R^2$ of $\VfiltCLGOne$ to $\VfiltCLGFour$ for gust ratios of unity
+and above) and extends the usable envelope beyond single-frame recovery, which
+fails near a gust ratio of three. The encounter is low-dimensional: one tap read
+over a thirty-frame window recovers the state as well as eight taps at an
+instant, a trade read through the delay-embedding theorem, and the envelope
+closes where the strengthening gust drives the interaction three-dimensional.
+The filter is under-dispersed at the strongest gusts, where a calibrated noise
+model, rather than more sensors, is the outstanding requirement.
