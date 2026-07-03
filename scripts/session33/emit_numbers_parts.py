@@ -400,19 +400,37 @@ def part_paired_stats():
         print("[parts] paired_stats: missing inputs, skipped")
         return
     numbers = {}
-    f2 = ps["primary_test_b"]["F2_filter_vs_openloop"]
-    if f2.get("holm"):
-        for t, p in f2["holm"]["p_holm"].items():
-            short = t.replace("_vs_openloop", "").replace("_", "")
-            numbers[f"stats_f2_{t}"] = rec(p, f"HolmF{short}", "%.3f",
-                                           note="Holm-adjusted, one-sided")
+    word = {"CL_impact": "CLImp", "CL_relax": "CLRel",
+            "Ew_impact": "EwImp", "Ew_relax": "EwRel"}
+    for fam_key, suffix in (("F1_filter_vs_static", "St"),
+                            ("F2_filter_vs_openloop", "Ol")):
+        fam = ps["primary_test_b"][fam_key]
+        holm = fam.get("holm", {}) or {}
+        for t, v in fam["tests"].items():
+            if "case_level" not in v:
+                continue
+            base = t.replace("_vs_static", "").replace("_vs_openloop", "")
+            w = word[base] + suffix
+            numbers[f"ps_{t}_med"] = rec(
+                v["case_level"]["median_case_mean_delta"], f"Ps{w}Med", "%.2f",
+                split="test_b")
+            wp = v["case_level"]["wilcoxon_p_one_sided"]
+            if isinstance(wp, float):
+                numbers[f"ps_{t}_p"] = rec(wp, f"Ps{w}P", "%.3f")
+            hp = holm.get("p_holm", {}).get(t)
+            if hp is not None:
+                numbers[f"ps_{t}_holm"] = rec(hp, f"Ps{w}Holm", "%.3f")
     tc = ps["annex_test_c"]["F1_filter_vs_static"]["tests"]
-    for t in ("CL_impact_vs_static", "CL_relax_vs_static"):
+    for t, w in (("CL_impact_vs_static", "CLImpStTc"),
+                 ("CL_relax_vs_static", "CLRelStTc")):
         v = tc.get(t, {})
         if "case_level" in v:
+            numbers[f"stats_testc_{t}_med"] = rec(
+                v["case_level"]["median_case_mean_delta"], f"Ps{w}Med", "%.2f",
+                split="test_c", note="characterisation annex")
             numbers[f"stats_testc_{t}_p"] = rec(
-                v["case_level"]["wilcoxon_p_one_sided"],
-                None, "%.4f", note="test_c annex, characterisation")
+                v["case_level"]["wilcoxon_p_one_sided"], f"Ps{w}P", "%.4f",
+                split="test_c")
     write_part("paired_stats", numbers)
 
 

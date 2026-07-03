@@ -119,3 +119,17 @@ the best reconstructive family is not significant (one-sided sign test
 $p = \SensePWakeSignP$). The wake is linearly readable from the encoded field
 (\S\ref{sec:res_closure}) but not from this many wall taps over this window; the
 deployment comparison is the state and the field, not the wake.
+
+\subsubsection*{Delay-coordinate knobs}
+The window sweeps of \S\ref{sec:res_delays} keep the delay stride at the cache
+cadence ($\Delta t = \DtTc\,c/u_\infty$), and this choice is a convention rather
+than a tuning: the first minimum of the time-lagged mutual information of the
+tap signals \citep{fraser1986} sits near $\TmiTau$ frames, about one shedding
+period, so the thirty-frame window spans roughly one decorrelation time of the
+wall pressure at the cadence used. The window length itself is selected by the
+measured recovery trade rather than by a false-nearest-neighbours criterion
+\citep{kennel1992}, which we regard as a cross-check and not a design input: the
+delay-embedding guarantees are generic, wall pressure is a physical and
+non-generic observable strongly coupled to the near-body vorticity, and the
+operative evidence is the measured recovery, with the theorem as the organising
+principle rather than a proof that a given tap count suffices.
