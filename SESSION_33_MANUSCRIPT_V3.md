@@ -1,5 +1,19 @@
 # SESSION 33: Manuscript v3 revision guide and drop-in draft prose
 
+**EXECUTION STATUS (2026-07-03, after the Session 33 overnight campaign).** Every [RUN] and
+[RE-RUN] item in Section 11 is EXECUTED and committed; the numbers are FROZEN (299 values,
+14 report anchors PASS, paper/macros_v3.tex, HANDOFF D243). Verdicts and prose flags live
+in HANDOFF D240-D243; the load-bearing ones: Gate T2 STRONG (K1xW30 = K8xW1 static
+recovery) but Gate T2b FAIL (the frozen filter needs its 8 taps -- harness verified
+bit-exact at K8, so the trade is a property of the static delay-coordinate reconstruction,
+not of the frozen-tuned filter; D-T2's main-text figure becomes the honest filter-vs-K
+panel); the DMD dichotomy softens (regAE/POD also keep the shedding clock; only the
+Fukami-AE families lose it); Y is now READABLE (0.53 KRR test_b, was -0.03 in v2.1); the
+single-seed merit tie does NOT replicate across seeds (supervised_only collapses on 1/3
+seeds; the predictive objective supplies seed-robust forecastability -- STRENGTHENS the
+division of labour). Remaining: Phase 5 figures (drafts of the two Track T figures are in
+outputs/session33/figures/) and the Phase 6 LaTeX restructure (L0-L9).
+
 **What this is.** The standing v3 planning document, merged 2026-07-02 (Session 33) from two
 inputs: the v3 revision guide (section-by-section transformation of the v2.1 manuscript onto
 the executed Session 32 results) and the delay-coordinate estimability addendum (Takens
