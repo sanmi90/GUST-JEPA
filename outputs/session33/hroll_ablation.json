@@ -1,0 +1,134 @@
+{
+  "task": "SESSION 32 H_roll=1 vs H_roll=8 ablation (jepa_nowake_pool, v2.2 pooled)",
+  "question": "Does the multi-step rollout TRAINING objective (H_roll=8, frozen kit default) help vs single-step (H_roll=1) on the v2.2 pooled JEPA?",
+  "models": {
+    "H_roll_1": "outputs/runs/session33/jepa_nowake_pool_vec_hroll1 (--horizon-override 1)",
+    "H_roll_8": "outputs/runs/session33/jepa_nowake_pool_vec (frozen kit default)"
+  },
+  "axis_a_forecast": {
+    "protocol": "matched ResUNet predictor (Track P Q2, resunet_matched, h8)",
+    "H_roll_1": {
+      "merit_mean_obs_mlp_h8": 0.33935499925892554,
+      "cl_closure_mlp_h8": 0.6854035202616777,
+      "wake_enstrophy_closure_mlp_h8": -0.1742271940894824,
+      "cl_closure_linear_h8": 0.6870442094533489,
+      "field_vrmse_model_h8": 1.012484580476364,
+      "field_vrmse_floor_h8": 0.9092450358965195,
+      "drift_rel_l2_h8": 0.5492250066149902,
+      "drift_rel_l2_h16": 0.7326391772777286,
+      "merit_curve": {
+        "1": 0.4877528596888393,
+        "2": 0.4611270124645334,
+        "4": 0.3905534231776553,
+        "8": 0.33935499925892554,
+        "16": 0.23674429104997002
+      },
+      "drift_curve": {
+        "1": 0.2983150754879514,
+        "2": 0.32512700731447347,
+        "4": 0.41765537498614885,
+        "8": 0.5492250066149902,
+        "16": 0.7326391772777286
+      }
+    },
+    "H_roll_8": {
+      "merit_mean_obs_mlp_h8": 0.5560663236785589,
+      "cl_closure_mlp_h8": 0.6638704849089052,
+      "wake_enstrophy_closure_mlp_h8": 0.46572916554991517,
+      "cl_closure_linear_h8": 0.6938051206858532,
+      "field_vrmse_model_h8": 0.9635868411922601,
+      "field_vrmse_floor_h8": 0.8855307582023232,
+      "drift_rel_l2_h8": 0.38180008715203123,
+      "drift_rel_l2_h16": 0.5181067906818492,
+      "merit_curve": {
+        "1": 0.6208141278362426,
+        "2": 0.6181077222204481,
+        "4": 0.6066236959851765,
+        "8": 0.5560663236785589,
+        "16": 0.4884806636938482
+      },
+      "drift_curve": {
+        "1": 0.21504815617331421,
+        "2": 0.22888481735928723,
+        "4": 0.29278411971915447,
+        "8": 0.38180008715203123,
+        "16": 0.5181067906818492
+      }
+    },
+    "deltas": [
+      {
+        "metric": "merit_mean_obs_mlp_h8",
+        "h_roll_1": 0.33935499925892554,
+        "h_roll_8": 0.5560663236785589,
+        "delta_8_minus_1": 0.21671132441963337,
+        "higher_better": true,
+        "verdict": "H_roll=8 helps"
+      },
+      {
+        "metric": "cl_closure_mlp_h8",
+        "h_roll_1": 0.6854035202616777,
+        "h_roll_8": 0.6638704849089052,
+        "delta_8_minus_1": -0.02153303535277251,
+        "higher_better": true,
+        "verdict": "H_roll=8 hurts"
+      },
+      {
+        "metric": "wake_enstrophy_closure_mlp_h8",
+        "h_roll_1": -0.1742271940894824,
+        "h_roll_8": 0.46572916554991517,
+        "delta_8_minus_1": 0.6399563596393976,
+        "higher_better": true,
+        "verdict": "H_roll=8 helps"
+      },
+      {
+        "metric": "field_vrmse_model_h8",
+        "h_roll_1": 1.012484580476364,
+        "h_roll_8": 0.9635868411922601,
+        "delta_8_minus_1": -0.0488977392841039,
+        "higher_better": false,
+        "verdict": "H_roll=8 helps"
+      }
+    ]
+  },
+  "axis_b_drift": {
+    "protocol": "aggregated rolled-latent rel-L2 drift (Track P Q2, resunet_matched)",
+    "H_roll_1": {
+      "drift_rel_l2_h8": 0.5492250066149902,
+      "curve": {
+        "1": 0.2983150754879514,
+        "2": 0.32512700731447347,
+        "4": 0.41765537498614885,
+        "8": 0.5492250066149902,
+        "16": 0.7326391772777286
+      }
+    },
+    "H_roll_8": {
+      "drift_rel_l2_h8": 0.38180008715203123,
+      "curve": {
+        "1": 0.21504815617331421,
+        "2": 0.22888481735928723,
+        "4": 0.29278411971915447,
+        "8": 0.38180008715203123,
+        "16": 0.5181067906818492
+      }
+    },
+    "deltas": [
+      {
+        "metric": "drift_rel_l2_h8",
+        "h_roll_1": 0.5492250066149902,
+        "h_roll_8": 0.38180008715203123,
+        "delta_8_minus_1": -0.16742491946295895,
+        "higher_better": false,
+        "verdict": "H_roll=8 helps"
+      },
+      {
+        "metric": "drift_rel_l2_h16",
+        "h_roll_1": 0.7326391772777286,
+        "h_roll_8": 0.5181067906818492,
+        "delta_8_minus_1": -0.21453238659587948,
+        "higher_better": false,
+        "verdict": "H_roll=8 helps"
+      }
+    ]
+  }
+}

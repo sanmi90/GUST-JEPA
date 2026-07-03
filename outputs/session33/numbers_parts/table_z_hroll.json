@@ -2,73 +2,73 @@
   "part": "table_z_hroll",
   "numbers": {
     "z_merit_Hone": {
-      "value": 0.40717569060508596,
+      "value": 0.33935499925892554,
       "macro": "ZmeritHone",
       "fmt": "%.3f",
       "horizon": 8
     },
     "z_cl_Hone": {
-      "value": 0.4291339090487817,
+      "value": 0.6854035202616777,
       "macro": "ZclHone",
       "fmt": "%.3f",
       "horizon": 8
     },
     "z_wake_Hone": {
-      "value": 0.2841167661725803,
+      "value": -0.1742271940894824,
       "macro": "ZwakeHone",
       "fmt": "%.3f",
       "horizon": 8
     },
     "z_vrmse_Hone": {
-      "value": 1.0061839058351394,
+      "value": 1.012484580476364,
       "macro": "ZvrmseHone",
       "fmt": "%.3f",
       "horizon": 8
     },
     "z_drift_Hone": {
-      "value": 0.7314114944401469,
+      "value": 0.7326391772777286,
       "macro": "ZdriftHone",
       "fmt": "%.3f",
       "horizon": 16
     },
     "z_merit_hsixteen_Hone": {
-      "value": 0.04581689290491486,
+      "value": 0.23674429104997002,
       "macro": "ZmeritSixteenHone",
       "fmt": "%.3f",
       "horizon": 16
     },
     "z_merit_Height": {
-      "value": 0.4706951293868123,
+      "value": 0.5560663236785589,
       "macro": "ZmeritHeight",
       "fmt": "%.3f",
       "horizon": 8
     },
     "z_cl_Height": {
-      "value": 0.6907843247463056,
+      "value": 0.6638704849089052,
       "macro": "ZclHeight",
       "fmt": "%.3f",
       "horizon": 8
     },
     "z_wake_Height": {
-      "value": 0.30519394239448305,
+      "value": 0.46572916554991517,
       "macro": "ZwakeHeight",
       "fmt": "%.3f",
       "horizon": 8
     },
     "z_vrmse_Height": {
-      "value": 0.9825563868326171,
+      "value": 0.9635868411922601,
       "macro": "ZvrmseHeight",
       "fmt": "%.3f",
       "horizon": 8
     },
     "z_drift_Height": {
-      "value": 0.6179836235745667,
+      "value": 0.5181067906818492,
       "macro": "ZdriftHeight",
       "fmt": "%.3f",
       "horizon": 16
     },
     "z_merit_hsixteen_Height": {
-      "value": 0.3121109653793884,
+      "value": 0.4884806636938482,
       "macro": "ZmeritSixteenHeight",
       "fmt": "%.3f",
       "horizon": 16

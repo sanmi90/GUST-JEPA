@@ -111,12 +111,15 @@ the rollout needs.
 
 What the predictive objective adds is long-horizon stability, and it is the
 multi-step form of the objective that adds it. Trained with a single-step rather
-than a multi-step rollout, the same predictive latent is tied one step out and then
-separates under rollout: by sixteen steps the single-step latent's forecast merit
-has fallen to $\ZmeritSixteenHone$ while the multi-step latent holds
-$\ZmeritSixteenHeight$, its lift forecast closure is higher by
-$\ZclHeight$ against $\ZclHone$, and its on-manifold drift is lower
-($\ZdriftHeight$ against $\ZdriftHone$ at horizon sixteen). The objective-free
+than a multi-step rollout, the same predictive latent forecasts the five
+observables less well at every horizon, and the margin widens with the rollout:
+by sixteen steps the single-step latent's merit has fallen to $\ZmeritSixteenHone$
+while the multi-step latent holds $\ZmeritSixteenHeight$, with markedly lower
+on-manifold drift ($\ZdriftHeight$ against $\ZdriftHone$ at horizon sixteen). The
+single-step latent is marginally better on the load alone a few steps out
+($\ZclHone$ against $\ZclHeight$ in $C_L$ closure at eight steps), a
+single-observable exception to a forecast advantage that otherwise grows with
+horizon. The objective-free
 supervised state, which has the readability and the protected subspace but no
 predictive training, is the weakest field forecaster of the supervised group. The
 contribution of the predictive objective is therefore forward rather than

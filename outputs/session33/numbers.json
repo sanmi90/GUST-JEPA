@@ -1,7 +1,7 @@
 {
   "_provenance": {
-    "generated_iso": "2026-07-03T22:38:03.712816+00:00",
-    "git_commit": "f88f8e19fdc933e08faa94e0dfd2bb293a452188",
+    "generated_iso": "2026-07-03T23:35:24.686452+00:00",
+    "git_commit": "bc831b0abd0285b8fc72f9b153991e3b566338b9",
     "n_parts": 15,
     "parts": [
       "constants.json",
@@ -563,12 +563,12 @@
       "value": 0.026114951499611405
     },
     "p3_delta_vs_JepaWake": {
-      "ci_hi": 0.09877877694719124,
-      "ci_lo": 0.0807013972017063,
+      "ci_hi": 0.09533878079920746,
+      "ci_lo": 0.07752934808692089,
       "fmt": "%.3f",
       "macro": "PthreeDeltaJepaWake",
       "source": "gates_p_and_table_y",
-      "value": 0.09010537566935083
+      "value": 0.08670987301773245
     },
     "p3_delta_vs_SupOnly": {
       "ci_hi": 0.08027574919404401,
@@ -2599,7 +2599,7 @@
       "fmt": "%.0f",
       "macro": "YcondJepaWake",
       "source": "gates_p_and_table_y",
-      "value": 612.713506680406
+      "value": 451.04817894233213
     },
     "y_cond_RegAE": {
       "fmt": "%.0f",
@@ -2624,7 +2624,7 @@
       "fmt": "%.3f",
       "macro": "YnearnullJepaWake",
       "source": "gates_p_and_table_y",
-      "value": 0.010304609662761356
+      "value": 0.013700112314379736
     },
     "y_nearnull_RegAE": {
       "fmt": "%.3f",
@@ -2643,84 +2643,84 @@
       "horizon": 8,
       "macro": "ZclHeight",
       "source": "table_z_hroll",
-      "value": 0.6907843247463056
+      "value": 0.6638704849089052
     },
     "z_cl_Hone": {
       "fmt": "%.3f",
       "horizon": 8,
       "macro": "ZclHone",
       "source": "table_z_hroll",
-      "value": 0.4291339090487817
+      "value": 0.6854035202616777
     },
     "z_drift_Height": {
       "fmt": "%.3f",
       "horizon": 16,
       "macro": "ZdriftHeight",
       "source": "table_z_hroll",
-      "value": 0.6179836235745667
+      "value": 0.5181067906818492
     },
     "z_drift_Hone": {
       "fmt": "%.3f",
       "horizon": 16,
       "macro": "ZdriftHone",
       "source": "table_z_hroll",
-      "value": 0.7314114944401469
+      "value": 0.7326391772777286
     },
     "z_merit_Height": {
       "fmt": "%.3f",
       "horizon": 8,
       "macro": "ZmeritHeight",
       "source": "table_z_hroll",
-      "value": 0.4706951293868123
+      "value": 0.5560663236785589
     },
     "z_merit_Hone": {
       "fmt": "%.3f",
       "horizon": 8,
       "macro": "ZmeritHone",
       "source": "table_z_hroll",
-      "value": 0.40717569060508596
+      "value": 0.33935499925892554
     },
     "z_merit_hsixteen_Height": {
       "fmt": "%.3f",
       "horizon": 16,
       "macro": "ZmeritSixteenHeight",
       "source": "table_z_hroll",
-      "value": 0.3121109653793884
+      "value": 0.4884806636938482
     },
     "z_merit_hsixteen_Hone": {
       "fmt": "%.3f",
       "horizon": 16,
       "macro": "ZmeritSixteenHone",
       "source": "table_z_hroll",
-      "value": 0.04581689290491486
+      "value": 0.23674429104997002
     },
     "z_vrmse_Height": {
       "fmt": "%.3f",
       "horizon": 8,
       "macro": "ZvrmseHeight",
       "source": "table_z_hroll",
-      "value": 0.9825563868326171
+      "value": 0.9635868411922601
     },
     "z_vrmse_Hone": {
       "fmt": "%.3f",
       "horizon": 8,
       "macro": "ZvrmseHone",
       "source": "table_z_hroll",
-      "value": 1.0061839058351394
+      "value": 1.012484580476364
     },
     "z_wake_Height": {
       "fmt": "%.3f",
       "horizon": 8,
       "macro": "ZwakeHeight",
       "source": "table_z_hroll",
-      "value": 0.30519394239448305
+      "value": 0.46572916554991517
     },
     "z_wake_Hone": {
       "fmt": "%.3f",
       "horizon": 8,
       "macro": "ZwakeHone",
       "source": "table_z_hroll",
-      "value": 0.2841167661725803
+      "value": -0.1742271940894824
     }
   }
 }

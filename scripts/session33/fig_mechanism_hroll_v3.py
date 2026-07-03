@@ -22,8 +22,12 @@ REPO = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(REPO / "scripts" / "session21"))
 from figstyle import FAMILY_COLOR, TEXTWIDTH_IN, use_style  # noqa: E402
 
-MECH_JSON = REPO / "outputs/session32/track_p3_mechanism.json"
-HROLL_JSON = REPO / "outputs/session32/hroll_ablation.json"
+# D250: both panels re-derived on the native-vector flagship (session33), with a
+# fall-back to the session32 ResUNet-era files if the vec re-runs are absent.
+_MECH_V = REPO / "outputs/session33/track_p3_mechanism.json"
+_HROLL_V = REPO / "outputs/session33/hroll_ablation.json"
+MECH_JSON = _MECH_V if _MECH_V.exists() else REPO / "outputs/session32/track_p3_mechanism.json"
+HROLL_JSON = _HROLL_V if _HROLL_V.exists() else REPO / "outputs/session32/hroll_ablation.json"
 OUT_PDF = REPO / "outputs/session33/figures/fig_mechanism_hroll_v3.pdf"
 
 # Model display order and colours for panel (a): the reconstruction-regularised

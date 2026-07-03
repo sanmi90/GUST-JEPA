@@ -243,7 +243,8 @@ def part_table_x():
 # ------------------------------------------------------------------ P gates + Table Y
 def part_gates_p():
     gates = _load(S32 / "track_p_gates.json")
-    p3 = _load(S32 / "track_p3_mechanism.json")
+    # D250: null-space mechanism (Table Y) re-derived on the vec flagship.
+    p3 = _load(S33 / "track_p3_mechanism.json") or _load(S32 / "track_p3_mechanism.json")
     if not gates or not p3:
         print("[parts] gates_p: missing inputs, skipped")
         return
@@ -300,7 +301,9 @@ def part_gates_p():
 
 # ------------------------------------------------------------------ Table Z (H_roll)
 def part_table_z():
-    hr = _load(S32 / "hroll_ablation.json")
+    # D250 flagship: H_roll ablation re-run on the vec pipeline (jepa_nowake_pool_vec
+    # H=8 vs its H=1 twin). Falls back to the session32 ResUNet-era file if absent.
+    hr = _load(S33 / "hroll_ablation.json") or _load(S32 / "hroll_ablation.json")
     if not hr:
         print("[parts] table_z: missing inputs, skipped")
         return
@@ -724,7 +727,7 @@ ANCHORS = [
     ("table_v_envelope", "v_filt_cl_Three", 0.63, 0.02),
     ("table_v_envelope", "v_filt_cl_Four", 0.84, 0.02),
     ("gates_p_and_table_y", "y_nearnull_RegAE", 0.100, 0.005),
-    ("gates_p_and_table_y", "y_nearnull_JepaWake", 0.010, 0.005),
+    ("gates_p_and_table_y", "y_nearnull_JepaWake", 0.014, 0.005),
 ]
 
 

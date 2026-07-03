@@ -20,12 +20,12 @@
       "fmt": "%.3f"
     },
     "y_cond_JepaWake": {
-      "value": 612.713506680406,
+      "value": 451.04817894233213,
       "macro": "YcondJepaWake",
       "fmt": "%.0f"
     },
     "y_nearnull_JepaWake": {
-      "value": 0.010304609662761356,
+      "value": 0.013700112314379736,
       "macro": "YnearnullJepaWake",
       "fmt": "%.3f"
     },
@@ -40,11 +40,11 @@
       "fmt": "%.3f"
     },
     "p3_delta_vs_JepaWake": {
-      "value": 0.09010537566935083,
+      "value": 0.08670987301773245,
       "macro": "PthreeDeltaJepaWake",
       "fmt": "%.3f",
-      "ci_lo": 0.0807013972017063,
-      "ci_hi": 0.09877877694719124
+      "ci_lo": 0.07752934808692089,
+      "ci_hi": 0.09533878079920746
     },
     "p3_delta_vs_SupOnly": {
       "value": 0.07150755417114055,

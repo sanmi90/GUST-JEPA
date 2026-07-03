@@ -1,0 +1,112 @@
+{
+  "task": "SESSION 31 Track D Q1 -- ROM representation eval",
+  "params": {
+    "partition": "v2p2",
+    "split_manifest": "configs/splits/split_v2p2.json",
+    "pipeline_manifest": "outputs/data_pipeline/v2p2/manifest.json",
+    "checkpoint": "checkpoint_iter010000.pt",
+    "gpu_name": "NVIDIA RTX PRO 6000 Blackwell Max-Q Workstation Edition",
+    "ssim_data_range_L": 8.487,
+    "ssim_convention": "Wang K1=0.01 K2=0.03 on pipeline-normalised omega (skimage 2D SSIM)",
+    "vrmse_definition": "sqrt(sum(pred-true)^2 / sum(true-mean_true)^2), aggregated over eval set before dividing",
+    "window_definition": "impact union relaxation frames from Track 0.B windows_v2p2.json; windowed scope restricts Test B evaluation only",
+    "decode_floor_decoder": "SpatialLatentFieldDecoder (identical capacity, the DecoderProbe module), fit on all TRAIN frames",
+    "decoder_steps": 6000,
+    "decoder_batch": 64,
+    "probe_regime": "per-frame GAP latent -> observable (state-descriptor regime, CLAUDE.md)",
+    "probe_linear": "StandardScaler -> RidgeCV (alpha CV) -> target-scaled",
+    "probe_mlp": "StandardScaler -> MLPRegressor(64,64) -> target-scaled",
+    "targets_used": [
+      "C_L",
+      "C_D",
+      "wake_enstrophy",
+      "circulation_pos",
+      "circulation_neg"
+    ],
+    "target_sources": {
+      "C_L": "cache",
+      "C_D": "cache",
+      "wake_enstrophy": "computed on preprocess_raw omega (session17 wake-box)",
+      "circulation_pos": "computed on preprocess_raw omega (session17 wake-box, |omega|>1)",
+      "circulation_neg": "computed on preprocess_raw omega (session17 wake-box, |omega|>1)"
+    }
+  },
+  "models": {
+    "jepa_nowake_pool_vec_hroll1": {
+      "objective": "pred",
+      "active_terms": [
+        "anti_collapse",
+        "lift",
+        "pred"
+      ],
+      "decode_floor": {
+        "all_frames": {
+          "vrmse": 0.8857395392000778,
+          "ssim": 0.7747786606961758,
+          "n": 5040
+        },
+        "windowed": {
+          "vrmse": 0.9066851032300193,
+          "ssim": 0.7586661065052756,
+          "n": 2016
+        }
+      },
+      "probes": {
+        "all_frames": {
+          "C_L": {
+            "linear_r2": 0.8477949524778549,
+            "mlp_r2": 0.887636980874435,
+            "n_eval": 5040
+          },
+          "C_D": {
+            "linear_r2": 0.6959069528652899,
+            "mlp_r2": 0.8315693740527185,
+            "n_eval": 5040
+          },
+          "wake_enstrophy": {
+            "linear_r2": 0.29979930467912974,
+            "mlp_r2": 0.32817597953617517,
+            "n_eval": 5040
+          },
+          "circulation_pos": {
+            "linear_r2": 0.5917716830167894,
+            "mlp_r2": 0.5933333371788672,
+            "n_eval": 5040
+          },
+          "circulation_neg": {
+            "linear_r2": 0.49985655120273287,
+            "mlp_r2": 0.5025659499626611,
+            "n_eval": 5040
+          }
+        },
+        "windowed": {
+          "C_L": {
+            "linear_r2": 0.7867088679092497,
+            "mlp_r2": 0.8376278161269781,
+            "n_eval": 2016
+          },
+          "C_D": {
+            "linear_r2": 0.5945110315499119,
+            "mlp_r2": 0.7891617266522953,
+            "n_eval": 2016
+          },
+          "wake_enstrophy": {
+            "linear_r2": 0.1760586998237753,
+            "mlp_r2": 0.2619662998893396,
+            "n_eval": 2016
+          },
+          "circulation_pos": {
+            "linear_r2": 0.5410472709284637,
+            "mlp_r2": 0.5729858017676888,
+            "n_eval": 2016
+          },
+          "circulation_neg": {
+            "linear_r2": 0.42972246356599764,
+            "mlp_r2": 0.40037659712688634,
+            "n_eval": 2016
+          }
+        }
+      }
+    }
+  }
+}

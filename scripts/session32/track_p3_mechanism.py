@@ -65,9 +65,12 @@ MARGIN = 0.05  # "markedly more" point margin (project tie tolerance)
 
 # --------------------------------------------------------------------------- loading
 def latent_path(model: str, split: str) -> Path:
-    """Frozen pooled-latent npz path (jepa_wake_pool aliases the S31 jepa_pool cache)."""
+    """Frozen pooled-latent npz path. D250: the predictive flagship jepa_wake_pool
+    aliases the native-vector jepa_pool_vec cache (encoder geometry re-derived on the
+    vec pipeline); the reconstructive and objective-free comparators are unchanged."""
     if model == "jepa_wake_pool":
-        return S31 / "q1_latents" / f"latents_jepa_pool_{split}.npz"
+        vec_dir = REPO / "outputs" / "session33" / "q1_vec_latents"
+        return vec_dir / f"latents_jepa_pool_vec_{split}.npz"
     return S32 / "q1_pool_latents" / f"latents_{model}_{split}.npz"
 
 
