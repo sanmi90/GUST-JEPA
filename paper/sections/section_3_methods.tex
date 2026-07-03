@@ -247,6 +247,21 @@ sliding-window pressure-only regression with no dynamics, and a model-free
 parameter floor in which the gust parameters are given, used diagnostically only,
 the model never seeing them.
 
+\begin{figure}
+  \centering
+  \includegraphics[width=0.92\linewidth]{sections/figures/tikz/fig_estimation_loop.pdf}
+  \caption{The leakage-free predict-correct estimator in the latent space. An
+  ensemble of $\FilterMembers$ members is advanced field free by the matched
+  autoregressive transformer (predict), then corrected from $\FilterTaps$ span
+  averaged wall-pressure taps through the frozen observation operator
+  $\mathcal{H}$ (correct); the innovation is the difference between the measured
+  taps and the taps predicted from the forecast state. No vorticity field enters
+  the loop and the lift and wake probes never enter the innovation, so the
+  analysis closure is a genuine estimate. The state is the same $\LatentDim$
+  vector at every step.}
+  \label{fig:estimation_loop}
+\end{figure}
+
 The mixed timescales of this estimator, a transition map trained on sequences and
 an emission map trained per instant, mirror the structure of the training
 objective in \S\ref{sec:methods_loss}: a dynamics equation is a statement about

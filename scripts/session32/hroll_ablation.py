@@ -265,6 +265,10 @@ def parse_args(argv=None):
     p.add_argument("--pipeline-manifest", default="outputs/data_pipeline/v2p2/manifest.json")
     p.add_argument("--q2-h8", default="outputs/session32/q2_pool.json")
     p.add_argument("--q2-h1", default="outputs/session32/q2_hroll1.json")
+    p.add_argument("--model-h8", default="jepa_nowake_pool")
+    p.add_argument("--model-h1", default="jepa_nowake_pool_hroll1")
+    p.add_argument("--run-h8", default="outputs/runs/session32/jepa_nowake_pool")
+    p.add_argument("--run-h1", default="outputs/runs/session32/jepa_nowake_pool_hroll1")
     p.add_argument("--taps-modes", nargs="+", default=["osp_per_model", "qdeim_shared"])
     p.add_argument("--skip-filter", action="store_true")
     p.add_argument("--out", default="outputs/session32/hroll_ablation.json")
@@ -279,13 +283,13 @@ def main(argv=None) -> int:
     args = parse_args(argv)
 
     runs = {
-        "H_roll_8": "outputs/runs/session32/jepa_nowake_pool",
-        "H_roll_1": "outputs/runs/session32/jepa_nowake_pool_hroll1",
+        "H_roll_8": args.run_h8,
+        "H_roll_1": args.run_h1,
     }
 
     # ---- (a)/(b) forecast + drift from the two Q2 JSONs -------------------
-    fc8 = read_forecast_cells(args.q2_h8, "jepa_nowake_pool")
-    fc1 = read_forecast_cells(args.q2_h1, "jepa_nowake_pool_hroll1")
+    fc8 = read_forecast_cells(args.q2_h8, args.model_h8)
+    fc1 = read_forecast_cells(args.q2_h1, args.model_h1)
 
     result: dict = {
         "task": "SESSION 32 H_roll=1 vs H_roll=8 ablation (jepa_nowake_pool, v2.2 pooled)",
