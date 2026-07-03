@@ -1,0 +1,102 @@
+{
+  "task": "SESSION 33 audit -- direct windowed pressure -> C_L (no latent)",
+  "params": {
+    "window": 30,
+    "estimator": "KRR Nystroem-RBF (O1/fit_pressure_estimator)",
+    "fit": "train only (train stratum scored 5-fold OOF); val/test_b/test_c predicted from the train fit (D236 pattern)",
+    "scoring": "per-encounter R2 over the assimilation window",
+    "note": "R2 basis differs from the envelope lenses (whole assim window here vs impact phase there); compare shapes across |G|, not decimals"
+  },
+  "direct": {
+    "K8_qdeim": {
+      "0.25-0.5": {
+        "n": 124,
+        "median_r2": 0.4715043592778872,
+        "frac_positive": 0.9112903225806451
+      },
+      "1": {
+        "n": 88,
+        "median_r2": 0.4121061703879493,
+        "frac_positive": 0.9659090909090909
+      },
+      "1.5": {
+        "n": 56,
+        "median_r2": 0.2945845638025641,
+        "frac_positive": 0.9821428571428571
+      },
+      "2": {
+        "n": 80,
+        "median_r2": 0.20829347331533515,
+        "frac_positive": 0.9125
+      },
+      "3": {
+        "n": 56,
+        "median_r2": 0.08359520428661732,
+        "frac_positive": 0.6428571428571429
+      },
+      "4": {
+        "n": 40,
+        "median_r2": 0.08024109240861665,
+        "frac_positive": 0.85
+      }
+    },
+    "all192": {
+      "0.25-0.5": {
+        "n": 124,
+        "median_r2": 0.5446931630127387,
+        "frac_positive": 0.9516129032258065
+      },
+      "1": {
+        "n": 88,
+        "median_r2": 0.4426682824767733,
+        "frac_positive": 0.9772727272727273
+      },
+      "1.5": {
+        "n": 56,
+        "median_r2": 0.35466903829591506,
+        "frac_positive": 1.0
+      },
+      "2": {
+        "n": 80,
+        "median_r2": 0.27094733728980835,
+        "frac_positive": 0.9125
+      },
+      "3": {
+        "n": 56,
+        "median_r2": 0.07959089610015341,
+        "frac_positive": 0.6964285714285714
+      },
+      "4": {
+        "n": 40,
+        "median_r2": 0.1426120305353029,
+        "frac_positive": 0.85
+      }
+    }
+  },
+  "frozen_comparators_jepa_pool": {
+    "0.25-0.5": {
+      "filter_CL_median": 0.020845123683902456,
+      "vialatent_recovery_CL_median": 0.6046378045943231
+    },
+    "1": {
+      "filter_CL_median": 0.7063109596117505,
+      "vialatent_recovery_CL_median": 0.6347746693181264
+    },
+    "1.5": {
+      "filter_CL_median": 0.8735580114400439,
+      "vialatent_recovery_CL_median": 0.6435218106271248
+    },
+    "2": {
+      "filter_CL_median": 0.7841885272869611,
+      "vialatent_recovery_CL_median": 0.35496401107908965
+    },
+    "3": {
+      "filter_CL_median": 0.6897836208862795,
+      "vialatent_recovery_CL_median": -1.2203332051544242
+    },
+    "4": {
+      "filter_CL_median": 0.8960931377661643,
+      "vialatent_recovery_CL_median": -0.3282107953976737
+    }
+  }
+}

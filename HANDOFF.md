@@ -10107,3 +10107,48 @@ carry some v2.1-era prose blocks (methods closure protocol paragraph quotes d in
 pooled d=32 headline; (4) the GO-gate items remain author-owned (DNS Table 1, Zenodo
 DOI, CRediT/funding); (5) enforce_conventions.py flags R2-coverage on definitional
 paragraphs because its regex misses LaTeX-escaped test\_b -- checker artifact, noted.
+
+### D247 (SESSION33 AUDIT, user-triggered: the filter's load-tracking is representation-general; appendix split-brain) (2026-07-03, Session 33)
+
+Carlos challenged the v3 PDF ("reconstructive models work better"; figure provenance
+unchecked). Three rescue experiments + a figure-by-figure audit were run. FINDINGS:
+
+FILTER FAMILY AUDIT (envelope_family_audit.json; frozen D220 protocol, per-model OSP,
+NOTHING tuned): median analysis C_L (impact) by |G| {1, 1.5, 2, 3, 4}:
+  jepa_pool    0.71 0.87 0.78 0.69 0.90   div@2/4 0.41/0.82  NIS@4 19.4
+  ae_wake_pool 0.86 0.86 0.81 0.49 0.66   div 0.36/0.93       NIS@4 28.8
+  fukami       0.79 0.87 0.78 0.68 0.76   div 0.57/0.97       NIS@4 23.5
+  fukami_wake -0.39 0.72 0.68 0.77 0.85   div 0.91/0.95       NIS@4 36.1
+  pod          0.53 0.52 -0.33 -0.27 0.25 div 0.49/0.93
+VERDICT: in-range (|G| 1-2) load-tracking is REPRESENTATION-GENERAL among nonlinear
+latents (ae_wake BEATS jepa at G1/G2); only POD fails cleanly. The predictive state's
+filter advantages are (a) the strong-gust strata (G3/G4: 0.69/0.90 vs 0.49-0.77/0.66-0.85,
+and the only near-boundary tracker that is not ~fully divergent), (b) the calibration
+margin (best div/NIS everywhere), (c) the least-degraded wake readout through the filter
+(Ew medians -7..-18 vs -10..-400; ALL models' filter Ew is below zero: THE FILTER DOES NOT
+TRACK THE WAKE, for anyone -- the wake claim lives at the representational tier only).
+
+DIRECT NO-LATENT BASELINE (direct_pressure_cl_baseline.json): windowed KRR pressure->C_L,
+K8 qDEIM (matched budget) and all-192 (upper bound), train-fit/D236 pattern: medians fade
+0.47->0.08 and 0.54->0.08/0.14 by |G|=3/4. The static failure at strong gusts is NOT a
+sensor-budget artifact; sequential dynamics + a latent are required. This baseline
+RESCUES the envelope's value as an ESTIMATION claim and should enter Table V / Sec 4.5.
+
+FIGURE/TABLE AUDIT (subagent, every includegraphics + table): main text + Tables 3-7 +
+all six v3 figures are clean v2.2-pooled, macro-driven, spot-checked. SPLIT-BRAIN in the
+appendices: Appendix B is 100% v2.1 macros and asserts the OPPOSITE recovery ordering to
+Sec 4.3 (v2.1: predictive most recoverable 0.78>0.66>0.34; v3 Table 5: fukami 0.921 most
+recoverable) while citing "as in the main text" -- must be rewritten on v3 artifacts or
+cut. Appendix A: hardcoded n=24 test_c (v2.2 = 40); Table 8 prepsens + fig
+appA_orbit_return + "Topological robustness" + fig_latent_readability are v2.1-spatial
+evidence anchored to v3-deleted claims (topology HAS a v2.2 rerun available:
+topology_v2p2.json). Stale d=64 annotations: TikZ fig2 line 52, Table 2 caption. Minor:
+bridge 0.707-vs-grid-0.66 unexplained in Sec 4.3.1 prose; "falls by -22.53" double
+negative; fig_mechanism_hroll_v3 + fig_readability_matrix_v3 generated but never placed;
+dead results_tables.tex.
+
+PENDING: ae_wake_pool s1/s2 seed retrains (running) -> merit-ordering band (the P2 gap
+jepa 0.639 vs ae_wake 0.548 rests on 1 seed). REFRAME REQUIRED (user sign-off): Sec
+4.4/4.5 from "which state can a filter track" to "sequentiality + a nonlinear latent
+track the load; the states differ at the boundary, in calibration, and in what else the
+tracked state carries"; state plainly that no filter tracks the wake.
