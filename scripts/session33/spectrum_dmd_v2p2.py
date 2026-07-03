@@ -67,7 +67,8 @@ ST_SUBHARMONIC_TOL = 0.05
 
 # Model tag -> per-frame pooled-latent cache (train split), repo-relative.
 MODEL_CACHES = {
-    "jepa_pool": "outputs/session31/q1_latents/latents_jepa_pool_train.npz",
+    # D250 flagship: the predictive family is the native-vector jepa_pool_vec.
+    "jepa_pool": "outputs/session33/q1_vec_latents/latents_jepa_pool_vec_train.npz",
     "supervised_only_pool": (
         "outputs/session32/q1_pool_latents/latents_supervised_only_pool_train.npz"
     ),

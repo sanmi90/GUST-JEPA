@@ -2,45 +2,45 @@
   "part": "paired_stats",
   "numbers": {
     "ps_CL_impact_vs_static_med": {
-      "value": 0.3223220734727231,
+      "value": 0.16410516363111172,
       "macro": "PsCLImpStMed",
       "fmt": "%.2f",
       "split": "test_b"
     },
     "ps_CL_impact_vs_static_p": {
-      "value": 0.2783203125,
+      "value": 0.1611328125,
       "macro": "PsCLImpStP",
       "fmt": "%.3f"
     },
     "ps_CL_impact_vs_static_holm": {
-      "value": 0.8349609375,
+      "value": 0.4833984375,
       "macro": "PsCLImpStHolm",
       "fmt": "%.3f"
     },
     "ps_CL_relax_vs_static_med": {
-      "value": 0.5118923635392062,
+      "value": 0.525903831250928,
       "macro": "PsCLRelStMed",
       "fmt": "%.2f",
       "split": "test_b"
     },
     "ps_CL_relax_vs_static_p": {
-      "value": 0.1376953125,
+      "value": 0.1162109375,
       "macro": "PsCLRelStP",
       "fmt": "%.3f"
     },
     "ps_CL_relax_vs_static_holm": {
-      "value": 0.55078125,
+      "value": 0.46484375,
       "macro": "PsCLRelStHolm",
       "fmt": "%.3f"
     },
     "ps_Ew_impact_vs_static_med": {
-      "value": -2.257397079012494,
+      "value": -25.153735152418207,
       "macro": "PsEwImpStMed",
       "fmt": "%.2f",
       "split": "test_b"
     },
     "ps_Ew_impact_vs_static_p": {
-      "value": 0.5390625,
+      "value": 0.986328125,
       "macro": "PsEwImpStP",
       "fmt": "%.3f"
     },
@@ -50,13 +50,13 @@
       "fmt": "%.3f"
     },
     "ps_Ew_relax_vs_static_med": {
-      "value": -4.292725257213068,
+      "value": -2.467037207052228,
       "macro": "PsEwRelStMed",
       "fmt": "%.2f",
       "split": "test_b"
     },
     "ps_Ew_relax_vs_static_p": {
-      "value": 0.75390625,
+      "value": 0.8388671875,
       "macro": "PsEwRelStP",
       "fmt": "%.3f"
     },
@@ -66,7 +66,7 @@
       "fmt": "%.3f"
     },
     "ps_CL_impact_vs_openloop_med": {
-      "value": 11.676174353471534,
+      "value": 9.431073999231902,
       "macro": "PsCLImpOlMed",
       "fmt": "%.2f",
       "split": "test_b"
@@ -82,7 +82,7 @@
       "fmt": "%.3f"
     },
     "ps_CL_relax_vs_openloop_med": {
-      "value": 62.03747825639901,
+      "value": 44.83648863260913,
       "macro": "PsCLRelOlMed",
       "fmt": "%.2f",
       "split": "test_b"
@@ -98,23 +98,23 @@
       "fmt": "%.3f"
     },
     "ps_Ew_impact_vs_openloop_med": {
-      "value": 9.480586499812258,
+      "value": 17.391404884737824,
       "macro": "PsEwImpOlMed",
       "fmt": "%.2f",
       "split": "test_b"
     },
     "ps_Ew_impact_vs_openloop_p": {
-      "value": 0.052734375,
+      "value": 0.24609375,
       "macro": "PsEwImpOlP",
       "fmt": "%.3f"
     },
     "ps_Ew_impact_vs_openloop_holm": {
-      "value": 0.052734375,
+      "value": 0.24609375,
       "macro": "PsEwImpOlHolm",
       "fmt": "%.3f"
     },
     "stats_testc_CL_impact_vs_static_med": {
-      "value": 1.9469760202317397,
+      "value": 1.1145700079940188,
       "macro": "PsCLImpStTcMed",
       "fmt": "%.2f",
       "split": "test_c",
@@ -127,14 +127,14 @@
       "split": "test_c"
     },
     "stats_testc_CL_relax_vs_static_med": {
-      "value": 6.50858113431797,
+      "value": 6.406204866471547,
       "macro": "PsCLRelStTcMed",
       "fmt": "%.2f",
       "split": "test_c",
       "note": "characterisation annex"
     },
     "stats_testc_CL_relax_vs_static_p": {
-      "value": 0.0078125,
+      "value": 0.00390625,
       "macro": "PsCLRelStTcP",
       "fmt": "%.4f",
       "split": "test_c"

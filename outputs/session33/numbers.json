@@ -1,7 +1,7 @@
 {
   "_provenance": {
-    "generated_iso": "2026-07-03T22:20:36.598058+00:00",
-    "git_commit": "b6710d94e1c848156f98ef0f702a700fda306e47",
+    "generated_iso": "2026-07-03T22:24:47.375226+00:00",
+    "git_commit": "e6ce7f4dc6876df3cd1123af1054a09abaca8376",
     "n_parts": 15,
     "parts": [
       "constants.json",
@@ -112,73 +112,73 @@
       "fmt": "%.3f",
       "macro": "DmdLamFukami",
       "source": "physics_latent",
-      "value": 0.5904418147084455
+      "value": 0.5904418147084456
     },
     "dmd_lam_FukamiWake": {
       "fmt": "%.3f",
       "macro": "DmdLamFukamiWake",
       "source": "physics_latent",
-      "value": 0.29367511976635496
+      "value": 0.29367511976635163
     },
     "dmd_lam_Jepa": {
       "fmt": "%.3f",
       "macro": "DmdLamJepa",
       "source": "physics_latent",
-      "value": 0.9920109323074077
+      "value": 0.9928517248254627
     },
     "dmd_lam_Pod": {
       "fmt": "%.3f",
       "macro": "DmdLamPod",
       "source": "physics_latent",
-      "value": 0.9955378025929718
+      "value": 0.9955378025929709
     },
     "dmd_lam_RegAE": {
       "fmt": "%.3f",
       "macro": "DmdLamRegAE",
       "source": "physics_latent",
-      "value": 0.9950364668467082
+      "value": 0.9950364668467094
     },
     "dmd_lam_SupOnly": {
       "fmt": "%.3f",
       "macro": "DmdLamSupOnly",
       "source": "physics_latent",
-      "value": 0.9893349731198577
+      "value": 0.9893349731198572
     },
     "dmd_st_Fukami": {
       "fmt": "%.3f",
       "macro": "DmdStFukami",
       "source": "physics_latent",
-      "value": 0.18150036320737903
+      "value": 0.1815003632073611
     },
     "dmd_st_FukamiWake": {
       "fmt": "%.3f",
       "macro": "DmdStFukamiWake",
       "source": "physics_latent",
-      "value": 0.14698121932840424
+      "value": 0.14698121932833758
     },
     "dmd_st_Jepa": {
       "fmt": "%.3f",
       "macro": "DmdStJepa",
       "source": "physics_latent",
-      "value": 0.6582934434241959
+      "value": 0.666271031612903
     },
     "dmd_st_Pod": {
       "fmt": "%.3f",
       "macro": "DmdStPod",
       "source": "physics_latent",
-      "value": 0.6733058562423581
+      "value": 0.673305856242362
     },
     "dmd_st_RegAE": {
       "fmt": "%.3f",
       "macro": "DmdStRegAE",
       "source": "physics_latent",
-      "value": 0.6758358991512501
+      "value": 0.6758358991512524
     },
     "dmd_st_SupOnly": {
       "fmt": "%.3f",
       "macro": "DmdStSupOnly",
       "source": "physics_latent",
-      "value": 0.654283781336297
+      "value": 0.6542837813363035
     },
     "dt_tc": {
       "fmt": "%.2f",
@@ -649,25 +649,25 @@
       "fmt": "%.2f",
       "macro": "ProbeDJepa",
       "source": "physics_latent",
-      "value": 0.7805496634576675
+      "value": 0.7299014529023491
     },
     "probe_G_jepa": {
       "fmt": "%.2f",
       "macro": "ProbeGJepa",
       "source": "physics_latent",
-      "value": 0.7562142463494707
+      "value": 0.8761089185171336
     },
     "probe_Y_jepa": {
       "fmt": "%.2f",
       "macro": "ProbeYJepa",
       "source": "physics_latent",
-      "value": 0.2879717353520592
+      "value": 0.29296123237126637
     },
     "probe_Y_krr_jepa": {
       "fmt": "%.2f",
       "macro": "ProbeYkrrJepa",
       "source": "physics_latent",
-      "value": 0.5286907995162006
+      "value": 0.7896108071838891
     },
     "ps_CL_impact_vs_openloop_holm": {
       "fmt": "%.3f",
@@ -680,7 +680,7 @@
       "macro": "PsCLImpOlMed",
       "source": "paired_stats",
       "split": "test_b",
-      "value": 11.676174353471534
+      "value": 9.431073999231902
     },
     "ps_CL_impact_vs_openloop_p": {
       "fmt": "%.3f",
@@ -692,20 +692,20 @@
       "fmt": "%.3f",
       "macro": "PsCLImpStHolm",
       "source": "paired_stats",
-      "value": 0.8349609375
+      "value": 0.4833984375
     },
     "ps_CL_impact_vs_static_med": {
       "fmt": "%.2f",
       "macro": "PsCLImpStMed",
       "source": "paired_stats",
       "split": "test_b",
-      "value": 0.3223220734727231
+      "value": 0.16410516363111172
     },
     "ps_CL_impact_vs_static_p": {
       "fmt": "%.3f",
       "macro": "PsCLImpStP",
       "source": "paired_stats",
-      "value": 0.2783203125
+      "value": 0.1611328125
     },
     "ps_CL_relax_vs_openloop_holm": {
       "fmt": "%.3f",
@@ -718,7 +718,7 @@
       "macro": "PsCLRelOlMed",
       "source": "paired_stats",
       "split": "test_b",
-      "value": 62.03747825639901
+      "value": 44.83648863260913
     },
     "ps_CL_relax_vs_openloop_p": {
       "fmt": "%.3f",
@@ -730,39 +730,39 @@
       "fmt": "%.3f",
       "macro": "PsCLRelStHolm",
       "source": "paired_stats",
-      "value": 0.55078125
+      "value": 0.46484375
     },
     "ps_CL_relax_vs_static_med": {
       "fmt": "%.2f",
       "macro": "PsCLRelStMed",
       "source": "paired_stats",
       "split": "test_b",
-      "value": 0.5118923635392062
+      "value": 0.525903831250928
     },
     "ps_CL_relax_vs_static_p": {
       "fmt": "%.3f",
       "macro": "PsCLRelStP",
       "source": "paired_stats",
-      "value": 0.1376953125
+      "value": 0.1162109375
     },
     "ps_Ew_impact_vs_openloop_holm": {
       "fmt": "%.3f",
       "macro": "PsEwImpOlHolm",
       "source": "paired_stats",
-      "value": 0.052734375
+      "value": 0.24609375
     },
     "ps_Ew_impact_vs_openloop_med": {
       "fmt": "%.2f",
       "macro": "PsEwImpOlMed",
       "source": "paired_stats",
       "split": "test_b",
-      "value": 9.480586499812258
+      "value": 17.391404884737824
     },
     "ps_Ew_impact_vs_openloop_p": {
       "fmt": "%.3f",
       "macro": "PsEwImpOlP",
       "source": "paired_stats",
-      "value": 0.052734375
+      "value": 0.24609375
     },
     "ps_Ew_impact_vs_static_holm": {
       "fmt": "%.3f",
@@ -775,13 +775,13 @@
       "macro": "PsEwImpStMed",
       "source": "paired_stats",
       "split": "test_b",
-      "value": -2.257397079012494
+      "value": -25.153735152418207
     },
     "ps_Ew_impact_vs_static_p": {
       "fmt": "%.3f",
       "macro": "PsEwImpStP",
       "source": "paired_stats",
-      "value": 0.5390625
+      "value": 0.986328125
     },
     "ps_Ew_relax_vs_static_holm": {
       "fmt": "%.3f",
@@ -794,13 +794,13 @@
       "macro": "PsEwRelStMed",
       "source": "paired_stats",
       "split": "test_b",
-      "value": -4.292725257213068
+      "value": -2.467037207052228
     },
     "ps_Ew_relax_vs_static_p": {
       "fmt": "%.3f",
       "macro": "PsEwRelStP",
       "source": "paired_stats",
-      "value": 0.75390625
+      "value": 0.8388671875
     },
     "seed_merit_AeWake": {
       "fmt": "%.3f",
@@ -918,7 +918,7 @@
       "note": "characterisation annex",
       "source": "paired_stats",
       "split": "test_c",
-      "value": 1.9469760202317397
+      "value": 1.1145700079940188
     },
     "stats_testc_CL_impact_vs_static_p": {
       "fmt": "%.4f",
@@ -933,14 +933,14 @@
       "note": "characterisation annex",
       "source": "paired_stats",
       "split": "test_c",
-      "value": 6.50858113431797
+      "value": 6.406204866471547
     },
     "stats_testc_CL_relax_vs_static_p": {
       "fmt": "%.4f",
       "macro": "PsCLRelStTcP",
       "source": "paired_stats",
       "split": "test_c",
-      "value": 0.0078125
+      "value": 0.00390625
     },
     "t1_CD_W1": {
       "fmt": "%.2f",
@@ -1835,7 +1835,7 @@
       "macro": "TopoCtrlJepa",
       "note": "single-period no-gust control",
       "source": "physics_latent",
-      "value": 0.5
+      "value": 0.625
     },
     "topo_ctrl_Pod": {
       "fmt": "%.2f",
@@ -1863,7 +1863,7 @@
       "macro": "TopoFracJepa",
       "note": "stdz metric, 5pct floor, gusted test_b",
       "source": "physics_latent",
-      "value": 0.5238095238095238
+      "value": 0.6428571428571429
     },
     "topo_frac_Pod": {
       "fmt": "%.2f",
@@ -2144,61 +2144,61 @@
       "fmt": "%.2f",
       "macro": "WcFullFukamiWake",
       "source": "physics_latent",
-      "value": 0.4323073912355384
+      "value": 0.4323073912699503
     },
     "wakecode_full_Jepa": {
       "fmt": "%.2f",
       "macro": "WcFullJepa",
       "source": "physics_latent",
-      "value": 0.766159355677616
+      "value": 0.7510058646868174
     },
     "wakecode_full_Pod": {
       "fmt": "%.2f",
       "macro": "WcFullPod",
       "source": "physics_latent",
-      "value": 0.1858859089179612
+      "value": 0.1858859089182462
     },
     "wakecode_full_RegAE": {
       "fmt": "%.2f",
       "macro": "WcFullRegAE",
       "source": "physics_latent",
-      "value": 0.3329770121294784
+      "value": 0.33297701213000774
     },
     "wakecode_full_SupOnly": {
       "fmt": "%.2f",
       "macro": "WcFullSupOnly",
       "source": "physics_latent",
-      "value": 0.7922743040295519
+      "value": 0.7922743040333612
     },
     "wakecode_gap_FukamiWake": {
       "fmt": "%.2f",
       "macro": "WcGapFukamiWake",
       "source": "physics_latent",
-      "value": -0.025512589924608586
+      "value": -0.025512589804614794
     },
     "wakecode_gap_Jepa": {
       "fmt": "%.2f",
       "macro": "WcGapJepa",
       "source": "physics_latent",
-      "value": 0.5933856511677867
+      "value": 0.5143823726407114
     },
     "wakecode_gap_Pod": {
       "fmt": "%.2f",
       "macro": "WcGapPod",
       "source": "physics_latent",
-      "value": 0.03990143886296704
+      "value": 0.03990143886321462
     },
     "wakecode_gap_RegAE": {
       "fmt": "%.2f",
       "macro": "WcGapRegAE",
       "source": "physics_latent",
-      "value": 0.35147453376130566
+      "value": 0.3514745337618279
     },
     "wakecode_gap_SupOnly": {
       "fmt": "%.2f",
       "macro": "WcGapSupOnly",
       "source": "physics_latent",
-      "value": 0.5340696127218297
+      "value": 0.5340696127256384
     },
     "wq_obs_Fukami": {
       "fmt": "%.3f",

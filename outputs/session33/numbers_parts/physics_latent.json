@@ -2,143 +2,143 @@
   "part": "physics_latent",
   "numbers": {
     "dmd_st_Jepa": {
-      "value": 0.6582934434241959,
+      "value": 0.666271031612903,
       "macro": "DmdStJepa",
       "fmt": "%.3f"
     },
     "dmd_lam_Jepa": {
-      "value": 0.9920109323074077,
+      "value": 0.9928517248254627,
       "macro": "DmdLamJepa",
       "fmt": "%.3f"
     },
     "dmd_st_SupOnly": {
-      "value": 0.654283781336297,
+      "value": 0.6542837813363035,
       "macro": "DmdStSupOnly",
       "fmt": "%.3f"
     },
     "dmd_lam_SupOnly": {
-      "value": 0.9893349731198577,
+      "value": 0.9893349731198572,
       "macro": "DmdLamSupOnly",
       "fmt": "%.3f"
     },
     "dmd_st_RegAE": {
-      "value": 0.6758358991512501,
+      "value": 0.6758358991512524,
       "macro": "DmdStRegAE",
       "fmt": "%.3f"
     },
     "dmd_lam_RegAE": {
-      "value": 0.9950364668467082,
+      "value": 0.9950364668467094,
       "macro": "DmdLamRegAE",
       "fmt": "%.3f"
     },
     "dmd_st_Fukami": {
-      "value": 0.18150036320737903,
+      "value": 0.1815003632073611,
       "macro": "DmdStFukami",
       "fmt": "%.3f"
     },
     "dmd_lam_Fukami": {
-      "value": 0.5904418147084455,
+      "value": 0.5904418147084456,
       "macro": "DmdLamFukami",
       "fmt": "%.3f"
     },
     "dmd_st_FukamiWake": {
-      "value": 0.14698121932840424,
+      "value": 0.14698121932833758,
       "macro": "DmdStFukamiWake",
       "fmt": "%.3f"
     },
     "dmd_lam_FukamiWake": {
-      "value": 0.29367511976635496,
+      "value": 0.29367511976635163,
       "macro": "DmdLamFukamiWake",
       "fmt": "%.3f"
     },
     "dmd_st_Pod": {
-      "value": 0.6733058562423581,
+      "value": 0.673305856242362,
       "macro": "DmdStPod",
       "fmt": "%.3f"
     },
     "dmd_lam_Pod": {
-      "value": 0.9955378025929718,
+      "value": 0.9955378025929709,
       "macro": "DmdLamPod",
       "fmt": "%.3f"
     },
     "probe_G_jepa": {
-      "value": 0.7562142463494707,
+      "value": 0.8761089185171336,
       "macro": "ProbeGJepa",
       "fmt": "%.2f"
     },
     "probe_D_jepa": {
-      "value": 0.7805496634576675,
+      "value": 0.7299014529023491,
       "macro": "ProbeDJepa",
       "fmt": "%.2f"
     },
     "probe_Y_jepa": {
-      "value": 0.2879717353520592,
+      "value": 0.29296123237126637,
       "macro": "ProbeYJepa",
       "fmt": "%.2f"
     },
     "probe_Y_krr_jepa": {
-      "value": 0.5286907995162006,
+      "value": 0.7896108071838891,
       "macro": "ProbeYkrrJepa",
       "fmt": "%.2f"
     },
     "wakecode_full_Jepa": {
-      "value": 0.766159355677616,
+      "value": 0.7510058646868174,
       "macro": "WcFullJepa",
       "fmt": "%.2f"
     },
     "wakecode_gap_Jepa": {
-      "value": 0.5933856511677867,
+      "value": 0.5143823726407114,
       "macro": "WcGapJepa",
       "fmt": "%.2f"
     },
     "wakecode_full_SupOnly": {
-      "value": 0.7922743040295519,
+      "value": 0.7922743040333612,
       "macro": "WcFullSupOnly",
       "fmt": "%.2f"
     },
     "wakecode_gap_SupOnly": {
-      "value": 0.5340696127218297,
+      "value": 0.5340696127256384,
       "macro": "WcGapSupOnly",
       "fmt": "%.2f"
     },
     "wakecode_full_FukamiWake": {
-      "value": 0.4323073912355384,
+      "value": 0.4323073912699503,
       "macro": "WcFullFukamiWake",
       "fmt": "%.2f"
     },
     "wakecode_gap_FukamiWake": {
-      "value": -0.025512589924608586,
+      "value": -0.025512589804614794,
       "macro": "WcGapFukamiWake",
       "fmt": "%.2f"
     },
     "wakecode_full_Pod": {
-      "value": 0.1858859089179612,
+      "value": 0.1858859089182462,
       "macro": "WcFullPod",
       "fmt": "%.2f"
     },
     "wakecode_gap_Pod": {
-      "value": 0.03990143886296704,
+      "value": 0.03990143886321462,
       "macro": "WcGapPod",
       "fmt": "%.2f"
     },
     "wakecode_full_RegAE": {
-      "value": 0.3329770121294784,
+      "value": 0.33297701213000774,
       "macro": "WcFullRegAE",
       "fmt": "%.2f"
     },
     "wakecode_gap_RegAE": {
-      "value": 0.35147453376130566,
+      "value": 0.3514745337618279,
       "macro": "WcGapRegAE",
       "fmt": "%.2f"
     },
     "topo_frac_Jepa": {
-      "value": 0.5238095238095238,
+      "value": 0.6428571428571429,
       "macro": "TopoFracJepa",
       "fmt": "%.2f",
       "note": "stdz metric, 5pct floor, gusted test_b"
     },
     "topo_ctrl_Jepa": {
-      "value": 0.5,
+      "value": 0.625,
       "macro": "TopoCtrlJepa",
       "fmt": "%.2f",
       "note": "single-period no-gust control"

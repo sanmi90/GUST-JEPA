@@ -55,10 +55,12 @@ OUT_COORDS = OUT_DIR / "manifold_atlas_v2p2_coords.npz"
 S31 = REPO / "outputs" / "session31" / "q1_latents"
 S32 = REPO / "outputs" / "session32" / "q1_pool_latents"
 
+S33V = REPO / "outputs" / "session33" / "q1_vec_latents"
 FAMILIES = {
+    # D250 flagship: the predictive family is the native-vector jepa_pool_vec.
     "jepa_pool": {
-        "train": S31 / "latents_jepa_pool_train.npz",
-        "test_b": S31 / "latents_jepa_pool_test_b.npz",
+        "train": S33V / "latents_jepa_pool_vec_train.npz",
+        "test_b": S33V / "latents_jepa_pool_vec_test_b.npz",
     },
     "supervised_only_pool": {
         "train": S32 / "latents_supervised_only_pool_train.npz",

@@ -1,14 +1,14 @@
 {
   "_provenance": {
     "script": "scripts/session33/manifold_atlas_v2p2.py",
-    "created_iso": "2026-07-02T23:33:52",
-    "git_head": "85dfda5f36bb0ccf9dd0027e302de5d8ccdebce6",
+    "created_iso": "2026-07-04T00:23:52",
+    "git_head": "e6ce7f4dc6876df3cd1123af1054a09abaca8376",
     "split_manifest": "configs/splits/split_v2p2.json",
     "windows": "outputs/session31/windows_v2p2.json",
     "inputs": {
       "jepa_pool": {
-        "train": "outputs/session31/q1_latents/latents_jepa_pool_train.npz",
-        "test_b": "outputs/session31/q1_latents/latents_jepa_pool_test_b.npz"
+        "train": "outputs/session33/q1_vec_latents/latents_jepa_pool_vec_train.npz",
+        "test_b": "outputs/session33/q1_vec_latents/latents_jepa_pool_vec_test_b.npz"
       },
       "supervised_only_pool": {
         "train": "outputs/session32/q1_pool_latents/latents_supervised_only_pool_train.npz",
@@ -65,9 +65,9 @@
   "families": {
     "jepa_pool": {
       "pca_explained_variance_ratio": [
-        0.19024434448975114,
-        0.1547823004535133,
-        0.11845222727241322
+        0.18319102699797216,
+        0.13062124325328986,
+        0.1066145688311158
       ],
       "n_train_frames": 32160,
       "n_test_b_frames": 5040,
@@ -77,33 +77,33 @@
       "probes": {
         "G": {
           "probe_kind": "ridge",
-          "train_cv_r2": 0.7940081642102191,
-          "test_b_r2": 0.7562142463494707,
+          "train_cv_r2": 0.7617422364016768,
+          "test_b_r2": 0.8761089185171336,
           "best_params": {
-            "alpha": 1.0
+            "alpha": 10.0
           }
         },
         "D": {
           "probe_kind": "ridge",
-          "train_cv_r2": 0.7509044222327637,
-          "test_b_r2": 0.7805496634576675,
+          "train_cv_r2": 0.5733543399502289,
+          "test_b_r2": 0.7299014529023491,
           "best_params": {
-            "alpha": 10.0
+            "alpha": 1.0
           }
         },
         "Y": {
           "probe_kind": "ridge",
-          "train_cv_r2": 0.3962463230601809,
-          "test_b_r2": 0.2879717353520592,
+          "train_cv_r2": 0.5265801407082342,
+          "test_b_r2": 0.29296123237126637,
           "best_params": {
             "alpha": 10.0
           },
           "krr_rbf": {
-            "train_cv_r2": 0.5170209070597868,
-            "test_b_r2": 0.5286907995162006,
+            "train_cv_r2": 0.6583921439280331,
+            "test_b_r2": 0.7896108071838891,
             "best_params": {
-              "alpha": 0.0001,
-              "gamma": 0.03
+              "alpha": 0.001,
+              "gamma": 0.01
             }
           }
         }
@@ -145,8 +145,8 @@
             "alpha": 10.0
           },
           "krr_rbf": {
-            "train_cv_r2": 0.5769070838513539,
-            "test_b_r2": 0.10683732517508915,
+            "train_cv_r2": 0.5769070838513801,
+            "test_b_r2": 0.1068373251750726,
             "best_params": {
               "alpha": 0.01,
               "gamma": 0.01
@@ -192,7 +192,7 @@
           },
           "krr_rbf": {
             "train_cv_r2": -0.12931997813463947,
-            "test_b_r2": -0.09662115030667229,
+            "test_b_r2": -0.09662115030667096,
             "best_params": {
               "alpha": 1.0,
               "gamma": 0.003
@@ -237,8 +237,8 @@
             "alpha": 1000.0
           },
           "krr_rbf": {
-            "train_cv_r2": 0.4040900732667415,
-            "test_b_r2": 0.16360468089787072,
+            "train_cv_r2": 0.40409007326674096,
+            "test_b_r2": 0.1636046808978704,
             "best_params": {
               "alpha": 0.01,
               "gamma": 0.01

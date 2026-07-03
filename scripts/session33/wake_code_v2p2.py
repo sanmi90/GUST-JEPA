@@ -71,7 +71,8 @@ N_FOLDS = 5
 
 # Model tag -> per-frame pooled-latent caches (repo-relative).
 MODEL_CACHES = {
-    "jepa_pool": "outputs/session31/q1_latents/latents_jepa_pool_{split}.npz",
+    # D250 flagship: predictive family is the native-vector jepa_pool_vec.
+    "jepa_pool": "outputs/session33/q1_vec_latents/latents_jepa_pool_vec_{split}.npz",
     "supervised_only_pool": (
         "outputs/session32/q1_pool_latents/latents_supervised_only_pool_{split}.npz"
     ),
