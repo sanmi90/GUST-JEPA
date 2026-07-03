@@ -1,0 +1,26 @@
+% Table V (v3): the gust-intensity operating envelope. tab:envelope.
+% Numbers are macros_v3.tex macros (outputs/session33/numbers.json).
+\begin{table}
+  \centering
+  \caption{The operating envelope, by gust strength, for the predictive coefficient
+  state under the frozen filter. Median analysis lift closure and divergence rate of
+  the filter against the static single-frame recovery, over all encounters (train,
+  validation, test\_b, and the $|G| = 4$ test\_c boundary), stratified by $|G|$. The
+  $|G| \le 0.5$ closure is near zero because the true lift is near-constant there and
+  the $R^2$ denominator vanishes, not because the filter fails; the per-encounter
+  paired tests on test\_b and test\_c are in Appendix~\ref{app:reg}.}
+  \label{tab:envelope}
+  \small
+  \begin{tabular}{l c c c}
+    \toprule
+    $|G|$ & filter $C_L$ $R^2$ & filter divergence rate & static recovery $C_L$ $R^2$ \\
+    \midrule
+    $\le 0.5$ & $\VfiltCLGHalf$    & $\VdivGHalf$    & $\VrecCLGHalf$ \\
+    $1$       & $\VfiltCLGOne$     & $\VdivGOne$     & $\VrecCLGOne$ \\
+    $1.5$     & $\VfiltCLGOneHalf$ & $\VdivGOneHalf$ & $\VrecCLGOneHalf$ \\
+    $2$       & $\VfiltCLGTwo$     & $\VdivGTwo$     & $\VrecCLGTwo$ \\
+    $3$       & $\VfiltCLGThree$   & $\VdivGThree$   & $\VrecCLGThree$ \\
+    $4$       & $\VfiltCLGFour$    & $\VdivGFour$    & $\VrecCLGFour$ \\
+    \bottomrule
+  \end{tabular}
+\end{table}

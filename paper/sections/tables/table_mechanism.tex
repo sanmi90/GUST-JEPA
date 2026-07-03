@@ -1,0 +1,23 @@
+% Table Y (v3): rollout anisotropy mechanism. tab:mechanism.
+% Numbers are macros_v3.tex macros (outputs/session33/numbers.json).
+\begin{table}
+  \centering
+  \caption{Where each rolled state goes relative to the training distribution, on
+  test\_b at rollout horizon sixteen. The latent covariance condition number
+  measures anisotropy, and the near-null departure fraction is the share of the
+  rollout departure that falls into the bottom-quartile directions of the encoded
+  covariance. An isotropic null would leak $\YisoNull$. The anti-collapse
+  reconstruction is near-isotropic and leaks; the supervised states are anisotropic
+  and stay in their low-rank subspace.}
+  \label{tab:mechanism}
+  \small
+  \begin{tabular}{l c c}
+    \toprule
+    State & covariance condition number & near-null departure fraction \\
+    \midrule
+    anti-collapse AE & $\YcondRegAE$   & $\YnearnullRegAE$ \\
+    JEPA (wake)      & $\YcondJepaWake$ & $\YnearnullJepaWake$ \\
+    supervised only  & $\YcondSupOnly$  & $\YnearnullSupOnly$ \\
+    \bottomrule
+  \end{tabular}
+\end{table}

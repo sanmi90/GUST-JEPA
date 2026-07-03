@@ -1,775 +1,355 @@
-% Results, restructured by physical question. Five subsections (JFM structure
-% pass): (1) forward closure and conditioning floor; (2) objective/architecture/
-% auxiliary-head controls (kept ahead of the mechanism, because architecture and
-% wake supervision are confounds); (3) why the rollout works, folding horizon
-% dependence into the drift/topology/transport mechanism; (4) where closure
-% succeeds and fails in physical space, folding parameter/phase dependence into
-% the decoded-field interpretation; (5) wall-pressure observability. The seven
-% former run-in \paragraph labels are rewritten as prose. Every result is
-% populated.
+% Results, restructured for v3 around the estimation thesis. Six subsections in a
+% climbing order (what the state carries -> why it survives rollout -> what the wall
+% sees -> tracking -> envelope -> physics), calibrated to the Fukami & Taira results
+% voice (arXiv 2305.08024, 2403.00263): physics as grammatical subject, present
+% tense, number-as-consequence, each limitation opening the next question. Every
+% number is a macros_v3.tex macro (provenance outputs/session33/numbers.json).
+% Spatial-tier decodability prose moves to Discussion 5.3 + Appendix C. All v2.1
+% cross-referenced labels are preserved as aliases. British spelling; no em-dashes.
 
-\input{sections/tables/results_tables.tex}
+We report the controlled representational comparisons (\S\ref{sec:res_carries} to
+\S\ref{sec:res_wall}) on the in-distribution test\_b encounters and hold the
+out-of-distribution test\_c set in reserve, so that the $|G| = 4$ extrapolation
+enters only as a final reported number and never as a selection signal. The
+estimator, the recovery, and the operating envelope
+(\S\ref{sec:res_tracking}--\S\ref{sec:res_envelope}) are characterised with a
+frozen filter across all encounters, train, validation, test\_b and the test\_c
+boundary alike, and the per-encounter paired tests on test\_b and test\_c are given
+in Appendix~\ref{app:reg}. Every quantity quoted below is a held-out value at the
+readout horizon unless stated otherwise.
 
-\subsection{Representational wake closure and the parameter-only floor}
-\label{sec:res_closure}
+\subsection{What the coefficient state carries, and what supplies it}
+\label{sec:res_carries}
+\label{sec:res_closure} % v2.1 alias
 
-The model comparison is meaningful only if the endpoint is physically discriminating,
-so we begin with the wake itself. At impact the release parameters largely fix the
-immediate force excursion; by the readout horizon, sixteen frames after impact and
-past the leading-edge-vortex shedding, those same parameters no longer fix the
-downstream wake enstrophy (figure~\ref{fig:staging}), as the parameter-only floor
-below makes quantitative. This
-separation, between the force that the gust sets and the wake that the evolving
-separated flow sets, is why the wake enstrophy is the primary endpoint.
+The comparison between reduced states is meaningful only if the wake is a
+discriminating endpoint, and it is. At the readout horizon the release parameters
+no longer fix the wake enstrophy, while they still fix the forces, so the wake is
+where a representation that has captured the gust-vortex physics parts company
+from one that has captured only its force signature. Table~\ref{tab:closure} reports
+what each pooled coefficient state carries, read by a fixed linear probe from a
+held-out test\_b field with no rollout. The wake is read cleanly by every state that
+carries the wake-supervision head, with a held-out $R^2$ between $\XwakeAeWake$ and
+$\XwakeSupOnly$, and it collapses for every state that does not, falling to
+$\XwakeJepaNowake$ for the predictive latent trained without the head. Instantaneous
+readability of the wake is therefore supplied by the observable supervision, not by
+any training objective.
 
-Table~\ref{tab:families} summarises the three encoder families and the protocol.
-We distinguish two questions. Does the latent, encoded directly from a held-out
-field, render each observable readable by a fixed linear probe (representation
-quality, the headline, table~\ref{tab:closure}(a))? And does the predictor, rolled
-out from the impact frame, track it (forecast quality, reported as secondary,
-table~\ref{tab:closure}(b))? The first isolates the encoder; the second tests the
-encoder and the learned dynamics together. The result is established at the
-representation level, where the wake is the discriminator, and the rollout is shown
-as consistent confirmation rather than the load-bearing test.
+The objective-free supervised encoder makes this concrete. Trained with the wake
+head but no predictive or reconstructive objective at all, it reads the wake at
+least as well as the full predictive latent ($\XwakeSupOnly$ against $\XwakeJepaWake$)
+and ties it on the merit a matched predictor extracts by forecast
+($\XmeritSupOnly$ against $\XmeritJepaWake$). On this tier, then, we do not
+attribute the readability or the fitted-predictor merit to the predictive
+objective over the supervised control: the paired readability gap is
+$\PoneWakeDelta$ in the wake with a confidence interval
+$[\PoneWakeDeltalo, \PoneWakeDeltahi]$ that includes zero, and the merit ordering
+places the two supervised states together and above the reconstructive and
+anti-collapse recipes ($\XmeritJepaWake \ge \XmeritSupOnly > \XmeritAeWake >
+\XmeritRegAE$). We state the representational result as the supervision's, and turn
+to what the predictive objective does add, which is dynamical.
 
-The wake is where the families separate. Probed directly from the held-out field
-sixteen frames after impact, the predictive latent renders the wake enstrophy
-linearly readable at $R^2 = \NumReprWakeJepaTf$ (figure~\ref{fig:fig4_closure}),
-while the reconstructive autoencoder and the linear basis are at
-$\NumReprWakeFukami$ and $\NumReprWakePod$, both below the predict-the-mean floor.
-A nonlinear (kernel-ridge) probe narrows this gap, recovering part of the wake from
-the matched-head reconstructive control (\S\ref{sec:res_controls}), so the claim is
-that the predictive latent renders the wake \emph{linearly decodable}, not that
-the reconstructive encoding discards it irrecoverably. The established reconstructive
-and linear recipes compared here carry no wake-observable head, and the separation
-is against that: a matched reconstructive control that does carry the head reads the
-wake comparably once each case is held out of training
-(\S\ref{sec:res_controls}). A $\beta$-VAE lineage baseline that also carries the
-wake head (table~\ref{tab:closure}) reads part of the wake at the representational
-endpoint ($\NumReprWakeBvaeMatch$) but does not preserve it under the shared rollout
-($\NumCloFcstWakeBvae$), the same pattern. The representational readability is therefore supplied
-by the wake supervision, and the predictive objective's robust distinction is
-dynamical, established in \S\ref{sec:res_controls} and \S\ref{sec:res_drift}: it
-reads the wake consistently across retrains, forecasts it from its own rollout, and
-keeps that rollout on the encoded manifold. The forces and the
-circulations are read off the same latent cleanly, with $C_L$ at
-$R^2 = \NumCloReprCLJepaTf$, the negative and positive circulations at
-$\NumCloReprCircNegJepaTf$ and $\NumCloReprCircPosJepaTf$, and the drag at
-$\NumCloReprCDJepaTf$. The same ordering holds on the training, validation, and
-extrapolation (test\_c) splits reported below.
+One inversion in the table fixes the coordinate-level reading. The predictive
+latent trained without the wake head carries the highest single-observable lift
+forecast of any state ($\XclJepaNowake$) yet the lowest wake readability
+($\XwakeJepaNowake$), because the forces are held redundantly across the latent
+while the wake is not, the distributed-code signature we return to in
+\S\ref{sec:res_latent_physics}. Among the reference recipes the lift-augmented
+reconstructive autoencoder reads the wake only when it carries the wake head
+($\XwakeFukamiWake$ against $\XwakeFukami$ without it), and the linear basis does
+not reach the wake at all ($\XwakePod$), so no linear projection recovers the
+enstrophy that a supervised nonlinear state does.
+
+\input{sections/tables/table_closure.tex}
+
+\subsection{Why the state stays usable under rollout}
+\label{sec:res_rollout}
+\label{sec:res_controls} % v2.1 alias
+\label{sec:res_horizon} % v2.1 alias
+\label{sec:res_drift} % v2.1 alias
+
+A state that reads the wake at a single instant need not survive a rollout, because
+a probe attached to a drifted latent is queried outside its support. We ask where
+each rolled state goes relative to the training distribution by decomposing its
+departure onto the principal and the near-null directions of the encoded covariance
+(table~\ref{tab:mechanism}). The reconstruction carrying only an anti-collapse term
+is near-isotropic, its covariance condition number close to unity ($\YcondRegAE$),
+and its rollout leaks a tenth of its departure into the near-null directions
+($\YnearnullRegAE$). The supervised states, predictive and objective-free alike,
+are strongly anisotropic, their variance concentrated in a low-rank subspace
+(condition numbers $\YcondJepaWake$ and $\YcondSupOnly$), and their rollouts keep
+their departures inside it ($\YnearnullJepaWake$ and $\YnearnullSupOnly$, against
+the $\YisoNull$ of an isotropic null). Supervision, not the anti-collapse term
+alone, builds the protected subspace: it pins the encoded variance onto the
+observable-aligned directions, and the forward model, having only ever seen states
+there, moves within it. The anti-collapse term on its own drives the latent toward
+isotropy, as an independent adaptation of the same regulariser to biosignals also
+reports \citep{broustail2026}, and it is the supervision that supplies the geometry
+the rollout needs.
+
+What the predictive objective adds is long-horizon stability, and it is the
+multi-step form of the objective that adds it. Trained with a single-step rather
+than a multi-step rollout, the same predictive latent is tied one step out and then
+separates under rollout: by sixteen steps the single-step latent's forecast merit
+has fallen to $\ZmeritSixteenHone$ while the multi-step latent holds
+$\ZmeritSixteenHeight$, its lift forecast closure is higher by
+$\ZclHeight$ against $\ZclHone$, and its on-manifold drift is lower
+($\ZdriftHeight$ against $\ZdriftHone$ at horizon sixteen). The objective-free
+supervised state, which has the readability and the protected subspace but no
+predictive training, is the weakest field forecaster of the supervised group. The
+contribution of the predictive objective is therefore forward rather than
+instantaneous: it keeps the rolled state both in distribution and near the true
+trajectory, which is exactly what a sequential estimator queries.
+
+\input{sections/tables/table_mechanism.tex}
+
+\subsection{What the wall can see}
+\label{sec:res_wall}
+\label{sec:res_observability} % v2.1 alias
+
+At deployment the state must be read from the wall, so we ask how much of each
+latent a sparse set of pressure taps recovers over a window ending at the readout
+instant (table~\ref{tab:recovery}). Two findings organise the answer. First,
+raw-variance recoverability and physics recoverability disagree: the reconstruction
+latent is the most recoverable in state variance ($\WstateFukami$) yet carries the
+least wall-recoverable physics ($\WobsFukami$ in observable closure), while the
+predictive latent carries the most physics ($\WobsJepa$) from a less recoverable
+state ($\WstateJepa$). The wall aligns with many of the reconstruction latent's
+directions, but they are the low-variance ones that do not carry the observables;
+it aligns with fewer of the predictive latent's directions, but those are the ones
+that hold the state. Second, perturbing the predictive state along its principal
+directions and measuring the signal that reaches the pressure head shows the wall
+reading the force and wake-enstrophy directions and blind to the highest-variance
+wake-circulation direction, a ranking unchanged under a fixed-amplitude
+perturbation and so a property of the learned dynamics rather than of the
+normalisation. The wall, in short, reads the force well and the wake circulation
+not at all, which is why the state must be estimated sequentially rather than
+inverted from one frame.
+
+The margin of the coefficient state over a raw high-dimensional field latent is
+real but modest. Its recoverability advantage is $\GateODelta$ in $R^2$, with a
+confidence interval $[\GateODeltalo, \GateODeltahi]$ that clears zero but not the
+pre-registered strong-effect bar of $0.2$. We therefore do not claim a strong-form
+estimability gate; the defensible statement is the clean physics-versus-variance
+ordering above.
+
+\subsubsection{Sensors traded for delays}
+\label{sec:res_delays}
+
+That the wall is blind to the wake circulation at a single instant is a statement
+about one frame, not about the sensor count, and the delay-embedding reading of
+\S\ref{sec:methods_estimator} makes a testable prediction: the circulation the
+instantaneous pressure misses should become recoverable as the pressure is read
+over a longer window. It does. Holding the tap count at eight and lengthening the
+window, the recovery of the wall-blind wake circulation rises from near its
+single-frame value to $\ToneCircNegWThirty$ at a thirty-frame window, a gain of
+$\ToneCircDelta$ with a case-clustered interval $[\ToneCircDeltalo,
+\ToneCircDeltahi]$ that excludes zero, while the force, already visible at one
+instant, barely moves. The delays recover the coordinate the sensors cannot.
+
+Varying the tap count and the window together traces a spatial-for-temporal trade
+(figure~\ref{fig:trade}). A single tap read over a thirty-frame window recovers the
+coefficient state as well as eight taps read at one instant, and intermediate
+combinations of tap count and window meet in between, because the encounter is
+low-dimensional and a state that filled its ambient dimension would not admit the
+trade. The eight-tap, thirty-frame recovery reconciles exactly with the static
+recovery above ($\TbridgeState$), and the delay stride sits at the cache cadence,
+close to the first mutual-information minimum of the tap signals at
+$\TmiTau$ frames.
+
+This trade belongs to the static delay-coordinate reconstruction, and it does not
+transfer to the frozen sequential filter, which needs its eight taps. Rerunning the
+filter with only its own leading taps, and changing nothing else, drives the
+analysis lift below the skill of the encounter mean at every gust strength the
+eight-tap filter tracks (at $|G| = 1$ the single-tap analysis falls by
+$\TtwobKOneDeltaGOne$ in $R^2$ against the eight-tap filter). The rank of the
+innovation, with the process and observation noise held at their calibrated values,
+is what the filter cannot spare: its sensor budget is a calibration constraint, not
+a delay-embedding one, which points at the noise model of \S\ref{sec:disc_limits}
+rather than at fewer sensors.
+
+\input{sections/tables/table_recovery.tex}
 
 \begin{figure}
   \centering
-  \includegraphics[width=\linewidth]{sections/figures/results/fig4_closure_v2p1.pdf}
-  \caption{Representational closure of the predictive latent at $H = 16$ after gust
-  impact, the headline result. (a) Held-out $R^2$ of a fixed linear probe applied to
-  the simulation-encoded latent (no rollout) for each of the five observables, on the
-  in-distribution test set (test\_b, $n = 42$).
-  (b) The wake-enstrophy $R^2$ across families: the predictive latent
-  ($\NumReprWakeJepaTf$) against the reconstructive autoencoder
-  ($\NumReprWakeFukami$) and the linear basis ($\NumReprWakePod$), each at $d = 64$.
-  The wake is the discriminator, and only the predictive latent renders it linearly
-  readable.}
-  \label{fig:fig4_closure}
+  \includegraphics[width=\linewidth]{sections/figures/results/fig_t_trade.pdf}
+  \caption{Sensors traded for delays. (a) Recovery of each observable from eight
+  wall-pressure taps against the length of the pressure window (test\_b); the
+  wall-blind wake circulation rises with the window while the force, visible at one
+  instant, does not. (b) Coefficient-state recovery over the tap-count by
+  window-length grid, with the single-tap, thirty-frame cell and the reference
+  eight-tap, single-frame cell outlined: a long window with few taps matches a short
+  window with many.}
+  \label{fig:trade}
 \end{figure}
 
-The rollout points the same way and is read as confirmatory, not as the headline
-(table~\ref{tab:closure}(b) and figure~\ref{fig:traces}). A matched transformer
-predictor is trained on each family's latents under one protocol, and rolled out
-from the full pre-impact context; probing the wake enstrophy at $H = 16$, the
-forecast $R^2$ is $\NumCloFcstWakeJepaTf$ for the predictive latent, ahead of
-$\NumCloFcstWakeFukami$ for the reconstructive autoencoder and
-$\NumCloFcstWakePod$ for the linear basis. The forecast ordering is the same as the
-representational one but compressed, which is why we lead with the representation:
-the families separate most cleanly at the encoder, and the rollout confirms rather
-than carries the result. The forecast advantage is not statistically separable
-under case-level clustering (\S\ref{sec:res_drift} and
-table~\ref{tab:paired_closure}), so we present it as consistent tracking, not as a
-forecast claim. On the extrapolation set (test\_c, $G = -4$) the predictive
-wake-enstrophy forecast stays the strongest of the three while the integrated
-forces collapse, consistent with the three-dimensional observability boundary of
-\S\ref{sec:flow_physics}.
+\subsection{Tracking the encounter from the wall}
+\label{sec:res_tracking}
 
-The representational wake separation is the numerical core of the
-result. At the independent-case level the effect is positive but not uniform: the
-paired direct-encoding margin (table~\ref{tab:paired_closure}) is
-$\NumPairedWakeRepr$ in wake-enstrophy units with a case-clustered $95\%$ interval
-$[\NumPairedWakeReprlo, \NumPairedWakeReprhi]$, and the per-case slopegraph
-(figure~\ref{fig:case_slopegraph}) gives the predictive latent the lower error on
-seven of the ten held-out cases. Across the full ten-test closure matrix the
-pre-registered encounter-level Holm family retains the wake-enstrophy advantage,
-together with the lift and the negative circulation; the stricter case-level Holm
-family is underpowered on ten cases and is not used to promote the secondary
-observables. We therefore state the primary claim as a pre-specified paired
-wake-enstrophy result with the case spread shown explicitly, while the forecast rows
-and the non-primary observables remain descriptive. All five observables are reported in both modes, not
-a selected subset, and the ordering is not uniform: the predictive latent leads on
-the spatially distributed wake observables (enstrophy and negative circulation),
-which is precisely the paper's claim. This separation is confirmed by the
-mechanistic evidence of \S\ref{sec:res_drift} (the drift departure spectrum and the
-no-gust limit-cycle topology), where the predictive and reconstructive families
-separate consistently.
+We now run the estimator. It is initialised from wall pressure alone before impact
+and corrected at every frame through the encounter, and it never sees the vorticity
+field. Figure~\ref{fig:hero} follows representative held-out encounters, the true
+lift and wake enstrophy against the open-loop rollout with no correction, the
+sliding-window pressure-only regression with no dynamics, and the filter analysis.
+The open-loop rollout tracks the pre-impact baseline and then loses the encounter,
+as a forecast with no measurement must; the pressure-only regression follows the
+force while its window is representative and goes stale through the transient; the
+filter follows the load through impact and into relaxation. This realises, on the
+wake-supervised coefficient state, the online-estimation pathway the
+extreme-aerodynamic control literature has named but not closed
+\citep{fukami2024control,mousavi2025,eldredge2025guide}: the state a real-time
+controller would need is recovered from sparse wall pressure and advanced by the
+learned dynamics, without ever measuring the field. How far into the gust that
+recovery holds is the operating envelope of \S\ref{sec:res_envelope}.
 
 \begin{figure}
   \centering
-  \includegraphics[width=0.7\linewidth]{sections/figures/results/fig_case_slopegraph.pdf}
-  \caption{Per-case wake-enstrophy closure, the honest case-level view of the
-  headline result. Each line is one held-out test\_b case (ten in all), connecting
-  the reconstructive autoencoder's per-case mean absolute error (left) to the
-  predictive latent's (right) at $H = 16$; a downward line favours the predictive
-  latent. The predictive latent gives the lower error on seven of the ten cases
-  (median per-case improvement positive, case-level signed-rank significant), with
-  three cases favouring the reconstructive baseline: the advantage is real at the
-  case level but not uniform, which is why the case-level multiplicity correction is
-  not passed and the claim is stated at encounter level with this spread shown.}
-  \label{fig:case_slopegraph}
+  \includegraphics[width=\linewidth]{sections/figures/results/fig_hero_traces_v3.pdf}
+  \caption{The estimator tracks the encounter from wall pressure alone. Columns are
+  representative held-out encounters at $|G| = 1$, $1.5$ and $2$; rows are the lift
+  coefficient and the wake enstrophy. Each panel shows the DNS truth, the filter
+  analysis with its $\pm 2\sigma$ ensemble band, the pressure-only regression, and
+  the open-loop rollout; the vertical line marks impact. The filter follows the load
+  through impact and relaxation where the open-loop forecast loses it and the
+  pressure-only regression goes stale.}
+  \label{fig:hero}
 \end{figure}
 
-\begin{table}
-  \centering
-  \caption{Parametric (model-free) floor at $H = 16$ after impact. A
-  cross-validated ridge regressor maps the gust parameters $\cvec = (G,D,Y)$
-  directly to each observable, with no latent input, fit on the training cases and
-  read out on the in-distribution test split under the closure protocol
-  ($R^2 = 1 - \mathrm{SSE}/\mathrm{SST}$ about the held-out mean). This is the
-  model-free baseline: the predictive latent beating it (last column, the
-  representational closure of table~\ref{tab:closure}(a)) shows the representation
-  carries flow state the parameters alone do not supply. On wake enstrophy the
-  floor is negative ($R^2 = \NumFloorWake$): the gust parameters alone do worse than
-  the held-out mean sixteen frames after impact, because the wake is then governed
-  by the unfolding dynamics rather than by the release condition, whereas the
-  predictive latent reads it at $\NumReprWakeJepaTf$. On the forces, which track the
-  gust forcing more directly, the floor is high.
-  }
-  \label{tab:parametric_floor}
-  \small
-  \fittab{\begin{tabular}{l c c}
-    \toprule
-    Observable & parametric floor (test\_b $R^2$) & predictive repr.\ (test\_b $R^2$) \\
-    \midrule
-    $C_L$          & \NumFloorCL      & \NumCloReprCLJepaTf \\
-    $C_D$          & \NumFloorCD      & \NumCloReprCDJepaTf \\
-    wake-enstrophy & \NumFloorWake    & \NumReprWakeJepaTf \\
-    circ.\ pos.\   & \NumFloorCircPos & \NumCloReprCircPosJepaTf \\
-    circ.\ neg.\   & \NumFloorCircNeg & \NumCloReprCircNegJepaTf \\
-    \bottomrule
-  \end{tabular}}
-\end{table}
+\subsection{The gust-intensity operating envelope}
+\label{sec:res_envelope}
 
-The parametric floor (table~\ref{tab:parametric_floor}) confirms that the wake
-closure is not something the gust parameters supply on their own. Mapping
-$\cvec = (G,D,Y)$ to each observable at $H = 16$ with cross-validated regressors,
-the floor on wake enstrophy is negative ($R^2 = \NumFloorWake$ for the linear
-regressor, $\NumParamFloorWakeKrr$ for the nonlinear one): the parameters alone do
-worse than predicting the held-out mean, while the predictive latent reads the wake
-at $\NumReprWakeJepaTf$, clearing the floor by roughly $0.9$. The floor is by
-construction strong on the observables that track the gust forcing directly, the
-lift ($\NumFloorCL$) and the negative circulation ($\NumFloorCircNeg$): the
-predictive advantage is specific to the spatially distributed wake, not uniform
-across observables, and this is the paper's central distinction between the
-integrated forces, which the release condition largely fixes, and the wake, which
-it does not. The wake claim therefore rests on the representational closure
-(table~\ref{tab:closure}(a)), the per-encounter paired test
-(table~\ref{tab:paired_closure}), and the drift mechanism (\S\ref{sec:res_drift}),
-with the parametric floor establishing that the gust parameters do not supply the
-wake state the latent encodes.
+A reduced state earns its place at deployment only if it can be followed from the
+sensors that are present, and the wall pressure a small vehicle can carry does not,
+at a single instant, fix the wake it leaves behind (\S\ref{sec:res_wall}). The
+question is therefore not whether the state is readable but how far into the gust an
+estimator that sees only the wall can track it. The sequential filter reaches much
+further than the single-frame inverse. While the encounter stays mild, the static
+single-frame recovery of the lift holds, with a held-out $R^2$ of $\VrecCLGOne$ at
+$|G| = 1$ and $\VrecCLGOneHalf$ at $|G| = 1.5$; as the gust strengthens it
+collapses, falling below the skill of predicting the encounter mean by a gust ratio
+of three ($\VrecCLGThree$) and remaining there at the $|G| = 4$ boundary
+($\VrecCLGFour$), because a single pressure frame cannot see the reorganised wake a
+strong gust deposits. Reading the same taps through the learned dynamics, the filter
+still follows the load across those encounters, from $\VfiltCLGOne$ at $|G| = 1$ to
+$\VfiltCLGThree$ at a ratio of three and $\VfiltCLGFour$ at the boundary
+(table~\ref{tab:envelope}, figure~\ref{fig:envelope}). The open-loop forecast never
+tracks the load at any gust strength, so it is the correction step, not the forward
+model, that recovers the state, and it does so from pressure the visibility analysis
+found blind to the wake circulation: the sequential dynamics carry the part of the
+state the wall cannot see at an instant.
 
-\subsection{Objective, architecture, and auxiliary-head controls}
-\label{sec:res_controls}
+\input{sections/tables/table_envelope.tex}
 
-The controls in this section separate three ingredients that are entangled in the
-full model, the wake-observable supervision, the anti-collapse geometry, and the
-predictive objective, so we read them as an attribution experiment rather than as
-additional baselines to be beaten. The representational result of
-\S\ref{sec:res_closure} is established, but the
-predictive latent \emph{family} as configured renders the wake readable for reasons
-we have not yet separated: the predictive encoder differs from the reconstructive
-baseline not only in its training objective but also in its CNN$+$ViT architecture
-and its $80$-dimensional wake supervision. Because the architecture and the wake
-supervision are confounds, we isolate the cause here, before turning to why the
-rollout stays on the manifold (\S\ref{sec:res_drift}). The controls in
-table~\ref{tab:controls_2x2} cross objective and architecture, run directly on the
-same models the paper reports and scored at the representational endpoint: a
-$2 \times 2$ crossing of objective \{predictive, reconstructive\} with architecture
-\{CNN, CNN$+$ViT\} at matched $d = 64$, with the auxiliary heads matched across all
-four cells, together with a predictive variant from which the wake head is removed.
-The question is whether the predictive objective renders the wake readable
-more than the reconstructive one once the architecture and the wake supervision are
-held in common. The fixed-test crossing and the case-disjoint cross-validation that
-follows answer it together, and the answer is more nuanced than the fixed test
-alone suggests.
+What weakens with gust strength is not the tracking but the filter's own account of
+its uncertainty. The divergence rate climbs from none at $|G| = 1$ to four
+encounters in five at the boundary, and the mean normalised innovation squared from
+near unity in the undisturbed limit ($\VnisGZero$) to nearly twenty at $|G| = 4$
+($\VnisGFour$), crossing the half-divergence mark near a ratio of $\VdivThreshDOne$
+for the compact cores and near $\VdivThreshDOneHalf$ for the widest. The ensemble
+collapses while the analysis mean still follows the load, so the filter is
+under-dispersed rather than mistracking. We read this as the signature of a missing
+noise model: the innovations are correlated in time rather than white, and the
+remedy is a calibrated process and observation covariance rather than the covariance
+inflation we deliberately withheld (\S\ref{sec:disc_limits}).
 
-\begin{table}
-  \centering
-  \caption{Objective $\times$ architecture controls on the fixed test split, scored
-  at the representational endpoint. Held-out
-  representational wake-enstrophy $R^2$ at $H = 16$ (test\_b, fixed linear probe on
-  the simulation-encoded latent, seed mean) for the four cells crossing
-  \{predictive, reconstructive\} with \{CNN, CNN$+$ViT\} at $d = 64$, with the
-  auxiliary heads (the instantaneous lift plus the $80$-dimensional wake head)
-  matched across all four cells, plus a predictive variant with the wake head
-  removed. On the fixed test set the predictive cells read the wake at both
-  architectures while both reconstructive cells score low, and removing the wake
-  head collapses readability to the floor; the CNN and CNN$+$ViT predictive columns
-  do not separate, so the ViT is not the driver. The reconstructive gap does not
-  survive case-disjoint retraining (text): the matched reconstructive control reads
-  the wake comparably under cross-validation, so the readability is attributed to
-  the wake supervision, not to the objective.}
-  \label{tab:controls_2x2}
-  \small
-  \fittab{\begin{tabular}{l l l c}
-    \toprule
-    Objective & Encoder & Aux.\ heads & repr.\ wake-enst.\ $R^2$ \\
-    \midrule
-    predictive     & CNN$+$ViT & lift $+$ wake & $\mathbf{\NumReprWakeJepaTf}$ \\
-    predictive     & CNN       & lift $+$ wake & $\NumReprWakeCtrlPredCnn$ \\
-    reconstructive & CNN$+$ViT & lift $+$ wake & $\NumReprWakeCtrlReconCnnVit$ \\
-    reconstructive & CNN       & lift $+$ wake & $\NumReprWakeCtrlReconCnn$ \\
-    \midrule
-    predictive     & CNN$+$ViT & lift only     & $\NumReprWakeCtrlPredVitNowake$ \\
-    \bottomrule
-  \end{tabular}}
-\end{table}
+The envelope is not symmetric in the sign of the gust, and the asymmetry survives in
+the linear basis, so it belongs to the flow rather than to the representation
+(figure~\ref{fig:envelope}(b)). The physically positive gusts, which roll up the
+larger and longer-lived leading-edge vortex (\S\ref{sec:res_latent_physics}), leave
+the wider usable envelope. Sampling the $|G| = 4$ boundary at both signs
+(\S\ref{sec:flow_observables}) is what lets this asymmetry be measured rather than
+assumed.
 
-The controls (table~\ref{tab:controls_2x2}) give a two-part answer on the fixed
-test set. First, the predictive cells read the wake at \emph{both} architectures
-with the auxiliary heads matched ($\NumReprWakeJepaTf$ at CNN$+$ViT,
-$\NumReprWakeCtrlPredCnn$ at CNN), while both reconstructive cells score low
-($\NumReprWakeCtrlReconCnnVit$ at CNN$+$ViT, $\NumReprWakeCtrlReconCnn$ at CNN), and
-the two predictive columns do not separate, so the ViT is not the driver. Second,
-the wake-observable supervision is necessary: the predictive model with the wake
-head removed collapses to $\NumReprWakeCtrlPredVitNowake$, at the floor.
-
-The fixed-test reconstructive gap does not survive retraining, and we say so
-plainly. Under a five-fold case-disjoint cross-validation, in which every fold
-retrains both the predictive encoder and the matched reconstructive control and
-reads each held-out case from an encoder that never saw it, the matched
-reconstructive control reads the wake \emph{comparably} to the predictive latent:
-its held-out wake-enstrophy $R^2$ has median $\NumCvFullReconMedian$ against the
-predictive $\NumCvFullJepaMedian$, with the predictive latent stable across folds
-($\NumCvFullJepaMin$ to $\NumCvFullJepaMax$) while the reconstructive control is
-erratic ($\NumCvFullReconMin$ to $\NumCvFullReconMax$). This is consistent with the
-wide fixed-test interval on the reconstructive cell ($\NumReprWakeCtrlReconCnnVit$
-with a $95\%$ CI of $[\NumReprWakeCtrlReconCnnVitlo, \NumReprWakeCtrlReconCnnVithi]$):
-the clean fixed-test margin was a favourable draw, not a robust separation. We
-therefore do not attribute the instantaneous wake readability to the predictive
-objective over the reconstructive one. The robust statement at the representation
-level is narrower: the predictive latent reads the wake \emph{consistently}, where
-the matched reconstructive control reads it only erratically.
-
-The supervision-only control identifies the source of the readability and isolates
-what the predictive objective does add. An encoder trained on the lift and wake
-heads alone, with the predictive objective removed entirely (its weight set to zero)
-but the anti-collapse term retained, reads the wake \emph{at least as} well as the
-full predictive model ($R^2 = \NumReprWakeSupOnly$ under a readout-frame probe that
-reproduces $\NumReprWakeJepaReadout$ for the predictive model), so the
-representational readability is supplied by the wake-observable supervision, which
-every wake-supervised cell carries, not by the predictive objective. What the
-predictive objective robustly adds is dynamical. Rolled forward through a matched
-predictor, the supervision-only latent forecasts the wake markedly worse than the
-predictive latent ($R^2 = \NumFcstWakeSupOnly$ against $\NumFcstWakeJepaReadout$,
-both under the readout-frame protocol of the representational endpoint rather than
-the full pre-impact-context protocol of table~\ref{tab:closure}(b), which is why the
-predictive value here differs from the $\NumCloFcstWakeJepaTf$ reported there), and
-the reconstructive families' wake forecast collapses
-(table~\ref{tab:closure}(b)). The honest statement is therefore a wake-supervised
-\emph{predictive} latent whose advantage is dynamical, not a larger instantaneous
-margin: the supervision makes the wake readable, and among objectives the predictive
-one is distinguished by reading the wake consistently, forecasting it from its own
-rollout, and keeping that rollout on the encoded manifold (\S\ref{sec:res_drift}).
-
-One further control closes the attribution. If reconstruction kept the supervised
-wake readability low only for want of an isotropised geometry, then adding the
-predictive model's anti-collapse term to the reconstructive autoencoder should
-restore it. It does not. A reconstructive autoencoder carrying the matched wake head
-\emph{and} the same SIGReg anti-collapse term reads the wake at
-$\NumReprWakeRegaeCnn$ (CNN) and $\NumReprWakeRegaeCnnVit$ (CNN$+$ViT), within noise
-of the unregularised reconstructive control and far below the supervision-only
-($\NumReprWakeSupOnly$) and predictive ($\NumReprWakeJepaTf$) band, and it stays as
-seed-variable as that control (the CNN$+$ViT seeds span negative to $0.8$). The
-anti-collapse regulariser therefore supplies the on-manifold geometry of
-\S\ref{sec:res_drift}, not the wake readability; it is the reconstruction
-\emph{objective} that leaves the supervised readability erratic, where the
-predictive objective reads it consistently.
-
-The latent dimension is the remaining control. The representational wake closure
-holds on a plateau from $d = 64$ down to $d = 16$ ($R^2 = \NumCloReprWakeJepaTfDSixtyfour$,
-$\NumCloReprWakeJepaTfDThirtytwo$, and $\NumCloReprWakeJepaTfDSixteen$ at $d = 64$, $32$,
-and $16$) and falls off below, so the reported $d = 64$ sits on the plateau and the
-wake is not recoverable at the smallest dimensions on this dataset. The reported
-$H = 16$ readout is likewise not a cherry-picked endpoint: across
-$H \in \{4, 8, 16, 32\}$ the predictive representational wake closure stays on a
-plateau ($R^2 = \NumHorizonWakeJepaMin$ to $\NumHorizonWakeJepaMax$) while neither
-no-wake established baseline (the reconstructive autoencoder or POD) exceeds
-$\NumHorizonWakeBaselineMax$ at any horizon, so the predictive
-latent leads the wake at every horizon tested. The latent code
-is correspondingly distributed rather than concentrated in a few coordinates, which
-\S\ref{sec:res_code} makes quantitative.
-
-\subsection{Why the latent stays on the manifold: drift and topology}
-\label{sec:res_horizon}
-\label{sec:res_drift}
-
-The controls attribute the wake advantage to the predictive objective trained
-with wake supervision, and the representation is where that advantage is
-established. A separate question is whether the latent is usable under rollout,
-since a planner queries a forward model at the states its own rollout reaches. The
-answer is geometric: the predictive latent stays on its encoded manifold while the
-reconstructive one leaves it, which we establish with two coordinate-free
-diagnostics, the manifold departure of the rollout and the topology of the encoded
-encounter.
-
-The predictive rollout stays on the encoded manifold. Two drift measures order the
-families oppositely, and the reconciliation is the mechanism
-(table~\ref{tab:latent_drift}). By relative Euclidean deviation from the encoded
-trajectory the reconstructive rollout is the \emph{least} drifting
-($\DriftRelLtwoFukami$ against $\DriftRelLtwoJepa$ for the predictive at $H = 16$),
-yet by Mahalanobis distance to the training distribution it is markedly farther by
-that metric ($\DriftMahaFukami$ against $\DriftMahaJepa$ for the predictive, which
-stays in distribution). Both are true because the reconstructive rollout departs
-along directions of negligible encoded variance: a fraction $\DriftSpecNearNullFukami$
-of its Mahalanobis departure lies in the near-null directions of the encoded
-covariance, where a small Euclidean step is a large Mahalanobis one, whereas the
-predictive rollout wanders within the broad isotropised cloud its anti-collapse
-regulariser maintains. The departure spectrum, not the ratio magnitude, is the
-robust statement: the reconstructive rollout exits the manifold along the directions
-the decoder never constrained. Two metric-independent diagnostics, the
-$k$-nearest-neighbour distance and the local-PCA residual to the training cloud,
-agree with the Euclidean ordering that the reconstructive rollout drifts the least,
-confirming that the Mahalanobis separation is a direction effect rather than a larger
-physical departure. Ratios below one (the predictive and linear rollouts)
-mean the rollout is more in-distribution than the encoded held-out latents, the
-predictor mean-reverting toward the training cloud. This is the property a forward
-model needs, and it is why the qualitative rollout of figure~\ref{fig:traces} tracks
-the encounter through impact before drifting only at long times.
-
-The objective-free supervision-only latent locates this property precisely. Its
-rollout is the most in-distribution of the families (Mahalanobis $\DriftMahaSupOnly$,
-with no near-null departure, $\DriftSpecNearNullSupOnly$), so staying on the encoded
-manifold is supplied by the anti-collapse regulariser that the predictive and
-supervision-only latents share, not by the predictive objective on its own. What the
-predictive objective adds is staying close to the true trajectory: its
-relative-$\ell_2$ drift ($\DriftRelLtwoJepa$) is below the supervision-only latent's
-($\DriftRelLtwoSupOnly$), consistent with the better wake forecast of
-\S\ref{sec:res_controls}. The reconstructive rollout, which carries no anti-collapse
-term, is the one that leaves the manifold.
+The boundary sits at a gust ratio of three, inside the training range, so it marks a
+limit of what the mid-plane pressure can observe and the filter assimilate, not a
+gap in training coverage. Read through delay coordinates the two limits are one. The
+filter follows the load where the single frame fails because it reconstructs the
+state from a window of pressure rather than an instant
+(\S\ref{sec:methods_estimator}), and it loses its calibration where the strengthening
+gust drives the interaction three-dimensional and the encounter's effective
+dimension outgrows what a fixed tap count and delay window can embed
+(\S\ref{sec:res_wall}). Only at $|G| = 4$ does the mid-plane representation meet the
+genuine three-dimensional observability boundary the field itself reaches
+(\S\ref{sec:flow_physics}), now seen from the filter. This envelope, not the
+single-instant readability, is what a wall-estimable reduced state is for.
 
 \begin{figure}
   \centering
-  \includegraphics[width=0.7\linewidth]{sections/figures/results/fig_horizon_sweep_v2p1.pdf}
-  \caption{Relative drift of the predictive rollout on test\_b versus forecast
-  horizon $H$, measured as the deviation of the rolled latent from the
-  simulation-encoded latent normalised by the encoded-latent scale,
-  $\lVert \widehat{\zvec}_{\text{rollout}} - \zvec_{\text{DNS}}\rVert /
-  \lVert \zvec_{\text{DNS}}\rVert$. The transformer predictor (tf-no-c)
-  drifts gradually and stays bounded. This relative
-  deviation understates the family separation, which is the Mahalanobis
-  manifold-departure of table~\ref{tab:latent_drift}: the reconstructive rollout
-  exits along low-variance directions, small in this norm but large in Mahalanobis.}
-  \label{fig:drift_uncond}
+  \includegraphics[width=\linewidth]{sections/figures/results/fig_envelope_v3.pdf}
+  \caption{The gust-intensity operating envelope. (a) Median analysis lift closure
+  ($R^2$, impact window) against gust strength for the frozen filter, the static
+  single-frame recovery, and the truth-initialised open-loop forecast, with the
+  filter divergence rate as the strip beneath; the shaded band marks closure worse
+  than predicting the encounter mean, and the open-loop forecast lies off the scale
+  below it. (b) The same filter closure resolved by the physical sign of the gust,
+  showing the wider usable envelope of the positive gusts.}
+  \label{fig:envelope}
 \end{figure}
 
-The departure spectrum points to a single geometric cause, established here two
-ways that do not depend on the latent coordinates: the Mahalanobis distance that
-shows whether the rollout leaves the training manifold, and the topology that shows
-whether the encoded encounter is a single cycle.
+\subsection{The physics the latent state holds}
+\label{sec:res_latent_physics}
+\label{sec:res_flow_physics} % v2.1 alias
+\label{sec:res_code} % v2.1 alias
+\label{sec:res_param_phase} % v2.1 alias
+\label{sec:res_physical} % v2.1 alias
 
-\begin{table}
-  \centering
-  \caption{Latent-drift diagnostic on test\_b at $H = 16$, two measures. The
-  relative Euclidean deviation of the rollout from the encoded trajectory and the
-  Mahalanobis distance of the rolled-out latent to the training distribution order
-  the families oppositely (Fukami least-drifting by the former, an order of
-  magnitude out by the latter); the near-null fraction is the share of the
-  Mahalanobis departure lying in the near-zero-variance directions of the encoded
-  covariance, which reconciles the two. The Mahalanobis magnitude is reported at the
-  minimally-regularised covariance used here; under a shrinkage estimator the ratios
-  collapse toward one, so the robust statement is the departure direction (the
-  near-null fraction), not the ratio size. The objective-free supervision-only
-  latent is the most in-distribution of all, which locates the on-manifold property
-  in the anti-collapse regulariser the predictive and supervision-only latents
-  share, not in the predictive objective alone.}
-  \label{tab:latent_drift}
-  \small
-  \fittab{\begin{tabular}{l c c c}
-    \toprule
-    Family & rel.\ $\ell_2$ drift & Mahalanobis dist. & near-null frac. \\
-    \midrule
-    Fukami           & \DriftRelLtwoFukami & \textbf{\DriftMahaFukami} & \DriftSpecNearNullFukami \\
-    JEPA (tf)        & \DriftRelLtwoJepa   & \DriftMahaJepa            & \DriftSpecNearNullJepa \\
-    supervision-only & \DriftRelLtwoSupOnly & \DriftMahaSupOnly        & \DriftSpecNearNullSupOnly \\
-    POD              & \DriftRelLtwoPod    & \DriftMahaPod             & --- \\
-    $\beta$-VAE      & \DriftRelLtwoBvae   & \DriftMahaBvae            & --- \\
-    \bottomrule
-  \end{tabular}}
-\end{table}
+The estimation results rest on a representation, and this subsection reads what the
+representation holds in measures that do not depend on the filter. The predictive
+latent carries the shedding clock. Fitting a linear operator to the encoded
+limit-cycle trajectory by dynamic mode decomposition places a marginally stable
+oscillatory mode at Strouhal number $\DmdStJepa$, against the measured shedding line,
+with modulus $\DmdLamJepa$ just below unity. The Fukami-lineage autoencoders lose
+that clock: their leading latent mode is heavily damped and off-frequency
+($\DmdStFukami$ at modulus $\DmdLamFukami$ without the wake head, $\DmdStFukamiWake$
+at $\DmdLamFukamiWake$ with it). The structured states keep it, whether their
+structure comes from prediction, from supervision, from anti-collapse, or from a
+linear basis: the objective-free supervised latent, the anti-collapse
+reconstruction, and the proper orthogonal basis all place the shedding mode near the
+measured frequency on a near-unit-modulus orbit ($\DmdStSupOnly$, $\DmdStRegAE$ and
+$\DmdStPod$ at moduli $\DmdLamSupOnly$, $\DmdLamRegAE$ and $\DmdLamPod$). It is the
+Fukami-lineage reconstruction, not reconstruction in general, that fails to hold the
+shedding spectrum.
 
-The mechanism behind the closure gap follows. A probe attached to a drifted
-rollout is queried outside the support it was fit on, so its output degrades for
-reasons unrelated to the predictor's one-step quality. A reconstruction objective
-places latent codes wherever the decoder finds convenient and does not constrain
-the geometry to be predictable in time, leaving the near-null directions the
-rollout then exits along. The anti-collapse regulariser supplies the isotropised
-in-distribution geometry shared by the predictive and supervision-only latents, and
-predictive training then makes that state dynamically trackable: the predictive
-rollout stays closer to the encoded simulation trajectory than the objective-free
-supervised rollout, while the reconstructive rollout, lacking the regulariser,
-leaves the support along low-variance directions. This
-is a representation property rather than a probe artefact: no probe in the
-evaluated class recovers the wake from the reconstructive rollout once it has left
-the manifold the probe was fit on, while the same class reads it from the
-predictive rollout, so the reconstructive failure is the manifold departure and not
-an inaccurate predictor step.
+The wake is a collective code rather than a labelled coordinate. The gap between the
+wake readability of the full predictive latent and that of its single most
+informative coordinate is $\WcGapJepa$, and $\WcGapSupOnly$ for the objective-free
+supervised state, against $\WcGapFukamiWake$ and $\WcGapPod$ for the reconstructive
+and linear baselines, so no single predictive coordinate carries the wake and the
+information is spread across many. The dimension at which each family first reaches a
+wake $R^2$ of one half makes the same point from the other side: the predictive and
+the wake-headed reconstructive states need eight latent dimensions
+($\MinDJepa$ each), while the linear basis never reaches it at any dimension we
+tested. The headline dimension of thirty-two sits on a plateau rather than a cliff,
+the wake readability moving only $\PlateauSpread$ across sixteen, thirty-two and
+sixty-four ($\PlateauWakeDThirtyTwo$ at thirty-two), so the choice of dimension is a
+robustness statement and not a tuned operating point.
 
-The manifold departure is a rollout property; the second diagnostic asks whether
-the \emph{encoded} encounter has the topology of a single cycle. The undisturbed
-shedding traces a limit cycle, and a gust encounter departs it, executes the
-LEV-formation and shedding excursion, and relaxes back toward it
-\citep{smith2024}. We characterise the cycle with persistent homology, counting the
-significant one-dimensional generators ($H_1$) of a Vietoris--Rips filtration
-\citep{smith2024} on each encoded latent trajectory. The metric matters here.
-In raw latent coordinates the reconstructive encoding fragments a
-gusted encounter into several generators where the predictive encoding shows one,
-but the two encodings have very different per-coordinate scales by construction (the
-predictive latent is whitened toward isotropy by its anti-collapse regulariser, the
-reconstructive latent is not), and removing that anisotropic scale with a per-family
-whitening collapses the difference: under the whitened metric both families read a
-gusted encounter as essentially a single cycle (median $\TopoHoneWhtMedJepa$ and
-$\TopoHoneWhtMedFukami$ generators). The gusted-encounter fragmentation is therefore
-a property of the metric, not of the topology, and we read no topological
-difference into the gusted encounter.
+The parametric manifold coheres with the release parameters where the training data
+resolve them. An impact-frame probe of the predictive latent recovers the gust
+strength and the core diameter well ($\ProbeGJepa$ and $\ProbeDJepa$ on test\_b),
+which is the atlas of figure~\ref{fig:atlas} coloured by parameter. The wall-normal
+offset, unreadable at the linear-probe level in earlier work, becomes weakly readable
+here ($\ProbeYJepa$ linearly and $\ProbeYkrrJepa$ with a nonlinear probe), plausibly
+because the additional cases sample it more densely near the training centre; we note
+this rather than lean on it, since the offset remains the least resolved parameter
+(\S\ref{sec:flow_observables}).
 
-What survives the whitening is the cleanest control, the undisturbed no-gust limit
-cycle (figure~\ref{fig:persistence}). Even after per-family whitening the
-reconstructive encoding fragments the clean shedding cycle into several generators
-(median $\TopoBaseWhtMedFukami$) while the predictive encoding keeps it as a single
-loop (median $\TopoBaseWhtMedJepa$, as does the linear basis). The reconstructive
-encoding cannot represent even the undisturbed limit cycle coherently, which is an
-encoding property, distinct from the rollout manifold departure above and computed
-on the simulation-encoded latents.
-\begin{figure}
-  \centering
-  \includegraphics[width=0.98\linewidth]{sections/figures/results/fig_persistence_v2p1.pdf}
-  \caption{Persistent homology of the encoded no-gust limit cycle on test\_b, under
-  the per-family whitened metric that removes anisotropic coordinate scale. Left and
-  centre: representative Vietoris--Rips $H_1$ persistence diagrams of the encoded
-  predictive and reconstructive latents; coloured points are significant generators
-  (lifetime above the dotted noise floor) and grey points are noise. Right: the
-  significant-$H_1$ generator count over the undisturbed shedding periods. The
-  predictive encoding is a single clean loop (median $\TopoBaseWhtMedJepa$) while
-  the reconstructive encoding fragments (median $\TopoBaseWhtMedFukami$); the gusted
-  fragmentation seen in raw coordinates does not survive the whitening and is not
-  claimed.}
-  \label{fig:persistence}
-\end{figure}
-
-\subsection{Flow physics of the encounter and its latent image}
-\label{sec:res_flow_physics}
-\label{sec:res_latent_physics} % v3 alias; becomes 4.6 in the restructure
-
-The closure and mechanism results are representational; this subsection reports
-what the analysis says about the flow itself, in measures that do not depend on any
-learned model, and where the predictive latent inherits those measures. Three
-results stand.
-
-First, the latent dynamics carry the shedding spectrum. Fitting a linear operator
-to the encoded limit-cycle trajectory (dynamic mode decomposition) recovers a
-leading oscillatory eigenvalue at Strouhal number $\SpecDmdStJepaTf$ in the
-predictive latent, against a measured shedding line at $\NumUndistSt$ in the
-undisturbed lift spectrum, with modulus $\SpecDmdModJepaTf$ (bootstrap CI
-$[\SpecDmdModJepaTfCIlo, \SpecDmdModJepaTfCIhi]$, consistent with a marginally
-stable orbit); the
-linear basis recovers the same frequency ($\SpecDmdStPod$) and the reconstructive
-latent is damped and off-frequency ($\SpecDmdStFukami$). Linearising the learned
-predictor about the orbit gives a leading multiplier of modulus
-$\SpecFloqMod$ (bootstrap CI $[\SpecFloqModCIlo, \SpecFloqModCIhi]$), which sits
-just above one, so the learned orbit is very weakly amplifying rather than exactly
-neutral; we report it as a learned delay-map multiplier, not a physical Floquet
-multiplier of the simulation. The learned
-dynamics are not, however, a linear operator in disguise: rolling a best-fit linear
-operator on the linear-basis coordinates (dynamic mode decomposition as a
-forecaster) gives a wake-enstrophy forecast $R^2$ of $\ForecastWakePodDmd$, far
-below the learned predictor's $\NumCloFcstWakeJepaTf$ on the same observable, a
-margin of $\ForecastWakeJepaMinusDmd$. The predictive latent therefore preserves
-the shedding spectrum that a linear basis also carries, while its nonlinear
-dynamics forecast the gusted wake that a linear operator cannot.
+A spatially resolved latent decodes the vorticity field more sharply than this
+coefficient state, but it is of far higher dimension than the wall measurement and
+so is not recoverable from sparse pressure. That decodability-versus-estimability
+trade is the reason the coefficient state, not the field-resolved latent, is the
+object this paper estimates; we take it up in \S\ref{sec:disc_decode} and quantify
+its cost in Appendix~\ref{app:suppfigs}.
 
 \begin{figure}
   \centering
-  \includegraphics[width=\linewidth]{sections/figures/results/fig_latent_spectrum_v2p1.pdf}
-  \caption{The latent dynamics carry the shedding spectrum but are not a linear
-  operator. Left: dynamic-mode-decomposition eigenvalues of the encoded
-  limit-cycle trajectory in the complex plane, by family, against the unit circle
-  and the measured shedding-frequency ray; the predictive (JEPA) and linear (POD)
-  latents place a marginally stable oscillatory pair at the shedding Strouhal
-  number ($\SpecDmdStJepaTf$ and $\SpecDmdStPod$, moduli $\SpecDmdModJepaTf$ and
-  $\SpecDmdModPod$) while the reconstructive (Fukami) pair is damped and
-  off-frequency ($\SpecDmdStFukami$). Right: the wake-enstrophy forecast skill of a
-  best-fit linear operator on the linear basis (dynamic mode decomposition as a
-  forecaster, $\ForecastWakePodDmd$) against the learned predictor
-  ($\NumCloFcstWakeJepaTf$), a margin of $\ForecastWakeJepaMinusDmd$.}
-  \label{fig:spectrum}
-\end{figure}
-
-Second, the wake response scales with gust strength. The peak large-scale
-wake-enstrophy excursion grows monotonically with $|G|$, a trend that is robust to
-the scale band (Spearman $\NumEfourWakeGtrendSigmaEfive$ at $\sigma/c = 0.05$,
-$\NumEfourWakeGtrendSigmaEthree$ and $\NumEfourWakeGtrendSigmaEone$ at the finer
-bands). The leading-edge vortex circulation budget shows a gust-sign asymmetry:
-positive gusts produce a larger and longer-lived leading-edge vortex than negative
-gusts at matched $|G|$, with a later circulation detachment (paired peak-circulation
-difference $\NumPfourGsignPeakGammaDiff$), quantifying the split-and-merge
-interaction the lineage describes qualitatively. The peak lift excursion and the
-peak vortex circulation are monotonically associated across the envelope (Spearman
-$\NumPfourGPfourSpearman$), reported as a correlation and not an impulse-theorem
-identity; the linear coefficient is weaker
-(Pearson $\NumPfourGPfourPearson$, Appendix~\ref{app:reg}).
-
-Third, the gust resets the shedding phase. Within a case the encounters share gust
-parameters and differ only in release instant, so consecutive releases sample
-shifted shedding phases; the undisturbed cadence is reproduced to within a few
-hundredths of a radian, but any gust of $|G| \ge 0.25$ decorrelates the
-shedding phase between releases, and the mean phase step drifts monotonically with
-gust strength. The encounter does not preserve the pre-impact clock, it resets it,
-which is why a fixed-cadence release campaign undersamples the impact phase
-(Appendix~\ref{app:reg}); we report the phase response within that measured
-coverage and treat the impact phase as a sampled rather than a controlled variable.
-
-\subsection{The latent code is distributed}
-\label{sec:res_code}
-
-The capacity ladder of \S\ref{sec:res_controls} already indicated that the wake is
-not held in a few latent coordinates. Two measures make this quantitative. The
-wake forecast is a collective code: the gap between the wake readability of the
-full latent and that of its single most informative coordinate is
-$\NumPfiveCollectiveGapJepa$ for the predictive latent, against
-$\NumPfiveCollectiveGapFukami$ and $\NumPfiveCollectiveGapPod$ for the
-reconstructive and linear baselines, so no single predictive coordinate carries the
-wake and the information is spread across many. The energy-information curve agrees:
-the predictive latent needs about $\NumPfiveEnergyKneeJepa$ leading principal
-components to reach its wake skill, where the reconstructive latent saturates at
-$\NumPfiveEnergyKneeFukami$ and the linear basis at $\NumPfiveEnergyKneePod$. The
-distributed code is the latent-space signature of the anti-collapse regulariser,
-which isotropises the representation, and it is consistent with the rollout staying
-within the broad cloud of \S\ref{sec:res_drift}.
-
-The distributed code lives in the latent rather than on identifiable flow
-structures. A
-gradient-saliency footprint of the wake-forecast direction through the frozen
-encoder overlaps the high-vorticity cores and the Q-criterion vortices \emph{below}
-a permutation chance baseline (overlap $\NumPfiveFootprintOmegaOverlap$ and
-$\NumPfiveFootprintQOverlap$ against the chance band), so the wake-forecast
-direction does not read the input preferentially at the leading-edge vortex or the
-shear layer. The wake code is distributed across the latent and is not localised in
-the field.
-
-\subsection{Where the wake is kept and where it is lost in physical space}
-\label{sec:res_param_phase}
-\label{sec:res_physical}
-
-The mechanism explains why the predictive rollout stays on the manifold; we now
-ask where in the gust envelope, and where in the flow field, the latent renders the
-wake readable. The parameter dependence reveals one clear weakness, and it is worth
-noting that the latent encodes these parameters despite never being trained on them.
-Probing the predictive latent for the gust parameters on test\_b recovers the gust
-strength $G$ and the core diameter $D$ ($R^2 = \NumProbeG$ and $\NumProbeD$) but
-does not resolve the wall-normal offset $Y$ ($R^2 = \NumProbeY$, the confidence
-interval straddling zero). This is a property of the data rather than of the
-architecture: the training mass concentrates near $Y \approx 0$, so encounters
-at different offsets within the envelope are weakly separated along $Y$, and the
-latent inherits that weakness. Any deployment-time parameter estimate should
-treat $Y$ as a nuisance variable the encoder does not resolve.
-
-The same latent can also be read relative to the undisturbed shedding cycle.
-Because the undisturbed wake is a limit cycle (\S\ref{sec:res_flow_physics}), an
-encounter is naturally described by its phase and amplitude relative to that cycle,
-the same reduction used to design gust-mitigation control for these flows
-\citep{fukami2024control}. The predictive latent of the undisturbed case traces a
-closed periodic orbit (figure~\ref{fig:phase_amplitude}): concatenating the no-gust
-episodes, the return distance is $1.0\%$ of the orbit diameter and the episodes
-overlap the same loop, with a shedding period near the full-cycle Strouhal number
-$\NumUndistStSub$ (\S\ref{sec:res_flow_physics}), and a phase advances monotonically
-along it via the Hilbert analytic signal of the two leading principal components.
-This is the same object the spectrum of \S\ref{sec:res_flow_physics} identifies as a
-marginally stable orbit and the topology of \S\ref{sec:res_drift} identifies as a
-single persistent cycle. A gust encounter departs this orbit and only partially
-relaxes back: the simulation trajectories do not fully return within the $120$-frame
-window, which is the gust-release period itself ($6\,t/c$ at
-$\Delta t = 0.05\,t/c$, impact near $2\,t/c$), so only about $4\,t/c$ of post-impact
-relaxation is observed before the next release, a window-length limitation of the
-fixed gust cadence. We therefore read the latent cycle as a phase-amplitude
-coordinate of the forward model, and do not draw a family comparison from the
-incompletely-observed return.
-\begin{figure}
-  \centering
-  \includegraphics[width=\linewidth]{sections/figures/results/figC_cycle_v2p1.pdf}
-  \caption{The gust encounter in the predictive latent. (a) Distance of the gust
-  trajectory to the baseline orbit (full latent, in units of the orbit diameter;
-  the grey band is the baseline orbit thickness): the encounter departs the baseline
-  cycle and only partially relaxes back within the inter-gust window; the
-  single-cycle topology of the encoded latent is established coordinate-free in
-  figure~\ref{fig:persistence}. (b) The orbit phase relative to the impact frame.
-  The numbered stages are those of figure~\ref{fig:traces}.}
-  \label{fig:phase_amplitude}
-\end{figure}
-
-We can also locate where in the envelope the predictive advantage concentrates.
-Rather than a
-per-stratum closure table, which the present test set is too small to populate,
-we read the per-encounter paired improvement
-$\Delta e = e_{\text{AE}} - e_{\text{JEPA}}$ in held-out wake-enstrophy error
-directly against each gust axis with a locally weighted regression and a
-bootstrapped band (figure~\ref{fig:error_maps}). The advantage is not uniform
-across the envelope. It grows with the gust core diameter $D$ (Spearman
-$\rho = \ErrMapRhoD$ on the encoded latent, significant), while its dependence on
-the gust strength $G$ and the wall-normal offset $Y$ is weak and not significant
-($\rho = \ErrMapRhoG$ and $\ErrMapRhoY$). The predictive advantage therefore concentrates at
-the larger cores that most reorganise the wake, with no significant $Y$ trend, in
-keeping with the weak $Y$ resolution of the probe above. The
-shedding phase at impact, the axis the gust-response literature emphasises
-\citep{fukami2024control}, is only weakly sampled by this dataset: impact is fixed
-near a single convective instant while the gust recurs about every two shedding
-periods, so the encounters fall into essentially two phase clusters and a
-phase-resolved trend is not identifiable here, which a design that varies the
-impact phase would isolate.
-These parameter and phase readings are statements about numbers; the encounter is
-itself a statement about
-vortices. Decoded and reconstructed vorticity fields on held-out encounters
-(figure~\ref{fig:recon}) connect the two, with one
-methodological caution and one new metric. Two scoping points apply throughout
-this subsection. The fields are encode-decode reconstructions, the visualisation
-decoder applied to the simulation-encoded latent, so the quantitative comparisons
-report the decoder's ceiling on what each latent carries from a faithfully encoded
-field, not a forecast rollout, whose latent leaves the data manifold for the
-reconstructive baseline (\S\ref{sec:res_drift}). And every quantitative
-physical-space claim is made on the validated large-scale band ($\sigma/c = 0.05$);
-the visualisation decoder is blurry at small scale by construction, so the
-large-scale leading-edge vortex and shear layer are tracked meaningfully while
-full-resolution and small-scale field fidelity are not claimed.
-
-The caution is that field-space similarity scores are misleading here. On held-out
-interpolation encounters the reconstructive autoencoder can attain a high structural
-similarity while collapsing to a near-uniform mean field that has lost the
-vortex-impingement signature, the high similarity merely reflecting bulk agreement
-with a field that is mostly quiescent away from the impact region. The predictive
-decode localises the impingement at the right position and sign but is blurry by
-construction, and the linear basis is amplitude-accurate since its objective is
-amplitude-optimal. Field-space similarity therefore cannot rank the latents, which
-is why we read it as a labelled decode ceiling rather than a state-content score.
-
-Decoding each family's faithfully encoded latent to a field and scoring
-the large-scale similarity against the simulation gives a decode \emph{ceiling}
-(the best each decoder can do from a true latent): on test\_b that ceiling is
-highest for the linear basis ($\FieldCeilSsimPod$), then the predictive decode
-($\FieldCeilSsimJepaTf$), then the reconstructive autoencoder
-($\FieldCeilSsimFukami$). The linear basis leading this ranking is a decoder
-property, not a state-content one: its linear decoder reconstructs a smooth
-large-scale field well regardless of what the latent encodes, exactly the
-confound that the collapsed-reconstruction example above illustrates. Field decode
-fidelity is therefore reported as a labelled ceiling, with the explicit caveat that
-it conflates decoder reconstruction quality with latent state content; the latent
-comparison rests on the representational closure of \S\ref{sec:res_closure}, which
-has no decoder in the loop, not on these field scores.
-
-Finally, the wake observables tie to the structures that carry the load. A
-Gaussian scale decomposition (large scale at filter width $\sigma/c = 0.05$,
-following \citep{odaka2026,motoori2019}) separates the large-scale vortical
-structures responsible for the lift peaks from the fine scale, applied to the
-simulation field and to each family's reconstruction
-(figure~\ref{fig:scale_decomp}). On test\_b the large-scale wake enstrophy of the
-predictive decode tracks the simulation better than the reconstructive autoencoder,
-on both correlation (Pearson $\NumScaleDecodeCorrJepaTf$ against
-$\NumScaleDecodeCorrFukami$ at $H = 16$) and amplitude (relative error
-$\NumScaleDecodeRelErrJepaTf$ against $\NumScaleDecodeRelErrFukami$): the
-reconstructive decode smooths the leading-edge vortex and
-shear layer away. The linear basis tracks the correlation comparably
-($\NumScaleDecodeCorrPod$), the same decoder confound as the decode ceiling above,
-its linear decoder reconstructing the smooth large-scale field well, so the specific
-claim is that the predictive decode tracks the large-scale wake better than the
-reconstructive autoencoder, while field-space decode correlation does not separate
-it from the linear basis. This is
-where the wake-enstrophy advantage of \S\ref{sec:res_closure} becomes a statement
-about the leading-edge vortex and shear layer rather than about a scalar. The
-converse question, whether a family's \emph{decode}
-tracks the leading-edge-vortex circulation per frame, is confounded
-by decoder quality rather than by what the latent carries. Under the matched
-post-hoc decoders the fraction of held-out encounters whose decoded circulation
-tracks the simulation is comparable across families and modest
-($\NumPfourTrackTfNocRecon$ for the predictive decode, $\NumPfourTrackFukamiRecon$
-for the reconstructive, and highest for the linear basis at
-$\NumPfourTrackPodRecon$, whose linear decoder reconstructs the large-scale field
-best regardless of state content). The wake result therefore rests on the
-representational closure and the scale-resolved enstrophy tracking
-above, where the latent comparison has no decoder in the loop.
-\begin{figure}
-  \centering
-  \includegraphics[width=0.98\linewidth]{sections/figures/results/fig_scale_decomp_v2p1.pdf}
-  \caption{Gaussian scale decomposition ($\sigma/c = 0.05$) of the held-out
-  reconstructions. Top: large-scale vorticity for the simulation, the predictive
-  decode, and the reconstructive autoencoder at $H = 16$; the predictive latent
-  retains the leading-edge vortex and shear layer the reconstructive one smooths
-  away. Bottom: large-scale wake enstrophy through the staged encounter for the
-  simulation, predictive, and reconstructive fields, on each split.}
-  \label{fig:scale_decomp}
-\end{figure}
-
-\subsection{Wall-pressure observability}
-\label{sec:res_observability}
-\label{sec:res_wall} % v3 alias; becomes 4.3 in the restructure
-\label{sec:res_envelope} % v3 alias; the operating envelope becomes 4.5 in the restructure
-
-At deployment the vorticity field is not available; only the wall pressure is.
-The deployment analogue is therefore state recoverability rather than direct wake
-recovery: we ask which representation is the most recoverable from a
-sparse set of $K$ wall-pressure taps over a window ending at the readout instant,
-comparing both the
-recovered latent \emph{state} and the recovered flow \emph{field} across families
-under one kernel-ridge estimator and a target-blind (qDEIM) sensor placement (the
-placement, the per-family field-recovery breakdown, the parameter recovery, and the
-out-of-distribution boundary are in Appendix~\ref{app:sensing}).
-
-The predictive state is the most recoverable (figure~\ref{fig:observability}a).
-With $K = 8$ taps the held-out test\_b state $R^2$ is $\SenseStateJepaTf$, against
-$\SenseStateFukami$ for the reconstructive autoencoder, $\SenseStateBvae$ for the
-variational baseline, and $\SenseStatePod$ for the linear basis; the lead is
-seed-robust ($\SenseStateJepaTf \pm 0.09$ over four predictive seeds against
-$\SenseStateFukami \pm 0.04$). The energy-optimal POD coordinates, optimal for
-reconstruction, are the hardest of the three to read from the wall: the same
-predictive objective that renders the wake readable from the field produces a state
-that is also legible from the wall. The wall pressure also recovers the
-wall-normal offset $Y$ at $R^2 = \SensePY$, so the weak $Y$ resolution of
-\S\ref{sec:res_physical} is a property of the mid-plane vorticity observable and
-the offset sampling, not of the pressure signal. The recoverability is causal:
-restricting the pressure window to a strictly pre-impact span, ending before the
-gust reaches the airfoil rather than at the readout instant, preserves and in fact
-sharpens the ordering (predictive $\SenseStateCausalJepaTf$ against
-$\SenseStateCausalFukami$ for the reconstructive autoencoder and
-$\SenseStateCausalPod$ for the linear basis), so the predictive state is the most
-recoverable from pressure available strictly before the event.
-
-The recovered \emph{field} tells a more nuanced story that we report in full. The
-pressure-to-latent map followed by each family's decoder reconstructs the
-large-scale field with similarity $\FieldPrSsimJepaTf$ for the predictive latent,
-$\FieldPrSsimPod$ for the linear basis, and $\FieldPrSsimFukami$ for the
-reconstructive (figure~\ref{fig:observability}b); the predictive latent beats the
-reconstructive significantly but ties the linear basis. The tie is a decoder
-property: the decode-ceiling gap (the loss from pressure recovery relative to
-decoding the true latent) is largest for POD ($\FieldSsimGapPod$ against
-$\FieldSsimGapJepaTf$ for the predictive), so the linear basis reaches field parity
-through its decoder's reconstruction ceiling, not through better state recovery,
-where it is the weakest of the three. The clean comparison is therefore the state
-recovery: the predictive latent is the most recoverable state from sparse wall
-pressure, and recovers the field at least as well as any matched representation.
-
-\begin{figure}
-  \centering
-  \includegraphics[width=\linewidth]{sections/figures/results/figF_observability_v2p1.pdf}
-  \caption{Cross-family pressure observability under the target-blind qDEIM sensor
-  placement. (a) Latent-state recovery $R^2$ versus sensor count $K$: the
-  predictive (JEPA) state is the most recoverable, the linear basis the least.
-  (b) Recovered-field large-scale similarity by family (pressure to latent to
-  decoder), with the decode-ceiling shown alongside: the predictive latent beats
-  the reconstructive autoencoder and ties the linear basis, whose field parity is
-  its decoder reconstruction ceiling rather than better state recovery.}
-  \label{fig:observability}
+  \includegraphics[width=\linewidth]{sections/figures/results/fig_atlas_dmd_v3.pdf}
+  \caption{The physics the latent state holds. Top: two-dimensional projections of
+  the predictive coefficient latent coloured by gust strength, core diameter, and
+  shedding phase, showing a parametric manifold that coheres with the release
+  parameters. Bottom: the latent dynamic-mode-decomposition spectrum, modulus
+  against Strouhal number, by family; the predictive and linear latents place a
+  marginally stable mode at the measured shedding frequency while the Fukami-lineage
+  reconstruction is damped and off-frequency.}
+  \label{fig:atlas}
 \end{figure}

@@ -1,0 +1,32 @@
+% Table X (v3): the pooled controlled matrix + references. tab:closure.
+% All numbers are macros_v3.tex macros (outputs/session33/numbers.json).
+\begin{table}
+  \centering
+  \caption{What each pooled coefficient state carries, at matched dimension
+  $d = 32$ on the $\NTestBEnc$ test\_b encounters. Held-out wake-enstrophy
+  readability (fixed linear probe, no rollout), matched-predictor forecast merit
+  (mean over the five observables at horizon sixteen), field-reconstruction error
+  (VRMSE at horizon sixteen), and decode similarity (SSIM). The controlled matrix
+  (top block) moves one training ingredient at a time; the reference recipes
+  (bottom block) use their own architectures. Wake readability separates on the
+  wake-supervision head, not on the training objective.}
+  \label{tab:closure}
+  \small
+  \fittab{\begin{tabular}{l l c c c c c}
+    \toprule
+    State & Objective & Wake head & wake $R^2$ & merit & field VRMSE & SSIM \\
+    \midrule
+    JEPA (wake)       & predictive     & yes & $\XwakeJepaWake$   & $\XmeritJepaWake$   & $\XvrmseJepaWake$   & $\XssimJepaWake$ \\
+    supervised only   & none           & yes & $\XwakeSupOnly$    & $\XmeritSupOnly$    & $\XvrmseSupOnly$    & $\XssimSupOnly$ \\
+    AE (wake)         & reconstruction & yes & $\XwakeAeWake$     & $\XmeritAeWake$     & $\XvrmseAeWake$     & $\XssimAeWake$ \\
+    JEPA (no wake)    & predictive     & no  & $\XwakeJepaNowake$ & $\XmeritJepaNowake$ & $\XvrmseJepaNowake$ & $\XssimJepaNowake$ \\
+    AE (no wake)      & reconstruction & no  & $\XwakeAeNowake$   & $\XmeritAeNowake$   & $\XvrmseAeNowake$   & $\XssimAeNowake$ \\
+    anti-collapse AE  & reconstruction & no  & $\XwakeRegAE$      & $\XmeritRegAE$      & $\XvrmseRegAE$      & $\XssimRegAE$ \\
+    \midrule
+    $\beta$-VAE       & reconstruction & yes & $\XwakeBvae$       & $\XmeritBvae$       & $\XvrmseBvae$       & $\XssimBvae$ \\
+    Fukami            & reconstruction & no  & $\XwakeFukami$     & $\XmeritFukami$     & $\XvrmseFukami$     & $\XssimFukami$ \\
+    Fukami (wake)     & reconstruction & yes & $\XwakeFukamiWake$ & $\XmeritFukamiWake$ & $\XvrmseFukamiWake$ & $\XssimFukamiWake$ \\
+    POD               & linear         & no  & $\XwakePod$        & $\XmeritPod$        & $\XvrmsePod$        & $\XssimPod$ \\
+    \bottomrule
+  \end{tabular}}
+\end{table}

@@ -141,6 +141,24 @@ competitive on the body forces and is amplitude-accurate in
 reconstruction, so the result is not that POD is obsolete but that it does not
 produce a latent from which the wake observables are linearly readable.
 
+\subsection{Decodability versus estimability}
+\label{sec:disc_decode}
+
+A reduced state can be optimised for two deployments that pull apart. A spatially
+resolved latent decodes the vorticity field more sharply than the coefficient
+state, but it is of far higher dimension than the wall measurement and so is not
+recoverable from a sparse set of pressure taps. The coefficient state decodes the
+field less sharply and is the object a wall-pressure filter can track. We therefore
+separate the two roles: the coefficient state is the estimable, forward-usable
+object this paper is about, and the field-resolved latent is a decodability
+instrument rather than an estimation target. Pooling the encoder onto the
+coefficient state costs field fidelity across every family, by
+$\PfourSsimDeltaJepa$ in decode similarity and $\PfourMeritDeltaJepa$ in
+matched-predictor merit for the predictive latent (Appendix~\ref{app:suppfigs}),
+and it gains nothing in wall recoverability that the coefficient state does not
+already have. The state a controller would carry is therefore not the one a
+field-reconstruction objective produces.
+
 \subsection{Limitations and outlook}
 \label{sec:disc_limits}
 \label{sec:disc_control}

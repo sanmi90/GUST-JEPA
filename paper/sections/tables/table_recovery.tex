@@ -1,0 +1,23 @@
+% Table W (v3): wall-pressure recovery. tab:recovery.
+% Numbers are macros_v3.tex macros (outputs/session33/numbers.json).
+\begin{table}
+  \centering
+  \caption{What eight wall-pressure taps recover of each family's coefficient
+  state, on test\_b, with the recovery estimator selected by cross-validation per
+  family and the observables read through the frozen probes. Raw-variance
+  recoverability and physics recoverability disagree: the reconstruction latent is
+  the most recoverable in state variance but the least in physics, while the
+  predictive latent carries the most wall-recoverable physics from a less
+  recoverable state.}
+  \label{tab:recovery}
+  \small
+  \begin{tabular}{l l c c}
+    \toprule
+    State & recovery estimator & state $R^2$ & observable $R^2$ \\
+    \midrule
+    predictive (JEPA)      & \MakeUppercase{\WpickJepa}   & $\WstateJepa$   & $\WobsJepa$ \\
+    reconstructive (Fukami) & \MakeUppercase{\WpickFukami} & $\WstateFukami$ & $\WobsFukami$ \\
+    linear (POD)           & \MakeUppercase{\WpickPod}    & $\WstatePod$    & $\WobsPod$ \\
+    \bottomrule
+  \end{tabular}
+\end{table}
