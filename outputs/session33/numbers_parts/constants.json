@@ -44,9 +44,34 @@
       "macro": "NTestCCases",
       "fmt": "%d"
     },
+    "n_train_encounters": {
+      "value": 268,
+      "macro": "NTrainEnc",
+      "fmt": "%d"
+    },
     "n_val_encounters": {
       "value": 100,
       "macro": "NValEnc",
+      "fmt": "%d"
+    },
+    "n_testb_encounters": {
+      "value": 42,
+      "macro": "NTestBEnc",
+      "fmt": "%d"
+    },
+    "n_testc_encounters": {
+      "value": 40,
+      "macro": "NTestCEnc",
+      "fmt": "%d"
+    },
+    "n_testb_interior": {
+      "value": 6,
+      "macro": "NTestBInterior",
+      "fmt": "%d"
+    },
+    "n_testb_boundary": {
+      "value": 4,
+      "macro": "NTestBBoundary",
       "fmt": "%d"
     },
     "latent_dim": {

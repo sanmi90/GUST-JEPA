@@ -1,7 +1,7 @@
 {
   "_provenance": {
-    "generated_iso": "2026-07-03T06:28:36.614240+00:00",
-    "git_commit": "6666c150f739d4ab1760f9af7c9dcd881a4bb2a6",
+    "generated_iso": "2026-07-03T06:30:18.231118+00:00",
+    "git_commit": "0e3fb02458ce35de461d9297cb14fae41140190f",
     "n_parts": 14,
     "parts": [
       "constants.json",
@@ -178,11 +178,29 @@
       "source": "constants",
       "value": 450
     },
+    "n_testb_boundary": {
+      "fmt": "%d",
+      "macro": "NTestBBoundary",
+      "source": "constants",
+      "value": 4
+    },
     "n_testb_cases": {
       "fmt": "%d",
       "macro": "NTestBCases",
       "source": "constants",
       "value": 10
+    },
+    "n_testb_encounters": {
+      "fmt": "%d",
+      "macro": "NTestBEnc",
+      "source": "constants",
+      "value": 42
+    },
+    "n_testb_interior": {
+      "fmt": "%d",
+      "macro": "NTestBInterior",
+      "source": "constants",
+      "value": 6
     },
     "n_testc_cases": {
       "fmt": "%d",
@@ -190,11 +208,23 @@
       "source": "constants",
       "value": 8
     },
+    "n_testc_encounters": {
+      "fmt": "%d",
+      "macro": "NTestCEnc",
+      "source": "constants",
+      "value": 40
+    },
     "n_train_cases": {
       "fmt": "%d",
       "macro": "NTrainCases",
       "source": "constants",
       "value": 84
+    },
+    "n_train_encounters": {
+      "fmt": "%d",
+      "macro": "NTrainEnc",
+      "source": "constants",
+      "value": 268
     },
     "n_val_encounters": {
       "fmt": "%d",

@@ -171,6 +171,60 @@ table~\ref{tab:closure}(a) and the forecast closure in table~\ref{tab:closure}(b
 We do not headline a forecast-$R^2$-versus-horizon curve; the rollout is reported to
 show that the latent stays usable, not as a validated forecast.
 
+\subsection{The predict-correct estimator}
+\label{sec:methods_estimator}
+
+At deployment the vorticity field is unavailable and the wall pressure is not, by
+itself, enough to fix the state: a single pressure frame recovers little of the
+wake through any of the latents (\S\ref{sec:res_wall}). The reason a single frame
+is not enough, and a window is, is a statement about the dynamics rather than
+about the number of sensors. The encounter lies on an attractor of low effective
+dimension, a limit cycle with a gust excursion and a relaxation, into which the
+encoded latent concentrates its variance (\S\ref{sec:res_latent_physics}). By the
+delay-embedding theorem \citep{takens1981,sauer1991}, a generic observation of
+such a system, read over a window of delays, reconstructs its state up to a
+diffeomorphism, and with $K$ simultaneous taps over $m$ delays the reconstruction
+is generic once the product $mK$ exceeds twice the attractor dimension. Because
+that dimension is small, a handful of taps over a modest window suffices, and the
+delay window can substitute for sensor count, a trade we quantify in
+\S\ref{sec:res_wall}. A coordinate the instantaneous pressure misses, the wake
+circulation, is still reconstructed by the window provided it is dynamically
+coupled to what the pressure sees, which for the coupled vortex dynamics it is. The
+estimator must therefore be sequential, accumulating pressure innovations through
+the learned dynamics, which is the setting of data assimilation.
+
+We use an ensemble Kalman filter \citep{evensen1994,evensen2003} in the latent
+space. An ensemble of $N = \FilterMembers$ members is advanced one step at a time
+by the frozen predictor, the forecast step, and corrected against
+$K = \FilterTaps$ span-averaged wall-pressure taps through a frozen observation
+operator $h : \zvec \mapsto p_K$, the analysis step. The observation operator maps
+the latent to pressure only. The physical observables the paper cares about, the
+lift and the wake enstrophy, are read from the state by the same frozen probes
+used throughout and can never enter the innovation; this leakage guarantee is
+enforced by construction and by a unit test, so the reported analysis closure of
+the load and the wake is a genuine estimate, not a quantity the filter was given.
+The taps are placed by a model-conditioned criterion that selects, per family, the
+taps that best expose that family's own latent. The filter is initialised, field
+free, from a windowed pressure-to-latent regressor, and its ensemble spread from
+that regressor's residual covariance, so no encoded truth is used at inference.
+Process noise is calibrated from the predictor's one-step residuals; a
+multiplicative inflation was selected on the validation split alone and then
+frozen, and it selected no inflation, because the filter is under-dispersed rather
+than over-dispersed and added inflation would hurt. All tuning is frozen before
+any test encounter is seen. Each encounter is assimilated over the window from
+$\AssimPre$ frames before impact to $\AssimPost$ frames after it. The baselines,
+all read through the same probes, are the open-loop rollout with no correction, a
+sliding-window pressure-only regression with no dynamics, and a model-free
+parameter floor in which the gust parameters are given, used diagnostically only,
+the model never seeing them.
+
+The mixed timescales of this estimator, a transition map trained on sequences and
+an emission map trained per instant, mirror the structure of the training
+objective in \S\ref{sec:methods_loss}: a dynamics equation is a statement about
+trajectories and an observation equation is a statement about single instants. The
+combined loss is a jointly trained state-space realisation, and the filter is the
+same decomposition read at inference.
+
 \subsection{Diagnostics, controls, and uncertainty}
 \label{sec:methods_diag}
 
