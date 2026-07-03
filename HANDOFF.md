@@ -10036,3 +10036,43 @@ Three user decisions for Phases 5/6 (recorded verbatim intent):
    without inflating it into a general instability theorem.
 3. Y readability (0.53 KRR test_b vs v2.1 -0.03): MENTIONED, not featured -- one sentence
    in Section 4.6 attributing it to the run4 Y-sampling; no headline, no abstract change.
+
+### D245 (SESSION33 manuscript v3 LaTeX pass: Section 2, Methods 3.3, Section 4 done) (2026-07-03, Session 33)
+
+Phase 6 LaTeX restructure, first tranche committed on session33-manuscript-v3. Voice
+calibrated against Fukami & Taira (arXiv 2305.08024) and Fukami, Nakao & Taira (arXiv
+2403.00263) results prose (subagent-extracted fingerprint: physics as grammatical subject,
+present tense, "we" only for find/observe/read, number-as-consequence-with-because, each
+limitation opening the next question). User decisions this session: (1) mapping confirmed;
+(2) old v2.1 wall-observability subsection REPLACED, its R2=0.35 static result NOT hard-quoted
+(v2.1 number, not in the v3 freeze) but its ROLE played by the macro-backed v2.2 static
+single-frame recovery as the Fukami before/after foil; (3) "more narrative" -> rewrote against
+the actual Fukami papers.
+
+DONE and build-gated (latexmk clean, 34pp, em-dash 0, macros_v3 wired):
+- L0 refs: 14 v3 entries (Takens/Sauer/Brunton2017/Evensen 94+03/Mousavi2025/Eldredge2025/
+  Tristram/Broustail/Fraser/Kennel/Arbabi/Bakarji/Wang2004ssim).
+- L2 Section 2: v2.2 counts (102/450; 84 train/10 test_b [6+4]/8 test_c; 268/100/42/40 enc)
+  via new constants macros; symmetric |G|=4 provenance note (mirror lift +8.3/-7.6 from
+  cache); train_std 3.5396 + SSIM L 8.487; co-primary C_L + wake enstrophy.
+- Methods 3.3 "predict-correct estimator" (new): EnKF, N=64 K=8, field-free init, frozen
+  tuning, Takens delay-embedding motivation.
+- Section 4 FULL restructure (L1+L5): 4.1 what the state carries (Table X = tab:closure, the
+  attribution result) / 4.2 rollout mechanism (Table Y = tab:mechanism + H_roll inline) /
+  4.3 what the wall sees (Table W = tab:recovery + Gate O) + 4.3.1 sensors traded for delays
+  (T1/T2 + HONEST T2b failure per D244) / 4.4 tracking (hero fig) / 4.5 envelope (Table V =
+  tab:envelope) / 4.6 physics (DMD dichotomy SOFTENED per D240, distributed code, min-d, Y
+  mentioned-not-featured per D244). 4 new table files; all 9 v2.1 labels preserved as aliases;
+  section-level split convention stated (test_b representational, all-splits envelope, test_c
+  reserved). Spatial-tier decode galleries removed from section 4 (bound for Appendix C, L8).
+- Discussion 5.3 "Decodability versus estimability" (new, resolves sec:disc_decode; P4
+  pooling-cost numbers).
+
+REMAINING Phase 6: L4 Section 1 (intro insertions A/B/C + contribution rewrite + estimation
+motivation); L6 Section 5 (5.1 division-of-labour rewrite, 5.2 limits + delay-embedding + light
+havok, 5.4 delay-embedding thread); L7 Section 6 conclusions + abstract + title T1; L8
+appendices (A lambda_S/LuMamba, B sensing + delay-knob cross-checks, C pooling cost + the
+spatial-tier galleries relocated from section 4); L9 audit (literal-number grep, em-dash lint,
+British spelling, jfm_project_writing_style review). enforce_conventions.py R2-coverage flags
+are heuristic per-paragraph false positives against the stated section convention + table
+captions; D130 satisfied by the convention statement and four-split table coverage.
