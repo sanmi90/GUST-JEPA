@@ -66,8 +66,17 @@ ABLATION_MODELS = (
     "jepa_vicreg",
 )
 
-# Which models carry a co-trained (native) ResUNet predictor in the checkpoint.
-NATIVE_PREDICTOR_MODELS = ("jepa_nowake", "jepa_wake")
+# Which models carry a co-trained (native) predictor in the checkpoint.
+# jepa_nowake / jepa_wake carry the spatial ResUNet; the *_vec runs carry the
+# D250 vector AutoregressivePredictor (dispatched by hasattr(pred, "rollout")).
+NATIVE_PREDICTOR_MODELS = (
+    "jepa_nowake",
+    "jepa_wake",
+    "jepa_pool_vec",
+    "jepa_pool_vec_s1",
+    "jepa_pool_vec_s2",
+    "jepa_nowake_pool_vec",
+)
 
 OBSERVABLES = (
     "C_L",
@@ -591,7 +600,13 @@ def load_native_predictor(
     config_path = args.get("config") or run_config.get("config_path")
     cfg = load_model_config(_resolve(config_path))
     projection_norm = args.get("projection_norm", "batchnorm")
-    model = CanonicalModel(cfg, latent_dim=int(latent_dim), projection_norm=projection_norm)
+    predictor_class = args.get("predictor_class", "resunet")
+    model = CanonicalModel(
+        cfg,
+        latent_dim=int(latent_dim),
+        projection_norm=projection_norm,
+        predictor_class=predictor_class,
+    )
     model.load_state_dict(blob["model_state_dict"], strict=True)
     if model.predictor is None:
         raise ValueError(f"{run_dir} has no native predictor (objective={cfg.objective})")
@@ -1096,15 +1111,38 @@ def run_q2(
             pred_nat = load_native_predictor(
                 _resolve(runs_base) / name, checkpoint_name, int(tr.z_spatial.shape[1]), device
             )
-            buckets = _gather_spatial(pred_nat, encounters_tb, horizons, CONTEXT_LENGTH, device)
-            model_out["native"] = {
-                "field_vrmse": _field_curves(buckets, decoder, omega_tb, horizons, device),
-                "observable_closure": _observable_curves(buckets, probes, tb.targets, horizons),
-                "drift": _drift_curve(buckets, horizons, spatial=True),
-                "params": {
-                    "arch": "co-trained ResUNetPredictor from the checkpoint (as-built ROM)"
-                },
-            }
+            if hasattr(pred_nat, "rollout"):
+                # D250 native pooled pipeline: the co-trained predictor is the
+                # AutoregressivePredictor on the (B, T, d) vector; roll the GAP
+                # latent exactly as the matched transformer does.
+                buckets = _gather_gap(pred_nat, encounters_tb, horizons, CONTEXT_LENGTH, device)
+                model_out["native"] = {
+                    "observable_closure": _observable_curves(
+                        buckets, probes, tb.targets, horizons
+                    ),
+                    "drift": _drift_curve(buckets, horizons, spatial=False),
+                    "params": {
+                        "arch": (
+                            "co-trained AutoregressivePredictor(cond_dim=0) from the "
+                            "checkpoint (as-built ROM, D250 vector pipeline)"
+                        ),
+                        "note": "no field VRMSE (GAP latent cannot feed the spatial decoder)",
+                    },
+                }
+            else:
+                buckets = _gather_spatial(
+                    pred_nat, encounters_tb, horizons, CONTEXT_LENGTH, device
+                )
+                model_out["native"] = {
+                    "field_vrmse": _field_curves(buckets, decoder, omega_tb, horizons, device),
+                    "observable_closure": _observable_curves(
+                        buckets, probes, tb.targets, horizons
+                    ),
+                    "drift": _drift_curve(buckets, horizons, spatial=True),
+                    "params": {
+                        "arch": "co-trained ResUNetPredictor from the checkpoint (as-built ROM)"
+                    },
+                }
             del pred_nat, buckets
             if device.type == "cuda":
                 torch.cuda.empty_cache()

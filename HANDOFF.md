@@ -10202,3 +10202,39 @@ architecture paragraph rewritten; method-figure caption schematic-flagged; the v
 current-frame-heads pin. REMAINING: the two TikZ method schematics still draw the v2.1
 transformer-style predictor -- flagged for the F3 redraw. Build 32pp clean, abstract fits,
 anchors PASS (463 macros).
+
+### D250 (SESSION33: NATIVE POOLED PIPELINE -- vector training predictor, flagship retrain) (2026-07-03, Session 33)
+
+Carlos rejected the D249 resolution as insufficient: describing the tiled-ResUNet honestly
+is not enough, the latent PIPELINE itself must be as simple as POD's or an AE's ("I just
+want a latent space like a pod or ae... JEPA is using a lot more of latent variables to
+get a comparable result"). Even though the tiling is information-equivalent (zero-capacity
+broadcast, targets are tiled pooled states), the mechanism routes the 32-vector through a
+4M-param spatial U-Net on a 24x12 grid, which is not the like-for-like vector dynamics a
+matched-d comparison should rest on.
+
+DECISION: the flagship's training predictor becomes the existing v2.1
+AutoregressivePredictor (src/models/predictor.py; cond_dim=0, hidden 384, depth 6, heads
+16, RoPE, causal mask, max_seq_len 32, 10.66M params) rolling the (B, T, 32) pooled vector
+directly. Kit semantics preserved exactly: 2-frame grad-attached seed, open-loop H_roll=8,
+NO teacher forcing, online DETACHED targets, no EMA, anti-collapse on the pooled vector,
+same heads, same LRs/schedule. Implementation (non-destructive, D237 precedent):
+`assemble_vector_rollout` + `predictor_class` in src/training/canonical_model.py;
+`--predictor-class {resunet,transformer}` in train_canonical.py (persisted in args/
+run_config/W&B); load_frozen_model + load_native_predictor rebuild from the checkpoint
+args (default 'resunet', so every existing checkpoint loads byte-identically); Q2 native
+branch dispatches vector predictors to the GAP-latent roller. Tests:
+tests/test_vector_predictor.py (7 tests: shapes/grad, open-loop no-leak, backward,
+guards, build+forward, pooled-required, default-unchanged); full canonical suite green
+(the 2 loss-kit failures are the pre-existing bvae.yaml audit issue, present on the clean
+tree). 30-iter GPU smoke: pred 1.93->0.42, PR rising, checkpoint round-trips through both
+loaders.
+
+RETRAIN: jepa_pool_vec seeds 0/1/2 + jepa_nowake_pool_vec, 10k iters, v2p2, lambda 0.02,
+scripts/session33/run_vec_queue.sh (work-stealing, both RTX 6000s), outputs/runs/session33/.
+EVAL: scripts/session33/run_vec_eval.sh = Q1 + Q2 matched + Q2 native (own predictor) +
+O1 recovery (vec_o1_recovery.py, fresh TCSI staircase merged into osp_taps_vec.json,
+frozen baselines untouched) + frozen D220 filter envelope (vec_envelope.py). Then: Track T
+grid + T3 + seed band on vec latents, numbers refreeze (PredParams goes 4.1 -> 10.7),
+paper swap to the vec flagship. The paper's Table 2 transformer description becomes TRUE
+again; F3 TikZ needs only the filter loop added.

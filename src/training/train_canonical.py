@@ -184,6 +184,20 @@ def parse_args() -> argparse.Namespace:
             "run_config / W&B."
         ),
     )
+    p.add_argument(
+        "--predictor-class",
+        type=str,
+        choices=["resunet", "transformer"],
+        default="resunet",
+        help=(
+            "Training-predictor function class (D250). 'resunet' (default) is the "
+            "frozen kit ResUNet on the (B, T, d, h, w) latent map; 'transformer' is "
+            "the native pooled pipeline: the v2.1 AutoregressivePredictor (cond_dim=0, "
+            "hidden 384, depth 6, heads 16, RoPE, causal) rolling the (B, T, d) pooled "
+            "vector open-loop with no tiling. Requires model.latent='pooled'. Recorded "
+            "as predictor_class in args / run_config / W&B."
+        ),
+    )
     return p.parse_args()
 
 
@@ -353,7 +367,18 @@ def main() -> None:
         )
 
     # --- model -------------------------------------------------------------
-    model = CanonicalModel(cfg, latent_dim=args.d, projection_norm=args.projection_norm).to(device)
+    model = CanonicalModel(
+        cfg,
+        latent_dim=args.d,
+        projection_norm=args.projection_norm,
+        predictor_class=args.predictor_class,
+    ).to(device)
+    if args.predictor_class == "transformer":
+        print(
+            "[train_canonical] D250 native pooled pipeline: training predictor is the "
+            "AutoregressivePredictor (cond_dim=0) on the (B, T, d) pooled vector; no tiling.",
+            flush=True,
+        )
 
     # --- ABLATION: explicit rollout-horizon override -----------------------
     # The kit FREEZES pred.horizon=8 as the one value for every predictive model
@@ -422,6 +447,7 @@ def main() -> None:
         "H_roll": model.horizon,
         "kit_horizon": kit_horizon,
         "horizon_override": horizon_override,
+        "predictor_class": args.predictor_class,
         "lr_encoder": lr_encoder,
         "lr_predictor": lr_predictor,
         "weight_decay": weight_decay,

@@ -162,6 +162,61 @@ def assemble_spatial_rollout(
     return pred_seq, target_seq
 
 
+def assemble_vector_rollout(
+    predictor: nn.Module,
+    z: Tensor,
+    horizon: int,
+    context_length: int = 2,
+) -> tuple[Tensor, Tensor]:
+    """Open-loop ``horizon``-step rollout of the POOLED latent (NO teacher forcing).
+
+    The vector twin of :func:`assemble_spatial_rollout` for the native pooled
+    pipeline (Session 33 D250): the predictor is a sequence model mapping
+    ``(B, t, d) -> (B, t, d)`` with output position ``i`` predicting frame
+    ``i + 1`` (causal), e.g. :class:`~src.models.predictor.AutoregressivePredictor`
+    with ``cond_dim=0``. From the first ``context_length`` encoded frames the
+    rollout feeds its own predictions back in; targets are the online encoder
+    outputs DETACHED, exactly the kit semantics (gray-scott online target, no
+    EMA, no teacher forcing).
+
+    Args:
+        predictor: Causal sequence model over ``(B, t, d)``; may expose
+            ``max_seq_len`` (the fed-back window is trimmed to it).
+        z: ``(B, T, d)`` pooled encoder latents, autograd-attached. Requires
+            ``T >= context_length + horizon``.
+        horizon: Number of rollout steps ``H``.
+        context_length: Seed frames (default 2, matching the spatial kit).
+
+    Returns:
+        ``(pred_seq, target_seq)`` each ``(B, H, d)``. ``pred_seq`` is
+        autograd-attached (the rollout); ``target_seq`` is detached.
+    """
+    if z.dim() != 3:
+        raise ValueError(f"expected z of shape (B, T, d); got {tuple(z.shape)}")
+    if horizon < 1:
+        raise ValueError(f"horizon must be >= 1, got {horizon}")
+    cl = int(context_length)
+    T = z.shape[1]
+    if T < cl + horizon:
+        raise ValueError(
+            f"sub-trajectory T={T} too short for context_length={cl} + horizon={horizon}; "
+            f"need T >= {cl + horizon}"
+        )
+    max_len = int(getattr(predictor, "max_seq_len", T))
+
+    seq = z[:, :cl]  # grad-attached seed, as in the spatial kit
+    preds: list[Tensor] = []
+    for _ in range(horizon):
+        window = seq[:, -max_len:]
+        nxt = predictor(window)[:, -1]  # (B, d): prediction for the next frame
+        preds.append(nxt)
+        seq = torch.cat([seq, nxt.unsqueeze(1)], dim=1)
+
+    pred_seq = torch.stack(preds, dim=1)
+    target_seq = z[:, cl : cl + horizon].detach()
+    return pred_seq, target_seq
+
+
 # ---------------------------------------------------------------------------
 # Pure outputs-dict builder
 # ---------------------------------------------------------------------------
@@ -176,6 +231,8 @@ def build_outputs(
     lift_head: nn.Module | None = None,
     wake_head: nn.Module | None = None,
     z_anticollapse: Tensor | None = None,
+    rollout: str = "spatial",
+    z_vector: Tensor | None = None,
 ) -> dict[str, Tensor]:
     """Assemble the named-tensor ``outputs`` dict for :func:`compute_total_loss`.
 
@@ -201,6 +258,11 @@ def build_outputs(
             broadcast copies fed to the predictor/decoder/heads. When ``None``
             (the spatial default) the anti-collapse latent is ``z_spatial`` and
             the output is byte-identical to before.
+        rollout: ``"spatial"`` (default; :func:`assemble_spatial_rollout` on
+            ``z_spatial``) or ``"vector"`` (:func:`assemble_vector_rollout` on
+            ``z_vector``, the native pooled pipeline, D250).
+        z_vector: ``(B, T, d)`` pooled latent for the ``"vector"`` rollout
+            (required when ``rollout='vector'``; ignored otherwise).
 
     Returns:
         A dict with ``z`` (flattened latent) and ``_z_spatial`` always, plus the
@@ -222,7 +284,14 @@ def build_outputs(
     elif objective == "pred":
         if predictor is None:
             raise ValueError("objective 'pred' requires a predictor")
-        pred_seq, target_seq = assemble_spatial_rollout(predictor, z_spatial, horizon)
+        if rollout == "vector":
+            if z_vector is None:
+                raise ValueError("rollout='vector' requires z_vector (the pooled latent)")
+            pred_seq, target_seq = assemble_vector_rollout(predictor, z_vector, horizon)
+        elif rollout == "spatial":
+            pred_seq, target_seq = assemble_spatial_rollout(predictor, z_spatial, horizon)
+        else:
+            raise ValueError(f"unknown rollout {rollout!r}; expected spatial | vector")
         outputs["pred_seq"] = pred_seq
         outputs["target_seq"] = target_seq
     elif objective != "none":
@@ -274,10 +343,21 @@ class CanonicalModel(nn.Module):
         latent_dim: int = 32,
         projection_norm: str = "batchnorm",
         wake_out_dim: int | None = None,
+        predictor_class: str = "resunet",
     ) -> None:
         super().__init__()
         encoder_kind = cfg.model.get("encoder", "cnn_vit")
         latent_kind = cfg.model.get("latent", "spatial")
+        if predictor_class not in ("resunet", "transformer"):
+            raise ValueError(
+                f"unknown predictor_class {predictor_class!r}; expected resunet | transformer."
+            )
+        if predictor_class == "transformer" and latent_kind != "pooled":
+            raise ValueError(
+                "predictor_class='transformer' is the native pooled pipeline (D250) and "
+                "requires model.latent='pooled'."
+            )
+        self.predictor_class = predictor_class
         if encoder_kind not in ("cnn_vit", "cnn_only", "cnn_vit_temporal"):
             raise ValueError(
                 f"unknown model.encoder {encoder_kind!r}; expected "
@@ -330,7 +410,23 @@ class CanonicalModel(nn.Module):
         self.predictor: nn.Module | None = None
         self.decoder: nn.Module | None = None
         if self.objective == "pred":
-            self.predictor = ResUNetPredictor(latent_dim=latent_dim, context_length=2)
+            if self.predictor_class == "transformer":
+                # Native pooled pipeline (Session 33 D250): the v2.1 vector
+                # predictor, unconditioned, on (B, T, d) sequences. Reuses the
+                # tested src.models.predictor module; no tiling anywhere.
+                from src.models.predictor import AutoregressivePredictor
+
+                self.predictor = AutoregressivePredictor(
+                    latent_dim=latent_dim,
+                    cond_dim=0,
+                    hidden_dim=384,
+                    depth=6,
+                    heads=16,
+                    dropout=0.1,
+                    max_seq_len=32,
+                )
+            else:
+                self.predictor = ResUNetPredictor(latent_dim=latent_dim, context_length=2)
         elif self.objective == "recon":
             self.decoder = SpatialLatentFieldDecoder(
                 latent_dim=latent_dim, feature_h=feature_h, feature_w=feature_w
@@ -393,4 +489,6 @@ class CanonicalModel(nn.Module):
             lift_head=self.lift_head,
             wake_head=self.wake_head,
             z_anticollapse=z_anticollapse,
+            rollout="vector" if self.predictor_class == "transformer" else "spatial",
+            z_vector=z_anticollapse if self.predictor_class == "transformer" else None,
         )

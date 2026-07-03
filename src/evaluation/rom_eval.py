@@ -145,7 +145,13 @@ def load_frozen_model(
 
     latent_dim = int(args.get("d", 32))
     projection_norm = args.get("projection_norm", "batchnorm")
-    model = CanonicalModel(cfg, latent_dim=latent_dim, projection_norm=projection_norm)
+    predictor_class = args.get("predictor_class", "resunet")
+    model = CanonicalModel(
+        cfg,
+        latent_dim=latent_dim,
+        projection_norm=projection_norm,
+        predictor_class=predictor_class,
+    )
     model.load_state_dict(blob["model_state_dict"], strict=True)
 
     encoder = model.encoder
