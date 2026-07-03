@@ -248,6 +248,12 @@
       "fmt": "%.3f",
       "horizon": 8
     },
+    "x_vrmse_Fukami": {
+      "value": 1.0159377019547482,
+      "macro": "XvrmseFukami",
+      "fmt": "%.3f",
+      "horizon": 8
+    },
     "x_ssim_Fukami": {
       "value": 0.7077320052706405,
       "macro": "XssimFukami",
@@ -259,6 +265,12 @@
       "fmt": "%.3f",
       "horizon": 8
     },
+    "x_vrmse_FukamiWake": {
+      "value": 1.0258959431620012,
+      "macro": "XvrmseFukamiWake",
+      "fmt": "%.3f",
+      "horizon": 8
+    },
     "x_ssim_FukamiWake": {
       "value": 0.7048116745663372,
       "macro": "XssimFukamiWake",
@@ -267,6 +279,12 @@
     "x_merit_Pod": {
       "value": 0.2904001766231986,
       "macro": "XmeritPod",
+      "fmt": "%.3f",
+      "horizon": 8
+    },
+    "x_vrmse_Pod": {
+      "value": 0.9298909524070612,
+      "macro": "XvrmsePod",
       "fmt": "%.3f",
       "horizon": 8
     },

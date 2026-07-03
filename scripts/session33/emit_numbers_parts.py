@@ -93,15 +93,20 @@ def part_table_x():
     def wake(q1, m):
         return float(q1["models"][m]["probes"]["windowed"]["wake_enstrophy"]["linear_r2"])
 
-    def q2_merit_ref(m):
+    def q2_ref(m):
+        """Reference merit (mean 5-obs mlp R2, h8) and field VRMSE (h8) on v2.2."""
         if not q2r or m not in q2r.get("models", {}):
-            return None
+            return None, None
         pred = q2r["models"][m]["predictors"]["resunet_matched"]
         oc = pred["observable_closure"]
         hs = list(oc["C_L"]["horizons"])
         i = hs.index(8)
         ts = ("C_L", "C_D", "wake_enstrophy", "circulation_pos", "circulation_neg")
-        return float(np.mean([oc[t]["model_mlp_r2"][i] for t in ts]))
+        merit = float(np.mean([oc[t]["model_mlp_r2"][i] for t in ts]))
+        fv = pred["field_vrmse"]
+        fhs = list(fv["horizons"])
+        vrmse = float(fv["model"][fhs.index(8)]) if 8 in fhs else None
+        return merit, vrmse
 
     cells = gates["pooled_cells"]
     # rows: (paper name, wake source, cells key or None)
@@ -133,9 +138,11 @@ def part_table_x():
                 cells[ck]["cl_closure_mlp_h8"], f"Xcl{name}", "%.3f", horizon=8)
     for name in ("Fukami", "FukamiWake", "Pod"):
         m = {"Fukami": "fukami", "FukamiWake": "fukami_wake", "Pod": "pod"}[name]
-        mr = q2_merit_ref(m)
+        mr, vr = q2_ref(m)
         if mr is not None:
             numbers[f"x_merit_{name}"] = rec(mr, f"Xmerit{name}", "%.3f", horizon=8)
+        if vr is not None:
+            numbers[f"x_vrmse_{name}"] = rec(vr, f"Xvrmse{name}", "%.3f", horizon=8)
         if q1r and m in q1r["models"]:
             numbers[f"x_ssim_{name}"] = rec(
                 float(q1r["models"][m]["decode_floor"]["windowed"]["ssim"]),

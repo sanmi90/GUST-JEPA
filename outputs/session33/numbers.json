@@ -1,7 +1,7 @@
 {
   "_provenance": {
-    "generated_iso": "2026-07-03T02:22:15.364979+00:00",
-    "git_commit": "c04e34799cd0518ba05ca642f4eeb7b5ee2fa6b7",
+    "generated_iso": "2026-07-03T06:28:36.614240+00:00",
+    "git_commit": "6666c150f739d4ab1760f9af7c9dcd881a4bb2a6",
     "n_parts": 14,
     "parts": [
       "constants.json",
@@ -1779,6 +1779,20 @@
       "source": "table_x",
       "value": 1.0070122597029225
     },
+    "x_vrmse_Fukami": {
+      "fmt": "%.3f",
+      "horizon": 8,
+      "macro": "XvrmseFukami",
+      "source": "table_x",
+      "value": 1.0159377019547482
+    },
+    "x_vrmse_FukamiWake": {
+      "fmt": "%.3f",
+      "horizon": 8,
+      "macro": "XvrmseFukamiWake",
+      "source": "table_x",
+      "value": 1.0258959431620012
+    },
     "x_vrmse_JepaNowake": {
       "fmt": "%.3f",
       "horizon": 8,
@@ -1792,6 +1806,13 @@
       "macro": "XvrmseJepaWake",
       "source": "table_x",
       "value": 0.9691949087326402
+    },
+    "x_vrmse_Pod": {
+      "fmt": "%.3f",
+      "horizon": 8,
+      "macro": "XvrmsePod",
+      "source": "table_x",
+      "value": 0.9298909524070612
     },
     "x_vrmse_RegAE": {
       "fmt": "%.3f",
