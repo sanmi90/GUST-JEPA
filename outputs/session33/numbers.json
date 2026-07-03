@@ -1,7 +1,7 @@
 {
   "_provenance": {
-    "generated_iso": "2026-07-03T22:13:09.746800+00:00",
-    "git_commit": "ab00a8b922fe0f1176ed86f1f002bcc54a94bbd6",
+    "generated_iso": "2026-07-03T22:20:36.598058+00:00",
+    "git_commit": "b6710d94e1c848156f98ef0f702a700fda306e47",
     "n_parts": 15,
     "parts": [
       "constants.json",

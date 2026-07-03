@@ -32,7 +32,16 @@ to a negative merit on the beta-VAE control, and so cannot serve as the common
 yardstick. The ensemble filter of \S\ref{sec:methods_estimator} uses a matched
 autoregressive transformer on the flagship's own pooled trajectories, where it is
 stable; and the flagship's own co-trained predictor, the as-built reduced-order
-model, is reported alongside the common-operator merit.
+model, is reported alongside the common-operator merit. The instability is
+specific to latents outside the transformer's design: refitted on the pooled
+predictive, supervised and reconstructive-autoencoder latents the transformer
+forecasts them comparably to the residual U-Net, and on the predictive flagship
+it in fact leads the pooled families at $\XmeritJepaWakeTf$, above the
+objective-free control; but on the reference latents (the beta-VAE and the two
+Fukami autoencoders) it diverges to large negative merit. This operator
+dependence is the reason the common-operator merit is read as a level rather than
+a fine ranking between the two supervised states, and the reason the residual
+U-Net, stable on every family, is the yardstick of record.
 
 \begin{figure}
   \centering

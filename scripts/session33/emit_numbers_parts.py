@@ -716,6 +716,7 @@ ANCHORS = [
     ("table_x", "x_wake_SupOnly", 0.792, 0.005),
     ("table_x", "x_merit_JepaWake", 0.591, 0.005),
     ("table_x", "x_merit_JepaWake_native", 0.755, 0.005),
+    ("table_x", "x_merit_JepaWake_tf", 0.655, 0.005),
     ("table_x", "x_merit_SupOnly", 0.637, 0.005),
     ("table_w_gate_o", "w_state_Jepa", 0.659, 0.005),
     ("table_w_gate_o", "w_state_Fukami", 0.921, 0.005),
