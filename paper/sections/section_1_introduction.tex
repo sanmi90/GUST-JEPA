@@ -4,9 +4,9 @@
 % deployment paragraph; (ii) the three contributions replaced with the v3 set
 % (division of labour, leakage-free filter, operating envelope) per HANDOFF
 % D244 (honest T2b, no overselling); (iii) the closing question extended to
-% estimability. Citation callouts mapped to repo bib keys; haughn2024, chen2026
-% and fukagata2025 are AUTHOR-FILL stubs in refs_to_add.bib pending Carlos's
-% source entries.
+% estimability. Citation callouts mapped to repo bib keys; the four source
+% entries (zhong2023sparse, haughn2024deep, chen2026bridging,
+% fukagata2025compressing) supplied by Carlos 2026-07-03.
 
 Small uncrewed aerial vehicles are increasingly expected to operate in
 environments where the incoming flow is neither steady nor weakly disturbed.
@@ -47,7 +47,7 @@ the few measurements that can be obtained at high bandwidth on an aerodynamic
 body. Recent gust-modelling studies have therefore used sparse surface-pressure
 histories to infer unsteady aerodynamic loads and, more broadly, to bridge
 spatial pressure correlations and temporal flow memory
-\citep{zhong2023,haughn2024,chen2026}, and Bayesian sequential estimation has
+\citep{zhong2023sparse,haughn2024deep,chen2026bridging}, and Bayesian sequential estimation has
 begun to close the loop between sparse pressure and low-order aerodynamic
 states, with uncertainty carried alongside the estimate
 \citep{mousavi2025,eldredge2025guide}. Such approaches indicate a path towards
@@ -65,7 +65,7 @@ and the resolved flow. It also provides a natural route to visualisation and
 interpretation, since the decoder maps latent coordinates back to physical
 space. Similar ideas have been combined with variational autoencoders and
 sequence models to build predictive reduced-order models of chaotic flows
-\citep{solera2024,fukagata2025}.
+\citep{solera2024,fukagata2025compressing}.
 
 Yet a reconstruction-trained latent space is not necessarily the best space for
 prediction. The decoder encourages the encoder to preserve information needed
