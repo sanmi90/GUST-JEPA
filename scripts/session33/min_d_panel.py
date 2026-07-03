@@ -72,6 +72,10 @@ def main(argv=None):
     ap.add_argument("--q1-anchor", default="outputs/session31/q1_ablation.json")
     ap.add_argument("--q1-reference", default="outputs/session31/q1_reference.json")
     ap.add_argument("--pod-cache", default="outputs/session31/q1_latents")
+    ap.add_argument("--jepa-prefix", default="jepa_pool",
+                    help="d != 32 model-name prefix (D250: jepa_pool_vec).")
+    ap.add_argument("--anchor-model", default="jepa_pool",
+                    help="d = 32 anchor model name (D250: jepa_pool_vec).")
     ap.add_argument("--out", default="outputs/session33/min_d_panel.json")
     args = ap.parse_args(argv)
 
@@ -81,8 +85,8 @@ def main(argv=None):
 
     curves = {
         "jepa_pool": {
-            **{str(d): wake_lin(q1d, f"jepa_pool_d{d}") for d in NN_DS if d != 32},
-            "32": wake_lin(q1a, "jepa_pool"),
+            **{str(d): wake_lin(q1d, f"{args.jepa_prefix}_d{d}") for d in NN_DS if d != 32},
+            "32": wake_lin(q1a, args.anchor_model),
         },
         "fukami_wake": {
             **{str(d): wake_lin(q1d, f"fukami_wake_d{d}") for d in NN_DS if d != 32},

@@ -79,6 +79,10 @@ def main(argv=None):
     ap.add_argument("--cache-anchor", default="outputs/session31/q1_latents_ablation")
     ap.add_argument("--n-boot", type=int, default=10000)
     ap.add_argument("--seed", type=int, default=0)
+    ap.add_argument("--jepa-prefix", default="jepa_pool",
+                    help="d != 32 model-name prefix (D250: jepa_pool_vec).")
+    ap.add_argument("--anchor-model", default="jepa_pool",
+                    help="d = 32 anchor model name (D250: jepa_pool_vec).")
     ap.add_argument("--out", default="outputs/session33/dim_plateau.json")
     args = ap.parse_args(argv)
 
@@ -89,9 +93,9 @@ def main(argv=None):
     by_d = {}
     for d in PLATEAU:
         if d == 32:
-            model, q1, q2, cache = "jepa_pool", q1a, q2a, cache_a
+            model, q1, q2, cache = args.anchor_model, q1a, q2a, cache_a
         else:
-            model, q1, q2, cache = f"jepa_pool_d{d}", q1d, q2d, cache_d
+            model, q1, q2, cache = f"{args.jepa_prefix}_d{d}", q1d, q2d, cache_d
         cells = {**q1_cells(q1, model)}
         try:
             cells.update(q2_cells(q2, model))
