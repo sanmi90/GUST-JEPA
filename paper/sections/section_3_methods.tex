@@ -23,16 +23,20 @@ state map, and this is the property that lets the latent itself serve as the
 observable a controller would have access to, since at deployment the gust
 parameters are not known a priori (\S\ref{sec:discussion}).
 
-The predictor $P_\phi$ advances the latent in time. During training it is a
-residual U-Net over the encoder's $24 \times 12$ latent map: the pooled
-coefficient state is broadcast to that map by a parameter-free adapter, the
-predictor takes the two most recent latent maps and produces the next, and it
-advances the latent from its own history alone, so the model is unconditioned
-end to end; the anti-collapse regulariser acts on the un-broadcast pooled
-state. A separate autoregressive transformer, fitted after training on the
-frozen pooled trajectories, serves as the forecast model of the estimator in
-\S\ref{sec:methods_estimator}; the two roles are distinct and we keep them so.
-Internal structure for both is given in Appendix~\ref{app:reg}. Figure~\ref{fig:method}(a) shows
+The predictor $P_\phi$ advances the pooled state in time, from its own history
+alone, so the model is unconditioned end to end. Its function class during
+training is a residual U-Net shared with the spatial-tier ablations: the
+$32$-vector is tiled onto the encoder's $24 \times 12$ feature grid by a
+parameter-free broadcast, the network maps the two most recent tiled states to
+the next, and the rollout targets are the tiled pooled states themselves, so
+the tiling adds no information and no capacity and the training loss is exactly
+the multi-step error on the $32$ coefficients. The state is the pooled vector
+at every stage: the anti-collapse regulariser, the observable heads, the
+probes, and the estimator all read the un-broadcast $32$-vector, and nothing in
+the model carries more. A separate autoregressive transformer, fitted after
+training on the frozen pooled trajectories, serves as the forecast model of the
+estimator in \S\ref{sec:methods_estimator}; the two roles are distinct and we
+keep them so. Internal structure for both is given in Appendix~\ref{app:reg}. Figure~\ref{fig:method}(a) shows
 the encoder and predictor, and panel~(b) sets out the matched-predictor evaluation
 protocol used throughout; the contrast between the predictive training signal and
 the reconstructive one, in which the reconstructive autoencoder passes the field at
@@ -59,13 +63,13 @@ Table~\ref{tab:architecture} summarises the two networks.
     \toprule
      & Encoder $E_\theta$ & Predictor $P_\phi$ \\
     \midrule
-    role            & field $\to$ latent (unconditional) & training rollout (unconditional) \\
-    input           & $\omegaz \in \mathbb{R}^{192 \times 96}$ & two latent maps (broadcast pooled state) \\
-    backbone        & 3 conv.\ stages $+$ 6-layer ViT & residual U-Net on the $24 \times 12$ map \\
-    width / heads   & $256$ / $8$ & $64$--$256$ channels \\
+    role            & field $\to$ pooled state (unconditional) & pooled-state rollout (unconditional) \\
+    input           & $\omegaz \in \mathbb{R}^{192 \times 96}$ & two pooled states $\zvec \in \mathbb{R}^{\LatentDim}$ (tiled) \\
+    backbone        & 3 conv.\ stages $+$ 6-layer ViT & residual U-Net ($64$--$256$ channels) \\
+    width / heads   & $256$ / $8$ & shared with the spatial-tier ablations \\
     image tokens / context & $24 \times 12 = 288$ & $2$ frames, rolled $8$ steps open loop \\
     conditioning    & none & none \\
-    latent read-out & class token $\to$ linear $\to$ BatchNorm & next latent map \\
+    state read-out  & class token $\to$ linear $\to$ BatchNorm & next pooled state \\
     parameters      & $\EncParams$M & $\PredParams$M \\
     \bottomrule
   \end{tabular}}

@@ -13,10 +13,12 @@ pre-norm transformer of width $256$ with eight heads processes; the latent is re
 from a prepended class token through a one-layer projection whose output passes a
 BatchNorm, the layer the characteristic-function regulariser below requires. The
 encoder is unconditional and carries no information about the gust parameters. The
-training predictor is a residual U-Net over the $24 \times 12$ latent map, into
-which the pooled state is lifted by a parameter-free broadcast; it takes the two
-most recent latent maps and produces the next, and training minimises the
-multi-step open-loop rollout loss over eight steps, with no teacher forcing,
+training predictor advances the pooled $32$-vector; its function class is a
+residual U-Net shared with the spatial-tier ablations, fed by a parameter-free
+tiling of the vector onto the $24 \times 12$ feature grid, whose targets are the
+tiled pooled states themselves, so the tiling adds no information or capacity
+and the loss is exactly the multi-step error on the $32$ coefficients. Training
+minimises that open-loop rollout loss over eight steps, with no teacher forcing,
 against online encoder targets that are detached (no exponential-moving-average
 target network), plus the regulariser below, with AdamW and bf16 mixed
 precision. The predictor advances the latent from its own history alone, with no
