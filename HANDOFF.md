@@ -10022,3 +10022,17 @@ NUMBERS FREEZE: emit_numbers_parts re-run with all 14 parts -> 299 numbers, 14 r
 anchors PASS, 357 macros in paper/macros_v3.tex (0 collisions vs the 388 v2.1 macros).
 This commit is the Phase 4 freeze point: any later change to a frozen value requires a new
 decision entry.
+
+### D244 (SESSION33 prose-framing decisions for the v3 pass, user-resolved) (2026-07-03, Session 33)
+
+Three user decisions for Phases 5/6 (recorded verbatim intent):
+1. T2b framing CONFIRMED: the main-text reduced-budget figure is the honest filter-vs-K
+   panel (the frozen filter needs its eight taps); the spatial-for-temporal trade is
+   claimed for the static delay-coordinate recovery only. No "fewer sensors" filter claim.
+2. Prose flags (D240/D243) applied HONESTLY, NOT OVERSOLD: the DMD sentence names the
+   Fukami-lineage families as losing the shedding clock and does not claim a
+   predictive-vs-reconstructive dichotomy; the merit claim becomes "the readability tie is
+   seed-robust; the merit tie is not (1/3 supervised seeds collapses)" stated as measured,
+   without inflating it into a general instability theorem.
+3. Y readability (0.53 KRR test_b vs v2.1 -0.03): MENTIONED, not featured -- one sentence
+   in Section 4.6 attributing it to the run4 Y-sampling; no headline, no abstract change.
