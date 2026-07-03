@@ -2,12 +2,18 @@
   "part": "table_w_gate_o",
   "numbers": {
     "w_state_Jepa": {
-      "value": 0.7068691393889431,
+      "value": 0.6587722796171479,
       "macro": "WstateJepa",
+      "fmt": "%.3f",
+      "note": "3-seed mean, jepa_pool_vec O1 pooled state R2 (K8 window)"
+    },
+    "w_state_Jepa_sd": {
+      "value": 0.008741700867980894,
+      "macro": "WstateJepaSd",
       "fmt": "%.3f"
     },
     "w_obs_Jepa": {
-      "value": 0.6369532594401084,
+      "value": 0.5889037729178006,
       "macro": "WobsJepa",
       "fmt": "%.3f"
     },
@@ -51,7 +57,8 @@
       "macro": "GateODelta",
       "fmt": "%.3f",
       "ci_lo": 0.09577619437196355,
-      "ci_hi": 0.14493266092841273
+      "ci_hi": 0.14493266092841273,
+      "note": "pooled d=32 vs flat spatial latent, spatial-latent family; motivates d=32"
     },
     "wq_state_Jepa": {
       "value": 0.6665284511587268,

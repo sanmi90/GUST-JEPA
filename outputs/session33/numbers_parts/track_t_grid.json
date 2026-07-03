@@ -2,227 +2,227 @@
   "part": "track_t_grid",
   "numbers": {
     "t1_CL_W1": {
-      "value": 0.6757752989970722,
+      "value": 0.6850909677916432,
       "macro": "ToneCLWOne",
       "fmt": "%.2f",
       "split": "test_b"
     },
     "t1_Ew_W1": {
-      "value": 0.1957271192612191,
+      "value": 0.17954549280021914,
       "macro": "ToneEwWOne",
       "fmt": "%.2f",
       "split": "test_b"
     },
     "t1_CircNeg_W1": {
-      "value": 0.11763022141639423,
+      "value": 0.14250697016419311,
       "macro": "ToneCircNegWOne",
       "fmt": "%.2f",
       "split": "test_b"
     },
     "t1_CircPos_W1": {
-      "value": 0.41547591453265353,
+      "value": 0.43078570513570136,
       "macro": "ToneCircPosWOne",
       "fmt": "%.2f",
       "split": "test_b"
     },
     "t1_CD_W1": {
-      "value": 0.5522354981687512,
+      "value": 0.5929720201173028,
       "macro": "ToneCDWOne",
       "fmt": "%.2f",
       "split": "test_b"
     },
     "t1_state_W1": {
-      "value": 0.38499062219974,
+      "value": 0.35329293976832865,
       "macro": "ToneStateWOne",
       "fmt": "%.2f",
       "split": "test_b"
     },
     "t1_CL_W2": {
-      "value": 0.7821752807953228,
+      "value": 0.8054671423280387,
       "macro": "ToneCLWTwo",
       "fmt": "%.2f",
       "split": "test_b"
     },
     "t1_Ew_W2": {
-      "value": 0.2357608608500119,
+      "value": 0.2499717897974918,
       "macro": "ToneEwWTwo",
       "fmt": "%.2f",
       "split": "test_b"
     },
     "t1_CircNeg_W2": {
-      "value": 0.04402099130070625,
+      "value": 0.09170199057903305,
       "macro": "ToneCircNegWTwo",
       "fmt": "%.2f",
       "split": "test_b"
     },
     "t1_CircPos_W2": {
-      "value": 0.26327209001941987,
+      "value": 0.30407791357649505,
       "macro": "ToneCircPosWTwo",
       "fmt": "%.2f",
       "split": "test_b"
     },
     "t1_CD_W2": {
-      "value": 0.7099277944648039,
+      "value": 0.7407398182019842,
       "macro": "ToneCDWTwo",
       "fmt": "%.2f",
       "split": "test_b"
     },
     "t1_state_W2": {
-      "value": 0.41022335311244096,
+      "value": 0.3783482450138207,
       "macro": "ToneStateWTwo",
       "fmt": "%.2f",
       "split": "test_b"
     },
     "t1_CL_W4": {
-      "value": 0.7899852327300274,
+      "value": 0.8081818301438417,
       "macro": "ToneCLWFour",
       "fmt": "%.2f",
       "split": "test_b"
     },
     "t1_Ew_W4": {
-      "value": 0.3099155361064031,
+      "value": 0.30717072094899867,
       "macro": "ToneEwWFour",
       "fmt": "%.2f",
       "split": "test_b"
     },
     "t1_CircNeg_W4": {
-      "value": 0.12260172992173934,
+      "value": 0.15628540940721658,
       "macro": "ToneCircNegWFour",
       "fmt": "%.2f",
       "split": "test_b"
     },
     "t1_CircPos_W4": {
-      "value": 0.31025380511052403,
+      "value": 0.32113556645219565,
       "macro": "ToneCircPosWFour",
       "fmt": "%.2f",
       "split": "test_b"
     },
     "t1_CD_W4": {
-      "value": 0.708891446414232,
+      "value": 0.705979373654303,
       "macro": "ToneCDWFour",
       "fmt": "%.2f",
       "split": "test_b"
     },
     "t1_state_W4": {
-      "value": 0.48369688824810364,
+      "value": 0.4368175532570018,
       "macro": "ToneStateWFour",
       "fmt": "%.2f",
       "split": "test_b"
     },
     "t1_CL_W8": {
-      "value": 0.7990012526904793,
+      "value": 0.7826903896626566,
       "macro": "ToneCLWEight",
       "fmt": "%.2f",
       "split": "test_b"
     },
     "t1_Ew_W8": {
-      "value": 0.3472861904939859,
+      "value": 0.3338140337295278,
       "macro": "ToneEwWEight",
       "fmt": "%.2f",
       "split": "test_b"
     },
     "t1_CircNeg_W8": {
-      "value": 0.18820190329558728,
+      "value": 0.21075612301681546,
       "macro": "ToneCircNegWEight",
       "fmt": "%.2f",
       "split": "test_b"
     },
     "t1_CircPos_W8": {
-      "value": 0.37326164847958043,
+      "value": 0.36279180882981366,
       "macro": "ToneCircPosWEight",
       "fmt": "%.2f",
       "split": "test_b"
     },
     "t1_CD_W8": {
-      "value": 0.6636904456859446,
+      "value": 0.6721554177524794,
       "macro": "ToneCDWEight",
       "fmt": "%.2f",
       "split": "test_b"
     },
     "t1_state_W8": {
-      "value": 0.5400803263220192,
+      "value": 0.5173619768646605,
       "macro": "ToneStateWEight",
       "fmt": "%.2f",
       "split": "test_b"
     },
     "t1_CL_W16": {
-      "value": 0.8179911882547226,
+      "value": 0.8133858296681402,
       "macro": "ToneCLWSixteen",
       "fmt": "%.2f",
       "split": "test_b"
     },
     "t1_Ew_W16": {
-      "value": 0.4049441577741132,
+      "value": 0.35357963182932584,
       "macro": "ToneEwWSixteen",
       "fmt": "%.2f",
       "split": "test_b"
     },
     "t1_CircNeg_W16": {
-      "value": 0.3159639815803691,
+      "value": 0.27167828016242046,
       "macro": "ToneCircNegWSixteen",
       "fmt": "%.2f",
       "split": "test_b"
     },
     "t1_CircPos_W16": {
-      "value": 0.4324033352185669,
+      "value": 0.42714217139318267,
       "macro": "ToneCircPosWSixteen",
       "fmt": "%.2f",
       "split": "test_b"
     },
     "t1_CD_W16": {
-      "value": 0.6854404296584968,
+      "value": 0.7058386122489355,
       "macro": "ToneCDWSixteen",
       "fmt": "%.2f",
       "split": "test_b"
     },
     "t1_state_W16": {
-      "value": 0.6039652521507937,
+      "value": 0.568876897752929,
       "macro": "ToneStateWSixteen",
       "fmt": "%.2f",
       "split": "test_b"
     },
     "t1_CL_W30": {
-      "value": 0.8136351260624977,
+      "value": 0.8132717864505236,
       "macro": "ToneCLWThirty",
       "fmt": "%.2f",
       "split": "test_b"
     },
     "t1_Ew_W30": {
-      "value": 0.4434858112647928,
+      "value": 0.4002076538939998,
       "macro": "ToneEwWThirty",
       "fmt": "%.2f",
       "split": "test_b"
     },
     "t1_CircNeg_W30": {
-      "value": 0.3724442336381172,
+      "value": 0.33433606203650335,
       "macro": "ToneCircNegWThirty",
       "fmt": "%.2f",
       "split": "test_b"
     },
     "t1_CircPos_W30": {
-      "value": 0.5346830885677465,
+      "value": 0.451507707663125,
       "macro": "ToneCircPosWThirty",
       "fmt": "%.2f",
       "split": "test_b"
     },
     "t1_CD_W30": {
-      "value": 0.6630728867316402,
+      "value": 0.7020804524034985,
       "macro": "ToneCDWThirty",
       "fmt": "%.2f",
       "split": "test_b"
     },
     "t1_state_W30": {
-      "value": 0.6550160468419661,
+      "value": 0.6124470252308185,
       "macro": "ToneStateWThirty",
       "fmt": "%.2f",
       "split": "test_b"
     },
     "t1_circ_delta": {
-      "value": 0.29036902226238237,
+      "value": 0.22407402108872265,
       "macro": "ToneCircDelta",
       "fmt": "%.3f",
-      "ci_lo": 0.22249508136408755,
-      "ci_hi": 0.38834362867198075
+      "ci_lo": 0.13591928497837305,
+      "ci_hi": 0.34299952939492184
     },
     "t1_verdict": {
       "value": "WEAK",
@@ -230,145 +230,145 @@
       "fmt": "%s"
     },
     "t2_K1_W1": {
-      "value": 0.0001839993030451348,
+      "value": -0.044574307406166414,
       "macro": "TtwoOneWOne",
       "fmt": "%.2f",
       "split": "test_b"
     },
     "t2_K1_W2": {
-      "value": 0.035223330731059876,
+      "value": -0.009802286633682433,
       "macro": "TtwoOneWTwo",
       "fmt": "%.2f",
       "split": "test_b"
     },
     "t2_K1_W4": {
-      "value": 0.09417358122218478,
+      "value": 0.0710385820210031,
       "macro": "TtwoOneWFour",
       "fmt": "%.2f",
       "split": "test_b"
     },
     "t2_K1_W8": {
-      "value": 0.16983785172583887,
+      "value": 0.11362434202944294,
       "macro": "TtwoOneWEight",
       "fmt": "%.2f",
       "split": "test_b"
     },
     "t2_K1_W16": {
-      "value": 0.2655336283729911,
+      "value": 0.20167193388971394,
       "macro": "TtwoOneWSixteen",
       "fmt": "%.2f",
       "split": "test_b"
     },
     "t2_K1_W30": {
-      "value": 0.36314388892756044,
+      "value": 0.3084103176997257,
       "macro": "TtwoOneWThirty",
       "fmt": "%.2f",
       "split": "test_b"
     },
     "t2_K2_W1": {
-      "value": 0.1096911687880392,
+      "value": 0.0634082006856922,
       "macro": "TtwoTwoWOne",
       "fmt": "%.2f",
       "split": "test_b"
     },
     "t2_K2_W2": {
-      "value": 0.1543176457540384,
+      "value": 0.13102718428709037,
       "macro": "TtwoTwoWTwo",
       "fmt": "%.2f",
       "split": "test_b"
     },
     "t2_K2_W4": {
-      "value": 0.2316581848728011,
+      "value": 0.1967257886364442,
       "macro": "TtwoTwoWFour",
       "fmt": "%.2f",
       "split": "test_b"
     },
     "t2_K2_W8": {
-      "value": 0.3089745945838288,
+      "value": 0.25175655770453553,
       "macro": "TtwoTwoWEight",
       "fmt": "%.2f",
       "split": "test_b"
     },
     "t2_K2_W16": {
-      "value": 0.4220506347569598,
+      "value": 0.37760235030071565,
       "macro": "TtwoTwoWSixteen",
       "fmt": "%.2f",
       "split": "test_b"
     },
     "t2_K2_W30": {
-      "value": 0.5250079815243607,
+      "value": 0.46892945505056594,
       "macro": "TtwoTwoWThirty",
       "fmt": "%.2f",
       "split": "test_b"
     },
     "t2_K4_W1": {
-      "value": 0.23393672447357305,
+      "value": 0.19307787676274146,
       "macro": "TtwoFourWOne",
       "fmt": "%.2f",
       "split": "test_b"
     },
     "t2_K4_W2": {
-      "value": 0.2905974987620594,
+      "value": 0.24497871753765965,
       "macro": "TtwoFourWTwo",
       "fmt": "%.2f",
       "split": "test_b"
     },
     "t2_K4_W4": {
-      "value": 0.351627058518188,
+      "value": 0.30729842363110604,
       "macro": "TtwoFourWFour",
       "fmt": "%.2f",
       "split": "test_b"
     },
     "t2_K4_W8": {
-      "value": 0.41569693204768743,
+      "value": 0.36270612914813416,
       "macro": "TtwoFourWEight",
       "fmt": "%.2f",
       "split": "test_b"
     },
     "t2_K4_W16": {
-      "value": 0.5116723703929722,
+      "value": 0.44583550782690895,
       "macro": "TtwoFourWSixteen",
       "fmt": "%.2f",
       "split": "test_b"
     },
     "t2_K4_W30": {
-      "value": 0.6089207660818823,
+      "value": 0.5475032998298386,
       "macro": "TtwoFourWThirty",
       "fmt": "%.2f",
       "split": "test_b"
     },
     "t2_K8_W1": {
-      "value": 0.38499062219974,
+      "value": 0.35329293976832865,
       "macro": "TtwoEightWOne",
       "fmt": "%.2f",
       "split": "test_b"
     },
     "t2_K8_W2": {
-      "value": 0.41022335311244096,
+      "value": 0.3783482450138207,
       "macro": "TtwoEightWTwo",
       "fmt": "%.2f",
       "split": "test_b"
     },
     "t2_K8_W4": {
-      "value": 0.48369688824810364,
+      "value": 0.4368175532570018,
       "macro": "TtwoEightWFour",
       "fmt": "%.2f",
       "split": "test_b"
     },
     "t2_K8_W8": {
-      "value": 0.5400803263220192,
+      "value": 0.5173619768646605,
       "macro": "TtwoEightWEight",
       "fmt": "%.2f",
       "split": "test_b"
     },
     "t2_K8_W16": {
-      "value": 0.6039652521507937,
+      "value": 0.568876897752929,
       "macro": "TtwoEightWSixteen",
       "fmt": "%.2f",
       "split": "test_b"
     },
     "t2_K8_W30": {
-      "value": 0.6550160468419661,
+      "value": 0.6124470252308185,
       "macro": "TtwoEightWThirty",
       "fmt": "%.2f",
       "split": "test_b"
@@ -389,10 +389,10 @@
       "fmt": "%s"
     },
     "t_bridge_state": {
-      "value": 0.7068691393889431,
+      "value": 0.655505526378911,
       "macro": "TbridgeState",
       "fmt": "%.3f",
-      "note": "OSP jepa_pool K8 W30; Track O1 headline 0.707"
+      "note": "OSP jepa_pool_vec K8 W30; reconciles with the vec O1 recovery band"
     },
     "t_mi_tau": {
       "value": 28.571428571428573,

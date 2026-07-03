@@ -83,13 +83,13 @@
       "value": 6.7,
       "macro": "EncParams",
       "fmt": "%.1f",
-      "note": "counted from jepa_pool checkpoint_iter010000 (6.67M)"
+      "note": "counted from jepa_pool_vec checkpoint_iter010000 (6.67M); encoder size unchanged vs the ResUNet-era flagship"
     },
     "pred_params_M": {
-      "value": 4.1,
+      "value": 10.7,
       "macro": "PredParams",
       "fmt": "%.1f",
-      "note": "training ResUNet, counted from checkpoint (4.07M)"
+      "note": "D250 native vector predictor: AutoregressivePredictor cond_dim=0, counted from jepa_pool_vec checkpoint (10.66M)"
     },
     "filter_taps": {
       "value": 8,

@@ -13,23 +13,20 @@ pre-norm transformer of width $256$ with eight heads processes; the latent is re
 from a prepended class token through a one-layer projection whose output passes a
 BatchNorm, the layer the characteristic-function regulariser below requires. The
 encoder is unconditional and carries no information about the gust parameters. The
-training predictor advances the pooled $32$-vector; its function class is a
-residual U-Net shared with the spatial-tier ablations, fed by a parameter-free
-tiling of the vector onto the $24 \times 12$ feature grid, whose targets are the
-tiled pooled states themselves, so the tiling adds no information or capacity
-and the loss is exactly the multi-step error on the $32$ coefficients. Training
-minimises that open-loop rollout loss over eight steps, with no teacher forcing,
+training predictor advances the pooled $32$-vector directly: its function class is a
+six-layer autoregressive transformer of width $384$ with sixteen heads, rotary
+temporal positions and a causal mask, mapping a short history of $32$-vectors to
+the next $32$-vector, with no spatial map or tiling anywhere in the loop. Training
+minimises an open-loop rollout loss over eight steps, with no teacher forcing,
 against online encoder targets that are detached (no exponential-moving-average
 target network), plus the regulariser below, with AdamW and bf16 mixed
 precision. The predictor advances the latent from its own history alone, with no
 gust input, so the gust parameters $\cvec = (G, D, Y)$ enter nowhere in the
-model. Two downstream forecast operators are fitted afterwards on each frozen
-latent, identically across families: a matched residual U-Net of the training
-predictor's class, which produces the forecast merit of
-table~\ref{tab:closure}, and a matched six-layer autoregressive transformer with
-rotary temporal positions and a causal mask, fitted on the pooled trajectories,
-which is the forecast model inside the ensemble filter
-(\S\ref{sec:methods_estimator}).
+model. The downstream forecast operator used for the merit of
+table~\ref{tab:closure} and for the ensemble filter
+(\S\ref{sec:methods_estimator}) is a matched autoregressive transformer of the
+training predictor's class, refitted on each frozen latent identically across
+families.
 
 \begin{figure}
   \centering

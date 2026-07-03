@@ -24,19 +24,20 @@ observable a controller would have access to, since at deployment the gust
 parameters are not known a priori (\S\ref{sec:discussion}).
 
 The predictor $P_\phi$ advances the pooled state in time, from its own history
-alone, so the model is unconditioned end to end. Its function class during
-training is a residual U-Net shared with the spatial-tier ablations: the
-$32$-vector is tiled onto the encoder's $24 \times 12$ feature grid by a
-parameter-free broadcast, the network maps the two most recent tiled states to
-the next, and the rollout targets are the tiled pooled states themselves, so
-the tiling adds no information and no capacity and the training loss is exactly
-the multi-step error on the $32$ coefficients. The state is the pooled vector
-at every stage: the anti-collapse regulariser, the observable heads, the
-probes, and the estimator all read the un-broadcast $32$-vector, and nothing in
-the model carries more. A separate autoregressive transformer, fitted after
-training on the frozen pooled trajectories, serves as the forecast model of the
-estimator in \S\ref{sec:methods_estimator}; the two roles are distinct and we
-keep them so. Internal structure for both is given in Appendix~\ref{app:reg}. Figure~\ref{fig:method}(a) shows
+alone, so the model is unconditioned end to end. It is a vector sequence model:
+a six-layer autoregressive transformer with rotary temporal positions and a
+causal mask that maps a short history of $32$-vectors to the next $32$-vector,
+with no gust input. From the two most recent encoded states it rolls eight steps
+open loop, feeding its own predictions back in, and the loss is the multi-step
+error between the rolled coefficients and the online encoder outputs at the
+matching frames, detached. The pipeline is therefore as plain as a linear or
+autoencoder reduced-order model: $32$ numbers in, a dynamics model on the vector,
+$32$ numbers out, with no spatial map anywhere in the loop. The state is the
+pooled vector at every stage: the anti-collapse regulariser, the observable
+heads, the probes, and the estimator all read the same $32$-vector, and nothing
+in the model carries more. The estimator of \S\ref{sec:methods_estimator} refits
+a predictor of this same class on the frozen pooled trajectories for its forecast
+step, so the training and estimation dynamics share a function class. Internal structure for both is given in Appendix~\ref{app:reg}. Figure~\ref{fig:method}(a) shows
 the encoder and predictor, and panel~(b) sets out the matched-predictor evaluation
 protocol used throughout; the contrast between the predictive training signal and
 the reconstructive one, in which the reconstructive autoencoder passes the field at
@@ -55,8 +56,8 @@ Table~\ref{tab:architecture} summarises the two networks.
   auxiliary heads read observables off the encoder output during training (a
   lift head and an $80$-dimensional wake-spectrum head;
   \S\ref{sec:methods_loss}). The estimation-stage forecast model of
-  \S\ref{sec:methods_estimator} is a separate autoregressive transformer fitted
-  on the frozen pooled trajectories, not this training predictor.}
+  \S\ref{sec:methods_estimator} is a predictor of the same class refitted on the
+  frozen pooled trajectories.}
   \label{tab:architecture}
   \small
   \fittab{\begin{tabular}{l l l}
@@ -64,9 +65,9 @@ Table~\ref{tab:architecture} summarises the two networks.
      & Encoder $E_\theta$ & Predictor $P_\phi$ \\
     \midrule
     role            & field $\to$ pooled state (unconditional) & pooled-state rollout (unconditional) \\
-    input           & $\omegaz \in \mathbb{R}^{192 \times 96}$ & two pooled states $\zvec \in \mathbb{R}^{\LatentDim}$ (tiled) \\
-    backbone        & 3 conv.\ stages $+$ 6-layer ViT & residual U-Net ($64$--$256$ channels) \\
-    width / heads   & $256$ / $8$ & shared with the spatial-tier ablations \\
+    input           & $\omegaz \in \mathbb{R}^{192 \times 96}$ & pooled states $\zvec \in \mathbb{R}^{\LatentDim}$ \\
+    backbone        & 3 conv.\ stages $+$ 6-layer ViT & 6-layer causal transformer (RoPE) \\
+    width / heads   & $256$ / $8$ & $384$ / $16$ \\
     image tokens / context & $24 \times 12 = 288$ & $2$ frames, rolled $8$ steps open loop \\
     conditioning    & none & none \\
     state read-out  & class token $\to$ linear $\to$ BatchNorm & next pooled state \\
@@ -129,7 +130,7 @@ supervision.
     \label{fig:method_eval}
   \end{subfigure}
   \caption{The predictive model and how it is evaluated, drawn schematically
-  (the training predictor is the residual U-Net of
+  (the training predictor is the vector transformer of
   table~\ref{tab:architecture}). (a) The encoder maps the mid-plane vorticity
   field to a latent $\zvec_t$, and the predictor advances the latent from its
   own history; no gust parameters enter the encoder or the predictor. The two
@@ -155,11 +156,13 @@ trajectory $\zvec_{1:T}$ from the vorticity fields, and an identical probe famil
 maps a latent to a physical observable for evaluation
 (figure~\ref{fig:method}(b)). The probe family is held fixed across the
 families, and the downstream forecast operator is refitted identically on each
-frozen latent: the forecast merit uses a matched residual U-Net of the same
-class as the training predictor, and the estimator of
-\S\ref{sec:methods_estimator} uses a matched autoregressive transformer fitted
-on the frozen pooled trajectories, in both cases the same operator, recipe and
-budget for every family. Every state is compared at the matched headline
+frozen latent: both the forecast merit and the estimator of
+\S\ref{sec:methods_estimator} use a matched autoregressive transformer of the
+same class as the training predictor, fitted on the frozen pooled trajectories
+with the same operator, recipe and budget for every family. Because only the
+predictive families train a dynamics model at all, the reconstructive and
+objective-free latents, which learn no predictor, are read by this same common
+operator, so no family is advantaged by having its own class as the yardstick. Every state is compared at the matched headline
 dimension $d = \LatentDim$; the dimension plateau at $\{16, 32, 64\}$ and the
 minimum-dimension panel of \S\ref{sec:res_latent_physics} establish that this
 choice is a robustness statement rather than a tuned operating point. This

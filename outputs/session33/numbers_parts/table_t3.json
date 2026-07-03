@@ -2,14 +2,14 @@
   "part": "table_t3",
   "numbers": {
     "t3_deff_Zero": {
-      "value": 3.729270783486033,
+      "value": 3.3989366859784687,
       "macro": "TthreeDeffGZero",
       "fmt": "%.1f",
-      "ci_lo": 1.5375775893918116,
-      "ci_hi": 4.700428056421483
+      "ci_lo": 1.5172012408683244,
+      "ci_hi": 4.871473739952531
     },
     "t3_pr_Zero": {
-      "value": 4.924871233040837,
+      "value": 5.529124169480945,
       "macro": "TthreePrGZero",
       "fmt": "%.1f"
     },
@@ -24,19 +24,19 @@
       "fmt": "%.2f"
     },
     "t3_deff_Half": {
-      "value": 3.731458065459335,
+      "value": 3.338144038077524,
       "macro": "TthreeDeffGHalf",
       "fmt": "%.1f",
-      "ci_lo": 3.3051828169652278,
-      "ci_hi": 4.019589897563919
+      "ci_lo": 3.0792284835039827,
+      "ci_hi": 4.043610238368875
     },
     "t3_pr_Half": {
-      "value": 5.47063219050233,
+      "value": 6.470530423043116,
       "macro": "TthreePrGHalf",
       "fmt": "%.1f"
     },
     "t3_npc_Half": {
-      "value": 9,
+      "value": 11,
       "macro": "TthreeNpcGHalf",
       "fmt": "%d"
     },
@@ -46,24 +46,24 @@
       "fmt": "%.2f"
     },
     "t3_mneed_Half": {
-      "value": 1,
+      "value": 2,
       "macro": "TthreeMneedGHalf",
       "fmt": "%d"
     },
     "t3_deff_One": {
-      "value": 3.8655353381921413,
+      "value": 3.898498055660303,
       "macro": "TthreeDeffGOne",
       "fmt": "%.1f",
-      "ci_lo": 2.588852733912803,
-      "ci_hi": 4.5317849507996595
+      "ci_lo": 2.63379582152293,
+      "ci_hi": 4.090671408227765
     },
     "t3_pr_One": {
-      "value": 8.410380424990239,
+      "value": 9.698818554522548,
       "macro": "TthreePrGOne",
       "fmt": "%.1f"
     },
     "t3_npc_One": {
-      "value": 12,
+      "value": 14,
       "macro": "TthreeNpcGOne",
       "fmt": "%d"
     },
@@ -73,24 +73,24 @@
       "fmt": "%.2f"
     },
     "t3_mneed_One": {
-      "value": 1,
+      "value": 4,
       "macro": "TthreeMneedGOne",
       "fmt": "%d"
     },
     "t3_deff_OneHalf": {
-      "value": 5.015015228233161,
+      "value": 4.252109088661576,
       "macro": "TthreeDeffGOneHalf",
       "fmt": "%.1f",
-      "ci_lo": 1.6137607691716307,
-      "ci_hi": 5.128728616299853
+      "ci_lo": 1.5457400284271194,
+      "ci_hi": 4.4969381325142646
     },
     "t3_pr_OneHalf": {
-      "value": 10.500375532036646,
+      "value": 11.641920600637228,
       "macro": "TthreePrGOneHalf",
       "fmt": "%.1f"
     },
     "t3_npc_OneHalf": {
-      "value": 14,
+      "value": 16,
       "macro": "TthreeNpcGOneHalf",
       "fmt": "%d"
     },
@@ -100,24 +100,24 @@
       "fmt": "%.2f"
     },
     "t3_mneed_OneHalf": {
-      "value": 4,
+      "value": 8,
       "macro": "TthreeMneedGOneHalf",
       "fmt": "%d"
     },
     "t3_deff_Two": {
-      "value": 5.103891043069879,
+      "value": 3.1857399969180458,
       "macro": "TthreeDeffGTwo",
       "fmt": "%.1f",
-      "ci_lo": 2.1654919048266876,
-      "ci_hi": 5.1246361255633746
+      "ci_lo": 2.1810394805924247,
+      "ci_hi": 4.188743170641645
     },
     "t3_pr_Two": {
-      "value": 11.491880341767326,
+      "value": 12.483532838285383,
       "macro": "TthreePrGTwo",
       "fmt": "%.1f"
     },
     "t3_npc_Two": {
-      "value": 14,
+      "value": 16,
       "macro": "TthreeNpcGTwo",
       "fmt": "%d"
     },
@@ -132,19 +132,19 @@
       "fmt": "%d"
     },
     "t3_deff_Three": {
-      "value": 4.725521679794386,
+      "value": 4.77288140497236,
       "macro": "TthreeDeffGThree",
       "fmt": "%.1f",
-      "ci_lo": 2.027019644276564,
-      "ci_hi": 5.483435178711001
+      "ci_lo": 2.067275893425396,
+      "ci_hi": 5.646387267855133
     },
     "t3_pr_Three": {
-      "value": 11.031559006069791,
+      "value": 11.727697863628782,
       "macro": "TthreePrGThree",
       "fmt": "%.1f"
     },
     "t3_npc_Three": {
-      "value": 14,
+      "value": 17,
       "macro": "TthreeNpcGThree",
       "fmt": "%d"
     },
@@ -154,19 +154,19 @@
       "fmt": "%.2f"
     },
     "t3_deff_Four": {
-      "value": 3.991128868030819,
+      "value": 3.2782128280399876,
       "macro": "TthreeDeffGFour",
       "fmt": "%.1f",
-      "ci_lo": 2.3963827124934025,
-      "ci_hi": 3.791304188713585
+      "ci_lo": 2.5780582405280508,
+      "ci_hi": 3.881803926626778
     },
     "t3_pr_Four": {
-      "value": 10.040450343267292,
+      "value": 11.31464655447754,
       "macro": "TthreePrGFour",
       "fmt": "%.1f"
     },
     "t3_npc_Four": {
-      "value": 13,
+      "value": 15,
       "macro": "TthreeNpcGFour",
       "fmt": "%d"
     },

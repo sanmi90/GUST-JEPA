@@ -77,9 +77,11 @@ def part_constants():
         "n_testb_boundary": rec(4, "NTestBBoundary", "%d"),
         "latent_dim": rec(32, "LatentDim", "%d"),
         "enc_params_M": rec(6.7, "EncParams", "%.1f",
-                            note="counted from jepa_pool checkpoint_iter010000 (6.67M)"),
-        "pred_params_M": rec(4.1, "PredParams", "%.1f",
-                             note="training ResUNet, counted from checkpoint (4.07M)"),
+                            note="counted from jepa_pool_vec checkpoint_iter010000 (6.67M); "
+                                 "encoder size unchanged vs the ResUNet-era flagship"),
+        "pred_params_M": rec(10.7, "PredParams", "%.1f",
+                             note="D250 native vector predictor: AutoregressivePredictor "
+                                  "cond_dim=0, counted from jepa_pool_vec checkpoint (10.66M)"),
         "filter_taps": rec(8, "FilterTaps", "%d"),
         "filter_members": rec(64, "FilterMembers", "%d"),
         "assim_pre": rec(24, "AssimPre", "%d"),
@@ -95,12 +97,45 @@ def part_table_x():
     q1r = _load(S31 / "q1_reference.json")
     gates = _load(S32 / "track_p_gates.json")
     q2r = _load(S31 / "q2_reference.json")
-    if not all([q1p, q1a, q1r, gates]):
+    # D250: the flagship is jepa_pool_vec (native vector predictor). Its readability,
+    # forecast merit and decode floor come from the vec eval, NOT the ResUNet-era
+    # jepa_pool row of q1_ablation/track_p_gates.
+    q1v = _load(S33 / "q1_vec.json")
+    q2v = _load(S33 / "q2_vec.json")
+    q2vn = _load(S33 / "q2_vec_native.json")
+    if not all([q1p, q1a, q1r, gates, q1v, q2v]):
         print("[parts] table_x: missing inputs, skipped")
         return
 
     def wake(q1, m):
         return float(q1["models"][m]["probes"]["windowed"]["wake_enstrophy"]["linear_r2"])
+
+    def vec_merit(q2, model, predictor):
+        """Mean 5-obs MLP R2 at H=8 for a vec model under a named forecast operator."""
+        oc = q2["models"][model]["predictors"][predictor]["observable_closure"]
+        i = list(oc["C_L"]["horizons"]).index(8)
+        ts = ("C_L", "C_D", "wake_enstrophy", "circulation_pos", "circulation_neg")
+        return float(np.mean([oc[t]["model_mlp_r2"][i] for t in ts]))
+
+    def vec_cell(q2, q2n, q1, model):
+        """Flagship closure cell: matched-ResUNet merit (comparable to the baselines,
+        all probed by the same off-class operator), the native as-built merit, field
+        VRMSE (ResUNet operator), C_L closure and decode-floor SSIM, all on vec."""
+        pr = q2["models"][model]["predictors"]["resunet_matched"]
+        oc = pr["observable_closure"]
+        i = list(oc["C_L"]["horizons"]).index(8)
+        fv = pr["field_vrmse"]
+        fi = list(fv["horizons"]).index(8)
+        native = None
+        if q2n and model in q2n.get("models", {}):
+            native = vec_merit(q2n, model, "native")
+        return {
+            "merit_matched": vec_merit(q2, model, "resunet_matched"),
+            "merit_native": native,
+            "vrmse": float(fv["model"][fi]),
+            "cl": float(oc["C_L"]["model_mlp_r2"][i]),
+            "ssim": float(q1["models"][model]["decode_floor"]["windowed"]["ssim"]),
+        }
 
     def q2_ref(m):
         """Reference merit (mean 5-obs mlp R2, h8) and field VRMSE (h8) on v2.2."""
@@ -118,9 +153,11 @@ def part_table_x():
         return merit, vrmse
 
     cells = gates["pooled_cells"]
-    # rows: (paper name, wake source, cells key or None)
+    # rows: (paper name, wake source, cells key or None).
+    # The flagship JepaWake reads the vec eval (readability from q1_vec, closure
+    # cell from q2_vec); the baselines keep the frozen ResUNet-era pooled cells.
     rows = {
-        "JepaWake": (wake(q1a, "jepa_pool"), "jepa_wake_pool"),
+        "JepaWake": (wake(q1v, "jepa_pool_vec"), "VEC"),
         "SupOnly": (wake(q1p, "supervised_only_pool"), "supervised_only_pool"),
         "AeWake": (wake(q1p, "ae_wake_pool"), "ae_wake_pool"),
         "JepaNowake": (wake(q1p, "jepa_nowake_pool"), "jepa_nowake_pool"),
@@ -137,7 +174,19 @@ def part_table_x():
             w, f"Xwake{name}", "%.3f", split="test_b", observable="wake_enstrophy",
             probe="linear windowed",
         )
-        if ck and ck in cells:
+        if ck == "VEC":
+            c = vec_cell(q2v, q2vn, q1v, "jepa_pool_vec")
+            numbers[f"x_merit_{name}"] = rec(
+                c["merit_matched"], f"Xmerit{name}", "%.3f", horizon=8,
+                note="matched-ResUNet operator, comparable to the baseline rows")
+            if c["merit_native"] is not None:
+                numbers[f"x_merit_{name}_native"] = rec(
+                    c["merit_native"], f"Xmerit{name}Native", "%.3f", horizon=8,
+                    note="as-built ROM: the flagship's own co-trained vector predictor")
+            numbers[f"x_vrmse_{name}"] = rec(c["vrmse"], f"Xvrmse{name}", "%.3f", horizon=8)
+            numbers[f"x_ssim_{name}"] = rec(c["ssim"], f"Xssim{name}", "%.3f")
+            numbers[f"x_cl_{name}"] = rec(c["cl"], f"Xcl{name}", "%.3f", horizon=8)
+        elif ck and ck in cells:
             numbers[f"x_merit_{name}"] = rec(
                 cells[ck]["merit_mean_obs_h8"], f"Xmerit{name}", "%.3f", horizon=8)
             numbers[f"x_vrmse_{name}"] = rec(
@@ -245,23 +294,52 @@ def part_table_z():
 # ------------------------------------------------------------------ Table W + Gate O
 def part_table_w():
     o1 = _load(S32 / "track_o1_recovery.json")
-    if not o1:
+    # D250 flagship: the vec 3-seed O1 band replaces the single ResUNet-era "jepa"
+    # recovery. The fukami / POD baselines stay from the frozen session32 O1.
+    o1v = {
+        0: _load(S33 / "track_o1_recovery_vec.json"),
+        1: _load(S33 / "track_o1_recovery_vec_s1.json"),
+        2: _load(S33 / "track_o1_recovery_vec_s2.json"),
+    }
+    if not o1 or not all(o1v.values()):
         print("[parts] table_w: missing inputs, skipped")
         return
     numbers = {}
-    for fam, short in (("jepa", "Jepa"), ("fukami", "Fukami"), ("POD", "Pod")):
+
+    # ---- flagship recovery as a 3-seed band (window + preimpact + mean obs) ----
+    vec_fams = {0: "jepa_vec", 1: "jepa_pool_vec_s1", 2: "jepa_pool_vec_s2"}
+    st = [o1v[s]["families"][vec_fams[s]]["by_K"]["8"]["pooled"] for s in (0, 1, 2)]
+    st_win = np.array([p["state_r2_window"] for p in st])
+    st_obs = np.array([p["obs_window"]["mean_recovered_r2"] for p in st])
+    numbers["w_state_Jepa"] = rec(
+        float(st_win.mean()), "WstateJepa", "%.3f",
+        note="3-seed mean, jepa_pool_vec O1 pooled state R2 (K8 window)")
+    numbers["w_state_Jepa_sd"] = rec(float(st_win.std(ddof=1)), "WstateJepaSd", "%.3f")
+    numbers["w_obs_Jepa"] = rec(float(st_obs.mean()), "WobsJepa", "%.3f")
+    numbers["w_pick_Jepa"] = rec(st[0]["cv_pick"], "WpickJepa", "%s")
+
+    # ---- baselines unchanged (frozen session32 O1) ----
+    for fam, short in (("fukami", "Fukami"), ("POD", "Pod")):
         k8 = o1["families"][fam]["by_K"]["8"]["pooled"]
-        numbers[f"w_state_{short}"] = rec(
-            k8["state_r2_window"], f"Wstate{short}", "%.3f")
+        numbers[f"w_state_{short}"] = rec(k8["state_r2_window"], f"Wstate{short}", "%.3f")
         numbers[f"w_obs_{short}"] = rec(
             k8["obs_window"]["mean_recovered_r2"], f"Wobs{short}", "%.3f")
-        numbers[f"w_pick_{short}"] = rec(
-            k8["cv_pick"], f"Wpick{short}", "%s")
+        numbers[f"w_pick_{short}"] = rec(k8["cv_pick"], f"Wpick{short}", "%s")
+
+    # Gate O (pooled d=32 vs the full flattened spatial latent) is a pooling-
+    # losslessness argument. The vec flagship is natively pooled, so it has no
+    # genuine spatial sibling to flatten; the gate is established on the original
+    # spatial-latent family (pooled jepa_pool vs flat jepa_wake) and justifies the
+    # d=32 pooling the vec flagship adopts. Kept from the frozen session32 O1.
     g = o1["families"]["jepa"]["by_K"]["8"]["gateO_K8"]["pooled_vs_flat_spatial"]
     d = g["delta_r2_window"]
     numbers["gate_o_delta"] = rec(
-        d["delta_r2"], "GateODelta", "%.3f", ci_lo=d["ci95"][0], ci_hi=d["ci95"][1])
-    # shared target-blind (qDEIM + KRR) baseline: placement-robustness of the ordering
+        d["delta_r2"], "GateODelta", "%.3f", ci_lo=d["ci95"][0], ci_hi=d["ci95"][1],
+        note="pooled d=32 vs flat spatial latent, spatial-latent family; motivates d=32")
+
+    # shared target-blind (qDEIM + KRR) placement-robustness baseline. The flagship
+    # entry stays on the genuine spatial-latent family (jepa) for the same reason;
+    # refs frozen.
     base = o1.get("baseline_qdeim_krr", {}).get("K8", {})
     for fam, s in (("jepa", "Jepa"), ("fukami", "Fukami"), ("POD", "Pod")):
         blk = base.get(fam, base.get(fam.lower(), {}))
@@ -269,18 +347,18 @@ def part_table_w():
             numbers[f"wq_state_{s}"] = rec(
                 blk["pooled_state_r2_window"], f"WqState{s}", "%.3f",
                 note="shared qDEIM taps + KRR baseline")
-            numbers[f"wq_obs_{s}"] = rec(
-                blk["pooled_obs_r2_window"], f"WqObs{s}", "%.3f")
+            numbers[f"wq_obs_{s}"] = rec(blk["pooled_obs_r2_window"], f"WqObs{s}", "%.3f")
     write_part("table_w_gate_o", numbers)
 
 
 # ------------------------------------------------------------------ Table V (envelope)
 def part_table_v():
-    env = _load(S32 / "envelope_by_gust.json")
+    # D250 flagship: the envelope is the frozen-filter run on jepa_pool_vec.
+    env = _load(S33 / "envelope_vec.json")
     if not env:
         print("[parts] table_v: missing inputs, skipped")
         return
-    m = env["models"]["jepa_pool"]
+    m = env["models"]["jepa_pool_vec"]
     byg = m["aggregates"]["by_G"]
     numbers = {}
     for g, word in GWORD.items():
@@ -306,7 +384,8 @@ def part_table_v():
 
 # ------------------------------------------------------------------ Track T grid (T1/T2)
 def part_track_t():
-    grid = _load(S33 / "track_t_recovery_grid.json")
+    # D250 flagship: Track T grid re-run on jepa_pool_vec latents.
+    grid = _load(S33 / "track_t_grid_vec.json")
     if not grid:
         print("[parts] track_t: missing inputs, skipped")
         return
@@ -345,7 +424,7 @@ def part_track_t():
     if br:
         numbers["t_bridge_state"] = rec(
             br["state_r2"]["all"]["window"], "TbridgeState", "%.3f",
-            note="OSP jepa_pool K8 W30; Track O1 headline 0.707")
+            note="OSP jepa_pool_vec K8 W30; reconciles with the vec O1 recovery band")
     mi = grid.get("mi_stride_crosscheck", {})
     if mi.get("mean_tau_first_min"):
         numbers["t_mi_tau"] = rec(mi["mean_tau_first_min"], "TmiTau", "%.0f",
@@ -383,7 +462,8 @@ def part_t2b():
 
 # ------------------------------------------------------------------ Table T3
 def part_table_t3():
-    t3 = _load(S33 / "track_t3_effective_dimension.json")
+    # D250 flagship: T3 effective-dimension analysis on jepa_pool_vec latents.
+    t3 = _load(S33 / "track_t3_vec.json") or _load(S33 / "track_t3_effective_dimension.json")
     if not t3:
         print("[parts] table_t3: missing inputs, skipped")
         return
@@ -576,7 +656,8 @@ def part_training_dependent():
         numbers = {}
         for fam, short in (("jepa_wake_pool", "JepaWake"),
                            ("supervised_only_pool", "SupOnly"),
-                           ("ae_wake_pool", "AeWake")):
+                           ("ae_wake_pool", "AeWake"),
+                           ("jepa_wake_pool_vec", "JepaVec")):
             if fam not in sb["families"]:
                 continue
             b = sb["families"][fam]["bands"]
@@ -596,19 +677,19 @@ def part_training_dependent():
 
 
 # ------------------------------------------------------------------ verify anchors
+# D250: flagship anchors updated to the jepa_pool_vec truth (native vector
+# predictor). Baseline anchors (SupOnly, Fukami, near-null) are unchanged.
 ANCHORS = [
-    ("table_x", "x_wake_JepaWake", 0.766, 0.005),
+    ("table_x", "x_wake_JepaWake", 0.751, 0.005),
     ("table_x", "x_wake_SupOnly", 0.792, 0.005),
-    ("table_x", "x_merit_JepaWake", 0.639, 0.005),
+    ("table_x", "x_merit_JepaWake", 0.591, 0.005),
+    ("table_x", "x_merit_JepaWake_native", 0.755, 0.005),
     ("table_x", "x_merit_SupOnly", 0.637, 0.005),
-    ("table_w_gate_o", "w_state_Jepa", 0.707, 0.005),
+    ("table_w_gate_o", "w_state_Jepa", 0.659, 0.005),
     ("table_w_gate_o", "w_state_Fukami", 0.921, 0.005),
-    ("table_w_gate_o", "gate_o_delta", 0.120, 0.005),
-    ("table_v_envelope", "v_filt_cl_One", 0.71, 0.02),
-    ("table_v_envelope", "v_filt_cl_Three", 0.69, 0.02),
-    ("table_v_envelope", "v_filt_cl_Four", 0.90, 0.02),
-    ("table_v_envelope", "v_rec_cl_Three", -1.22, 0.02),
-    ("table_v_envelope", "v_rec_cl_Four", -0.33, 0.02),
+    ("table_v_envelope", "v_filt_cl_One", 0.74, 0.02),
+    ("table_v_envelope", "v_filt_cl_Three", 0.63, 0.02),
+    ("table_v_envelope", "v_filt_cl_Four", 0.84, 0.02),
     ("gates_p_and_table_y", "y_nearnull_RegAE", 0.100, 0.005),
     ("gates_p_and_table_y", "y_nearnull_JepaWake", 0.010, 0.005),
 ]

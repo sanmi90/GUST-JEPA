@@ -2,7 +2,7 @@
   "part": "table_v_envelope",
   "numbers": {
     "v_filt_cl_Zero": {
-      "value": -4.73943057007158,
+      "value": -14.191615338424224,
       "macro": "VfiltCLGZero",
       "fmt": "%.2f",
       "note": "median analysis C_L R2, impact"
@@ -13,17 +13,17 @@
       "fmt": "%.2f"
     },
     "v_rec_cl_Zero": {
-      "value": -4.333859455509206,
+      "value": -5.91600693943802,
       "macro": "VrecCLGZero",
       "fmt": "%.2f"
     },
     "v_nis_Zero": {
-      "value": 0.9077692880668514,
+      "value": 0.5888793599870639,
       "macro": "VnisGZero",
       "fmt": "%.1f"
     },
     "v_filt_cl_Half": {
-      "value": 0.020845123683902456,
+      "value": 0.2528883303864947,
       "macro": "VfiltCLGHalf",
       "fmt": "%.2f",
       "note": "median analysis C_L R2, impact"
@@ -34,17 +34,17 @@
       "fmt": "%.2f"
     },
     "v_rec_cl_Half": {
-      "value": 0.6046378045943231,
+      "value": 0.3417177003566602,
       "macro": "VrecCLGHalf",
       "fmt": "%.2f"
     },
     "v_nis_Half": {
-      "value": 1.3603887831981356,
+      "value": 1.0458658805733836,
       "macro": "VnisGHalf",
       "fmt": "%.1f"
     },
     "v_filt_cl_One": {
-      "value": 0.7063109596117505,
+      "value": 0.7365065347137629,
       "macro": "VfiltCLGOne",
       "fmt": "%.2f",
       "note": "median analysis C_L R2, impact"
@@ -55,102 +55,97 @@
       "fmt": "%.2f"
     },
     "v_rec_cl_One": {
-      "value": 0.6347746693181264,
+      "value": 0.726387747294507,
       "macro": "VrecCLGOne",
       "fmt": "%.2f"
     },
     "v_nis_One": {
-      "value": 2.209122833404313,
+      "value": 1.9438498405787235,
       "macro": "VnisGOne",
       "fmt": "%.1f"
     },
     "v_filt_cl_OneHalf": {
-      "value": 0.8735580114400439,
+      "value": 0.8311598655250751,
       "macro": "VfiltCLGOneHalf",
       "fmt": "%.2f",
       "note": "median analysis C_L R2, impact"
     },
     "v_div_OneHalf": {
-      "value": 0.17857142857142858,
+      "value": 0.08928571428571429,
       "macro": "VdivGOneHalf",
       "fmt": "%.2f"
     },
     "v_rec_cl_OneHalf": {
-      "value": 0.6435218106271248,
+      "value": 0.6509766935506833,
       "macro": "VrecCLGOneHalf",
       "fmt": "%.2f"
     },
     "v_nis_OneHalf": {
-      "value": 5.383949818339283,
+      "value": 4.678812951482082,
       "macro": "VnisGOneHalf",
       "fmt": "%.1f"
     },
     "v_filt_cl_Two": {
-      "value": 0.7841885272869611,
+      "value": 0.7348587519435545,
       "macro": "VfiltCLGTwo",
       "fmt": "%.2f",
       "note": "median analysis C_L R2, impact"
     },
     "v_div_Two": {
-      "value": 0.4125,
+      "value": 0.325,
       "macro": "VdivGTwo",
       "fmt": "%.2f"
     },
     "v_rec_cl_Two": {
-      "value": 0.35496401107908965,
+      "value": 0.23812546565546078,
       "macro": "VrecCLGTwo",
       "fmt": "%.2f"
     },
     "v_nis_Two": {
-      "value": 10.152209989804934,
+      "value": 6.559943843038167,
       "macro": "VnisGTwo",
       "fmt": "%.1f"
     },
     "v_filt_cl_Three": {
-      "value": 0.6897836208862795,
+      "value": 0.6263481567551326,
       "macro": "VfiltCLGThree",
       "fmt": "%.2f",
       "note": "median analysis C_L R2, impact"
     },
     "v_div_Three": {
-      "value": 0.75,
+      "value": 0.6785714285714286,
       "macro": "VdivGThree",
       "fmt": "%.2f"
     },
     "v_rec_cl_Three": {
-      "value": -1.2203332051544242,
+      "value": -0.4621047175582348,
       "macro": "VrecCLGThree",
       "fmt": "%.2f"
     },
     "v_nis_Three": {
-      "value": 18.134237602167353,
+      "value": 12.285856504583949,
       "macro": "VnisGThree",
       "fmt": "%.1f"
     },
     "v_filt_cl_Four": {
-      "value": 0.8960931377661643,
+      "value": 0.8437803624968672,
       "macro": "VfiltCLGFour",
       "fmt": "%.2f",
       "note": "median analysis C_L R2, impact"
     },
     "v_div_Four": {
-      "value": 0.825,
+      "value": 0.725,
       "macro": "VdivGFour",
       "fmt": "%.2f"
     },
     "v_rec_cl_Four": {
-      "value": -0.3282107953976737,
+      "value": -0.3326545581758974,
       "macro": "VrecCLGFour",
       "fmt": "%.2f"
     },
     "v_nis_Four": {
-      "value": 19.383413714131628,
+      "value": 15.1767708862135,
       "macro": "VnisGFour",
-      "fmt": "%.1f"
-    },
-    "v_divthresh_DHalf": {
-      "value": 3.0,
-      "macro": "VdivThreshDHalf",
       "fmt": "%.1f"
     },
     "v_divthresh_DOne": {
@@ -159,7 +154,7 @@
       "fmt": "%.1f"
     },
     "v_divthresh_DOneHalf": {
-      "value": 2.0,
+      "value": 3.0,
       "macro": "VdivThreshDOneHalf",
       "fmt": "%.1f"
     }

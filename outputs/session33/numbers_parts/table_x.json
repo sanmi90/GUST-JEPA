@@ -2,7 +2,7 @@
   "part": "table_x",
   "numbers": {
     "x_wake_JepaWake": {
-      "value": 0.7654353819969092,
+      "value": 0.7510058659700889,
       "macro": "XwakeJepaWake",
       "fmt": "%.3f",
       "split": "test_b",
@@ -10,24 +10,32 @@
       "probe": "linear windowed"
     },
     "x_merit_JepaWake": {
-      "value": 0.6392479820512291,
+      "value": 0.5911740890886588,
       "macro": "XmeritJepaWake",
       "fmt": "%.3f",
-      "horizon": 8
+      "horizon": 8,
+      "note": "matched-ResUNet operator, comparable to the baseline rows"
+    },
+    "x_merit_JepaWake_native": {
+      "value": 0.7550533206314364,
+      "macro": "XmeritJepaWakeNative",
+      "fmt": "%.3f",
+      "horizon": 8,
+      "note": "as-built ROM: the flagship's own co-trained vector predictor"
     },
     "x_vrmse_JepaWake": {
-      "value": 0.9691949087326402,
+      "value": 0.961966235646642,
       "macro": "XvrmseJepaWake",
       "fmt": "%.3f",
       "horizon": 8
     },
     "x_ssim_JepaWake": {
-      "value": 0.7780438142781496,
+      "value": 0.7790507634588087,
       "macro": "XssimJepaWake",
       "fmt": "%.3f"
     },
     "x_cl_JepaWake": {
-      "value": 0.543732816723379,
+      "value": 0.5860233240091283,
       "macro": "XclJepaWake",
       "fmt": "%.3f",
       "horizon": 8

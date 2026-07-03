@@ -25,29 +25,23 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 
 import scripts.session32.track_o1_recovery as o1  # noqa: E402
 
-VEC_FAMILY = {
-    # pooled == spatial name (the vec model has no spatial tier), mirroring the
-    # fukami/POD single-tier entries in the frozen FAMILIES table.
-    "jepa_vec": {"pooled": "jepa_pool_vec", "spatial": "jepa_pool_vec", "role": "predictive"},
-}
 
-
-def build_vec_taps(cache_dir: Path, out_path: Path, seed: int) -> Path:
-    """Merge the frozen OSP taps with a fresh jepa_pool_vec staircase."""
+def build_vec_taps(cache_dir: Path, out_path: Path, seed: int, model: str) -> Path:
+    """Merge the frozen OSP taps with a fresh staircase for ``model``."""
     from scripts.session32.osp_select import build_osp_taps
     from src.evaluation.rom_eval import load_windows
 
     osp = json.loads((REPO_ROOT / "outputs/session32/osp_taps_v2p2.json").read_text())
-    if "jepa_pool_vec" not in osp:
-        print("[vec-o1] building OSP staircase for jepa_pool_vec", flush=True)
+    if model not in osp:
+        print(f"[vec-o1] building OSP staircase for {model}", flush=True)
         windows = load_windows(REPO_ROOT / "outputs/session31/windows_v2p2.json")
         qdeim = json.loads(
             (REPO_ROOT / "outputs/session32/qdeim_taps_v2p2.json").read_text()
         )
-        caches = {"jepa_pool_vec": o1.load_cache(cache_dir, "jepa_pool_vec", "train")}
+        caches = {model: o1.load_cache(cache_dir, model, "train")}
         p_train = o1.load_pressure(cache_dir, "train")["p_wall"]
         payload = build_osp_taps(caches, windows, p_train, w=30, qdeim_taps=qdeim, seed=seed)
-        osp["jepa_pool_vec"] = payload["jepa_pool_vec"]
+        osp[model] = payload[model]
     out_path.parent.mkdir(parents=True, exist_ok=True)
     out_path.write_text(json.dumps(osp, indent=2))
     print(f"[vec-o1] taps -> {out_path}", flush=True)
@@ -55,26 +49,34 @@ def build_vec_taps(cache_dir: Path, out_path: Path, seed: int) -> Path:
 
 
 def main(argv=None):
-    ap = argparse.ArgumentParser(description="Track O1 recovery for jepa_pool_vec (D250)")
+    ap = argparse.ArgumentParser(description="Track O1 recovery for a vec model (D250)")
     ap.add_argument("--gpu", type=int, default=0)
     ap.add_argument("--seed", type=int, default=0)
+    ap.add_argument("--model", default="jepa_pool_vec")
     ap.add_argument("--cache-dir", default="outputs/session33/q1_vec_latents")
     ap.add_argument("--out", default="outputs/session33/track_o1_recovery_vec.json")
     args = ap.parse_args(argv)
 
     cache_dir = REPO_ROOT / args.cache_dir
+    taps_stem = args.model.replace("jepa_pool_vec", "vec")
     taps_path = build_vec_taps(
-        cache_dir, REPO_ROOT / "outputs/session33/osp_taps_vec.json", args.seed
+        cache_dir,
+        REPO_ROOT / f"outputs/session33/osp_taps_{taps_stem}.json",
+        args.seed,
+        args.model,
     )
 
-    o1.FAMILIES.update(VEC_FAMILY)
+    fam = "jepa_vec" if args.model == "jepa_pool_vec" else args.model
+    o1.FAMILIES.update(
+        {fam: {"pooled": args.model, "spatial": args.model, "role": "predictive"}}
+    )
     return o1.main(
         [
             "--gpu", str(args.gpu),
             "--seed", str(args.seed),
             "--cache-dir", str(cache_dir),
             "--osp-taps", str(taps_path),
-            "--families", "jepa_vec",
+            "--families", fam,
             "--out", args.out,
         ]
     )

@@ -66,6 +66,28 @@
       "value": 0.03279421043250581,
       "macro": "SeedMeritSdAeWake",
       "fmt": "%.3f"
+    },
+    "seed_wake_JepaVec": {
+      "value": 0.7273072770824905,
+      "macro": "SeedWakeJepaVec",
+      "fmt": "%.3f",
+      "seed_mean": 0.7273072770824905,
+      "seed_sd": 0.021343477047865538
+    },
+    "seed_wake_sd_JepaVec": {
+      "value": 0.021343477047865538,
+      "macro": "SeedWakeSdJepaVec",
+      "fmt": "%.3f"
+    },
+    "seed_merit_JepaVec": {
+      "value": 0.551042420116496,
+      "macro": "SeedMeritJepaVec",
+      "fmt": "%.3f"
+    },
+    "seed_merit_sd_JepaVec": {
+      "value": 0.09819774517699037,
+      "macro": "SeedMeritSdJepaVec",
+      "fmt": "%.3f"
     }
   }
 }
