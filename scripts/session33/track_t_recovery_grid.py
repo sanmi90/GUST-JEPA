@@ -216,6 +216,11 @@ def obs_se_tss(readout, targets, obs, mask):
 def main(argv=None):
     ap = argparse.ArgumentParser(description="Track T (K, W) recovery grid on jepa_pool")
     ap.add_argument("--cache-dir", default="outputs/session31/q1_latents")
+    ap.add_argument(
+        "--model",
+        default="jepa_pool",
+        help="Pooled model whose latent cache + OSP staircase to use (D250: jepa_pool_vec).",
+    )
     ap.add_argument("--qdeim-taps", default="outputs/session32/qdeim_taps_v2p2.json")
     ap.add_argument("--osp-taps", default="outputs/session32/osp_taps_v2p2.json")
     ap.add_argument("--windows", default="outputs/session31/windows_v2p2.json")
@@ -244,7 +249,7 @@ def main(argv=None):
     osp = json.loads(_resolve(args.osp_taps).read_text())
 
     # ---- rows: train + test_b concatenated (O1 layout), split membership kept
-    pooled = {s: load_cache(cache_dir, "jepa_pool", s) for s in ("train", "test_b")}
+    pooled = {s: load_cache(cache_dir, args.model, s) for s in ("train", "test_b")}
     pres = {s: load_pressure(cache_dir, s) for s in ("train", "test_b")}
 
     def cat(g):
@@ -283,7 +288,7 @@ def main(argv=None):
     payload = {
         "task": "SESSION 33 Track T -- sensors traded for delays (T1+T2 grid)",
         "params": {
-            "family": "jepa_pool (pooled d=32 coefficient state)",
+            "family": f"{args.model} (pooled d=32 coefficient state)",
             "grid_Ks": list(args.ks),
             "grid_Ws": list(args.windows_grid),
             "tap_policy": (
@@ -350,14 +355,14 @@ def main(argv=None):
             )
             out_path.write_text(json.dumps(payload, indent=2))
 
-    # ---- bridge cell: OSP jepa_pool K8, W=30 (reconciles with Track O1 headline)
+    # ---- bridge cell: OSP per-model K8, W=30 (reconciles with Track O1 headline)
     if not args.no_bridge:
         rec, _ = run_cell(
-            p_rows, keys, frame, osp["jepa_pool"]["K8"], 30, z_pooled, targets, groups, masks,
+            p_rows, keys, frame, osp[args.model]["K8"], 30, z_pooled, targets, groups, masks,
             device=device, n_components=args.n_components, seed=args.seed,
         )
         rec["note"] = (
-            "osp_per_model jepa_pool taps; compare Track O1 pooled K8 state_r2_window=0.707"
+            f"osp_per_model {args.model} taps; compare Track O1 pooled K8 state_r2_window"
         )
         payload["bridge_osp"] = rec
         print(

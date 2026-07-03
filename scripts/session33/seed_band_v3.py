@@ -43,6 +43,12 @@ FAMS = {
         1: ("ae_wake_pool_s1", "s33aw"),
         2: ("ae_wake_pool_s2", "s33aw"),
     },
+    # D250 native pooled pipeline: the vec flagship's own 3-seed band.
+    "jepa_wake_pool_vec": {
+        0: ("jepa_pool_vec", "vec"),
+        1: ("jepa_pool_vec_s1", "vec"),
+        2: ("jepa_pool_vec_s2", "vec"),
+    },
 }
 
 
@@ -89,6 +95,8 @@ def main(argv=None):
     ap.add_argument("--q2-abl", default="outputs/session31/q2_ablation.json")
     ap.add_argument("--q1-pool", default="outputs/session32/q1_pool.json")
     ap.add_argument("--q2-pool", default="outputs/session32/q2_pool.json")
+    ap.add_argument("--q1-vec", default="outputs/session33/q1_vec.json")
+    ap.add_argument("--q2-vec", default="outputs/session33/q2_vec.json")
     ap.add_argument("--out", default="outputs/session33/seed_band_v3.json")
     args = ap.parse_args(argv)
 
@@ -102,6 +110,11 @@ def main(argv=None):
     except FileNotFoundError:
         FAMS.pop("ae_wake_pool", None)
         print("[seeds] ae_wake seed evals not found; band limited to the spine pair")
+    try:
+        ctx["vec"] = (_load(args.q1_vec), _load(args.q2_vec))
+    except FileNotFoundError:
+        FAMS.pop("jepa_wake_pool_vec", None)
+        print("[seeds] vec seed evals not found; band excludes the D250 flagship")
 
     metrics = ("wake_linear_r2", "merit_mean_obs_h8", "cl_closure_mlp_h8", "floor_ssim")
     fams = {}

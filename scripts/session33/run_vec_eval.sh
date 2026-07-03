@@ -54,4 +54,19 @@ taskset -c 16-23 python -m scripts.session33.vec_o1_recovery --gpu "$GPU"
 echo "[vec-eval] filter envelope (jepa_pool_vec, frozen D220) @ $(date -Iseconds)"
 taskset -c 16-23 python -m scripts.session33.vec_envelope --gpu "$GPU"
 
+echo "[vec-eval] Track T (K, W) grid on vec latents @ $(date -Iseconds)"
+taskset -c 16-23 python -m scripts.session33.track_t_recovery_grid \
+  --model jepa_pool_vec --cache-dir "$CACHE" \
+  --osp-taps "$S33/osp_taps_vec.json" \
+  --out "$S33/track_t_grid_vec.json" --gpu "$GPU"
+
+echo "[vec-eval] Track T3 effective dimension on vec latents @ $(date -Iseconds)"
+taskset -c 16-23 python -m scripts.session33.track_t3_effective_dimension \
+  --model jepa_pool_vec --run-dir "$RUNS/jepa_pool_vec" \
+  --train-latents "$CACHE/latents_jepa_pool_vec_train.npz" \
+  --latents-npz "$S33/t3_latents_vec.npz" \
+  --grid-json "$S33/track_t_grid_vec.json" \
+  --envelope-json "$S33/envelope_vec.json" \
+  --out "$S33/track_t3_vec.json" --gpu "$GPU"
+
 echo "[vec-eval] complete @ $(date -Iseconds)"
