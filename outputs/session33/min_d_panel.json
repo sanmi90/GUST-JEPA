@@ -1,0 +1,39 @@
+{
+  "task": "SESSION 33 -- minimum-dimension wake-readability panel (item 2)",
+  "params": {
+    "probe": "windowed test_b wake-enstrophy LINEAR probe (Table X convention)",
+    "threshold": 0.5,
+    "pod": "exact truncation of the singular-value-ordered coefficients"
+  },
+  "panel": {
+    "jepa_pool": {
+      "curve": {
+        "4": 0.18720126517159308,
+        "8": 0.5284431018034813,
+        "16": 0.7236010445622816,
+        "32": 0.7654353819969092
+      },
+      "smallest_d_r2_ge_0.5": 8
+    },
+    "fukami_wake": {
+      "curve": {
+        "4": 0.4831717291337885,
+        "8": 0.6160296419378359,
+        "16": 0.5593627825693227,
+        "32": 0.432307418183996
+      },
+      "smallest_d_r2_ge_0.5": 8
+    },
+    "pod_truncated": {
+      "curve": {
+        "1": 0.14598447457913555,
+        "2": 0.16274063681142203,
+        "4": 0.2117741442485669,
+        "8": 0.2014263135791119,
+        "16": 0.1639313508130319,
+        "32": 0.18588590561191065
+      },
+      "smallest_d_r2_ge_0.5": null
+    }
+  }
+}

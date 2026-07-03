@@ -1,0 +1,23 @@
+{
+  "part": "min_d_panel",
+  "numbers": {
+    "mind_jepa_pool": {
+      "value": 8,
+      "macro": "MinDJepa",
+      "fmt": "%d",
+      "note": "-1 = never reaches 0.5"
+    },
+    "mind_fukami_wake": {
+      "value": 8,
+      "macro": "MinDFukamiWake",
+      "fmt": "%d",
+      "note": "-1 = never reaches 0.5"
+    },
+    "mind_pod_truncated": {
+      "value": -1,
+      "macro": "MinDPod",
+      "fmt": "%d",
+      "note": "-1 = never reaches 0.5"
+    }
+  }
+}

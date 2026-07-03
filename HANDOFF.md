@@ -9982,3 +9982,43 @@ R2>=0.5) grows 1 -> 4 -> 8 frames and becomes unreachable (<=30) at |G|>=3, coin
 the envelope divergence boundary (3.0 at D<=1.0, 2.0 at D=1.5). The naive generic bound
 2*d_eff/K (~1 frame) underestimates the requirement, as the addendum's noise/finiteness
 caveats anticipate; the paper claims the trend consistency, never the constant.
+
+### D242 (SESSION33 dimension plateau + min-d panel: d=32 defended) (2026-07-03, Session 33)
+
+11-run training campaign complete (outputs/runs/session33/, work-stealing queue, ~36
+min/run, zero failures, all PR diagnostics healthy -- d=4 pooled does NOT collapse, PR
+3.5/4). Evals through the frozen S31/S32 harness (q1_d/q2_d/q1_seeds/q2_seeds.json).
+
+PLATEAU (item 2): windowed test_b wake readability d16/d32/d64 = 0.724 / 0.765 / 0.724
+(case-clustered CIs overlap heavily; spread 0.042 < 0.05 -> FLAT). Merit h8 = 0.679 /
+0.639 / 0.679. d = 32 sits on a plateau, not a cliff; the headline-dimension choice is
+robustness-defended (Section 3.1 sentence).
+
+MIN-D PANEL (Section 4.6 d=32 defence): smallest d with wake R2 >= 0.5: jepa_pool d=8
+(curve 0.187 / 0.528 / 0.724 / 0.765 at d=4/8/16/32); fukami_wake d=8 BUT non-monotone
+(0.483 / 0.616 / 0.559 / 0.432 -- its wake readability DEGRADES with dimension above d=8);
+POD truncation NEVER reaches 0.5 (max 0.212 at d=4; flat ~0.15-0.21 at every d). PROSE:
+the wake needs >= 8 learned dimensions and no linear basis reaches it at any d.
+
+### D243 (SESSION33 3-seed spine pass: readability tie ROBUST, merit tie is NOT) (2026-07-03, Session 33)
+
+Seed bands (s0 = frozen S31/S32 runs; s1/s2 = S33 retrains; seed_band_v3.json):
+jepa_wake_pool wake 0.763 +- 0.016, merit 0.633 +- 0.006 (per-seed 0.639/0.633/0.627);
+supervised_only_pool wake 0.782 +- 0.022, merit 0.540 +- 0.163 (per-seed 0.637/0.632/
+0.352).
+
+P1 re-check on seed means: the READABILITY tie holds (delta +0.019 < 0.05). The MERIT tie
+does NOT replicate: supervised_only ties jepa on 2 of 3 seeds and collapses on the third
+(0.352), while jepa_wake's merit is seed-stable (sd 0.006 vs 0.163). The s2 run is HEALTHY
+(loss 0.06, PR 16/32, its wake readability 0.797 is the best of its three seeds): the
+latent reads the wake but supports the matched predictor poorly. PROSE FLAG (refines D240
+and the v3 doc Section 0 fact 1): keep "supervision supplies readability" (robust); the
+single-seed merit tie 0.637-vs-0.639 becomes "the predictive objective supplies seed-ROBUST
+forecastability -- without a trajectory term, whether the latent supports a forecaster is
+left to seed chance". This STRENGTHENS the division-of-labour claim (P2 ordering
+jepa >= supervised passes more comfortably on seed means, 0.633 vs 0.540).
+
+NUMBERS FREEZE: emit_numbers_parts re-run with all 14 parts -> 299 numbers, 14 report
+anchors PASS, 357 macros in paper/macros_v3.tex (0 collisions vs the 388 v2.1 macros).
+This commit is the Phase 4 freeze point: any later change to a frozen value requires a new
+decision entry.

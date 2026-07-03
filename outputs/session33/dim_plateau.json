@@ -1,0 +1,83 @@
+{
+  "task": "SESSION 33 -- pooled dimension plateau {16, 32, 64} (item 2)",
+  "params": {
+    "anchors": "d=32 = frozen jepa_pool (q1/q2_ablation)",
+    "probe": "windowed test_b wake-enstrophy linear probe + case-clustered CI",
+    "n_boot": 10000,
+    "seed": 0
+  },
+  "by_d": {
+    "16": {
+      "model": "jepa_pool_d16",
+      "floor_vrmse": 0.8817698646207555,
+      "floor_ssim": 0.770379058089387,
+      "field_vrmse_model_h8": 0.95706445876528,
+      "merit_mean_obs_h8": 0.678542976418061,
+      "cl_closure_mlp_h8": 0.6337830794540471,
+      "wake_linear_r2": 0.7236010445622816,
+      "wake_mlp_r2": 0.7829416609003328,
+      "wake_linear_ci": {
+        "r2": 0.7236010445622799,
+        "ci95": [
+          0.6141291743122143,
+          0.8381649283322457
+        ],
+        "n_rows": 2016,
+        "n_cases": 10
+      }
+    },
+    "32": {
+      "model": "jepa_pool",
+      "floor_vrmse": 0.8708491105156734,
+      "floor_ssim": 0.7780438142781496,
+      "field_vrmse_model_h8": 0.9691949087326402,
+      "merit_mean_obs_h8": 0.6392479820512291,
+      "cl_closure_mlp_h8": 0.543732816723379,
+      "wake_linear_r2": 0.7654353819969092,
+      "wake_mlp_r2": 0.8883472524532268,
+      "wake_linear_ci": {
+        "r2": 0.7654353819969092,
+        "ci95": [
+          0.5740905166633335,
+          0.8492095506454418
+        ],
+        "n_rows": 2016,
+        "n_cases": 10
+      }
+    },
+    "64": {
+      "model": "jepa_pool_d64",
+      "floor_vrmse": 0.8525929800045735,
+      "floor_ssim": 0.7864385685595815,
+      "field_vrmse_model_h8": 0.9488727279302096,
+      "merit_mean_obs_h8": 0.6793382131080494,
+      "cl_closure_mlp_h8": 0.6282948477040892,
+      "wake_linear_r2": 0.7244335036911342,
+      "wake_mlp_r2": 0.9198516941377076,
+      "wake_linear_ci": {
+        "r2": 0.724433503684103,
+        "ci95": [
+          0.495523563146198,
+          0.8406261075620053
+        ],
+        "n_rows": 2016,
+        "n_cases": 10
+      }
+    }
+  },
+  "plateau": {
+    "wake_linear_r2": {
+      "16": 0.7236010445622816,
+      "32": 0.7654353819969092,
+      "64": 0.7244335036911342
+    },
+    "merit_mean_obs_h8": {
+      "16": 0.678542976418061,
+      "32": 0.6392479820512291,
+      "64": 0.6793382131080494
+    },
+    "spread_wake_r2": 0.04183433743462761,
+    "spread_merit": 0.0400902310568203,
+    "flat_within_0.05_wake": true
+  }
+}

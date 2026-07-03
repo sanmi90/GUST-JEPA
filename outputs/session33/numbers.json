@@ -1,13 +1,16 @@
 {
   "_provenance": {
-    "generated_iso": "2026-07-02T22:20:00.576529+00:00",
-    "git_commit": "d8d2b45cd85eb40209cfaa112e2ca2d8324fb88d",
-    "n_parts": 11,
+    "generated_iso": "2026-07-03T02:22:15.364979+00:00",
+    "git_commit": "c04e34799cd0518ba05ca642f4eeb7b5ee2fa6b7",
+    "n_parts": 14,
     "parts": [
       "constants.json",
+      "dim_plateau.json",
       "gates_p_and_table_y.json",
+      "min_d_panel.json",
       "paired_stats.json",
       "physics_latent.json",
+      "seed_band.json",
       "t2b_filter.json",
       "table_t3.json",
       "table_v_envelope.json",
@@ -142,6 +145,27 @@
       "source": "constants",
       "value": 32
     },
+    "mind_fukami_wake": {
+      "fmt": "%d",
+      "macro": "MinDFukamiWake",
+      "note": "-1 = never reaches 0.5",
+      "source": "min_d_panel",
+      "value": 8
+    },
+    "mind_jepa_pool": {
+      "fmt": "%d",
+      "macro": "MinDJepa",
+      "note": "-1 = never reaches 0.5",
+      "source": "min_d_panel",
+      "value": 8
+    },
+    "mind_pod_truncated": {
+      "fmt": "%d",
+      "macro": "MinDPod",
+      "note": "-1 = never reaches 0.5",
+      "source": "min_d_panel",
+      "value": -1
+    },
     "n_cases": {
       "fmt": "%d",
       "macro": "NCases",
@@ -215,6 +239,54 @@
       "source": "gates_p_and_table_y",
       "value": -0.09250650830922125
     },
+    "plateau_merit_d16": {
+      "fmt": "%.3f",
+      "macro": "PlateauMeritDSixteen",
+      "source": "dim_plateau",
+      "value": 0.678542976418061
+    },
+    "plateau_merit_d32": {
+      "fmt": "%.3f",
+      "macro": "PlateauMeritDThirtyTwo",
+      "source": "dim_plateau",
+      "value": 0.6392479820512291
+    },
+    "plateau_merit_d64": {
+      "fmt": "%.3f",
+      "macro": "PlateauMeritDSixtyFour",
+      "source": "dim_plateau",
+      "value": 0.6793382131080494
+    },
+    "plateau_spread": {
+      "fmt": "%.3f",
+      "macro": "PlateauSpread",
+      "source": "dim_plateau",
+      "value": 0.04183433743462761
+    },
+    "plateau_wake_d16": {
+      "ci_hi": 0.8381649283322457,
+      "ci_lo": 0.6141291743122143,
+      "fmt": "%.3f",
+      "macro": "PlateauWakeDSixteen",
+      "source": "dim_plateau",
+      "value": 0.7236010445622816
+    },
+    "plateau_wake_d32": {
+      "ci_hi": 0.8492095506454418,
+      "ci_lo": 0.5740905166633335,
+      "fmt": "%.3f",
+      "macro": "PlateauWakeDThirtyTwo",
+      "source": "dim_plateau",
+      "value": 0.7654353819969092
+    },
+    "plateau_wake_d64": {
+      "ci_hi": 0.8406261075620053,
+      "ci_lo": 0.495523563146198,
+      "fmt": "%.3f",
+      "macro": "PlateauWakeDSixtyFour",
+      "source": "dim_plateau",
+      "value": 0.7244335036911342
+    },
     "probe_D_jepa": {
       "fmt": "%.2f",
       "macro": "ProbeDJepa",
@@ -238,6 +310,34 @@
       "macro": "ProbeYkrrJepa",
       "source": "physics_latent",
       "value": 0.5286907995162006
+    },
+    "seed_wake_JepaWake": {
+      "fmt": "%.3f",
+      "macro": "SeedWakeJepaWake",
+      "seed_mean": 0.7630388022615852,
+      "seed_sd": 0.016099111918872717,
+      "source": "seed_band",
+      "value": 0.7630388022615852
+    },
+    "seed_wake_SupOnly": {
+      "fmt": "%.3f",
+      "macro": "SeedWakeSupOnly",
+      "seed_mean": 0.7819021086371502,
+      "seed_sd": 0.02198386893429618,
+      "source": "seed_band",
+      "value": 0.7819021086371502
+    },
+    "seed_wake_sd_JepaWake": {
+      "fmt": "%.3f",
+      "macro": "SeedWakeSdJepaWake",
+      "source": "seed_band",
+      "value": 0.016099111918872717
+    },
+    "seed_wake_sd_SupOnly": {
+      "fmt": "%.3f",
+      "macro": "SeedWakeSdSupOnly",
+      "source": "seed_band",
+      "value": 0.02198386893429618
     },
     "ssim_L_v2p2": {
       "fmt": "%.3f",

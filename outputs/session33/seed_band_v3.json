@@ -1,0 +1,185 @@
+{
+  "task": "SESSION 33 -- 3-seed spine variance pass (item 8)",
+  "params": {
+    "seeds": "s0 = frozen S31/S32 runs; s1/s2 = S33 retrains",
+    "families": [
+      "jepa_wake_pool",
+      "supervised_only_pool"
+    ],
+    "tol": 0.05
+  },
+  "families": {
+    "jepa_wake_pool": {
+      "per_seed": {
+        "0": {
+          "model": "jepa_pool",
+          "floor_vrmse": 0.8708491105156734,
+          "floor_ssim": 0.7780438142781496,
+          "field_vrmse_model_h8": 0.9691949087326402,
+          "merit_mean_obs_h8": 0.6392479820512291,
+          "cl_closure_mlp_h8": 0.543732816723379,
+          "wake_linear_r2": 0.7654353819969092
+        },
+        "1": {
+          "model": "jepa_pool_s1",
+          "floor_vrmse": 0.8717512640713293,
+          "floor_ssim": 0.7783965497773724,
+          "field_vrmse_model_h8": 0.9601202545639416,
+          "merit_mean_obs_h8": 0.6326904482627109,
+          "cl_closure_mlp_h8": 0.6049649785131974,
+          "wake_linear_r2": 0.7778052769946171
+        },
+        "2": {
+          "model": "jepa_pool_s2",
+          "floor_vrmse": 0.8669289826686065,
+          "floor_ssim": 0.7822419391209952,
+          "field_vrmse_model_h8": 0.9707444588983424,
+          "merit_mean_obs_h8": 0.6269251840950173,
+          "cl_closure_mlp_h8": 0.5291584909934703,
+          "wake_linear_r2": 0.7458757477932295
+        }
+      },
+      "bands": {
+        "wake_linear_r2": {
+          "mean": 0.7630388022615852,
+          "sd": 0.016099111918872717,
+          "n": 3,
+          "values": [
+            0.7654353819969092,
+            0.7778052769946171,
+            0.7458757477932295
+          ]
+        },
+        "merit_mean_obs_h8": {
+          "mean": 0.6329545381363192,
+          "sd": 0.006165642299340061,
+          "n": 3,
+          "values": [
+            0.6392479820512291,
+            0.6326904482627109,
+            0.6269251840950173
+          ]
+        },
+        "cl_closure_mlp_h8": {
+          "mean": 0.559285428743349,
+          "sd": 0.04022522458610291,
+          "n": 3,
+          "values": [
+            0.543732816723379,
+            0.6049649785131974,
+            0.5291584909934703
+          ]
+        },
+        "floor_ssim": {
+          "mean": 0.7795607677255058,
+          "sd": 0.002328651030553112,
+          "n": 3,
+          "values": [
+            0.7780438142781496,
+            0.7783965497773724,
+            0.7822419391209952
+          ]
+        }
+      }
+    },
+    "supervised_only_pool": {
+      "per_seed": {
+        "0": {
+          "model": "supervised_only_pool",
+          "floor_vrmse": 0.8772550065894675,
+          "floor_ssim": 0.7743065476421135,
+          "field_vrmse_model_h8": 0.9916244653720641,
+          "merit_mean_obs_h8": 0.6369504615593259,
+          "cl_closure_mlp_h8": 0.6798881420511099,
+          "wake_linear_r2": 0.792274306281295
+        },
+        "1": {
+          "model": "supervised_only_pool_s1",
+          "floor_vrmse": 0.8723126516729142,
+          "floor_ssim": 0.7702958562752458,
+          "field_vrmse_model_h8": 0.9921753632026783,
+          "merit_mean_obs_h8": 0.6322081805126241,
+          "cl_closure_mlp_h8": 0.6530778512150666,
+          "wake_linear_r2": 0.7566510246333387
+        },
+        "2": {
+          "model": "supervised_only_pool_s2",
+          "floor_vrmse": 0.8775385973829835,
+          "floor_ssim": 0.7711281984019365,
+          "field_vrmse_model_h8": 1.0030625002255857,
+          "merit_mean_obs_h8": 0.3518189854556129,
+          "cl_closure_mlp_h8": 0.44900551982139036,
+          "wake_linear_r2": 0.7967809949968169
+        }
+      },
+      "bands": {
+        "wake_linear_r2": {
+          "mean": 0.7819021086371502,
+          "sd": 0.02198386893429618,
+          "n": 3,
+          "values": [
+            0.792274306281295,
+            0.7566510246333387,
+            0.7967809949968169
+          ]
+        },
+        "merit_mean_obs_h8": {
+          "mean": 0.5403258758425209,
+          "sd": 0.1632689747009143,
+          "n": 3,
+          "values": [
+            0.6369504615593259,
+            0.6322081805126241,
+            0.3518189854556129
+          ]
+        },
+        "cl_closure_mlp_h8": {
+          "mean": 0.5939905043625223,
+          "sd": 0.12627423423039438,
+          "n": 3,
+          "values": [
+            0.6798881420511099,
+            0.6530778512150666,
+            0.44900551982139036
+          ]
+        },
+        "floor_ssim": {
+          "mean": 0.7719102007730987,
+          "sd": 0.002116614535394711,
+          "n": 3,
+          "values": [
+            0.7743065476421135,
+            0.7702958562752458,
+            0.7711281984019365
+          ]
+        }
+      }
+    }
+  },
+  "gate_recheck": {
+    "P1_tie_on_seed_means": {
+      "wake_delta_so_minus_jw": 0.018863306375564992,
+      "merit_delta_so_minus_jw": -0.09262866229379829,
+      "tol": 0.05,
+      "pass": false
+    },
+    "P2_jw_ge_so_on_seed_means": {
+      "delta_jw_minus_so_merit": 0.09262866229379829,
+      "pass": true
+    },
+    "seed_sd_summary": {
+      "jepa_wake_pool": {
+        "wake_linear_r2": 0.016099111918872717,
+        "merit_mean_obs_h8": 0.006165642299340061,
+        "cl_closure_mlp_h8": 0.04022522458610291,
+        "floor_ssim": 0.002328651030553112
+      },
+      "supervised_only_pool": {
+        "wake_linear_r2": 0.02198386893429618,
+        "merit_mean_obs_h8": 0.1632689747009143,
+        "cl_closure_mlp_h8": 0.12627423423039438,
+        "floor_ssim": 0.002116614535394711
+      }
+    }
+  }
+}

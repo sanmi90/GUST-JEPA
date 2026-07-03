@@ -1,0 +1,46 @@
+{
+  "part": "dim_plateau",
+  "numbers": {
+    "plateau_wake_d16": {
+      "value": 0.7236010445622816,
+      "macro": "PlateauWakeDSixteen",
+      "fmt": "%.3f",
+      "ci_lo": 0.6141291743122143,
+      "ci_hi": 0.8381649283322457
+    },
+    "plateau_merit_d16": {
+      "value": 0.678542976418061,
+      "macro": "PlateauMeritDSixteen",
+      "fmt": "%.3f"
+    },
+    "plateau_wake_d32": {
+      "value": 0.7654353819969092,
+      "macro": "PlateauWakeDThirtyTwo",
+      "fmt": "%.3f",
+      "ci_lo": 0.5740905166633335,
+      "ci_hi": 0.8492095506454418
+    },
+    "plateau_merit_d32": {
+      "value": 0.6392479820512291,
+      "macro": "PlateauMeritDThirtyTwo",
+      "fmt": "%.3f"
+    },
+    "plateau_wake_d64": {
+      "value": 0.7244335036911342,
+      "macro": "PlateauWakeDSixtyFour",
+      "fmt": "%.3f",
+      "ci_lo": 0.495523563146198,
+      "ci_hi": 0.8406261075620053
+    },
+    "plateau_merit_d64": {
+      "value": 0.6793382131080494,
+      "macro": "PlateauMeritDSixtyFour",
+      "fmt": "%.3f"
+    },
+    "plateau_spread": {
+      "value": 0.04183433743462761,
+      "macro": "PlateauSpread",
+      "fmt": "%.3f"
+    }
+  }
+}

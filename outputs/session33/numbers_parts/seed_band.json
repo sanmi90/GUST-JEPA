@@ -1,0 +1,29 @@
+{
+  "part": "seed_band",
+  "numbers": {
+    "seed_wake_JepaWake": {
+      "value": 0.7630388022615852,
+      "macro": "SeedWakeJepaWake",
+      "fmt": "%.3f",
+      "seed_mean": 0.7630388022615852,
+      "seed_sd": 0.016099111918872717
+    },
+    "seed_wake_sd_JepaWake": {
+      "value": 0.016099111918872717,
+      "macro": "SeedWakeSdJepaWake",
+      "fmt": "%.3f"
+    },
+    "seed_wake_SupOnly": {
+      "value": 0.7819021086371502,
+      "macro": "SeedWakeSupOnly",
+      "fmt": "%.3f",
+      "seed_mean": 0.7819021086371502,
+      "seed_sd": 0.02198386893429618
+    },
+    "seed_wake_sd_SupOnly": {
+      "value": 0.02198386893429618,
+      "macro": "SeedWakeSdSupOnly",
+      "fmt": "%.3f"
+    }
+  }
+}
