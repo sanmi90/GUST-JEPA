@@ -1,5 +1,17 @@
 # HEADLINE NUMBERS: canonical reference for the manuscript
 
+**SUPERSEDED (2026-07-03, Session 33 / HANDOFF D243-D246).** The single source of
+truth for every v3 paper-bound number is `outputs/session33/numbers.json`
+(299+ values, frozen; rendered to `paper/macros_v3.tex` by
+`scripts/session33/emit_macros_v3.py`). No number may be cited from this file or
+hand-typed in the .tex; the v3 headline set is: filter analysis C_L R2 0.71-0.90
+for |G| >= 1 (envelope Table V), static recovery failing below the mean near
+|G| = 3, the K1xW30 = K8xW1 static recovery trade, wake readability 0.765/0.792
+(jepa/supervised, Table X), and the D239 paired families. Everything below this
+banner is the v2-era (session 18) reference, kept for history only.
+
+---
+
 This file is the single source of truth for every number cited in the paper. All
 numbers are taken from on-disk artifacts under `outputs/session18/exp_b1_test3/`
 and `outputs/session18/exp_b1/`. Cite numbers from this file rather than computing

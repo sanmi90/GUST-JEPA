@@ -10076,3 +10076,34 @@ spatial-tier galleries relocated from section 4); L9 audit (literal-number grep,
 British spelling, jfm_project_writing_style review). enforce_conventions.py R2-coverage flags
 are heuristic per-paragraph false positives against the stated section convention + table
 captions; D130 satisfied by the convention statement and four-split table coverage.
+
+### D246 (SESSION33 manuscript v3 LaTeX pass COMPLETE through L9 audit) (2026-07-03, Session 33)
+
+Phase 6 finished on session33-manuscript-v3. Since D245: L4 introduction = Carlos's
+narrative rewrite (extracted verbatim from his compiled JEPA_JFM.pdf via pdftotext, NOT
+re-keyed) integrated with the v3 contributions (division of labour, leakage-free filter +
+envelope with the delay-coordinate reading, honest limits) and the Bayesian-estimation
+lineage; his four source bib entries landed (zhong2023sparse, haughn2024deep,
+chen2026bridging, fukagata2025compressing) + verified taira2026extreme/loiseau2018/
+wang2004ssim. L6 discussion rewritten (design rule; estimation limits w/ near-null
+mechanism + delay-embedding deployment knob + light intermittently-forced sentence per
+D-havok; decodability-vs-estimability; five bounded limitations incl. the D243
+seed-fragile merit tie). L7 abstract (~250 words, fits p.1) + conclusions + TITLE = T1.
+L8 appendices: lambda_S 0.01 -> \LambdaSigreg (0.02) BUG FIXED in Appendix A + LuMamba
+note; the stale v2.1 d=64 paired table REPLACED by the pre-registered D239 estimation
+family (25 new macros, honest nulls in the caption); Appendix B delay-coordinate knobs
+(MI tau ~29 frames, FNN as cross-check, genericity caveat); Appendix C pooling-cost
+figure. L9 audit: em-dash 0 repo-wide in sections; American spellings fixed (colourbar,
+visualisation); NO v2.1 macros in any v3-rewritten section; no literal decimals in the
+rewritten Results; all referenced figure files exist; HEADLINE_NUMBERS.md superseded by a
+banner pointing at outputs/session33/numbers.json. Final build clean: latexmk 0 errors,
+0 undefined citations/references, 33 pages.
+
+REMAINING before submission-grade: (1) a fresh-eyes jfm_project_writing_style review
+pass over sections 1-6 (deferred deliberately; style reviews want distance); (2) F3 TikZ
+schematic update (add the filter loop to fig_eval_protocol); (3) sections 2/3 still
+carry some v2.1-era prose blocks (methods closure protocol paragraph quotes d in
+{16,32,64} spatial-era sweep language) that the style pass should reconcile with the
+pooled d=32 headline; (4) the GO-gate items remain author-owned (DNS Table 1, Zenodo
+DOI, CRediT/funding); (5) enforce_conventions.py flags R2-coverage on definitional
+paragraphs because its regex misses LaTeX-escaped test\_b -- checker artifact, noted.
