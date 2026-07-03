@@ -10181,3 +10181,24 @@ Remaining before submission-grade (carried from D246, updated): fresh-eyes
 jfm_project_writing_style pass; F3 TikZ filter-loop; methods d-sweep language
 reconciliation; author-owned GO-gate items; OPTIONAL prepsens v2.2 rerun (currently
 era-labelled); OPTIONAL error-map D-trend retest on v2.2 (figure was cut).
+
+### D249 (SESSION33: METHODS DESCRIBED THE WRONG PREDICTOR -- user-caught, fixed) (2026-07-03, Session 33)
+
+Carlos flagged Table 2's spatial-latent framing. Checkpoint inspection confirmed a serious
+methods error carried from v2.1: the v2.2 canonical kit trains with a RESIDUAL U-NET over
+the 24x12 latent map (pooled state broadcast up by a parameter-free adapter; context 2
+frames; multi-step OPEN-LOOP rollout H_roll=8, NO teacher forcing, online DETACHED targets,
+no EMA; anti-collapse on the un-broadcast pooled state; predictor 4.07M params), while the
+paper's Table 2 + Sections 3.1/3.2 + Appendix A described the v2.1 six-layer RoPE
+transformer (16.2M) and a "one-step + scheduled-sampling" objective. The transformer exists
+in v3 ONLY as the post-hoc matched forecast model fitted on frozen pooled trajectories
+(fit_matched_transformer), i.e. the filter's forecast step; the forecast MERIT uses the
+matched ResUNet (resunet_matched). FIXED: Table 2 rewritten from the checkpoint (params
+now macros EncParams=6.7M / PredParams=4.1M, counted); 3.1 predictor + objective prose;
+3.2 protocol now names both downstream operators and the matched d=32 comparison (v2.1
+d-sweep family lists removed); 3.3 forecast model correctly attributed; Appendix A
+architecture paragraph rewritten; method-figure caption schematic-flagged; the v2.1
+"future-lift head at {8,16,24}" baseline description replaced with the v2.2
+current-frame-heads pin. REMAINING: the two TikZ method schematics still draw the v2.1
+transformer-style predictor -- flagged for the F3 redraw. Build 32pp clean, abstract fits,
+anchors PASS (463 macros).

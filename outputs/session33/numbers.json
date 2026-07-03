@@ -1,7 +1,7 @@
 {
   "_provenance": {
-    "generated_iso": "2026-07-03T16:49:04.929240+00:00",
-    "git_commit": "6c91a6e44f007831d6a0769a23c0db17ccf22e86",
+    "generated_iso": "2026-07-03T16:58:28.383085+00:00",
+    "git_commit": "89dd73d3523f581d0afdf1209d0ec79d9ef7fa7f",
     "n_parts": 15,
     "parts": [
       "constants.json",
@@ -185,6 +185,13 @@
       "macro": "DtTc",
       "source": "constants",
       "value": 0.05
+    },
+    "enc_params_M": {
+      "fmt": "%.1f",
+      "macro": "EncParams",
+      "note": "counted from jepa_pool checkpoint_iter010000 (6.67M)",
+      "source": "constants",
+      "value": 6.7
     },
     "ff_cl_ae_wake_pool_Four": {
       "fmt": "%.2f",
@@ -629,6 +636,13 @@
       "macro": "PlateauWakeDSixtyFour",
       "source": "dim_plateau",
       "value": 0.7244335036911342
+    },
+    "pred_params_M": {
+      "fmt": "%.1f",
+      "macro": "PredParams",
+      "note": "training ResUNet, counted from checkpoint (4.07M)",
+      "source": "constants",
+      "value": 4.1
     },
     "probe_D_jepa": {
       "fmt": "%.2f",

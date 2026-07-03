@@ -79,6 +79,18 @@
       "macro": "LatentDim",
       "fmt": "%d"
     },
+    "enc_params_M": {
+      "value": 6.7,
+      "macro": "EncParams",
+      "fmt": "%.1f",
+      "note": "counted from jepa_pool checkpoint_iter010000 (6.67M)"
+    },
+    "pred_params_M": {
+      "value": 4.1,
+      "macro": "PredParams",
+      "fmt": "%.1f",
+      "note": "training ResUNet, counted from checkpoint (4.07M)"
+    },
     "filter_taps": {
       "value": 8,
       "macro": "FilterTaps",

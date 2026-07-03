@@ -12,7 +12,8 @@
 
 The model takes no gust parameters: neither the encoder nor the predictor receives
 $(G, D, Y)$. The predictive encoder $E_\theta$ maps the mid-plane vorticity field
-$\omegaz(192,96)$ to a latent $\zvec \in \mathbb{R}^d$ at $d \in \{16, 32, 64\}$. It
+$\omegaz(192,96)$ to a latent $\zvec \in \mathbb{R}^d$ at the headline dimension
+$d = \LatentDim$. It
 is a hybrid network: three convolutional downsampling stages produce a
 $24 \times 12 \times 256$ feature map, a six-layer vision transformer processes
 the resulting tokens, and the class-token output is projected to $\zvec$ through
@@ -22,11 +23,16 @@ state map, and this is the property that lets the latent itself serve as the
 observable a controller would have access to, since at deployment the gust
 parameters are not known a priori (\S\ref{sec:discussion}).
 
-The predictor $P_\phi$ advances the latent in time. It is a six-layer
-autoregressive transformer with rotary positional embeddings and a causal mask,
-and it advances the latent from its own history alone, so the model is
-unconditioned end to end. Its internal structure is given in
-Appendix~\ref{app:reg}. Figure~\ref{fig:method}(a) shows
+The predictor $P_\phi$ advances the latent in time. During training it is a
+residual U-Net over the encoder's $24 \times 12$ latent map: the pooled
+coefficient state is broadcast to that map by a parameter-free adapter, the
+predictor takes the two most recent latent maps and produces the next, and it
+advances the latent from its own history alone, so the model is unconditioned
+end to end; the anti-collapse regulariser acts on the un-broadcast pooled
+state. A separate autoregressive transformer, fitted after training on the
+frozen pooled trajectories, serves as the forecast model of the estimator in
+\S\ref{sec:methods_estimator}; the two roles are distinct and we keep them so.
+Internal structure for both is given in Appendix~\ref{app:reg}. Figure~\ref{fig:method}(a) shows
 the encoder and predictor, and panel~(b) sets out the matched-predictor evaluation
 protocol used throughout; the contrast between the predictive training signal and
 the reconstructive one, in which the reconstructive autoencoder passes the field at
@@ -39,33 +45,36 @@ Table~\ref{tab:architecture} summarises the two networks.
 
 \begin{table}
   \centering
-  \caption{Encoder and predictor configuration. The model is unconditional: no
-  gust parameters $\cvec = (G,D,Y)$ enter the encoder or the predictor. Parameter counts are for the $d = \LatentDim$ headline configuration; two small auxiliary heads read
-  observables off the encoder output during training (a lift head,
-  $4\times10^{3}$ parameters, and an $80$-dimensional wake-spectrum head,
-  $3.5\times10^{4}$ parameters; \S\ref{sec:methods_loss}).}
+  \caption{Encoder and training-predictor configuration, counted from the
+  released $d = \LatentDim$ checkpoint. The model is unconditional: no gust
+  parameters $\cvec = (G,D,Y)$ enter the encoder or the predictor. Two small
+  auxiliary heads read observables off the encoder output during training (a
+  lift head and an $80$-dimensional wake-spectrum head;
+  \S\ref{sec:methods_loss}). The estimation-stage forecast model of
+  \S\ref{sec:methods_estimator} is a separate autoregressive transformer fitted
+  on the frozen pooled trajectories, not this training predictor.}
   \label{tab:architecture}
   \small
   \fittab{\begin{tabular}{l l l}
     \toprule
      & Encoder $E_\theta$ & Predictor $P_\phi$ \\
     \midrule
-    role            & field $\to$ latent (unconditional) & latent dynamics (unconditional) \\
-    input           & $\omegaz \in \mathbb{R}^{192 \times 96}$ & latent sequence $\zvec_{1:t}$ \\
-    backbone        & 3 conv.\ stages $+$ 6-layer ViT & 6-layer autoregressive transformer \\
-    width / heads   & $256$ / $8$ & $384$ / $16$ \\
-    tokens / context & $24 \times 12 = 288$ spatial & $\le 32$ temporal (causal) \\
-    conditioning    & none & none (RoPE temporal positions, causal mask) \\
-    latent read-out & class token $\to$ linear $\to$ BatchNorm & next-step latent \\
-    parameters      & $6.7$M & $16.2$M \\
+    role            & field $\to$ latent (unconditional) & training rollout (unconditional) \\
+    input           & $\omegaz \in \mathbb{R}^{192 \times 96}$ & two latent maps (broadcast pooled state) \\
+    backbone        & 3 conv.\ stages $+$ 6-layer ViT & residual U-Net on the $24 \times 12$ map \\
+    width / heads   & $256$ / $8$ & $64$--$256$ channels \\
+    image tokens / context & $24 \times 12 = 288$ & $2$ frames, rolled $8$ steps open loop \\
+    conditioning    & none & none \\
+    latent read-out & class token $\to$ linear $\to$ BatchNorm & next latent map \\
+    parameters      & $\EncParams$M & $\PredParams$M \\
     \bottomrule
   \end{tabular}}
 \end{table}
 
-The predictive encoder and predictor are trained jointly on a one-step
-latent-prediction term, a scheduled-sampling rollout term that exposes the
-predictor to its own errors, and an anti-collapse regulariser that prevents the
-encoder from collapsing to a constant. We use the characteristic-function
+The predictive encoder and predictor are trained jointly on a multi-step
+open-loop rollout term, the predictor rolled eight steps from its own outputs
+with no teacher forcing against detached online targets, and an anti-collapse
+regulariser that prevents the encoder from collapsing to a constant. We use the characteristic-function
 regulariser of \citet{lejepa,lewm}, which matches the latent distribution to an
 isotropic Gaussian through a small number of random projections, with an
 automatic fall-back to a variance-covariance objective \citep{vicreg} should the
@@ -115,18 +124,20 @@ supervision.
     \caption{}
     \label{fig:method_eval}
   \end{subfigure}
-  \caption{The predictive model and how it is evaluated. (a) The
-  encoder maps the mid-plane vorticity field to a latent $\zvec_t$, and the
-  autoregressive predictor advances the latent from its own history; no gust
-  parameters enter the encoder or the predictor. The two auxiliary observable heads
-  (lift and wake) read $\zvec_t$ during JEPA training with small weights and are not
-  part of the latent-prediction loss; they are omitted from the schematic for
-  clarity. The visualisation decoder is trained only after the encoder is frozen and
-  is used solely for the diagnostic decodes of \S\ref{sec:res_physical}, never in
-  the predictive loss. (b) Evaluation applies the same predictor and probe family
-  $g$ to every encoder family: a probe on the simulation-encoded latent measures
-  representational closure, the headline, and the same probe on the rolled-out
-  latent $\widehat{\zvec}_{t+H}$ measures forecast closure, reported as secondary.}
+  \caption{The predictive model and how it is evaluated, drawn schematically
+  (the training predictor is the residual U-Net of
+  table~\ref{tab:architecture}). (a) The encoder maps the mid-plane vorticity
+  field to a latent $\zvec_t$, and the predictor advances the latent from its
+  own history; no gust parameters enter the encoder or the predictor. The two
+  auxiliary observable heads (lift and wake) read $\zvec_t$ during training with
+  small weights and are not part of the latent-prediction loss; they are omitted
+  from the schematic for clarity. The visualisation decoder is trained only
+  after the encoder is frozen and is used solely for the diagnostic decodes,
+  never in the predictive loss. (b) Evaluation refits the same matched forecast
+  operator and applies the same probe family $g$ to every encoder family: a
+  probe on the simulation-encoded latent measures representational closure, the
+  headline, and the same probe on the rolled-out latent
+  $\widehat{\zvec}_{t+H}$ measures forecast closure, reported as secondary.}
   \label{fig:method}
 \end{figure}
 
@@ -138,20 +149,24 @@ The comparison rests on a single principle: every baseline is the same
 pipeline, and only the encoder differs. Each encoder produces a latent
 trajectory $\zvec_{1:T}$ from the vorticity fields, and an identical probe family
 maps a latent to a physical observable for evaluation
-(figure~\ref{fig:method}(b)). The probe family is held fixed across the three
-encoder families, and the predictor is shared by all of them. The
-latent dimension is matched within each family: JEPA at $d \in \{16, 32, 64\}$, the
-reconstructive autoencoder at $d \in \{3, 32, 64\}$ to include both the published
-$d = 3$ recipe and matched-capacity variants, and POD at $d \in \{16, 32, 64\}$. The
-predictive family is additionally swept to $d \in \{4, 8\}$ and crossed with a
-conditioned predictor variant in \S\ref{sec:res_controls}. This isolation is the
-only fair way to attribute representation quality to the encoder rather than to
-incidental differences in the readout. The reconstructive autoencoder uses its
-best-documented configuration, with ReLU activations, group normalisation, and a
-future-lift head at horizons $\{8, 16, 24\}$, rather than the strict published
-variant (tanh, no normalisation, a current-lift head), which we found gives a worse
-parametric probe; the comparison is therefore against a tuned baseline, not a
-hobbled one.
+(figure~\ref{fig:method}(b)). The probe family is held fixed across the
+families, and the downstream forecast operator is refitted identically on each
+frozen latent: the forecast merit uses a matched residual U-Net of the same
+class as the training predictor, and the estimator of
+\S\ref{sec:methods_estimator} uses a matched autoregressive transformer fitted
+on the frozen pooled trajectories, in both cases the same operator, recipe and
+budget for every family. Every state is compared at the matched headline
+dimension $d = \LatentDim$; the dimension plateau at $\{16, 32, 64\}$ and the
+minimum-dimension panel of \S\ref{sec:res_latent_physics} establish that this
+choice is a robustness statement rather than a tuned operating point. This
+isolation is the only fair way to attribute representation quality to the
+encoder rather than to incidental differences in the readout. The reconstructive references use their best-documented configuration, with ReLU
+activations and group normalisation rather than the strict published variant
+(tanh, no normalisation), which we found gives a worse parametric probe; the
+comparison is therefore against a tuned baseline, not a hobbled one. The
+observable heads are pinned to the same current-frame form for every family, so
+no family gains an accidental advantage from a differently-shaped supervision
+signal.
 
 The headline figure of merit is representational closure: a fixed linear probe is
 applied to the latent encoded directly from a held-out field, and we ask whether it
@@ -194,7 +209,8 @@ the learned dynamics, which is the setting of data assimilation.
 
 We use an ensemble Kalman filter \citep{evensen1994,evensen2003} in the latent
 space. An ensemble of $N = \FilterMembers$ members is advanced one step at a time
-by the frozen predictor, the forecast step, and corrected against
+by the matched autoregressive transformer fitted once on the frozen training
+trajectories (\S\ref{sec:methods_protocol}), the forecast step, and corrected against
 $K = \FilterTaps$ span-averaged wall-pressure taps through a frozen observation
 operator $h : \zvec \mapsto p_K$, the analysis step. The observation operator maps
 the latent to pressure only. The physical observables the paper cares about, the
