@@ -10238,3 +10238,40 @@ frozen baselines untouched) + frozen D220 filter envelope (vec_envelope.py). The
 grid + T3 + seed band on vec latents, numbers refreeze (PredParams goes 4.1 -> 10.7),
 paper swap to the vec flagship. The paper's Table 2 transformer description becomes TRUE
 again; F3 TikZ needs only the filter loop added.
+
+### D251 (SESSION33: D250 vec flagship COMPLETE end-to-end; all split-brain closed) (2026-07-04, Session 33)
+
+Executed the full D250 native-vector-predictor migration across the ENTIRE paper, then
+closed every remaining old-encoder ("split-brain") number. 16 commits 35cc98a->8e1b17b on
+branch session33-manuscript-v3. Final: build 34pp / 0 errors, 13 anchors PASS, 467 macros,
+em-dash clean, British spelling, no hardcoded numbers, 0 undefined refs/citations.
+
+Flagship = jepa_pool_vec (AutoregressivePredictor cond_dim=0 rolling the (B,T,32) pooled
+vector; --predictor-class transformer). Headline moves vs the ResUNet-era flagship:
+readability 0.766->0.751 (matched), recovery 0.707->0.659+-0.009 3-seed band (real ~0.04
+dip, 2.9sd; old 0.707 was a lucky seed), PredParams 4.1->10.7.
+
+MERIT (the one hard call): ran the transformer-for-all yardstick, found it UNSTABLE
+off-class (bvae -1.375, fukami_wake -6.96) -> kept the STABLE common ResUNet yardstick
+(flagship 0.591, honestly off-class), lead the flagship forecast story with the as-built
+NATIVE 0.755, appendix documents the operator-dependence (flagship leads at tf 0.655 where
+the transformer is stable). Ordering corrected (SupOnly 0.637 > JepaWake 0.591 > AeWake).
+
+Re-derived on vec (every cited flagship number): DMD/atlas/topology/wake-code (physics 4.6),
+paired stats (F1 ns test_b / F2 decisive load / test_c decisive p=0.008), T2b (GATE FAIL
+holds), T3, H_roll (multi-step holds: merit_h16 0.488 vs 0.237, drift 0.518 vs 0.733;
+honest C_L-at-h8 inversion now stated), P3 null-space (near-null 0.014 vs regAE 0.100), P1
+paired readability (delta 0.041, CI includes zero), seed bands, dimension plateau (spread
+0.053) + min-d (d=8). New estimation predict-correct loop figure (fig_estimation_loop).
+P4 pooling cost + Gate O deliberately kept on the spatial-latent family (pooling-losslessness
+results that MOTIVATE the pooled d=32 the vec flagship adopts, not split-brain).
+
+Implementation: assemble_vector_rollout + predictor_class in canonical_model;
+--predictor-class in train_canonical (persisted); loaders rebuild from checkpoint args (old
+checkpoints load byte-identically, default resunet); Q2 native branch dispatches vector
+predictors; tests/test_vector_predictor.py (7 CPU tests). Scripts parameterized for vec:
+vec_o1_recovery, vec_envelope, hroll_ablation (--model-h8/h1), track_p3_mechanism (vec
+alias), dim_plateau + min_d_panel (--jepa-prefix/--anchor-model/--q1-d-ref), p1_paired_vec.
+
+REMAINING (author-owned, unchanged): DNS Table 1 seven \pending rows, Zenodo DOI,
+CRediT/funding. Optional: fresh-eyes jfm writing pass. Nothing else is on the old encoder.
