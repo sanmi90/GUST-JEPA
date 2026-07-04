@@ -339,19 +339,25 @@ def part_table_z():
 # ------------------------------------------------------------------ Table W + Gate O
 def part_table_w():
     o1 = _load(S32 / "track_o1_recovery.json")
-    # D250 flagship: the vec 3-seed O1 band replaces the single ResUNet-era "jepa"
-    # recovery. The fukami / POD baselines stay from the frozen session32 O1.
+    # The recovery TABLE uses the common protocol (CV-selected mapping), consistent
+    # with the delay-embedding grid and its bridge cell. The vec 3-seed O1 band is
+    # the flagship; fukami/POD from the frozen session32 O1.
     o1v = {
         0: _load(S33 / "track_o1_recovery_vec.json"),
         1: _load(S33 / "track_o1_recovery_vec_s1.json"),
         2: _load(S33 / "track_o1_recovery_vec_s2.json"),
     }
+    # D252: a per-method-TUNED LSTM (hidden/dropout grid-searched on a case-grouped
+    # val split, up to 512 hidden) recovers substantially more -- reported as an
+    # explicit additional result, since the recovery is estimator-limited.
+    o1lt_vec = _load(S33 / "track_o1_recovery_vec_lstmt.json")
+    o1lt_ref = _load(S33 / "track_o1_recovery_ref_lstmt.json")
     if not o1 or not all(o1v.values()):
         print("[parts] table_w: missing inputs, skipped")
         return
     numbers = {}
 
-    # ---- flagship recovery as a 3-seed band (window + preimpact + mean obs) ----
+    # ---- flagship recovery as a 3-seed band (common protocol) ----
     vec_fams = {0: "jepa_vec", 1: "jepa_pool_vec_s1", 2: "jepa_pool_vec_s2"}
     st = [o1v[s]["families"][vec_fams[s]]["by_K"]["8"]["pooled"] for s in (0, 1, 2)]
     st_win = np.array([p["state_r2_window"] for p in st])
@@ -363,13 +369,27 @@ def part_table_w():
     numbers["w_obs_Jepa"] = rec(float(st_obs.mean()), "WobsJepa", "%.3f")
     numbers["w_pick_Jepa"] = rec(st[0]["cv_pick"], "WpickJepa", "%s")
 
-    # ---- baselines unchanged (frozen session32 O1) ----
+    # ---- baselines (common protocol, frozen session32 O1) ----
     for fam, short in (("fukami", "Fukami"), ("POD", "Pod")):
         k8 = o1["families"][fam]["by_K"]["8"]["pooled"]
         numbers[f"w_state_{short}"] = rec(k8["state_r2_window"], f"Wstate{short}", "%.3f")
         numbers[f"w_obs_{short}"] = rec(
             k8["obs_window"]["mean_recovered_r2"], f"Wobs{short}", "%.3f")
         numbers[f"w_pick_{short}"] = rec(k8["cv_pick"], f"Wpick{short}", "%s")
+
+    # ---- per-method-tuned LSTM recovery (additional, estimator-limited) ----
+    if o1lt_vec and o1lt_ref:
+        tuned = {
+            "Jepa": o1lt_vec["families"]["jepa_vec"]["by_K"]["8"]["pooled"],
+            "Fukami": o1lt_ref["families"]["fukami"]["by_K"]["8"]["pooled"],
+            "Pod": o1lt_ref["families"]["POD"]["by_K"]["8"]["pooled"],
+        }
+        for short, blk in tuned.items():
+            numbers[f"wt_state_{short}"] = rec(
+                blk["state_r2_window"], f"WtState{short}", "%.3f",
+                note="per-method tuned LSTM (hidden up to 512); estimator-limited")
+            numbers[f"wt_obs_{short}"] = rec(
+                blk["obs_window"]["mean_recovered_r2"], f"WtObs{short}", "%.3f")
 
     # Gate O (pooled d=32 vs the full flattened spatial latent) is a pooling-
     # losslessness argument. The vec flagship is natively pooled, so it has no

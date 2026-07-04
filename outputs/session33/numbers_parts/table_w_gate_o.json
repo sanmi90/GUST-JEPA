@@ -52,6 +52,39 @@
       "macro": "WpickPod",
       "fmt": "%s"
     },
+    "wt_state_Jepa": {
+      "value": 0.8333125472645959,
+      "macro": "WtStateJepa",
+      "fmt": "%.3f",
+      "note": "per-method tuned LSTM (hidden up to 512); estimator-limited"
+    },
+    "wt_obs_Jepa": {
+      "value": 0.7296647769620711,
+      "macro": "WtObsJepa",
+      "fmt": "%.3f"
+    },
+    "wt_state_Fukami": {
+      "value": 0.937135202879507,
+      "macro": "WtStateFukami",
+      "fmt": "%.3f",
+      "note": "per-method tuned LSTM (hidden up to 512); estimator-limited"
+    },
+    "wt_obs_Fukami": {
+      "value": 0.5027669955634712,
+      "macro": "WtObsFukami",
+      "fmt": "%.3f"
+    },
+    "wt_state_Pod": {
+      "value": 0.71290242541372,
+      "macro": "WtStatePod",
+      "fmt": "%.3f",
+      "note": "per-method tuned LSTM (hidden up to 512); estimator-limited"
+    },
+    "wt_obs_Pod": {
+      "value": 0.520208123936132,
+      "macro": "WtObsPod",
+      "fmt": "%.3f"
+    },
     "gate_o_delta": {
       "value": 0.12004991695544298,
       "macro": "GateODelta",

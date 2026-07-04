@@ -8,7 +8,12 @@
   recoverability and physics recoverability disagree: the reconstruction latent is
   the most recoverable in state variance but the least in physics, while the
   predictive latent carries the most wall-recoverable physics from a less
-  recoverable state.}
+  recoverable state. The absolute state recovery is estimator-limited: a per-family
+  tuned LSTM (hidden width validation-selected up to $512$) recovers more from the
+  same taps, raising the predictive state to $\WtStateJepa$ and the reconstruction
+  to $\WtStateFukami$, and it had not saturated at the largest network tested, so
+  these are a lower bound on the wall-recoverable state; the family ordering, which
+  is the claim, is unchanged.}
   \label{tab:recovery}
   \small
   \begin{tabular}{l l c c}

@@ -1,7 +1,7 @@
 {
   "_provenance": {
-    "generated_iso": "2026-07-04T09:29:33.284063+00:00",
-    "git_commit": "263493769c1df818905237d1192d5d8becbd7eaa",
+    "generated_iso": "2026-07-04T09:33:59.544809+00:00",
+    "git_commit": "2c9950b355b7f5d94da472d50481e286a4dd3b7e",
     "n_parts": 16,
     "parts": [
       "constants.json",
@@ -2536,6 +2536,45 @@
       "note": "shared qDEIM taps + KRR baseline",
       "source": "table_w_gate_o",
       "value": 0.4997230946550042
+    },
+    "wt_obs_Fukami": {
+      "fmt": "%.3f",
+      "macro": "WtObsFukami",
+      "source": "table_w_gate_o",
+      "value": 0.5027669955634712
+    },
+    "wt_obs_Jepa": {
+      "fmt": "%.3f",
+      "macro": "WtObsJepa",
+      "source": "table_w_gate_o",
+      "value": 0.7296647769620711
+    },
+    "wt_obs_Pod": {
+      "fmt": "%.3f",
+      "macro": "WtObsPod",
+      "source": "table_w_gate_o",
+      "value": 0.520208123936132
+    },
+    "wt_state_Fukami": {
+      "fmt": "%.3f",
+      "macro": "WtStateFukami",
+      "note": "per-method tuned LSTM (hidden up to 512); estimator-limited",
+      "source": "table_w_gate_o",
+      "value": 0.937135202879507
+    },
+    "wt_state_Jepa": {
+      "fmt": "%.3f",
+      "macro": "WtStateJepa",
+      "note": "per-method tuned LSTM (hidden up to 512); estimator-limited",
+      "source": "table_w_gate_o",
+      "value": 0.8333125472645959
+    },
+    "wt_state_Pod": {
+      "fmt": "%.3f",
+      "macro": "WtStatePod",
+      "note": "per-method tuned LSTM (hidden up to 512); estimator-limited",
+      "source": "table_w_gate_o",
+      "value": 0.71290242541372
     },
     "x_cl_AeNowake": {
       "fmt": "%.3f",

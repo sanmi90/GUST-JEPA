@@ -1,0 +1,641 @@
+{
+  "task": "SESSION 32 Track O1 -- model-conditioned OSP + CV-selected recovery",
+  "params": {
+    "W_window": 30,
+    "Ks": [
+      2,
+      4,
+      8,
+      16
+    ],
+    "osp_taps_source": "/home/carlos/GUST-JEPA/outputs/session33/osp_taps_vec.json",
+    "sensor_placement": "per-model TCSI greedy (D1); qdeim_shared kept as comparison",
+    "recovery_mappings": [
+      "lstm_tuned"
+    ],
+    "recovery_selection": "encounter-grouped 5-fold GroupKFold CV, best window state-R2 (D2)",
+    "krr_n_components": 400,
+    "window_scoring": "frozen impact-union-relaxation window_mask",
+    "preimpact_scoring": "strictly pre-impact lead-in [t_impact-8, t_impact)",
+    "observables": [
+      "C_L",
+      "C_D",
+      "wake_enstrophy",
+      "circulation_pos",
+      "circulation_neg"
+    ],
+    "n_boot_case": 2000,
+    "seed": 0,
+    "state_defs": {
+      "pooled": "pooled d=32 coefficient state (own OSP taps)",
+      "gap_spatial": "GAP of spatial latent (spatial model OSP taps)",
+      "flat_spatial": "full 9216-d spatial latent (negative control)"
+    }
+  },
+  "baseline_qdeim_krr": {},
+  "families": {
+    "jepa_vec": {
+      "role": "predictive",
+      "pooled_model": "jepa_pool_vec",
+      "spatial_model": "jepa_pool_vec",
+      "spatial_is_broadcast": true,
+      "n_rows_total": 37200,
+      "n_window_rows": 14880,
+      "n_preimpact_rows": 2480,
+      "by_K": {
+        "2": {
+          "pooled": {
+            "osp_model": "jepa_pool_vec",
+            "taps": [
+              29,
+              10
+            ],
+            "per_mapping": {
+              "lstm_tuned": {
+                "state_r2_window": 0.764619710889435,
+                "state_r2_preimpact": 0.7938656624213494
+              }
+            },
+            "cv_pick": "lstm_tuned",
+            "state_r2_window": 0.764619710889435,
+            "state_r2_preimpact": 0.7938656624213494,
+            "obs_window": {
+              "per_observable_recovered_r2": {
+                "C_L": 0.8714966176133127,
+                "C_D": 0.7369631091335448,
+                "wake_enstrophy": 0.5707944773232465,
+                "circulation_pos": 0.6333369962410564,
+                "circulation_neg": 0.5442022701475278
+              },
+              "mean_recovered_r2": 0.6713586940917378,
+              "n": 14880
+            },
+            "obs_preimpact": {
+              "per_observable_recovered_r2": {
+                "C_L": 0.9163285288062804,
+                "C_D": 0.8343967416287491,
+                "wake_enstrophy": 0.34116168375217526,
+                "circulation_pos": 0.44893496471751415,
+                "circulation_neg": 0.2626536745528133
+              },
+              "mean_recovered_r2": 0.5606951186915066,
+              "n": 2480
+            },
+            "state_dim": 32
+          },
+          "gap_spatial": {
+            "osp_model": "jepa_pool_vec",
+            "taps": [
+              29,
+              10
+            ],
+            "per_mapping": {
+              "lstm_tuned": {
+                "state_r2_window": 0.764619710889435,
+                "state_r2_preimpact": 0.7938656624213494
+              }
+            },
+            "cv_pick": "lstm_tuned",
+            "state_r2_window": 0.764619710889435,
+            "state_r2_preimpact": 0.7938656624213494,
+            "obs_window": {
+              "per_observable_recovered_r2": {
+                "C_L": 0.8714966176133127,
+                "C_D": 0.7369631091335448,
+                "wake_enstrophy": 0.5707944773232465,
+                "circulation_pos": 0.6333369962410564,
+                "circulation_neg": 0.5442022701475278
+              },
+              "mean_recovered_r2": 0.6713586940917378,
+              "n": 14880
+            },
+            "obs_preimpact": {
+              "per_observable_recovered_r2": {
+                "C_L": 0.9163285288062804,
+                "C_D": 0.8343967416287491,
+                "wake_enstrophy": 0.34116168375217526,
+                "circulation_pos": 0.44893496471751415,
+                "circulation_neg": 0.2626536745528133
+              },
+              "mean_recovered_r2": 0.5606951186915066,
+              "n": 2480
+            },
+            "state_dim": 32,
+            "note": "spatial is broadcast of pooled; gap==pooled"
+          },
+          "flat_spatial": {
+            "osp_model": "jepa_pool_vec",
+            "taps": [
+              29,
+              10
+            ],
+            "per_mapping": {
+              "lstm_tuned": {
+                "state_r2_window": 0.764619710889435,
+                "state_r2_preimpact": 0.7938656624213494
+              }
+            },
+            "cv_pick": "lstm_tuned",
+            "state_r2_window": 0.764619710889435,
+            "state_r2_preimpact": 0.7938656624213494,
+            "obs_window": {
+              "per_observable_recovered_r2": {
+                "C_L": 0.8714966176133127,
+                "C_D": 0.7369631091335448,
+                "wake_enstrophy": 0.5707944773232465,
+                "circulation_pos": 0.6333369962410564,
+                "circulation_neg": 0.5442022701475278
+              },
+              "mean_recovered_r2": 0.6713586940917378,
+              "n": 14880
+            },
+            "obs_preimpact": {
+              "per_observable_recovered_r2": {
+                "C_L": 0.9163285288062804,
+                "C_D": 0.8343967416287491,
+                "wake_enstrophy": 0.34116168375217526,
+                "circulation_pos": 0.44893496471751415,
+                "circulation_neg": 0.2626536745528133
+              },
+              "mean_recovered_r2": 0.5606951186915066,
+              "n": 2480
+            },
+            "state_dim": 32,
+            "note": "spatial is broadcast of pooled; flat R2==pooled"
+          }
+        },
+        "4": {
+          "pooled": {
+            "osp_model": "jepa_pool_vec",
+            "taps": [
+              29,
+              10,
+              11,
+              170
+            ],
+            "per_mapping": {
+              "lstm_tuned": {
+                "state_r2_window": 0.8092602884947887,
+                "state_r2_preimpact": 0.8266613266416403
+              }
+            },
+            "cv_pick": "lstm_tuned",
+            "state_r2_window": 0.8092602884947887,
+            "state_r2_preimpact": 0.8266613266416403,
+            "obs_window": {
+              "per_observable_recovered_r2": {
+                "C_L": 0.9048631671658715,
+                "C_D": 0.7703120264490158,
+                "wake_enstrophy": 0.6166499488194321,
+                "circulation_pos": 0.6781778587718768,
+                "circulation_neg": 0.6094684164154434
+              },
+              "mean_recovered_r2": 0.7158942835243278,
+              "n": 14880
+            },
+            "obs_preimpact": {
+              "per_observable_recovered_r2": {
+                "C_L": 0.9465583725024331,
+                "C_D": 0.8556447272653189,
+                "wake_enstrophy": 0.5173870388644703,
+                "circulation_pos": 0.543144938448951,
+                "circulation_neg": 0.36214213809351614
+              },
+              "mean_recovered_r2": 0.6449754430349379,
+              "n": 2480
+            },
+            "state_dim": 32
+          },
+          "gap_spatial": {
+            "osp_model": "jepa_pool_vec",
+            "taps": [
+              29,
+              10,
+              11,
+              170
+            ],
+            "per_mapping": {
+              "lstm_tuned": {
+                "state_r2_window": 0.8092602884947887,
+                "state_r2_preimpact": 0.8266613266416403
+              }
+            },
+            "cv_pick": "lstm_tuned",
+            "state_r2_window": 0.8092602884947887,
+            "state_r2_preimpact": 0.8266613266416403,
+            "obs_window": {
+              "per_observable_recovered_r2": {
+                "C_L": 0.9048631671658715,
+                "C_D": 0.7703120264490158,
+                "wake_enstrophy": 0.6166499488194321,
+                "circulation_pos": 0.6781778587718768,
+                "circulation_neg": 0.6094684164154434
+              },
+              "mean_recovered_r2": 0.7158942835243278,
+              "n": 14880
+            },
+            "obs_preimpact": {
+              "per_observable_recovered_r2": {
+                "C_L": 0.9465583725024331,
+                "C_D": 0.8556447272653189,
+                "wake_enstrophy": 0.5173870388644703,
+                "circulation_pos": 0.543144938448951,
+                "circulation_neg": 0.36214213809351614
+              },
+              "mean_recovered_r2": 0.6449754430349379,
+              "n": 2480
+            },
+            "state_dim": 32,
+            "note": "spatial is broadcast of pooled; gap==pooled"
+          },
+          "flat_spatial": {
+            "osp_model": "jepa_pool_vec",
+            "taps": [
+              29,
+              10,
+              11,
+              170
+            ],
+            "per_mapping": {
+              "lstm_tuned": {
+                "state_r2_window": 0.8092602884947887,
+                "state_r2_preimpact": 0.8266613266416403
+              }
+            },
+            "cv_pick": "lstm_tuned",
+            "state_r2_window": 0.8092602884947887,
+            "state_r2_preimpact": 0.8266613266416403,
+            "obs_window": {
+              "per_observable_recovered_r2": {
+                "C_L": 0.9048631671658715,
+                "C_D": 0.7703120264490158,
+                "wake_enstrophy": 0.6166499488194321,
+                "circulation_pos": 0.6781778587718768,
+                "circulation_neg": 0.6094684164154434
+              },
+              "mean_recovered_r2": 0.7158942835243278,
+              "n": 14880
+            },
+            "obs_preimpact": {
+              "per_observable_recovered_r2": {
+                "C_L": 0.9465583725024331,
+                "C_D": 0.8556447272653189,
+                "wake_enstrophy": 0.5173870388644703,
+                "circulation_pos": 0.543144938448951,
+                "circulation_neg": 0.36214213809351614
+              },
+              "mean_recovered_r2": 0.6449754430349379,
+              "n": 2480
+            },
+            "state_dim": 32,
+            "note": "spatial is broadcast of pooled; flat R2==pooled"
+          }
+        },
+        "8": {
+          "pooled": {
+            "osp_model": "jepa_pool_vec",
+            "taps": [
+              29,
+              10,
+              11,
+              170,
+              118,
+              40,
+              20,
+              183
+            ],
+            "per_mapping": {
+              "lstm_tuned": {
+                "state_r2_window": 0.8333125472645959,
+                "state_r2_preimpact": 0.8589421981982295
+              }
+            },
+            "cv_pick": "lstm_tuned",
+            "state_r2_window": 0.8333125472645959,
+            "state_r2_preimpact": 0.8589421981982295,
+            "obs_window": {
+              "per_observable_recovered_r2": {
+                "C_L": 0.9205622329033898,
+                "C_D": 0.7908242240695056,
+                "wake_enstrophy": 0.6269834954823591,
+                "circulation_pos": 0.6908761096090138,
+                "circulation_neg": 0.6190778227460875
+              },
+              "mean_recovered_r2": 0.7296647769620711,
+              "n": 14880
+            },
+            "obs_preimpact": {
+              "per_observable_recovered_r2": {
+                "C_L": 0.9531656868418263,
+                "C_D": 0.8707621114824778,
+                "wake_enstrophy": 0.5492330291869009,
+                "circulation_pos": 0.5259128710737944,
+                "circulation_neg": 0.3134064688738206
+              },
+              "mean_recovered_r2": 0.6424960334917641,
+              "n": 2480
+            },
+            "state_dim": 32
+          },
+          "gap_spatial": {
+            "osp_model": "jepa_pool_vec",
+            "taps": [
+              29,
+              10,
+              11,
+              170,
+              118,
+              40,
+              20,
+              183
+            ],
+            "per_mapping": {
+              "lstm_tuned": {
+                "state_r2_window": 0.8333125472645959,
+                "state_r2_preimpact": 0.8589421981982295
+              }
+            },
+            "cv_pick": "lstm_tuned",
+            "state_r2_window": 0.8333125472645959,
+            "state_r2_preimpact": 0.8589421981982295,
+            "obs_window": {
+              "per_observable_recovered_r2": {
+                "C_L": 0.9205622329033898,
+                "C_D": 0.7908242240695056,
+                "wake_enstrophy": 0.6269834954823591,
+                "circulation_pos": 0.6908761096090138,
+                "circulation_neg": 0.6190778227460875
+              },
+              "mean_recovered_r2": 0.7296647769620711,
+              "n": 14880
+            },
+            "obs_preimpact": {
+              "per_observable_recovered_r2": {
+                "C_L": 0.9531656868418263,
+                "C_D": 0.8707621114824778,
+                "wake_enstrophy": 0.5492330291869009,
+                "circulation_pos": 0.5259128710737944,
+                "circulation_neg": 0.3134064688738206
+              },
+              "mean_recovered_r2": 0.6424960334917641,
+              "n": 2480
+            },
+            "state_dim": 32,
+            "note": "spatial is broadcast of pooled; gap==pooled"
+          },
+          "flat_spatial": {
+            "osp_model": "jepa_pool_vec",
+            "taps": [
+              29,
+              10,
+              11,
+              170,
+              118,
+              40,
+              20,
+              183
+            ],
+            "per_mapping": {
+              "lstm_tuned": {
+                "state_r2_window": 0.8333125472645959,
+                "state_r2_preimpact": 0.8589421981982295
+              }
+            },
+            "cv_pick": "lstm_tuned",
+            "state_r2_window": 0.8333125472645959,
+            "state_r2_preimpact": 0.8589421981982295,
+            "obs_window": {
+              "per_observable_recovered_r2": {
+                "C_L": 0.9205622329033898,
+                "C_D": 0.7908242240695056,
+                "wake_enstrophy": 0.6269834954823591,
+                "circulation_pos": 0.6908761096090138,
+                "circulation_neg": 0.6190778227460875
+              },
+              "mean_recovered_r2": 0.7296647769620711,
+              "n": 14880
+            },
+            "obs_preimpact": {
+              "per_observable_recovered_r2": {
+                "C_L": 0.9531656868418263,
+                "C_D": 0.8707621114824778,
+                "wake_enstrophy": 0.5492330291869009,
+                "circulation_pos": 0.5259128710737944,
+                "circulation_neg": 0.3134064688738206
+              },
+              "mean_recovered_r2": 0.6424960334917641,
+              "n": 2480
+            },
+            "state_dim": 32,
+            "note": "spatial is broadcast of pooled; flat R2==pooled"
+          },
+          "gateO_K8": {
+            "pooled_vs_gap_spatial": {
+              "delta_r2_window": {
+                "delta_r2": 0.0,
+                "ci95": [
+                  0.0,
+                  0.0
+                ],
+                "n_cases": 94,
+                "n_rows": 14880
+              },
+              "delta_r2_preimpact": {
+                "delta_r2": 0.0,
+                "ci95": [
+                  0.0,
+                  0.0
+                ],
+                "n_cases": 94,
+                "n_rows": 2480
+              }
+            },
+            "pooled_vs_flat_spatial": {
+              "delta_r2_window": {
+                "delta_r2": 0.0,
+                "ci95": [
+                  0.0,
+                  0.0
+                ],
+                "n_cases": 94,
+                "n_rows": 14880
+              },
+              "delta_r2_preimpact": {
+                "delta_r2": 0.0,
+                "ci95": [
+                  0.0,
+                  0.0
+                ],
+                "n_cases": 94,
+                "n_rows": 2480
+              }
+            }
+          }
+        },
+        "16": {
+          "pooled": {
+            "osp_model": "jepa_pool_vec",
+            "taps": [
+              29,
+              10,
+              11,
+              170,
+              118,
+              40,
+              20,
+              183,
+              5,
+              85,
+              56,
+              12,
+              15,
+              2,
+              25,
+              65
+            ],
+            "per_mapping": {
+              "lstm_tuned": {
+                "state_r2_window": 0.833580636957931,
+                "state_r2_preimpact": 0.8401538704489794
+              }
+            },
+            "cv_pick": "lstm_tuned",
+            "state_r2_window": 0.833580636957931,
+            "state_r2_preimpact": 0.8401538704489794,
+            "obs_window": {
+              "per_observable_recovered_r2": {
+                "C_L": 0.9366685978651925,
+                "C_D": 0.8280174757229644,
+                "wake_enstrophy": 0.6394422877574506,
+                "circulation_pos": 0.6998420869632032,
+                "circulation_neg": 0.6290676618025866
+              },
+              "mean_recovered_r2": 0.7466076220222795,
+              "n": 14880
+            },
+            "obs_preimpact": {
+              "per_observable_recovered_r2": {
+                "C_L": 0.9613136159273238,
+                "C_D": 0.8961454753939173,
+                "wake_enstrophy": 0.5348927410578437,
+                "circulation_pos": 0.49271867624868915,
+                "circulation_neg": 0.28851860505327054
+              },
+              "mean_recovered_r2": 0.6347178227362089,
+              "n": 2480
+            },
+            "state_dim": 32
+          },
+          "gap_spatial": {
+            "osp_model": "jepa_pool_vec",
+            "taps": [
+              29,
+              10,
+              11,
+              170,
+              118,
+              40,
+              20,
+              183,
+              5,
+              85,
+              56,
+              12,
+              15,
+              2,
+              25,
+              65
+            ],
+            "per_mapping": {
+              "lstm_tuned": {
+                "state_r2_window": 0.833580636957931,
+                "state_r2_preimpact": 0.8401538704489794
+              }
+            },
+            "cv_pick": "lstm_tuned",
+            "state_r2_window": 0.833580636957931,
+            "state_r2_preimpact": 0.8401538704489794,
+            "obs_window": {
+              "per_observable_recovered_r2": {
+                "C_L": 0.9366685978651925,
+                "C_D": 0.8280174757229644,
+                "wake_enstrophy": 0.6394422877574506,
+                "circulation_pos": 0.6998420869632032,
+                "circulation_neg": 0.6290676618025866
+              },
+              "mean_recovered_r2": 0.7466076220222795,
+              "n": 14880
+            },
+            "obs_preimpact": {
+              "per_observable_recovered_r2": {
+                "C_L": 0.9613136159273238,
+                "C_D": 0.8961454753939173,
+                "wake_enstrophy": 0.5348927410578437,
+                "circulation_pos": 0.49271867624868915,
+                "circulation_neg": 0.28851860505327054
+              },
+              "mean_recovered_r2": 0.6347178227362089,
+              "n": 2480
+            },
+            "state_dim": 32,
+            "note": "spatial is broadcast of pooled; gap==pooled"
+          },
+          "flat_spatial": {
+            "osp_model": "jepa_pool_vec",
+            "taps": [
+              29,
+              10,
+              11,
+              170,
+              118,
+              40,
+              20,
+              183,
+              5,
+              85,
+              56,
+              12,
+              15,
+              2,
+              25,
+              65
+            ],
+            "per_mapping": {
+              "lstm_tuned": {
+                "state_r2_window": 0.833580636957931,
+                "state_r2_preimpact": 0.8401538704489794
+              }
+            },
+            "cv_pick": "lstm_tuned",
+            "state_r2_window": 0.833580636957931,
+            "state_r2_preimpact": 0.8401538704489794,
+            "obs_window": {
+              "per_observable_recovered_r2": {
+                "C_L": 0.9366685978651925,
+                "C_D": 0.8280174757229644,
+                "wake_enstrophy": 0.6394422877574506,
+                "circulation_pos": 0.6998420869632032,
+                "circulation_neg": 0.6290676618025866
+              },
+              "mean_recovered_r2": 0.7466076220222795,
+              "n": 14880
+            },
+            "obs_preimpact": {
+              "per_observable_recovered_r2": {
+                "C_L": 0.9613136159273238,
+                "C_D": 0.8961454753939173,
+                "wake_enstrophy": 0.5348927410578437,
+                "circulation_pos": 0.49271867624868915,
+                "circulation_neg": 0.28851860505327054
+              },
+              "mean_recovered_r2": 0.6347178227362089,
+              "n": 2480
+            },
+            "state_dim": 32,
+            "note": "spatial is broadcast of pooled; flat R2==pooled"
+          }
+        }
+      }
+    }
+  }
+}
