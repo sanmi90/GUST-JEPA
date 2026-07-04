@@ -60,11 +60,13 @@ class WindowSampler:
     """Uniform (encounter, start) sampler over preloaded centered fields."""
 
     def __init__(self, data: dict, mean_field: np.ndarray, ctx_len: int,
-                 max_tau: int, seed: int) -> None:
+                 max_tau: int, seed: int, return_cl: bool = False) -> None:
         self.fields = data["fields"]                    # (M, H, W) float32
+        self.cl = data["cl"].astype(np.float32)         # (M,)
         self.mean = mean_field[None]                    # (1, H, W)
         self.ctx_len = ctx_len
         self.max_tau = max_tau
+        self.return_cl = bool(return_cl)
         self.rng = np.random.default_rng(seed)
         self.enc = [
             (row0, T) for (row0, T) in data["enc_offsets"].values()
@@ -74,18 +76,23 @@ class WindowSampler:
     def batch(self, B: int, device) -> dict:
         ctx = np.empty((B, self.ctx_len, 1, H, W), dtype=np.float32)
         tgt = {t: np.empty((B, 1, H, W), dtype=np.float32) for t in TAUS}
+        cl_ctx = np.empty((B, self.ctx_len), dtype=np.float32)
         for b in range(B):
             row0, T = self.enc[self.rng.integers(len(self.enc))]
             s = int(self.rng.integers(0, T - self.ctx_len - self.max_tau + 1))
             sl = self.fields[row0 + s : row0 + s + self.ctx_len] - self.mean
             ctx[b, :, 0] = sl
+            cl_ctx[b] = self.cl[row0 + s : row0 + s + self.ctx_len]
             last = row0 + s + self.ctx_len - 1
             for t in TAUS:
                 tgt[t][b, 0] = self.fields[last + t] - self.mean
-        return {
+        out = {
             "context": torch.from_numpy(ctx).to(device),
             "targets": {t: torch.from_numpy(v).to(device) for t, v in tgt.items()},
         }
+        if self.return_cl:
+            out["cl_context"] = torch.from_numpy(cl_ctx).to(device)
+        return out
 
 
 @torch.no_grad()

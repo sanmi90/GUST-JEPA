@@ -80,8 +80,13 @@ class FrameEncoder(torch.nn.Module):
 
 
 def aerojepa_step(models, batch, hweights, opt,
-                  lam=dict(lat=1.0, rec=1.0, sig=0.1)):
-    """AeroJEPA coupled step: L_lat + recon-through-PREDICTED-latent + SIGReg."""
+                  lam=dict(lat=1.0, rec=1.0, sig=0.1, lift=0.0)):
+    """AeroJEPA coupled step: L_lat + recon-through-PREDICTED-latent + SIGReg.
+
+    Optional scalar lift head (Session 34 follow-up, user-directed): when
+    ``models`` carries ``"lift"`` and ``lam["lift"] > 0``, adds the kit-style
+    current-frame C_L smooth-L1 on every context latent -- the Track C
+    load-bearing anchor grafted onto the AeroJEPA coupled objective."""
     E, D, P = models["enc"], models["dec"], models["pred"]
     xc, xt = batch["context"], batch["targets"]
     B, L = xc.shape[:2]
@@ -111,12 +116,18 @@ def aerojepa_step(models, batch, hweights, opt,
     L_sig = sigreg(a_ctx.reshape(B * L, -1))
 
     loss = lam["lat"] * L_lat + lam["rec"] * L_rec + lam["sig"] * L_sig
+    logs = {"lat": L_lat.item(), "rec": L_rec.item(), "sig": L_sig.item()}
+    if lam.get("lift", 0.0) > 0 and "lift" in models:
+        cl_pred = models["lift"](a_ctx).squeeze(-1)          # (B, L)
+        L_lift = F.smooth_l1_loss(cl_pred, batch["cl_context"], beta=1.0)
+        loss = loss + lam["lift"] * L_lift
+        logs["lift"] = L_lift.item()
     opt.zero_grad(set_to_none=True)
     loss.backward()
     params = [p for m in models.values() for p in m.parameters()]
     torch.nn.utils.clip_grad_norm_(params, 1.0)
     opt.step()
-    return {"lat": L_lat.item(), "rec": L_rec.item(), "sig": L_sig.item()}
+    return logs
 
 
 @torch.no_grad()
@@ -144,6 +155,9 @@ def main(argv=None) -> int:
     ap.add_argument("--diag-every", type=int, default=500)
     ap.add_argument("--log-every", type=int, default=100)
     ap.add_argument("--pod", default="outputs/session34/rom_pod_basis.npz")
+    ap.add_argument("--lift-weight", type=float, default=0.0,
+                    help="Weight of the kit-style scalar C_L head on context "
+                         "latents (0 = the original no-lift arm).")
     ap.add_argument("--out", default="outputs/runs/session34/aerojepa_nolift_s0")
     ap.add_argument("--cache-dir", default="outputs/session34/trackc_latents")
     args = ap.parse_args(argv)
@@ -174,7 +188,8 @@ def main(argv=None) -> int:
 
     tr = load_split_fields("train")
     tb = load_split_fields("test_b")
-    sampler = WindowSampler(tr, mean_field, CTX_L, max(TAUS), args.seed)
+    sampler = WindowSampler(tr, mean_field, CTX_L, max(TAUS), args.seed,
+                            return_cl=args.lift_weight > 0)
 
     models = {
         "enc": FrameEncoder(args.r).to(device),
@@ -183,6 +198,11 @@ def main(argv=None) -> int:
         "pred": Predictor(r=args.r, L=CTX_L, d=128, depth=4, heads=4,
                           taus=TAUS).to(device),
     }
+    if args.lift_weight > 0:
+        from src.models.observable_head import ObservableHead
+
+        models["lift"] = ObservableHead(latent_dim=args.r, n_deltas=1).to(device)
+        emit(f"[aero] lift head ON (weight {args.lift_weight})")
     n_enc = sum(p.numel() for p in models["enc"].parameters())
     emit(f"[aero] encoder params: {n_enc / 1e6:.1f}M")
 
@@ -214,24 +234,26 @@ def main(argv=None) -> int:
     del warm_opt
 
     # ---- Stage 3: AeroJEPA coupled objective ---------------------------------
-    opt = torch.optim.AdamW(
-        [
-            {"params": models["enc"].parameters(), "lr": 3e-5},
-            {"params": models["dec"].parameters(), "lr": 1e-4},
-            {"params": models["pred"].parameters(), "lr": 3e-4},
-        ],
-        weight_decay=1e-4,
-    )
+    groups = [
+        {"params": models["enc"].parameters(), "lr": 3e-5},
+        {"params": models["dec"].parameters(), "lr": 1e-4},
+        {"params": models["pred"].parameters(), "lr": 3e-4},
+    ]
+    if "lift" in models:
+        groups.append({"params": models["lift"].parameters(), "lr": 3e-4})
+    opt = torch.optim.AdamW(groups, weight_decay=1e-4)
     hw_ = HorizonWeights(TAUS)
     metrics_path = out_dir / "metrics.jsonl"
     emit(f"[aero] stage 3: {args.stage3_iters} iters (B={args.batch}, L={CTX_L})")
+    lam = dict(lat=1.0, rec=1.0, sig=0.1, lift=args.lift_weight)
     for it in range(1, args.stage3_iters + 1):
         batch = sampler.batch(args.batch, device)
-        logs = aerojepa_step(models, batch, hw_, opt)
+        logs = aerojepa_step(models, batch, hw_, opt, lam=lam)
         if it % args.log_every == 0:
+            extra = f" lift={logs['lift']:.4f}" if "lift" in logs else ""
             emit(f"[aero] iter {it}/{args.stage3_iters} "
                  f"lat={logs['lat']:.4f} rec={logs['rec']:.4f} "
-                 f"sig={logs['sig']:.5f} ({time.time() - t0:.0f}s)")
+                 f"sig={logs['sig']:.5f}{extra} ({time.time() - t0:.0f}s)")
         if it % args.diag_every == 0 or it == args.stage3_iters:
             with torch.no_grad():
                 a_diag = []
@@ -276,7 +298,9 @@ def main(argv=None) -> int:
         "seed": args.seed,
         "r": args.r,
         "encoder": "HybridCNNViTEncoder pooled (full)",
-        "objective": "AeroJEPA coupled: L_lat + recon(D(P(A,tau)), x_tau) + 0.1*sigreg",
+        "objective": "AeroJEPA coupled: L_lat + recon(D(P(A,tau)), x_tau) + 0.1*sigreg"
+                     + (f" + {args.lift_weight}*lift" if args.lift_weight > 0 else ""),
+        "lift_weight": args.lift_weight,
         "warm_iters": args.warm_iters,
         "stage3_iters": args.stage3_iters,
         "final_pr_test_b": participation_ratio(torch.from_numpy(a_tb)),
