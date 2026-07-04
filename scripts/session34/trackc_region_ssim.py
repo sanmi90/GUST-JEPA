@@ -40,13 +40,13 @@ from src.evaluation.represent import fit_decode_floor_decoder  # noqa: E402
 from src.utils.device import require_rtx6000  # noqa: E402
 
 
-def masked_ssim_means(
+def masked_ssim_per_frame(
     pred: np.ndarray, true: np.ndarray, data_range: float, masks: dict[str, np.ndarray]
-) -> dict[str, float]:
-    """Per-frame SSIM maps averaged over each mask's support, then over frames."""
+) -> dict[str, np.ndarray]:
+    """Per-frame SSIM-map means over each mask's support, shape ``(N,)`` per mask."""
     from skimage.metrics import structural_similarity
 
-    sums = {k: 0.0 for k in masks}
+    vals = {k: np.empty(pred.shape[0]) for k in masks}
     for i in range(pred.shape[0]):
         _, smap = structural_similarity(
             true[i].astype(np.float64),
@@ -55,9 +55,8 @@ def masked_ssim_means(
             full=True,
         )
         for k, m in masks.items():
-            sums[k] += float(smap[m].mean())
-    n = max(pred.shape[0], 1)
-    return {k: v / n for k, v in sums.items()}
+            vals[k][i] = float(smap[m].mean())
+    return vals
 
 
 def decode_in_batches(decoder, z_spatial: np.ndarray, device, batch: int = 64) -> np.ndarray:
@@ -102,6 +101,11 @@ def main(argv=None) -> int:
     fields_tb = np.load(cache_dir / "fields_test_b.npz", allow_pickle=True)
     omega_tr = fields_tr["omega_norm"].astype(np.float32)
     omega_tb = fields_tb["omega_norm"].astype(np.float32)
+    tb_case = fields_tb["case_id"]
+    tb_enc = fields_tb["encounter_index"]
+    enc_keys = sorted(set(zip(tb_case.tolist(), tb_enc.tolist())))
+    enc_rows = {key: np.where((tb_case == key[0]) & (tb_enc == key[1]))[0]
+                for key in enc_keys}
 
     results: dict[str, dict] = {}
     t0 = time.time()
@@ -119,8 +123,22 @@ def main(argv=None) -> int:
         )
         torch.save(decoder.state_dict(), dec_dir / f"decoder_{run_name}.pt")
         pred_tb = decode_in_batches(decoder, z_tb, device)
-        vals = masked_ssim_means(pred_tb, omega_tb, ssim_L, masks)
-        results[cell] = {"run_name": run_name, "ssim": vals, "n_frames": int(pred_tb.shape[0])}
+        per_frame = masked_ssim_per_frame(pred_tb, omega_tb, ssim_L, masks)
+        vals = {k: float(v.mean()) for k, v in per_frame.items()}
+        per_enc = [
+            {
+                "case_id": key[0],
+                "encounter_index": int(key[1]),
+                **{k: float(v[rows].mean()) for k, v in per_frame.items()},
+            }
+            for key, rows in enc_rows.items()
+        ]
+        results[cell] = {
+            "run_name": run_name,
+            "ssim": vals,
+            "n_frames": int(pred_tb.shape[0]),
+            "per_encounter": per_enc,
+        }
         print(f"[region-ssim] {cell}: " + "  ".join(
             f"{k}={v:.4f}" for k, v in vals.items()), flush=True)
         del decoder
