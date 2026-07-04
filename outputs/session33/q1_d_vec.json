@@ -1,0 +1,344 @@
+{
+  "task": "SESSION 31 Track D Q1 -- ROM representation eval",
+  "params": {
+    "partition": "v2p2",
+    "split_manifest": "configs/splits/split_v2p2.json",
+    "pipeline_manifest": "outputs/data_pipeline/v2p2/manifest.json",
+    "checkpoint": "checkpoint_iter010000.pt",
+    "gpu_name": "NVIDIA RTX PRO 6000 Blackwell Max-Q Workstation Edition",
+    "ssim_data_range_L": 8.487,
+    "ssim_convention": "Wang K1=0.01 K2=0.03 on pipeline-normalised omega (skimage 2D SSIM)",
+    "vrmse_definition": "sqrt(sum(pred-true)^2 / sum(true-mean_true)^2), aggregated over eval set before dividing",
+    "window_definition": "impact union relaxation frames from Track 0.B windows_v2p2.json; windowed scope restricts Test B evaluation only",
+    "decode_floor_decoder": "SpatialLatentFieldDecoder (identical capacity, the DecoderProbe module), fit on all TRAIN frames",
+    "decoder_steps": 6000,
+    "decoder_batch": 64,
+    "probe_regime": "per-frame GAP latent -> observable (state-descriptor regime, CLAUDE.md)",
+    "probe_linear": "StandardScaler -> RidgeCV (alpha CV) -> target-scaled",
+    "probe_mlp": "StandardScaler -> MLPRegressor(64,64) -> target-scaled",
+    "targets_used": [
+      "C_L",
+      "C_D",
+      "wake_enstrophy",
+      "circulation_pos",
+      "circulation_neg"
+    ],
+    "target_sources": {
+      "C_L": "cache",
+      "C_D": "cache",
+      "wake_enstrophy": "computed on preprocess_raw omega (session17 wake-box)",
+      "circulation_pos": "computed on preprocess_raw omega (session17 wake-box, |omega|>1)",
+      "circulation_neg": "computed on preprocess_raw omega (session17 wake-box, |omega|>1)"
+    }
+  },
+  "models": {
+    "jepa_pool_vec_d16": {
+      "objective": "pred",
+      "active_terms": [
+        "anti_collapse",
+        "lift",
+        "pred",
+        "wake"
+      ],
+      "decode_floor": {
+        "all_frames": {
+          "vrmse": 0.8712827289556835,
+          "ssim": 0.7782878485364629,
+          "n": 5040
+        },
+        "windowed": {
+          "vrmse": 0.8822785202488278,
+          "ssim": 0.7681207535255888,
+          "n": 2016
+        }
+      },
+      "probes": {
+        "all_frames": {
+          "C_L": {
+            "linear_r2": 0.8303166041202616,
+            "mlp_r2": 0.9005065112281642,
+            "n_eval": 5040
+          },
+          "C_D": {
+            "linear_r2": 0.6996889475048772,
+            "mlp_r2": 0.8882656009566807,
+            "n_eval": 5040
+          },
+          "wake_enstrophy": {
+            "linear_r2": 0.7483890762510478,
+            "mlp_r2": 0.7842462820540591,
+            "n_eval": 5040
+          },
+          "circulation_pos": {
+            "linear_r2": 0.7131232830313871,
+            "mlp_r2": 0.6811907499003453,
+            "n_eval": 5040
+          },
+          "circulation_neg": {
+            "linear_r2": 0.6483050890794757,
+            "mlp_r2": 0.7956125947102712,
+            "n_eval": 5040
+          }
+        },
+        "windowed": {
+          "C_L": {
+            "linear_r2": 0.8227009044577603,
+            "mlp_r2": 0.8494664782781296,
+            "n_eval": 2016
+          },
+          "C_D": {
+            "linear_r2": 0.6347521367673845,
+            "mlp_r2": 0.8238021029657003,
+            "n_eval": 2016
+          },
+          "wake_enstrophy": {
+            "linear_r2": 0.7698132864888043,
+            "mlp_r2": 0.8126065048867512,
+            "n_eval": 2016
+          },
+          "circulation_pos": {
+            "linear_r2": 0.7095267264109393,
+            "mlp_r2": 0.7490370387521093,
+            "n_eval": 2016
+          },
+          "circulation_neg": {
+            "linear_r2": 0.632978046648955,
+            "mlp_r2": 0.8381713255439479,
+            "n_eval": 2016
+          }
+        }
+      }
+    },
+    "jepa_pool_vec_d64": {
+      "objective": "pred",
+      "active_terms": [
+        "anti_collapse",
+        "lift",
+        "pred",
+        "wake"
+      ],
+      "decode_floor": {
+        "all_frames": {
+          "vrmse": 0.8328586792823829,
+          "ssim": 0.7991613009258831,
+          "n": 5040
+        },
+        "windowed": {
+          "vrmse": 0.8422447327803271,
+          "ssim": 0.7907323719125696,
+          "n": 2016
+        }
+      },
+      "probes": {
+        "all_frames": {
+          "C_L": {
+            "linear_r2": 0.8702889912117405,
+            "mlp_r2": 0.8860777423476023,
+            "n_eval": 5040
+          },
+          "C_D": {
+            "linear_r2": 0.7976606235091847,
+            "mlp_r2": 0.8083051492734556,
+            "n_eval": 5040
+          },
+          "wake_enstrophy": {
+            "linear_r2": 0.7176129778652951,
+            "mlp_r2": 0.8624143727058587,
+            "n_eval": 5040
+          },
+          "circulation_pos": {
+            "linear_r2": 0.819903659272785,
+            "mlp_r2": 0.8628770379301309,
+            "n_eval": 5040
+          },
+          "circulation_neg": {
+            "linear_r2": 0.8167444893378741,
+            "mlp_r2": 0.8245150631783197,
+            "n_eval": 5040
+          }
+        },
+        "windowed": {
+          "C_L": {
+            "linear_r2": 0.8391473594706084,
+            "mlp_r2": 0.8380694031554388,
+            "n_eval": 2016
+          },
+          "C_D": {
+            "linear_r2": 0.7433933258962744,
+            "mlp_r2": 0.7770424826254083,
+            "n_eval": 2016
+          },
+          "wake_enstrophy": {
+            "linear_r2": 0.716946042294435,
+            "mlp_r2": 0.8368903281899414,
+            "n_eval": 2016
+          },
+          "circulation_pos": {
+            "linear_r2": 0.8129377845419865,
+            "mlp_r2": 0.8482803644923875,
+            "n_eval": 2016
+          },
+          "circulation_neg": {
+            "linear_r2": 0.7901948137682238,
+            "mlp_r2": 0.8119245901716147,
+            "n_eval": 2016
+          }
+        }
+      }
+    },
+    "jepa_pool_vec_d8": {
+      "objective": "pred",
+      "active_terms": [
+        "anti_collapse",
+        "lift",
+        "pred",
+        "wake"
+      ],
+      "decode_floor": {
+        "all_frames": {
+          "vrmse": 0.9155822170618066,
+          "ssim": 0.7556362169499139,
+          "n": 5040
+        },
+        "windowed": {
+          "vrmse": 0.9366675271834578,
+          "ssim": 0.7426597553213233,
+          "n": 2016
+        }
+      },
+      "probes": {
+        "all_frames": {
+          "C_L": {
+            "linear_r2": 0.8233668484253444,
+            "mlp_r2": 0.886710976803496,
+            "n_eval": 5040
+          },
+          "C_D": {
+            "linear_r2": 0.691017437465601,
+            "mlp_r2": 0.8266569350666904,
+            "n_eval": 5040
+          },
+          "wake_enstrophy": {
+            "linear_r2": 0.42929817513510704,
+            "mlp_r2": 0.6061683271878701,
+            "n_eval": 5040
+          },
+          "circulation_pos": {
+            "linear_r2": 0.3249471926873172,
+            "mlp_r2": 0.5460312043374762,
+            "n_eval": 5040
+          },
+          "circulation_neg": {
+            "linear_r2": 0.16431978196697106,
+            "mlp_r2": 0.3763175328536442,
+            "n_eval": 5040
+          }
+        },
+        "windowed": {
+          "C_L": {
+            "linear_r2": 0.7919102104775153,
+            "mlp_r2": 0.8313734139913018,
+            "n_eval": 2016
+          },
+          "C_D": {
+            "linear_r2": 0.5920935483258409,
+            "mlp_r2": 0.7569745842874339,
+            "n_eval": 2016
+          },
+          "wake_enstrophy": {
+            "linear_r2": 0.5786229301723493,
+            "mlp_r2": 0.5878701279564333,
+            "n_eval": 2016
+          },
+          "circulation_pos": {
+            "linear_r2": 0.42365132276219886,
+            "mlp_r2": 0.5771963783627883,
+            "n_eval": 2016
+          },
+          "circulation_neg": {
+            "linear_r2": 0.17579118782595138,
+            "mlp_r2": 0.3572947237098264,
+            "n_eval": 2016
+          }
+        }
+      }
+    },
+    "jepa_pool_vec_d4": {
+      "objective": "pred",
+      "active_terms": [
+        "anti_collapse",
+        "lift",
+        "pred",
+        "wake"
+      ],
+      "decode_floor": {
+        "all_frames": {
+          "vrmse": 0.9797705442193895,
+          "ssim": 0.7091082188995937,
+          "n": 5040
+        },
+        "windowed": {
+          "vrmse": 1.0054571042215084,
+          "ssim": 0.6821529817369748,
+          "n": 2016
+        }
+      },
+      "probes": {
+        "all_frames": {
+          "C_L": {
+            "linear_r2": 0.8661973913732505,
+            "mlp_r2": 0.8921614075564044,
+            "n_eval": 5040
+          },
+          "C_D": {
+            "linear_r2": 0.6465158793634858,
+            "mlp_r2": 0.7101843960244335,
+            "n_eval": 5040
+          },
+          "wake_enstrophy": {
+            "linear_r2": 0.20766143052180996,
+            "mlp_r2": 0.5297838926058451,
+            "n_eval": 5040
+          },
+          "circulation_pos": {
+            "linear_r2": 0.22063266229711764,
+            "mlp_r2": 0.43212301170848344,
+            "n_eval": 5040
+          },
+          "circulation_neg": {
+            "linear_r2": 0.10447958920830813,
+            "mlp_r2": 0.2174910675316346,
+            "n_eval": 5040
+          }
+        },
+        "windowed": {
+          "C_L": {
+            "linear_r2": 0.8084343512687732,
+            "mlp_r2": 0.8253830271962259,
+            "n_eval": 2016
+          },
+          "C_D": {
+            "linear_r2": 0.5143431617739171,
+            "mlp_r2": 0.586548158342936,
+            "n_eval": 2016
+          },
+          "wake_enstrophy": {
+            "linear_r2": 0.19326600180179798,
+            "mlp_r2": 0.4842567210627906,
+            "n_eval": 2016
+          },
+          "circulation_pos": {
+            "linear_r2": 0.22406186840228637,
+            "mlp_r2": 0.43985969332785313,
+            "n_eval": 2016
+          },
+          "circulation_neg": {
+            "linear_r2": 0.0548245869067675,
+            "mlp_r2": 0.07492876165118256,
+            "n_eval": 2016
+          }
+        }
+      }
+    }
+  }
+}

@@ -76,10 +76,14 @@ def main(argv=None):
                     help="d != 32 model-name prefix (D250: jepa_pool_vec).")
     ap.add_argument("--anchor-model", default="jepa_pool",
                     help="d = 32 anchor model name (D250: jepa_pool_vec).")
+    ap.add_argument("--q1-d-ref", default=None,
+                    help="fukami_wake d-sweep Q1 (reconstructive baseline, no vec "
+                         "variant); defaults to --q1-d.")
     ap.add_argument("--out", default="outputs/session33/min_d_panel.json")
     args = ap.parse_args(argv)
 
     q1d = _load(args.q1_d)
+    q1dref = _load(args.q1_d_ref) if args.q1_d_ref else q1d
     q1a = _load(args.q1_anchor)
     q1r = _load(args.q1_reference)
 
@@ -89,7 +93,7 @@ def main(argv=None):
             "32": wake_lin(q1a, args.anchor_model),
         },
         "fukami_wake": {
-            **{str(d): wake_lin(q1d, f"fukami_wake_d{d}") for d in NN_DS if d != 32},
+            **{str(d): wake_lin(q1dref, f"fukami_wake_d{d}") for d in NN_DS if d != 32},
             "32": wake_lin(q1r, "fukami_wake"),
         },
         "pod_truncated": pod_truncation_curve(_resolve(args.pod_cache)),

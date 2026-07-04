@@ -1,7 +1,7 @@
 {
   "_provenance": {
-    "generated_iso": "2026-07-03T23:41:20.056020+00:00",
-    "git_commit": "117f747cb67a9ad95b9cb15eb539e3a22ceabc45",
+    "generated_iso": "2026-07-04T01:11:54.571430+00:00",
+    "git_commit": "f973b70626f373dfd0d497f51110ec1e89ec469e",
     "n_parts": 15,
     "parts": [
       "constants.json",
@@ -590,53 +590,41 @@
       "source": "gates_p_and_table_y",
       "value": -0.09250650830922125
     },
-    "plateau_merit_d16": {
-      "fmt": "%.3f",
-      "macro": "PlateauMeritDSixteen",
-      "source": "dim_plateau",
-      "value": 0.678542976418061
-    },
     "plateau_merit_d32": {
       "fmt": "%.3f",
       "macro": "PlateauMeritDThirtyTwo",
       "source": "dim_plateau",
-      "value": 0.6392479820512291
-    },
-    "plateau_merit_d64": {
-      "fmt": "%.3f",
-      "macro": "PlateauMeritDSixtyFour",
-      "source": "dim_plateau",
-      "value": 0.6793382131080494
+      "value": 0.5911740890886588
     },
     "plateau_spread": {
       "fmt": "%.3f",
       "macro": "PlateauSpread",
       "source": "dim_plateau",
-      "value": 0.04183433743462761
+      "value": 0.05286724419436928
     },
     "plateau_wake_d16": {
-      "ci_hi": 0.8381649283322457,
-      "ci_lo": 0.6141291743122143,
+      "ci_hi": 0.8344906097600232,
+      "ci_lo": 0.6742772673839461,
       "fmt": "%.3f",
       "macro": "PlateauWakeDSixteen",
       "source": "dim_plateau",
-      "value": 0.7236010445622816
+      "value": 0.7698132864888043
     },
     "plateau_wake_d32": {
-      "ci_hi": 0.8492095506454418,
-      "ci_lo": 0.5740905166633335,
+      "ci_hi": 0.8745736841057083,
+      "ci_lo": 0.5312760324764763,
       "fmt": "%.3f",
       "macro": "PlateauWakeDThirtyTwo",
       "source": "dim_plateau",
-      "value": 0.7654353819969092
+      "value": 0.7510058659700889
     },
     "plateau_wake_d64": {
-      "ci_hi": 0.8406261075620053,
-      "ci_lo": 0.495523563146198,
+      "ci_hi": 0.8537942913651793,
+      "ci_lo": 0.41785259819190734,
       "fmt": "%.3f",
       "macro": "PlateauWakeDSixtyFour",
       "source": "dim_plateau",
-      "value": 0.7244335036911342
+      "value": 0.716946042294435
     },
     "pred_params_M": {
       "fmt": "%.1f",
