@@ -10297,3 +10297,48 @@ this session: tab:baselines (defines every family + the objective-free supervise
 corrected AEs are plain conv, no skips, latents are pooled vectors), tab:enkf, merit column
 switched to per-family suited operator (transformer for pooled, U-Net for references).
 Build 35pp/0 err, 12 anchors PASS. ~10 commits, branch session33-manuscript-v3.
+
+### D253 (SESSION34: Track C wake-loss definition resolved -- per-frame SPATIAL observable) (2026-07-04, Session 34)
+
+The Track C spec (conditioning ablation) required deciding whether the patched-spectrum
+wake loss is a per-frame spatial-wavenumber loss or a temporal PSD before interpreting the
+wake-only cell CW. Resolved by code inspection, not by a run: `patch_signed_spectrum` is
+Mode C of src/data/wake_observables.py = 64D sign-preserving patch energies (8x4 grid over
+the wake ROI bbox, log1p(relu(+-omega)^2)) + a 16-bin RADIAL SPATIAL-WAVENUMBER spectrum
+(rfft2 per frame, Hann-windowed, wake-masked; lines 180-210). No FFT over time anywhere in
+the target path. Consequence for Track C reading: the operative caveat for a CW null on
+lift is the low-wavenumber / spatial-support argument (the wake box starts at the TE and
+carries shed history), NOT a temporal-band argument. Note: the Track C spec's stub IDs
+D201-D206 were already taken by sessions 29-31; Track C decisions are D253-D258.
+
+### D254 (SESSION34: near-body head = Chang lift-element targets, user-decided; QC evidence) (2026-07-04, Session 34)
+
+Carlos chose the PRINCIPLED Chang (1992) force-element weighting over the |omega| proxy
+band for the new N head, from the start (not proxy-then-validate). Implementation
+(src/data/lift_element.py + src/data/nearbody_observables.py + kit extension, commit
+e952efc): one-time phi_L Laplace solve on the 192x96 cache grid (staircase immersed
+Neumann -n.grad(phi_L)=n.e_L on the raw 82-px mid-span solid, far-field Dirichlet 0,
+residual 6.4e-13; artifact outputs/data_pipeline/v2p2/phi_L.npz); per-frame lift element
+e = omega_z_std * (-v dphi/dx + u dphi/dy) from RAW mid-span /u and /curlU (z=16), where
+omega_z_std = -curlU_z (stored convention du/dy - dv/dx VERIFIED empirically: stored omega
+is positive in the upper-surface boundary layer); lift direction e_L = (-sin 14deg,
+cos 14deg) perpendicular to the inclined freestream (airfoil is chord-aligned in the grid,
+footprint angle 0.0 deg; upstream flow angle measured ~15.9 deg with near-field upwash,
+nominal alpha = 14 deg; e_L vs e_y differed by <0.01 in QC corr, theory-preferred kept).
+Target = 80D `nearbody_lift_element` mirroring wake Mode C byte-for-byte (64D signed patch
+energies over the band bbox + 16-bin radial spectrum) on field = band * e / E_SCALE,
+E_SCALE=25 (|band e| p99 ~= 26 over the QC sample), band = clip(1 - dist/0.3c, 0, 1) EDT
+of the solid+adjacent mask, sign-symmetric so it follows the LEV across gust sign. Head =
+the same WakeObservableHead class at 80D (byte-identical capacity to W, the
+controlled-comparison keystone). Targets precomputed to
+${VORTEX_JEPA_CACHE}/v2p2/nearbody_observables/ with train-pool-only stats (wake-cache
+machinery reused unchanged). QC gate in the precompute: best lagged corr (|lag|<=25 fr)
+between the band-integrated element and stored C_L(t) per encounter; pre-study on 4 train
+encounters gave 0.51-0.79 at |lag|<=7 for gusts (Baseline shedding cycle is phase-ambiguous,
+anti-phase -0.72, excluded from the gate via |G|>0); gate = median over gust train
+encounters >= 0.4, full-450 value recorded in the cache _manifest.json. D254 evidence also
+includes the proxy-vs-Chang comparison (per-frame cosine of the 64D patch blocks, ~0.72 on
+the 3-case sample): the Chang weighting carries structure the proxy does not, supporting
+the user's choice. Full-domain Chang integral does NOT track C_L in the cropped cache
+window (incoming-vortex + truncation terms dominate); the BAND-restricted integral does,
+which is exactly the quantity the N head supervises.
