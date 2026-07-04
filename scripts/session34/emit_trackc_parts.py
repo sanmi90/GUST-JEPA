@@ -86,7 +86,8 @@ def main() -> int:
             lags = [seeds[s]["linear"]["median_phase_lag_tc"] for s in seeds]
             numbers[f"tc_peak_r2_{cell}"] = rec(
                 float(np.mean(r2s)), f"TcPeakRTwo{word}", "%.2f",
-                band=float(np.std(r2s)), seeds=len(r2s))
+                seed_mean=float(np.mean(r2s)), seed_sd=float(np.std(r2s)),
+                n=len(r2s))
             numbers[f"tc_lag_{cell}"] = rec(
                 float(np.median(lags)), f"TcLag{word}", "%.3f")
     else:
@@ -116,7 +117,7 @@ def main() -> int:
         r2s = [r["filter"]["CL_analysis_r2_impact"] for r in recs]
         numbers[f"tc_filter_cl_r2_{cell}"] = rec(
             float(np.median(r2s)), f"TcFilterClRTwo{word}", "%.2f",
-            n=len(recs), stat="median over test_b encounters")
+            n=len(recs), note="median over test_b encounters")
         if tuning and CELLS[cell][0] in tuning:
             numbers[f"tc_rho_{cell}"] = rec(
                 tuning[CELLS[cell][0]]["rho"], f"TcRho{word}", "%.2f")
@@ -125,11 +126,11 @@ def main() -> int:
     gates = _load(S34 / "trackc_gates.json")
     if gates:
         numbers["tc_q2_verdict"] = rec(
-            gates["Q2_D255"]["verdict"], "TcQTwoVerdict", "%s", kind="text")
+            gates["Q2_D255"]["verdict"], "TcQTwoVerdict", "%s", note="text verdict")
         numbers["tc_q2alt_verdict"] = rec(
-            gates["Q2alt_D256"]["verdict"], "TcQTwoAltVerdict", "%s", kind="text")
+            gates["Q2alt_D256"]["verdict"], "TcQTwoAltVerdict", "%s", note="text verdict")
         numbers["tc_q1_verdict"] = rec(
-            gates["Q1_D257"]["verdict"], "TcQOneVerdict", "%s", kind="text")
+            gates["Q1_D257"]["verdict"], "TcQOneVerdict", "%s", note="text verdict")
         numbers["tc_pr_violations"] = rec(
             len(gates["pr_violations"]), "TcPrViolations", "%d")
     else:

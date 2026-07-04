@@ -10342,3 +10342,66 @@ the 3-case sample): the Chang weighting carries structure the proxy does not, su
 the user's choice. Full-domain Chang integral does NOT track C_L in the cropped cache
 window (incoming-vortex + truncation terms dominate); the BAND-restricted integral does,
 which is exactly the quantity the N head supervises.
+
+### D255 (SESSION34 Track C, Q2: can the wake loss replace the scalar lift head -- NO; pre-registered verdict MIXED) (2026-07-04, Session 34)
+
+Replacement is decisively refuted. CW (wake-only) vs CL (lift-only), paired per-encounter
+test_b, case-clustered bootstrap, 3 seeds, linear-probe readout: peak-region decoded-C_L
+R2 case-mean CI [-68.0, -11.4] (CW catastrophically worse; its latents are COLLAPSED, see
+D258), decoded lag 0.479 vs 0.031 t/c (tau_thresh 0.1), near-body SSIM -0.222
+[-0.252, -0.185], filter C_L R2 -3.06 [-10.2, +0.7]. The pre-registered branch lands
+MIXED rather than WEAK only because CLW does not beat CL on the peaks (CI straddles 0):
+on top of L, W adds NO lift anchoring (CLW ~ CL on peak/lag) but does add readable
+geometry (near-body SSIM +0.017 [+0.009, +0.026]) and borderline filter improvement
+(+1.50 [-0.02, +4.25]). The spec's predicted failure mode (W conditions on lagged
+shed-circulation history) is visible directly: CW's median decoded lag is 0.48 t/c.
+Pooled peak R2 by cell (seed mean +- sd): CL 0.830+-0.021, CLW 0.841+-0.015,
+CW 0.021+-0.152, C0 -0.140. Verdict artifacts: outputs/session34/trackc_gates.json;
+per-cell envelopes envelope_trackc_*.json (CLW anchor reproduces the session33
+envelope_vec.json test_b records to 1.4e-8).
+
+### D256 (SESSION34 Track C, Q2-alt: is the near-body head the better lift conditioning -- WEAK/complementary, and CLN is the best cell in the cube) (2026-07-04, Session 34)
+
+N cannot replace L (CN vs CL negative on all four metrics; filter CI fully below zero;
+CN collapses without L, D258). The physics prior survives as an ADDITIVE effect: CLN
+BEATS CL on peak-region decoded-C_L R2 (+2.09 percentage-point-scale paired delta, case
+CI [+0.03, +5.59], ci_low > 0) and on near-body SSIM (+0.017 [+0.009, +0.025]), with
+equal lag and borderline filter (+1.45 [-0.10, +4.22]). CLN is the strongest cell in the
+whole 2x2x2 cube: pooled peak R2 0.862 +- 0.003 (tightest seed band anywhere), median
+decoded lag 0.019 t/c (lowest), filter median 0.554. The manuscript framing the spec
+hoped for ("spatially resolved generalisation of Gamma ~ C_L") is supported in the
+conditioning-STACK sense: Chang near-body supervision on top of the scalar lift anchor,
+not instead of it.
+
+### D257 (SESSION34 Track C, Q1: does N earn its place on top of W -- STRONG, with a collapse caveat) (2026-07-04, Session 34)
+
+Pre-registered gate lands STRONG: CWN beats CW on near-body SSIM (+0.097
+[+0.077, +0.118]) with peak R2 no worse (in fact +17.1 [+1.9, +42.1]) and filter no
+worse. HONESTY CAVEAT: both cells are collapsed (no-L predictive cells, PR 2-5), so this
+STRONG is a statement about collapsed latents; the clean healthy-pair corroboration is
+CLN vs CL (D256), which independently shows N earning its place on top of the lift
+anchor. Combined reading of D255-D257 for the paper: nothing replaces the scalar lift
+head; the Chang near-body head is the one conditioning that ADDS lift-tracking value on
+top of it; the wake head's marginal value is geometry, not lift.
+
+### D258 (SESSION34 Track C: lambda_S disposition + the collapse mechanism finding) (2026-07-04, Session 34)
+
+lambda_S kept at the kit-frozen 0.02 throughout (per-cell retuning would confound the
+conditioning axis; kit rule 3). PR guard (floor 0.3 d = 9.6, last-3 diagnostics): 13
+flags = 12 REAL collapses + 1 floor-graze (CL s0 one diagnostic at 9.58, other seeds and
+diagnostics healthy at 10-14; artifact of the graze, not collapse). The 12 real ones are
+EXACTLY the no-L predictive cells: C0, CW, CN, CWN, all 3 seeds each (PR 1.3-5.0, flat
+from iteration 0; healthy runs pass 8 by 1-2k iters). Mechanism finding, the central
+Track C result: under the predictive objective the scalar lift head is the load-bearing
+anti-collapse anchor at d=32 pooled -- neither the wake observable, nor the Chang
+near-body observable, nor both together substitute for it; a RECONSTRUCTION anchor does
+(AE-W: recon+wake, no lift, PR 21.3, peak R2 0.471). This is the CLAUDE.md-documented
+low-intrinsic-dim SIGReg risk realized on the pooled coefficient state; the auto-fallback
+could not fire (threshold_iter 20k > 10k iters). Follow-up (not paper-blocking): lambda_S
+retune or fallback-earlier for no-L predictive cells only; two recon-anchored no-lift
+side arms (Carlos's SIGReg-JEPA-ROM skeleton + an AeroJEPA-style coupled variant,
+arXiv 2605.05586) ran overnight as the constructive answer, plus an LAE-EnKF retrofit
+pilot (arXiv 2603.06752: zero filter divergences vs the transformer filter's 4 on
+test_b; relax tail worse; hybrid = transformer forecast + latent-encoded taps is the
+phase-2 candidate). Numbers: outputs/session33/numbers_parts/trackc.json (63 values,
+eval_all_v3 --check exit 0, 526 total).
