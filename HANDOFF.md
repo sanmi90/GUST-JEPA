@@ -10275,3 +10275,25 @@ alias), dim_plateau + min_d_panel (--jepa-prefix/--anchor-model/--q1-d-ref), p1_
 
 REMAINING (author-owned, unchanged): DNS Table 1 seven \pending rows, Zenodo DOI,
 CRediT/funding. Optional: fresh-eyes jfm writing pass. Nothing else is on the old encoder.
+
+### D252 (SESSION33: per-method tuning + physical error, user-driven) (2026-07-04, Session 33)
+
+User pushed three principles, all executed. (1) Report the PHYSICAL error, not just R2:
+added mae() + absolute analysis RMSE/MAE for C_L and E_w to src/estimation/metrics.py +
+envelope aggregation (only R2 and gain-vs-baseline were surfaced before). Key honest
+finding: the filter C_L R2 rises to 0.84 at |G|=4 but the median RMSE is 0.72 and grows
+~2x across the envelope while R2 rises (gust inflates the signal variance) -- R2 oversold
+the extreme-gust tracking. New tab:filter_error: per-method C_L RMSE + divergence, each at
+its own tuned rho -- at |G|=4 JEPA 0.72/0.72 div, Fukami 0.79/0.95, POD 1.33/0.93; all
+degrade, JEPA least-bad (NOT the "only one bounded" I first wrongly claimed off partial
+files -- corrected). (2) Tune per method (AE/POD/JEPA differ, no shared requirements):
+EnKF inflation tuned per method (track_b_freeze_tuning --model/--is-reference) -> jepa/pod
+1.0, fukami 1.05 (they DIFFER); LSTM recovery tuned per method (fit_lstm_tuned grid on a
+grouped val split). (3) LSTM tuning: recovery is estimator-limited, climbs with capacity
+(hidden 48->256->512, never plateaus in-grid); recovery TABLE stays on the common CV
+protocol (consistent with the delay grid + bridge), the tuned LSTM reported as an explicit
+lower bound (predictive 0.83, reconstruction 0.94) with family ordering unchanged. Also
+this session: tab:baselines (defines every family + the objective-free supervised control;
+corrected AEs are plain conv, no skips, latents are pooled vectors), tab:enkf, merit column
+switched to per-family suited operator (transformer for pooled, U-Net for references).
+Build 35pp/0 err, 12 anchors PASS. ~10 commits, branch session33-manuscript-v3.
