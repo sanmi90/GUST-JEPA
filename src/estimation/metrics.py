@@ -47,6 +47,15 @@ def rmse(y_true: np.ndarray, y_pred: np.ndarray) -> float:
     return float(np.sqrt(((y_true - y_pred) ** 2).mean()))
 
 
+def mae(y_true: np.ndarray, y_pred: np.ndarray) -> float:
+    """Mean absolute error in the observable's own physical units."""
+    y_true = np.asarray(y_true, dtype=np.float64).reshape(-1)
+    y_pred = np.asarray(y_pred, dtype=np.float64).reshape(-1)
+    if y_true.size == 0:
+        return float("nan")
+    return float(np.abs(y_true - y_pred).mean())
+
+
 # =========================================================================== whiteness
 def lag1_autocorr(series: np.ndarray) -> dict:
     """Lag-1 autocorrelation of an innovation series (whiteness diagnostic).
@@ -240,12 +249,14 @@ def closure_by_phase(
         out[name] = {
             "r2": r2_score(truth_obs[m], pred_obs[m]),
             "rmse": rmse(truth_obs[m], pred_obs[m]),
+            "mae": mae(truth_obs[m], pred_obs[m]),
             "n": int(m.sum()),
         }
     labelled = phase_ids >= 0
     out["all"] = {
         "r2": r2_score(truth_obs[labelled], pred_obs[labelled]),
         "rmse": rmse(truth_obs[labelled], pred_obs[labelled]),
+        "mae": mae(truth_obs[labelled], pred_obs[labelled]),
         "n": int(labelled.sum()),
     }
     return out
@@ -276,6 +287,7 @@ __all__ = [
     "PHASE_NAMES",
     "r2_score",
     "rmse",
+    "mae",
     "lag1_autocorr",
     "nis_coverage",
     "analysis_mahalanobis_ratio",

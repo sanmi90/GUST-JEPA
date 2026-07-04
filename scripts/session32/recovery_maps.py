@@ -180,4 +180,48 @@ def fit_lstm(Xseq, Xflat, Y, groups, *, device, seed, epochs=200, patience=25, b
     return _TorchPredictor(net, device, xmu, xsd, ymu, ysd, "lstm")
 
 
-MAPPINGS = {"krr": fit_krr, "mlp": fit_mlp, "lstm": fit_lstm}
+def fit_lstm_tuned(Xseq, Xflat, Y, groups, *, device, seed, epochs=200, patience=25, batch=4096):
+    """LSTM recovery with per-call hyperparameter tuning.
+
+    Grid-searches the LSTM hidden width, dropout, and learning rate on a
+    case-grouped validation split, selects the configuration with the lowest
+    validation MSE, and returns that predictor. Called once per (family, K), so
+    every method's latent is read by an LSTM tuned to it, with the same grid and
+    the same selection rule for all -- consistency of estimator class, fairness of
+    tuning. The selected configuration is printed for the record.
+    """
+    import numpy as _np
+    import torch
+    import torch.nn as nn
+
+    grid = [(h, dp, lr) for h in (128, 256, 512) for dp in (0.1, 0.3) for lr in (2e-3,)]
+    tr_m, val_m = _grouped_val_split(groups, 0.15, seed)
+    xmu, xsd, ymu, ysd = _standardise(Xseq[tr_m], Xflat[tr_m], Y[tr_m], "lstm")
+    k, d = Xseq.shape[2], Y.shape[1]
+    Xn = ((Xseq - xmu) / xsd).astype(_np.float32)
+    Yn = ((Y - ymu) / ysd).astype(_np.float32)
+    Xval_t = torch.from_numpy(Xn[val_m]).to(device)
+    Yval_t = torch.from_numpy(Yn[val_m]).to(device)
+    lossf = nn.MSELoss()
+
+    best_vl, best_net, best_cfg = 1e18, None, None
+    for (hidden, dropout, lr) in grid:
+        net = PressureLSTM(k, d, hidden=hidden, dropout=dropout).to(device)
+        net = _train_torch(
+            net, Xn[tr_m], Yn[tr_m], Xn[val_m], Yn[val_m], device,
+            epochs=epochs, patience=patience, lr=lr, wd=1e-4, batch=batch, seed=seed,
+        )
+        net.eval()
+        with torch.no_grad():
+            vl = lossf(net(Xval_t), Yval_t).item()
+        if vl < best_vl:
+            best_vl, best_net, best_cfg = vl, net, (hidden, dropout, lr)
+    print(
+        f"[lstm-tuned] selected hidden={best_cfg[0]} dropout={best_cfg[1]} "
+        f"lr={best_cfg[2]} (val_mse={best_vl:.4f}) over {len(grid)} configs",
+        flush=True,
+    )
+    return _TorchPredictor(best_net, device, xmu, xsd, ymu, ysd, "lstm")
+
+
+MAPPINGS = {"krr": fit_krr, "mlp": fit_mlp, "lstm": fit_lstm, "lstm_tuned": fit_lstm_tuned}

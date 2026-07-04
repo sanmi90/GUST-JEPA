@@ -1,0 +1,33 @@
+% Per-method filter physical error across the gust envelope. tab:filter_error.
+% Each method under its OWN validation-tuned inflation (rho in the caption); the
+% error is the ABSOLUTE median C_L RMSE of the filter analysis, in lift-coefficient
+% units, NOT variance-normalised. All numbers are macros_v3.tex macros.
+\begin{table}
+  \centering
+  \caption{What the wall-pressure filter costs in real lift units. Median analysis
+  $C_L$ error (RMSE, dimensionless) and filter divergence rate at the impact
+  window, by gust strength, each family run with its own
+  validation-selected inflation ($\rho = \FeRhoJepa$ for the predictive filter,
+  $\FeRhoFukami$ for Fukami, $\FeRhoPod$ for POD). The variance-normalised $R^2$
+  rises with gust amplitude and hides this: at $|G| = 4$ the predictive filter
+  scores $R^2 = \FeCLrtwoJepaGFour$ while its absolute error is
+  $\FeCLrmseJepaGFour$. Two readings follow. At moderate gusts every filter
+  tracks the load, the reconstruction filter marginally best. At the strongest
+  gusts every filter degrades, with divergence rates of
+  $\FeDivJepaGFour$--$\FeDivPodGFour$; the predictive filter degrades least, in
+  both error and divergence, and the linear filter worst. This is a least-bad
+  regime, not a solved one.}
+  \label{tab:filter_error}
+  \small
+  \begin{tabular}{l c c c c c c}
+    \toprule
+    & \multicolumn{3}{c}{median $C_L$ RMSE} & \multicolumn{3}{c}{divergence rate} \\
+    \cmidrule(lr){2-4} \cmidrule(lr){5-7}
+    Filter & $|G|{=}1$ & $|G|{=}2$ & $|G|{=}4$ & $|G|{=}1$ & $|G|{=}2$ & $|G|{=}4$ \\
+    \midrule
+    predictive (JEPA)       & $\FeCLrmseJepaGOne$   & $\FeCLrmseJepaGTwo$   & $\FeCLrmseJepaGFour$   & $\FeDivJepaGOne$   & $\FeDivJepaGTwo$   & $\FeDivJepaGFour$ \\
+    reconstructive (Fukami) & $\FeCLrmseFukamiGOne$ & $\FeCLrmseFukamiGTwo$ & $\FeCLrmseFukamiGFour$ & $\FeDivFukamiGOne$ & $\FeDivFukamiGTwo$ & $\FeDivFukamiGFour$ \\
+    linear (POD)            & $\FeCLrmsePodGOne$    & $\FeCLrmsePodGTwo$    & $\FeCLrmsePodGFour$    & $\FeDivPodGOne$    & $\FeDivPodGTwo$    & $\FeDivPodGFour$ \\
+    \bottomrule
+  \end{tabular}
+\end{table}

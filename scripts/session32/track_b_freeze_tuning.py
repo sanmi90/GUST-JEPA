@@ -36,7 +36,7 @@ from scripts.session32.track_b_pilot import (  # noqa: E402
     encode_encounters,
     run_encounter,
 )
-from src.evaluation.rom_eval import load_frozen_model  # noqa: E402
+from src.evaluation.rom_eval import load_frozen_model, load_reference_model  # noqa: E402
 
 RHO_GRID = (1.00, 1.02, 1.05)
 K = 8
@@ -125,6 +125,12 @@ def parse_args(argv=None):
         default="outputs/session31/q1_latents_ablation/latents_%s_train.npz",
     )
     p.add_argument("--jepa-run", default="outputs/runs/session31/jepa_pool")
+    p.add_argument("--model", default="jepa_pool",
+                   help="Model to tune rho for (D252 per-method: jepa_pool_vec, fukami, pod).")
+    p.add_argument("--run-dir", default=None,
+                   help="Run dir for --model; defaults to --jepa-run.")
+    p.add_argument("--is-reference", action="store_true",
+                   help="Load --model as a reference (fukami/pod) not a CanonicalModel.")
     p.add_argument("--predictor-steps", type=int, default=4000)
     p.add_argument("--seed", type=int, default=0)
     p.add_argument("--rho", type=float, default=1.02)  # default used by run_encounter fallback
@@ -154,22 +160,24 @@ def main(argv=None):
     pipe = OmegaPipeline.from_manifest(_resolve(args.pipeline_manifest))
     encounters = [(c, args.encounter) for c in args.cases]
 
+    run_dir = args.run_dir or args.jepa_run
     print(
-        f"[freeze] device={device} ({gpu_name}) model=jepa_pool taps={args.taps_mode} "
-        f"rho_grid={args.rho_grid}",
+        f"[freeze] device={device} ({gpu_name}) model={args.model} "
+        f"(reference={args.is_reference}) taps={args.taps_mode} rho_grid={args.rho_grid}",
         flush=True,
     )
 
     # Build the (rho-independent) context and encode the 3 test_a encounters ONCE.
     ctx = build_context(
-        "jepa_pool",
-        args.jepa_run,
-        False,
+        args.model,
+        run_dir,
+        args.is_reference,
         device,
         args,
         train_cache_tmpl=args.train_cache,
     )
-    frozen = load_frozen_model(_resolve(args.jepa_run), args.checkpoint, device)
+    loader = load_reference_model if args.is_reference else load_frozen_model
+    frozen = loader(_resolve(run_dir), args.checkpoint, device)
     encs = encode_encounters(frozen, encounters, pipe, _cache_dir(args.partition), windows, device)
 
     sweep: dict = {}

@@ -7,6 +7,21 @@
       "fmt": "%.2f",
       "note": "median analysis C_L R2, impact"
     },
+    "v_filter_CL_analysis_rmse_impact_Zero": {
+      "value": 0.1706255700189368,
+      "macro": "VfiltCLrmseGZero",
+      "fmt": "%.2f"
+    },
+    "v_filter_CL_analysis_mae_impact_Zero": {
+      "value": 0.1393524387902399,
+      "macro": "VfiltCLmaeGZero",
+      "fmt": "%.2f"
+    },
+    "v_filter_Ew_analysis_rmse_impact_Zero": {
+      "value": 21.01786078561559,
+      "macro": "VfiltEwrmseGZero",
+      "fmt": "%.0f"
+    },
     "v_div_Zero": {
       "value": 0.0,
       "macro": "VdivGZero",
@@ -27,6 +42,21 @@
       "macro": "VfiltCLGHalf",
       "fmt": "%.2f",
       "note": "median analysis C_L R2, impact"
+    },
+    "v_filter_CL_analysis_rmse_impact_Half": {
+      "value": 0.22786041303257326,
+      "macro": "VfiltCLrmseGHalf",
+      "fmt": "%.2f"
+    },
+    "v_filter_CL_analysis_mae_impact_Half": {
+      "value": 0.19008766691642393,
+      "macro": "VfiltCLmaeGHalf",
+      "fmt": "%.2f"
+    },
+    "v_filter_Ew_analysis_rmse_impact_Half": {
+      "value": 23.142344274116134,
+      "macro": "VfiltEwrmseGHalf",
+      "fmt": "%.0f"
     },
     "v_div_Half": {
       "value": 0.0,
@@ -49,6 +79,21 @@
       "fmt": "%.2f",
       "note": "median analysis C_L R2, impact"
     },
+    "v_filter_CL_analysis_rmse_impact_One": {
+      "value": 0.30763627794300114,
+      "macro": "VfiltCLrmseGOne",
+      "fmt": "%.2f"
+    },
+    "v_filter_CL_analysis_mae_impact_One": {
+      "value": 0.25547167944821214,
+      "macro": "VfiltCLmaeGOne",
+      "fmt": "%.2f"
+    },
+    "v_filter_Ew_analysis_rmse_impact_One": {
+      "value": 37.36059873407548,
+      "macro": "VfiltEwrmseGOne",
+      "fmt": "%.0f"
+    },
     "v_div_One": {
       "value": 0.0,
       "macro": "VdivGOne",
@@ -69,6 +114,21 @@
       "macro": "VfiltCLGOneHalf",
       "fmt": "%.2f",
       "note": "median analysis C_L R2, impact"
+    },
+    "v_filter_CL_analysis_rmse_impact_OneHalf": {
+      "value": 0.38250655102486936,
+      "macro": "VfiltCLrmseGOneHalf",
+      "fmt": "%.2f"
+    },
+    "v_filter_CL_analysis_mae_impact_OneHalf": {
+      "value": 0.3299961446053247,
+      "macro": "VfiltCLmaeGOneHalf",
+      "fmt": "%.2f"
+    },
+    "v_filter_Ew_analysis_rmse_impact_OneHalf": {
+      "value": 55.240577501316146,
+      "macro": "VfiltEwrmseGOneHalf",
+      "fmt": "%.0f"
     },
     "v_div_OneHalf": {
       "value": 0.08928571428571429,
@@ -91,6 +151,21 @@
       "fmt": "%.2f",
       "note": "median analysis C_L R2, impact"
     },
+    "v_filter_CL_analysis_rmse_impact_Two": {
+      "value": 0.634433036354929,
+      "macro": "VfiltCLrmseGTwo",
+      "fmt": "%.2f"
+    },
+    "v_filter_CL_analysis_mae_impact_Two": {
+      "value": 0.5318266816038388,
+      "macro": "VfiltCLmaeGTwo",
+      "fmt": "%.2f"
+    },
+    "v_filter_Ew_analysis_rmse_impact_Two": {
+      "value": 89.76483047279174,
+      "macro": "VfiltEwrmseGTwo",
+      "fmt": "%.0f"
+    },
     "v_div_Two": {
       "value": 0.325,
       "macro": "VdivGTwo",
@@ -112,6 +187,21 @@
       "fmt": "%.2f",
       "note": "median analysis C_L R2, impact"
     },
+    "v_filter_CL_analysis_rmse_impact_Three": {
+      "value": 0.682286441299967,
+      "macro": "VfiltCLrmseGThree",
+      "fmt": "%.2f"
+    },
+    "v_filter_CL_analysis_mae_impact_Three": {
+      "value": 0.6134575250623189,
+      "macro": "VfiltCLmaeGThree",
+      "fmt": "%.2f"
+    },
+    "v_filter_Ew_analysis_rmse_impact_Three": {
+      "value": 166.40944363282551,
+      "macro": "VfiltEwrmseGThree",
+      "fmt": "%.0f"
+    },
     "v_div_Three": {
       "value": 0.6785714285714286,
       "macro": "VdivGThree",
@@ -132,6 +222,21 @@
       "macro": "VfiltCLGFour",
       "fmt": "%.2f",
       "note": "median analysis C_L R2, impact"
+    },
+    "v_filter_CL_analysis_rmse_impact_Four": {
+      "value": 0.7238405898379711,
+      "macro": "VfiltCLrmseGFour",
+      "fmt": "%.2f"
+    },
+    "v_filter_CL_analysis_mae_impact_Four": {
+      "value": 0.6228361613285776,
+      "macro": "VfiltCLmaeGFour",
+      "fmt": "%.2f"
+    },
+    "v_filter_Ew_analysis_rmse_impact_Four": {
+      "value": 276.2916726960534,
+      "macro": "VfiltEwrmseGFour",
+      "fmt": "%.0f"
     },
     "v_div_Four": {
       "value": 0.725,

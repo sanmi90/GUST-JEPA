@@ -1,0 +1,158 @@
+{
+  "part": "filter_error",
+  "numbers": {
+    "fe_rho_Jepa": {
+      "value": 1.0,
+      "macro": "FeRhoJepa",
+      "fmt": "%.2f",
+      "note": "per-method validation-selected inflation"
+    },
+    "fe_cl_r2_Jepa_One": {
+      "value": 0.7365065347137629,
+      "macro": "FeCLrtwoJepaGOne",
+      "fmt": "%.2f"
+    },
+    "fe_cl_rmse_Jepa_One": {
+      "value": 0.30763627794300114,
+      "macro": "FeCLrmseJepaGOne",
+      "fmt": "%.2f"
+    },
+    "fe_div_Jepa_One": {
+      "value": 0.0,
+      "macro": "FeDivJepaGOne",
+      "fmt": "%.2f"
+    },
+    "fe_cl_r2_Jepa_Two": {
+      "value": 0.7348587519435545,
+      "macro": "FeCLrtwoJepaGTwo",
+      "fmt": "%.2f"
+    },
+    "fe_cl_rmse_Jepa_Two": {
+      "value": 0.634433036354929,
+      "macro": "FeCLrmseJepaGTwo",
+      "fmt": "%.2f"
+    },
+    "fe_div_Jepa_Two": {
+      "value": 0.325,
+      "macro": "FeDivJepaGTwo",
+      "fmt": "%.2f"
+    },
+    "fe_cl_r2_Jepa_Four": {
+      "value": 0.8437803624968672,
+      "macro": "FeCLrtwoJepaGFour",
+      "fmt": "%.2f"
+    },
+    "fe_cl_rmse_Jepa_Four": {
+      "value": 0.7238405898379711,
+      "macro": "FeCLrmseJepaGFour",
+      "fmt": "%.2f"
+    },
+    "fe_div_Jepa_Four": {
+      "value": 0.725,
+      "macro": "FeDivJepaGFour",
+      "fmt": "%.2f"
+    },
+    "fe_rho_Fukami": {
+      "value": 1.05,
+      "macro": "FeRhoFukami",
+      "fmt": "%.2f",
+      "note": "per-method validation-selected inflation"
+    },
+    "fe_cl_r2_Fukami_One": {
+      "value": 0.8316541529479445,
+      "macro": "FeCLrtwoFukamiGOne",
+      "fmt": "%.2f"
+    },
+    "fe_cl_rmse_Fukami_One": {
+      "value": 0.25949933590151264,
+      "macro": "FeCLrmseFukamiGOne",
+      "fmt": "%.2f"
+    },
+    "fe_div_Fukami_One": {
+      "value": 0.022727272727272728,
+      "macro": "FeDivFukamiGOne",
+      "fmt": "%.2f"
+    },
+    "fe_cl_r2_Fukami_Two": {
+      "value": 0.7888478840744066,
+      "macro": "FeCLrtwoFukamiGTwo",
+      "fmt": "%.2f"
+    },
+    "fe_cl_rmse_Fukami_Two": {
+      "value": 0.6100575930157697,
+      "macro": "FeCLrmseFukamiGTwo",
+      "fmt": "%.2f"
+    },
+    "fe_div_Fukami_Two": {
+      "value": 0.525,
+      "macro": "FeDivFukamiGTwo",
+      "fmt": "%.2f"
+    },
+    "fe_cl_r2_Fukami_Four": {
+      "value": 0.7659408300568263,
+      "macro": "FeCLrtwoFukamiGFour",
+      "fmt": "%.2f"
+    },
+    "fe_cl_rmse_Fukami_Four": {
+      "value": 0.7899243342934609,
+      "macro": "FeCLrmseFukamiGFour",
+      "fmt": "%.2f"
+    },
+    "fe_div_Fukami_Four": {
+      "value": 0.95,
+      "macro": "FeDivFukamiGFour",
+      "fmt": "%.2f"
+    },
+    "fe_rho_Pod": {
+      "value": 1.0,
+      "macro": "FeRhoPod",
+      "fmt": "%.2f",
+      "note": "per-method validation-selected inflation"
+    },
+    "fe_cl_r2_Pod_One": {
+      "value": 0.5329236271883573,
+      "macro": "FeCLrtwoPodGOne",
+      "fmt": "%.2f"
+    },
+    "fe_cl_rmse_Pod_One": {
+      "value": 0.35865635859194145,
+      "macro": "FeCLrmsePodGOne",
+      "fmt": "%.2f"
+    },
+    "fe_div_Pod_One": {
+      "value": 0.011363636363636364,
+      "macro": "FeDivPodGOne",
+      "fmt": "%.2f"
+    },
+    "fe_cl_r2_Pod_Two": {
+      "value": -0.3349165896717575,
+      "macro": "FeCLrtwoPodGTwo",
+      "fmt": "%.2f"
+    },
+    "fe_cl_rmse_Pod_Two": {
+      "value": 1.1429141226569082,
+      "macro": "FeCLrmsePodGTwo",
+      "fmt": "%.2f"
+    },
+    "fe_div_Pod_Two": {
+      "value": 0.4875,
+      "macro": "FeDivPodGTwo",
+      "fmt": "%.2f"
+    },
+    "fe_cl_r2_Pod_Four": {
+      "value": 0.24917005951800908,
+      "macro": "FeCLrtwoPodGFour",
+      "fmt": "%.2f"
+    },
+    "fe_cl_rmse_Pod_Four": {
+      "value": 1.332381916302908,
+      "macro": "FeCLrmsePodGFour",
+      "fmt": "%.2f"
+    },
+    "fe_div_Pod_Four": {
+      "value": 0.925,
+      "macro": "FeDivPodGFour",
+      "fmt": "%.2f"
+    }
+  }
+}

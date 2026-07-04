@@ -487,11 +487,23 @@ def main(argv=None):
     ap.add_argument("--gpu", type=int, default=0)
     ap.add_argument("--families", nargs="+", default=list(FAMILIES))
     ap.add_argument(
+        "--mapping",
+        choices=["krr", "mlp", "lstm", "lstm_tuned"],
+        default=None,
+        help="Force a single recovery estimator for every family (no CV select), "
+        "e.g. --mapping lstm for a consistent LSTM wall-recovery table.",
+    )
+    ap.add_argument(
         "--build-osp",
         action="store_true",
         help="(Re)build osp_taps_v2p2.json from the caches before recovery.",
     )
     args = ap.parse_args(argv)
+
+    if args.mapping is not None:
+        global MAPPING_NAMES
+        MAPPING_NAMES = (args.mapping,)
+        print(f"[o1] forcing single recovery estimator: {args.mapping}", flush=True)
 
     import torch  # noqa: F401
 

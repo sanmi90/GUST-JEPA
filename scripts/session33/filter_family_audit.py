@@ -83,6 +83,8 @@ def main(argv=None):
     ap.add_argument("--models", nargs="+", default=list(NEW_MODELS))
     ap.add_argument("--limit", type=int, default=0)
     ap.add_argument("--seed", type=int, default=0)
+    ap.add_argument("--rho", type=float, default=None,
+                    help="Per-method inflation (D252); default keeps the envelope default (1.0).")
     ap.add_argument("--out", default="outputs/session33/envelope_family_audit.json")
     args = ap.parse_args(argv)
 
@@ -105,6 +107,8 @@ def main(argv=None):
     ]
     if args.limit:
         argv2 += ["--limit", str(args.limit)]
+    if args.rho is not None:
+        argv2 += ["--rho", str(args.rho)]
     return env.main(argv2)
 
 

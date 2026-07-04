@@ -1,0 +1,166 @@
+{
+  "task": "SESSION 32 Track B -- frozen filter tuning (D220)",
+  "decision": "D220",
+  "frozen": {
+    "inflation_rho": 1.0,
+    "eps_A": 0.25,
+    "eps_t_over_c": 0.25,
+    "K_taps": 8,
+    "taps_mode": "osp_per_model",
+    "n_members": 64,
+    "mode": "stochastic",
+    "init": "field_free_O1_windowed_pressure"
+  },
+  "selection": {
+    "criterion": "minimize |mean NIS - K| subject to no divergence; second key = min mean |lag-1 innovation autocorr|; tie-break = analysis E_w closure R^2 (impact+relaxation)",
+    "K": 8,
+    "reason": "min |meanNIS-8|=4.61 (meanNIS=3.39); whiteness |lag1|=0.85; E_w closure R2=-66.69; diverged=True",
+    "relaxed_no_nondiverged_rho": true,
+    "selected_rho": 1.0
+  },
+  "sweep": {
+    "1.00": {
+      "aggregate": {
+        "mean_nis": 3.390948522727754,
+        "nis_abs_dev_from_K": 4.609051477272246,
+        "any_diverged": true,
+        "mean_abs_lag1": 0.8512783113414174,
+        "analysis_Ew_closure_r2": -66.68573075770648,
+        "mean_frac_in_band_95": 0.39269406392694056,
+        "n_cases": 3
+      },
+      "per_case": [
+        {
+          "case_id": "G+1.00_D0.50_Y+0.10",
+          "mean_nis": 1.1407043570825233,
+          "frac_in_band_95": 0.1095890410958904,
+          "mean_abs_lag1": 0.7982542170012986,
+          "diverged": false,
+          "Ew_analysis_r2_impact": -14.939899343928591,
+          "Ew_analysis_r2_relax": -1.4183326636204838,
+          "CL_analysis_r2_impact": 0.7279564384992341
+        },
+        {
+          "case_id": "G+2.00_D1.00_Y+0.10",
+          "mean_nis": 6.835720024701448,
+          "frac_in_band_95": 0.5753424657534246,
+          "mean_abs_lag1": 0.9103979492741595,
+          "diverged": true,
+          "Ew_analysis_r2_impact": -14.984381666138969,
+          "Ew_analysis_r2_relax": -10.403979071266097,
+          "CL_analysis_r2_impact": -7.937766847236517
+        },
+        {
+          "case_id": "G+1.00_D1.00_Y+0.10",
+          "mean_nis": 2.19642118639929,
+          "frac_in_band_95": 0.4931506849315068,
+          "mean_abs_lag1": 0.8451827677487942,
+          "diverged": false,
+          "Ew_analysis_r2_impact": -358.6778545486949,
+          "Ew_analysis_r2_relax": 0.31006274741022044,
+          "CL_analysis_r2_impact": 0.9493559779606869
+        }
+      ]
+    },
+    "1.02": {
+      "aggregate": {
+        "mean_nis": 3.241228054413366,
+        "nis_abs_dev_from_K": 4.758771945586634,
+        "any_diverged": true,
+        "mean_abs_lag1": 0.8513359181964916,
+        "analysis_Ew_closure_r2": -67.72591507999198,
+        "mean_frac_in_band_95": 0.37442922374429227,
+        "n_cases": 3
+      },
+      "per_case": [
+        {
+          "case_id": "G+1.00_D0.50_Y+0.10",
+          "mean_nis": 1.0936937475780844,
+          "frac_in_band_95": 0.0958904109589041,
+          "mean_abs_lag1": 0.7999111589022907,
+          "diverged": false,
+          "Ew_analysis_r2_impact": -13.34916564576101,
+          "Ew_analysis_r2_relax": -1.6408209382159278,
+          "CL_analysis_r2_impact": 0.7257265899720726
+        },
+        {
+          "case_id": "G+2.00_D1.00_Y+0.10",
+          "mean_nis": 6.508945942605964,
+          "frac_in_band_95": 0.5616438356164384,
+          "mean_abs_lag1": 0.909584479664657,
+          "diverged": true,
+          "Ew_analysis_r2_impact": -13.589235469179775,
+          "Ew_analysis_r2_relax": -10.158600372320848,
+          "CL_analysis_r2_impact": -7.663375480831558
+        },
+        {
+          "case_id": "G+1.00_D1.00_Y+0.10",
+          "mean_nis": 2.1210444730560494,
+          "frac_in_band_95": 0.4657534246575342,
+          "mean_abs_lag1": 0.8445121160225273,
+          "diverged": false,
+          "Ew_analysis_r2_impact": -367.9006246025971,
+          "Ew_analysis_r2_relax": 0.2829565481227442,
+          "CL_analysis_r2_impact": 0.9497616073569595
+        }
+      ]
+    },
+    "1.05": {
+      "aggregate": {
+        "mean_nis": 3.051084242953653,
+        "nis_abs_dev_from_K": 4.948915757046347,
+        "any_diverged": true,
+        "mean_abs_lag1": 0.8504638962829615,
+        "analysis_Ew_closure_r2": -69.36921509256229,
+        "mean_frac_in_band_95": 0.3470319634703196,
+        "n_cases": 3
+      },
+      "per_case": [
+        {
+          "case_id": "G+1.00_D0.50_Y+0.10",
+          "mean_nis": 1.0264108606840692,
+          "frac_in_band_95": 0.0821917808219178,
+          "mean_abs_lag1": 0.7975201629569619,
+          "diverged": false,
+          "Ew_analysis_r2_impact": -11.517600651581331,
+          "Ew_analysis_r2_relax": -1.7890210024416175,
+          "CL_analysis_r2_impact": 0.7197492031585082
+        },
+        {
+          "case_id": "G+2.00_D1.00_Y+0.10",
+          "mean_nis": 6.110130106570197,
+          "frac_in_band_95": 0.5616438356164384,
+          "mean_abs_lag1": 0.9097672004946356,
+          "diverged": true,
+          "Ew_analysis_r2_impact": -11.534600487168392,
+          "Ew_analysis_r2_relax": -9.778177551019931,
+          "CL_analysis_r2_impact": -7.3438388348703665
+        },
+        {
+          "case_id": "G+1.00_D1.00_Y+0.10",
+          "mean_nis": 2.016711761606693,
+          "frac_in_band_95": 0.3972602739726027,
+          "mean_abs_lag1": 0.844104325397287,
+          "diverged": false,
+          "Ew_analysis_r2_impact": -381.85197059178716,
+          "Ew_analysis_r2_relax": 0.25607972862474193,
+          "CL_analysis_r2_impact": 0.9489533591517784
+        }
+      ]
+    }
+  },
+  "provenance": {
+    "cases": [
+      "G+1.00_D0.50_Y+0.10",
+      "G+2.00_D1.00_Y+0.10",
+      "G+1.00_D1.00_Y+0.10"
+    ],
+    "encounter": 4,
+    "split": "test_a",
+    "model": "jepa_pool",
+    "osp_taps_file": "outputs/session33/osp_taps_vec.json",
+    "gpu_name": "NVIDIA RTX PRO 6000 Blackwell Max-Q Workstation Edition",
+    "seed": 0,
+    "note": "Frozen on test_a ONLY (D220). Locked for S33; do not re-tune. Test B/C untouched. eps_A / eps_t are the D220 warning thresholds."
+  }
+}

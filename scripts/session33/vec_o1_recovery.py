@@ -53,6 +53,8 @@ def main(argv=None):
     ap.add_argument("--gpu", type=int, default=0)
     ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--model", default="jepa_pool_vec")
+    ap.add_argument("--mapping", choices=["krr", "mlp", "lstm", "lstm_tuned"], default=None,
+                    help="Force a single recovery estimator (e.g. lstm).")
     ap.add_argument("--cache-dir", default="outputs/session33/q1_vec_latents")
     ap.add_argument("--out", default="outputs/session33/track_o1_recovery_vec.json")
     args = ap.parse_args(argv)
@@ -70,16 +72,17 @@ def main(argv=None):
     o1.FAMILIES.update(
         {fam: {"pooled": args.model, "spatial": args.model, "role": "predictive"}}
     )
-    return o1.main(
-        [
-            "--gpu", str(args.gpu),
-            "--seed", str(args.seed),
-            "--cache-dir", str(cache_dir),
-            "--osp-taps", str(taps_path),
-            "--families", fam,
-            "--out", args.out,
-        ]
-    )
+    o1_argv = [
+        "--gpu", str(args.gpu),
+        "--seed", str(args.seed),
+        "--cache-dir", str(cache_dir),
+        "--osp-taps", str(taps_path),
+        "--families", fam,
+        "--out", args.out,
+    ]
+    if args.mapping is not None:
+        o1_argv += ["--mapping", args.mapping]
+    return o1.main(o1_argv)
 
 
 if __name__ == "__main__":

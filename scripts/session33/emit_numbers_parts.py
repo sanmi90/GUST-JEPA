@@ -413,6 +413,15 @@ def part_table_v():
         numbers[f"v_filt_cl_{word}"] = rec(
             blk["filter_CL_analysis_r2_impact"]["median"], f"VfiltCLG{word}", "%.2f",
             note="median analysis C_L R2, impact")
+        # PHYSICAL error (real C_L / E_w units) -- R2 is variance-normalised and
+        # rises with gust amplitude while the true error grows, so we report the
+        # absolute RMSE and MAE alongside it (D252, user directive).
+        for mkey, mac in (("filter_CL_analysis_rmse_impact", "VfiltCLrmseG"),
+                          ("filter_CL_analysis_mae_impact", "VfiltCLmaeG"),
+                          ("filter_Ew_analysis_rmse_impact", "VfiltEwrmseG")):
+            if mkey in blk and blk[mkey].get("median") is not None:
+                fmt = "%.2f" if "CL" in mkey else "%.0f"
+                numbers[f"v_{mkey}_{word}"] = rec(blk[mkey]["median"], f"{mac}{word}", fmt)
         numbers[f"v_div_{word}"] = rec(blk["div_rate"], f"VdivG{word}", "%.2f")
         numbers[f"v_rec_cl_{word}"] = rec(
             blk["recovery_CL_r2_impact"]["median"], f"VrecCLG{word}", "%.2f")
@@ -425,6 +434,43 @@ def part_table_v():
         if v is not None:
             numbers[f"v_divthresh_{word}"] = rec(v, f"VdivThresh{word}", "%.1f")
     write_part("table_v_envelope", numbers)
+
+
+# ------------------------------------------------------------------ filter physical error
+def part_filter_error():
+    """Per-method filter C_L physical error (RMSE) across the gust envelope, each
+    method under its OWN tuned inflation rho (D252). Shows the predictive filter
+    stays bounded at extreme gusts while the reconstruction / linear filters blow
+    up -- the operating-envelope claim in real lift units, not variance-normalised."""
+    sources = {
+        "Jepa": (S33 / "envelope_vec.json", "jepa_pool_vec",
+                 S33 / "filter_tuning_jepa_pool_vec.json"),
+        "Fukami": (S33 / "envelope_fukami.json", "fukami", S33 / "filter_tuning_fukami.json"),
+        "Pod": (S33 / "envelope_pod.json", "pod", S33 / "filter_tuning_pod.json"),
+    }
+    numbers = {}
+    for short, (env_p, model, tune_p) in sources.items():
+        env = _load(env_p)
+        tune = _load(tune_p)
+        if tune is not None:
+            numbers[f"fe_rho_{short}"] = rec(
+                tune["frozen"]["inflation_rho"], f"FeRho{short}", "%.2f",
+                note="per-method validation-selected inflation")
+        if env is None or model not in env.get("models", {}):
+            continue
+        byg = env["models"][model]["aggregates"]["by_G"]
+        for g, word in (("1", "One"), ("2", "Two"), ("4", "Four")):
+            blk = byg.get(g, {})
+            r2 = blk.get("filter_CL_analysis_r2_impact", {}).get("median")
+            rm = blk.get("filter_CL_analysis_rmse_impact", {}).get("median")
+            dv = blk.get("div_rate")
+            if r2 is not None:
+                numbers[f"fe_cl_r2_{short}_{word}"] = rec(r2, f"FeCLrtwo{short}G{word}", "%.2f")
+            if rm is not None:
+                numbers[f"fe_cl_rmse_{short}_{word}"] = rec(rm, f"FeCLrmse{short}G{word}", "%.2f")
+            if dv is not None:
+                numbers[f"fe_div_{short}_{word}"] = rec(dv, f"FeDiv{short}G{word}", "%.2f")
+    write_part("filter_error", numbers)
 
 
 # ------------------------------------------------------------------ Track T grid (T1/T2)
@@ -769,6 +815,7 @@ def main() -> int:
     part_table_z()
     part_table_w()
     part_table_v()
+    part_filter_error()
     part_track_t()
     part_t2b()
     part_table_t3()

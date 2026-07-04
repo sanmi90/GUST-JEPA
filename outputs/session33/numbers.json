@@ -1,12 +1,13 @@
 {
   "_provenance": {
-    "generated_iso": "2026-07-04T07:29:10.709278+00:00",
-    "git_commit": "ef55ca266f8901f533934247801c8067888737d2",
-    "n_parts": 15,
+    "generated_iso": "2026-07-04T09:29:33.284063+00:00",
+    "git_commit": "263493769c1df818905237d1192d5d8becbd7eaa",
+    "n_parts": 16,
     "parts": [
       "constants.json",
       "dim_plateau.json",
       "family_filter_audit.json",
+      "filter_error.json",
       "gates_p_and_table_y.json",
       "min_d_panel.json",
       "paired_stats.json",
@@ -192,6 +193,189 @@
       "note": "counted from jepa_pool_vec checkpoint_iter010000 (6.67M); encoder size unchanged vs the ResUNet-era flagship",
       "source": "constants",
       "value": 6.7
+    },
+    "fe_cl_r2_Fukami_Four": {
+      "fmt": "%.2f",
+      "macro": "FeCLrtwoFukamiGFour",
+      "source": "filter_error",
+      "value": 0.7659408300568263
+    },
+    "fe_cl_r2_Fukami_One": {
+      "fmt": "%.2f",
+      "macro": "FeCLrtwoFukamiGOne",
+      "source": "filter_error",
+      "value": 0.8316541529479445
+    },
+    "fe_cl_r2_Fukami_Two": {
+      "fmt": "%.2f",
+      "macro": "FeCLrtwoFukamiGTwo",
+      "source": "filter_error",
+      "value": 0.7888478840744066
+    },
+    "fe_cl_r2_Jepa_Four": {
+      "fmt": "%.2f",
+      "macro": "FeCLrtwoJepaGFour",
+      "source": "filter_error",
+      "value": 0.8437803624968672
+    },
+    "fe_cl_r2_Jepa_One": {
+      "fmt": "%.2f",
+      "macro": "FeCLrtwoJepaGOne",
+      "source": "filter_error",
+      "value": 0.7365065347137629
+    },
+    "fe_cl_r2_Jepa_Two": {
+      "fmt": "%.2f",
+      "macro": "FeCLrtwoJepaGTwo",
+      "source": "filter_error",
+      "value": 0.7348587519435545
+    },
+    "fe_cl_r2_Pod_Four": {
+      "fmt": "%.2f",
+      "macro": "FeCLrtwoPodGFour",
+      "source": "filter_error",
+      "value": 0.24917005951800908
+    },
+    "fe_cl_r2_Pod_One": {
+      "fmt": "%.2f",
+      "macro": "FeCLrtwoPodGOne",
+      "source": "filter_error",
+      "value": 0.5329236271883573
+    },
+    "fe_cl_r2_Pod_Two": {
+      "fmt": "%.2f",
+      "macro": "FeCLrtwoPodGTwo",
+      "source": "filter_error",
+      "value": -0.3349165896717575
+    },
+    "fe_cl_rmse_Fukami_Four": {
+      "fmt": "%.2f",
+      "macro": "FeCLrmseFukamiGFour",
+      "source": "filter_error",
+      "value": 0.7899243342934609
+    },
+    "fe_cl_rmse_Fukami_One": {
+      "fmt": "%.2f",
+      "macro": "FeCLrmseFukamiGOne",
+      "source": "filter_error",
+      "value": 0.25949933590151264
+    },
+    "fe_cl_rmse_Fukami_Two": {
+      "fmt": "%.2f",
+      "macro": "FeCLrmseFukamiGTwo",
+      "source": "filter_error",
+      "value": 0.6100575930157697
+    },
+    "fe_cl_rmse_Jepa_Four": {
+      "fmt": "%.2f",
+      "macro": "FeCLrmseJepaGFour",
+      "source": "filter_error",
+      "value": 0.7238405898379711
+    },
+    "fe_cl_rmse_Jepa_One": {
+      "fmt": "%.2f",
+      "macro": "FeCLrmseJepaGOne",
+      "source": "filter_error",
+      "value": 0.30763627794300114
+    },
+    "fe_cl_rmse_Jepa_Two": {
+      "fmt": "%.2f",
+      "macro": "FeCLrmseJepaGTwo",
+      "source": "filter_error",
+      "value": 0.634433036354929
+    },
+    "fe_cl_rmse_Pod_Four": {
+      "fmt": "%.2f",
+      "macro": "FeCLrmsePodGFour",
+      "source": "filter_error",
+      "value": 1.332381916302908
+    },
+    "fe_cl_rmse_Pod_One": {
+      "fmt": "%.2f",
+      "macro": "FeCLrmsePodGOne",
+      "source": "filter_error",
+      "value": 0.35865635859194145
+    },
+    "fe_cl_rmse_Pod_Two": {
+      "fmt": "%.2f",
+      "macro": "FeCLrmsePodGTwo",
+      "source": "filter_error",
+      "value": 1.1429141226569082
+    },
+    "fe_div_Fukami_Four": {
+      "fmt": "%.2f",
+      "macro": "FeDivFukamiGFour",
+      "source": "filter_error",
+      "value": 0.95
+    },
+    "fe_div_Fukami_One": {
+      "fmt": "%.2f",
+      "macro": "FeDivFukamiGOne",
+      "source": "filter_error",
+      "value": 0.022727272727272728
+    },
+    "fe_div_Fukami_Two": {
+      "fmt": "%.2f",
+      "macro": "FeDivFukamiGTwo",
+      "source": "filter_error",
+      "value": 0.525
+    },
+    "fe_div_Jepa_Four": {
+      "fmt": "%.2f",
+      "macro": "FeDivJepaGFour",
+      "source": "filter_error",
+      "value": 0.725
+    },
+    "fe_div_Jepa_One": {
+      "fmt": "%.2f",
+      "macro": "FeDivJepaGOne",
+      "source": "filter_error",
+      "value": 0.0
+    },
+    "fe_div_Jepa_Two": {
+      "fmt": "%.2f",
+      "macro": "FeDivJepaGTwo",
+      "source": "filter_error",
+      "value": 0.325
+    },
+    "fe_div_Pod_Four": {
+      "fmt": "%.2f",
+      "macro": "FeDivPodGFour",
+      "source": "filter_error",
+      "value": 0.925
+    },
+    "fe_div_Pod_One": {
+      "fmt": "%.2f",
+      "macro": "FeDivPodGOne",
+      "source": "filter_error",
+      "value": 0.011363636363636364
+    },
+    "fe_div_Pod_Two": {
+      "fmt": "%.2f",
+      "macro": "FeDivPodGTwo",
+      "source": "filter_error",
+      "value": 0.4875
+    },
+    "fe_rho_Fukami": {
+      "fmt": "%.2f",
+      "macro": "FeRhoFukami",
+      "note": "per-method validation-selected inflation",
+      "source": "filter_error",
+      "value": 1.05
+    },
+    "fe_rho_Jepa": {
+      "fmt": "%.2f",
+      "macro": "FeRhoJepa",
+      "note": "per-method validation-selected inflation",
+      "source": "filter_error",
+      "value": 1.0
+    },
+    "fe_rho_Pod": {
+      "fmt": "%.2f",
+      "macro": "FeRhoPod",
+      "note": "per-method validation-selected inflation",
+      "source": "filter_error",
+      "value": 1.0
     },
     "ff_cl_ae_wake_pool_Four": {
       "fmt": "%.2f",
@@ -1982,6 +2166,132 @@
       "note": "median analysis C_L R2, impact",
       "source": "table_v_envelope",
       "value": -14.191615338424224
+    },
+    "v_filter_CL_analysis_mae_impact_Four": {
+      "fmt": "%.2f",
+      "macro": "VfiltCLmaeGFour",
+      "source": "table_v_envelope",
+      "value": 0.6228361613285776
+    },
+    "v_filter_CL_analysis_mae_impact_Half": {
+      "fmt": "%.2f",
+      "macro": "VfiltCLmaeGHalf",
+      "source": "table_v_envelope",
+      "value": 0.19008766691642393
+    },
+    "v_filter_CL_analysis_mae_impact_One": {
+      "fmt": "%.2f",
+      "macro": "VfiltCLmaeGOne",
+      "source": "table_v_envelope",
+      "value": 0.25547167944821214
+    },
+    "v_filter_CL_analysis_mae_impact_OneHalf": {
+      "fmt": "%.2f",
+      "macro": "VfiltCLmaeGOneHalf",
+      "source": "table_v_envelope",
+      "value": 0.3299961446053247
+    },
+    "v_filter_CL_analysis_mae_impact_Three": {
+      "fmt": "%.2f",
+      "macro": "VfiltCLmaeGThree",
+      "source": "table_v_envelope",
+      "value": 0.6134575250623189
+    },
+    "v_filter_CL_analysis_mae_impact_Two": {
+      "fmt": "%.2f",
+      "macro": "VfiltCLmaeGTwo",
+      "source": "table_v_envelope",
+      "value": 0.5318266816038388
+    },
+    "v_filter_CL_analysis_mae_impact_Zero": {
+      "fmt": "%.2f",
+      "macro": "VfiltCLmaeGZero",
+      "source": "table_v_envelope",
+      "value": 0.1393524387902399
+    },
+    "v_filter_CL_analysis_rmse_impact_Four": {
+      "fmt": "%.2f",
+      "macro": "VfiltCLrmseGFour",
+      "source": "table_v_envelope",
+      "value": 0.7238405898379711
+    },
+    "v_filter_CL_analysis_rmse_impact_Half": {
+      "fmt": "%.2f",
+      "macro": "VfiltCLrmseGHalf",
+      "source": "table_v_envelope",
+      "value": 0.22786041303257326
+    },
+    "v_filter_CL_analysis_rmse_impact_One": {
+      "fmt": "%.2f",
+      "macro": "VfiltCLrmseGOne",
+      "source": "table_v_envelope",
+      "value": 0.30763627794300114
+    },
+    "v_filter_CL_analysis_rmse_impact_OneHalf": {
+      "fmt": "%.2f",
+      "macro": "VfiltCLrmseGOneHalf",
+      "source": "table_v_envelope",
+      "value": 0.38250655102486936
+    },
+    "v_filter_CL_analysis_rmse_impact_Three": {
+      "fmt": "%.2f",
+      "macro": "VfiltCLrmseGThree",
+      "source": "table_v_envelope",
+      "value": 0.682286441299967
+    },
+    "v_filter_CL_analysis_rmse_impact_Two": {
+      "fmt": "%.2f",
+      "macro": "VfiltCLrmseGTwo",
+      "source": "table_v_envelope",
+      "value": 0.634433036354929
+    },
+    "v_filter_CL_analysis_rmse_impact_Zero": {
+      "fmt": "%.2f",
+      "macro": "VfiltCLrmseGZero",
+      "source": "table_v_envelope",
+      "value": 0.1706255700189368
+    },
+    "v_filter_Ew_analysis_rmse_impact_Four": {
+      "fmt": "%.0f",
+      "macro": "VfiltEwrmseGFour",
+      "source": "table_v_envelope",
+      "value": 276.2916726960534
+    },
+    "v_filter_Ew_analysis_rmse_impact_Half": {
+      "fmt": "%.0f",
+      "macro": "VfiltEwrmseGHalf",
+      "source": "table_v_envelope",
+      "value": 23.142344274116134
+    },
+    "v_filter_Ew_analysis_rmse_impact_One": {
+      "fmt": "%.0f",
+      "macro": "VfiltEwrmseGOne",
+      "source": "table_v_envelope",
+      "value": 37.36059873407548
+    },
+    "v_filter_Ew_analysis_rmse_impact_OneHalf": {
+      "fmt": "%.0f",
+      "macro": "VfiltEwrmseGOneHalf",
+      "source": "table_v_envelope",
+      "value": 55.240577501316146
+    },
+    "v_filter_Ew_analysis_rmse_impact_Three": {
+      "fmt": "%.0f",
+      "macro": "VfiltEwrmseGThree",
+      "source": "table_v_envelope",
+      "value": 166.40944363282551
+    },
+    "v_filter_Ew_analysis_rmse_impact_Two": {
+      "fmt": "%.0f",
+      "macro": "VfiltEwrmseGTwo",
+      "source": "table_v_envelope",
+      "value": 89.76483047279174
+    },
+    "v_filter_Ew_analysis_rmse_impact_Zero": {
+      "fmt": "%.0f",
+      "macro": "VfiltEwrmseGZero",
+      "source": "table_v_envelope",
+      "value": 21.01786078561559
     },
     "v_nis_Four": {
       "fmt": "%.1f",

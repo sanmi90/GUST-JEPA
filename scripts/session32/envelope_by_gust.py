@@ -174,6 +174,10 @@ def _rmse(clo: dict, phase: str) -> float:
     return float(clo.get(phase, {}).get("rmse", float("nan")))
 
 
+def _mae(clo: dict, phase: str) -> float:
+    return float(clo.get(phase, {}).get("mae", float("nan")))
+
+
 def flatten_record(meta: dict, filt: dict, rec: dict, fct: dict) -> dict:
     """Collapse the filter + forecast + recovery outputs into one flat record."""
     fcl = filt["closure"]["C_L"]
@@ -201,6 +205,15 @@ def flatten_record(meta: dict, filt: dict, rec: dict, fct: dict) -> dict:
             "CL_analysis_r2_relax": _r2(fcl["analysis"], "post_impact"),
             "Ew_analysis_r2_impact": _r2(few["analysis"], "impact"),
             "Ew_analysis_r2_relax": _r2(few["analysis"], "post_impact"),
+            # absolute physical error of the analysis (C_L is dimensionless;
+            # E_w in wake-enstrophy units) -- R2 is variance-normalised and hides
+            # the real-unit error, so we carry RMSE and MAE alongside it.
+            "CL_analysis_rmse_impact": _rmse(fcl["analysis"], "impact"),
+            "CL_analysis_rmse_relax": _rmse(fcl["analysis"], "post_impact"),
+            "CL_analysis_mae_impact": _mae(fcl["analysis"], "impact"),
+            "CL_analysis_mae_relax": _mae(fcl["analysis"], "post_impact"),
+            "Ew_analysis_rmse_impact": _rmse(few["analysis"], "impact"),
+            "Ew_analysis_mae_impact": _mae(few["analysis"], "impact"),
             "CL_gain_rmse_impact": float(
                 fcl["gain_vs_open_loop"].get("impact", {}).get("rmse_reduction", float("nan"))
             ),
@@ -281,6 +294,12 @@ def aggregate(records: list[dict]) -> dict:
         "filter_Ew_analysis_r2_relax": ("filter", "Ew_analysis_r2_relax"),
         "filter_CL_gain_rmse_impact": ("filter", "CL_gain_rmse_impact"),
         "filter_Ew_gain_rmse_impact": ("filter", "Ew_gain_rmse_impact"),
+        # absolute physical error of the analysis (real units, not variance-normalised)
+        "filter_CL_analysis_rmse_impact": ("filter", "CL_analysis_rmse_impact"),
+        "filter_CL_analysis_rmse_relax": ("filter", "CL_analysis_rmse_relax"),
+        "filter_CL_analysis_mae_impact": ("filter", "CL_analysis_mae_impact"),
+        "filter_Ew_analysis_rmse_impact": ("filter", "Ew_analysis_rmse_impact"),
+        "filter_Ew_analysis_mae_impact": ("filter", "Ew_analysis_mae_impact"),
         "filter_mean_nis": ("filter", "mean_nis"),
         "forecast_CL_r2_impact": ("forecast", "truthinit_CL_r2_impact"),
         "forecast_CL_r2_relax": ("forecast", "truthinit_CL_r2_relax"),

@@ -297,19 +297,35 @@ collapses, falling below the skill of predicting the encounter mean by a gust ra
 of three ($\VrecCLGThree$) and remaining there at the $|G| = 4$ boundary
 ($\VrecCLGFour$), because a single pressure frame cannot see the reorganised wake a
 strong gust deposits. Reading the same taps through the learned dynamics, the filter
-still follows the load across those encounters, from $\VfiltCLGOne$ at $|G| = 1$ to
-$\VfiltCLGThree$ at a ratio of three and $\VfiltCLGFour$ at the boundary
-(table~\ref{tab:envelope}, figure~\ref{fig:envelope}). The open-loop forecast never
-tracks the load at any gust strength, so it is the correction step, not the forward
-model, that recovers the state, and it does so from pressure the visibility analysis
-found blind to the wake circulation: the sequential dynamics carry the part of the
-state the wall cannot see at an instant.
+follows the load further, but the accuracy that matters at deployment is the error
+in real lift units, not the variance-normalised score, and that error grows with
+the gust. The median analysis $C_L$ error rises from $\VfiltCLrmseGOne$ at $|G| = 1$
+to $\VfiltCLrmseGThree$ at a ratio of three and $\VfiltCLrmseGFour$ at the boundary,
+even as its $R^2$ rises to $\VfiltCLGFour$: the strong gust inflates the lift
+excursion faster than the error grows, so the normalised score flatters the
+extreme-gust tracking while the absolute error roughly doubles. The open-loop
+forecast never tracks the load at any gust strength, so it is the correction step,
+not the forward model, that recovers the state, and it does so from pressure the
+visibility analysis found blind to the wake circulation.
 
 \input{sections/tables/table_envelope.tex}
 
+Run identically on each family, each under its own validation-tuned inflation, the
+comparison is a division of degradation rather than a clean win
+(table~\ref{tab:filter_error}). At moderate gusts every filter tracks the load, the
+reconstruction filter marginally best. At the $|G| = 4$ boundary every filter is
+stressed, diverging on $\FeDivJepaGFour$ to $\FeDivFukamiGFour$ of encounters; the
+predictive filter degrades least, with the lowest median error ($\FeCLrmseJepaGFour$
+against $\FeCLrmseFukamiGFour$ for the reconstruction and $\FeCLrmsePodGFour$ for the
+linear basis) and the lowest divergence rate, and the linear filter degrades worst.
+The predictive state's advantage at the boundary is one of robustness, a least-bad
+regime rather than a solved one.
+
+\input{sections/tables/table_filter_error.tex}
+
 What weakens with gust strength is not the tracking but the filter's own account of
-its uncertainty. The divergence rate climbs from none at $|G| = 1$ to four
-encounters in five at the boundary, and the mean normalised innovation squared from
+its uncertainty. The divergence rate climbs from none at $|G| = 1$ to a fraction
+$\VdivGFour$ of encounters at the boundary, and the mean normalised innovation squared from
 near unity in the undisturbed limit ($\VnisGZero$) to nearly twenty at $|G| = 4$
 ($\VnisGFour$), crossing the half-divergence mark near a ratio of $\VdivThreshDOne$
 for the compact cores and near $\VdivThreshDOneHalf$ for the widest. The ensemble
