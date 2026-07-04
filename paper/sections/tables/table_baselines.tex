@@ -1,0 +1,40 @@
+% Baseline / control architecture table. tab:baselines.
+% Describes WHAT each family in tab:closure is (encoder, latent, objective,
+% source), so the objective-times-supervision matrix and the reference recipes are
+% concretely defined, and defines the objective-free supervised control. Every
+% family produces a pooled d-vector latent; the forecast operator is a separate
+% network discussed in the caption, NOT the encoder.
+\begin{table}
+  \centering
+  \caption{The compared families: encoder, latent, and training objective. Every
+  family produces a pooled $d = \LatentDim$ coefficient vector at the same
+  dimension. The top block is the controlled matrix, one shared encoder (the
+  hybrid convolutional-stem plus vision transformer of
+  table~\ref{tab:architecture}) with the training ingredient varied one at a time;
+  the objective-free supervised control trains that encoder with the observable
+  heads and the anti-collapse term alone, with no predictor and no decoder, so it
+  isolates what the supervision by itself supplies. The bottom block is the
+  published reference recipes: the Fukami autoencoder and the $\beta$-VAE are
+  plain convolutional autoencoders, a convolutional stack down to a
+  fully-connected bottleneck with no skip connections, and POD is a linear basis.
+  The forecast merit of table~\ref{tab:closure} reads each latent through a
+  separate matched forecast operator; the operators (an autoregressive transformer
+  and a residual U-Net) and the reason a different one is stable on the reference
+  latents are described there and in Appendix~\ref{app:reg}.}
+  \label{tab:baselines}
+  \small
+  \fittab{\begin{tabular}{l l l l l}
+    \toprule
+    Family & Encoder & Latent & Training objective & Source \\
+    \midrule
+    JEPA (predictive)   & CNN\,$+$\,ViT (shared) & pooled $\LatentDim$-vec & latent-space prediction $+$ heads $+$ SIGReg & this work \\
+    supervised only     & CNN\,$+$\,ViT (shared) & pooled $\LatentDim$-vec & heads $+$ SIGReg only (no objective) & this work \\
+    reconstructive AE   & CNN\,$+$\,ViT (shared) & pooled $\LatentDim$-vec & field reconstruction $+$ heads $+$ SIGReg & this work \\
+    anti-collapse AE    & CNN\,$+$\,ViT (shared) & pooled $\LatentDim$-vec & field reconstruction $+$ SIGReg (no heads) & this work \\
+    \midrule
+    Fukami AE           & conv.\ AE, no skips    & pooled $\LatentDim$-vec & reconstruction $+$ observable head & \citet{fukami2023,fukami2025} \\
+    $\beta$-VAE         & conv.\ VAE, no skips   & $\LatentDim$-vec (mean) & reconstruction $+$ KL $+$ heads & \citet{solera2024} \\
+    POD                 & linear projection      & $\LatentDim$ leading modes & none (SVD basis) & classical \\
+    \bottomrule
+  \end{tabular}}
+\end{table}

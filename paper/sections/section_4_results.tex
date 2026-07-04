@@ -37,26 +37,21 @@ any training objective.
 
 The objective-free supervised encoder makes this concrete. Trained with the wake
 head but no predictive or reconstructive objective at all, it reads the wake at
-least as well as the full predictive latent ($\XwakeSupOnly$ against $\XwakeJepaWake$)
-and matches it, indeed slightly leads it, on the merit a common matched operator
-extracts by forecast ($\XmeritSupOnly$ against $\XmeritJepaWake$). On this tier,
-then, we do not attribute the readability or the common-operator merit to the
-predictive objective over the supervised control: the paired readability gap is
-$\PoneWakeDelta$ in the wake with a confidence interval
-$[\PoneWakeDeltalo, \PoneWakeDeltahi]$ that includes zero, and under the common
-operator the two supervised states sit together and above the reconstructive and
-anti-collapse recipes ($\XmeritSupOnly > \XmeritJepaWake > \XmeritAeWake >
-\XmeritRegAE$). What the predictive objective adds shows not in this
-common-operator read but in the as-built model it produces: the flagship's own
-co-trained predictor forecasts the five observables at $\XmeritJepaWakeNative$ at
-the same horizon, well above what the common operator extracts from any latent,
-which is the reduced-order model a deployment would actually run. Across three
-independent retrains the predictive state's common-operator merit spreads by
-$\SeedMeritSdJepaVec$, tighter than the objective-free control's
-$\SeedMeritSdSupOnly$ but not the sharpest of the pooled families, so at this
-sample size we read seed stability as a caution rather than a discriminator
-(\S\ref{sec:disc_limits}). We state the representational result as the
-supervision's, and turn to what the predictive objective does add, which is
+least as well as the full predictive latent ($\XwakeSupOnly$ against
+$\XwakeJepaWake$): the paired readability gap is $\PoneWakeDelta$ in the wake with
+a confidence interval $[\PoneWakeDeltalo, \PoneWakeDeltahi]$ that includes zero, so
+the instantaneous readability is supplied by the supervision, not by the training
+objective. Read through the operator suited to each state, the predictive latent
+does lead the fitted-predictor merit ($\XmeritJepaWake$), but only narrowly over
+the reconstructive and objective-free supervised controls ($\XmeritAeWake$ and
+$\XmeritSupOnly$), and the seed variation of this quantity is substantial
+(\S\ref{sec:disc_limits}), so we do not rest a claim on that margin. What the
+predictive objective adds more clearly is the as-built model it produces: the
+flagship's own co-trained predictor forecasts the five observables at
+$\XmeritJepaWakeNative$ at the same horizon, above what a matched operator extracts
+from any latent, which is the reduced-order model a deployment would actually run.
+We state the representational result as the supervision's, and turn to what the
+predictive objective does add, which is
 dynamical.
 
 One inversion in the table fixes the coordinate-level reading. The predictive

@@ -1,7 +1,7 @@
 {
   "_provenance": {
-    "generated_iso": "2026-07-04T01:12:28.163800+00:00",
-    "git_commit": "8e1b17bcccc52cbe23cfd126c0fef3f9f02fe9ab",
+    "generated_iso": "2026-07-04T07:29:10.709278+00:00",
+    "git_commit": "ef55ca266f8901f533934247801c8067888737d2",
     "n_parts": 15,
     "parts": [
       "constants.json",
@@ -2280,20 +2280,23 @@
       "fmt": "%.3f",
       "horizon": 8,
       "macro": "XmeritAeNowake",
+      "note": "matched transformer (suited operator)",
       "source": "table_x",
-      "value": 0.43239314193480194
+      "value": 0.40033005187486237
     },
     "x_merit_AeWake": {
       "fmt": "%.3f",
       "horizon": 8,
       "macro": "XmeritAeWake",
+      "note": "matched transformer (suited operator)",
       "source": "table_x",
-      "value": 0.5478259334310612
+      "value": 0.6449005685006164
     },
     "x_merit_Bvae": {
       "fmt": "%.3f",
       "horizon": 8,
       "macro": "XmeritBvae",
+      "note": "residual U-Net (suited operator for the reconstructive reference)",
       "source": "table_x",
       "value": 0.35627680919609783
     },
@@ -2315,16 +2318,17 @@
       "fmt": "%.3f",
       "horizon": 8,
       "macro": "XmeritJepaNowake",
+      "note": "matched transformer (suited operator)",
       "source": "table_x",
-      "value": 0.4706951293868123
+      "value": 0.29424465185168225
     },
     "x_merit_JepaWake": {
       "fmt": "%.3f",
       "horizon": 8,
       "macro": "XmeritJepaWake",
-      "note": "common matched-ResUNet yardstick; off-class for the transformer flagship",
+      "note": "matched transformer (the pooled state's suited operator)",
       "source": "table_x",
-      "value": 0.5911740890886588
+      "value": 0.6549048507294434
     },
     "x_merit_JepaWake_native": {
       "fmt": "%.3f",
@@ -2333,14 +2337,6 @@
       "note": "as-built ROM: the flagship's own co-trained vector predictor",
       "source": "table_x",
       "value": 0.7550533206314364
-    },
-    "x_merit_JepaWake_tf": {
-      "fmt": "%.3f",
-      "horizon": 8,
-      "macro": "XmeritJepaWakeTf",
-      "note": "matched transformer of the training class on the frozen latent",
-      "source": "table_x",
-      "value": 0.6549048507294434
     },
     "x_merit_Pod": {
       "fmt": "%.3f",
@@ -2353,15 +2349,17 @@
       "fmt": "%.3f",
       "horizon": 8,
       "macro": "XmeritRegAE",
+      "note": "matched transformer (suited operator)",
       "source": "table_x",
-      "value": 0.19674223615494013
+      "value": 0.2862665614217639
     },
     "x_merit_SupOnly": {
       "fmt": "%.3f",
       "horizon": 8,
       "macro": "XmeritSupOnly",
+      "note": "matched transformer (suited operator)",
       "source": "table_x",
-      "value": 0.6369504615593259
+      "value": 0.6208622016036806
     },
     "x_ssim_AeNowake": {
       "fmt": "%.3f",

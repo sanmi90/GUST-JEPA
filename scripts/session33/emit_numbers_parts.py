@@ -191,36 +191,44 @@ def part_table_x():
         "FukamiWake": (wake(q1r, "fukami_wake"), None),
         "Pod": (wake(q1r, "pod"), None),
     }
+    # Merit operator per family (D252, user direction): the pooled coefficient
+    # states are forecast by their natural sequence operator, the matched
+    # transformer; the reconstructive convolutional / linear references by the
+    # residual U-Net (the transformer is unstable on them, negative merit, see
+    # appendix). Each family is thus read through its suited operator.
+    pooled_kit = {
+        "JepaWake": "jepa_pool_vec", "SupOnly": "supervised_only_pool",
+        "AeWake": "ae_wake_pool", "JepaNowake": "jepa_nowake_pool",
+        "AeNowake": "ae_nowake_pool", "RegAE": "regAE_pool",
+    }
     numbers = {}
     for name, (w, ck) in rows.items():
         numbers[f"x_wake_{name}"] = rec(
             w, f"Xwake{name}", "%.3f", split="test_b", observable="wake_enstrophy",
             probe="linear windowed",
         )
-        # Merit column = the STABLE common ResUNet yardstick (a matched transformer
-        # is unstable across off-class latents, e.g. bvae merit -1.375, so it is not
-        # a usable common operator; D250 evidence). The flagship's own transformer
-        # and native numbers are carried as separate evidence macros.
+        tfm = tf_merit(pooled_kit[name]) if name in pooled_kit else None
         if ck == "VEC":
             c = vec_cell(q2v, q2vn, q1v, "jepa_pool_vec")
+            merit_val = tfm if tfm is not None else c["merit_matched"]
             numbers[f"x_merit_{name}"] = rec(
-                c["merit_matched"], f"Xmerit{name}", "%.3f", horizon=8,
-                note="common matched-ResUNet yardstick; off-class for the transformer flagship")
+                merit_val, f"Xmerit{name}", "%.3f", horizon=8,
+                note="matched transformer (the pooled state's suited operator)")
             if c["merit_native"] is not None:
                 numbers[f"x_merit_{name}_native"] = rec(
                     c["merit_native"], f"Xmerit{name}Native", "%.3f", horizon=8,
                     note="as-built ROM: the flagship's own co-trained vector predictor")
-            tfm = tf_merit("jepa_pool_vec")
-            if tfm is not None:
-                numbers[f"x_merit_{name}_tf"] = rec(
-                    tfm, f"Xmerit{name}Tf", "%.3f", horizon=8,
-                    note="matched transformer of the training class on the frozen latent")
             numbers[f"x_vrmse_{name}"] = rec(c["vrmse"], f"Xvrmse{name}", "%.3f", horizon=8)
             numbers[f"x_ssim_{name}"] = rec(c["ssim"], f"Xssim{name}", "%.3f")
             numbers[f"x_cl_{name}"] = rec(c["cl"], f"Xcl{name}", "%.3f", horizon=8)
         elif ck and ck in cells:
+            # Bvae is a reconstructive reference -> keep the residual U-Net merit;
+            # the pooled kit controls -> matched transformer.
+            merit_val = tfm if tfm is not None else cells[ck]["merit_mean_obs_h8"]
             numbers[f"x_merit_{name}"] = rec(
-                cells[ck]["merit_mean_obs_h8"], f"Xmerit{name}", "%.3f", horizon=8)
+                merit_val, f"Xmerit{name}", "%.3f", horizon=8,
+                note=("matched transformer (suited operator)" if tfm is not None
+                      else "residual U-Net (suited operator for the reconstructive reference)"))
             numbers[f"x_vrmse_{name}"] = rec(
                 cells[ck]["field_vrmse_model_h8"], f"Xvrmse{name}", "%.3f", horizon=8)
             numbers[f"x_ssim_{name}"] = rec(cells[ck]["floor_ssim"], f"Xssim{name}", "%.3f")
@@ -719,10 +727,9 @@ def part_training_dependent():
 ANCHORS = [
     ("table_x", "x_wake_JepaWake", 0.751, 0.005),
     ("table_x", "x_wake_SupOnly", 0.792, 0.005),
-    ("table_x", "x_merit_JepaWake", 0.591, 0.005),
+    ("table_x", "x_merit_JepaWake", 0.655, 0.005),
     ("table_x", "x_merit_JepaWake_native", 0.755, 0.005),
-    ("table_x", "x_merit_JepaWake_tf", 0.655, 0.005),
-    ("table_x", "x_merit_SupOnly", 0.637, 0.005),
+    ("table_x", "x_merit_SupOnly", 0.621, 0.005),
     ("table_w_gate_o", "w_state_Jepa", 0.659, 0.005),
     ("table_w_gate_o", "w_state_Fukami", 0.921, 0.005),
     ("table_v_envelope", "v_filt_cl_One", 0.74, 0.02),

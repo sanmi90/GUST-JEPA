@@ -10,11 +10,11 @@
       "probe": "linear windowed"
     },
     "x_merit_JepaWake": {
-      "value": 0.5911740890886588,
+      "value": 0.6549048507294434,
       "macro": "XmeritJepaWake",
       "fmt": "%.3f",
       "horizon": 8,
-      "note": "common matched-ResUNet yardstick; off-class for the transformer flagship"
+      "note": "matched transformer (the pooled state's suited operator)"
     },
     "x_merit_JepaWake_native": {
       "value": 0.7550533206314364,
@@ -22,13 +22,6 @@
       "fmt": "%.3f",
       "horizon": 8,
       "note": "as-built ROM: the flagship's own co-trained vector predictor"
-    },
-    "x_merit_JepaWake_tf": {
-      "value": 0.6549048507294434,
-      "macro": "XmeritJepaWakeTf",
-      "fmt": "%.3f",
-      "horizon": 8,
-      "note": "matched transformer of the training class on the frozen latent"
     },
     "x_vrmse_JepaWake": {
       "value": 0.961966235646642,
@@ -56,10 +49,11 @@
       "probe": "linear windowed"
     },
     "x_merit_SupOnly": {
-      "value": 0.6369504615593259,
+      "value": 0.6208622016036806,
       "macro": "XmeritSupOnly",
       "fmt": "%.3f",
-      "horizon": 8
+      "horizon": 8,
+      "note": "matched transformer (suited operator)"
     },
     "x_vrmse_SupOnly": {
       "value": 0.9916244653720641,
@@ -87,10 +81,11 @@
       "probe": "linear windowed"
     },
     "x_merit_AeWake": {
-      "value": 0.5478259334310612,
+      "value": 0.6449005685006164,
       "macro": "XmeritAeWake",
       "fmt": "%.3f",
-      "horizon": 8
+      "horizon": 8,
+      "note": "matched transformer (suited operator)"
     },
     "x_vrmse_AeWake": {
       "value": 0.9760097588703832,
@@ -118,10 +113,11 @@
       "probe": "linear windowed"
     },
     "x_merit_JepaNowake": {
-      "value": 0.4706951293868123,
+      "value": 0.29424465185168225,
       "macro": "XmeritJepaNowake",
       "fmt": "%.3f",
-      "horizon": 8
+      "horizon": 8,
+      "note": "matched transformer (suited operator)"
     },
     "x_vrmse_JepaNowake": {
       "value": 0.9825563868326171,
@@ -149,10 +145,11 @@
       "probe": "linear windowed"
     },
     "x_merit_AeNowake": {
-      "value": 0.43239314193480194,
+      "value": 0.40033005187486237,
       "macro": "XmeritAeNowake",
       "fmt": "%.3f",
-      "horizon": 8
+      "horizon": 8,
+      "note": "matched transformer (suited operator)"
     },
     "x_vrmse_AeNowake": {
       "value": 0.9756632849564602,
@@ -180,10 +177,11 @@
       "probe": "linear windowed"
     },
     "x_merit_RegAE": {
-      "value": 0.19674223615494013,
+      "value": 0.2862665614217639,
       "macro": "XmeritRegAE",
       "fmt": "%.3f",
-      "horizon": 8
+      "horizon": 8,
+      "note": "matched transformer (suited operator)"
     },
     "x_vrmse_RegAE": {
       "value": 0.9490835500365685,
@@ -214,7 +212,8 @@
       "value": 0.35627680919609783,
       "macro": "XmeritBvae",
       "fmt": "%.3f",
-      "horizon": 8
+      "horizon": 8,
+      "note": "residual U-Net (suited operator for the reconstructive reference)"
     },
     "x_vrmse_Bvae": {
       "value": 1.0070122597029225,

@@ -154,22 +154,21 @@ The comparison rests on a single principle: every baseline is the same
 pipeline, and only the encoder differs. Each encoder produces a latent
 trajectory $\zvec_{1:T}$ from the vorticity fields, and an identical probe family
 maps a latent to a physical observable for evaluation
-(figure~\ref{fig:method}(b)). The probe family is held fixed across the
-families, and the downstream forecast operator is refitted identically on each
-frozen latent. For the forecast merit we use a single common operator, a residual
-U-Net, fitted with the same recipe and budget on every family, chosen because it
-is numerically stable across all the latent geometries; a transformer operator,
-though it is the flagship's training class, forecasts the predictive latent well
-but is unstable when refitted on latents outside its design, collapsing to a
-negative merit on one reconstructive control (Appendix~\ref{app:reg}), and so is
-not a usable common yardstick. The flagship's own co-trained predictor, the as-built reduced-order
-model, is reported separately, and the sequential estimator of
-\S\ref{sec:methods_estimator} uses a matched transformer on the flagship's own
-trajectories, where it is stable. Because none of the reconstructive or
-objective-free baselines train a dynamics model at all, the common operator does
-not match any family's training class more closely than another's, so the merit
-column is a neutral read of forecastability rather than a home-class advantage.
-Every state is compared at the matched headline
+(figure~\ref{fig:method}(b)). Every latent is a pooled coefficient vector at the
+same dimension, so the same two forecast operators apply to all of them: a matched
+autoregressive transformer that reads the vector sequence directly, and a matched
+residual U-Net that tiles the vector to a grid and forecasts it convolutionally,
+both fitted with the same recipe and budget. They are not interchangeable in
+practice: the transformer is numerically stable on the pooled states of the
+controlled matrix but diverges when refitted on the reference latents, collapsing
+to a negative merit (Appendix~\ref{app:reg}), while the U-Net is stable on all. We
+therefore report each latent under the operator that is stable on it, the
+transformer on the pooled states and the U-Net on the reference latents, rather
+than force one operator and either penalise the pooled states off-class or break
+on the references. The flagship's own co-trained predictor, the as-built
+reduced-order model, is reported alongside, and the sequential estimator of
+\S\ref{sec:methods_estimator} uses the same matched transformer on the flagship's
+frozen trajectories. Every state is compared at the matched headline
 dimension $d = \LatentDim$; the dimension plateau at $\{16, 32, 64\}$ and the
 minimum-dimension panel of \S\ref{sec:res_latent_physics} establish that this
 choice is a robustness statement rather than a tuned operating point. This
@@ -297,9 +296,26 @@ the wake evolves (\S\ref{sec:res_closure}).
 
 Because the predictive encoder differs from the reconstructive baseline in
 objective, architecture, and auxiliary supervision at once, the comparison is
-accompanied by controls that vary one factor at a time: a crossing of objective
-with architecture at matched auxiliary heads, an ablation of each auxiliary head,
-and a conditioned predictor variant that adds $\cvec$ (\S\ref{sec:res_controls}).
+accompanied by controls that vary one factor at a time
+(table~\ref{tab:baselines}): a crossing of objective with architecture at matched
+auxiliary heads, an ablation of each auxiliary head, and a conditioned predictor
+variant that adds $\cvec$ (\S\ref{sec:res_controls}). All the controls share the
+one encoder of table~\ref{tab:architecture} and differ only in what is trained on
+top of it. The objective-free supervised control is the sharpest of these: it
+trains the shared encoder with the wake and lift heads and the anti-collapse term
+but with no predictive or reconstructive objective, no predictor and no decoder,
+so it holds the supervision fixed and removes every objective, isolating what the
+observable heads alone supply. The published reference recipes, a plain convolutional autoencoder in the
+Fukami--Taira lineage \citep{fukami2023,fukami2025}, the $\beta$-variational
+autoencoder of \citet{solera2024}, and a linear proper-orthogonal-decomposition
+basis, use their own native architectures but produce a pooled coefficient vector
+at the same latent dimension. The forecast merit refits a matched operator on each
+frozen latent; we use the operator that is numerically stable on it, a transformer
+on the pooled states and a residual U-Net on the reference latents, on which the
+transformer diverges (\S\ref{sec:methods_protocol}, Appendix~\ref{app:reg}).
+
+\input{sections/tables/table_baselines.tex}
+
 Every held-out $R^2$ and mean absolute error reported below carries three
 independent uncertainty signals, following the reporting protocol fixed with the
 data split: a $2000$-resample bootstrap over the held-out encounters, the standard

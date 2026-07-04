@@ -23,25 +23,26 @@ target network), plus the regulariser below, with AdamW and bf16 mixed
 precision. The predictor advances the latent from its own history alone, with no
 gust input, so the gust parameters $\cvec = (G, D, Y)$ enter nowhere in the
 model. Two downstream forecast operators are fitted afterwards on each frozen
-latent, identically across families. The forecast merit of
-table~\ref{tab:closure} uses a common residual U-Net operator, chosen for
-numerical stability across every latent geometry: a matched transformer of the
-training predictor's class, refitted on the frozen latents, forecasts the
-predictive latent well but is unstable on latents outside its design, collapsing
-to a negative merit on the beta-VAE control, and so cannot serve as the common
-yardstick. The ensemble filter of \S\ref{sec:methods_estimator} uses a matched
-autoregressive transformer on the flagship's own pooled trajectories, where it is
-stable; and the flagship's own co-trained predictor, the as-built reduced-order
-model, is reported alongside the common-operator merit. The instability is
-specific to latents outside the transformer's design: refitted on the pooled
-predictive, supervised and reconstructive-autoencoder latents the transformer
-forecasts them comparably to the residual U-Net, and on the predictive flagship
-it in fact leads the pooled families at $\XmeritJepaWakeTf$, above the
-objective-free control; but on the reference latents (the beta-VAE and the two
-Fukami autoencoders) it diverges to large negative merit. This operator
-dependence is the reason the common-operator merit is read as a level rather than
-a fine ranking between the two supervised states, and the reason the residual
-U-Net, stable on every family, is the yardstick of record.
+latent, identically across families. Every family produces a pooled coefficient
+vector at the same dimension, and two matched forecast operators apply to all of
+them: an autoregressive transformer on the vector sequence, and a residual U-Net
+that tiles the vector to a grid and forecasts it convolutionally. The forecast
+merit of table~\ref{tab:closure} reports each latent under the operator that is
+numerically stable on it. The transformer is stable across the pooled states of
+the controlled matrix, forecasting the predictive, supervised, and
+reconstructive-autoencoder latents comparably and placing the predictive flagship
+at the head of that block; but refitted with the same recipe and budget on the
+reference latents (the $\beta$-VAE and the two Fukami autoencoders, which are plain
+convolutional autoencoders without skip connections) it diverges to large negative
+merit. The residual U-Net is stable on every latent, so it is the operator
+reported for the reference latents; imposing either operator on all families would
+either penalise the pooled states off-class or break on the references. The ensemble filter of
+\S\ref{sec:methods_estimator} uses the same matched transformer on the flagship's
+own pooled trajectories, where it is stable, and the flagship's own co-trained
+predictor, the as-built reduced-order model, is reported alongside. The narrow
+spread of the pooled block under the transformer, and the substantial seed
+variation of the merit, are why we read the fitted-merit ordering as a level with
+a small predictive edge rather than a decisive separation.
 
 \begin{figure}
   \centering

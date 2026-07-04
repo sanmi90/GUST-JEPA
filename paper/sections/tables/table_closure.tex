@@ -8,8 +8,14 @@
   (mean over the five observables at horizon sixteen), field-reconstruction error
   (VRMSE at horizon sixteen), and decode similarity (SSIM). The controlled matrix
   (top block) moves one training ingredient at a time; the reference recipes
-  (bottom block) use their own architectures. Wake readability separates on the
-  wake-supervision head, not on the training objective.}
+  (bottom block) use their own architectures (table~\ref{tab:baselines}). Every
+  latent is a pooled coefficient vector; the merit reports each under the forecast
+  operator numerically stable on it, a matched transformer on the pooled states of
+  the controlled matrix and a matched residual U-Net on the reference latents, on
+  which the transformer diverges (Appendix~\ref{app:reg}). Wake readability
+  separates on the wake-supervision head, not on the training objective; the
+  predictive state leads the fitted merit only narrowly, and its own co-trained
+  predictor, the as-built model, forecasts at $\XmeritJepaWakeNative$.}
   \label{tab:closure}
   \small
   \fittab{\begin{tabular}{l l c c c c c}
