@@ -12,32 +12,43 @@ matched latent dimension.
 
 Lead researcher: Carlos Sanmiguel Vila (INTA, UC3M).
 
-## Current focus (read first, set 2026-06-30, Session 30)
+## Current focus (read first, set 2026-07-04, Session 33)
 
-**v2.2 dataset staged; full retraining is next.**
-17 new run4 cases (G in {-4, -2, -1, -0.5, -0.25}, D in {0.5, 1.0}, Y in {+0.10, -0.10})
-integrated into split v2.2. All preprocessing and normalization artifacts are ready; no
-training has been run on v2.2 yet. The v2.1 manuscript on `main` (HEAD `f004acd`,
-tag `v1.0.0-rc2`) is unmodified and remains the submission candidate pending GO gate.
+**The v3 manuscript is on the native-vector-predictor flagship, on branch
+`session33-manuscript-v3` (pushed to origin; ~14 commits, HEAD around `014110d`).
+Build 35pp / 0 errors, 12 numbers-pipeline anchors PASS.** The v2.1 manuscript on
+`main` (tag `v1.0.0-rc2`) is untouched and remains the fallback.
 
-v2.2 retraining priority list (all require `--partition v2p2` and
-`--pipeline-manifest outputs/data_pipeline/v2p2/manifest.json`):
-- Tier 1 (headline table): jepa_tf_noc x3 seeds, fukami x3, bvae_match x3, pod x1
-- Tier 2 (ablations): jepa_lstm_noc x3, jepa_tf_cond x3, ctrl_recon_cnnvit x3
-- Tier 3 (optional): bvae_faith x3, ctrl_recon_cnn x3, ctrl_pred_cnn x3, ctrl_pred_vit_nowake x3
-W&B group for v2.2 runs: `partition_v2p2`.
+The v3 paper is the estimation thesis on split v2.2 (102 cases / 450 enc): a pooled
+d=32 coefficient state, a leakage-free wall-pressure EnKF, and the gust-intensity
+operating envelope. Retitled T1: "Wake-supervised coefficient states for wall-pressure
+estimation of extreme vortex-gust airfoil encounters." Key decisions landed this
+session (HANDOFF D250-D252):
+- D250: the flagship's TRAINING predictor is now the v2.1 `AutoregressivePredictor`
+  (cond_dim=0) rolling the (B,T,32) pooled vector directly -- a POD/AE-simple pipeline,
+  no tiling / no spatial map. Switch via `--predictor-class transformer` in
+  `train_canonical.py` (persisted in the checkpoint args; loaders default to `resunet`
+  so old checkpoints load unchanged). Runs: `outputs/runs/session33/jepa_pool_vec*`.
+- D252 (user-driven): report PHYSICAL error (RMSE/MAE), not just R2 -- R2 oversells the
+  extreme-gust tracking (C_L R2=0.84 at |G|=4 hides RMSE 0.72, ~2x growth across the
+  envelope). Each family gets its OWN tuned downstream: EnKF inflation per method (fukami
+  1.05, jepa/pod 1.0) and a per-method-tuned recovery LSTM (estimator-limited, reported as
+  a lower bound). Honest framing throughout: the predictive filter is LEAST-BAD across the
+  envelope, not a solved regime. New tables tab:baselines / tab:enkf / tab:filter_error.
 
-**The GO gate for v2.1 is still author/collaborator-owned and NOT runnable here:**
-DNS Table 1 seven `\pending{}` rows (package at `scripts/session28/DNS_COLLABORATOR_PACKAGE.md`),
-real Zenodo DOI, license/CRediT/funding. The paper does not go out with an empty Table 1.
+Numbers pipeline (v3): every paper number flows
+`scripts/session33/emit_numbers_parts.py` -> `outputs/session33/numbers_parts/*.json`
+-> `scripts/session33/eval_all_v3.py` -> `numbers.json` ->
+`scripts/session33/emit_macros_v3.py` -> `paper/macros_v3.tex`, never hand-typed. The
+emit VERIFY block anchors 12 headline values; a mismatch stops the freeze. Standing rules
+for any regen: `--partition v2p2`, `--pipeline-manifest outputs/data_pipeline/v2p2/manifest.json`,
+W&B group `partition_v2p2`, `require_rtx6000` (`--gpu 0/1`), OMP<=8, `taskset -c 0-15`.
 
-Invariants if any v2.1 number/figure is regenerated: split
-`configs/splits/split_v2p1.json`, pipeline manifest
-`outputs/data_pipeline/v2p1/manifest.json`, every `train_jepa` run
-`--predictor-cond-dim 0` / `--partition v2p1` (W&B group `partition_v2p1`);
-regenerated figures keep the `_v2p1` basename suffix; every paper number flows
-through a `numbers_parts/<analysis>.json` record -> `eval_all.py` ->
-`emit_macros.py`, never hand-typed in the `.tex`.
+**Remaining before submission (author/collaborator-owned, NOT runnable here):**
+DNS Table 1 seven `\pending{}` rows (`scripts/session28/DNS_COLLABORATOR_PACKAGE.md`),
+real Zenodo DOI, license/CRediT/funding. Optional in-repo polish: fresh-eyes
+`jfm_project_writing_style` pass; re-running the Track T delay grid with the tuned LSTM
+if the recovery table and the delay bridge are to share one estimator.
 
 ## What we are building
 
