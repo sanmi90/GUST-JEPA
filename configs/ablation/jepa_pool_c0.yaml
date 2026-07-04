@@ -1,0 +1,20 @@
+# Track C cell C0 (Session 34): pooled JEPA with NO supervision heads.
+# The conditioning-ablation reference: pred + anti-collapse only. Everything
+# else matches jepa_pool (the CLW lineage cell); only the head on-flags move.
+name: jepa_pool_c0
+
+representation_objective:
+  pred: {on: true}
+
+anti_collapse:
+  on: true
+  method: sigreg
+
+supervision:
+  lift_head: {on: false}
+  wake_head: {on: false}
+  nearbody_head: {on: false}
+
+model:
+  encoder: cnn_vit
+  latent: pooled

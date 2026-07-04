@@ -118,3 +118,78 @@ def test_canonical_spine_is_unchanged_cnn_vit_spatial() -> None:
     assert model.encoder.latent_mode == "spatial"
     assert model.pooled_adapter is None
     assert model.encoder_kind == "cnn_vit" and model.latent_kind == "spatial"
+
+
+# ---------------------------------------------------------------------------
+# Session 34 Track C: conditioning-cube cells build exactly the right modules
+# ---------------------------------------------------------------------------
+# name -> (lift_head, wake_head, nearbody_head, objective)
+_TRACKC_EXPECT = {
+    "jepa_pool_c0": (False, False, False, "pred"),
+    "jepa_pool_w": (False, True, False, "pred"),
+    "jepa_pool_n": (False, False, True, "pred"),
+    "jepa_pool_ln": (True, False, True, "pred"),
+    "jepa_pool_wn": (False, True, True, "pred"),
+    "jepa_pool_lwn": (True, True, True, "pred"),
+    "ae_w_pool": (False, True, False, "recon"),
+}
+
+
+def _trackc_batch(b: int = 2, t: int = 12) -> dict[str, torch.Tensor]:
+    return {
+        "omega": torch.randn(b, t, 1, 192, 96),
+        "cl_future": torch.randn(b, t, 1),
+        "wake_target": torch.randn(b, t, 80),
+        "nearbody_target": torch.randn(b, t, 80),
+        "c": torch.randn(b, 3),
+    }
+
+
+def test_trackc_cells_build_the_right_heads() -> None:
+    for name, (lift, wake, nearbody, obj) in _TRACKC_EXPECT.items():
+        cfg = load_model_config(ABLATION_DIR / f"{name}.yaml")
+        model = CanonicalModel(cfg, latent_dim=32)
+        assert model.latent_kind == "pooled", name
+        assert (model.lift_head is not None) == lift, name
+        assert (model.wake_head is not None) == wake, name
+        assert (model.nearbody_head is not None) == nearbody, name
+        assert model.objective == obj, name
+        if nearbody:
+            # Byte-identical head capacity to the wake head (80-D, same class).
+            assert type(model.nearbody_head).__name__ == "WakeObservableHead"
+
+
+def test_trackc_cells_forward_emit_the_right_keys() -> None:
+    torch.manual_seed(0)
+    for name, (lift, wake, nearbody, obj) in _TRACKC_EXPECT.items():
+        cfg = load_model_config(ABLATION_DIR / f"{name}.yaml")
+        model = CanonicalModel(cfg, latent_dim=32)
+        model.eval()
+        with torch.no_grad():
+            outs = model(_trackc_batch(b=1, t=10))
+        assert ("cl_pred" in outs) == lift, name
+        assert ("wake_pred" in outs) == wake, name
+        assert ("nearbody_pred" in outs) == nearbody, name
+        if nearbody:
+            assert outs["nearbody_pred"].shape[-1] == 80, name
+        if obj == "pred":
+            assert "pred_seq" in outs, name
+        else:
+            assert "recon_field" in outs, name
+
+
+def test_trackc_nearbody_head_in_downstream_parameters() -> None:
+    cfg = load_model_config(ABLATION_DIR / "jepa_pool_n.yaml")
+    model = CanonicalModel(cfg, latent_dim=32)
+    nb_params = {id(p) for p in model.nearbody_head.parameters()}
+    downstream = {id(p) for p in model.downstream_parameters()}
+    assert nb_params <= downstream
+
+
+def test_trackc_existing_pooled_cell_has_no_nearbody_head() -> None:
+    # ANCHOR: the kit default keeps the CLW lineage cell byte-compatible
+    # (state dict gains no keys; old checkpoints still load strict=True).
+    cfg = load_model_config(ABLATION_DIR / "jepa_pool.yaml")
+    model = CanonicalModel(cfg, latent_dim=32)
+    assert model.nearbody_head is None
+    assert not any(k.startswith("nearbody_head") for k in model.state_dict())

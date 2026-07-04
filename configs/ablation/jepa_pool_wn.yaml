@@ -1,0 +1,19 @@
+# Track C cell CWN (Session 34): pooled JEPA, wake + near-body heads.
+# Q1: does N earn its place on top of W, or is the shed-LEV signature enough?
+name: jepa_pool_wn
+
+representation_objective:
+  pred: {on: true}
+
+anti_collapse:
+  on: true
+  method: sigreg
+
+supervision:
+  lift_head: {on: false}
+  wake_head: {on: true}
+  nearbody_head: {on: true}
+
+model:
+  encoder: cnn_vit
+  latent: pooled

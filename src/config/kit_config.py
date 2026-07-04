@@ -87,6 +87,7 @@ _ALLOWED_OVERRIDE_LEAVES = frozenset(
         "anti_collapse.method",
         "supervision.lift_head.on",
         "supervision.wake_head.on",
+        "supervision.nearbody_head.on",
     }
 )
 # Whole subtrees a per-model file may carry freely (passthrough for Track B/C).
@@ -179,7 +180,7 @@ class ResolvedKitConfig:
         """The set of loss terms this model turns on.
 
         One of ``{"recon", "pred"}`` (or neither), plus any of
-        ``{"anti_collapse", "lift", "wake"}``.
+        ``{"anti_collapse", "lift", "wake", "nearbody"}``.
         """
         terms: set[str] = set()
         if self.representation_objective["recon"]["on"]:
@@ -192,6 +193,8 @@ class ResolvedKitConfig:
             terms.add("lift")
         if self.supervision["wake_head"]["on"]:
             terms.add("wake")
+        if self.supervision.get("nearbody_head", {"on": False})["on"]:
+            terms.add("nearbody")
         return frozenset(terms)
 
 
@@ -201,6 +204,7 @@ _ON_FLAG_PATHS = (
     "anti_collapse.on",
     "supervision.lift_head.on",
     "supervision.wake_head.on",
+    "supervision.nearbody_head.on",
 )
 
 
@@ -226,10 +230,10 @@ def _require_bool_flag(resolved: dict, dotted: str, model_path: Path) -> bool:
 
 def _validate_rules(resolved: dict, model_path: Path) -> None:
     """Rules 1 and 2, checked on the resolved (merged) config."""
-    recon_on, pred_on, ac_on, lift_on, wake_on = [
+    recon_on, pred_on, ac_on, lift_on, wake_on, nearbody_on = [
         _require_bool_flag(resolved, path, model_path) for path in _ON_FLAG_PATHS
     ]
-    any_head = lift_on or wake_on
+    any_head = lift_on or wake_on or nearbody_on
 
     # Rule 1
     if recon_on and pred_on:

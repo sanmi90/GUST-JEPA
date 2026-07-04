@@ -52,6 +52,7 @@ __all__ = [
     "anti_collapse_loss",
     "lift_head_loss",
     "wake_head_loss",
+    "nearbody_head_loss",
     "compute_total_loss",
 ]
 
@@ -185,6 +186,24 @@ def wake_head_loss(wake_pred: Tensor, wake_true: Tensor, beta: float = 0.5) -> T
     return smooth_l1_observable_loss(wake_pred, wake_true, beta=beta)
 
 
+def nearbody_head_loss(nb_pred: Tensor, nb_true: Tensor, beta: float = 0.5) -> Tensor:
+    """Smooth-L1 on the near-body observable (``nearbody_lift_element``).
+
+    Mirrors :func:`wake_head_loss` exactly (Session 34 Track C: identical loss
+    geometry for the N and W heads is the controlled-comparison keystone).
+
+    Args:
+        nb_pred: Predicted near-body observable, any shape.
+        nb_true: Ground truth, same shape.
+        beta: Smooth-L1 transition point (default 0.5, matching the wake head).
+
+    Returns:
+        Scalar fp32 smooth-L1 loss (unscaled; the term ``weight`` is applied by
+        :func:`compute_total_loss`).
+    """
+    return smooth_l1_observable_loss(nb_pred, nb_true, beta=beta)
+
+
 # ---------------------------------------------------------------------------
 # Assembly
 # ---------------------------------------------------------------------------
@@ -283,6 +302,16 @@ def compute_total_loss(
         )
         total = total + term
         components["wake"] = term.detach().item()
+
+    nearbody = sup.get("nearbody_head", {"on": False})
+    if nearbody["on"]:
+        _require(outputs, "nearbody_pred", "nearbody_true")
+        term = float(nearbody["weight"]) * nearbody_head_loss(
+            outputs["nearbody_pred"], outputs["nearbody_true"],
+            beta=float(nearbody["beta"]),
+        )
+        total = total + term
+        components["nearbody"] = term.detach().item()
 
     components["total"] = total.detach().item()
     return total, components

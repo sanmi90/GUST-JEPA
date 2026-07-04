@@ -41,6 +41,12 @@ supervision:
     loss: smooth_l1
     beta: 0.5
     weight: 1.0
+  nearbody_head:                 # L_nb: Chang lift-element near-body observable (Session 34 Track C)
+    on: false
+    target: nearbody_lift_element
+    loss: smooth_l1
+    beta: 0.5
+    weight: 1.0
 
 # Passthrough encoder / latent flags consumed by Track B/C. Not part of the
 # frozen kit set; ablations override these to move one architectural axis.

@@ -73,6 +73,10 @@ class EpisodeDataset(torch.utils.data.Dataset):
         wake_observable_type: str = "patch_signed_spectrum",
         wake_observables_root: str | Path | None = None,
         wake_observable_standardize: bool = True,
+        emit_nearbody_observable: bool = False,
+        nearbody_observable_type: str = "nearbody_lift_element",
+        nearbody_observables_root: str | Path | None = None,
+        nearbody_observable_standardize: bool = True,
         omega_pipeline_manifest: str | Path | None = None,
         split_manifest_path: str | Path | None = None,
         seed: int | None = None,
@@ -145,6 +149,23 @@ class EpisodeDataset(torch.utils.data.Dataset):
                 )
         else:
             self.wake_observables_root = None
+
+        self.emit_nearbody_observable = bool(emit_nearbody_observable)
+        self.nearbody_observable_type = str(nearbody_observable_type)
+        self.nearbody_observable_standardize = bool(nearbody_observable_standardize)
+        self._nearbody_stats = None  # lazily loaded on first __getitem__
+        if self.emit_nearbody_observable:
+            if nearbody_observables_root is None:
+                nearbody_observables_root = cache_root / partition / "nearbody_observables"
+            self.nearbody_observables_root = Path(nearbody_observables_root)
+            if not self.nearbody_observables_root.exists():
+                raise FileNotFoundError(
+                    f"nearbody_observables_root not found: "
+                    f"{self.nearbody_observables_root}. Run "
+                    f"scripts/session34/precompute_nearbody_observables.py first."
+                )
+        else:
+            self.nearbody_observables_root = None
         # Omega pipeline (mask + per-encounter clip + 3-sigma scale). Applying
         # it inside ``__getitem__`` instead of in the training collate keeps
         # the batch dict trivially worker-picklable, so ``num_workers > 0``
@@ -256,6 +277,8 @@ class EpisodeDataset(torch.utils.data.Dataset):
                 sample["cl_future"] = torch.from_numpy(cl_future)
         if self.emit_wake_observable:
             sample["wake_target"] = self._load_wake_target(case_id, k, start, end)
+        if self.emit_nearbody_observable:
+            sample["nearbody_target"] = self._load_nearbody_target(case_id, k, start, end)
         return sample
 
     def _load_wake_stats(self):
@@ -299,6 +322,53 @@ class EpisodeDataset(torch.utils.data.Dataset):
         t = torch.from_numpy(arr)
         if self.wake_observable_standardize:
             stats = self._load_wake_stats()
+            if stats is not None:
+                t = stats.standardize(t)
+        return t
+
+    def _load_nearbody_stats(self):
+        """Lazily load and cache the train-pool near-body observable stats."""
+        if self._nearbody_stats is not None:
+            return self._nearbody_stats
+        if self.nearbody_observables_root is None:
+            return None
+        from src.data.wake_observables import WakeObservableStats
+        stats_path = self.nearbody_observables_root / "_train_stats.json"
+        if not stats_path.exists():
+            raise FileNotFoundError(
+                f"nearbody observable stats not found at {stats_path}; "
+                f"run the precompute script first."
+            )
+        with open(stats_path) as f:
+            payload = json.load(f)
+        if self.nearbody_observable_type not in payload:
+            raise KeyError(
+                f"nearbody_observable_type {self.nearbody_observable_type!r} not in "
+                f"stats ({list(payload)})"
+            )
+        self._nearbody_stats = WakeObservableStats.from_dict(
+            payload[self.nearbody_observable_type]
+        )
+        return self._nearbody_stats
+
+    def _load_nearbody_target(self, case_id: str, k: int, start: int, end: int) -> torch.Tensor:
+        """Read precomputed near-body target ``(T, 80)`` and optionally standardize."""
+        path = self.nearbody_observables_root / case_id / f"encounter_{k:02d}.h5"
+        if not path.exists():
+            raise FileNotFoundError(
+                f"nearbody observable cache file missing: {path}. "
+                f"Re-run the precompute script."
+            )
+        with h5py.File(path, "r") as g:
+            if self.nearbody_observable_type not in g:
+                raise KeyError(
+                    f"nearbody_observable_type {self.nearbody_observable_type!r} not in "
+                    f"{path}; precompute included {list(g.keys())}"
+                )
+            arr = g[self.nearbody_observable_type][start:end].astype(np.float32)
+        t = torch.from_numpy(arr)
+        if self.nearbody_observable_standardize:
+            stats = self._load_nearbody_stats()
             if stats is not None:
                 t = stats.standardize(t)
         return t

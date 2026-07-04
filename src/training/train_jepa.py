@@ -433,6 +433,8 @@ def jepa_collate(samples: list[dict[str, Any]]) -> dict[str, Any]:
         batch["cl_future"] = torch.stack([s["cl_future"] for s in samples])
     if "wake_target" in samples[0]:
         batch["wake_target"] = torch.stack([s["wake_target"] for s in samples])
+    if "nearbody_target" in samples[0]:
+        batch["nearbody_target"] = torch.stack([s["nearbody_target"] for s in samples])
     if "case_id" in samples[0]:
         batch["case_ids"] = [s["case_id"] for s in samples]
         batch["encounter_indices"] = torch.tensor(

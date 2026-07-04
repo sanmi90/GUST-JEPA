@@ -230,6 +230,7 @@ def build_outputs(
     decoder: nn.Module | None = None,
     lift_head: nn.Module | None = None,
     wake_head: nn.Module | None = None,
+    nearbody_head: nn.Module | None = None,
     z_anticollapse: Tensor | None = None,
     rollout: str = "spatial",
     z_vector: Tensor | None = None,
@@ -251,6 +252,8 @@ def build_outputs(
         decoder: The field decoder (required for ``"recon"``).
         lift_head: Optional current-frame ``C_L`` head.
         wake_head: Optional wake-observable head.
+        nearbody_head: Optional near-body lift-element observable head
+            (Session 34 Track C; requires ``nearbody_target`` in the batch).
         z_anticollapse: Optional latent used for the anti-collapse ``z`` key
             INSTEAD of ``z_spatial`` (flattened the same way). Used by the
             pooled-latent ablation so anti-collapse sees the ``(B, T, d)`` pooled
@@ -310,6 +313,15 @@ def build_outputs(
         z_vec = global_average_pool_latent(z_spatial)
         outputs["wake_pred"] = wake_head(z_vec)
         outputs["wake_true"] = batch["wake_target"]
+
+    if nearbody_head is not None:
+        if "nearbody_target" not in batch:
+            raise KeyError(
+                "nearbody head configured but batch has no 'nearbody_target' tensor"
+            )
+        z_vec = global_average_pool_latent(z_spatial)
+        outputs["nearbody_pred"] = nearbody_head(z_vec)
+        outputs["nearbody_true"] = batch["nearbody_target"]
 
     return outputs
 
@@ -372,6 +384,7 @@ class CanonicalModel(nn.Module):
         terms = cfg.active_terms()
         self.lift_on = "lift" in terms
         self.wake_on = "wake" in terms
+        self.nearbody_on = "nearbody" in terms
         self.latent_dim = int(latent_dim)
         self.horizon = int(cfg.representation_objective["pred"]["horizon"])
 
@@ -446,6 +459,20 @@ class CanonicalModel(nn.Module):
             )
             self.wake_head = WakeObservableHead(latent_dim=latent_dim, out_dim=out_dim)
 
+        # Near-body lift-element head (Session 34 Track C). Reuses the
+        # WakeObservableHead class at the same 80-D width so the N and W heads
+        # have byte-identical capacity (the controlled-comparison keystone).
+        self.nearbody_head: nn.Module | None = None
+        if self.nearbody_on:
+            from src.data.nearbody_observables import (
+                mode_output_dim as nearbody_mode_output_dim,
+            )
+
+            self.nearbody_head = WakeObservableHead(
+                latent_dim=latent_dim,
+                out_dim=nearbody_mode_output_dim("nearbody_lift_element"),
+            )
+
     def downstream_parameters(self) -> list[nn.Parameter]:
         """Every trainable parameter that is NOT in the encoder.
 
@@ -453,7 +480,13 @@ class CanonicalModel(nn.Module):
         decoder, lift head, wake head).
         """
         params: list[nn.Parameter] = []
-        for module in (self.predictor, self.decoder, self.lift_head, self.wake_head):
+        for module in (
+            self.predictor,
+            self.decoder,
+            self.lift_head,
+            self.wake_head,
+            self.nearbody_head,
+        ):
             if module is not None:
                 params += list(module.parameters())
         return params
@@ -488,6 +521,7 @@ class CanonicalModel(nn.Module):
             decoder=self.decoder,
             lift_head=self.lift_head,
             wake_head=self.wake_head,
+            nearbody_head=self.nearbody_head,
             z_anticollapse=z_anticollapse,
             rollout="vector" if self.predictor_class == "transformer" else "spatial",
             z_vector=z_anticollapse if self.predictor_class == "transformer" else None,

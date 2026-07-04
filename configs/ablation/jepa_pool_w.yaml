@@ -1,0 +1,19 @@
+# Track C cell CW (Session 34): pooled JEPA, wake head ONLY (no lift head).
+# Q2: can the patched-spectrum wake loss replace the scalar lift anchor?
+name: jepa_pool_w
+
+representation_objective:
+  pred: {on: true}
+
+anti_collapse:
+  on: true
+  method: sigreg
+
+supervision:
+  lift_head: {on: false}
+  wake_head: {on: true}
+  nearbody_head: {on: false}
+
+model:
+  encoder: cnn_vit
+  latent: pooled

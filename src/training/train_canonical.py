@@ -226,6 +226,7 @@ def make_loader(
     terms = cfg.active_terms()
     lift_on = "lift" in terms
     wake_on = "wake" in terms
+    nearbody_on = "nearbody" in terms
     ds = EpisodeDataset(
         partition=args.partition,
         split=split,
@@ -234,6 +235,8 @@ def make_loader(
         cl_future_deltas=(0,),  # current-frame C_L (Fukami-standard lift augmentation)
         emit_wake_observable=wake_on,
         wake_observable_type="patch_signed_spectrum",
+        emit_nearbody_observable=nearbody_on,
+        nearbody_observable_type="nearbody_lift_element",
         omega_pipeline_manifest=args.pipeline_manifest,
         split_manifest_path=args.split,
     )

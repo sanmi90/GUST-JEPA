@@ -26,6 +26,7 @@ from src.losses.kit import (
     build_anticollapse,
     compute_total_loss,
     lift_head_loss,
+    nearbody_head_loss,
     pred_mse_seq_loss,
     recon_mse_loss,
     wake_head_loss,
@@ -455,3 +456,65 @@ def test_audit_reference_bvae_flagged_pending() -> None:
     rows = {r["Model"]: r for r in audit_dir(REFERENCE_DIR)}
     assert "PENDING" in rows["bvae"]["notes"]
     assert rows["bvae"]["wake"] == "TBC"
+
+
+# ---------------------------------------------------------------------------
+# Session 34 Track C: the near-body head and the conditioning-cube configs
+# ---------------------------------------------------------------------------
+def _synthetic_outputs_with_nearbody(d: int = 8) -> dict[str, torch.Tensor]:
+    outs = _synthetic_outputs(d)
+    outs["nearbody_pred"] = torch.randn(3, 4, 80)
+    outs["nearbody_true"] = torch.randn(3, 4, 80)
+    return outs
+
+
+TRACKC_MATRIX = {
+    ABLATION_DIR / "jepa_pool_c0.yaml": {"pred", "anti_collapse"},
+    ABLATION_DIR / "jepa_pool_w.yaml": {"pred", "anti_collapse", "wake"},
+    ABLATION_DIR / "jepa_pool_n.yaml": {"pred", "anti_collapse", "nearbody"},
+    ABLATION_DIR / "jepa_pool_ln.yaml": {"pred", "anti_collapse", "lift", "nearbody"},
+    ABLATION_DIR / "jepa_pool_wn.yaml": {"pred", "anti_collapse", "wake", "nearbody"},
+    ABLATION_DIR / "jepa_pool_lwn.yaml": {"pred", "anti_collapse", "lift", "wake", "nearbody"},
+    ABLATION_DIR / "ae_w_pool.yaml": {"recon", "anti_collapse", "wake"},
+}
+
+
+@pytest.mark.parametrize(
+    "path,expected", list(TRACKC_MATRIX.items()), ids=lambda p: getattr(p, "name", p)
+)
+def test_trackc_matrix_active_terms(path: Path, expected: set) -> None:
+    cfg = load_model_config(path, kit_path=KIT_PATH)
+    assert cfg.active_terms() == frozenset(expected), f"{path.name} active terms mismatch"
+
+
+def test_nearbody_term_summed_when_on() -> None:
+    cfg = load_model_config(ABLATION_DIR / "jepa_pool_wn.yaml", kit_path=KIT_PATH)
+    outs = _synthetic_outputs_with_nearbody()
+    total, comps = compute_total_loss(cfg, outs)
+    assert set(comps) - {"total"} == {"pred", "anti_collapse", "wake", "nearbody"}
+    summed = sum(v for k, v in comps.items() if k != "total")
+    assert summed == pytest.approx(comps["total"], rel=1e-5)
+    assert total.item() == pytest.approx(comps["total"], rel=1e-5)
+
+
+def test_nearbody_missing_output_raises() -> None:
+    cfg = load_model_config(ABLATION_DIR / "jepa_pool_n.yaml", kit_path=KIT_PATH)
+    outs = _synthetic_outputs()  # no nearbody_pred / nearbody_true
+    with pytest.raises(KeyError, match="nearbody"):
+        compute_total_loss(cfg, outs)
+
+
+def test_nearbody_kit_default_off_leaves_existing_matrix_unchanged() -> None:
+    # ANCHOR: the new kit default must not change any existing config's terms.
+    for path, expected in MATRIX.items():
+        cfg = load_model_config(path, kit_path=KIT_PATH)
+        assert cfg.active_terms() == frozenset(expected), path.name
+        assert "nearbody" not in cfg.active_terms()
+
+
+def test_nearbody_head_loss_uses_beta_half() -> None:
+    pred = torch.zeros(2, 3, 80)
+    true = torch.full((2, 3, 80), 0.25)
+    # |x| = 0.25 < beta = 0.5 -> quadratic branch: 0.5 * x^2 / beta.
+    expected = 0.5 * 0.25**2 / 0.5
+    assert nearbody_head_loss(pred, true).item() == pytest.approx(expected, rel=1e-5)
