@@ -155,6 +155,8 @@ def main(argv=None) -> int:
     ap.add_argument("--diag-every", type=int, default=500)
     ap.add_argument("--log-every", type=int, default=100)
     ap.add_argument("--pod", default="outputs/session34/rom_pod_basis.npz")
+    ap.add_argument("--sig-weight", type=float, default=0.1,
+                    help="Weight of the quadrature SIGReg term.")
     ap.add_argument("--lift-weight", type=float, default=0.0,
                     help="Weight of the kit-style scalar C_L head on context "
                          "latents (0 = the original no-lift arm).")
@@ -245,7 +247,7 @@ def main(argv=None) -> int:
     hw_ = HorizonWeights(TAUS)
     metrics_path = out_dir / "metrics.jsonl"
     emit(f"[aero] stage 3: {args.stage3_iters} iters (B={args.batch}, L={CTX_L})")
-    lam = dict(lat=1.0, rec=1.0, sig=0.1, lift=args.lift_weight)
+    lam = dict(lat=1.0, rec=1.0, sig=args.sig_weight, lift=args.lift_weight)
     for it in range(1, args.stage3_iters + 1):
         batch = sampler.batch(args.batch, device)
         logs = aerojepa_step(models, batch, hw_, opt, lam=lam)
@@ -300,7 +302,7 @@ def main(argv=None) -> int:
         "encoder": "HybridCNNViTEncoder pooled (full)",
         "objective": "AeroJEPA coupled: L_lat + recon(D(P(A,tau)), x_tau) + 0.1*sigreg"
                      + (f" + {args.lift_weight}*lift" if args.lift_weight > 0 else ""),
-        "lift_weight": args.lift_weight,
+        "lift_weight": args.lift_weight, "sig_weight": args.sig_weight,
         "warm_iters": args.warm_iters,
         "stage3_iters": args.stage3_iters,
         "final_pr_test_b": participation_ratio(torch.from_numpy(a_tb)),
