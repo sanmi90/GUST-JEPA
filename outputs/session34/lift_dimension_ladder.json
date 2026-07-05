@@ -1,0 +1,76 @@
+{
+ "cln_rexpred": {
+  "d4": {
+   "lin": [
+    0.893,
+    0.899,
+    0.908
+   ],
+   "mlp_mean": 0.922
+  },
+  "d8": {
+   "lin": [
+    0.913
+   ],
+   "mlp_mean": 0.922
+  },
+  "d16": {
+   "lin": [
+    0.875
+   ],
+   "mlp_mean": 0.888
+  },
+  "d32": {
+   "lin": [
+    0.903
+   ],
+   "mlp_mean": 0.892
+  }
+ },
+ "flagship_clw": {
+  "d4": {
+   "lin": [
+    0.862,
+    0.905,
+    0.94
+   ]
+  },
+  "d8": {
+   "lin": [
+    0.858
+   ]
+  },
+  "d16": {
+   "lin": [
+    0.832
+   ]
+  },
+  "d32": {
+   "lin": [
+    0.841,
+    0.858,
+    0.823
+   ]
+  }
+ },
+ "fukami_wake": {
+  "d4": {
+   "lin": [
+    0.734,
+    0.811,
+    0.841
+   ]
+  },
+  "d8": {
+   "lin": [
+    0.845
+   ]
+  },
+  "d16": {
+   "lin": [
+    0.843
+   ]
+  }
+ },
+ "note": "peak-region pooled R2, frozen linear probe (mlp where stated); 3-seed lists where banded; flagship d32 = jepa_pool_vec s0-s2"
+}

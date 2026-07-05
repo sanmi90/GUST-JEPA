@@ -143,6 +143,11 @@ B. WHAT THE STATES RECONSTRUCT (absorbs v3's decode material + 4.3's
      vs fukami 0.796+-0.045, non-overlapping) where the wake-bearing state
      needs d >= 16 in EVERY family. Two-tier statement: a d=4 lift-critical
      state is viable; the wake state is not compressible to it.
+   - BEST-RECIPE DIMENSION LADDER (lift_dimension_ladder.json): CLN x rexpred
+     is DIMENSION-INSENSITIVE on peak lift (~0.90-0.92 at d = 4/8/16/32) and
+     5x more seed-stable at d=4 than the flagship lineage (0.900+-0.006 vs
+     0.903+-0.032); the flagship lineage declines with d (0.90 -> 0.84). F12
+     carries both lineages + Fukami.
    - CORE (user-flagged, 2026-07-05): THE PROBE-DILUTION CONTROL
      (probe_dilution_test.json). The linear-probe d-comparison conflates
      information with readout format: the MLP probe nearly equalizes all
