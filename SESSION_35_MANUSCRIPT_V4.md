@@ -166,6 +166,23 @@ C. ADVANCING THE STATE: temporal prediction (absorbs v3's 4.2 rollout material,
 
 D. ESTIMATING THE STATE FROM THE WALL: data assimilation (absorbs v3's 4.3.1,
    4.4, 4.5 + the session-34 filter program)
+   - PHASE-RESOLVED EVALUATION (user-directed, the section's centerpiece):
+     pre-impact / impact / relaxation, on load AND field, in R2 AND physical
+     units AND relative (%%-of-peak) terms. Key findings already measured:
+     relax R2 pessimism is a variance artifact (relax RMSE 0.13-0.18 is the
+     best phase); assimilation buys 5x at impact over open-loop; peak timing
+     within one frame; relative accuracy is SCALE-INVARIANT across the
+     training envelope (~12-14%% peak error at every |G|); assimilated fields
+     decode near the ceiling except the near-body region at impact.
+   - PER-FAMILY OWN-STACK COMPARISON (user-directed): what the objective buys
+     AT THE ASSIMILATION STAGE, every family with its own OSP taps, obs
+     encoder, forecast operator, probe, decoder: JEPA-CLW halves AE-LW's
+     assimilated load error in every phase (impact 0.27 vs 0.41, relax 0.15
+     vs 0.37); CLN in between (probe readability does not survive
+     assimilation); field fidelity family-insensitive. AE nuance reported
+     honestly: better relative PEAK VALUE (8.5-9.6%% vs ~12%%), worse trace.
+   - SENSOR-BUDGET AND NOISE STUDIES per family (user-directed): K sweep on
+     own staircases + tap-noise sweep with induced Gamma inflation.
    - Keep v3's frozen D220 filter + envelope as the base protocol (unchanged
      numbers, unchanged honest nulls: wake not filterable, error doubles with |G|).
    - The filter ladder (new subsection): structural-consistency retrofit
@@ -233,16 +250,34 @@ Part C (prediction)
         [gated on 3 seeds next session].
  F17 R  fig_mechanism_hroll_v3 (trim to the multi-step-stability panel).
 Part D (assimilation)
- F18 R  fig_hero_traces_v3 (+ optional REX-EnKF analysis row later).
- F19 R  fig_envelope_v3 (unchanged frozen envelope).
- F20 N* Filter ladder: impact/relax paired medians + divergence counts for
-        D220 / linear-LAE / hybrid / REX-EnKF [gated on test_a band tuning +
-        envelope integration].
+ F18 R  fig_hero_traces_v3 + representative phase-resolved traces (da_phase
+        representative_traces: truth vs analysis C_L values, pre/impact/relax
+        shading).
+ F19 R  fig_envelope_v3 (unchanged frozen envelope) + relative-error panel:
+        peak %% error and impact NRMSE (%% of peak) vs |G| and D -- the
+        scale-invariance result (da_relative_errors.json).
+ F20 N  PHASE-RESOLVED DA CENTERPIECE (user-directed): per phase (pre/impact/
+        relax) x estimator (eobs / linear-LAE / REX-EnKF / open-loop) x
+        {C_L R2, RMSE, MAE, peak value+timing error, %%-of-peak} + decoded-field
+        SSIM (nearbody/wake/full) with the encoded-truth decode ceiling row
+        (da_phase_eval.json). Ladder variant [*gated on test_a band tuning]
+        appears as a second panel or appendix.
+ F20b N PER-FAMILY OWN-STACK DA COMPARISON (user-directed): JEPA-CLW vs AE-LW
+        vs CLN, each with its OWN OSP taps, obs encoder, forecast operator,
+        probe and decoder, identical protocol; phase-resolved RMSE + SSIM
+        (da_phase_{ae_wake_pool,jepa_pool_ln_s0}.json). Headline: the
+        predictive wake-bearing state halves the assimilated load error in
+        every phase at family-insensitive field fidelity.
+ F20c N SENSOR-BUDGET AND NOISE EFFECT per family (user-directed): impact
+        RMSE / peak %% error vs K in {2,4,8,16} (own OSP staircase per family
+        and per K) and vs tap noise in {0,5,10,20}%% at K=8 with induced
+        Gamma inflation (outputs/session34/da_grid/*.json).
  F21 N  Deployment: streaming vs reset + noise sweep (rex_stream_noise*.json).
  F22 R  fig_t_trade + N inset: assimilation-rate sweep (lae_*obs*.json).
  F23 R  fig_atlas_dmd_v3 (or appendix if length forces).
 
-Count: 10 reuse/adapt + 13 new; 3 gated (*) on pending runs.
+Count: 10 reuse/adapt + 15 new (F20/F20b/F20c may merge into two composite
+figures to stay near 23); 3 gated (*) on pending runs.
 
 ### Data audit: citable now / needs runs / excluded
 

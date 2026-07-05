@@ -86,6 +86,12 @@ def main(argv=None) -> int:
     ap.add_argument("--alpha", type=float, default=1.0)
     ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--rep-case", default="G-0.50_D1.00_Y-0.40")
+    ap.add_argument("--rex-ckpt",
+                    default="outputs/session34/latent_rex_model.pt")
+    ap.add_argument("--taps-key", default=None)
+    ap.add_argument("--noise", type=float, default=0.0,
+                    help="Tap sensor noise std as fraction of per-tap train std; "
+                         "induced Gamma inflation applied.")
     ap.add_argument("--out", default="outputs/session34/da_phase_eval.json")
     args = ap.parse_args(argv)
 
@@ -108,7 +114,7 @@ def main(argv=None) -> int:
     encs_tr, encs_tb = encounters(tr), encounters(tb)
     n = tr["z"].shape[1]
     taps = np.asarray(json.loads((REPO_ROOT / args.taps).read_text())
-                      [args.model][f"K{args.k}"], dtype=int)
+                      [args.taps_key or args.model][f"K{args.k}"], dtype=int)
     p_mu = tr["p"][:, taps].mean(axis=0)
     p_sd = tr["p"][:, taps].std(axis=0) + 1e-9
 
@@ -120,12 +126,14 @@ def main(argv=None) -> int:
     W = np.linalg.solve(X_tr.T @ X_tr + args.alpha * np.eye(X_tr.shape[1]),
                         X_tr.T @ Zt_tr)
     Gamma = np.cov((Zt_tr - X_tr @ W).T) + 1e-8 * np.eye(n)
+    if args.noise > 0:
+        Gamma = Gamma + (args.noise ** 2) * (W.T @ W)
     chol_G = np.linalg.cholesky(Gamma)
     chol_Ql = np.linalg.cholesky(Q_lin)
     probe = fit_linear_probe(tr["z"], tr["cl"])
     rex = LatentRex(d=n, horizon=40)
     rex.load_state_dict(torch.load(
-        REPO_ROOT / "outputs/session34/latent_rex_model.pt", map_location="cpu"))
+        REPO_ROOT / args.rex_ckpt, map_location="cpu"))
     rex.to(device).eval()
 
     # decode-floor decoder saved by the C3 chain (frozen-encoder protocol)
@@ -176,6 +184,8 @@ def main(argv=None) -> int:
         T = rows.size
         pmask = phase_masks(wmask, t_init)
         pt = (tb["p"][rows][:, taps] - p_mu) / p_sd
+        if args.noise > 0:
+            pt = pt + args.noise * rng.standard_normal(pt.shape)
         z_obs = delay_embed(pt, args.delay) @ W
 
         est_z = {"eobs": z_obs.copy()}
