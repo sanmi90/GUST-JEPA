@@ -10437,3 +10437,64 @@ is load-bearing for the nonlinear filter; temporal robustness is the linear filt
 second genuine advantage (with zero-divergence robustness). Artifacts:
 outputs/session34/{lae_enkf_pilot,lae_hybrid*,lae_pilot_obs*,arms_lift_eval}.json,
 outputs/runs/session34/{rom_nolift_s0,aerojepa_nolift_s0,aerojepa_lift_s0}.
+
+### D260 (SESSION34 post-gates program: phase-resolved DA, smoothers, per-family stacks, K/noise, low-d bands, REX family, v4 plan) (2026-07-05, Session 34)
+
+The day after the Track C gates (D255-D258), user-directed. All committed on
+session34-trackc; artifacts under outputs/session34/.
+
+(1) PHASE-RESOLVED DA EVALUATION (da_phase_eval.py, user-directed "not only R2"):
+pre/impact/relax x {open-loop, static E_obs, linear KF, REX-EnKF} x {R2, RMSE, MAE,
+peak value+timing error, %-of-peak} + decoded-field SSIM (nearbody/wake/full) vs the
+decode ceiling. Findings: the relax "failure" was a variance-normalisation artifact
+(relax RMSE 0.13-0.18 C_L is the BEST phase while R2 is negative); assimilation buys
+5x at impact over open-loop (0.27 vs 1.54); peak timing within one frame; assimilated
+fields decode near the ceiling (full 0.76 vs 0.80) losing fidelity specifically in
+the near-body region at impact; RELATIVE accuracy is SCALE-INVARIANT across the
+training envelope (~12-14% peak error at every |G|; absolute growth mirrors peak
+growth; linear filter non-uniform 5-27%). Within test_b the static delay-embedded
+inverse ties the filter on medians; the filter's edge is tails + the |G|=4 boundary.
+
+(2) SMOOTHERS (da_smoother.py): fixed-lag RTS on the linear-A model, lag 5 frames
+(0.25 t/c delay), rescues the linear stack to best-overall (impact 0.286 ties
+REX-EnKF 0.281; relax 0.149 and peak 10.7% beat it) and saturates at lag 5 =
+full-interval reanalysis. EnKS lag update on the REX filter DEGRADES it (N=64 lag
+cross-covariance sampling noise; honest negative). Deployment rule: online ->
+nonlinear filter; 0.25 t/c delay budget -> closed-form linear smoother.
+
+(3) PER-FAMILY OWN-STACK DA (user-directed; own OSP taps, obs encoder, forecast
+operator, probe, decoder per family): JEPA-CLW halves AE-LW's assimilated load error
+in every phase (impact 0.284 vs 0.425, relax 0.18 vs 0.40, pre 0.24 vs 0.40); CLN
+between (0.309; probe readability does not survive assimilation); assimilated FIELD
+fidelity is family-insensitive (~0.73-0.77 full). AE nuance: better relative peak
+VALUE (8.5-9.6% vs ~12-14%), worse trace. K SWEEP (own staircase per family per K):
+JEPA exploits sensors monotonically (0.579/0.452/0.284/0.161 at K=2/4/8/16) where
+the AE SATURATES at K=8 (0.427 at K=16); advantage widens to 2.7x at K=16. NOISE
+SWEEP (K=8, induced Gamma inflation): JEPA 0.284->0.396 at 20% noise, still better
+than AE clean; CLN degrades fastest (+56%).
+
+(4) LOW-D RACE, SEED-BANDED (lowd_d4_seedband.json): at d=4 the predictive families
+beat the Fukami AE with NON-OVERLAPPING seed ranges: jepa_clw 0.903+-0.032 and
+aero_lift 0.910+-0.012 vs fukami 0.796+-0.045 (fukami s0=0.734 was its unlucky
+seed; ordering robust). JEPA d=4 band EXCEEDS its d=32 value (0.841): the lift
+subspace is tiny. Wake state still needs d>=16 everywhere (E_w probes) -> two-tier
+ROM statement stands. d=4 filter (8 taps, over-determined): impact 0.789 with the
+best REX relax (-0.89).
+
+(5) REX FAMILY final: tuned latent-REX (val-honest grid; LSTM h512 q9; xLSTM tie:
+sLSTM hand-coded 0.646+-0.019 ~ LSTM 0.649+-0.009 > mLSTM; capping REJECTED both
+forms) test_b one-shot: forecast C_L 0.701; conditioning null CONFIRMED (oracle
+(G,D,Y) 0.492 < none 0.701 < +phase 0.713); kit predictor-class rex: CLN-rexpred
+peak 0.903 PR 11.8 (single seed). TiRex-2 lesson ledger closed (adopt 4 / adapt 1 /
+reject 2 / defer 2); TiRex weights not needed (user).
+
+(6) MANUSCRIPT v4 (SESSION_35_MANUSCRIPT_V4.md, user-directed): honest v3 review
+(2 referee-blocking confounds both FIXED by session-34 data: operator split ->
+shared-REX protocol; head asymmetry -> Track C cube promoted to construction
+narrative) + full restructure plan on the four-part arc (construct with lift-based
+heads AE+JEPA / reconstructions / temporal prediction / assimilation), ~23 figures
+(10 reuse + 15 new incl. F20/F20b/F20c DA centerpieces, merge to ~23), citable-now
+vs needs-runs audit, P1-P4 execution phases. GATES BEFORE SUBMISSION: CLN-rexpred
+seeds; filter/conditioning-null seed replicates; two-stage filter in envelope_by_gust
++ test_a NIS band tuning (decides whether F20's ladder headline is 0.749
+protocol-clean or ~0.83-0.84); DNS Table 1 / Zenodo / CRediT (author).
