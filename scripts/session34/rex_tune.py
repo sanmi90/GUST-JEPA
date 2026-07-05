@@ -51,6 +51,47 @@ def make_quantiles(nq: int):
     return _Q3 if nq == 3 else Q9
 
 
+class SLSTMCell(nn.Module):
+    """Pure-PyTorch sLSTM cell (Beck et al. 2024, xLSTM Eq. 12-19).
+
+    Exponential input/forget gating with the log-domain stabilizer state m_t
+    and normalizer state n_t; no custom kernels, exact at any scale, fast
+    enough for short contexts. Written because the packaged sLSTM CUDA kernel
+    does not build against torch 2.12 / sm_120 (Session 34, user-directed).
+    """
+
+    def __init__(self, d_in: int, hidden: int) -> None:
+        super().__init__()
+        self.W = nn.Linear(d_in, 4 * hidden)
+        self.R = nn.Linear(hidden, 4 * hidden, bias=False)
+        self.hidden = hidden
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        """(B, T, d_in) -> (B, T, hidden)."""
+        B, T, _ = x.shape
+        h = x.new_zeros(B, self.hidden)
+        c = x.new_zeros(B, self.hidden)
+        n = x.new_zeros(B, self.hidden)
+        m = x.new_full((B, self.hidden), -1e9)
+        outs = []
+        for t in range(T):
+            zifo = self.W(x[:, t]) + self.R(h)
+            z_, i_, f_, o_ = zifo.chunk(4, dim=-1)
+            z_ = torch.tanh(z_)
+            o_ = torch.sigmoid(o_)
+            log_i = i_                                   # log-space input gate
+            log_f = -torch.nn.functional.softplus(-f_)   # log sigmoid(f): stable forget
+            m_new = torch.maximum(log_f + m, log_i)
+            i_s = torch.exp(log_i - m_new)
+            f_s = torch.exp(log_f + m - m_new)
+            c = f_s * c + i_s * z_
+            n = f_s * n + i_s
+            h = o_ * c / n.clamp_min(1.0)
+            m = m_new
+            outs.append(h)
+        return torch.stack(outs, dim=1)
+
+
 class RexBackbone(nn.Module):
     """LSTM or mLSTM-stack backbone under the shared REX wrapper."""
 
@@ -59,6 +100,8 @@ class RexBackbone(nn.Module):
         self.kind, self.horizon, self.d, self.nq = kind, horizon, d, nq
         if kind == "lstm":
             self.core = nn.LSTM(d, hidden, num_layers=2, batch_first=True)
+        elif kind == "slstm":
+            self.core = nn.ModuleList([SLSTMCell(d, hidden), SLSTMCell(hidden, hidden)])
         else:
             from xlstm import (mLSTMBlockConfig, mLSTMLayerConfig,
                                xLSTMBlockStack, xLSTMBlockStackConfig)
@@ -79,6 +122,11 @@ class RexBackbone(nn.Module):
         if self.kind == "lstm":
             _, (h, _) = self.core(x)
             feat = h[-1]
+        elif self.kind == "slstm":
+            y = x
+            for cell in self.core:
+                y = cell(y)
+            feat = y[:, -1]
         else:
             feat = self.core(self.in_proj(x))[:, -1]
         out = self.head(feat).view(-1, self.horizon, self.d, self.nq)
