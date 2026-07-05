@@ -261,7 +261,13 @@ Part D (assimilation)
         {C_L R2, RMSE, MAE, peak value+timing error, %%-of-peak} + decoded-field
         SSIM (nearbody/wake/full) with the encoded-truth decode ceiling row
         (da_phase_eval.json). Ladder variant [*gated on test_a band tuning]
-        appears as a second panel or appendix.
+        appears as a second panel or appendix. FILTER-VS-SMOOTHER columns
+        (da_smoother.json): fixed-lag RTS (lag 5 = 0.25 t/c delay) rescues the
+        linear stack to best-overall (impact 0.286 ties REX-EnKF, relax 0.149
+        and peak 10.7%% beat it, = full-interval reanalysis); EnKS on the REX
+        filter degrades (lag cross-covariance sampling noise, honest negative).
+        Deployment rule: online -> nonlinear filter; 0.25 t/c delay budget ->
+        closed-form linear smoother.
  F20b N PER-FAMILY OWN-STACK DA COMPARISON (user-directed): JEPA-CLW vs AE-LW
         vs CLN, each with its OWN OSP taps, obs encoder, forecast operator,
         probe and decoder, identical protocol; phase-resolved RMSE + SSIM
