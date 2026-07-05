@@ -297,12 +297,26 @@ Part D (assimilation)
         RMSE / peak %% error vs K in {2,4,8,16} (own OSP staircase per family
         and per K) and vs tap noise in {0,5,10,20}%% at K=8 with induced
         Gamma inflation (outputs/session34/da_grid/*.json).
+ F20d N DA-VS-DIMENSION GRID (user-directed closing study, D261): POD vs
+        Fukami vs JEPA x d in {4,8,16,32}, 15 own-stack cells (own OSP K=8
+        staircase, own E_obs, own latent-REX, own decoder), phase-resolved
+        (outputs/session34/da_dims_grid.json + da_phase_dim_*.json).
+        Headline: JEPA UNIFORM across d (impact RMSE 0.27-0.36, peak 10-15%%
+        everywhere; d=4 beats POD d=32 0.298 vs 0.346); POD = stable linear
+        floor; Fukami ERRATIC (166%%/194%% peak error at d=4/32 where E_obs
+        cannot recover the C_L-relevant directions, verified alpha-insensitive
+        and not a pipeline bug, vs BEST-IN-TABLE 0.180 at d=16). The
+        deployment-robustness argument for Part D: kit-anchored latent
+        geometry is uniformly pressure-estimatable; the Fukami geometry is
+        fragile across the design axis. [*Fukami d=16 seed band owed before
+        citing that cell; likely merges with F12 as the Part D dimension
+        column.]
  F21 N  Deployment: streaming vs reset + noise sweep (rex_stream_noise*.json).
  F22 R  fig_t_trade + N inset: assimilation-rate sweep (lae_*obs*.json).
  F23 R  fig_atlas_dmd_v3 (or appendix if length forces).
 
-Count: 10 reuse/adapt + 15 new (F20/F20b/F20c may merge into two composite
-figures to stay near 23); 3 gated (*) on pending runs.
+Count: 10 reuse/adapt + 16 new (F20/F20b/F20c may merge into two composite
+figures, F20d may fold into F12, to stay near 23); 4 gated (*) on pending runs.
 
 ### Data audit: citable now / needs runs / excluded
 
@@ -322,6 +336,9 @@ NEEDS RUNS BEFORE CITABLE:
  4. Filter-seed replicates for REX-EnKF (cheap, seeds of member noise).
  5. Optional: aerojepa_lift d32 seeds if the exploratory 0.952 is to appear
     even as an appendix note (else exclude entirely).
+ 6. Fukami d=16 seed band (2 x ~40 min GPU + encode + DA re-eval) before the
+    F20d d=16 cell is citable; single seed per cell everywhere else in the
+    grid is disclosed in the caption.
 
 EXCLUDED FROM v4 (exploratory, wrong scope): AeroJEPA no-lift arms and ROM
 skeleton results (D259 stays HANDOFF-only or one discussion sentence); TiRex

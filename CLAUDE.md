@@ -12,28 +12,36 @@ matched latent dimension.
 
 Lead researcher: Carlos Sanmiguel Vila (INTA, UC3M).
 
-## Current focus (read first, set 2026-07-05, Session 34)
+## Current focus (read first, set 2026-07-06, Session 34 CLOSED)
 
-**Track C (conditioning/observable-supervision ablation) is COMPLETE on branch
-`session34-trackc`** (off session33-manuscript-v3; ~16 commits, not pushed). Full
-2x2x2 {L, W, N} cube at 3 seeds + AE anchors on the pooled d=32 vec-predictor
-pipeline, v2p2. Verdicts (pre-registered gates, HANDOFF D253-D259):
-- NOTHING replaces the scalar lift head: every no-L predictive cell COLLAPSES
-  (PR 1.3-5 vs floor 9.6, all seeds); reconstruction anchors without L (AE-W PR 21).
-- The new Chang lift-element head (N, `supervision.nearbody_head`, cache at
-  `${VORTEX_JEPA_CACHE}/v2p2/nearbody_observables/`) ADDS on top of L: CLN beats
-  CL AND CLW AND CLWN on peak lift R2 (0.862 +- 0.003, best in cube, lag 0.019 t/c).
-- The wake head owns the wake-bearing state (E_w probe: CLW 0.73/0.86 vs CLN
-  0.33/0.63), so NO flagship swap: CLW (jepa_pool_vec) stands for the estimation
-  thesis; CLN is the lift-critical conditioning result.
-- Filter follow-ups (D259): LAE-EnKF hybrid (E_obs latent-encoded taps) is the best
-  impact-phase filter (+0.135 paired vs the frozen envelope); every-frame pressure
-  assimilation is load-bearing for the nonlinear filter (collapses at half rate);
-  the linear-A filter degrades gracefully.
-Next session: manuscript conditioning subsection citing the `trackc` numbers part
-(63 values, `eval_all_v3 --check` green), decide CLN framing and whether the D259
-side arms enter the paper, optional two-stage filter integration, push/merge
-`session34-trackc`.
+**Session 34 is COMPLETE and pushed on branch `session34-trackc`** (off
+session33-manuscript-v3). Two-day campaign, HANDOFF D253-D261, full report in
+`SESSION34_REPORT.md`. Headlines:
+- Track C cube (D253-D258): NOTHING replaces the scalar lift head (every no-L
+  predictive cell collapses, PR 1.3-5); the new Chang lift-element head
+  (`supervision.nearbody_head`, cache `${VORTEX_JEPA_CACHE}/v2p2/nearbody_observables/`)
+  ADDS on top of L (CLN best cell, peak R2 0.862 +- 0.003); NO flagship swap
+  (CLW owns the wake state; CLN is the lift-critical result).
+- Post-gates program (D259-D260): phase-resolved DA in physical units (relax
+  "failure" was a variance artifact; ~12-14% peak error scale-invariant across
+  the envelope); RTS lag-5 smoother rescues the linear stack to best-overall;
+  own-stack family DA (JEPA halves AE load error; exploits sensors where AE
+  saturates; beats AE-clean at 20% noise); latent-REX forecast family closed
+  (tuned LSTM h512; oracle conditioning HURTS; CLN-rexpred peak 0.903);
+  low-d: predictive families beat Fukami at d=4 with non-overlapping seed bands;
+  probe-dilution control (lift info d-invariant, d=4 advantage = linear
+  accessibility, CORE for Session 35).
+- D261 closing grid (POD vs Fukami vs JEPA x d in {4,8,16,32}, all own-stack DA):
+  JEPA UNIFORM (impact RMSE 0.27-0.36 everywhere; d=4 beats POD d=32); POD =
+  stable linear floor; Fukami ERRATIC (catastrophic d=4/d=32, best-in-table
+  d=16 0.180; E_obs estimatability failure, verified not a bug). Grid at
+  `outputs/session34/da_dims_grid.json`.
+Next session (Session 35 = P1 of `SESSION_35_MANUSCRIPT_V4.md`): gap runs
+(CLN-rexpred d32 s1/s2, Fukami d16 seed band, filter + conditioning-null seed
+replicates), two-stage filter in envelope_by_gust + test_a NIS band tuning
+(decides the F20 headline 0.749 vs ~0.84), then P2 figures (~23) / P3 prose /
+P4 review-fix. Merge of `session34-trackc` into the manuscript branch is
+Carlos's call.
 
 ## Previous focus (Session 33)
 

@@ -10498,3 +10498,37 @@ vs needs-runs audit, P1-P4 execution phases. GATES BEFORE SUBMISSION: CLN-rexpre
 seeds; filter/conditioning-null seed replicates; two-stage filter in envelope_by_gust
 + test_a NIS band tuning (decides whether F20's ladder headline is 0.749
 protocol-clean or ~0.83-0.84); DNS Table 1 / Zenodo / CRediT (author).
+
+### D261 (SESSION34 closing deliverable: three-family DA-vs-dimension grid, POD vs Fukami vs JEPA) (2026-07-06, Session 34)
+
+User-directed closing study ("Before finish we should do the data assimilation
+study for all dimensions", "Add also POD so we can have POD vs Fukami vs JEPA").
+Fifteen own-stack cells: {POD, Fukami AE, JEPA CLW} x d in {4, 8, 16, 32} plus
+CLN-rexpred d4/d32 and the kit AE-LW d32 anchor. Every cell gets its OWN OSP
+K=8 tap staircase (W=30 TCSI), OWN delay-embedded pressure-to-latent E_obs,
+OWN latent-REX forecast operator, and OWN decode-floor decoder; phase-resolved
+protocol identical to D260(1); test_b; every-frame pressure; no added noise.
+POD coordinates are exact truncations of the ordered session-34 basis; Fukami
+d=4/8/16 are the day-2 retrains, d=32 the session31 reference run. Pipelines
+scripts/session34/da_dims.py (GPU0) + da_dims2.py (GPU1); assembler
+assemble_da_grid.py -> outputs/session34/da_dims_grid.json (per-cell best of
+rex_enkf/linear_lae/eobs by impact C_L RMSE). Anchor: the d=32 JEPA rerun
+reproduces D260's filter numbers to machine precision.
+
+FINDINGS. (a) JEPA CLW is UNIFORM across dimension: impact RMSE 0.27-0.36,
+peak error 10-15% at every d, monotone to d=32 (0.265); JEPA d=4 (0.298) beats
+POD d=32 (0.346). (b) POD is the stable linear floor (0.35-0.60, peak 10-25%).
+(c) The Fukami AE is ERRATIC across dimension: catastrophic at d=4 and d=32
+(impact 1.62 / 2.25, peak error 166% / 194%; at d=32 assimilation makes the
+open-loop forecast WORSE, 2.25 vs 1.29) yet BEST-IN-TABLE at d=16 (0.180, peak
+4.9%). Diagnosed, not a bug: linear probes on TRUE Fukami latents are fine at
+every d (R2 0.77-0.82), but E_obs cannot recover the C_L-relevant latent
+directions at d=4/32 (probe-on-E_obs RMSE 1.63/2.25 vs 0.30 at d=16),
+insensitive to E_obs ridge strength alpha 1-3000, while the identical protocol
+succeeds for POD and JEPA at every d. Interpretation for the paper:
+pressure-ESTIMATABILITY of the Fukami latent geometry is fragile and
+unpredictable across the design axis (no BatchNorm/anti-collapse anchoring;
+PR 1.8-3.5), whereas kit-anchored families are uniformly estimatable. This is
+the deployment-robustness argument for Part D; the Fukami d=16 cell is real
+and must be shown honestly. OWED before any manuscript claim on that cell:
+a Fukami d=16 seed band (Session 35 P1; single seed per cell everywhere here).

@@ -59,7 +59,10 @@ def main(argv=None) -> int:
             print(f"[trackc-encode] skip (cached): {name}", flush=True)
             continue
         run_dir = RUNS_BASE / name
-        frozen = re.load_frozen_model(run_dir, CHECKPOINT, device=device)
+        if any(name == m or name.startswith(m + "_") for m in re.REFERENCE_MODELS):
+            frozen = re.load_reference_model(run_dir, CHECKPOINT, device=device)
+        else:
+            frozen = re.load_frozen_model(run_dir, CHECKPOINT, device=device)
         for split in ("train", "test_b"):
             enc = re.encode_split(
                 frozen,
