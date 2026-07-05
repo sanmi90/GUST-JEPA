@@ -12,7 +12,30 @@ matched latent dimension.
 
 Lead researcher: Carlos Sanmiguel Vila (INTA, UC3M).
 
-## Current focus (read first, set 2026-07-04, Session 33)
+## Current focus (read first, set 2026-07-05, Session 34)
+
+**Track C (conditioning/observable-supervision ablation) is COMPLETE on branch
+`session34-trackc`** (off session33-manuscript-v3; ~16 commits, not pushed). Full
+2x2x2 {L, W, N} cube at 3 seeds + AE anchors on the pooled d=32 vec-predictor
+pipeline, v2p2. Verdicts (pre-registered gates, HANDOFF D253-D259):
+- NOTHING replaces the scalar lift head: every no-L predictive cell COLLAPSES
+  (PR 1.3-5 vs floor 9.6, all seeds); reconstruction anchors without L (AE-W PR 21).
+- The new Chang lift-element head (N, `supervision.nearbody_head`, cache at
+  `${VORTEX_JEPA_CACHE}/v2p2/nearbody_observables/`) ADDS on top of L: CLN beats
+  CL AND CLW AND CLWN on peak lift R2 (0.862 +- 0.003, best in cube, lag 0.019 t/c).
+- The wake head owns the wake-bearing state (E_w probe: CLW 0.73/0.86 vs CLN
+  0.33/0.63), so NO flagship swap: CLW (jepa_pool_vec) stands for the estimation
+  thesis; CLN is the lift-critical conditioning result.
+- Filter follow-ups (D259): LAE-EnKF hybrid (E_obs latent-encoded taps) is the best
+  impact-phase filter (+0.135 paired vs the frozen envelope); every-frame pressure
+  assimilation is load-bearing for the nonlinear filter (collapses at half rate);
+  the linear-A filter degrades gracefully.
+Next session: manuscript conditioning subsection citing the `trackc` numbers part
+(63 values, `eval_all_v3 --check` green), decide CLN framing and whether the D259
+side arms enter the paper, optional two-stage filter integration, push/merge
+`session34-trackc`.
+
+## Previous focus (Session 33)
 
 **The v3 manuscript is on the native-vector-predictor flagship, on branch
 `session33-manuscript-v3` (pushed to origin; ~14 commits, HEAD around `014110d`).
