@@ -217,6 +217,66 @@ def assemble_vector_rollout(
     return pred_seq, target_seq
 
 
+class DirectHorizonPredictor(nn.Module):
+    """REX-style direct multi-horizon vector predictor (Session 34, D259 follow-up).
+
+    TiRex lessons (arXiv 2607.01204) applied at TRAINING time: an LSTM over an
+    instance-normalized arcsinh-scaled context emits ALL ``horizon`` future
+    latents in one shot, so the kit's predictive loss trains through a
+    non-autoregressive operator (no rollout compounding). Kit loss semantics
+    unchanged: outputs ``(B, H, d)`` scored by ``pred_mse_seq`` against the
+    online-encoder targets.
+    """
+
+    context_length = 16
+
+    def __init__(self, latent_dim: int, horizon: int = 8, hidden: int = 384,
+                 layers: int = 2) -> None:
+        super().__init__()
+        self.horizon = int(horizon)
+        self.latent_dim = int(latent_dim)
+        self.lstm = nn.LSTM(latent_dim, hidden, num_layers=layers, batch_first=True)
+        self.head = nn.Sequential(
+            nn.Linear(hidden, 4 * hidden), nn.GELU(),
+            nn.Linear(4 * hidden, self.horizon * latent_dim),
+        )
+
+    def forward(self, ctx: Tensor) -> Tensor:
+        """``(B, C, d)`` raw latent context -> ``(B, H, d)`` future latents."""
+        mu = ctx.mean(dim=1, keepdim=True)
+        sd = ctx.std(dim=1, keepdim=True).clamp_min(1e-3)
+        x = torch.asinh((ctx - mu) / sd)
+        _, (h, _) = self.lstm(x)
+        out = self.head(h[-1]).view(-1, self.horizon, self.latent_dim)
+        return torch.sinh(out) * sd + mu
+
+
+def assemble_rex_rollout(
+    predictor: nn.Module,
+    z: Tensor,
+    horizon: int,
+) -> tuple[Tensor, Tensor]:
+    """Direct multi-horizon prediction for the REX predictor class.
+
+    Context = the first ``predictor.context_length`` encoded frames; the
+    predictor emits all ``horizon`` steps in one forward pass. Targets are the
+    online encoder outputs DETACHED (kit semantics, matching
+    :func:`assemble_vector_rollout`).
+    """
+    if z.dim() != 3:
+        raise ValueError(f"expected z of shape (B, T, d); got {tuple(z.shape)}")
+    cl = int(getattr(predictor, "context_length", 16))
+    T = z.shape[1]
+    if T < cl + horizon:
+        raise ValueError(
+            f"sub-trajectory T={T} too short for context_length={cl} + horizon={horizon}"
+        )
+    pred_seq = predictor(z[:, :cl])[:, :horizon]
+    target_seq = z[:, cl : cl + horizon].detach()
+    return pred_seq, target_seq
+
+
+
 # ---------------------------------------------------------------------------
 # Pure outputs-dict builder
 # ---------------------------------------------------------------------------
@@ -290,7 +350,10 @@ def build_outputs(
         if rollout == "vector":
             if z_vector is None:
                 raise ValueError("rollout='vector' requires z_vector (the pooled latent)")
-            pred_seq, target_seq = assemble_vector_rollout(predictor, z_vector, horizon)
+            if isinstance(predictor, DirectHorizonPredictor):
+                pred_seq, target_seq = assemble_rex_rollout(predictor, z_vector, horizon)
+            else:
+                pred_seq, target_seq = assemble_vector_rollout(predictor, z_vector, horizon)
         elif rollout == "spatial":
             pred_seq, target_seq = assemble_spatial_rollout(predictor, z_spatial, horizon)
         else:
@@ -360,11 +423,11 @@ class CanonicalModel(nn.Module):
         super().__init__()
         encoder_kind = cfg.model.get("encoder", "cnn_vit")
         latent_kind = cfg.model.get("latent", "spatial")
-        if predictor_class not in ("resunet", "transformer"):
+        if predictor_class not in ("resunet", "transformer", "rex"):
             raise ValueError(
                 f"unknown predictor_class {predictor_class!r}; expected resunet | transformer."
             )
-        if predictor_class == "transformer" and latent_kind != "pooled":
+        if predictor_class in ("transformer", "rex") and latent_kind != "pooled":
             raise ValueError(
                 "predictor_class='transformer' is the native pooled pipeline (D250) and "
                 "requires model.latent='pooled'."
@@ -423,7 +486,11 @@ class CanonicalModel(nn.Module):
         self.predictor: nn.Module | None = None
         self.decoder: nn.Module | None = None
         if self.objective == "pred":
-            if self.predictor_class == "transformer":
+            if self.predictor_class == "rex":
+                self.predictor = DirectHorizonPredictor(
+                    latent_dim=latent_dim, horizon=self.horizon
+                )
+            elif self.predictor_class == "transformer":
                 # Native pooled pipeline (Session 33 D250): the v2.1 vector
                 # predictor, unconditioned, on (B, T, d) sequences. Reuses the
                 # tested src.models.predictor module; no tiling anywhere.
@@ -523,6 +590,6 @@ class CanonicalModel(nn.Module):
             wake_head=self.wake_head,
             nearbody_head=self.nearbody_head,
             z_anticollapse=z_anticollapse,
-            rollout="vector" if self.predictor_class == "transformer" else "spatial",
-            z_vector=z_anticollapse if self.predictor_class == "transformer" else None,
+            rollout="vector" if self.predictor_class in ("transformer", "rex") else "spatial",
+            z_vector=z_anticollapse if self.predictor_class in ("transformer", "rex") else None,
         )

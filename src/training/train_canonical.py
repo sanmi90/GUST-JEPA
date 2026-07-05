@@ -187,7 +187,7 @@ def parse_args() -> argparse.Namespace:
     p.add_argument(
         "--predictor-class",
         type=str,
-        choices=["resunet", "transformer"],
+        choices=["resunet", "transformer", "rex"],
         default="resunet",
         help=(
             "Training-predictor function class (D250). 'resunet' (default) is the "

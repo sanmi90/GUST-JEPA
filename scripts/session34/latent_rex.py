@@ -38,7 +38,7 @@ sys.path.insert(0, str(REPO_ROOT))
 from scripts.session34.trackc_lift_eval import group_encounters, load_cache  # noqa: E402
 
 CACHE = REPO_ROOT / "outputs/session34/trackc_latents"
-RUN = "jepa_pool_vec"
+RUN = "jepa_pool_vec"  # default; override with --run
 QUANTILES = (0.1, 0.5, 0.9)
 
 
@@ -80,6 +80,7 @@ def main() -> int:
     ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--ctx", type=int, default=25)
     ap.add_argument("--horizon", type=int, default=40)
+    ap.add_argument("--run", default=RUN)
     ap.add_argument("--out", default="outputs/session34/latent_rex.json")
     args = ap.parse_args()
 
@@ -89,8 +90,8 @@ def main() -> int:
     torch.manual_seed(args.seed)
     rng = np.random.default_rng(args.seed)
 
-    tr = load_cache(CACHE, RUN, "train")
-    tb = load_cache(CACHE, RUN, "test_b")
+    tr = load_cache(CACHE, args.run, "train")
+    tb = load_cache(CACHE, args.run, "test_b")
     encs_tr = group_encounters(tr)
     Ztr = np.stack([tr["z"] if False else tr["z_gap"][e["rows"]] for e in encs_tr])
     n_ep, T, d = Ztr.shape
@@ -122,10 +123,13 @@ def main() -> int:
             print(f"[rex] iter {it}/{args.iters} pinball={loss.item():.4f} "
                   f"({time.time() - t0:.0f}s)", flush=True)
 
-    # ---- eval: identical protocol -------------------------------------------
-    blob = np.load(REPO_ROOT / "outputs/session34/tirex_input.npz", allow_pickle=True)
-    Z, CL = blob["Z_test"].astype(np.float32), blob["CL_test"]
-    w, b = blob["probe_w"], float(blob["probe_b"])
+    # ---- eval: identical protocol, in the RUN'S OWN latent space -------------
+    from src.evaluation.represent import fit_linear_probe
+
+    encs_tb = group_encounters(tb)
+    Z = np.stack([tb["z_gap"][e["rows"]] for e in encs_tb]).astype(np.float32)
+    CL = np.stack([tb["cl"][e["rows"]] for e in encs_tb])
+    probe = fit_linear_probe(tr["z_gap"], tr["cl"])
     CTX, H = 25, args.horizon
     model.eval()
     with torch.no_grad():
@@ -137,7 +141,7 @@ def main() -> int:
     pers = np.repeat(Z[:, CTX - 1][:, None], H, 1)
     lat_pers = 1 - ((zt - roll) ** 2).sum() / ((zt - pers) ** 2).sum()
     ct = CL[:, CTX:CTX + H].ravel()
-    cp = roll.reshape(-1, d) @ w + b
+    cp = probe.predict(roll.reshape(-1, d))
     cl_r2 = 1 - ((ct - cp) ** 2).sum() / ((ct - ct.mean()) ** 2).sum()
     # calibration of the 10-90 band
     inside = float(((zt >= pred[..., 0]) & (zt <= pred[..., 2])).mean())
@@ -152,7 +156,10 @@ def main() -> int:
         "wall_s": time.time() - t0,
     }, indent=1))
     torch.save(model.state_dict(),
-               REPO_ROOT / "outputs/session34/latent_rex_model.pt")
+               REPO_ROOT / f"outputs/session34/latent_rex_model_{args.run}.pt")
+    if args.run == "jepa_pool_vec":
+        torch.save(model.state_dict(),
+                   REPO_ROOT / "outputs/session34/latent_rex_model.pt")
     return 0
 
 
