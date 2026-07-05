@@ -10405,3 +10405,35 @@ pilot (arXiv 2603.06752: zero filter divergences vs the transformer filter's 4 o
 test_b; relax tail worse; hybrid = transformer forecast + latent-encoded taps is the
 phase-2 candidate). Numbers: outputs/session33/numbers_parts/trackc.json (63 values,
 eval_all_v3 --check exit 0, 526 total).
+
+### D259 (SESSION34 overnight: no-lift side arms + LAE-EnKF phase 2 + assimilation-rate sweep) (2026-07-05, Session 34)
+
+All single-seed, exploratory, user-directed; none paper-blocking, three paper-relevant.
+(1) SIDE ARMS (frozen Track C probe protocol, peak-region decoded-C_L R2 on test_b):
+Carlos's SIGReg-JEPA-ROM skeleton (POD-anchored recon + quadrature SIGReg + horizon
+predictor, r=32, NO lift head): PR 6.9 (below floor 9.6 but 3x the collapsed kit cells),
+peak R2 0.668 linear / 0.926 MLP -- a recon-anchored predictive latent with NO lift
+supervision carries lift information retrievable NONLINEARLY; the emergent-readability
+claim survives at d=32 in nonlinear form. AeroJEPA-style arm (full CNN+ViT encoder,
+recon-through-PREDICTED-latents, arXiv 2605.05586): PR 14.0 -- the ONLY no-lift
+predictive model above the collapse floor (the coupled objective is a real anti-collapse
+mechanism) -- but linear readability only 0.180/0.557 MLP. AeroJEPA + kit lift head
+(weight 1.0): peak R2 0.952 linear (above CLN's 0.862, single seed) with lag 0.024, but
+PR crashes to 3.2: in this architecture the lift gradient CONCENTRATES the latent rather
+than anchoring an isotropic one (the kit's L-cells keep PR 10-18; the difference is the
+kit's SIGReg strength/implementation vs the arm's weak quadrature term). Follow-up if
+pursued: 3 seeds + kit-strength SIGReg in the arm.
+(2) LAE-EnKF phase 2 (hybrid: frozen transformer forecast + E_obs latent-encoded taps,
+H=I): best IMPACT filter measured (median 0.748, paired +0.135 vs the frozen D220
+envelope, wins 29/42, 2 catastrophic vs 4); relax belongs structurally to the classic
+envelope observation (full-latent tap regression injects error where taps are least
+informative; phase-switch and free-run variants all fail). Recommended integration:
+two-stage filter inside envelope_by_gust (E_obs update only in the impact window).
+(3) ASSIMILATION-RATE sweep (--obs-every, sensors at full rate, updates subsampled;
+omega and p_wall share dt=0.05 and the frozen filter assimilates every frame): linear-A
+LAE filter degrades gracefully (0.715/0.616/0.460/0.253 at m=1/2/4/8); the
+transformer-forecast hybrid collapses at m=2 (21/42 catastrophic). Every-frame pressure
+is load-bearing for the nonlinear filter; temporal robustness is the linear filter's
+second genuine advantage (with zero-divergence robustness). Artifacts:
+outputs/session34/{lae_enkf_pilot,lae_hybrid*,lae_pilot_obs*,arms_lift_eval}.json,
+outputs/runs/session34/{rom_nolift_s0,aerojepa_nolift_s0,aerojepa_lift_s0}.
