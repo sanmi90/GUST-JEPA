@@ -50,6 +50,9 @@ def main(argv=None) -> int:
     ap.add_argument("--cache-dir", default="outputs/session33/q1_vec_latents")
     ap.add_argument("--pressure-dir", default="outputs/session31/q1_latents")
     ap.add_argument("--taps", default="outputs/session33/osp_taps_vec.json")
+    ap.add_argument("--taps-key", default=None,
+                    help="Taps-file key (defaults to --model; use the parent "
+                         "model for d-variants).")
     ap.add_argument("--k", type=int, default=8)
     ap.add_argument("--delay", type=int, default=10)
     ap.add_argument("--members", type=int, default=64)
@@ -82,7 +85,7 @@ def main(argv=None) -> int:
     n = tr["z"].shape[1]
 
     taps = np.asarray(json.loads((REPO_ROOT / args.taps).read_text())
-                      [args.model][f"K{args.k}"], dtype=int)
+                      [args.taps_key or args.model][f"K{args.k}"], dtype=int)
     p_mu = tr["p"][:, taps].mean(axis=0)
     p_sd = tr["p"][:, taps].std(axis=0) + 1e-9
 
@@ -195,25 +198,31 @@ def main(argv=None) -> int:
                [r["latent_track_r2"] for r in records], float)))}
 
     env = json.loads((REPO_ROOT / args.envelope).read_text())
+    env_model = env["models"].get(args.model) or env["models"].get(args.taps_key or "")
     env_recs = {(r["case_id"], r["encounter_index"]): r["filter"]
-                for r in env["models"][args.model]["records"] if r["split"] == "test_b"}
+                for r in (env_model["records"] if env_model else [])
+                if r["split"] == "test_b"}
     d_i = [r["CL_analysis_r2_impact"] - env_recs[(r["case_id"], r["encounter_index"])]
-           ["CL_analysis_r2_impact"] for r in records]
+           ["CL_analysis_r2_impact"] for r in records
+           if (r["case_id"], r["encounter_index"]) in env_recs]
     d_r = [r["CL_analysis_r2_relax"] - env_recs[(r["case_id"], r["encounter_index"])]
-           ["CL_analysis_r2_relax"] for r in records]
-    comparison = {"n": len(d_i),
+           ["CL_analysis_r2_relax"] for r in records
+           if (r["case_id"], r["encounter_index"]) in env_recs]
+    comparison = None if not d_i else {"n": len(d_i),
                   "impact_median": float(np.median(d_i)),
                   "impact_wins": int((np.array(d_i) > 0).sum()),
                   "relax_median": float(np.median(d_r)),
                   "relax_wins": int((np.array(d_r) > 0).sum())}
+    cmp_txt = "" if comparison is None else (
+        f" | vs envelope: imp med {comparison['impact_median']:+.3f} "
+        f"({comparison['impact_wins']}/{comparison['n']}), "
+        f"rel med {comparison['relax_median']:+.3f} "
+        f"({comparison['relax_wins']}/{comparison['n']})")
     print(f"[rex-filter] obs={args.obs_mode} gamma={args.gamma_mode} "
           f"band={args.band_scale}: impact={agg['median_CL_r2_impact']:+.3f} "
           f"relax={agg['median_CL_r2_relax']:+.3f} "
-          f"cat={agg['catastrophic_impact_lt_-1']}/{agg['catastrophic_relax_lt_-1']} "
-          f"| vs envelope: imp med {comparison['impact_median']:+.3f} "
-          f"({comparison['impact_wins']}/{comparison['n']}), "
-          f"rel med {comparison['relax_median']:+.3f} "
-          f"({comparison['relax_wins']}/{comparison['n']})", flush=True)
+          f"cat={agg['catastrophic_impact_lt_-1']}/{agg['catastrophic_relax_lt_-1']}"
+          f"{cmp_txt}", flush=True)
 
     Path(REPO_ROOT / args.out).write_text(json.dumps({
         "protocol": vars(args) | {"forecast": "latent-REX median + quantile-band Q"},
