@@ -245,6 +245,8 @@ def main(argv=None) -> int:
                     "true_peak_cl": float(cl_true[tp]),
                     "est_peak_cl": float(cl_hat[pp]),
                     "peak_value_error": float(cl_hat[pp] - cl_true[tp]),
+                    "peak_rel_error_pct": float(100 * abs(cl_hat[pp] - cl_true[tp])
+                                                / max(abs(cl_true[tp]), 1e-6)),
                     "peak_timing_error_tc": float((pp - tp) * 0.05),
                 }
             per_est[name].append(rec)
@@ -271,6 +273,8 @@ def main(argv=None) -> int:
                 "ssim_full": agg(recs, ph, "ssim", "full"),
             }
         pv = [abs(r["peak"]["peak_value_error"]) for r in recs if "peak" in r]
+        pr = [r["peak"]["peak_rel_error_pct"] for r in recs if "peak" in r]
+        summary[name]["peak_rel_error_pct_median"] = float(np.median(pr))
         ptim = [abs(r["peak"]["peak_timing_error_tc"]) for r in recs if "peak" in r]
         summary[name]["peak_abs_value_error_median"] = float(np.median(pv))
         summary[name]["peak_abs_timing_error_tc_median"] = float(np.median(ptim))
