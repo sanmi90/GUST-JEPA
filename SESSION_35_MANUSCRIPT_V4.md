@@ -144,7 +144,7 @@ B. WHAT THE STATES RECONSTRUCT (absorbs v3's decode material + 4.3's
      needs d >= 16 in EVERY family. Two-tier statement: a d=4 lift-critical
      state is viable; the wake state is not compressible to it.
    - BEST-RECIPE DIMENSION LADDER (lift_dimension_ladder.json): CLN x rexpred
-     is DIMENSION-INSENSITIVE on peak lift (~0.90-0.92 at d = 4/8/16/32) and
+     is near-DIMENSION-INSENSITIVE on peak lift (0.875-0.913 lin / 0.89-0.92 mlp across d = 4/8/16/32; single-seed points carry ~+-0.03) and
      5x more seed-stable at d=4 than the flagship lineage (0.900+-0.006 vs
      0.903+-0.032); the flagship lineage declines with d (0.90 -> 0.84). F12
      carries both lineages + Fukami.
