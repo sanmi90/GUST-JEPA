@@ -61,6 +61,8 @@ def main(argv=None) -> int:
                     help="Inflate relax-phase obs covariance (trust the "
                          "forecast more where the taps see least).")
     ap.add_argument("--rex-ckpt", default="outputs/session34/latent_rex_model.pt")
+    ap.add_argument("--tuned", action="store_true",
+                    help="Load the rex_tune winner (RexBackbone) instead of LatentRex.")
     ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--envelope", default="outputs/session33/envelope_vec.json")
     ap.add_argument("--out", default="outputs/session34/rex_filter.json")
@@ -84,8 +86,17 @@ def main(argv=None) -> int:
     p_mu = tr["p"][:, taps].mean(axis=0)
     p_sd = tr["p"][:, taps].std(axis=0) + 1e-9
 
-    rex = LatentRex(d=n, horizon=40)
-    rex.load_state_dict(torch.load(REPO_ROOT / args.rex_ckpt, map_location="cpu"))
+    if args.tuned:
+        from scripts.session34.rex_tune import RexBackbone
+
+        meta = json.loads((REPO_ROOT / "outputs/session34/rex_tune.json").read_text())
+        wbest = meta["winner"]
+        rex = RexBackbone(wbest["kind"], n, wbest["hidden"], 40, wbest["nq"])
+        rex.load_state_dict(torch.load(
+            REPO_ROOT / "outputs/session34/latent_rex_model_tuned.pt", map_location="cpu"))
+    else:
+        rex = LatentRex(d=n, horizon=40)
+        rex.load_state_dict(torch.load(REPO_ROOT / args.rex_ckpt, map_location="cpu"))
     rex.to(device).eval()
 
     # ---- obs side (identical to lae_hybrid) ---------------------------------
@@ -122,9 +133,9 @@ def main(argv=None) -> int:
     def rex_step(ctx_np: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
         """(N, L, d) member contexts -> next-step (median (N, d), sigma (N, d))."""
         out = rex(torch.from_numpy(ctx_np[:, -MAX_CTX:]).float().to(device))
-        step0 = out[:, 0].cpu().numpy()                      # (N, d, 3)
-        med = step0[..., 1]
-        sig = np.clip((step0[..., 2] - step0[..., 0]) / BAND_TO_SIGMA
+        step0 = out[:, 0].cpu().numpy()                      # (N, d, nq)
+        med = step0[..., step0.shape[-1] // 2]
+        sig = np.clip((step0[..., -1] - step0[..., 0]) / BAND_TO_SIGMA
                       * args.band_scale, 1e-4, None)
         return med, sig
 
