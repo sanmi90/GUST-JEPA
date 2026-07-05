@@ -116,6 +116,8 @@ def main(argv=None) -> int:
     ap.add_argument("--rho", type=float, default=1.0)
     ap.add_argument("--alpha-a", type=float, default=1.0)
     ap.add_argument("--alpha-obs", type=float, default=1.0)
+    ap.add_argument("--obs-every", type=int, default=1,
+                    help="Assimilate only every m-th frame (pressure recorded at full rate; update subsampled).")
     ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--envelope", default="outputs/session33/envelope_vec.json")
     ap.add_argument("--out", default="outputs/session34/lae_enkf_pilot.json")
@@ -217,6 +219,9 @@ def main(argv=None) -> int:
             Z = Z @ A.T + rng.standard_normal((N, n)) @ chol_Q.T
             if args.rho != 1.0:
                 Z = Z.mean(0, keepdims=True) + args.rho * (Z - Z.mean(0, keepdims=True))
+            if (t - t_init) % args.obs_every != 0:
+                zA[t] = Z.mean(0)
+                continue
             dZ = Z - Z.mean(0, keepdims=True)
             P = dZ.T @ dZ / (N - 1)
             K_gain = P @ np.linalg.inv(P + Gamma)

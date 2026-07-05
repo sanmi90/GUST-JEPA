@@ -102,6 +102,8 @@ def main(argv=None) -> int:
     ap.add_argument("--gamma-mode", choices=["global", "phase"], default="global",
                     help="phase: separate Gamma_tilde for impact vs relax rows "
                          "(heteroscedastic obs noise from train residuals).")
+    ap.add_argument("--obs-every", type=int, default=1,
+                    help="Assimilate only every m-th frame (pressure recorded at full rate; update subsampled).")
     ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--envelope", default="outputs/session33/envelope_vec.json")
     ap.add_argument("--pilot", default="outputs/session34/lae_enkf_pilot.json")
@@ -189,6 +191,12 @@ def main(argv=None) -> int:
             zf = zf + rng.standard_normal((N, n)) @ chol_Q.T
             if args.rho != 1.0:
                 zf = zf.mean(0, keepdims=True) + args.rho * (zf - zf.mean(0, keepdims=True))
+            if (t - t_init) % args.obs_every != 0:
+                zA[t] = zf.mean(0)
+                ctx_t = torch.cat(
+                    [ctx_t, torch.from_numpy(zf).float().to(device)[:, None]], dim=1
+                )[:, -max_ctx:]
+                continue
             if args.gamma_mode == "phase":
                 G_t = Gamma_imp if wmask[t] else Gamma_rel
                 cG_t = chol_G_imp if wmask[t] else chol_G_rel
