@@ -1,0 +1,54 @@
+{
+ "protocol": "JEPA CLW lineage; linear=StandardScaler+RidgeCV; mlp=represent.fit_mlp_probe; best-4 = greedy forward selection on train, scored on test_b; full-trace C_L",
+ "results": {
+  "4": {
+   "lin_test": 0.866,
+   "lin_train": 0.96,
+   "mlp_test": 0.891,
+   "best4_lin": 0.866,
+   "coords": [
+    2,
+    0,
+    3,
+    1
+   ]
+  },
+  "8": {
+   "lin_test": 0.823,
+   "lin_train": 0.939,
+   "mlp_test": 0.887,
+   "best4_lin": 0.663,
+   "coords": [
+    7,
+    0,
+    3,
+    2
+   ]
+  },
+  "16": {
+   "lin_test": 0.83,
+   "lin_train": 0.915,
+   "mlp_test": 0.9,
+   "best4_lin": 0.66,
+   "coords": [
+    7,
+    6,
+    9,
+    14
+   ]
+  },
+  "32": {
+   "lin_test": 0.819,
+   "lin_train": 0.925,
+   "mlp_test": 0.883,
+   "best4_lin": 0.553,
+   "coords": [
+    11,
+    24,
+    25,
+    9
+   ]
+  }
+ },
+ "conclusion": "lift INFORMATION is d-invariant (MLP 0.88-0.90 at every d); the d=4 advantage is LINEAR ACCESSIBILITY/compactness (best-4 at d>=8 is 0.55-0.66: the code is distributed, not diluted-by-distractors); train-test gaps uniform (no differential probe overfitting)."
+}

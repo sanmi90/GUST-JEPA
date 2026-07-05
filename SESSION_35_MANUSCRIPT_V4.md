@@ -139,10 +139,24 @@ B. WHAT THE STATES RECONSTRUCT (absorbs v3's decode material + 4.3's
      with L present, N buys the same near-body structural fidelity as W
      (0.709 = 0.709); collapsed cells 0.47-0.57; AE parity.
    - Dimension study d in {4, 8, 16, 32}: lift is readable at d=4 in the
-     predictive families (0.86-0.92) where the Fukami AE drops (0.73); the
-     wake-bearing state needs d >= 16 in EVERY family. Two-tier statement:
-     a d=4 lift-critical state is viable; the wake state is not compressible
-     to it. [Seed bands for d=4 land tonight; gate the claim on them.]
+     predictive families (seed-banded: jepa 0.903+-0.032 / aero 0.910+-0.012
+     vs fukami 0.796+-0.045, non-overlapping) where the wake-bearing state
+     needs d >= 16 in EVERY family. Two-tier statement: a d=4 lift-critical
+     state is viable; the wake state is not compressible to it.
+   - CORE (user-flagged, 2026-07-05): THE PROBE-DILUTION CONTROL
+     (probe_dilution_test.json). The linear-probe d-comparison conflates
+     information with readout format: the MLP probe nearly equalizes all
+     dimensions (0.88-0.90 at every d; lift INFORMATION is d-invariant),
+     while the best-4-coordinate probe at d >= 8 recovers only 0.55-0.66
+     (the code is DISTRIBUTED, not diluted-by-distractors; the same
+     phenomenon as the wake distributed code). The d=4 advantage is therefore
+     LINEAR ACCESSIBILITY: four coordinates a linear readout, filter probe or
+     controller gain uses directly. This is the honest form of the two-tier
+     claim and MUST accompany every dimension figure: F12 carries linear AND
+     MLP curves plus a best-k-subset panel; prose states "compact and linear
+     at d=4, distributed and partly nonlinear above" and never "small models
+     know more". Also fixes review item M-class: R2-with-linear-probe is a
+     readability metric, not an information metric; say so in Methods 3.
    - Energy-vs-information split (v3 4.3) folds here as "what reconstruction
      optimizes vs what estimation needs".
 
