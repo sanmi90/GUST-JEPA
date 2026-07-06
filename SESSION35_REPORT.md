@@ -224,3 +224,34 @@ provenance. Catches that would have produced wrong Methods text:
    corrections recorded here).
 7. Compile / enforce_conventions / fresh-eyes: P3/P4.
 8. HANDOFF D262: written this session.
+
+## P3 status (added at session close)
+
+Figure de-crowding pass done per Carlos's review (F3, F4, F13, F17: no text
+outside boxes, annotations moved to captions; commit 94873e3). Macros
+regenerated in write mode: 554 numbers -> 614 macros in paper/macros_v3.tex,
+so every P1 band is citable in tex.
+
+v4 Methods CORE written to paper/sections/v4/ (commit 54512c9), at the MC
+contract with numbered equations: s3_1_chang_head.tex (MC-10, eqs phiL +
+lift element), s3_3_rex.tex (MC-4, pinball eq + backbone selection),
+s3_4_estimators.tex (MC-1/2/3/5/6/7: state-space pair, perturbed-obs EnKF
+update, E_obs, REX state-dependent Q with BOTH calibrations and the freeze
+rule, RTS recursion, OSP; per-filter parameter table = the Gupta Table 1
+analogue), s3_5_protocol.tex (MC-8/11: phases, metrics, SSIM masks,
+three-level uncertainty accounting). enforce_conventions clean on all but
+s3_5_protocol.tex, whose 4 flags are FALSE POSITIVES (the validator
+pattern-matches any R2 mention; the file defines the metric and claims no
+value; D130 covers claims). 
+
+REMAINING P3/P4 (next session): assemble the v4 subsections into
+section_3_methods.tex (replace the v3 estimator subsection, retire the
+U-Net split to a legacy note per C1); rewrite section_4_results.tex into
+parts A-D using the register R1-R21 + this session's bands (Results D last;
+both section-7 branch texts now have real numbers: F20-B + the two-stage
+0.794/0.837 addendum, FK16-B with the {0.180, 0.650, 5.926} band); abstract/
+intro/discussion/conclusions per the v4 mapping (discussion gains the
+choosing-the-estimator subsection and the two-tier dimension statement with
+the R7 qualifier); appendices (TiRex ledger app:rex_ledger, failure modes
+app:failure_modes referenced by the new Methods); review_closure.md; tracer
+enforcement in the build; compile + enforce_conventions + fresh-eyes pass.
