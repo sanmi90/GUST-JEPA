@@ -10597,3 +10597,31 @@ outputs/session35/t5_latents (test_a + test_c jepa_pool_vec latents +
 aligned pressure). NEXT (P2/P3/P4 of SESSION_35.md): figures through
 figstyle with the new bands, Methods to the MC contract, Results A-D prose
 (D last), review_closure.md, tracer enforcement, fresh-eyes pass.
+
+### D263 (SESSION35 continuation: P2 figures + P3 Methods/Results landed; v4 skeleton compiles fully resolved) (2026-07-06, Session 35)
+
+Same session as D262, user-directed continuation. P2: 19 v4 figures through
+figstyle (F3-F22; F1/F2/F18/F23 reused), all numbers JSON-loaded at build
+time; de-crowding pass after user review (no text outside boxes, detail
+moved to captions). Two figure agents died on the account's monthly API
+spend limit; all their deliverables were recovered/built inline. F8
+(readability matrix) is the one figure still owed. P3: macros regenerated
+(774), new parts p1_bands/p3_results (fresh 3-seed E_w probes: CLW
+0.73/0.84, CLN 0.37/0.63, AE-LW 0.77/0.90 lin/MLP test_b, the AE-reads-
+wake-best honesty note); Methods restructured to the MC contract
+(paper/sections/v4/s3_*.tex assembled into section_3_methods.tex: Chang
+subsection, shared-REX card, estimator suite with numbered equations +
+per-filter table, protocol/uncertainty; U-Net split retired to a legacy
+note = C1 fix); Results A-D written (s4_a..s4_d) with the D1 flagship
+declaration, the resolved F20-B + coverage-band-addendum text, FK16-B
+seed-fragility text, the R12 phase-wash correction, the honest
+static-inverse ladder top (0.825 test_b median), and the D6 wake-null
+mechanism; appendix D (app:rex_ledger/app:failure_modes/app:calibration,
+the excluded 0.840 confined there via PoneExcludedBandFour). Build: 48pp,
+rc=0, ZERO undefined refs/citations. enforce_conventions residual flags
+are documented false positives (escaped test\_b underscores; per-paragraph
+split enumeration on definition/protocol paragraphs). REMAINING: prune the
+superseded v3 Results subsections (4.1/4.2/4.4 overlap A-D; res_wall/
+envelope/latent_physics survive), abstract/intro/discussion/conclusions
+rewrites (D2 title = Carlos), F8 figure, review_closure.md, tracer
+whitelist classification, fresh-eyes pass, tirex bib id verification.
