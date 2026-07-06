@@ -165,8 +165,9 @@ def main(argv=None) -> int:
                          "train_s": time.time() - t0c}
         print(f"[rex2] {mode:10s}: latent R2={lat:+.3f} decoded C_L R2={cl_r2:+.3f} "
               f"({results[mode]['train_s']:.0f}s)", flush=True)
+        suffix = "" if args.seed == 0 else f"_s{args.seed}"
         torch.save(model.state_dict(),
-                   REPO_ROOT / f"outputs/session34/rex2_{mode}.pt")
+                   REPO_ROOT / f"outputs/session34/rex2_{mode}{suffix}.pt")
         del model
         torch.cuda.empty_cache()
 

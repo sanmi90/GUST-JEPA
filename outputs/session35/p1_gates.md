@@ -111,6 +111,21 @@ Acceptance (decides F20-A vs F20-B, spec section 7):
   the 0.840 test-peeked value stays confined to the calibration
   disclosure appendix.
 
+### T3 amendment (added 2026-07-06 before launch, no P1 result read)
+
+The Session 34 streaming runs (rex_stream, R19: 0.824 clean, noise sweep)
+used the rex_stream default band_scale = 4.0, which is the TEST-PEEKED band
+value excluded by locked decision D3. To repair this without selection risk,
+Phase B additionally runs the streaming protocol at the val-calibrated
+band_scale = 1.77 (noise {0, 0.05, 0.1, 0.2} x seeds {0, 1, 2}).
+Selection rule, fixed now: any R19 streaming HEADLINE in the manuscript uses
+the band = 1.77 protocol-clean numbers regardless of which band performs
+better; the band = 4.0 replicates (seeds 1-2) exist only to band the s0
+diagnostic and are confined to the calibration disclosure appendix alongside
+the 0.840 filter variant. If the T5 test_a NIS tuning later selects a
+different band under its own freeze rule, the streaming headline may switch
+to THAT band only via a single frozen rerun, never by comparing outcomes.
+
 ## T6 P0 d=4 band verification (no new tuning)
 
 Check: lowd_d4_seedband.json (3 seeds x 3 families), the d=4 filter
