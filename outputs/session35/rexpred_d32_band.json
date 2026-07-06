@@ -1,0 +1,81 @@
+{
+ "protocol": "trackc_lift_eval frozen probes, pooled peak-region R2, test_b",
+ "jepa_pool_ln_rexpred_s0": {
+  "linear": {
+   "pooled_peak_r2": 0.9026817722626171,
+   "median_phase_lag_tc": -0.020588132944473078,
+   "iqr_phase_lag_tc": [
+    -0.052869024240582214,
+    -0.00477325627461618
+   ],
+   "n_encounters": 42
+  },
+  "mlp": {
+   "pooled_peak_r2": 0.8917073139023366,
+   "median_phase_lag_tc": -0.007705020919108113,
+   "iqr_phase_lag_tc": [
+    -0.02045474673343732,
+    0.006222557934752107
+   ],
+   "n_encounters": 42
+  }
+ },
+ "jepa_pool_ln_rexpred_s1": {
+  "linear": {
+   "pooled_peak_r2": 0.8808794566395916,
+   "median_phase_lag_tc": -0.008408601472357523,
+   "iqr_phase_lag_tc": [
+    -0.028655193007432966,
+    -0.00070743755527998
+   ],
+   "n_encounters": 42
+  },
+  "mlp": {
+   "pooled_peak_r2": 0.9065626177209982,
+   "median_phase_lag_tc": -0.004862346606244131,
+   "iqr_phase_lag_tc": [
+    -0.020469430079569202,
+    0.005815863358349532
+   ],
+   "n_encounters": 42
+  }
+ },
+ "jepa_pool_ln_rexpred_s2": {
+  "linear": {
+   "pooled_peak_r2": 0.8567596887550206,
+   "median_phase_lag_tc": -0.035889819897560314,
+   "iqr_phase_lag_tc": [
+    -0.06259401541623967,
+    -0.0005711035627194792
+   ],
+   "n_encounters": 42
+  },
+  "mlp": {
+   "pooled_peak_r2": 0.8954204348802709,
+   "median_phase_lag_tc": -0.006941418929243226,
+   "iqr_phase_lag_tc": [
+    -0.02444960529024023,
+    0.01139974360804373
+   ],
+   "n_encounters": 42
+  }
+ },
+ "band": {
+  "linear_peak_r2_per_seed": [
+   0.9026817722626171,
+   0.8808794566395916,
+   0.8567596887550206
+  ],
+  "mlp_peak_r2_per_seed": [
+   0.8917073139023366,
+   0.9065626177209982,
+   0.8954204348802709
+  ],
+  "seed_mean": 0.8801069725524098,
+  "seed_sd": 0.022970785514831202,
+  "n": 3,
+  "s0_reproduces_0p903": true,
+  "gate_threshold_cln_headline": 0.862,
+  "gate_pass_mean_above_cln": true
+ }
+}

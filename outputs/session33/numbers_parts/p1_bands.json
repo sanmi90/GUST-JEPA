@@ -1,0 +1,241 @@
+{
+ "part": "p1_bands",
+ "numbers": {
+  "p1_rexpred_d32_peak": {
+   "value": 0.8801069725524098,
+   "macro": "PoneRexpredPeak",
+   "fmt": "%.3f",
+   "seed_mean": 0.8801069725524098,
+   "seed_sd": 0.022970785514831202,
+   "n": 3,
+   "split": "test_b",
+   "note": "frozen linear probe, pooled peak-region R2"
+  },
+  "p1_rexpred_d32_gate": {
+   "value": 1.0,
+   "macro": "PoneRexpredGate",
+   "fmt": "%.0f",
+   "note": "T1 gate: band mean >= 0.862 -> PASS"
+  },
+  "p1_fk16_impact_rmse": {
+   "value": 2.251956684476706,
+   "macro": "PoneFkSixteenImpactRmse",
+   "fmt": "%.3f",
+   "seed_mean": 2.251956684476706,
+   "seed_sd": 3.1906562876943387,
+   "n": 3,
+   "split": "test_b",
+   "note": "own-stack DA grid protocol; verdict FK16-B"
+  },
+  "p1_fk16_peak_err": {
+   "value": 119.60102356266873,
+   "macro": "PoneFkSixteenPeakErr",
+   "fmt": "%.1f",
+   "seed_mean": 119.60102356266873,
+   "seed_sd": 188.05972836111508,
+   "n": 3,
+   "unit": "percent",
+   "split": "test_b"
+  },
+  "p1_cov_none": {
+   "value": 0.6992700434090823,
+   "macro": "PoneCovNone",
+   "fmt": "%.3f",
+   "seed_mean": 0.6992700434090823,
+   "seed_sd": 0.008019901314458528,
+   "n": 3,
+   "split": "test_b",
+   "note": "decoded C_L R2, latent-REX2 covariate arm"
+  },
+  "p1_cov_phase": {
+   "value": 0.7100944018705638,
+   "macro": "PoneCovPhase",
+   "fmt": "%.3f",
+   "seed_mean": 0.7100944018705638,
+   "seed_sd": 0.012856731854383976,
+   "n": 3,
+   "split": "test_b",
+   "note": "decoded C_L R2, latent-REX2 covariate arm"
+  },
+  "p1_cov_phase_gdy": {
+   "value": 0.5391563980872341,
+   "macro": "PoneCovOracle",
+   "fmt": "%.3f",
+   "seed_mean": 0.5391563980872341,
+   "seed_sd": 0.08695503449749695,
+   "n": 3,
+   "split": "test_b",
+   "note": "decoded C_L R2, latent-REX2 covariate arm"
+  },
+  "p1_cov_oracle_hurts_all_seeds": {
+   "value": 1.0,
+   "macro": "PoneCovOracleHurtsAll",
+   "fmt": "%.0f",
+   "note": "oracle<none per seed; worst oracle 0.640 vs best none 0.690"
+  },
+  "p1_rexenkf_impact": {
+   "value": 0.7636790151557348,
+   "macro": "PoneRexEnkfImpact",
+   "fmt": "%.3f",
+   "seed_mean": 0.7636790151557348,
+   "seed_sd": 0.0122180395106594,
+   "n": 5,
+   "split": "test_b",
+   "note": "member-noise seeds, band 1.77 protocol-clean"
+  },
+  "p1_stream_b177_n0p0": {
+   "value": 0.7894062277327446,
+   "macro": "PoneStreamCleanZero",
+   "fmt": "%.3f",
+   "seed_mean": 0.7894062277327446,
+   "seed_sd": 0.02284688552505978,
+   "n": 3,
+   "split": "test_b",
+   "note": "streaming, band 1.77, tap noise 0.0"
+  },
+  "p1_stream_b177_n0p05": {
+   "value": 0.7804813285879426,
+   "macro": "PoneStreamCleanFive",
+   "fmt": "%.3f",
+   "seed_mean": 0.7804813285879426,
+   "seed_sd": 0.003496771216292625,
+   "n": 3,
+   "split": "test_b",
+   "note": "streaming, band 1.77, tap noise 0.05"
+  },
+  "p1_stream_b177_n0p1": {
+   "value": 0.7489303673472073,
+   "macro": "PoneStreamCleanTen",
+   "fmt": "%.3f",
+   "seed_mean": 0.7489303673472073,
+   "seed_sd": 0.009148619474044018,
+   "n": 3,
+   "split": "test_b",
+   "note": "streaming, band 1.77, tap noise 0.1"
+  },
+  "p1_stream_b177_n0p2": {
+   "value": 0.6456751922214139,
+   "macro": "PoneStreamCleanTwenty",
+   "fmt": "%.3f",
+   "seed_mean": 0.6456751922214139,
+   "seed_sd": 0.025474467578439026,
+   "n": 3,
+   "split": "test_b",
+   "note": "streaming, band 1.77, tap noise 0.2"
+  },
+  "p1_d4_filter_impact": {
+   "value": 0.7823485958081656,
+   "macro": "PoneDFourFilterImpact",
+   "fmt": "%.3f",
+   "seed_mean": 0.7823485958081656,
+   "seed_sd": 0.007271764540821223,
+   "n": 5,
+   "split": "test_b",
+   "note": "jepa_pool_vec_d4, member-noise seeds, band 1.77"
+  },
+  "p1_lowd_fukami_wake_d4": {
+   "value": 0.7955032666757109,
+   "macro": "PoneLowdFukami",
+   "fmt": "%.3f",
+   "seed_mean": 0.7955032666757109,
+   "seed_sd": 0.05491975290333947,
+   "n": 3,
+   "split": "test_b",
+   "note": "peak-region R2, frozen linear probe, d=4"
+  },
+  "p1_lowd_jepa_clw_d4": {
+   "value": 0.9025152926516675,
+   "macro": "PoneLowdJepa",
+   "fmt": "%.3f",
+   "seed_mean": 0.9025152926516675,
+   "seed_sd": 0.03907206733683184,
+   "n": 3,
+   "split": "test_b",
+   "note": "peak-region R2, frozen linear probe, d=4"
+  },
+  "p1_lowd_aero_lift_d4": {
+   "value": 0.9100346255007183,
+   "macro": "PoneLowdAero",
+   "fmt": "%.3f",
+   "seed_mean": 0.9100346255007183,
+   "seed_sd": 0.015229218373337605,
+   "n": 3,
+   "split": "test_b",
+   "note": "peak-region R2, frozen linear probe, d=4"
+  },
+  "p1_nis_c_star": {
+   "value": 1.0,
+   "macro": "PoneNisCStar",
+   "fmt": "%.2f",
+   "split": "test_a",
+   "note": "argmin |pooled impact NIS - 1| on test_a only"
+  },
+  "p1_nis_at_c_star": {
+   "value": 0.5329755468895832,
+   "macro": "PoneNisAtCStar",
+   "fmt": "%.2f",
+   "split": "test_a"
+  },
+  "p1_rex_test_b_impact": {
+   "value": 0.6376402156035834,
+   "macro": "PoneFrozenRexImpact",
+   "fmt": "%.3f",
+   "split": "test_b",
+   "note": "frozen run at c*=1"
+  },
+  "p1_two_stage_test_b_impact": {
+   "value": 0.7307157689666979,
+   "macro": "PoneFrozenTwoStageImpact",
+   "fmt": "%.3f",
+   "split": "test_b",
+   "note": "frozen run at c*=1"
+  },
+  "p1_two_stage_relax": {
+   "value": -1.673497645862682,
+   "macro": "PoneFrozenTwoStageRelax",
+   "fmt": "%.3f",
+   "split": "test_b"
+  },
+  "p1_f20_gate": {
+   "value": 0.0,
+   "macro": "PoneFTwentyGate",
+   "fmt": "%.0f",
+   "note": "verdict F20-B; anchor reproduces=True"
+  },
+  "p1_two_stage_test_b_b177_impact": {
+   "value": 0.7937431013937294,
+   "macro": "PoneTwoStageCovImpact",
+   "fmt": "%.3f",
+   "split": "test_b",
+   "note": "coverage band 1.77, declared addendum frozen pass"
+  },
+  "p1_two_stage_test_b_b177_rmse_imp": {
+   "value": 0.2864954047152437,
+   "macro": "PoneTwoStageCovRmse",
+   "fmt": "%.3f",
+   "split": "test_b",
+   "note": "coverage band 1.77, declared addendum frozen pass"
+  },
+  "p1_two_stage_test_c_b177_impact": {
+   "value": 0.8368764019160692,
+   "macro": "PoneTwoStageCovImpactC",
+   "fmt": "%.3f",
+   "split": "test_c",
+   "note": "coverage band 1.77, declared addendum frozen pass"
+  },
+  "p1_two_stage_test_c_b177_relax": {
+   "value": 0.1201203488913033,
+   "macro": "PoneTwoStageCovRelaxC",
+   "fmt": "%.3f",
+   "split": "test_c",
+   "note": "coverage band 1.77, declared addendum frozen pass"
+  },
+  "p1_rex_test_c_b177_impact": {
+   "value": 0.7203803624902076,
+   "macro": "PoneRexCovImpactC",
+   "fmt": "%.3f",
+   "split": "test_c",
+   "note": "coverage band 1.77, declared addendum frozen pass"
+  }
+ }
+}

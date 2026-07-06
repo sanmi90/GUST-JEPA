@@ -192,6 +192,27 @@ def main() -> int:
                     f"{d['anchor_check']['reproduces']}",
         }
 
+    # ---- T5 addendum: coverage band 1.77, single declared frozen pass -----------
+    d = load(S35 / "two_stage_addendum.json")
+    if d:
+        spec = (
+            ("two_stage_test_b_b177", "impact", "PoneTwoStageCovImpact", "%.3f"),
+            ("two_stage_test_b_b177", "rmse_imp", "PoneTwoStageCovRmse", "%.3f"),
+            ("two_stage_test_c_b177", "impact", "PoneTwoStageCovImpactC", "%.3f"),
+            ("two_stage_test_c_b177", "relax", "PoneTwoStageCovRelaxC", "%.3f"),
+            ("rex_test_c_b177", "impact", "PoneRexCovImpactC", "%.3f"),
+        )
+        keymap = {"impact": "median_CL_r2_impact", "relax": "median_CL_r2_relax",
+                  "rmse_imp": "median_CL_rmse_impact"}
+        for arm, met, macro, fmt in spec:
+            a = d["arms"][arm]["aggregates"]
+            split = "test_c" if "test_c" in arm else "test_b"
+            numbers[f"p1_{arm}_{met}"] = {
+                "value": a[keymap[met]], "macro": macro, "fmt": fmt,
+                "split": split,
+                "note": "coverage band 1.77, declared addendum frozen pass",
+            }
+
     OUT.write_text(json.dumps({"part": "p1_bands", "numbers": numbers}, indent=1))
     print(f"[p1-emit] wrote {OUT.relative_to(REPO_ROOT)} with {len(numbers)} numbers")
     return 0

@@ -1,0 +1,102 @@
+{
+ "protocol": "da_dims2 own-stack grid protocol, test_b, K=8, every-frame, no noise; best recipe = min impact C_L RMSE over rex_enkf/linear_lae/eobs",
+ "rows": [
+  {
+   "model": "fukami_wake_d16_s0",
+   "best_recipe": "rex_enkf",
+   "impact_cl_rmse": 0.17988480393194406,
+   "relax_cl_rmse": 0.16756522873382215,
+   "impact_cl_r2": 0.9039463587177454,
+   "peak_rel_error_pct": 4.938774713603458,
+   "impact_ssim_nearbody": 0.3674232862092862,
+   "impact_ssim_full": 0.6757740819430416,
+   "per_recipe": {
+    "rex_enkf": {
+     "impact_cl_rmse": 0.17988480393194406,
+     "peak_rel_error_pct": 4.938774713603458
+    },
+    "linear_lae": {
+     "impact_cl_rmse": 0.21789650066542257,
+     "peak_rel_error_pct": 7.984417367624422
+    },
+    "eobs": {
+     "impact_cl_rmse": 0.1862079012314562,
+     "peak_rel_error_pct": 4.5221955054516085
+    }
+   }
+  },
+  {
+   "model": "fukami_wake_d16_s1",
+   "best_recipe": "eobs",
+   "impact_cl_rmse": 0.6497780509141242,
+   "relax_cl_rmse": 0.6160167993838084,
+   "impact_cl_r2": -0.3083722302394454,
+   "peak_rel_error_pct": 17.226518944538448,
+   "impact_ssim_nearbody": 0.2777928095755253,
+   "impact_ssim_full": 0.6234909466640062,
+   "per_recipe": {
+    "rex_enkf": {
+     "impact_cl_rmse": 0.6822725557824197,
+     "peak_rel_error_pct": 15.390279454586745
+    },
+    "linear_lae": {
+     "impact_cl_rmse": 0.6918777791125538,
+     "peak_rel_error_pct": 22.440395580060347
+    },
+    "eobs": {
+     "impact_cl_rmse": 0.6497780509141242,
+     "peak_rel_error_pct": 17.226518944538448
+    }
+   }
+  },
+  {
+   "model": "fukami_wake_d16_s2",
+   "best_recipe": "rex_enkf",
+   "impact_cl_rmse": 5.9262071985840485,
+   "relax_cl_rmse": 5.982738167853848,
+   "impact_cl_r2": -80.64518559631327,
+   "peak_rel_error_pct": 336.6377770298643,
+   "impact_ssim_nearbody": 0.354345345727195,
+   "impact_ssim_full": 0.7032761311988123,
+   "per_recipe": {
+    "rex_enkf": {
+     "impact_cl_rmse": 5.9262071985840485,
+     "peak_rel_error_pct": 336.6377770298643
+    },
+    "linear_lae": {
+     "impact_cl_rmse": 5.954413704873551,
+     "peak_rel_error_pct": 340.80968734296516
+    },
+    "eobs": {
+     "impact_cl_rmse": 5.969009662836562,
+     "peak_rel_error_pct": 335.1424362999898
+    }
+   }
+  }
+ ],
+ "impact_cl_rmse_band": {
+  "values": [
+   0.17988480393194406,
+   0.6497780509141242,
+   5.9262071985840485
+  ],
+  "seed_mean": 2.251956684476706,
+  "seed_sd": 3.1906562876943387,
+  "n": 3
+ },
+ "peak_rel_error_pct_band": {
+  "values": [
+   4.938774713603458,
+   17.226518944538448,
+   336.6377770298643
+  ],
+  "seed_mean": 119.60102356266873,
+  "seed_sd": 188.05972836111508,
+  "n": 3
+ },
+ "gate": {
+  "fk16_a_all_le_0p36_and_peak_le_15": false,
+  "fk16_b_any_gt_0p60_or_peak_gt_25_or_bimodal": true,
+  "verdict": "FK16-B"
+ }
+}

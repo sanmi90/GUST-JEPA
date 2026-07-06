@@ -10532,3 +10532,68 @@ PR 1.8-3.5), whereas kit-anchored families are uniformly estimatable. This is
 the deployment-robustness argument for Part D; the Fukami d=16 cell is real
 and must be shown honestly. OWED before any manuscript claim on that cell:
 a Fukami d=16 seed band (Session 35 P1; single seed per cell everywhere here).
+
+### D262 (SESSION35 P1: gap runs complete, all pre-registered gates resolved) (2026-07-06, Session 35)
+
+Branch session35-manuscript-v4 (off session34-trackc). Carlos's uploaded
+SESSION_35.md committed at repo root as the governing spec (wins over
+SESSION_35_MANUSCRIPT_V4.md on conflicts). P1 executed end-to-end with
+pre-registered gates (outputs/session35/p1_gates.md, committed BEFORE launch;
+two amendments, each committed before its runs). Full report
+SESSION35_REPORT.md; numbers wired into eval_all_v3 via the p1_bands part
+(554 numbers green). Outcomes:
+
+- T1 PASS: CLN-rexpred d=32 band 0.880 +- 0.023 (n=3; 0.903/0.881/0.857,
+  s0 anchor exact); above the CLN 0.862 headline, F16 stays. Advantage over
+  CLN is band-level ~+0.02, not the single-seed +0.04. New seeds graze the
+  PR floor mid-training (minima 8.2/6.4, final 10.5/10.3 vs s0 11.8).
+- T2 PASS: oracle (G,D,Y) covariates lose in ALL seeds, non-overlapping bands
+  (0.539 +- 0.087 vs none 0.699 +- 0.008). CORRECTION to R12: the
+  "phase mildly helps" leg does NOT replicate (0.710 +- 0.013 overlaps none;
+  sign flips in s1); v4 states it as a wash.
+- T3: REX-EnKF member-noise band 0.764 +- 0.012 (n=5), catastrophic = 2 in
+  every seed; 0.749 was the LOW end of its own noise. Streaming: the s0 runs
+  had inherited the TEST-PEEKED band 4.0 (rex_stream default); pre-registered
+  amendment added a protocol-clean 1.77 arm and fixed headline = 1.77
+  regardless: 0.789 +- 0.023 clean, 0.780/0.749/0.646 at 5/10/20% noise
+  (clean band is MORE noise-robust than 4.0's 0.538 at 20%). Band-4.0
+  replicates (0.829 +- 0.005 clean) confined to the disclosure appendix.
+- T4 FK16-B (decisive): Fukami d=16 impact RMSE {0.180, 0.650, 5.926}, peak
+  error {4.9, 17.2, 336.6}%. The best-in-table cell was a lucky seed. D261
+  diagnosis repeated on the new seeds and CLEAN: true-latent probes healthy
+  (0.789/0.841) while all three recipes fail identically per seed, so the
+  failure is the pressure-to-latent observation geometry. Fragility now
+  spans dimension AND training seed; s0 cell shown with its band per D5.
+- T5 F20-B, with the NIS hypothesis REFUTED mechanistically: on test_a the
+  pooled impact NIS < 1 at EVERY band (0.533 -> 0.067, band 1 -> 6) while
+  val impact R2 rises (0.569 -> 0.853). The band-4 gain is real on held-out
+  training encounters (not test overfitting) but is MODEL-ERROR COMPENSATION
+  (inflated Q offsets the REX median contraction), not calibration; extends
+  R21's two-regime story into the impact phase. Frozen NIS-band run: rex
+  0.638 / two_stage 0.731 (test_b). Anchor: band 1.77 reproduces 0.749
+  BIT-EXACTLY (single-rng threading in
+  scripts/session35/two_stage_envelope.py). Declared addendum at the
+  pre-existing coverage band 1.77 (rex_tune val calibration): two_stage
+  test_b impact 0.794 (RMSE 0.286, cat 2) BEATS rex-only 0.764 +- 0.012;
+  test_c impact 0.837, relax +0.120, ZERO catastrophic (rex: 0.720/-0.148).
+  The knob-free two-stage integration (REX + E_obs in the impact window,
+  matched transformer + tap obs outside) is the legitimate route that
+  largely closes the gap to the excluded 0.840; test_b relax stays negative
+  so the RTS deployment rule is unchanged. Both calibrations and the
+  declaration order fully disclosed in p1_gates.md.
+- T6 closed: d4 encoder bands were P0-complete; the d4 FILTER band was
+  single-seed and is now 0.782 +- 0.007 (n=5) under the identical protocol.
+- T7 skipped per locked decision D4 (default).
+
+Also landed: outputs/session35/mc_provenance.md (MC-1..MC-12, every constant
+with file:line; catches: SSIM wake mask in code is (0,4.5)x|y|<1.25 not
+[0.5,4]x1; c*=1.7675 was coverage-selected not NIS; citable proxy cosine is
+the 0.6812 macro); scripts/session35/trace_numbers.py + whitelist (P4 gate,
+318-hit worklist on the v3 tex); emit_p1_parts.py (band numbers ->
+eval_all_v3). Machinery: run_p1.sh / run_p1b.sh / run_t5.sh (two-GPU chained
+queues), rexpred_band.py, da_fk16_seeds.py, two_stage_envelope.py;
+rex2_cov.py patched for seed-suffixed checkpoints. New caches:
+outputs/session35/t5_latents (test_a + test_c jepa_pool_vec latents +
+aligned pressure). NEXT (P2/P3/P4 of SESSION_35.md): figures through
+figstyle with the new bands, Methods to the MC contract, Results A-D prose
+(D last), review_closure.md, tracer enforcement, fresh-eyes pass.

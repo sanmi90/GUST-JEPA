@@ -128,7 +128,7 @@ cache impact window mask; both frames are stated in Methods.
 - band = clip(1 - dist/0.3c, 0, 1), EDT of solid+adjacent | lift_element.py:256-283, delta_n 0.3 | nearbody_observables.py:73
 - 80-D observable: 64 = 8x4 patches x {relu(+x)^2, relu(-x)^2} log1p adaptive-avg-pooled + 16-bin Hann-windowed rfft2 radial spectrum log1p | nearbody_observables.py:110-131, :135-157, concat :160-164 (byte-matched to wake Mode C)
 - QC gate: median |lagged corr| >= 0.4, |lag| <= 25 frames, gust train only (in_train_pool and |G| > 0); achieved 0.7355 | precompute_nearbody_observables.py:94-96, :258-263 + cache manifest
-- proxy comparison: per-encounter 64-D patch-block cosine ~0.70-0.78 on the D254 sample (manifest records). DISCREPANCY NOTE: the results register carries "cosine 0.68"; the manuscript must quote the manifest values, not the remembered number
+- proxy comparison: the citable value is nb_d254_proxy_cosine = 0.6812 in outputs/session33/numbers_parts/trackc.json (macro NbProxyCosine, source "D254 comparison"); the cache manifest also records per-encounter cosines 0.70-0.78 on the D254 sample (different aggregation). Use the macro, never a remembered number
 - cite Chang (Proc. R. Soc. Lond. A 437, 1992), Menon & Mittal (J. Fluid Mech. 918, 2021)
 
 ## MC-11 Runs and uncertainty accounting [DONE]
