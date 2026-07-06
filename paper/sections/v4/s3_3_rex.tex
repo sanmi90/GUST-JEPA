@@ -7,8 +7,7 @@
 The forecast-merit comparison of \S\ref{sec:res_forecast} requires one
 operator trained identically on every family's latents; the operator used
 throughout is a direct multi-horizon quantile forecaster whose design
-transfers the deployable ingredients of the TiRex forecasting line
-\citep{tirex} without its foundation-model machinery. Each context window
+transfers the deployable ingredients of the TiRex forecasting line \citep{tirex,tirex2} without its foundation-model machinery. Each context window
 of $L$ consecutive states ($L$ drawn uniformly from $16$ to $30$ during
 training, fixed at $L = 25$ at evaluation) is normalised per window,
 $\tilde{\zvec} = \operatorname{arcsinh}\!\left((\zvec - \mu)/\sigma\right)$
