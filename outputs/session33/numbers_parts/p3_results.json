@@ -318,7 +318,7 @@
   },
   "lad_cln_rexpred_d4": {
    "value": 0.9,
-   "macro": "LadRexpredD4",
+   "macro": "LadRexpredDFour",
    "fmt": "%.3f",
    "seed_mean": 0.9,
    "seed_sd": 0.007549834435270757,
@@ -327,7 +327,7 @@
   },
   "lad_cln_rexpred_d8": {
    "value": 0.913,
-   "macro": "LadRexpredD8",
+   "macro": "LadRexpredDEight",
    "fmt": "%.3f",
    "seed_mean": 0.913,
    "seed_sd": 0.0,
@@ -336,7 +336,7 @@
   },
   "lad_cln_rexpred_d16": {
    "value": 0.875,
-   "macro": "LadRexpredD16",
+   "macro": "LadRexpredDSixteen",
    "fmt": "%.3f",
    "seed_mean": 0.875,
    "seed_sd": 0.0,
@@ -345,7 +345,7 @@
   },
   "lad_cln_rexpred_d32": {
    "value": 0.903,
-   "macro": "LadRexpredD32",
+   "macro": "LadRexpredDThirtyTwo",
    "fmt": "%.3f",
    "seed_mean": 0.903,
    "seed_sd": 0.0,
@@ -354,7 +354,7 @@
   },
   "lad_flagship_clw_d4": {
    "value": 0.9023333333333333,
-   "macro": "LadClwD4",
+   "macro": "LadClwDFour",
    "fmt": "%.3f",
    "seed_mean": 0.9023333333333333,
    "seed_sd": 0.0390683162336609,
@@ -363,7 +363,7 @@
   },
   "lad_flagship_clw_d8": {
    "value": 0.858,
-   "macro": "LadClwD8",
+   "macro": "LadClwDEight",
    "fmt": "%.3f",
    "seed_mean": 0.858,
    "seed_sd": 0.0,
@@ -372,7 +372,7 @@
   },
   "lad_flagship_clw_d16": {
    "value": 0.832,
-   "macro": "LadClwD16",
+   "macro": "LadClwDSixteen",
    "fmt": "%.3f",
    "seed_mean": 0.832,
    "seed_sd": 0.0,
@@ -381,7 +381,7 @@
   },
   "lad_flagship_clw_d32": {
    "value": 0.8406666666666666,
-   "macro": "LadClwD32",
+   "macro": "LadClwDThirtyTwo",
    "fmt": "%.3f",
    "seed_mean": 0.8406666666666666,
    "seed_sd": 0.01750238079043345,
@@ -390,7 +390,7 @@
   },
   "lad_fukami_wake_d4": {
    "value": 0.7953333333333333,
-   "macro": "LadFukamiD4",
+   "macro": "LadFukamiDFour",
    "fmt": "%.3f",
    "seed_mean": 0.7953333333333333,
    "seed_sd": 0.055193598662646864,
@@ -399,7 +399,7 @@
   },
   "lad_fukami_wake_d8": {
    "value": 0.845,
-   "macro": "LadFukamiD8",
+   "macro": "LadFukamiDEight",
    "fmt": "%.3f",
    "seed_mean": 0.845,
    "seed_sd": 0.0,
@@ -408,7 +408,7 @@
   },
   "lad_fukami_wake_d16": {
    "value": 0.843,
-   "macro": "LadFukamiD16",
+   "macro": "LadFukamiDSixteen",
    "fmt": "%.3f",
    "seed_mean": 0.843,
    "seed_sd": 0.0,
@@ -417,7 +417,7 @@
   },
   "ssimlad_full_d4": {
    "value": 0.7332368444293477,
-   "macro": "SsimLadFullD4",
+   "macro": "SsimLadFullDFour",
    "fmt": "%.3f",
    "seed_mean": 0.7332368444293477,
    "seed_sd": 0.003073810815601332,
@@ -426,7 +426,7 @@
   },
   "ssimlad_nearbody_d4": {
    "value": 0.5403386704372272,
-   "macro": "SsimLadNbD4",
+   "macro": "SsimLadNbDFour",
    "fmt": "%.3f",
    "seed_mean": 0.5403386704372272,
    "seed_sd": 0.012229897758607488,
@@ -435,7 +435,7 @@
   },
   "ssimlad_full_d8": {
    "value": 0.7578797255075963,
-   "macro": "SsimLadFullD8",
+   "macro": "SsimLadFullDEight",
    "fmt": "%.3f",
    "seed_mean": 0.7578797255075963,
    "seed_sd": 0.0,
@@ -444,7 +444,7 @@
   },
   "ssimlad_nearbody_d8": {
    "value": 0.6394252678831921,
-   "macro": "SsimLadNbD8",
+   "macro": "SsimLadNbDEight",
    "fmt": "%.3f",
    "seed_mean": 0.6394252678831921,
    "seed_sd": 0.0,
@@ -453,7 +453,7 @@
   },
   "ssimlad_full_d16": {
    "value": 0.7682113041579373,
-   "macro": "SsimLadFullD16",
+   "macro": "SsimLadFullDSixteen",
    "fmt": "%.3f",
    "seed_mean": 0.7682113041579373,
    "seed_sd": 0.0,
@@ -462,7 +462,7 @@
   },
   "ssimlad_nearbody_d16": {
    "value": 0.6574669507566985,
-   "macro": "SsimLadNbD16",
+   "macro": "SsimLadNbDSixteen",
    "fmt": "%.3f",
    "seed_mean": 0.6574669507566985,
    "seed_sd": 0.0,
@@ -471,7 +471,7 @@
   },
   "ssimlad_full_d32": {
    "value": 0.780689282419475,
-   "macro": "SsimLadFullD32",
+   "macro": "SsimLadFullDThirtyTwo",
    "fmt": "%.3f",
    "seed_mean": 0.780689282419475,
    "seed_sd": 0.0,
@@ -480,7 +480,7 @@
   },
   "ssimlad_nearbody_d32": {
    "value": 0.6765188763607228,
-   "macro": "SsimLadNbD32",
+   "macro": "SsimLadNbDThirtyTwo",
    "fmt": "%.3f",
    "seed_mean": 0.6765188763607228,
    "seed_sd": 0.0,
@@ -489,49 +489,49 @@
   },
   "pd_mlp_d4": {
    "value": 0.891,
-   "macro": "PdMlpD4",
+   "macro": "PdMlpDFour",
    "fmt": "%.2f",
    "split": "test_b"
   },
   "pd_best4_d4": {
    "value": 0.866,
-   "macro": "PdBestFourD4",
+   "macro": "PdBestFourDFour",
    "fmt": "%.2f",
    "split": "test_b"
   },
   "pd_mlp_d8": {
    "value": 0.887,
-   "macro": "PdMlpD8",
+   "macro": "PdMlpDEight",
    "fmt": "%.2f",
    "split": "test_b"
   },
   "pd_best4_d8": {
    "value": 0.663,
-   "macro": "PdBestFourD8",
+   "macro": "PdBestFourDEight",
    "fmt": "%.2f",
    "split": "test_b"
   },
   "pd_mlp_d16": {
    "value": 0.9,
-   "macro": "PdMlpD16",
+   "macro": "PdMlpDSixteen",
    "fmt": "%.2f",
    "split": "test_b"
   },
   "pd_best4_d16": {
    "value": 0.66,
-   "macro": "PdBestFourD16",
+   "macro": "PdBestFourDSixteen",
    "fmt": "%.2f",
    "split": "test_b"
   },
   "pd_mlp_d32": {
    "value": 0.883,
-   "macro": "PdMlpD32",
+   "macro": "PdMlpDThirtyTwo",
    "fmt": "%.2f",
    "split": "test_b"
   },
   "pd_best4_d32": {
    "value": 0.553,
-   "macro": "PdBestFourD32",
+   "macro": "PdBestFourDThirtyTwo",
    "fmt": "%.2f",
    "split": "test_b"
   },
@@ -868,210 +868,210 @@
   },
   "grid_pod_d4": {
    "value": 0.596408200200528,
-   "macro": "GridPodD4Rmse",
+   "macro": "GridPodDFourRmse",
    "fmt": "%.3f",
    "split": "test_b",
    "note": "best recipe eobs"
   },
   "grid_pod_d4_pk": {
    "value": 24.61791062217933,
-   "macro": "GridPodD4Pk",
+   "macro": "GridPodDFourPk",
    "fmt": "%.1f",
    "unit": "percent",
    "split": "test_b"
   },
   "grid_pod_d8": {
    "value": 0.4575502269370625,
-   "macro": "GridPodD8Rmse",
+   "macro": "GridPodDEightRmse",
    "fmt": "%.3f",
    "split": "test_b",
    "note": "best recipe rex_enkf"
   },
   "grid_pod_d8_pk": {
    "value": 10.451410915713518,
-   "macro": "GridPodD8Pk",
+   "macro": "GridPodDEightPk",
    "fmt": "%.1f",
    "unit": "percent",
    "split": "test_b"
   },
   "grid_pod_d16": {
    "value": 0.5032178621335762,
-   "macro": "GridPodD16Rmse",
+   "macro": "GridPodDSixteenRmse",
    "fmt": "%.3f",
    "split": "test_b",
    "note": "best recipe eobs"
   },
   "grid_pod_d16_pk": {
    "value": 16.056990933262533,
-   "macro": "GridPodD16Pk",
+   "macro": "GridPodDSixteenPk",
    "fmt": "%.1f",
    "unit": "percent",
    "split": "test_b"
   },
   "grid_pod_d32": {
    "value": 0.3456641503470562,
-   "macro": "GridPodD32Rmse",
+   "macro": "GridPodDThirtyTwoRmse",
    "fmt": "%.3f",
    "split": "test_b",
    "note": "best recipe eobs"
   },
   "grid_pod_d32_pk": {
    "value": 13.583850439675096,
-   "macro": "GridPodD32Pk",
+   "macro": "GridPodDThirtyTwoPk",
    "fmt": "%.1f",
    "unit": "percent",
    "split": "test_b"
   },
   "grid_fk_d4": {
    "value": 1.6201818190341966,
-   "macro": "GridFkD4Rmse",
+   "macro": "GridFkDFourRmse",
    "fmt": "%.3f",
    "split": "test_b",
    "note": "best recipe rex_enkf"
   },
   "grid_fk_d4_pk": {
    "value": 165.6706493646052,
-   "macro": "GridFkD4Pk",
+   "macro": "GridFkDFourPk",
    "fmt": "%.1f",
    "unit": "percent",
    "split": "test_b"
   },
   "grid_fk_d8": {
    "value": 0.7336101807021953,
-   "macro": "GridFkD8Rmse",
+   "macro": "GridFkDEightRmse",
    "fmt": "%.3f",
    "split": "test_b",
    "note": "best recipe eobs"
   },
   "grid_fk_d8_pk": {
    "value": 24.24093446306538,
-   "macro": "GridFkD8Pk",
+   "macro": "GridFkDEightPk",
    "fmt": "%.1f",
    "unit": "percent",
    "split": "test_b"
   },
   "grid_fk_d16": {
    "value": 0.17988480393194406,
-   "macro": "GridFkD16Rmse",
+   "macro": "GridFkDSixteenRmse",
    "fmt": "%.3f",
    "split": "test_b",
    "note": "best recipe rex_enkf"
   },
   "grid_fk_d16_pk": {
    "value": 4.938774713603458,
-   "macro": "GridFkD16Pk",
+   "macro": "GridFkDSixteenPk",
    "fmt": "%.1f",
    "unit": "percent",
    "split": "test_b"
   },
   "grid_fk_d32": {
    "value": 2.2468128543056074,
-   "macro": "GridFkD32Rmse",
+   "macro": "GridFkDThirtyTwoRmse",
    "fmt": "%.3f",
    "split": "test_b",
    "note": "best recipe linear_lae"
   },
   "grid_fk_d32_pk": {
    "value": 194.24056403756296,
-   "macro": "GridFkD32Pk",
+   "macro": "GridFkDThirtyTwoPk",
    "fmt": "%.1f",
    "unit": "percent",
    "split": "test_b"
   },
   "grid_jep_d4": {
    "value": 0.2978330674394083,
-   "macro": "GridJepD4Rmse",
+   "macro": "GridJepDFourRmse",
    "fmt": "%.3f",
    "split": "test_b",
    "note": "best recipe eobs"
   },
   "grid_jep_d4_pk": {
    "value": 14.845150742756164,
-   "macro": "GridJepD4Pk",
+   "macro": "GridJepDFourPk",
    "fmt": "%.1f",
    "unit": "percent",
    "split": "test_b"
   },
   "grid_jep_d8": {
    "value": 0.35918626357589356,
-   "macro": "GridJepD8Rmse",
+   "macro": "GridJepDEightRmse",
    "fmt": "%.3f",
    "split": "test_b",
    "note": "best recipe eobs"
   },
   "grid_jep_d8_pk": {
    "value": 11.30055638266807,
-   "macro": "GridJepD8Pk",
+   "macro": "GridJepDEightPk",
    "fmt": "%.1f",
    "unit": "percent",
    "split": "test_b"
   },
   "grid_jep_d16": {
    "value": 0.30114913703448815,
-   "macro": "GridJepD16Rmse",
+   "macro": "GridJepDSixteenRmse",
    "fmt": "%.3f",
    "split": "test_b",
    "note": "best recipe eobs"
   },
   "grid_jep_d16_pk": {
    "value": 10.309138376529235,
-   "macro": "GridJepD16Pk",
+   "macro": "GridJepDSixteenPk",
    "fmt": "%.1f",
    "unit": "percent",
    "split": "test_b"
   },
   "grid_jep_d32": {
    "value": 0.26488195704802925,
-   "macro": "GridJepD32Rmse",
+   "macro": "GridJepDThirtyTwoRmse",
    "fmt": "%.3f",
    "split": "test_b",
    "note": "best recipe eobs"
   },
   "grid_jep_d32_pk": {
    "value": 12.90322503939527,
-   "macro": "GridJepD32Pk",
+   "macro": "GridJepDThirtyTwoPk",
    "fmt": "%.1f",
    "unit": "percent",
    "split": "test_b"
   },
   "grid_rexp_d4": {
    "value": 0.444813683741734,
-   "macro": "GridRexpD4Rmse",
+   "macro": "GridRexpDFourRmse",
    "fmt": "%.3f",
    "split": "test_b",
    "note": "best recipe eobs"
   },
   "grid_rexp_d4_pk": {
    "value": 16.73700266401872,
-   "macro": "GridRexpD4Pk",
+   "macro": "GridRexpDFourPk",
    "fmt": "%.1f",
    "unit": "percent",
    "split": "test_b"
   },
   "grid_rexp_d32": {
    "value": 0.3371229408095612,
-   "macro": "GridRexpD32Rmse",
+   "macro": "GridRexpDThirtyTwoRmse",
    "fmt": "%.3f",
    "split": "test_b",
    "note": "best recipe eobs"
   },
   "grid_rexp_d32_pk": {
    "value": 11.700584451140319,
-   "macro": "GridRexpD32Pk",
+   "macro": "GridRexpDThirtyTwoPk",
    "fmt": "%.1f",
    "unit": "percent",
    "split": "test_b"
   },
   "grid_kitae_d32": {
    "value": 0.4113043780496755,
-   "macro": "GridKitAeD32Rmse",
+   "macro": "GridKitAeDThirtyTwoRmse",
    "fmt": "%.3f",
    "split": "test_b",
    "note": "best recipe eobs"
   },
   "grid_kitae_d32_pk": {
    "value": 9.561432626423098,
-   "macro": "GridKitAeD32Pk",
+   "macro": "GridKitAeDThirtyTwoPk",
    "fmt": "%.1f",
    "unit": "percent",
    "split": "test_b"

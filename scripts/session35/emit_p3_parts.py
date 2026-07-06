@@ -27,6 +27,13 @@ OUT = REPO / "outputs/session33/numbers_parts/p3_results.json"
 
 N: dict = {}
 
+DWORD = {"4": "Four", "8": "Eight", "16": "Sixteen", "32": "ThirtyTwo"}
+
+
+def dword(s: str) -> str:
+    return DWORD[str(s)]
+
+
 
 def add(key, value, macro, fmt="%.3f", **kw):
     N[key] = {"value": float(value), "macro": macro, "fmt": fmt, **kw}
@@ -102,7 +109,7 @@ def main() -> int:
                 continue
             vals = blob["lin"]
             bb = band(vals)
-            add(f"lad_{fam}_{d}", bb["seed_mean"], f"Lad{tag}D{d[1:]}",
+            add(f"lad_{fam}_{d}", bb["seed_mean"], f"Lad{tag}D{dword(d[1:])}",
                 "%.3f", **bb, split="test_b")
     ssim = json.loads((S34 / "cln_rexpred_ssim_ladder.json").read_text())
     for d, blob in ssim.items():
@@ -113,12 +120,12 @@ def main() -> int:
             vals = v if isinstance(v, list) else [v]
             bb = band(vals)
             add(f"ssimlad_{mkey}_{d}", bb["seed_mean"],
-                f"SsimLad{mtag}D{d[1:]}", "%.3f", **bb, split="test_b")
+                f"SsimLad{mtag}D{dword(d[1:])}", "%.3f", **bb, split="test_b")
     pd_ = json.loads((S34 / "probe_dilution_test.json").read_text())["results"]
     for d, blob in pd_.items():
-        add(f"pd_mlp_d{d}", blob["mlp_test"], f"PdMlpD{d}", "%.2f",
+        add(f"pd_mlp_d{d}", blob["mlp_test"], f"PdMlpD{dword(d)}", "%.2f",
             split="test_b")
-        add(f"pd_best4_d{d}", blob["best4_lin"], f"PdBestFourD{d}", "%.2f",
+        add(f"pd_best4_d{d}", blob["best4_lin"], f"PdBestFourD{dword(d)}", "%.2f",
             split="test_b")
 
     # ---- C. shared-REX family bands (n = 3 each) + 40-step contrast -----------
@@ -179,10 +186,10 @@ def main() -> int:
     for g in grid:
         t = fam_tag[g["family"]]
         add(f"grid_{t}_d{g['d']}".lower(), g["impact_cl_rmse"],
-            f"Grid{t}D{g['d']}Rmse", "%.3f", split="test_b",
+            f"Grid{t}D{dword(g['d'])}Rmse", "%.3f", split="test_b",
             note=f"best recipe {g['best_recipe']}")
         add(f"grid_{t}_d{g['d']}_pk".lower(), g["peak_rel_error_pct"],
-            f"Grid{t}D{g['d']}Pk", "%.1f", unit="percent", split="test_b")
+            f"Grid{t}D{dword(g['d'])}Pk", "%.1f", unit="percent", split="test_b")
 
     OUT.write_text(json.dumps({"part": "p3_results", "numbers": N}, indent=1))
     print(f"[p3-emit] wrote {OUT.relative_to(REPO)} with {len(N)} numbers")
