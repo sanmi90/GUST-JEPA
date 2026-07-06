@@ -1,42 +1,43 @@
-% Conclusions, v3. Short, in the idiom of the reference papers' "Concluding
-% remarks": the question, the division of labour, the filter + envelope, the
-% delay-coordinate reading, three bounding facts. Numbers are macros_v3 macros.
+% Conclusions, v4 (Session 35). Softer opener per the v4 review (quote error
+% and R2 together), the four-part arc, the calibrated-Q partial fix as
+% delivered, honest bounding facts. Numbers are macros.
 
-We asked which reduced-order state a sequential wall-pressure estimator can
-track through an extreme vortex-gust encounter, and reached a design rule with a
-division of labour and a working demonstration. On a pooled coefficient latent
-at matched dimension, observable supervision on the wake supplies both the
-instantaneous readability of the wake and an anisotropic latent geometry whose
-low-variance directions the forward rollout avoids, so a supervised state stays
-in distribution under prediction where an anti-collapse regulariser on a bare
-reconstruction, which is near-isotropic, does not; the multi-step predictive
-objective supplies the long-horizon, retrain-robust rollout stability that a
-single-step objective and an objective-free supervised encoder both lack. On
-this state we built a leakage-free ensemble Kalman filter that senses eight
-wall-pressure taps and never observes the vorticity field: it tracks the lift
-through the encounter, from an analysis closure of $\VfiltCLGOne$ to
-$\VfiltCLGFour$ for gust ratios of unity and above, where every static inverse,
-via any latent or straight from the full wall array, falls below the mean
-predictor by a ratio of three. Run identically on each family, the filter
-tracks the load through any nonlinear latent and fails only on the linear
-basis, so the extension of the envelope belongs to sequential estimation on a
-nonlinear state; what belongs to the wake-supervised predictive state is the
-boundary of that envelope, the calibration margin, and a tracked state that
-carries the wake at all. The recovery is a delay-coordinate
-reconstruction: the encounter is low-dimensional, so a few wall taps read over a
-short window place the state, one tap over a thirty-frame window matching eight
-taps at an instant in the static reconstruction, and the wake circulation the
-instantaneous pressure cannot see is recovered through the window, while the
-envelope closes where the strengthening gust raises the encounter's effective
-dimension beyond what a fixed sensing budget can embed. The predictive
-coefficient state carries the most wall-recoverable physics of the three
-families we compared, though the reconstructive latent is the most recoverable
-in raw variance, a separation of energy from information at the wall. Three
-facts bound the result: the coefficient state's recoverability advantage over a
-raw field latent is modest, the filter is under-dispersed at the strongest gusts
-and needs a calibrated noise model rather than inflation, and the mid-plane
-representation reaches a three-dimensional observability boundary at the highest
-gust strength. What the paper establishes is a wall-estimable, forward-usable
-reduced state and the ingredients that produce it, together with a filter that
-demonstrates the state in the deployment the extreme-aerodynamic control
-literature has been pointing toward.
+We asked what it takes to build, compress, advance and recover a reduced state
+of an extreme vortex-gust encounter from wall pressure alone, and the answer
+has four parts with a mechanism each. Building: under a predictive objective a
+scalar lift anchor is what keeps the latent alive, a physics-constructed
+near-body force-element head is the one conditioning that sharpens the peak
+loads on top of it (peak-region $R^2$ of \TcPeakRTwoCLN{} across three seeds),
+and the wake head carries the wake state; the anchor claim is about latent
+health, the accuracy claim about a pre-registered increment, and they fail
+independently. Compressing: lift information is dimension-invariant and
+linearly accessible at four coefficients while the wake state needs sixteen,
+so the honest compression statement is two-tier, compact and linear for the
+load, distributed for the wake. Advancing: a direct multi-horizon quantile
+forecaster stays usable over forty steps where autoregressive rollout
+compounds, and an oracle for the true gust parameters makes the forecast
+worse, so the deployable route to the encounter is model plus pressure, not
+parameters. Estimating: a leakage-free ensemble filter family sensing eight
+taps tracks the load through the encounter phase by phase and in physical
+units, an impact-phase analysis $R^2$ of \PoneTwoStageCovImpact{} at a
+root-mean-square error of \PoneTwoStageCovRmse{} lift units in distribution
+and \PoneTwoStageCovImpactC{} at the strongest held-out gusts with no
+divergences, delivered by a knob-free two-stage schedule rather than by noise
+inflation; the innovation-consistency route to a larger noise band is refuted
+on held-out training encounters, which separates what was calibration at
+impact, now fixed by the state-dependent noise, from what is model error in
+relaxation, where a fixed-lag smoother at a quarter convective time of latency
+is the working answer. Across the design axis the predictive states are
+uniformly wall-estimatable, where the reconstructive geometry fails
+unpredictably with dimension and with training seed for a verified
+observation-side reason, and this robustness, not any single cell, is the
+deployment argument. Three facts bound the result: the in-distribution impact
+median of the best filter does not beat a static delay-embedded inverse, whose
+case fails instead in the tails and at the extrapolation boundary; the wake
+enstrophy remains beyond any wall-limited filter of this flow, a sensing-
+geometry bound rather than a state deficiency; and the mid-plane
+representation reaches a three-dimensional observability boundary at the
+highest gust strength. What the paper establishes is a lift-anchored,
+wall-estimable reduced state, the supervision that produces it, and a filter
+family whose failure modes are each attributed to calibration, to model error
+or to sensing geometry rather than left unexplained.

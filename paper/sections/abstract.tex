@@ -1,34 +1,30 @@
-% Abstract, v3 (Session 33 / D238-D245). One physics question (which reduced
-% state can a wall-pressure estimator track), the division-of-labour attribution,
-% the filter + operating envelope as the operational claim, the delay-coordinate
-% sentence, honest limits. ~250 words (must not spill to p.2). Numbers are
-% macros_v3 macros. No em-dashes; ends on a fact; no future work.
+% Abstract, v4 (Session 35). Four-part arc per SESSION_35.md section 6:
+% construct / reconstruct-compress / advance / estimate, estimation-thesis
+% close, honest boundaries. Numbers are macros. No em-dashes; ends on a fact.
 
 Extreme vortex-gust encounters of a post-stall airfoil are wake-reorganisation
 events: the transient load is the surface signature of leading-edge-vortex
 roll-up and shedding, and the release parameters alone do not fix the wake once
-the gust has passed. A reduced-order model of such an encounter is useful in
-deployment only if its state can be recovered from the sensors actually
-available, the wall pressure, and advanced without leaving the region on which
-that recovery was calibrated. Using direct numerical simulations of a NACA~0012
-airfoil at $\alpha = 14^\circ$ and $\vRe = 5000$, perturbed by Taylor vortices
-spanning gust strength, core diameter and wall-normal offset, we ask which
-reduced coefficient state a sequential wall-pressure estimator can track through
-the encounter. At fixed dimension, under one shared probe and predictor, we
-compare a wake-supervised predictive joint-embedding state, a reconstructive
-autoencoder in the Fukami-Taira lineage and a
-proper orthogonal decomposition basis, with matched controls separating
-objective from supervision. We find a division of labour: the supervision
-supplies the wake's instantaneous readability and an anisotropic latent geometry
-the forward rollout respects, while the multi-step predictive objective supplies
-long-horizon rollout stability. A leakage-free ensemble Kalman
-filter sensing eight wall-pressure taps tracks the lift (analysis $R^2$ of $\VfiltCLGOne$ to $\VfiltCLGFour$ for gust ratios of unity
-and above) where every static inverse fails by a gust ratio of three; run
-identically on each family, the filter tracks the load through any nonlinear
-latent, and the predictive state is distinguished at the
-strongest gusts, in calibration, and in carrying a wake-readable state. One tap
-read over a thirty-frame window recovers the state as well as eight taps at an
-instant, a trade read through the delay-embedding theorem, and the envelope
-closes where the strengthening gust drives the interaction three-dimensional.
-The filter is under-dispersed at the strongest gusts, where a calibrated noise
-model, rather than more sensors, is the outstanding requirement.
+the gust has passed. We treat the encounter as a state-estimation problem, and
+ask what it takes to build, compress, advance and recover a reduced coefficient
+state from the only sensors a wing carries, its wall pressure. Using direct
+numerical simulations of a NACA~0012 airfoil at $\alpha = 14^\circ$ and
+$\vRe = 5000$, perturbed by Taylor vortices spanning gust strength, core
+diameter and offset, a supervision cube over three aerodynamic heads shows that
+a scalar lift anchor is load-bearing for predictive latent health, a
+physics-constructed near-body force-element head sharpens the peak loads on top
+of it (peak-region $R^2$ of \TcPeakRTwoCLN{} over three seeds), and a wake head
+carries the wake state. Lift information is dimension-invariant down to four
+coefficients, where it is linearly accessible; the wake state is not
+compressible below sixteen. A direct multi-horizon quantile forecaster advances
+the state where autoregressive rollout compounds, and knowing the true gust
+parameters degrades the forecast. A leakage-free ensemble filter family sensing
+eight taps then tracks the loads through the encounter, phase-resolved and in
+physical units: a knob-free two-stage filter reaches an impact-phase analysis
+$R^2$ of \PoneTwoStageCovImpact{} in distribution and \PoneTwoStageCovImpactC{}
+at the strongest held-out gusts with no divergences, innovation-consistency
+calibration of the forecast-derived noise is refuted in favour of a model-error
+reading, and the predictive states remain uniformly estimatable across the
+dimension axis where the reconstructive geometry fails unpredictably with
+dimension and training seed. The wake enstrophy stays beyond any wall-limited
+filter of this flow, a bound set by the sensing geometry rather than the state.

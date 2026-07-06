@@ -120,35 +120,38 @@ accurately. Instead, it asks which representation supplies a reduced
 aerodynamic state that can be forecast, decoded and estimated in a form
 relevant to future gust-mitigation systems.
 
-The paper makes three contributions. First, we pose the extreme vortex-gust
-encounter as a predictive-state estimation problem and fix its endpoints in
-advance: the reduced state must carry the post-impact wake response, summarised
-by the wake enstrophy and complementary flow diagnostics that scalar force
-histories alone can miss, and it must be recoverable from wall pressure and
-advanced by a forward model without leaving the region on which that recovery
-was fitted. Second, we separate the ingredients of such a state with matched
-controls, and reach a division of labour. Observable supervision on the wake
-supplies both its instantaneous readability and an anisotropic latent geometry
-into which the forward rollout settles, where an anti-collapse regulariser
-applied to a bare reconstruction leaves the latent near-isotropic and its
-rollout departs along low-variance directions; the multi-step predictive
-objective supplies the long-horizon rollout stability that neither a
-single-step objective nor an objective-free supervised encoder provides. Latent
-drift is the mechanism through which an apparently accurate reconstructive
-state loses this physics over the rollout. Third, we demonstrate the state in a
-leakage-free sequential filter that senses only wall pressure and never
-observes the vorticity field, and we map the gust-intensity envelope over which
-it holds. The filter tracks the transient load through the encounter and
-extends the usable gust range beyond what any static inverse achieves, and a
-delay-coordinate reading explains why: the encounter is low-dimensional, so a
-short window of pressure reconstructs the state a single frame cannot, and the
-envelope closes where the strengthening gust drives the interaction
-three-dimensional and its effective dimension outruns a fixed sensing budget.
-We are explicit about the limits: run identically on every family, the filter
-tracks the load through any nonlinear latent, and the predictive state's
-distinctions are the strongest gusts, the calibration margin, and the wake
-content of the tracked state; its recoverability margin over a raw field latent
-is modest; and the filter is under-dispersed at the strongest gusts. This study investigates a fluid-mechanics question through a learning
+The paper makes four contributions, one per stage of the estimation
+problem. First, we settle what constructs the state: a supervision cube
+over three aerodynamic heads, three seeds per cell under pre-registered
+gates, shows that a scalar lift anchor is load-bearing for predictive
+latent health, that a near-body force-element head constructed from the
+Chang decomposition sharpens the peak loads on top of it, and that the
+wake head carries the wake state; the division of labour replaces the
+single wake-supervision attribution of our earlier framing. Second, we
+give the compression its honest form: lift information is
+dimension-invariant and linearly accessible at four coefficients while
+the wake state is distributed and needs sixteen, a two-tier statement in
+which linear-probe readability is a readout property, not an information
+property. Third, we make the family forecast comparison operator-robust
+with one direct multi-horizon forecaster trained identically on every
+latent, and show that autoregressive compounding, not the state, is the
+rollout failure mode, and that conditioning on the true gust parameters
+degrades the forecast. Fourth, we demonstrate the state in a leakage-free
+sequential filter family, leakage-free meaning that the quantities the
+paper scores, the lift and wake probes, can never enter the filter's
+innovation, which senses only wall pressure; we evaluate it
+phase-resolved and in physical units across the gust-intensity envelope,
+attribute its impact-side under-dispersion to calibration and fix it with
+a forecast-derived state-dependent noise, attribute its relaxation error
+to forecast contraction and address that with a fixed-lag smoother, and
+show the predictive states uniformly wall-estimatable across the
+dimension axis where the reconstructive geometry fails unpredictably.
+We are explicit about the limits: the best filter's in-distribution
+impact median does not beat a static delay-embedded inverse, whose case
+fails instead in the tails and at the $|G| = 4$ boundary; the wake
+enstrophy remains beyond any wall-limited filter of this flow; and the
+mid-plane representation reaches a three-dimensional observability
+boundary at the strongest gusts. This study investigates a fluid-mechanics question through a learning
 architecture: what kind of reduced state can carry the wake dynamics of an
 extreme gust encounter while remaining estimable from the wall and predictive
 enough to serve as a future plant model?
