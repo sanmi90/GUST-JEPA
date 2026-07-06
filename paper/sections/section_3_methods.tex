@@ -86,12 +86,16 @@ automatic fall-back to a variance-covariance objective \citep{vicreg} should the
 participation ratio of the latent indicate collapse. Its configuration is given
 in Appendix~\ref{app:reg}.
 
-Two auxiliary heads read aerodynamic observables off the encoder output during
-training: a lift head that maps $\zvec_t$ to $C_L(t)$, and a wake head that maps
-$\zvec_t$ to an $80$-dimensional signed wake spectrum, both trained with small
-weights jointly with the representation and neither part of the latent-prediction
-loss. These heads are adopted from the observable-augmentation
-lineage \citep{fukami2023,fukami2025}. The wake target itself is a fixed
+Three auxiliary heads read aerodynamic observables off the encoder output during
+training: a lift head that maps $\zvec_t$ to $C_L(t)$, a wake head that maps
+$\zvec_t$ to an $80$-dimensional signed wake spectrum, and a near-body head,
+constructed in \S\ref{sec:methods_chang} below, that maps $\zvec_t$ to an
+$80$-dimensional lift-element observable of byte-matched capacity. All are
+trained with small weights jointly with the representation and none is part of
+the latent-prediction loss. The scalar-lift lineage is the observable
+augmentation of \citet{fukami2023,fukami2025}; which head buys which property
+of the state is the subject of the conditioning study of
+\S\ref{sec:res_construction}. The wake target itself is a fixed
 descriptor chosen by design rather than tuned: it pairs a coarse signed spatial
 pooling of the wake region, which retains the layout of the alternating positive
 and negative vortices while discarding pixel-level detail, the spatial-pyramid
@@ -106,13 +110,12 @@ been applied to turbulent flow fields precisely to recover geometry that the
 power spectrum alone cannot resolve \citep{skinner2025characterizing}. We keep
 the descriptor compact, at $80$ dimensions, so that it constrains the wake
 structure without over-parameterising the target on the available training
-encounters. They are also, however, the reason the
-present predictive encoder is not a clean isolation of the training objective:
-the reconstructive baseline below carries a lift head but not a wake head, and
-the two encoders differ in architecture as well. The headline comparison is
-therefore between encoder \emph{families} as configured, and the controls of
-\S\ref{sec:res_controls} separate the objective from the architecture and the wake
-supervision.
+encounters. The head-supervision axis is no longer a confound: the
+$2 \times 2 \times 2$ conditioning cube of \S\ref{sec:res_construction},
+three seeds per cell with matched reconstructive anchors, isolates each
+head's contribution under pre-registered gates.
+
+\input{sections/v4/s3_1_chang_head.tex}
 
 \begin{figure}
   \centering
@@ -147,7 +150,6 @@ supervision.
 \end{figure}
 
 \subsection{Matched-predictor closure protocol}
-\label{sec:methods_protocol}
 \label{sec:methods_closure}
 
 The comparison rests on a single principle: every baseline is the same
@@ -179,7 +181,13 @@ activations and group normalisation rather than the strict published variant
 comparison is therefore against a tuned baseline, not a hobbled one. The
 observable heads are pinned to the same current-frame form for every family, so
 no family gains an accidental advantage from a differently-shaped supervision
-signal.
+signal. The transformer-or-U-Net split above is retained as the
+legacy suited-operator protocol; the primary forecast-merit comparison of
+\S\ref{sec:res_forecast} uses one further operator, trained identically on
+every family's latents, so the family ordering cannot be an artefact of
+operator choice.
+
+\input{sections/v4/s3_3_rex.tex}
 
 The headline figure of merit is representational closure: a fixed linear probe is
 applied to the latent encoded directly from a held-out field, and we ask whether it
@@ -198,70 +206,7 @@ table~\ref{tab:closure}, which reports the readability and the matched-predictor
 We do not headline a forecast-$R^2$-versus-horizon curve; the rollout is reported to
 show that the latent stays usable, not as a validated forecast.
 
-\subsection{The predict-correct estimator}
-\label{sec:methods_estimator}
-
-At deployment the vorticity field is unavailable and the wall pressure is not, by
-itself, enough to fix the state: a single pressure frame recovers little of the
-wake through any of the latents (\S\ref{sec:res_wall}). The reason a single frame
-is not enough, and a window is, is a statement about the dynamics rather than
-about the number of sensors. The encounter lies on an attractor of low effective
-dimension, a limit cycle with a gust excursion and a relaxation, into which the
-encoded latent concentrates its variance (\S\ref{sec:res_latent_physics}). By the
-delay-embedding theorem \citep{takens1981,sauer1991}, a generic observation of
-such a system, read over a window of delays, reconstructs its state up to a
-diffeomorphism, and with $K$ simultaneous taps over $m$ delays the reconstruction
-is generic once the product $mK$ exceeds twice the attractor dimension. Because
-that dimension is small, a handful of taps over a modest window suffices, and the
-delay window can substitute for sensor count, a trade we quantify in
-\S\ref{sec:res_wall}. A coordinate the instantaneous pressure misses, the wake
-circulation, is still reconstructed by the window provided it is dynamically
-coupled to what the pressure sees, which for the coupled vortex dynamics it is. The
-estimator must therefore be sequential, accumulating pressure innovations through
-the learned dynamics, which is the setting of data assimilation.
-
-We use an ensemble Kalman filter \citep{evensen1994,evensen2003} in the latent
-space. An ensemble of $N = \FilterMembers$ members is advanced one step at a time
-by the matched autoregressive transformer fitted once on the frozen training
-trajectories (\S\ref{sec:methods_protocol}), the forecast step, and corrected against
-$K = \FilterTaps$ span-averaged wall-pressure taps through a frozen observation
-operator $h : \zvec \mapsto p_K$, the analysis step. The observation operator maps
-the latent to pressure only. The physical observables the paper cares about, the
-lift and the wake enstrophy, are read from the state by the same frozen probes
-used throughout and can never enter the innovation; this leakage guarantee is
-enforced by construction and by a unit test, so the reported analysis closure of
-the load and the wake is a genuine estimate, not a quantity the filter was given.
-The taps are placed by a model-conditioned criterion that selects, per family, the
-taps that best expose that family's own latent. The filter is initialised, field
-free, from a windowed pressure-to-latent regressor, and its ensemble spread from
-that regressor's residual covariance, so no encoded truth is used at inference.
-Process noise is calibrated from the predictor's one-step residuals; a
-multiplicative inflation was selected on the validation split alone and then
-frozen, and it selected no inflation, because the filter is under-dispersed rather
-than over-dispersed and added inflation would hurt. All tuning is frozen before
-any test encounter is seen. Each encounter is assimilated over the window from
-$\AssimPre$ frames before impact to $\AssimPost$ frames after it. The baselines,
-all read through the same probes, are the open-loop rollout with no correction, a
-sliding-window pressure-only regression with no dynamics, and a model-free
-parameter floor in which the gust parameters are given, used diagnostically only,
-the model never seeing them.
-
-\begin{figure}
-  \centering
-  \includegraphics[width=0.92\linewidth]{sections/figures/tikz/fig_estimation_loop.pdf}
-  \caption{The leakage-free predict-correct estimator in the latent space. An
-  ensemble of $\FilterMembers$ members is advanced field free by the matched
-  autoregressive transformer (predict), then corrected from $\FilterTaps$ span
-  averaged wall-pressure taps through the frozen observation operator
-  $\mathcal{H}$ (correct); the innovation is the difference between the measured
-  taps and the taps predicted from the forecast state. No vorticity field enters
-  the loop and the lift and wake probes never enter the innovation, so the
-  analysis closure is a genuine estimate. The state is the same $\LatentDim$
-  vector at every step.}
-  \label{fig:estimation_loop}
-\end{figure}
-
-\input{sections/tables/table_enkf.tex}
+\input{sections/v4/s3_4_estimators.tex}
 
 The mixed timescales of this estimator, a transition map trained on sequences and
 an emission map trained per instant, mirror the structure of the training
@@ -324,3 +269,5 @@ data split: a $2000$-resample bootstrap over the held-out encounters, the standa
 deviation across three encoder retrains from independent seeds, and a five-fold
 cross-validation over cases on the probe read-out. Their full specification is in
 Appendix~\ref{app:reg}.
+
+\input{sections/v4/s3_5_protocol.tex}

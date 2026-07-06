@@ -7,6 +7,28 @@
 
 \subsection{Estimating the state from the wall}
 \label{sec:methods_estimators}
+\label{sec:methods_estimator}
+
+At deployment the vorticity field is unavailable and the wall pressure is
+not, by itself, enough to fix the state: a single pressure frame recovers
+little of the wake through any of the latents (\S\ref{sec:res_wall}). The
+reason a single frame is not enough, and a window is, is a statement about
+the dynamics rather than about the number of sensors. The encounter lies
+on an attractor of low effective dimension, a limit cycle with a gust
+excursion and a relaxation, into which the encoded latent concentrates its
+variance (\S\ref{sec:res_latent_physics}). By the delay-embedding theorem
+\citep{takens1981,sauer1991}, a generic observation of such a system, read
+over a window of delays, reconstructs its state up to a diffeomorphism,
+and with $K$ simultaneous taps over $m$ delays the reconstruction is
+generic once the product $mK$ exceeds twice the attractor dimension.
+Because that dimension is small, a handful of taps over a modest window
+suffices, and the delay window can substitute for sensor count, a trade
+quantified in \S\ref{sec:res_wall}. A coordinate the instantaneous
+pressure misses, the wake circulation, is still reconstructed by the
+window provided it is dynamically coupled to what the pressure sees, which
+for the coupled vortex dynamics it is. The estimator must therefore be
+sequential, accumulating pressure innovations through learned dynamics,
+which is the setting of data assimilation.
 
 Every estimator in this paper solves the same discrete state-estimation
 problem on the frozen coefficient state. Writing $\zvec_t \in
@@ -25,7 +47,11 @@ problem on the frozen coefficient state. Writing $\zvec_t \in
 \end{equation}
 defines each member of the suite once its four ingredients $(F, h, Q_t, R)$
 are named; the remainder of this subsection does exactly that, and
-table~\ref{tab:filter_params} collects every parameter. Two evaluation
+table~\ref{tab:filter_params} collects every parameter. The frozen probes
+that read the lift and the wake enstrophy off the state can never enter
+the innovation: this leakage guarantee is enforced by construction and by
+a unit test, so the reported analysis closure is a genuine estimate, not a
+quantity the filter was given (figure~\ref{fig:estimation_loop}). Two evaluation
 frames are used and always stated. The envelope frame assimilates over
 $[t_{\mathrm{imp}} - 24,\, t_{\mathrm{imp}} + 48]$ frames with a field-free
 initialisation at the window start; the ladder frame runs the full
@@ -150,6 +176,24 @@ members with the matched transformer and assimilates in tap space through
 the linear map of \S\ref{sec:methods_enkf}; the schedule boundary is the
 frozen impact-window mask of the cache and is not tuned.
 
+\begin{figure}
+  \centering
+  \includegraphics[width=0.92\linewidth]{sections/figures/tikz/fig_estimation_loop.pdf}
+  \caption{The leakage-free predict-correct estimator in the latent space.
+  An ensemble of $\FilterMembers$ members is advanced field free (predict),
+  then corrected from $\FilterTaps$ span-averaged wall-pressure taps
+  (correct); the innovation is the difference between the measured
+  observation and the observation predicted from the forecast state, in
+  tap space for the base filter of \S\ref{sec:methods_enkf} and in encoded
+  latent space for the filters of \S\ref{sec:methods_lae} and
+  \S\ref{sec:methods_rexenkf}. No vorticity field enters the loop and the
+  lift and wake probes never enter the innovation. The state is the same
+  $\LatentDim$-vector at every step.}
+  \label{fig:estimation_loop}
+\end{figure}
+
+\input{sections/tables/table_enkf.tex}
+
 \subsubsection{Fixed-lag smoother}
 \label{sec:methods_rts}
 
@@ -184,7 +228,7 @@ composite score that rewards explained-variance gain and penalises the
 residual. The staircase is nested by construction, each budget warm-starts
 from the previous selection, so the $K = 16$ array contains the $K = 8$
 array. The shared target-blind reference array is the column-pivoted QR
-(qDEIM) selection of \citet{drmac2016} on the leading pressure modes. Which
+(qDEIM) selection of \citet{drmac2016qdeim} on the leading pressure modes. Which
 placement a given figure uses is stated in its caption.
 
 \begin{table}
