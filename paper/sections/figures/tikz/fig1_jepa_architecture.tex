@@ -45,8 +45,8 @@
   \node[state, below=12mm of enc] (zt) {$\mathbf{z}_t \in \mathbb{R}^{d}$};
   \node[predictor, below=12mm of zt] (pred)
     {\textbf{Predictor} $P_{\phi}$ (unconditional) \\[2pt]
-     AR transformer (6 layers, hidden 384) \\[1pt]
-     RoPE on $Q,K$, causal mask};
+     AR transformer (6 layers, hidden 384, RoPE) \\[1pt]
+     \emph{or} direct REX (quantile LSTM, $h = 512$)};
   \node[state, below=12mm of pred] (zhat) {$\widehat{\mathbf{z}}_{t+\Delta t}$};
   \node[decoder, below=16mm of zhat] (dec)
     {\textbf{Visualization decoder} $D_{\psi}$ \\[2pt]
@@ -62,15 +62,32 @@
   \draw[arr, dashed] (zhat) -- (dec);
   \draw[arr, dashed] (dec)  -- (xhat);
 
+  % ===== supervision heads (training only), branching off z_t =====
+  % West-anchored so the differing box widths never protrude toward the
+  % spine; the stack sits fully clear of the predictor's right edge.
+  \node[obs, anchor=west, minimum height=9mm] (headL)
+    at ($(zt.east)+(11mm,14mm)$) {$L$ : scalar lift $\rightarrow C_L(t)$};
+  \node[obs, anchor=west, minimum height=9mm] (headW)
+    at ($(zt.east)+(11mm,2mm)$) {$W$ : wake observable ($80$-D)};
+  \node[obs, anchor=west, minimum height=9mm] (headN)
+    at ($(zt.east)+(11mm,-10mm)$) {$N$ : Chang lift-element ($80$-D)};
+  \node[align=center, font=\footnotesize\itshape, text width=42mm,
+        below=10mm of headN.south east, anchor=north east]
+    (headnote) {smooth L1, weight 1.0; training only, \\
+                never in the loss on $\mathbf{z}$ prediction};
+  \draw[arr] (zt.east) -- ++(5mm,0) |- (headL.west);
+  \draw[arr] (zt.east) -- ++(5mm,0) |- (headW.west);
+  \draw[arr] (zt.east) -- ++(5mm,0) |- (headN.west);
+
   % ===== unconditional predictor: no gust parameters enter the model =====
   \node[align=center, font=\footnotesize\itshape, text width=34mm,
-        right=22mm of pred] (c)
+        below=6mm of headnote] (c)
     {No gust parameters: \\ encoder and predictor \\ are both unconditional};
 
   % ===== background frames =====
   \begin{scope}[on background layer]
     \node[draw=blue!30, rounded corners=4pt, dashed, inner sep=6mm,
-          fit=(input)(enc)(zt)(pred)(zhat)(c),
+          fit=(input)(enc)(zt)(pred)(zhat)(c)(headL)(headnote),
           label={[blue!50!black,font=\small]above:JEPA training stage}] {};
     \node[draw=gray!50, rounded corners=4pt, dashed, inner sep=4mm,
           fit=(dec)(xhat),

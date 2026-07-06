@@ -21,7 +21,7 @@ with $\mathbf{e}_L = (-\sin\alpha, \cos\alpha)$ the lift direction at
 $\alpha = 14^\circ$. Equation~\eqref{eq:phiL} is discretised once on the
 $192 \times 96$ cache grid with a staircase immersed Neumann condition on
 the solid-adjacent cell faces and a homogeneous Dirichlet far field, and
-solved directly; the interior Laplacian residual of the stored solution is
+solved directly (figure~\ref{fig:phi}); the interior Laplacian residual of the stored solution is
 $6.4 \times 10^{-13}$ in the maximum norm. The lift-element density is
 then the pointwise field
 \begin{equation}
@@ -53,3 +53,14 @@ to exceed $0.4$; the achieved value is \NbQcMedianCorr. The principled
 weighting is not interchangeable with a plain vorticity-magnitude proxy:
 the patch-block cosine between the two targets is \NbProxyCosine{} on the
 comparison sample.
+
+\begin{figure}
+  \centering
+  \includegraphics[width=0.92\linewidth]{sections/figures/results/fig_phi_panel_v4.pdf}
+  \caption{The Chang auxiliary potential $\phi_L$ of
+  equation~\eqref{eq:phiL} on the cache grid (contours), the feathered
+  $\delta_n = 0.3c$ supervision band (dashed) and the airfoil footprint;
+  the inset shows the lift direction $\mathbf{e}_L$ against the inclined
+  freestream at $\alpha = 14^\circ$.}
+  \label{fig:phi}
+\end{figure}

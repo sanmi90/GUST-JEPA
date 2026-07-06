@@ -135,11 +135,13 @@ head's contribution under pre-registered gates.
   \caption{The predictive model and how it is evaluated, drawn schematically
   (the training predictor is the vector transformer of
   table~\ref{tab:architecture}). (a) The encoder maps the mid-plane vorticity
-  field to a latent $\zvec_t$, and the predictor advances the latent from its
-  own history; no gust parameters enter the encoder or the predictor. The two
-  auxiliary observable heads (lift and wake) read $\zvec_t$ during training with
-  small weights and are not part of the latent-prediction loss; they are omitted
-  from the schematic for clarity. The visualisation decoder is trained only
+  field to a latent $\zvec_t$, and the predictor, in either of its two
+  variants (the vector transformer of table~\ref{tab:architecture} or the
+  direct REX forecaster of \S\ref{sec:methods_rex}), advances the latent
+  from its own history; no gust parameters enter the encoder or the
+  predictor. The three supervision heads ($L$, $W$, $N$) read $\zvec_t$
+  during training with small weights and are never part of the
+  latent-prediction loss. The visualisation decoder is trained only
   after the encoder is frozen and is used solely for the diagnostic decodes,
   never in the predictive loss. (b) Evaluation refits the same matched forecast
   operator and applies the same probe family $g$ to every encoder family: a
