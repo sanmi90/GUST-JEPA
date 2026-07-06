@@ -1,0 +1,213 @@
+% v4 Methods 3.4: the estimator suite, written to the Methods completeness
+% contract (SESSION_35.md section 4, MC-1/2/3/5/6/7; provenance for every
+% constant in outputs/session35/mc_provenance.md). Gupta, Chen & Wan
+% (J. Fluid Mech. 1036, A24, 2026) is the completeness benchmark: state and
+% observation model as numbered equations, every filter as update equations
+% with every parameter, per-experiment parameters in one table.
+
+\subsection{Estimating the state from the wall}
+\label{sec:methods_estimators}
+
+Every estimator in this paper solves the same discrete state-estimation
+problem on the frozen coefficient state. Writing $\zvec_t \in
+\mathbb{R}^{d}$ for the encoded state at frame $t$ (time base $\Delta t =
+0.05\,c/u_\infty$, the cache frame spacing) and $\mathbf{p}_t \in
+\mathbb{R}^{K}$ for the wall pressure at the $K$ selected taps, the pair
+\begin{equation}
+  \zvec^{f}_{t+1} = F\!\left(\zvec^{a}_{t}\right) + \boldsymbol{\eta}_t,
+  \qquad \boldsymbol{\eta}_t \sim \mathcal{N}(0, Q_t),
+  \label{eq:ssm_dyn}
+\end{equation}
+\begin{equation}
+  \mathbf{y}_t = h\!\left(\zvec_t\right) + \boldsymbol{\epsilon}_t,
+  \qquad \boldsymbol{\epsilon}_t \sim \mathcal{N}(0, R),
+  \label{eq:ssm_obs}
+\end{equation}
+defines each member of the suite once its four ingredients $(F, h, Q_t, R)$
+are named; the remainder of this subsection does exactly that, and
+table~\ref{tab:filter_params} collects every parameter. Two evaluation
+frames are used and always stated. The envelope frame assimilates over
+$[t_{\mathrm{imp}} - 24,\, t_{\mathrm{imp}} + 48]$ frames with a field-free
+initialisation at the window start; the ladder frame runs the full
+encounter with the ensemble initialised from the encoded observation at
+$t_0 = 9$ (the delay-embedding warm-up) and scores on the same impact
+window. All estimator fits, without exception, use the training split
+only.
+
+\subsubsection{Base stochastic ensemble filter}
+\label{sec:methods_enkf}
+
+The frozen production filter is a stochastic ensemble Kalman filter
+\citep{evensen2003} with $N = 64$ members. The forecast model $F$ is the
+matched autoregressive transformer of \S\ref{sec:methods_arch}, refitted on
+the frozen pooled training trajectories; each member carries its own buffer
+of past analysis states (at most $32$ frames) and is advanced one step per
+frame. The process noise is state-independent, $Q_t \equiv Q$, estimated as
+the sample covariance of one-step teacher-forced predictor residuals over
+$256$ training sub-trajectories of length $32$, with a $10^{-6}$ diagonal
+floor. The observation map $h$ is a ridge-regularised linear read-out from
+the state to the $K$ taps (penalty $1.0$), fitted on four fifths of the
+training encounters; the observation-noise covariance $R$ is the diagonal
+of the residual variance of that map on the held-out fifth, grouped by
+encounter, with floor $10^{-6}$. With ensemble mean
+$\bar{\zvec}^{f}_t = N^{-1}\sum_i \zvec^{f,(i)}_t$ and deviations
+$X^{f}_t = [\zvec^{f,(i)}_t - \bar{\zvec}^{f}_t]_i$, the update is the
+perturbed-observation analysis
+\begin{equation}
+  P^{f}_t = \frac{X^{f}_t (X^{f}_t)^{\mathsf{T}}}{N - 1}, \qquad
+  K_t = P^{f}_t H^{\mathsf{T}} \left(H P^{f}_t H^{\mathsf{T}} + R\right)^{-1},
+  \label{eq:enkf_gain}
+\end{equation}
+\begin{equation}
+  \zvec^{a,(i)}_t = \zvec^{f,(i)}_t
+  + K_t \left(\mathbf{y}_t + \boldsymbol{\epsilon}^{(i)}_t
+  - H \zvec^{f,(i)}_t\right),
+  \qquad \boldsymbol{\epsilon}^{(i)}_t \sim \mathcal{N}(0, R),
+  \label{eq:enkf_update}
+\end{equation}
+where $H$ is the Jacobian of the linear $h$. Multiplicative inflation
+$\zvec^{f,(i)} \leftarrow \bar{\zvec}^{f} + \rho\,(\zvec^{f,(i)} -
+\bar{\zvec}^{f})$ is applied before the update; $\rho$ is selected per
+family on the validation split only ($\rho = 1.00$ for the predictive and
+linear families, $\rho = 1.05$ for the reconstructive one). The ensemble is
+initialised at the window start from a windowed pressure-to-state
+regressor (a Nystr\"om radial-basis ridge with $300$ components on a
+$12$-frame causal pressure window) by sampling its training-residual
+covariance around the regressed mean, so no field information enters the
+filter at any time. The frozen observable probes that score the filter
+never enter the innovation: the only measured quantity in
+\eqref{eq:enkf_update} is the $K$-tap wall pressure.
+
+\subsubsection{Linear latent filter with encoded observations}
+\label{sec:methods_lae}
+
+The structural-consistency retrofit, adapted from the latent-space
+assimilation construction of Tong, Wang and Yan (arXiv:2603.06752, 2026),
+replaces both $F$ and $h$. The dynamics are linear,
+$F(\zvec) = A\zvec$, with $A$ the ridge solution of
+$\zvec_{t+1} \approx A \zvec_t$ over all training transitions (penalty
+$1.0$) followed by a projection of its singular values onto $[0, 1]$, the
+hard analogue of their spectral hinge penalty; $Q$ is the covariance of the
+resulting fit residuals. The observation side replaces the sparse taps by
+an encoded full-state observation: a delay-embedding operator lifts the
+normalised tap history $\mathbf{p}_{t-m+1:t} \in \mathbb{R}^{Km}$ with
+$m = 10$ (causal, edge-padded), and a ridge map $W$ (penalty $1.0$)
+regresses it onto the state, so that
+\begin{equation}
+  \mathbf{y}_t = E_{\mathrm{obs}}\!\left(\mathbf{p}_{t-m+1:t}\right)
+  = W^{\mathsf{T}} \operatorname{vec}\!\left(\mathbf{p}_{t-m+1:t}\right),
+  \qquad h = \mathrm{Id}, \qquad
+  R = \Gamma,
+  \label{eq:eobs}
+\end{equation}
+with $\Gamma$ the covariance of the $E_{\mathrm{obs}}$ training residuals
+plus a $10^{-8}$ jitter. The same $E_{\mathrm{obs}}$, evaluated framewise
+with no dynamics at all, is the static inverse that anchors the estimator
+ladder. Filter divergence is declared by one fixed criterion everywhere in
+the paper: the normalised innovation squared exceeds the $\chi^2_{0.99}$
+quantile at the observation dimension for five or more consecutive frames,
+or any analysis Mahalanobis ratio exceeds $3$. The observation-rate
+protocol subsamples the update, not the sensor: pressure is recorded every
+frame and the analysis step is applied every $m$-th frame only.
+
+\subsubsection{Forecast-derived state-dependent process noise}
+\label{sec:methods_rexenkf}
+
+The REX ensemble filter keeps the encoded observation \eqref{eq:eobs} and
+replaces the member propagation by the direct quantile forecaster of
+\S\ref{sec:methods_rex}: each member is advanced by the one-step median
+forecast, and the process noise is read off the forecaster's own
+uncertainty band at forecast time,
+\begin{equation}
+  \zvec^{f,(i)}_{t+1} = \hat{\zvec}^{\,q_{0.5}}_{t+1}
+  + c\,\boldsymbol{\sigma}_{t+1} \odot \boldsymbol{\xi}^{(i)},
+  \qquad
+  \boldsymbol{\sigma}_{t+1}
+  = \frac{\hat{\zvec}^{\,q_{0.9}}_{t+1} - \hat{\zvec}^{\,q_{0.1}}_{t+1}}
+         {2 \times 1.28155},
+  \qquad \boldsymbol{\xi}^{(i)} \sim \mathcal{N}(0, \mathrm{Id}),
+  \label{eq:rex_q}
+\end{equation}
+so $Q_t = c^2\operatorname{diag}(\boldsymbol{\sigma}_{t+1})^2$ is
+state-dependent through the predicted inter-quantile width (the
+denominator converts the $q_{0.9} - q_{0.1}$ band of a Gaussian to its
+standard deviation). The single scalar $c$ is the filter's only tuned
+quantity and it carries two independent, validation-only calibrations. The
+production value $c = 1.77$ makes the one-step $q_{0.1}$--$q_{0.9}$ band
+cover $80\,\%$ of held-out training transitions. A second calibration,
+pre-registered before any value was seen, selects $c$ on the held-out
+encounters of the training cases by matching the pooled impact-phase
+normalised innovation squared,
+$\mathrm{NIS}_t = \nu_t^{\mathsf{T}} S_t^{-1} \nu_t / d$ with
+$\nu_t = \mathbf{y}_t - \bar{\zvec}^{f}_t$ and $S_t = P^{f}_t + \Gamma$,
+toward its consistency expectation of one, over the fixed grid
+$c \in \{1.0, 1.4, 1.77, 2.5, 3.5, 4.5, 6.0\}$, followed by a single frozen
+run on the test splits. The outcome of that calibration, reported in
+\S\ref{sec:res_da}, is itself a result. The two-stage variant applies the
+encoded-observation update \eqref{eq:eobs} with REX propagation
+\eqref{eq:rex_q} inside the impact window only, and outside it propagates
+members with the matched transformer and assimilates in tap space through
+the linear map of \S\ref{sec:methods_enkf}; the schedule boundary is the
+frozen impact-window mask of the cache and is not tuned.
+
+\subsubsection{Fixed-lag smoother}
+\label{sec:methods_rts}
+
+On the linear stack of \S\ref{sec:methods_lae} a fixed-lag
+Rauch--Tung--Striebel smoother provides the reanalysis reference. With
+forecast and analysis moments $(\zvec^{f}_k, P^{f}_k)$ and
+$(\zvec^{a}_k, P^{a}_k)$ from the forward Kalman pass, the backward
+recursion over the lag window is
+\begin{equation}
+  C_k = P^{a}_k A^{\mathsf{T}} \left(P^{f}_{k+1}\right)^{-1},
+  \qquad
+  \zvec^{s}_k = \zvec^{a}_k + C_k\left(\zvec^{s}_{k+1} -
+  \zvec^{f}_{k+1}\right),
+  \label{eq:rts}
+\end{equation}
+applied over a lag of $L = 5$ frames, that is a fixed reporting latency of
+$0.25\,c/u_\infty$; the smoothed estimate at $t$ uses pressure up to
+$t + L$ and nothing later. The ensemble smoother variant on the REX filter
+(a lagged cross-covariance update of the stored member history) degrades
+the filter and is reported as a negative in
+appendix~\ref{app:failure_modes}.
+
+\subsubsection{Sensor placement}
+\label{sec:methods_osp}
+
+Each family senses at its own taps. The per-family placement is a greedy
+forward selection over the $192$ physical wall taps: at each step the
+candidate tap whose $30$-frame causal pressure window, concatenated to the
+already-selected windows, best ridge-predicts the leading principal
+component of the family's own impact-frame states is added, under a
+composite score that rewards explained-variance gain and penalises the
+residual. The staircase is nested by construction, each budget warm-starts
+from the previous selection, so the $K = 16$ array contains the $K = 8$
+array. The shared target-blind reference array is the column-pivoted QR
+(qDEIM) selection of \citet{drmac2016} on the leading pressure modes. Which
+placement a given figure uses is stated in its caption.
+
+\begin{table}
+  \centering
+  \caption{Per-estimator configuration (Gupta \emph{et al.} 2026, table~1
+  analogue). All fits use the training split only; $\rho$ and the two $c$
+  calibrations use validation-family splits as stated in the text and
+  nothing downstream of them. Ensemble size $N = 64$, taps $K = 8$ at the
+  family's own placement, delay $m = 10$, every-frame assimilation, and
+  the divergence criterion of \S\ref{sec:methods_lae} are common to all
+  rows.}
+  \label{tab:filter_params}
+  \small
+  \fittab{\begin{tabular}{l l l l l}
+    \toprule
+    estimator & dynamics $F$ & observation $h$ & process noise $Q_t$ & noise scale \\
+    \midrule
+    static inverse            & none                & $E_{\mathrm{obs}}$, eq.~\eqref{eq:eobs} & none & none \\
+    base EnKF (frozen)        & matched transformer & linear $\zvec \to \mathbf{p}_K$ & teacher-forced residual cov. & $\rho = 1.00$ / $1.05$ \\
+    linear LAE filter         & linear $A$ (SV-clipped) & $E_{\mathrm{obs}}$, $h = \mathrm{Id}$ & $A$-fit residual cov. & $\rho = 1.0$ \\
+    REX-EnKF                  & REX median, eq.~\eqref{eq:rex_q} & $E_{\mathrm{obs}}$, $h = \mathrm{Id}$ & quantile band, eq.~\eqref{eq:rex_q} & $c = 1.77$ (coverage) \\
+    two-stage                 & REX inside impact, transformer outside & $E_{\mathrm{obs}}$ inside, tap space outside & as per stage & $c$ as REX-EnKF \\
+    fixed-lag RTS             & linear $A$          & $E_{\mathrm{obs}}$, $h = \mathrm{Id}$ & $A$-fit residual cov. & lag $L = 5$ \\
+    \bottomrule
+  \end{tabular}}
+\end{table}

@@ -1,0 +1,55 @@
+% v4 Methods 3.1 subsection: the near-body Chang lift-element head (MC-10).
+% Every constant from outputs/session35/mc_provenance.md MC-10 (file:line
+% provenance in that document); QC values through the macros pipeline.
+
+\subsubsection{The near-body lift-element head}
+\label{sec:methods_chang}
+
+The third supervision head targets a physically constructed near-body
+observable built on the force-element decomposition of Chang (Proc. R.
+Soc. Lond. A 437, 1992), in the form popularised for vortex-dominated
+flows by Menon and Mittal (J. Fluid Mech. 918, 2021). An auxiliary
+potential $\phi_L$ is defined by the exterior boundary-value problem
+\begin{equation}
+  \nabla^2 \phi_L = 0 \ \ \text{outside the body}, \qquad
+  -\,\mathbf{n} \cdot \nabla \phi_L = \mathbf{n} \cdot \mathbf{e}_L
+  \ \ \text{on the body}, \qquad
+  \phi_L \to 0 \ \ \text{far away},
+  \label{eq:phiL}
+\end{equation}
+with $\mathbf{e}_L = (-\sin\alpha, \cos\alpha)$ the lift direction at
+$\alpha = 14^\circ$. Equation~\eqref{eq:phiL} is discretised once on the
+$192 \times 96$ cache grid with a staircase immersed Neumann condition on
+the solid-adjacent cell faces and a homogeneous Dirichlet far field, and
+solved directly; the interior Laplacian residual of the stored solution is
+$6.4 \times 10^{-13}$ in the maximum norm. The lift-element density is
+then the pointwise field
+\begin{equation}
+  e(\mathbf{x}, t) = \omega_z \left(-v\,\partial_x \phi_L
+  + u\,\partial_y \phi_L\right),
+  \label{eq:lift_element}
+\end{equation}
+evaluated from the raw mid-plane velocity and vorticity with the stored
+sign convention verified empirically (the cache stores
+$\partial u/\partial y - \partial v/\partial x$, so the standard
+$\omega_z$ is its negation). Because the cache window truncates the
+domain, the full-domain integral of \eqref{eq:lift_element} does not track
+the lift; the band-restricted field does, and the head therefore
+supervises $e$ inside a feathered near-body band $w(\mathbf{x}) =
+\max\{0,\, 1 - \delta(\mathbf{x})/0.3c\}$, with $\delta$ the Euclidean
+distance to the body and its adjacent cells. The banded field $w\,e$,
+scaled by a fixed constant chosen so its 99th percentile magnitude is
+order one, is compressed to an $80$-dimensional target by exactly the
+wake-observable construction: $64$ sign-preserving patch energies (an
+$8 \times 4$ grid of $\log(1 + \mathrm{relu}(\pm x)^2)$ pooled energies)
+concatenated with a $16$-bin Hann-windowed radial power spectrum. The two
+$80$-dimensional targets are byte-matched in capacity, and the wake and
+near-body heads share one network class, so the conditioning comparison
+of \S\ref{sec:res_construction} isolates the supervision signal, not the
+head architecture. A precompute quality gate requires the median lagged
+correlation between the band-integrated element and the stored lift over
+the gust-bearing training encounters (lag search $|\ell| \le 25$ frames)
+to exceed $0.4$; the achieved value is \NbQcMedianCorr. The principled
+weighting is not interchangeable with a plain vorticity-magnitude proxy:
+the patch-block cosine between the two targets is \NbProxyCosine{} on the
+comparison sample.

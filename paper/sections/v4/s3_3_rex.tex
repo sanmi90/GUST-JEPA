@@ -1,0 +1,41 @@
+% v4 Methods 3.3 subsection: the shared latent-REX forecast operator (MC-4).
+% Constants from outputs/session35/mc_provenance.md MC-4.
+
+\subsubsection{The shared direct forecaster}
+\label{sec:methods_rex}
+
+The forecast-merit comparison of \S\ref{sec:res_forecast} requires one
+operator trained identically on every family's latents; the operator used
+throughout is a direct multi-horizon quantile forecaster whose design
+transfers the deployable ingredients of the TiRex forecasting line
+\citep{tirex} without its foundation-model machinery. Each context window
+of $L$ consecutive states ($L$ drawn uniformly from $16$ to $30$ during
+training, fixed at $L = 25$ at evaluation) is normalised per window,
+$\tilde{\zvec} = \operatorname{arcsinh}\!\left((\zvec - \mu)/\sigma\right)$
+with $\mu, \sigma$ the window mean and standard deviation (floored at
+$10^{-3}$), passed through a two-layer LSTM of width $512$, and mapped by
+a single feed-forward head to the full forecast tensor of $40$ horizon
+steps, $d$ coordinates and nine quantiles $q \in \{0.1, \dots, 0.9\}$ in
+one shot; the inverse transform restores physical scale. There is no
+autoregressive feedback, so rollout error cannot compound by construction.
+Training minimises the pinball loss
+\begin{equation}
+  \mathcal{L} = \frac{1}{|\mathcal{Q}|} \sum_{q \in \mathcal{Q}}
+  \left\langle \rho_q\!\left(z - \hat{z}_q\right) \right\rangle,
+  \qquad
+  \rho_q(u) = \max\!\left(q u,\ (q - 1) u\right),
+  \label{eq:pinball}
+\end{equation}
+with AdamW (learning rate $10^{-3}$, weight decay $10^{-4}$), cosine
+decay, batch $64$, gradient clipping at unit norm, and $6000$ iterations.
+The backbone and width were selected once on a held-out $15\,\%$ case
+split of the training pool over $\{\mathrm{LSTM}, \mathrm{sLSTM}\} \times
+\{256, 512\} \times \{3, 9\}$ quantiles by validation decoded-lift skill;
+a pure-PyTorch sLSTM cell with exponential gating and the log-domain
+stabiliser of \citet{xlstm} ties the LSTM within seed noise and the
+selected operator is the LSTM at width $512$ with nine quantiles. The
+median forecast is the point prediction everywhere; the predicted
+inter-quantile band supplies the state-dependent process noise of
+\S\ref{sec:methods_rexenkf}. The adopted, refuted and rejected TiRex
+ingredients, including the oracle-covariate negative of
+\S\ref{sec:res_forecast}, are catalogued in appendix~\ref{app:rex_ledger}.

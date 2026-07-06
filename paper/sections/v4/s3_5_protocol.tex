@@ -1,0 +1,52 @@
+% v4 Methods 3.5: protocol, phases, metrics, uncertainty accounting
+% (MC-8, MC-11). Constants from outputs/session35/mc_provenance.md.
+
+\subsection{Protocol, phases and uncertainty accounting}
+\label{sec:methods_protocol}
+
+Every encounter is scored in three phases anchored to its impact frame:
+lead-in $[t_{\mathrm{imp}} - 8,\, t_{\mathrm{imp}})$, impact
+$[t_{\mathrm{imp}},\, t_{\mathrm{imp}} + 16)$ and relaxation
+$[t_{\mathrm{imp}} + 16,\, t_{\mathrm{imp}} + 48)$, all half-open in
+frames and clamped to the encounter. Load metrics are reported in three
+complementary forms because each corrects a failure mode of the others:
+the coefficient of determination $R^2 = 1 - \mathrm{SSE}/\mathrm{SST}$
+pooled over the phase frames, the root-mean-square and mean absolute
+errors in lift-coefficient units, and peak-relative quantities. The peak
+diagnostics locate the extremum of $|C_L|$ within the impact phase in the
+estimate and in the truth separately and report the value difference, its
+magnitude as a percentage of the true peak, and the timing difference in
+convective units at $\Delta t = 0.05$. Peak-region readability uses a
+pooled $R^2$ over windows of half-width $8$ frames centred on each
+encounter's true peak, with a persistence floor that holds the mean of
+frames $[0, 25)$ constant; phase lag is the argmax of the normalised
+cross-correlation within $\pm 20$ frames with parabolic sub-frame
+refinement, positive when the estimate trails the truth. Decoded fields
+are scored by the structural similarity index in the convention of
+\citet{wang2004}, $K_1 = 0.01$, $K_2 = 0.03$, with the data range pinned
+per dataset version to twice the global 99.9th percentile of the
+normalised target magnitude ($L = 8.487$ for the present split), on three
+masks: the feathered near-body band of \S\ref{sec:methods_chang}, a wake
+window spanning $0 < x/c < 4.5$ and $|y/c| < 1.25$, and the full frame.
+Linear-probe $R^2$ is used throughout as a readability metric and never as
+an information metric; the control that motivates this distinction, a
+multilayer probe that equalises what a linear read-out cannot reach, is
+reported alongside every dimension comparison
+(\S\ref{sec:res_reconstruction}).
+
+Uncertainty is accounted at three levels and every stochastic number in
+the paper carries its count. Encoder training variance uses three seeds
+wherever a cell is compared (the conditioning cube, the $d = 4$ bands, the
+direct-predictor and reconstruction-baseline bands); single-seed cells
+appear only in the dimension grid and are disclosed as such in each
+caption. Filter member-noise variance uses five seeds of the perturbed
+observations and initial ensemble. Paired family comparisons use a
+case-clustered bootstrap that resamples whole cases with replacement
+($2000$ resamples on encounter means, $10^4$ on case means) and reports
+the interval that excludes or straddles zero; multiple comparisons within
+one question family are Holm-corrected. The acceptance gates for the
+conditioning study and for the present campaign's follow-up runs were
+written and committed before any corresponding result was read, and both
+pre-registrations ship with the data record. The gust-intensity axis is
+reported in the inventory sign convention, and no test-C quantity is used
+for any selection anywhere in the pipeline.
