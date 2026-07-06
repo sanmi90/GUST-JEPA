@@ -1,0 +1,92 @@
+% v4 Results part A: constructing the state (register R1-R4, HANDOFF
+% D255-D258). Opens with the result, closes with the mechanism. Every
+% number through the macros pipeline (trackc + p3_results parts).
+
+\subsection{Constructing the state: which supervision buys which property}
+\label{sec:res_construction}
+
+The construction question is settled by a $2 \times 2 \times 2$ cube over
+the three supervision heads $\{L, W, N\}$, trained at three seeds per cell
+on the pooled pipeline of \S\ref{sec:methods_arch} with matched
+reconstructive anchors, under gates written and archived before any result
+was read; probes are fit on train and scored on the held-out test\_b
+encounters, validation steering nothing and test\_c staying in reserve per
+the policy above. The central result is structural: under the predictive objective
+the scalar lift head is load-bearing for latent health. Every cell without
+$L$ collapses, with participation ratios between \TcRhoCZero{} (C0) and
+\TcRhoCWN{} (CWN) against a floor of $9.6$, flat from the first
+diagnostic; neither the wake observable, nor the near-body observable, nor
+both together substitute for the scalar anchor
+(figure~\ref{fig:cube}a). The reconstruction objective anchors without it:
+the wake-only autoencoder keeps a healthy latent
+(participation ratio \TcRhoAeW) yet reads the peak loads poorly
+($R^2 = \TcPeakRTwoAeW$), so a healthy latent and a lift-readable latent
+are different achievements. The collapse is the low-intrinsic-dimension
+failure mode anticipated for the characteristic-function regulariser at
+kit strength; the automatic variance-covariance fallback is armed at an
+iteration threshold the pooled runs never reach, so the cube exposes the
+mechanism rather than masking it.
+
+Nothing replaces the lift anchor, and the near-body head is the one
+conditioning that adds to it. Replacing $L$ by $W$ is refuted
+catastrophically: the wake-only cell trails the lift-only cell by
+\TcDeltaCwVsClPeak{} peak-region $R^2$ points (case-clustered interval
+[\TcDeltaCwVsClPeakLo, \TcDeltaCwVsClPeakHi]), and replacing $L$ by $N$
+fails the same way (\TcDeltaCnVsClPeak{} [\TcDeltaCnVsClPeakLo,
+\TcDeltaCnVsClPeakHi]). On top of $L$, however, the Chang head buys real
+lift accuracy: CLN beats CL by \TcDeltaClnVsClPeak{} points with an
+interval that excludes zero ([\TcDeltaClnVsClPeakLo,
+\TcDeltaClnVsClPeakHi]), and is the strongest cell in the cube, with
+pooled peak-region $R^2 = \TcPeakRTwoCLN$ at the tightest seed band
+anywhere and a decoded phase lag of \TcLagCLN{}~$t/c$
+(figure~\ref{fig:cube}b). The wake head's marginal value on top of $L$ is
+geometry, not lift: CLW matches CL on the peaks (interval
+[\TcDeltaClwVsClPeakLo, \TcDeltaClwVsClPeakHi] straddles zero) while
+adding near-body structural fidelity, SSIM in the Wang convention of
+\S\ref{sec:methods_protocol} (\TcDeltaClwVsClSsimNb{}
+[\TcDeltaClwVsClSsimNbLo, \TcDeltaClwVsClSsimNbHi] SSIM).
+
+The three heads therefore divide the labour: $L$ anchors the latent, $N$
+sharpens the load, and $W$ carries the wake state. The wake-enstrophy
+probe makes the last division quantitative: the wake-supervised flagship
+reads $E_w$ at $R^2 = \EwClwLin$ linear and \EwClwMlp{} through a
+multilayer probe (three seeds, test\_b), where the lift-critical CLN
+reaches only \EwClnLin{} and \EwClnMlp. Honesty requires the anchor
+comparison too: the reconstructive AE-LW carries the most linearly
+readable wake state of all (\EwAeLwLin{} linear, \EwAeLwMlp{} MLP), as a
+reconstruction objective should; the predictive family's wake advantage is
+not probe readability but what survives forecasting and assimilation,
+quantified in \S\ref{sec:res_forecast} and \S\ref{sec:res_da}. One
+circularity deserves preemption: supervising on lift and winning on lift
+would be circular if the anchor claim were an accuracy claim. It is not.
+The anchor claim is about latent health, established by the collapse
+pattern of the no-$L$ cells; the accuracy claim is the increment of $N$
+over an already lift-supervised baseline, established under paired
+pre-registered gates. The two claims rest on different comparisons and
+fail independently.
+
+\begin{figure}
+  \centering
+  \begin{subfigure}{\linewidth}
+    \centering
+    \includegraphics[width=0.9\linewidth]{sections/figures/results/fig_cube_health_v4.pdf}
+    \caption{}
+  \end{subfigure}
+  \\[1.2ex]
+  \begin{subfigure}{\linewidth}
+    \centering
+    \includegraphics[width=0.9\linewidth]{sections/figures/results/fig_cube_deltas_v4.pdf}
+    \caption{}
+  \end{subfigure}
+  \caption{The conditioning cube (test\_b, three encoder seeds per cell).
+  (a)~Final participation ratio per cell against the collapse floor
+  $0.3\,d = 9.6$: every no-$L$ predictive cell collapses, every $L$ cell is
+  healthy; the inset shows the collapse is flat from the start of training
+  while a healthy cell crosses the floor within the first quarter of the
+  run. (b)~Pooled peak-region lift $R^2$ per cell (left) and paired
+  case-mean deltas against the lift-only cell CL with case-clustered
+  $95\,\%$ bootstrap intervals over the $42$ encounters of $10$ cases
+  (right, symmetric-log axis); filled markers mark intervals that exclude
+  zero. CLN is the unique positive increment.}
+  \label{fig:cube}
+\end{figure}
