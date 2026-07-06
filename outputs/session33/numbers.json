@@ -1,7 +1,7 @@
 {
   "_provenance": {
-    "generated_iso": "2026-07-06T18:41:14.801577+00:00",
-    "git_commit": "6ef6ed0ac1d32776d9d655b30cba78440bc9a7bd",
+    "generated_iso": "2026-07-06T18:48:41.651209+00:00",
+    "git_commit": "07feae1c9322a2c1c4b668e0d5e077d86c6cd201",
     "n_parts": 19,
     "parts": [
       "constants.json",
@@ -1516,6 +1516,14 @@
       "source": "p1_bands",
       "split": "test_b",
       "value": 0.7823485958081656
+    },
+    "p1_excluded_band4": {
+      "fmt": "%.3f",
+      "macro": "PoneExcludedBandFour",
+      "note": "test-peeked band 4.0; appendix disclosure only, never a headline",
+      "source": "p1_bands",
+      "split": "test_b",
+      "value": 0.8399070489842039
     },
     "p1_f20_gate": {
       "fmt": "%.0f",

@@ -236,6 +236,13 @@
    "fmt": "%.3f",
    "split": "test_c",
    "note": "coverage band 1.77, declared addendum frozen pass"
+  },
+  "p1_excluded_band4": {
+   "value": 0.8399070489842039,
+   "macro": "PoneExcludedBandFour",
+   "fmt": "%.3f",
+   "split": "test_b",
+   "note": "test-peeked band 4.0; appendix disclosure only, never a headline"
   }
  }
 }

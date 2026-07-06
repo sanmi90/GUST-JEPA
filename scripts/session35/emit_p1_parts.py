@@ -213,6 +213,15 @@ def main() -> int:
                 "note": "coverage band 1.77, declared addendum frozen pass",
             }
 
+    # excluded test-selected variant: DISCLOSURE APPENDIX ONLY (D3)
+    d = load(S34 / "rex_filter_deployclean.json")
+    if d:
+        numbers["p1_excluded_band4"] = {
+            "value": d["aggregates"]["median_CL_r2_impact"],
+            "macro": "PoneExcludedBandFour", "fmt": "%.3f", "split": "test_b",
+            "note": "test-peeked band 4.0; appendix disclosure only, never a headline",
+        }
+
     OUT.write_text(json.dumps({"part": "p1_bands", "numbers": numbers}, indent=1))
     print(f"[p1-emit] wrote {OUT.relative_to(REPO_ROOT)} with {len(numbers)} numbers")
     return 0
