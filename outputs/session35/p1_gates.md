@@ -126,6 +126,22 @@ the 0.840 filter variant. If the T5 test_a NIS tuning later selects a
 different band under its own freeze rule, the streaming headline may switch
 to THAT band only via a single frozen rerun, never by comparing outcomes.
 
+### T5 addendum (added 2026-07-06 after the frozen run, BEFORE any run at the
+### addendum configuration)
+
+The pre-registered NIS selection chose c* = 1.0 at the grid edge (test_a
+pooled impact NIS < 1 at every candidate band), and the frozen run is
+reported above it. The two-stage arm has therefore only been frozen-run at
+the NIS band. One additional frozen pass is declared here at the OTHER
+pre-existing val-only calibration, the rex_tune 80-percent-coverage band
+c = 1.77 (fixed in Session 34, long before any Session 35 run):
+two_stage at 1.77 on test_b and test_c, and rex at 1.77 on test_c (the
+test_b rex value at 1.77 is the already-reported anchor 0.749). Both
+calibrations (NIS 1.0, coverage 1.77) are val-only; BOTH frozen runs are
+reported regardless of outcome; no further band values will be evaluated on
+test_b or test_c this session. The F20 gate verdict (F20-B) is already
+resolved and is NOT revisited by this addendum.
+
 ## T6 P0 d=4 band verification (no new tuning)
 
 Check: lowd_d4_seedband.json (3 seeds x 3 families), the d=4 filter
