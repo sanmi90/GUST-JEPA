@@ -223,9 +223,19 @@ Each family senses at its own taps. The per-family placement is a greedy
 forward selection over the $192$ physical wall taps: at each step the
 candidate tap whose $30$-frame causal pressure window, concatenated to the
 already-selected windows, best ridge-predicts the leading principal
-component of the family's own impact-frame states is added, under a
-composite score that rewards explained-variance gain and penalises the
-residual. The staircase is nested by construction, each budget warm-starts
+component of the family's own impact-frame states is added. Writing
+$r_j$ for the ridge residual mean square of the joint feature set extended
+by tap $j$, and $g_j = \max\{0,\, r_\varnothing - r_j\}$ for its
+reduction over the target variance, the selected tap maximises
+\begin{equation}
+  J(j) = n\,g_j - \tfrac{1}{2}\,g_j - \tfrac{1}{2}\,n\,r_j
+  + \tfrac{1}{2}\,\frac{n\,g_j}{g_j + 10^{-6}},
+  \label{eq:osp}
+\end{equation}
+with $n$ the number of training encounters; at this configuration the
+first and third terms dominate, so the criterion is explained-variance
+gain penalised by the residual. The staircase is nested by construction,
+each budget warm-starts
 from the previous selection, so the $K = 16$ array contains the $K = 8$
 array. The shared target-blind reference array is the column-pivoted QR
 (qDEIM) selection of \citet{drmac2016qdeim} on the leading pressure modes. Which
