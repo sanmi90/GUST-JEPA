@@ -255,3 +255,43 @@ choosing-the-estimator subsection and the two-tier dimension statement with
 the R7 qualifier); appendices (TiRex ledger app:rex_ledger, failure modes
 app:failure_modes referenced by the new Methods); review_closure.md; tracer
 enforcement in the build; compile + enforce_conventions + fresh-eyes pass.
+
+## P3 tail + P4 status (final, session close)
+
+Everything except item 5 (author-owned) and the merge decision closed:
+- v3 Results subsections REORDERED into the v4 narrative (A, B, family
+  closure, C, rollout mechanism, wall, tracking, envelope, D, physics);
+  all legacy labels and cross-references intact.
+- Front matter rewritten: abstract (four-part arc), contributions (four,
+  leakage-free defined at first use), discussion + "Choosing the
+  estimator" subsection (Gupta 5.3 analogue), conclusions (softened
+  opener, error and R2 together, three bounding facts).
+- TITLE = D2 default (a), applied per spec with the choice recorded in the
+  commit message.
+- review_closure.md complete (C1-C4 fixed; M1-M7 fixed or explicitly
+  partial: M5 pending the archived-commit citation, M6 pending the
+  retained-v3-sentence check at freeze).
+- TiRex ids verified against arxiv.org: 2505.23719 = TiRex (Auer 2025),
+  2607.01204 = TiRex-2 (Podest 2026); both cited.
+- F8 readability matrix built and wired into Results A; the v4 figure
+  inventory is complete.
+- Number tracer operational as a build gate: 329 -> 1 hits via a justified
+  whitelist policy (integers = dimensional/protocol constants; decimals
+  individually justified; machine-generated table bodies carry generator
+  provenance; unused v2-era caption marked for deletion). The single
+  remaining hit is the $0.2$ strong-effect bar, deliberately left flagged
+  as the M5 sentinel until the archived plan commit is cited or the bar
+  dropped.
+- enforce_conventions checker fixed (escaped-underscore normalisation);
+  remaining flags are the per-paragraph split-enumeration class where the
+  section preamble declares the protocol, plus the abstract (structural).
+- Build: 49 pages, rc=0, zero errors, zero undefined references or
+  citations.
+
+Still open for the freeze session: M5 commit citation, the fresh-eyes
+jfm_project_writing_style pass over the full document, the moderate prose
+sweep (POD-vs-AE intro tension, sign-convention placement, 120-frame
+note), caption/table seed-provenance audit of the RETAINED v3 tables, and
+the deletion of fig4_caption.tex. Carlos-owned: merge decision, D2
+confirmation if (a) is not wanted, DNS Table 1, Zenodo DOI, license,
+CRediT, funding.

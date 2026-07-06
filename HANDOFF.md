@@ -10625,3 +10625,21 @@ superseded v3 Results subsections (4.1/4.2/4.4 overlap A-D; res_wall/
 envelope/latent_physics survive), abstract/intro/discussion/conclusions
 rewrites (D2 title = Carlos), F8 figure, review_closure.md, tracer
 whitelist classification, fresh-eyes pass, tirex bib id verification.
+
+### D264 (SESSION35 close: P3 tail + P4 done; v4 manuscript structurally complete at 49pp) (2026-07-06, Session 35)
+
+Continuation of D263, user-directed ("solve everything except the
+author-owned items"). Results reordered into the v4 narrative with all
+legacy labels preserved; front matter rewritten (abstract four-part arc,
+four contributions, choosing-the-estimator discussion subsection,
+conclusions with the static-inverse bounding fact); TITLE changed to the
+D2 default (a) "Lift-anchored predictive coefficient states for
+wall-pressure estimation of extreme vortex-gust airfoil encounters";
+review_closure.md maps C1-C4/M1-M7; TiRex/TiRex-2 arXiv ids verified and
+cited; F8 built (figure inventory complete); trace_numbers operational as
+a gate (329 -> 1, the residual being the M5 strong-effect-bar sentinel);
+enforce_conventions checker fixed for escaped underscores. Build 49pp,
+rc=0, zero errors, zero undefined refs/citations. Open at freeze: M5
+archived-commit citation, fresh-eyes style pass, moderate prose sweep,
+retained-v3 caption audit, fig4_caption deletion. Carlos: merge, D2
+confirmation, DNS Table 1, Zenodo, license/CRediT/funding.

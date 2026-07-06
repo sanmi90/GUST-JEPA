@@ -109,9 +109,12 @@ def main() -> int:
     wl_blob = json.loads(WHITELIST_JSON.read_text()) if WHITELIST_JSON.exists() else {}
     whitelist = [re.compile(e["pattern"]) for e in wl_blob.get("entries", [])]
 
+    skip = {e["file"] for e in wl_blob.get("generated_files", [])}
     files: list[Path] = []
     for g in CONTENT_GLOBS:
-        files += [p for p in sorted(root.glob(g)) if not EXCLUDE_NAMES.match(p.name)]
+        files += [p for p in sorted(root.glob(g))
+                  if not EXCLUDE_NAMES.match(p.name)
+                  and str(p.relative_to(root)) not in skip]
 
     total = 0
     printed = 0
