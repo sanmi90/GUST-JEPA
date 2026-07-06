@@ -155,9 +155,10 @@ def main() -> int:
         "mean_spread": float(spread.mean()),
         "wall_s": time.time() - t0,
     }, indent=1))
+    suffix = "" if args.seed == 0 else f"_s{args.seed}"
     torch.save(model.state_dict(),
-               REPO_ROOT / f"outputs/session34/latent_rex_model_{args.run}.pt")
-    if args.run == "jepa_pool_vec":
+               REPO_ROOT / f"outputs/session34/latent_rex_model_{args.run}{suffix}.pt")
+    if args.run == "jepa_pool_vec" and args.seed == 0:
         torch.save(model.state_dict(),
                    REPO_ROOT / "outputs/session34/latent_rex_model.pt")
     return 0

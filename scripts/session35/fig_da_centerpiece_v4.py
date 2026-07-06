@@ -1,0 +1,330 @@
+"""F20 composite centerpiece: phase-resolved DA evaluation of the flagship stack.
+
+Five panels, all numbers loaded from frozen JSON artifacts at build time:
+  (a) C_L RMSE (physical units) per phase x estimator     <- outputs/session34/da_phase_eval.json
+  (b) C_L R2 per phase x estimator (variance artifact)    <- outputs/session34/da_phase_eval.json
+  (c) impact-phase estimator ladder, test_b + test_c      <- da_phase_eval records,
+      outputs/session34/rex_filter_tuned.json + outputs/session35/rex_filter_tuned_s{1..4}.json,
+      outputs/session35/two_stage_envelope.json, outputs/session35/two_stage_addendum.json
+  (d) filter vs smoother C_L RMSE (impact / relax)        <- outputs/session34/da_smoother.json
+  (e) test_a NIS band calibration (NIS-refutation panel)  <- outputs/session35/nis_band_tuning.json
+
+Protocol constants shown in labels (K=8 sensors, delay 10 frames, N=64 members,
+band scales 1.77 / 1.0 / 4.0, the excluded test-peeked 0.840) are READ from the
+JSON protocol/summary blocks, not typed. The only literal constant is
+DT_TC = 0.05 t/c per frame (cache attr dt_tc, CLAUDE.md "Per-file structure"),
+used to convert the RTS lag (5 frames, from the da_smoother summary key
+"rts_lag5") to the 0.25 t/c latency quoted in the deployment rule.
+
+Usage:  .venv/bin/python scripts/session35/fig_da_centerpiece_v4.py
+Output: paper/sections/figures/results/fig_da_centerpiece_v4.{pdf,png}
+"""
+
+from __future__ import annotations
+
+import json
+import sys
+from pathlib import Path
+
+import numpy as np
+
+REPO = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(REPO / "scripts" / "session21"))
+
+import matplotlib.pyplot as plt  # noqa: E402
+from matplotlib.patches import Patch, Rectangle  # noqa: E402
+
+from figstyle import TEXTWIDTH_IN, use_style  # noqa: E402
+
+DT_TC = 0.05  # t/c per frame (cache attr dt_tc; CLAUDE.md "Per-file structure")
+
+OUT_DIR = REPO / "paper" / "sections" / "figures" / "results"
+
+# ---- recipe palette (DA-stack figure; distinct from the family key) ----------
+C_OPEN = "#9e9e9e"     # open loop (no assimilation)
+C_EOBS = "#e08214"     # static E_obs inversion
+C_LIN = "#2166ac"      # linear LAE Kalman stack
+C_REX = "#1b7837"      # REX-EnKF (nonlinear, this work)
+C_2ST = "#762a83"      # two-stage filter
+C_2ST_L = "#9970ab"    # two-stage at the NIS band (lighter)
+C_EXCL = "#b2182b"     # excluded test-peeked band
+
+RECIPE_LABEL = {
+    "openloop": "open loop",
+    "eobs": r"static $E_{\mathrm{obs}}$",
+    "linear_lae": "linear LAE-KF",
+    "rex_enkf": "REX-EnKF",
+}
+RECIPE_COLOR = {"openloop": C_OPEN, "eobs": C_EOBS, "linear_lae": C_LIN, "rex_enkf": C_REX}
+PHASES = ["pre", "impact", "relax"]
+TITLE_FS = 7.5
+
+
+def load(path: str) -> dict:
+    with open(REPO / path) as f:
+        return json.load(f)
+
+
+def main() -> None:
+    use_style()
+
+    # ---- data ----------------------------------------------------------------
+    phase = load("outputs/session34/da_phase_eval.json")
+    smoother = load("outputs/session34/da_smoother.json")
+    envelope = load("outputs/session35/two_stage_envelope.json")
+    addendum = load("outputs/session35/two_stage_addendum.json")
+    nis = load("outputs/session35/nis_band_tuning.json")
+    rex_seeds = [load("outputs/session34/rex_filter_tuned.json")] + [
+        load(f"outputs/session35/rex_filter_tuned_s{s}.json") for s in (1, 2, 3, 4)
+    ]
+
+    proto = phase["protocol"]           # k=8, delay=10, members=64, band_scale=4.0
+    k_sensors = proto["k"]
+    delay = proto["delay"]
+    members = proto["members"]
+    band_prefreeze = proto["band_scale"]                     # 4.0 (test-peeked, D3)
+    band_cov = rex_seeds[0]["protocol"]["band_scale"]        # 1.77 coverage band
+    c_star = envelope["c_star"]                              # 1.0 NIS band
+    peeked_val = smoother["summary"]["rex_enkf"]["impact"]["cl_r2"]  # 0.840, excluded
+
+    fig = plt.figure(figsize=(TEXTWIDTH_IN, 6.6))
+    gs = fig.add_gridspec(
+        3, 2, height_ratios=[1.0, 1.25, 0.98], hspace=0.60, wspace=0.38,
+        left=0.155, right=0.90, top=0.965, bottom=0.09,
+    )
+    ax_a = fig.add_subplot(gs[0, 0])
+    ax_b = fig.add_subplot(gs[0, 1])
+    ax_c = fig.add_subplot(gs[1, 0])
+    ax_d = fig.add_subplot(gs[1, 1])
+    ax_e = fig.add_subplot(gs[2, :])
+
+    n_b = len(phase["records"]["rex_enkf"])  # 42 test_b encounters
+
+    # ---- (a) C_L RMSE per phase ----------------------------------------------
+    recipes = ["openloop", "eobs", "linear_lae", "rex_enkf"]
+    width = 0.19
+    xs = np.arange(len(PHASES))
+    for i, rec in enumerate(recipes):
+        vals = [phase["summary"][rec][p]["cl_rmse"] for p in PHASES]
+        ax_a.bar(xs + (i - 1.5) * width, vals, width, color=RECIPE_COLOR[rec],
+                 label=RECIPE_LABEL[rec], zorder=3)
+    ax_a.set_xticks(xs)
+    ax_a.set_xticklabels(PHASES)
+    ax_a.set_ylabel(r"$C_L$ RMSE")
+    ax_a.set_title(f"(a) $C_L$ RMSE by phase (test B, $n={n_b}$)",
+                   loc="left", fontsize=TITLE_FS)
+    ax_a.legend(loc="upper right", fontsize=5.8, handlelength=1.0,
+                borderaxespad=0.1, labelspacing=0.25)
+    # relax is the BEST phase in physical units for every assimilating estimator
+    relax_best = max(phase["summary"][r]["relax"]["cl_rmse"] for r in recipes[1:])
+    ax_a.annotate("relax: lowest RMSE\nof all phases",
+                  xy=(2 + 0.5 * width, relax_best + 0.02), xytext=(1.15, 0.62),
+                  fontsize=6, ha="center",
+                  arrowprops=dict(arrowstyle="-", lw=0.6, color="0.3"))
+
+    # ---- (b) C_L R2 per phase (the variance artifact) -------------------------
+    ymin_b = -3.4
+    for i, rec in enumerate(recipes):
+        vals = [phase["summary"][rec][p]["cl_r2"] for p in PHASES]
+        ax_b.bar(xs + (i - 1.5) * width, vals, width, color=RECIPE_COLOR[rec], zorder=3)
+        for j, v in enumerate(vals):
+            if v < ymin_b:  # clipped bar (open-loop relax R2 = -50)
+                ax_b.annotate(f"{v:.0f} (clipped)",
+                              xy=(xs[j] + (i - 1.5) * width, ymin_b + 0.15),
+                              fontsize=5.2, ha="center", va="bottom", rotation=90,
+                              color="white", zorder=4)
+    ax_b.axhline(0.0, color="0.25", lw=0.6, zorder=2)
+    ax_b.set_ylim(ymin_b, 1.25)
+    ax_b.set_xticks(xs)
+    ax_b.set_xticklabels(PHASES)
+    ax_b.set_ylabel(r"$C_L$ $R^2$")
+    ax_b.set_title(f"(b) $C_L$ $R^2$ by phase (test B, $n={n_b}$)",
+                   loc="left", fontsize=TITLE_FS)
+    rex_relax_r2 = phase["summary"]["rex_enkf"]["relax"]["cl_r2"]
+    rex_relax_rmse = phase["summary"]["rex_enkf"]["relax"]["cl_rmse"]
+    ax_b.annotate(
+        f"relax: $R^2<0$ at the best RMSE\n({rex_relax_rmse:.2f}); variance artifact,"
+        "\nnot failure",
+        xy=(2 + 1.5 * width, rex_relax_r2), xytext=(0.05, -1.55), fontsize=6,
+        va="top", bbox=dict(fc="white", ec="none", alpha=0.85, pad=0.6),
+        arrowprops=dict(arrowstyle="-", lw=0.6, color="0.3"), zorder=5)
+
+    # ---- (c) impact-phase estimator ladder ------------------------------------
+    def med_cat(recs: list[dict]) -> tuple[float, int]:
+        r2 = np.array([r["impact"]["r2"] for r in recs])
+        return float(np.median(r2)), int((r2 < -1).sum())
+
+    eobs_med, eobs_cat = med_cat(phase["records"]["eobs"])
+    lin_med, lin_cat = med_cat(phase["records"]["linear_lae"])
+    seed_vals = np.array([j["aggregates"]["median_CL_r2_impact"] for j in rex_seeds])
+    seed_cats = [j["aggregates"]["catastrophic_impact_lt_-1"] for j in rex_seeds]
+    rex_anchor, rex_cat = seed_vals[0], seed_cats[0]           # s0 = the 0.749 anchor
+    band_lo = seed_vals.mean() - seed_vals.std(ddof=1)
+    band_hi = seed_vals.mean() + seed_vals.std(ddof=1)
+
+    ts10_b = envelope["arms"]["two_stage_test_b"]["aggregates"]
+    ts10_c = envelope["arms"]["two_stage_test_c"]["aggregates"]
+    ts177_b = addendum["arms"]["two_stage_test_b_b177"]["aggregates"]
+    ts177_c = addendum["arms"]["two_stage_test_c_b177"]["aggregates"]
+    rex177_c = addendum["arms"]["rex_test_c_b177"]["aggregates"]
+    n_c = ts10_c["n_encounters"]  # 40 test_c encounters
+
+    rows = [  # top -> bottom; (label, color, test_b val, test_b cat, test_c agg or None)
+        (RECIPE_LABEL["eobs"], C_EOBS, eobs_med, eobs_cat, None),
+        (RECIPE_LABEL["linear_lae"], C_LIN, lin_med, lin_cat, None),
+        (f"REX-EnKF ($c={band_cov}$)", C_REX, rex_anchor, rex_cat, rex177_c),
+        (f"two-stage ($c^*={c_star:g}$, NIS)", C_2ST_L,
+         ts10_b["median_CL_r2_impact"], ts10_b["catastrophic_impact_lt_-1"], ts10_c),
+        (f"two-stage ($c={band_cov}$)", C_2ST,
+         ts177_b["median_CL_r2_impact"], ts177_b["catastrophic_impact_lt_-1"], ts177_c),
+    ]
+    pitch = 1.6
+    x0, x1 = 0.585, 0.93
+    ys = np.arange(len(rows))[::-1] * pitch  # first row on top
+    for y, (label, color, val, cat, agg_c) in zip(ys, rows):
+        best = label.startswith(f"two-stage ($c={band_cov}")
+        if best:  # best protocol-clean filter: shaded row + bold label
+            ax_c.add_patch(Rectangle((x0, y - 0.80), x1 - x0, 1.60, facecolor=color,
+                                     alpha=0.10, edgecolor="none", zorder=1))
+            ax_c.text(x0 + 0.005, y + 0.55, "best protocol-clean filter",
+                      fontsize=5.5, color=color, fontstyle="italic", va="center")
+        if label.startswith("REX-EnKF"):  # 5-seed member-noise band (mean +- sd)
+            ax_c.fill_betweenx([y - 0.40, y + 0.40], band_lo, band_hi,
+                               color=color, alpha=0.22, lw=0, zorder=2)
+            ax_c.text(x1 - 0.003, y,
+                      f"5 seeds: {seed_vals.mean():.3f}$\\,\\pm\\,$"
+                      f"{seed_vals.std(ddof=1):.3f}",
+                      fontsize=5.5, ha="right", va="center", color=color)
+        ax_c.plot([val], [y], marker="o", ms=5.5 if best else 4.5, color=color,
+                  zorder=4, mec="black" if best else color, mew=0.6)
+        ax_c.annotate(f"{val:.3f} ({cat}/{n_b})", xy=(val, y - 0.42), fontsize=5.5,
+                      ha="center", va="top", color="0.15")
+        if agg_c is not None:
+            vc = agg_c["median_CL_r2_impact"]
+            cc = agg_c["catastrophic_impact_lt_-1"]
+            ax_c.plot([vc], [y], marker="o", ms=4.5, mfc="none", mec=color, mew=0.9,
+                      zorder=4)
+            ax_c.annotate(f"{vc:.3f} ({cc}/{n_c})", xy=(vc, y + 0.42), fontsize=5.5,
+                          ha="center", va="bottom", color=color)
+        weight = "bold" if best else "normal"
+        ax_c.text(-0.02, y, label, transform=ax_c.get_yaxis_transform(),
+                  ha="right", va="center", fontsize=6.5, fontweight=weight)
+    ax_c.set_yticks([])
+    ax_c.set_ylim(-1.05, ys[0] + 1.85)
+    ax_c.set_xlim(x0, x1)
+    ax_c.set_xlabel(r"impact-phase median $C_L$ $R^2$")
+    ax_c.set_title("(c) impact-phase ladder (B filled, C open)",
+                   loc="left", fontsize=TITLE_FS)
+    hb = plt.Line2D([], [], marker="o", ls="none", color="0.2", ms=4,
+                    label=f"test B ($n={n_b}$)")
+    hc = plt.Line2D([], [], marker="o", ls="none", mfc="none", mec="0.2", ms=4,
+                    label=f"test C, $|G|=4$ ($n={n_c}$)")
+    ax_c.legend(handles=[hb, hc], loc="upper center", ncol=2, fontsize=5.5,
+                handletextpad=0.2, borderaxespad=0.0, columnspacing=0.8)
+
+    # ---- (d) filter vs smoother -----------------------------------------------
+    ss = smoother["summary"]
+    rts_lag_frames = 5  # from the da_smoother summary key "rts_lag5" used below
+    assert f"rts_lag{rts_lag_frames}" in ss
+    lag_tc = rts_lag_frames * DT_TC  # 0.25 t/c
+    methods = [  # (summary key, label, color, is_smoother)
+        ("kf", "linear KF", C_LIN, False),
+        (f"rts_lag{rts_lag_frames}", f"+RTS lag {rts_lag_frames}\n({lag_tc:g} t/c)",
+         C_LIN, True),
+        ("rex_enkf", "REX-EnKF", C_REX, False),
+        ("rex_enks", "+EnKS", C_REX, True),
+    ]
+    xd = np.arange(len(methods))
+    wd = 0.34
+    for i, (key, label, color, smooth) in enumerate(methods):
+        hatch = "////" if smooth else None
+        for dx, alpha, v in ((-wd / 2, 1.0, ss[key]["impact"]["cl_rmse"]),
+                             (wd / 2, 0.45, ss[key]["relax"]["cl_rmse"])):
+            ax_d.bar(i + dx, v, wd, color=color, alpha=alpha, hatch=hatch,
+                     lw=0.4, edgecolor="white", zorder=3)
+            ax_d.annotate(f"{v:.2f}", xy=(i + dx, v + 0.005), fontsize=5.2,
+                          ha="center", va="bottom")
+    ax_d.set_xticks(xd)
+    ax_d.set_xticklabels([m[1] for m in methods], fontsize=5.8)
+    ax_d.set_ylabel(r"$C_L$ RMSE")
+    ax_d.set_ylim(0, 0.55)
+    ax_d.set_title(f"(d) filter vs smoother (test B, $n={n_b}$)",
+                   loc="left", fontsize=TITLE_FS)
+    handles_d = [
+        Patch(facecolor="0.35", label="impact"),
+        Patch(facecolor="0.35", alpha=0.45, label="relax"),
+        Patch(facecolor="white", edgecolor="0.45", hatch="////", label="smoother"),
+    ]
+    ax_d.legend(handles=handles_d, loc="upper right", fontsize=5.5,
+                handletextpad=0.4, handlelength=1.1, borderaxespad=0.1,
+                labelspacing=0.25)
+    ax_d.text(0.02, 0.985, f"online: nonlinear filter;\n{lag_tc:g} t/c latency: "
+              "linear smoother", transform=ax_d.transAxes, fontsize=6,
+              va="top", fontstyle="italic")
+
+    # ---- (e) NIS band calibration on test_a ------------------------------------
+    bands = sorted(nis["bands"].keys(), key=float)
+    bx = np.array([float(b) for b in bands])
+    nis_vals = np.array([nis["bands"][b]["pooled_mean_nis_impact"] for b in bands])
+    r2_vals = np.array([nis["bands"][b]["median_CL_r2_impact"] for b in bands])
+    n_a = nis["bands"][bands[0]]["n_encounters"]  # 100 test_a encounters
+
+    ax_e2 = ax_e.twinx()
+    ax_e2.spines["right"].set_visible(True)
+    l1, = ax_e.plot(bx, nis_vals, marker="o", color="0.25", lw=1.0,
+                    label="pooled impact NIS")
+    ax_e.axhline(1.0, color="0.25", lw=0.7, ls=(0, (4, 3)))
+    ax_e.annotate(r"target $\mathrm{E}[\mathrm{NIS}]=1$", xy=(0.86, 1.03),
+                  fontsize=5.8, ha="left", color="0.25")
+    l2, = ax_e2.plot(bx, r2_vals, marker="s", color=C_REX, lw=1.0,
+                     label=r"median impact $C_L$ $R^2$ (val)")
+    # pre-registered selection: argmin |pooled NIS - 1| saturates at the grid edge
+    isel = int(np.argmin(np.abs(nis_vals - 1.0)))
+    assert bx[isel] == c_star  # matches the frozen c_star in nis_band_tuning.json
+    ax_e.plot([bx[isel]], [nis_vals[isel]], marker="o", ms=9, mfc="none", mec="0.1",
+              mew=0.9, zorder=5)
+    ax_e.annotate(
+        f"NIS $<1$ at every band: the $c^*$ selection\n"
+        f"saturates at the grid edge ($c^*={c_star:g}$)\n"
+        f"and picks the lowest-$R^2$ band",
+        xy=(bx[isel] + 0.06, nis_vals[isel] - 0.04), xytext=(1.85, 0.66),
+        fontsize=6, va="top", arrowprops=dict(arrowstyle="-", lw=0.6, color="0.3"))
+    # excluded test-peeked band (D3): annotate, do NOT plot its 0.840 value
+    ax_e.axvline(band_prefreeze, color=C_EXCL, lw=0.8, ls=(0, (2, 2)))
+    ax_e.annotate(f"$c={band_prefreeze:g}$: test-peeked {peeked_val:.3f}\n"
+                  "excluded (D3)", xy=(band_prefreeze - 0.08, 0.66), fontsize=6,
+                  color=C_EXCL, va="top", ha="right")
+    ax_e.set_xlabel("innovation-band scale $c$")
+    ax_e.set_ylabel("pooled impact NIS", color="0.25")
+    ax_e2.set_ylabel(r"median impact $C_L$ $R^2$", color=C_REX)
+    ax_e.tick_params(axis="y", colors="0.25")
+    ax_e2.tick_params(axis="y", colors=C_REX)
+    ax_e.set_ylim(0, 1.14)
+    ax_e2.set_ylim(0.54, 0.88)
+    ax_e.set_xlim(0.8, 6.2)
+    ax_e.set_title(f"(e) NIS band calibration (test A, $n={n_a}$)",
+                   loc="left", fontsize=TITLE_FS)
+    ax_e.legend(handles=[l1, l2], loc="center right", fontsize=6, handlelength=1.4,
+                borderaxespad=0.3, labelspacing=0.25)
+
+    # ---- footer: shared protocol (read from the JSON protocol blocks) ----------
+    fig.text(0.155, 0.028,
+             f"Protocol: $K={k_sensors}$ wall-pressure sensors, delay-{delay} "
+             f"embedding, $N={members}$ ensemble members, frozen decode-floor decoder.",
+             fontsize=5.5, color="0.3")
+    fig.text(0.155, 0.008,
+             f"(a, b) phase evaluation at the pre-freeze band $c={band_prefreeze:g}$; "
+             f"(c) frozen bands only; (e) selection on the validation split only.",
+             fontsize=5.5, color="0.3")
+
+    OUT_DIR.mkdir(parents=True, exist_ok=True)
+    pdf = OUT_DIR / "fig_da_centerpiece_v4.pdf"
+    png = OUT_DIR / "fig_da_centerpiece_v4.png"
+    fig.savefig(pdf)
+    fig.savefig(png, dpi=200)
+    print(f"wrote {pdf}")
+    print(f"wrote {png}")
+
+
+if __name__ == "__main__":
+    main()
