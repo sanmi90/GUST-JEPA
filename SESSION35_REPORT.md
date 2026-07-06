@@ -1,4 +1,35 @@
-# Session 35 report (2026-07-06) - P1 COMPLETE
+# Session 35 report (2026-07-06) - P1 COMPLETE, P2 FIGURES BUILT
+
+## P2 figure status (added after P1 close)
+
+Nineteen v4 figures built through figstyle, every plotted number loaded from
+its JSON at build time, split/seed annotations in-panel (commits 1c27cbb,
+65c7358, 7ae2611): F3 architecture + heads + phi_L panel, F4 protocol map,
+F5 cube health, F6 paired deltas (three of four vs-CL CIs exclude zero;
+CLN-CL the unique positive), F7 cell traces + lag distributions, F9 the two
+80-D observables, F10 decode panels (GPU), F11 region SSIM, F12 dimension
+race + probe-dilution control, F13 REX card (two-calibration contrast),
+F14 direct-vs-AR forecast, F15 family forecastability (now n = 3 per family:
+CLW 0.638 +- 0.059, CLN 0.685 +- 0.080, AE-LW 0.538 +- 0.020; two missing
+REX s2 operators trained this session) + conditioning-null inset,
+F16 rexpred bands, F17 H_roll trim, F19 relative-error panels, F20
+centerpiece (phase panels regenerated at the val-calibrated band 1.77 after
+discovering the Session 34 da_phase_eval ran its REX column at the
+test-peeked band 4.0; conclusions band-robust: impact RMSE 0.301 vs 0.284),
+F20b/c own-stack + K/noise, F20d DA-vs-dimension grid with the fk16 seed
+band drawn per seed, F21 deployment, F22 obs-rate inset. Reused unchanged:
+F1, F2, F18, F23.
+
+Known P4 polish items: text crowding in the F3/F13 schematics and the F4
+annotation overlaps; fig_forecast40 shows endpoint scalars because no
+per-horizon decoded series exists in any JSON. Data catches by the figure
+agents, for P3 prose: latent_rex_cln.json is a mislabeled poisoned artifact
+(excluded; the real CLN family is latent_rex_jepa_pool_ln_s*); the static
+E_obs inverse tops the test_b impact ladder (0.825) above every
+protocol-clean filter, so the filter case rests on test_c, tails, relax and
+state tracking (write it that way); trackc_region_ssim.json has one decoder
+seed per cell (encounter-IQR whiskers used); da_relative_errors.json values
+are per-|G| MEDIANS (verified programmatically).
 
 Branch `session35-manuscript-v4` (off `session34-trackc`). Executing Carlos's
 uploaded SESSION_35.md spec (committed at repo root; supersedes
