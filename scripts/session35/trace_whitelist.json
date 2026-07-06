@@ -1,0 +1,10 @@
+{
+  "note": "Whitelist for trace_numbers.py. Every entry must carry a justification; entries are equation-constant / physical-configuration class only. Result values NEVER go here.",
+  "entries": [
+    {"pattern": "NACA[~ ]?0012", "why": "airfoil designation (configuration constant)"},
+    {"pattern": "Re\\s*(?:\\\\approx|=|\\\\sim)?\\s*\\\\?,?\\s*5000", "why": "Reynolds number of the DNS configuration"},
+    {"pattern": "\\\\alpha\\s*=\\s*14(?:\\\\degree|\\^\\\\circ|\\\\,)?", "why": "angle of attack configuration constant"},
+    {"pattern": "14\\\\degree", "why": "angle of attack configuration constant"},
+    {"pattern": "0012", "why": "airfoil designation fragment"}
+  ]
+}
