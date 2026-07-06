@@ -62,17 +62,17 @@ def main() -> None:
         f"test C, |G| = 4\n{n_tc} cases, report-only", fc="#f7ecec", ec=RED)
 
     # column 2: frozen states
-    box(ax, 3.0, 3.9, 2.2, 1.7,
+    box(ax, 2.85, 3.9, 2.5, 1.7,
         "frozen encoders\nJEPA cells, AE anchors,\nFukami AE, POD\n"
-        r"(fits: train only)", fc="#e8f0e8", ec=GREEN)
+        r"(fits: train only)", fc="#e8f0e8", ec=GREEN, fs=6.0)
 
     # column 3: frozen readouts
-    box(ax, 6.0, 4.9, 3.4, 0.75, "probes (linear / MLP): readability", fs=6.0)
-    box(ax, 6.0, 4.0, 3.4, 0.75, "decode-floor decoder: fields", fs=6.0)
-    box(ax, 6.0, 3.1, 3.4, 0.75, "latent-REX shared forecast operator", fs=6.0)
-    box(ax, 6.0, 1.5, 3.4, 1.3,
+    box(ax, 5.9, 4.9, 3.9, 0.75, "probes (linear / MLP): readability", fs=5.6)
+    box(ax, 5.9, 4.0, 3.9, 0.75, "decode-floor decoder: fields", fs=5.6)
+    box(ax, 5.9, 3.1, 3.9, 0.75, "latent-REX shared forecast operator", fs=5.6)
+    box(ax, 5.9, 1.5, 3.9, 1.3,
         "own-stack DA:\nOSP taps K = 8, E_obs delay 10,\n"
-        "ladder: static / linear LAE /\nREX-EnKF / two-stage", fs=5.8)
+        "ladder: static / linear LAE /\nREX-EnKF / two-stage", fs=5.6)
 
     arrow(ax, (2.1, 5.15), (3.0, 4.9), color=GREEN)
     for y in (5.27, 4.37, 3.47, 2.15):
@@ -80,17 +80,18 @@ def main() -> None:
 
     # tuning + reporting flows
     arrow(ax, (2.1, 3.85), (6.0, 2.4), color=GREEN, ls=(0, (3, 2)))
-    ax.text(3.6, 3.15, "tuning: test A ONLY\n(band scale by NIS; frozen after)",
-            fontsize=5.6, color=GREEN, ha="left")
+    ax.text(2.35, 3.02, "tuning: test A only", fontsize=5.6, color=GREEN,
+            ha="left", rotation=-14)
     arrow(ax, (2.1, 2.55), (6.0, 1.9), ls=(0, (1.5, 1.5)))
-    ax.text(4.0, 1.55, "one frozen run", fontsize=5.6, ha="left")
+    ax.text(3.55, 2.42, "one frozen run", fontsize=5.6, ha="left",
+            rotation=-8)
     arrow(ax, (2.1, 1.25), (6.0, 1.6), color=RED, ls=(0, (1.5, 1.5)))
-    ax.text(3.3, 0.85, "reporting only, never selection", fontsize=5.6,
-            color=RED, ha="left")
+    ax.text(2.5, 1.02, "reporting only, never selection", fontsize=5.6,
+            color=RED, ha="left", rotation=4)
 
-    ax.text(6.05, 0.95, "leakage guard: probes NEVER enter the filter innovation\n"
-                        "(only the K wall taps are measured)",
-            fontsize=5.6, style="italic", color="#404040")
+    ax.text(6.0, 1.05, "leakage guard: probes never enter\nthe filter "
+                       "innovation (taps only)",
+            fontsize=5.6, style="italic", color="#404040", va="top")
     ax.set_title("evaluation protocol: fits on train, tuning on test A, "
                  "test B one-shot, test C report-only", fontsize=7.5)
 

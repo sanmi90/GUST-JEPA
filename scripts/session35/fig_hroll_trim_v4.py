@@ -60,17 +60,8 @@ def main() -> int:
     ax.legend(loc="lower left", fontsize=6.2, handlelength=1.8)
     ax.set_ylim(-0.03, 0.80)
 
-    # the mechanism, from the same JSON: multi-step training slows the
-    # open-loop latent drift that destroys the H_roll = 1 rollout.
-    d1 = curves["H_roll_1"]["drift"][-1]
-    d8 = curves["H_roll_8"]["drift"][-1]
-    h_last = curves["H_roll_8"]["h"][-1]
-    ax.text(0.02, 0.975,
-            f"open-loop latent drift at $h = {h_last}$:\n"
-            rf"{d1:.2f} ($H_{{\rm roll}} = 1$) vs {d8:.2f} ($H_{{\rm roll}} = 8$)",
-            transform=ax.transAxes, ha="left", va="top",
-            fontsize=6.0, color="0.35", linespacing=1.4)
-
+    # The drift mechanism values are PRINTED below for the paper caption
+    # (annotating them in-panel collides with the curves at this size).
     fig.tight_layout()
     OUT_DIR.mkdir(parents=True, exist_ok=True)
     fig.savefig(OUT_DIR / "fig_hroll_trim_v4.pdf")

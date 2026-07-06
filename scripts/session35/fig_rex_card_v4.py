@@ -86,35 +86,30 @@ def panel_a(ax, winner: dict) -> None:
     ax.set_ylim(0, 1)
     ax.axis("off")
 
-    y1, y2, hb = 0.68, 0.32, 0.22
-    # row 1: context -> instance norm + arcsinh -> LSTM
-    _box(ax, 0.00, y1, 0.31, hb,
-         "context window $z_{t-L..t}$\n"
-         rf"$L \sim U\{{{CTX_TRAIN}\}}$ train,  $L = {CTX_EVAL}$ eval")
-    _box(ax, 0.37, y1, 0.30, hb,
-         r"instance norm $(\mu, \sigma)$"
-         "\n" r"$\mathrm{arcsinh}\left((z - \mu)/\sigma\right)$")
-    _box(ax, 0.73, y1, 0.27, hb,
-         rf"{kind} $\times$ 2 layers" + f"\n$h = {hidden}$", fc="#e7f2e9")
-    _arrow(ax, (0.315, y1 + hb / 2), (0.363, y1 + hb / 2))
-    _arrow(ax, (0.675, y1 + hb / 2), (0.723, y1 + hb / 2))
-    # wrap-around arrow into row 2
-    _arrow(ax, (0.865, y1 - 0.015), (0.115, y2 + hb / 2), rad=-0.22)
+    # Short labels only; the window/quantile/transform details are in the
+    # caption (CTX_TRAIN/CTX_EVAL constants above keep the provenance).
+    y1, y2, hb = 0.66, 0.30, 0.24
+    _box(ax, 0.00, y1, 0.29, hb, "context\n" rf"$z_{{t-L..t}}$, $L = {CTX_EVAL}$")
+    _box(ax, 0.355, y1, 0.28, hb, "instance norm\n+ arcsinh")
+    _box(ax, 0.70, y1, 0.30, hb,
+         rf"{kind} $\times$ 2" + f"\n$h = {hidden}$", fc="#e7f2e9")
+    _arrow(ax, (0.295, y1 + hb / 2), (0.348, y1 + hb / 2))
+    _arrow(ax, (0.645, y1 + hb / 2), (0.693, y1 + hb / 2))
+    # wrap-around arrow into row 2 (lands on the TOP edge of the direct head
+    # so the path does not cross the inverse-transform box)
+    _arrow(ax, (0.85, y1 - 0.015), (0.34, y2 + hb + 0.012), rad=-0.18)
     # row 2: direct head -> inverse transform / quantile fan
-    _box(ax, 0.12, y2, 0.42, hb,
-         "direct multi-horizon head, one shot\n"
-         rf"$H \times d \times n_q = "
-         rf"{H_HORIZON} \times {D_LATENT} \times {nq}$", fc="#e7f2e9")
-    _box(ax, 0.62, y2, 0.38, hb,
-         r"inverse $\sinh(\cdot)\,\sigma + \mu$"
-         "\n" rf"quantile fan $q = 0.1 .. 0.9$")
+    _box(ax, 0.14, y2, 0.40, hb,
+         "direct head, one shot\n"
+         rf"${H_HORIZON} \times {D_LATENT} \times {nq}$", fc="#e7f2e9")
+    _box(ax, 0.62, y2, 0.38, hb, "inverse transform\nquantile fan")
     _arrow(ax, (0.545, y2 + hb / 2), (0.613, y2 + hb / 2))
 
     # pinball loss (latent_rex.py:66-72) + params (rex_tune.json winner)
-    ax.text(0.12, 0.235,
-            r"pinball loss $\rho_q(u) = \max\!\left(qu, (q-1)u\right)$,"
-            r" $u = z - \hat{z}_q$", fontsize=6.0, ha="left", va="top")
-    ax.text(1.0, 0.235, rf"{winner['params_m']:.1f}M params",
+    ax.text(0.0, 0.20,
+            r"pinball loss $\rho_q(u) = \max\!\left(qu, (q-1)u\right)$",
+            fontsize=6.0, ha="left", va="top")
+    ax.text(1.0, 0.20, rf"{winner['params_m']:.1f}M params",
             fontsize=6.0, ha="right", va="top", color="0.35")
 
     # crossed-out autoregressive feedback path (latent_rex.py:11-13)
@@ -146,7 +141,7 @@ def panel_b(ax, winner: dict, nis: dict) -> None:
     ax.scatter([c_star_nis], [c_star_nis_val], s=52, facecolors="none",
                edgecolors=GREEN, linewidths=1.1, zorder=4)
     ax.annotate("NIS-selected (test A):\n" rf"$c^{{*}} = {c_star_nis:g}$",
-                (c_star_nis, c_star_nis_val), xytext=(0.76, 0.72),
+                (c_star_nis, c_star_nis_val), xytext=(2.6, 0.44),
                 fontsize=6.0, color=GREEN, ha="left", linespacing=1.4,
                 arrowprops=dict(arrowstyle="-", color=GREEN, lw=0.6,
                                 shrinkB=4))
@@ -155,10 +150,9 @@ def panel_b(ax, winner: dict, nis: dict) -> None:
     ax.axvline(c_star_cov, color=ORANGE, ls="-", lw=1.1, zorder=2)
     ax.scatter([c_star_cov], [0.0], s=22, color=ORANGE, marker="D",
                zorder=4, clip_on=False)
-    ax.text(c_star_cov + 0.14, 0.80,
+    ax.text(c_star_cov + 0.24, 0.90,
             "coverage-calibrated (val):\n"
-            rf"$c^{{*}} = {c_star_cov:.4f}$"
-            "\n(80% one-step coverage)",
+            rf"$c^{{*}} = {c_star_cov:.2f}$",
             fontsize=6.0, color=ORANGE, ha="left", va="center",
             linespacing=1.4)
 

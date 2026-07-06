@@ -100,24 +100,20 @@ def draw_schematic(ax) -> None:
 
     # ---- left column: encoder chain (top to bottom) ----
     cx0, cw = 2.0, 22.0
+    # Single-line labels only; architecture detail lives in the caption
+    # (CLAUDE.md locked constants; see mc_provenance.md MC-9).
     chain = [
-        # CLAUDE.md locked: encoder input omega_z at native (192, 96)
-        (r"$\omega_z$ input" + "\n" + r"$192 \times 96$", BOX_FC, GREY),
-        # CLAUDE.md locked: CNN stem ~3M params, 3 downsampling stages
-        ("CNN stem\n3 stages, ~3M", BOX_FC, GREY),
-        # CLAUDE.md locked: 24 x 12 feature map at 256 channels = 288 tokens
-        ("tokens\n" + r"$24 \times 12 \times 256$", BOX_FC, GREY),
-        # CLAUDE.md locked: 6-layer ViT, hidden 256, 8 heads
-        ("ViT, 6 layers\nhidden 256, 8 heads", BOX_FC, GREY),
-        # CLAUDE.md locked: BatchNorm projection (NOT LayerNorm; SIGReg req.)
-        ("BatchNorm\nprojection", BOX_FC, GREY),
-        # d = 32 pooled coefficient state (CLAUDE.md locked; D250 flagship)
-        ("pooled\n" + r"$z_t \in \mathbb{R}^{32}$", "#dcecdf", JEPA),
+        (r"$\omega_z$,  $192 \times 96$", BOX_FC, GREY),
+        ("CNN stem", BOX_FC, GREY),
+        (r"$24 \times 12 \times 256$ tokens", BOX_FC, GREY),
+        (r"ViT $\times\,6$", BOX_FC, GREY),
+        ("BatchNorm proj.", BOX_FC, GREY),
+        (r"$z_t \in \mathbb{R}^{32}$", "#dcecdf", JEPA),
     ]
-    bh, gap = 6.6, 2.6
-    y_top = 57.0
+    bh, gap = 5.6, 3.4
+    y_top = 55.5
     tops = [y_top - i * (bh + gap) for i in range(len(chain))]
-    ax.text(cx0 + cw / 2, 59.2, "encoder (per frame, unconditional)",
+    ax.text(cx0 + cw / 2, 58.5, "encoder",
             ha="center", va="center", fontsize=7)
     for (txt, fc, ec), yt in zip(chain, tops):
         draw_box(ax, cx0, yt - bh, cw, bh, txt, fc=fc, ec=ec)
@@ -130,9 +126,9 @@ def draw_schematic(ax) -> None:
     # ---- latent bus from z to the predictor and the heads ----
     bus_y = z_mid_y
     ax.plot([cx0 + cw + 0.2, 64.0], [bus_y, bus_y], color=JEPA, lw=1.0, zorder=1)
-    ax.text(38.0, bus_y - 2.3,
-            r"pooled latent sequence $z_{1:T}$,  $T = 32$",  # CLAUDE.md L = 32;
-            ha="center", va="center", fontsize=6, color=JEPA)  # train_canonical.py:130
+    ax.text(44.0, bus_y - 2.6,
+            r"$z_{1:T}$,  $T = 32$",  # CLAUDE.md L = 32; train_canonical.py:130
+            ha="center", va="center", fontsize=6, color=JEPA)
 
     # ---- middle block: training predictor ----
     px0, px1, py0, py1 = 30.0, 62.0, 12.0, 55.0
@@ -146,19 +142,15 @@ def draw_schematic(ax) -> None:
             ha="center", va="center", fontsize=6, color=GREY)
     # variant A: HANDOFF D250 (AutoregressivePredictor cond_dim=0, hidden 384,
     # depth 6, heads 16, RoPE, causal mask)
-    draw_box(ax, px0 + 2, 38.0, px1 - px0 - 4, 9.5,
-             "vector transformer (D250)\n6 layers, hidden 384, 16 heads\ncausal mask, RoPE",
+    draw_box(ax, px0 + 2, 37.5, px1 - px0 - 4, 9.0,
+             "AR transformer (D250)\nhidden 384, 6 layers",
              fc="#eaf3ec", ec=JEPA)
     # variant B: rexpred; MC-4: LSTM depth 2 (latent_rex.py:50), hidden 512
-    # (rex_tune.json winner), 9-quantile pinball head
-    draw_box(ax, px0 + 2, 28.0, px1 - px0 - 4, 8.0,
-             "direct REX (rexpred)\nquantile LSTM, 2 layers,\nhidden 512",
+    # (rex_tune.json winner), 9-quantile pinball head. Rollout details
+    # (H_roll = 8, online targets) live in the caption.
+    draw_box(ax, px0 + 2, 26.5, px1 - px0 - 4, 9.0,
+             "direct REX (rexpred)\nquantile LSTM, $h = 512$",
              fc="#eaf3ec", ec=JEPA)
-    # open-loop rollout, H_roll = 8: configs/_kit.yaml:17; online detached
-    # targets, no EMA: _kit.yaml:22 and CLAUDE.md locked training decisions
-    ax.text((px0 + px1) / 2, 24.4,
-            r"open-loop rollout, $H_{\mathrm{roll}} = 8$, online targets",
-            ha="center", va="center", fontsize=6, color=GREY)
     # objective: 0.5 L_roll weight per CLAUDE.md locked loss; lambda = 0.02
     # PINNED at configs/_kit.yaml:27; SIGReg M = 256 / 17 knots at :28
     ax.text((px0 + px1) / 2, 19.5, "JEPA objective",
@@ -183,19 +175,14 @@ def draw_schematic(ax) -> None:
     heads = [
         # L: observable_head.py:27-49 (Linear 32->64, GELU, 64->1); target C_L
         # current frame (_kit.yaml:33-37; train_canonical.py:235 delta (0,))
-        ("L : scalar lift head\nLinear 32-64-1\n" + r"$\rightarrow\ C_L$", 47.0 - 9.0),
-        # W: observable_head.py:101-124 (MLP 32-128-128-80); target
-        # patch_signed_spectrum, 80-D (_kit.yaml:38-43)
-        ("W : wake head\nMLP 32-128-128-80\n" + r"$\rightarrow$ 80-D wake observable",
-         35.5 - 9.0),
-        # N: same WakeObservableHead class at 80-D, target
-        # nearbody_lift_element (canonical_model.py:538-541; _kit.yaml:44-49)
-        ("N : near-body Chang head\nsame MLP class\n"
-         + r"$\rightarrow$ 80-D lift-element obs.", 24.0 - 9.0),
+        # Head MLP shapes live in the caption (observable_head.py:27-124).
+        ("L : scalar lift " + r"$\rightarrow\ C_L$", 47.0 - 8.0),
+        ("W : wake observable (80-D)", 35.5 - 8.0),
+        ("N : Chang lift-element (80-D)", 24.0 - 8.0),
     ]
-    hbh = 9.5
+    hbh = 8.0
     for txt, yb in heads:
-        draw_box(ax, hx0 + 1.6, yb, hx1 - hx0 - 3.2, hbh, txt)
+        draw_box(ax, hx0 + 1.0, yb, hx1 - hx0 - 2.0, hbh, txt, fs=5.6)
     # riser from the bus fanning into the three heads
     riser_x = 64.0
     top_head_mid = heads[0][1] + hbh / 2
@@ -263,8 +250,8 @@ def draw_lift_dir_inset(ax) -> None:
                                 mutation_scale=8))
     th = np.linspace(0, a, 30)
     ax.plot(o[0] + 0.5 * np.cos(th), o[1] + 0.5 * np.sin(th), color=GREY, lw=0.6)
-    ax.text(o[0] + 0.62, o[1] + 0.10, r"$\alpha = 14^\circ$", fontsize=6, color=GREY)
-    ax.text(*(o + 0.85 * uinf + [0.02, -0.14]), r"$U_\infty$", fontsize=7,
+    ax.text(o[0] + 0.56, o[1] - 0.16, r"$\alpha = 14^\circ$", fontsize=6, color=GREY)
+    ax.text(*(o + 0.85 * uinf + [0.06, 0.04]), r"$U_\infty$", fontsize=7,
             color=GREY, ha="left")
     ax.text(*(o + 0.85 * el + [0.06, 0.02]), r"$\mathbf{e}_L$", fontsize=7,
             color=JEPA, ha="left")
