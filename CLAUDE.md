@@ -12,7 +12,48 @@ matched latent dimension.
 
 Lead researcher: Carlos Sanmiguel Vila (INTA, UC3M).
 
-## Current focus (read first, set 2026-07-10, Session 35 CLOSED)
+## Current focus (read first, set 2026-07-11, Session 36 CLOSED)
+
+**Session 36 is COMPLETE on branch `jfm-rewrite-v2`** (off
+session35-manuscript-v4). It is phase 1 of the three-session JFM rewrite
+program Carlos delivered 2026-07-10 (upstream docs at `editorial/upstream/`;
+governing spec `SESSION_36.md`; report `SESSION36_REPORT.md`; HANDOFF D266 +
+D310-D312; the D301-D319 block is reserved for the program). Closed at the
+NUMBERS-FROZEN GATE: every number, macro, nomenclature token and claim
+disposition is stable; Sessions 37-38 are pure prose and figures. Headlines:
+- Stage 0-1: memo concordance 1:1 (main.pdf IS main_25, Carlos-confirmed);
+  editorial/{MANUSCRIPT_AUDIT,CLAIM_MAP,PROVENANCE}.md ledgers; M5 sentinel
+  CLOSED (bar dropped per cite-or-drop, tracer at 0 hits); D304 RETIRED
+  (discrete-|G|-ladder quantization, not a macro bug); provenance all v2.2
+  except the deliberate tab:prepsens disclosure.
+- Stage 2: nomenclature migrated to hand-maintained `paper/nomenclature.tex`
+  (\PredState \LiftState \DirectFC \FnoiseKF \TwoStageKF \LinLatKF
+  \StaticInv; \ValSplit/\TestSplit/\BoundarySplit); archive split names only
+  at the s2.2 definitional site; JEPA confined to s1 lineage.
+- Track M1 (D310, NULL branch): shared-operator merit (s3.2.1 LSTM h512/9q,
+  ten tab:closure families x 3 seeds, frozen v2p2 caches) REPLACED the
+  suited-operator merit column at the pre-registered H=16; wake-headed top
+  block = statistical tie (AeWake 0.574 / JepaWake 0.561 / SupOnly 0.443);
+  co-trained predictor leads at h8 (0.755) but is OVERTAKEN by the direct
+  forecaster at h16 (0.418 vs 0.561). Part m1_shared_merit, macros XmeritSh*;
+  suited Xmerit* kept for the Stage 3 supplementary table.
+- Track M2 (D311): five targets confirmed v2.2 by artifact args; the
+  parameter-only floor RE-RUN on v2p2 CONFIRMS both Methods sentences (wake
+  floor 0.151 at H=16, 0.687 at impact); circulation_neg stays
+  parameter-explainable (0.730), claim must remain wake-enstrophy-specific.
+- D303/D306 RESOLVED by Carlos: title becomes "Predictive reduced-order
+  states for wall-pressure estimation of extreme vortex gust--airfoil
+  interactions"; front_matter_rewrite.tex binds at Session 37 Stage 4.
+Next (Session 37): Stage 3 restructure (the v4 s4_a-d subfiles already
+mirror the target 4.1-4.4; promotion-and-prune) + Stage 4 prose to budgets
+(~17.1k -> 12.5k words; language table; memo catches 1,2,5,6,7,9-14; front
+matter binds; supplementary.tex created, suited-operator table moves there).
+Session 38: Stage 5 figures (M3a-M3f) + Stage 6 consistency + freeze.
+Carlos-owned: merge decision, DNS Table 1, Zenodo DOI, license/CRediT/
+funding; D302/D305 decided at the Stage 5 STOP. Both Stage 1 ledgers await
+Carlos's read-through (STOP 2 folded into close at his "keep going").
+
+## Previous focus (Session 35)
 
 **Session 35 is COMPLETE and pushed on branch `session35-manuscript-v4`** (off
 session34-trackc, HEAD around `ec8f835`). Governing spec: `SESSION_35.md` at
