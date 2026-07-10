@@ -51,15 +51,27 @@ least as well as the full predictive latent ($\XwakeSupOnly$ against
 $\XwakeJepaWake$): the paired readability gap is $\PoneWakeDelta$ in the wake with
 a confidence interval $[\PoneWakeDeltalo, \PoneWakeDeltahi]$ that includes zero, so
 the instantaneous readability is supplied by the supervision, not by the training
-objective. Read through the operator suited to each state, the predictive latent
-does lead the fitted-predictor merit ($\XmeritJepaWake$), but only narrowly over
-the reconstructive and objective-free supervised controls ($\XmeritAeWake$ and
-$\XmeritSupOnly$), and the seed variation of this quantity is substantial
-(\S\ref{sec:disc_limits}), so we do not rest a claim on that margin. What the
-predictive objective adds more clearly is the as-built model it produces: the
-\PredState's own co-trained predictor forecasts the five observables at
-$\XmeritJepaWakeNative$ at the same horizon, above what a matched operator extracts
-from any latent, which is the reduced-order model a deployment would actually run.
+objective.
+% REVIEW-CLAIM: (Session 36, Track M1, D310 null branch) this paragraph moved
+% from the suited-operator merits (Xmerit*, horizon eight, matched transformer
+% vs residual U-Net) to the shared-operator merits (XmeritSh*, horizon sixteen,
+% one direct forecaster for all ten states). The previous "leads only narrowly"
+% becomes a statistical tie; the co-trained predictor's advantage is now
+% explicitly horizon-dependent, which strengthens the section's own
+% error-accumulation thesis.
+Under one shared forecast operator, the \DirectFC{} of
+\S\ref{sec:methods_rex} trained identically on every state, the three
+wake-headed states are also the most forecastable and are statistically
+indistinguishable from one another ($\XmeritShJepaWake$, $\XmeritShAeWake$ and
+$\XmeritShSupOnly$ at horizon sixteen, case-clustered intervals overlapping),
+so the forecastability of the coefficient state, like its readability, is
+supplied by the supervision rather than by the training objective. What the
+predictive objective adds is the model it co-trains: the \PredState's own
+vector predictor forecasts the five observables at $\XmeritJepaWakeNative$ at
+horizon eight, above what the shared operator extracts from any latent there
+($\XmeritShEightJepaWake$), and is overtaken by the \DirectFC{} at horizon
+sixteen ($\XmeritJepaWakeNativeSixteen$ against $\XmeritShJepaWake$), the
+error-accumulation contrast that \S\ref{sec:res_forecast} quantifies.
 We state the representational result as the supervision's, and turn to what the
 predictive objective does add, which is
 dynamical.
@@ -79,6 +91,9 @@ enstrophy that a supervised nonlinear state does.
 
 \begin{figure}
   \centering
+% FIGURE-TODO: (Session 36, D310) panel (b) plots the SUPERSEDED suited-operator
+% merits (part table_x); the figure plan drops this figure at Stage 5 (duplicates
+% tab:closure). If kept, regenerate panel (b) from part m1_shared_merit.
   \includegraphics[width=\linewidth]{sections/figures/results/fig_readability_matrix_v3.pdf}
   \caption{The attribution result of table~\ref{tab:closure}, at a glance. (a)
   Held-out wake-enstrophy readability and (b) matched-predictor merit, with the

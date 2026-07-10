@@ -114,7 +114,7 @@ object this paper is about, and the field-resolved latent is a decodability
 instrument rather than an estimation target. Pooling the encoder onto the
 coefficient state costs field fidelity across every family, by
 $\PfourSsimDeltaJepa$ in decode similarity and $\PfourMeritDeltaJepa$ in
-matched-predictor merit for the predictive latent (Appendix~\ref{app:suppfigs}),
+fitted-operator forecast merit for the predictive latent (Appendix~\ref{app:suppfigs}),
 and it gains nothing in wall recoverability that the coefficient state does not
 already have. The state a controller would carry is therefore not the one a
 field-reconstruction objective produces.
@@ -152,22 +152,28 @@ per-configuration estimatability check that their probes do not predict.
 \label{sec:disc_outlook}
 
 Five limitations bound the claims. First, the attribution of the instantaneous
-results is honest but unglamorous: the wake readability is supplied by the
+results is unglamorous: the wake readability is supplied by the
 observable supervision and its tie between the predictive and reconstructive
 wake-headed states is seed-robust ($\SeedWakeJepaVec \pm \SeedWakeSdJepaVec$
-against $\SeedWakeAeWake \pm \SeedWakeSdAeWake$), and the single-seed tie in
-matched-predictor merit between the full predictive state and the objective-free
-supervised control does not replicate across retrains. A seed study of the fitted
-merit, run under the residual U-Net operator as a stability check, cautions
-against over-reading fitted-merit differences: over three seeds the supervised
+against $\SeedWakeAeWake \pm \SeedWakeSdAeWake$).
+% REVIEW-CLAIM: (Session 36, Track M1, D310) the suited-operator "narrow lead"
+% this passage previously cautioned against is gone from the main text; the
+% shared-operator recomputation makes the tie explicit, and the earlier U-Net
+% seed study now corroborates rather than qualifies it.
+The shared-operator forecast merit of \S\ref{sec:res_closure} shows the same
+picture dynamically: over three operator seeds the three wake-headed states are
+statistically indistinguishable, with overlapping case-clustered intervals. An
+earlier seed study of the fitted merit, run under the residual U-Net operator
+as a stability check, cautions the same way: the supervised
 control is seed-fragile (spread $\SeedMeritSdSupOnly$, with one healthy retrain in
 three collapsing), the predictive latent is tighter but not the sharpest
-($\pm \SeedMeritSdJepaVec$), and the family means overlap. The narrow lead the
-predictive state holds under its suited transformer operator (\S\ref{sec:res_closure})
-is therefore not decisive on its own. The defensible dynamical claim rests instead
-on the as-built model and its rollout: the \PredState's own predictor forecasts
-markedly better than a matched operator extracts from any latent, and the
-multi-step objective buys long-horizon stability and lower drift, not a larger
+($\pm \SeedMeritSdJepaVec$), and the family means overlap. No fitted-operator
+margin between the wake-headed states
+is therefore decisive on its own. The defensible dynamical claim rests instead
+on the co-trained model and its rollout: the \PredState's own predictor forecasts
+better than the shared operator extracts from any latent at short horizon
+($\XmeritJepaWakeNative$ at horizon eight, \S\ref{sec:res_closure}), and the
+multi-step objective confers long-horizon stability and lower drift, not a larger
 instantaneous readability margin. Second, the wall-normal offset $Y$ remains the least
 resolved release parameter because the training mass concentrates near
 $Y \approx 0$; the additional cases make it weakly readable where it was

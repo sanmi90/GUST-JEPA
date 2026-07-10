@@ -1,38 +1,55 @@
 % Table X (v3): the pooled controlled matrix + references. tab:closure.
 % All numbers are macros_v3.tex macros (outputs/session33/numbers.json).
+% REVIEW-CLAIM: (Session 36, Track M1, D310 null branch) the merit column is
+% recomputed under ONE shared operator (the s3.2.1 direct multi-horizon
+% forecaster, part m1_shared_merit) at the pre-registered horizon sixteen,
+% replacing the suited-operator merits (part table_x, horizon eight), whose
+% per-family values remain macro-bound (\Xmerit<Name>) and move to the
+% supplementary suited-operator table at the Stage 3 restructure. Under the
+% shared operator the three wake-headed states are statistically tied; the
+% mid-block ordering changes (the no-wake predictive state collapses, the
+% wake-headed reconstructive reference rises), which is itself reported.
+% REVIEW-NUMBER: the previous caption said "merit ... at horizon sixteen"
+% while the suited-operator values were computed at horizon eight
+% (editorial/MANUSCRIPT_AUDIT.md); the new column is genuinely horizon
+% sixteen and the VRMSE column is horizon eight, both now stated correctly.
 \begin{table}
   \centering
   \caption{What each pooled coefficient state carries, at matched dimension
   $d = 32$ on the $\NTestBEnc$ \TestSplit{} encounters. Held-out wake-enstrophy
-  readability (fixed linear probe, no rollout), matched-predictor forecast merit
-  (mean over the five observables at horizon sixteen), field-reconstruction error
-  (VRMSE at horizon sixteen), and decode similarity (SSIM). The controlled matrix
+  readability (fixed linear probe, no rollout); forecast merit under one shared
+  operator, the \DirectFC{} of \S\ref{sec:methods_rex} trained identically on
+  every state (three operator seeds; mean over the five observables of the
+  pooled nonlinear-probe $R^2$ at horizon sixteen; seed means, with
+  case-clustered bootstrap intervals in the text); field-reconstruction error
+  (VRMSE at horizon eight); and decode similarity (SSIM). The controlled matrix
   (top block) moves one training ingredient at a time; the reference recipes
-  (bottom block) use their own architectures (table~\ref{tab:baselines}). Every
-  latent is a pooled coefficient vector; the merit reports each under the forecast
-  operator numerically stable on it, a matched transformer on the pooled states of
-  the controlled matrix and a matched residual U-Net on the reference latents, on
-  which the transformer diverges (Appendix~\ref{app:reg}). Wake readability
-  separates on the wake-supervision head, not on the training objective; the
-  predictive state leads the fitted merit only narrowly, and its own co-trained
-  predictor, the as-built model, forecasts at $\XmeritJepaWakeNative$.}
+  (bottom block) use their own architectures (table~\ref{tab:baselines}). Wake
+  readability separates on the wake-supervision head, not on the training
+  objective, and under the shared operator the three wake-headed states are
+  also the most forecastable, statistically indistinguishably from one
+  another. The \PredState's own co-trained predictor leads every fitted
+  operator at short horizon ($\XmeritJepaWakeNative$ at horizon eight) and is
+  overtaken by the \DirectFC{} at horizon sixteen
+  ($\XmeritJepaWakeNativeSixteen$ against $\XmeritShJepaWake$), the
+  error-accumulation contrast of \S\ref{sec:res_forecast}.}
   \label{tab:closure}
   \small
   \fittab{\begin{tabular}{l l c c c c c}
     \toprule
     State & Objective & Wake head & wake $R^2$ & merit & field VRMSE & SSIM \\
     \midrule
-    predictive (wake)  & predictive     & yes & $\XwakeJepaWake$   & $\XmeritJepaWake$   & $\XvrmseJepaWake$   & $\XssimJepaWake$ \\
-    supervised only   & none           & yes & $\XwakeSupOnly$    & $\XmeritSupOnly$    & $\XvrmseSupOnly$    & $\XssimSupOnly$ \\
-    AE (wake)         & reconstruction & yes & $\XwakeAeWake$     & $\XmeritAeWake$     & $\XvrmseAeWake$     & $\XssimAeWake$ \\
-    predictive (no wake) & predictive     & no  & $\XwakeJepaNowake$ & $\XmeritJepaNowake$ & $\XvrmseJepaNowake$ & $\XssimJepaNowake$ \\
-    AE (no wake)      & reconstruction & no  & $\XwakeAeNowake$   & $\XmeritAeNowake$   & $\XvrmseAeNowake$   & $\XssimAeNowake$ \\
-    anti-collapse AE  & reconstruction & no  & $\XwakeRegAE$      & $\XmeritRegAE$      & $\XvrmseRegAE$      & $\XssimRegAE$ \\
+    predictive (wake)  & predictive     & yes & $\XwakeJepaWake$   & $\XmeritShJepaWake$   & $\XvrmseJepaWake$   & $\XssimJepaWake$ \\
+    supervised only   & none           & yes & $\XwakeSupOnly$    & $\XmeritShSupOnly$    & $\XvrmseSupOnly$    & $\XssimSupOnly$ \\
+    AE (wake)         & reconstruction & yes & $\XwakeAeWake$     & $\XmeritShAeWake$     & $\XvrmseAeWake$     & $\XssimAeWake$ \\
+    predictive (no wake) & predictive     & no  & $\XwakeJepaNowake$ & $\XmeritShJepaNowake$ & $\XvrmseJepaNowake$ & $\XssimJepaNowake$ \\
+    AE (no wake)      & reconstruction & no  & $\XwakeAeNowake$   & $\XmeritShAeNowake$   & $\XvrmseAeNowake$   & $\XssimAeNowake$ \\
+    anti-collapse AE  & reconstruction & no  & $\XwakeRegAE$      & $\XmeritShRegAE$      & $\XvrmseRegAE$      & $\XssimRegAE$ \\
     \midrule
-    $\beta$-VAE       & reconstruction & yes & $\XwakeBvae$       & $\XmeritBvae$       & $\XvrmseBvae$       & $\XssimBvae$ \\
-    Fukami            & reconstruction & no  & $\XwakeFukami$     & $\XmeritFukami$     & $\XvrmseFukami$     & $\XssimFukami$ \\
-    Fukami (wake)     & reconstruction & yes & $\XwakeFukamiWake$ & $\XmeritFukamiWake$ & $\XvrmseFukamiWake$ & $\XssimFukamiWake$ \\
-    POD               & linear         & no  & $\XwakePod$        & $\XmeritPod$        & $\XvrmsePod$        & $\XssimPod$ \\
+    $\beta$-VAE       & reconstruction & yes & $\XwakeBvae$       & $\XmeritShBvae$       & $\XvrmseBvae$       & $\XssimBvae$ \\
+    Fukami            & reconstruction & no  & $\XwakeFukami$     & $\XmeritShFukami$     & $\XvrmseFukami$     & $\XssimFukami$ \\
+    Fukami (wake)     & reconstruction & yes & $\XwakeFukamiWake$ & $\XmeritShFukamiWake$ & $\XvrmseFukamiWake$ & $\XssimFukamiWake$ \\
+    POD               & linear         & no  & $\XwakePod$        & $\XmeritShPod$        & $\XvrmsePod$        & $\XssimPod$ \\
     \bottomrule
   \end{tabular}}
 \end{table}

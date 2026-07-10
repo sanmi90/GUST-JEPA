@@ -10712,3 +10712,73 @@ until then); D305 OPEN (calibration-audit placement, in-paper appendix
 recommended, Session 38); D306 resolved (above); D310-D312 are outcome stubs
 for M1 gate branch, per-item M2 dispositions, and any claim rewordings, to
 be written when the tracks complete.
+
+### D310 (SESSION36 Track M1: shared-operator merit lands on the NULL branch; tab:closure merit column replaced) (2026-07-11, Session 36)
+
+The s3.2.1 direct forecaster (LSTM h512, nine quantiles, 6000 iterations,
+rex_tune winner) was fit identically on all ten tab:closure families, three
+operator seeds each, on the frozen v2p2 caches (six caches newly encoded
+from the frozen checkpoints: supervised_only_pool, regAE_pool, bvae, fukami,
+jepa_nowake_pool, pod). Merit = mean over the five observables of pooled
+MLP-probe R2, probes per family on own train latents, sliding 25-frame
+anchors, targets in the impact+relaxation window, test_b, case-clustered
+bootstrap CIs (2000). Artifact outputs/session36/m1_shared_merit.json; part
+m1_shared_merit (21 numbers, macros XmeritSh*/XmeritShEight*/
+XmeritJepaWakeNativeSixteen); harness scripts/session36/rex_families_m1.py.
+
+RESULT at the pre-registered H=16 (h8 in parentheses): AeWake 0.574 (0.682),
+JepaWake 0.561 (0.680), SupOnly 0.443 (0.613), AeNowake 0.285 (0.384),
+FukamiWake 0.162 (0.377), RegAE 0.068 (0.166), Bvae 0.040 (0.366), Pod 0.036
+(0.097), Fukami -0.195 (0.142), JepaNowake -0.426 (-0.083). GATE = NULL
+branch: the wake-headed top block stays on top but becomes a statistical tie
+(overlapping case-clustered CIs; the suited-operator "narrow lead" of the
+predictive state does not survive the shared operator), and the mid-block
+ordering genuinely changes (JepaNowake collapses under the shared operator,
+FukamiWake rises, Pod falls, Fukami is no longer catastrophically negative).
+KEY HORIZON FINDING: the co-trained vector predictor leads everything at h8
+(0.755) but is overtaken by the shared direct forecaster at h16 (0.418 vs
+0.561), which converts the previous caption claim ("above what a matched
+operator extracts from any latent") into an explicitly horizon-dependent
+statement that REINFORCES the paper's own error-accumulation thesis.
+
+Disposition applied (numbers-frozen gate): tab:closure merit column now
+quotes XmeritSh* at the pre-registered horizon sixteen (the old caption said
+sixteen while the suited values were h8; both horizons now stated
+truthfully); the suited-operator merits stay macro-bound (Xmerit*) for the
+Stage 3 supplementary suited-operator table; the s4 merit paragraph and the
+s5.5 seed-variance passage rewritten with % REVIEW-CLAIM markers;
+fig:readability_matrix panel (b) carries a % FIGURE-TODO (drops at Stage 5
+or regenerates from the m1 part).
+
+### D311 (SESSION36 Track M2: provenance dispositions; parameter-only floor re-run CONFIRMS on v2.2) (2026-07-11, Session 36)
+
+Five of six M2 targets CONFIRMED v2.2 from their artifacts' embedded args
+(near-null/Mahalanobis mechanism, DMD spectrum/atlas, distributed-code gap,
+Vietoris-Rips topology, pressure-recovery K x W grid); retag only, no
+compute. tab:prepsens stays deliberately v2.1-disclosed (the disclosure
+model). The parameter-only floor was the single pre-v2.2 item (session-23
+exp_conditioning_floor_plus.py lineage, no v2p2 artifact): RE-RUN as
+scripts/session36/param_floor_v2p2.py -> outputs/session36/
+param_floor_v2p2.json. Both directional Methods sentences CONFIRM on v2.2:
+wake-enstrophy floor LOW at the H=16 closure window (R2 0.151) and HIGH at
+the impact frame (0.687). Caution recorded for Stage 4: circulation_neg
+remains parameter-explainable at H=16 (0.730), so the floor claim stays
+wake-enstrophy-specific. Full ledger editorial/PROVENANCE.md.
+
+### D312 (SESSION36 claim rewordings triggered by M1/M2, and evidence-based stub resolutions) (2026-07-11, Session 36)
+
+Rewordings (all % REVIEW-CLAIM-marked in the tex): (1) tab:closure caption
+rebuilt around the shared operator, horizon-truthful, co-trained-predictor
+advantage horizon-qualified; (2) s4 "leads the fitted-predictor merit only
+narrowly" replaced by the shared-operator statistical tie + the h8/h16
+crossover; (3) s5.5 seed-variance caution now corroborates the tie instead
+of qualifying a lead that no longer exists; (4) M5 strong-effect bar dropped
+(Stage 0, no before-results commit exists; conclusion unchanged). Stub
+resolutions without author input: D304 RETIRED (the duplicated "near 3.0"
+is real discrete-ladder quantization, both D=1.0/1.5 first exceed a 0.5
+divergence rate at grid |G|=3; D=1.5 reaches exactly 0.5 at |G|=2; D=0.5
+never exceeds it; Stage 4 rewrites the false core-diameter contrast, values
+untouched). Caption/number defect found and fixed en route: the old
+tab:closure caption claimed horizon sixteen over h8 values. Session-36
+gates at close: build rc=0 (50pp), zero undefined refs, tracer PASS,
+macros/json cross-check 835/735 zero mismatches.
