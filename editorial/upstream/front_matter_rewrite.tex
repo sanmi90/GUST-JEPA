@@ -1,0 +1,138 @@
+% =====================================================================
+% Front-matter rewrite for main_25 (JFM submission)
+% British spelling; no em-dashes; numbers to be bound to macros from
+% macros_v3.tex / numbers.json before merging (search REVIEW-NUMBER).
+% =====================================================================
+
+% ----------------------------- TITLE --------------------------------
+% Recommended (en-dash in the compound noun follows Fukami et al. 2024):
+\title{Predictive reduced-order states for wall-pressure estimation of
+extreme vortex gust--airfoil interactions}
+% Alternatives, in order of preference:
+% \title{Wall-pressure estimation of extreme vortex gust--airfoil
+%   encounters through predictive reduced-order states}
+% \title{A wall-estimable predictive reduced state for extreme
+%   vortex gust--airfoil interactions}
+% Rationale: the physical task (wall-pressure estimation) leads; the
+% method class (predictive reduced-order states) follows; "lift-anchored"
+% and "JEPA" are results and lineage, not title material.
+
+% Keywords: verify against the current JFM list before submission.
+% \keywords{vortex shedding, low-dimensional models, machine learning}
+
+% ---------------------------- ABSTRACT -------------------------------
+% ~245 words. Three numbers only. Physical units alongside R^2.
+% Restores the attribution sentence (supervision vs predictive objective)
+% and the oracle clause; removes all divergence-count claims.
+\begin{abstract}
+Extreme vortex gusts drive a post-stall airfoil through a transient
+reorganisation of its wake, and the release parameters alone do not
+determine the flow once the vortex has passed. We ask whether a reduced
+state of such an encounter can retain the wake dynamics, remain usable
+under a low-order forecast model, and be estimated from the sparse wall
+pressure a wing can carry. Direct numerical simulations of a NACA 0012
+airfoil at $\alpha = 14^\circ$ and $Re = 5000$, perturbed by Taylor
+vortices spanning gust ratio, core diameter and offset, are used to
+compare predictive, reconstruction-trained and
+proper-orthogonal-decomposition coefficient states at matched dimension.
+A controlled supervision study shows that these requirements are
+supplied by different ingredients. Under the predictive objective
+considered, a scalar lift target is necessary to prevent collapse of the
+latent representation, a near-body force-element target sharpens the
+peak loads, and a wake target is required to retain the wake enstrophy
+and circulation; the multi-step predictive objective contributes
+stability under rollout rather than instantaneous readability. Load
+information remains accessible at four coefficients, whereas wake-field
+reconstruction requires at least sixteen. Under a single direct
+multi-horizon forecaster trained identically on every state, the
+predictive coordinates are the most forecastable, autoregressive rollout
+degrades through error accumulation, and supplying the true gust
+parameters provides no benefit. A sequential ensemble filter sensing
+eight wall-pressure taps then tracks the lift through the encounter,
+with impact-phase $R^2 = 0.794$ (root-mean-square error $0.286$ in lift
+units) on the in-distribution test set and $R^2 = 0.837$ at the held-out
+$|G| = 4$ boundary; % REVIEW-NUMBER: bind 0.794 / 0.286 / 0.837 to macros
+the wake enstrophy is not recovered by the wall-sensor configurations
+considered, a limit set by the sensing geometry rather than by the
+state.
+\end{abstract}
+
+% ------------- FINAL PARAGRAPH OF THE INTRODUCTION -------------------
+% Replaces the current four-contribution paragraph (lines 93-120).
+% Includes the (i)/(ii)/(iii) requirement list and the roadmap sentence,
+% both house style in the lineage corpus. ~185 words; trim the roadmap
+% sentence if the editor requires ~120.
+Here we ask whether a reduced representation of an extreme vortex-gust
+encounter can satisfy three requirements simultaneously: (i) it must
+carry the wake variables that distinguish post-impact states beyond the
+release parameters; (ii) it must remain usable when advanced by a
+low-order forecast model; and (iii) it must be estimable from the sparse
+wall pressure a vehicle carries. We compare predictive,
+reconstruction-trained and proper-orthogonal-decomposition coefficient
+states at matched dimension, on direct numerical simulations of a
+post-stall NACA 0012 airfoil perturbed by Taylor vortex gusts.
+Controlled ablations separate the roles of the lift, near-body and wake
+supervision targets; one direct forecaster, trained identically on every
+state, assesses forecastability; and a sequential estimator that senses
+only wall pressure tests observability. The requirements prove to be
+supplied by different ingredients: observable supervision organises the
+latent geometry and its readability, multi-step predictive training
+stabilises its forward use, and pressure histories recover the
+lift-carrying coordinates but not the complete wake state. The remainder
+of the paper is organised as follows. Section 2 describes the flow
+configuration, data and endpoints; \S 3 the reduced states, forecaster
+and estimators; \S 4 the results, in the order construction (\S 4.1),
+compression and forecastability (\S 4.2), wall observability (\S 4.3)
+and sequential estimation (\S 4.4); \S 5 discusses the mechanisms and
+their limits, and \S 6 concludes.
+
+% --------------------- CONCLUDING REMARKS ----------------------------
+% Section title "Concluding remarks" per lineage convention.
+% Four short paragraphs: construction, compression, forecasting,
+% estimation; then one bounding paragraph. All courtroom language gone.
+\section{Concluding remarks}
+
+We asked whether a reduced state of an extreme vortex-gust encounter can
+be constructed to carry the wake dynamics, advanced in time, and
+recovered from wall pressure alone. On construction: under the
+predictive objective considered, a scalar lift target is necessary for a
+non-collapsed latent representation, a near-body force-element target
+sharpens the peak loads on top of it (peak-region $R^2 = 0.86$ over
+three seeds), % REVIEW-NUMBER
+and a wake target is required for the state to carry the wake
+observables. The collapse result concerns latent health and the
+peak-load result concerns a paired increment over an already
+lift-supervised baseline; the two rest on different comparisons.
+
+On compression, the statement is two-tier: load information is
+approximately unchanged over the tested dimensions under a nonlinear
+probe and is linearly accessible at four coefficients, whereas
+wake-field reconstruction requires at least sixteen. On forecasting, a
+direct multi-horizon forecaster remains usable over forty steps where
+autoregressive rollout degrades through error accumulation, and
+supplying the true gust parameters provides no benefit, so the
+deployable route to the encounter is a model corrected by pressure
+rather than the release parameters.
+
+On estimation, a two-stage ensemble filter sensing eight wall-pressure
+taps tracks the lift through the encounter, phase-resolved and in
+physical units: impact-phase $R^2 = 0.794$ at a root-mean-square error
+of $0.286$ lift units on the in-distribution test set, and $R^2 = 0.837$
+at the $|G| = 4$ boundary. % REVIEW-NUMBER
+Across latent dimension and training seed the predictive states remain
+uniformly estimable from the wall, whereas the reconstructive geometry
+does not, for a verified observation-side reason; this robustness,
+rather than any single configuration, is the deployment argument.
+
+Three results bound the claims. A static delay-embedded inverse matches
+the filter's in-distribution impact median, and the filter's advantage
+lies in the tails, at the boundary set and in continuous state tracking.
+The wake enstrophy is not recovered by the tap counts, delay windows and
+estimators considered here, a limit we attribute to the sensing geometry
+rather than to the state. And the mid-plane representation shows an
+indication of a three-dimensional observability limitation at the
+strongest gusts, where the filter's uncertainty consistency degrades
+even as the median tracking holds. The natural next steps are a
+calibrated process and observation noise model for the filter, and the
+same matched-estimator protocol on other parametric flows, to test how
+general the estimability ordering reported here is.

@@ -10675,3 +10675,40 @@ the residual). (5) TiRex ids verified on arxiv.org (2505.23719 TiRex,
 2607.01204 TiRex-2), both cited. Build at close: 50pp, rc=0, zero
 undefined refs/citations, branch pushed through ec8f835. CLAUDE.md current
 focus updated to Session 35 CLOSED.
+
+### D266 (SESSION36 open: JFM rewrite program adopted; D301-D319 reserved as the manuscript-rewrite block) (2026-07-10, Session 36)
+
+Carlos delivered a three-document JFM rewrite program prepared externally
+against the compiled v4 PDF (exported as main_25.pdf and confirmed by him to
+BE paper/main.pdf, so the memo's figure/table numbering maps 1:1 to the
+current build): an editorial master prompt (stages 0-6), a compute-session
+spec (tracks M1-M3), an editorial memo v2 with 15 number/claim catches, and
+pre-approved front-matter drafts. All four archived at editorial/upstream/.
+Session 36 runs on branch jfm-rewrite-v2 (off session35-manuscript-v4, which
+stays untouched pending the merge decision) under the governing spec
+SESSION_36.md, which merges the editorial stages 0-2 and compute tracks
+M1-M2 into one dependency-ordered session ending at the numbers-frozen gate;
+stages 3-6 and Track M3 are Sessions 37-38.
+
+Decisions locked by Carlos this session: (L1) combined single-session
+packaging, superseding the uploaded two-session split; (L2) main.pdf IS
+main_25, concordance is verification not inference; (L3 = D301 RESOLVED)
+recompute the families-table forecast-merit column under the shared direct
+forecaster, Track M1, with the strong/weak/null gate auto-resolving the
+table disposition; (L4 = D303 + D306 RESOLVED) adopt
+front_matter_rewrite.tex now, title becomes "Predictive reduced-order states
+for wall-pressure estimation of extreme vortex gust--airfoil interactions"
+(supersedes the D2/D264 default title), drafts bind in Session 37 Stage 4
+with numbers bound to macros; (L5) the block D301-D319 is RESERVED for this
+rewrite program so the upstream documents' cross-references stay valid;
+organic decisions continue at D267 and following.
+
+Reserved-block ledger at open: D301 resolved (recompute, above); D302 OPEN
+(fig-21-slim placement, decide at Session 38 Stage 5 STOP; memo recommends
+keep slim in s4.1); D303 resolved (above); D304 OPEN (Carlos to supply the
+intended per-core-diameter half-divergence gust ratios behind the duplicated
+"near 3.0" in the envelope section, presumed macro bug; % REVIEW-NUMBER flag
+until then); D305 OPEN (calibration-audit placement, in-paper appendix
+recommended, Session 38); D306 resolved (above); D310-D312 are outcome stubs
+for M1 gate branch, per-item M2 dispositions, and any claim rewordings, to
+be written when the tracks complete.
