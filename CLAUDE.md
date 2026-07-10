@@ -12,7 +12,45 @@ matched latent dimension.
 
 Lead researcher: Carlos Sanmiguel Vila (INTA, UC3M).
 
-## Current focus (read first, set 2026-07-06, Session 34 CLOSED)
+## Current focus (read first, set 2026-07-10, Session 35 CLOSED)
+
+**Session 35 is COMPLETE and pushed on branch `session35-manuscript-v4`** (off
+session34-trackc, HEAD around `ec8f835`). Governing spec: `SESSION_35.md` at
+repo root (wins over SESSION_35_MANUSCRIPT_V4.md). Full report
+`SESSION35_REPORT.md`; HANDOFF D262-D265. The v4 manuscript is STRUCTURALLY
+COMPLETE: 50pp, rc=0, zero undefined refs/citations. Headlines:
+- P1 gates all resolved pre-registered (`outputs/session35/p1_gates.md`):
+  T1 PASS rexpred d32 band 0.880+-0.023 (n=3); T2 PASS oracle-hurts
+  (0.539+-0.087 vs none 0.699+-0.008; phase leg = WASH, R12 corrected);
+  T3 filter band 0.764+-0.012 (n=5), streaming headline moved to the
+  protocol-clean band-1.77 arm (more noise-robust than the test-peeked 4.0);
+  T4 FK16-B decisive (Fukami d16 best cell = lucky seed {0.18, 0.65, 5.93},
+  E_obs-geometry mechanism verified); T5 F20-B, NIS route REFUTED
+  mechanistically (test_a NIS < 1 at every band while R2 rises = model-error
+  compensation) BUT the declared coverage-band two-stage addendum delivers
+  0.794 test_b / 0.837 test_c impact, ZERO catastrophic at |G|=4, best
+  protocol-clean filter; T6 d4 filter band 0.782+-0.007 (n=5).
+- Manuscript: Methods rebuilt to the Gupta MC contract (numbered equations,
+  per-filter table; `paper/sections/v4/s3_*.tex`, provenance
+  `outputs/session35/mc_provenance.md`); Results restructured into parts A-D
+  (`s4_*.tex`) with the v3 subsections as base-protocol records; front matter
+  rewritten; TITLE = D2 default (a) "Lift-anchored predictive coefficient
+  states..."; TikZ architecture extended (3 heads + rexpred variant;
+  VisualTorch evaluated and REJECTED, incompatible + unannotated); 20 v4
+  figures via figstyle, numbers JSON-loaded at build.
+- Pipelines: 714 numbers / 19 parts -> 774 macros, byte-identical
+  regeneration, 12 VERIFY anchors PASS; number tracer
+  (`scripts/session35/trace_numbers.py`) is a build gate at 329 -> 1 hits,
+  the residual being the DELIBERATE M5 sentinel ($0.2$ strong-effect bar,
+  cite-archived-commit-or-drop); table generation audit clean (v2.1/v3 macro
+  namespaces disjoint; two v2-era orphan files deleted); OSP description
+  verified against code claim-by-claim (eq:osp added).
+Remaining at freeze: M5 commit citation, retained-v3 caption seed-provenance
+audit, moderate prose sweep (POD-vs-AE intro tension, sign-convention
+placement). Carlos-owned: merge decision, D2 title confirmation, DNS Table 1,
+Zenodo DOI, license/CRediT/funding.
+
+## Previous focus (Session 34)
 
 **Session 34 is COMPLETE and pushed on branch `session34-trackc`** (off
 session33-manuscript-v3). Two-day campaign, HANDOFF D253-D261, full report in
@@ -36,12 +74,7 @@ session33-manuscript-v3). Two-day campaign, HANDOFF D253-D261, full report in
   stable linear floor; Fukami ERRATIC (catastrophic d=4/d=32, best-in-table
   d=16 0.180; E_obs estimatability failure, verified not a bug). Grid at
   `outputs/session34/da_dims_grid.json`.
-Next session (Session 35 = P1 of `SESSION_35_MANUSCRIPT_V4.md`): gap runs
-(CLN-rexpred d32 s1/s2, Fukami d16 seed band, filter + conditioning-null seed
-replicates), two-stage filter in envelope_by_gust + test_a NIS band tuning
-(decides the F20 headline 0.749 vs ~0.84), then P2 figures (~23) / P3 prose /
-P4 review-fix. Merge of `session34-trackc` into the manuscript branch is
-Carlos's call.
+(Session 35 executed all of this; see Current focus above.)
 
 ## Previous focus (Session 33)
 

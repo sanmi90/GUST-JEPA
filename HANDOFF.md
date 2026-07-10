@@ -10643,3 +10643,35 @@ rc=0, zero errors, zero undefined refs/citations. Open at freeze: M5
 archived-commit citation, fresh-eyes style pass, moderate prose sweep,
 retained-v3 caption audit, fig4_caption deletion. Carlos: merge, D2
 confirmation, DNS Table 1, Zenodo, license/CRediT/funding.
+
+### D265 (SESSION35 final close: style pass, architecture visuals, table audit, OSP verification) (2026-07-10, Session 35)
+
+Post-D264 closeout, user-directed. (1) jfm_project_writing_style fresh-eyes
+pass RUN and PASSED: zero manuscript checker errors after two fixes (DNS
+metadata caption reworded to the bounded no-"all-scales-resolved" form; a
+main.tex comment no longer trips the compiled-PDF artifact grep);
+compiled-PDF greps clean (no template artifacts, em-dashes, isometry or
+controller overreach, unresolved refs). (2) VisualTorch evaluated on the
+real HybridCNNViTEncoder and REJECTED with evidence: its shape tracer drops
+the batch dim (BatchNorm2d fails in every style) and the CNN-stem renders
+are unannotated layer ribbons; instead the TikZ fig1_jepa_architecture was
+extended (three heads branch off z_t west-anchored, predictor box carries
+AR-transformer + direct-REX variants), fig:method caption updated, and the
+phi_L physics panel split into fig_phi_panel_v4 wired into the Chang
+subsection (fig:phi). (3) TABLE GENERATION AUDIT: every in-build table
+draws exclusively from macros_v3; the v2.1 and v3 macro namespaces are
+fully disjoint (388 vs 774, zero overlap) so no stale value can hide;
+tab:prepsens carries its D7 previous-generation tag; regenerating all v3
+parts reproduces them BYTE-IDENTICALLY (12 VERIFY anchors PASS, 714
+numbers / 19 parts); two v2-era ORPHANS deleted (paired_closure_body.tex,
+fig4_caption.tex) and the tracer tightened accordingly (329 -> 1 hits; the
+residual IS the M5 sentinel). (4) OSP VERIFIED claim-by-claim against
+osp_select.py + session14_tcsi_pilot.py (192 taps, W=30 causal
+impact-anchored, joint ridge proxy alpha=1, PC-1-of-own-impact-latents
+target, prefix-nested staircase, qDEIM QR reference) and the exact
+selection score added as eq:osp with the dominant-balance note (S_preq and
+Eff terms near-degenerate; criterion = explained-variance gain minus half
+the residual). (5) TiRex ids verified on arxiv.org (2505.23719 TiRex,
+2607.01204 TiRex-2), both cited. Build at close: 50pp, rc=0, zero
+undefined refs/citations, branch pushed through ec8f835. CLAUDE.md current
+focus updated to Session 35 CLOSED.
