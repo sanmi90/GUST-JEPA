@@ -65,6 +65,13 @@ outputs/session31/tables/*
 outputs/session32/*
 !outputs/session32/*.json
 
+# Session 36: track the small result JSONs (Track M1 shared-operator merit,
+# M2b parameter floor; provenance for D310-D312). Operator checkpoints and
+# caches stay ignored.
+!outputs/session36/
+outputs/session36/*
+!outputs/session36/*.json
+
 # Exception: paper manuscript figures live under paper/sections/figures/results/
 # even though the top-level results/ folder is ignored.
 !paper/sections/figures/results/

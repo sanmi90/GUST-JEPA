@@ -1,0 +1,233 @@
+{
+ "part": "m1_shared_merit",
+ "numbers": {
+  "m1_merit_shared_h16_JepaWake": {
+   "value": 0.5613542388178033,
+   "ci_lo": 0.34892220379540595,
+   "ci_hi": 0.6310522807341448,
+   "macro": "XmeritShJepaWake",
+   "fmt": "%.3f",
+   "split": "test_b",
+   "horizon": 16,
+   "seed_sd": 0.027779864133475,
+   "note": "shared direct multi-horizon forecaster (s3.2.1 operator, LSTM h512 9q), 3 operator seeds, case-clustered bootstrap CI; Track M1 D310"
+  },
+  "m1_merit_shared_h8_JepaWake": {
+   "value": 0.6797515681305533,
+   "ci_lo": 0.5458775566163497,
+   "ci_hi": 0.7172859240911829,
+   "macro": "XmeritShEightJepaWake",
+   "fmt": "%.3f",
+   "split": "test_b",
+   "horizon": 8,
+   "seed_sd": 0.011184044025482238,
+   "note": "shared direct multi-horizon forecaster (s3.2.1 operator, LSTM h512 9q), 3 operator seeds, case-clustered bootstrap CI; Track M1 D310"
+  },
+  "m1_merit_shared_h16_SupOnly": {
+   "value": 0.4427505366034428,
+   "ci_lo": 0.17535837063978635,
+   "ci_hi": 0.5479617905380862,
+   "macro": "XmeritShSupOnly",
+   "fmt": "%.3f",
+   "split": "test_b",
+   "horizon": 16,
+   "seed_sd": 0.007889081358621814,
+   "note": "shared direct multi-horizon forecaster (s3.2.1 operator, LSTM h512 9q), 3 operator seeds, case-clustered bootstrap CI; Track M1 D310"
+  },
+  "m1_merit_shared_h8_SupOnly": {
+   "value": 0.6128148897815991,
+   "ci_lo": 0.3807039133955909,
+   "ci_hi": 0.6937980250377898,
+   "macro": "XmeritShEightSupOnly",
+   "fmt": "%.3f",
+   "split": "test_b",
+   "horizon": 8,
+   "seed_sd": 0.01092331637963483,
+   "note": "shared direct multi-horizon forecaster (s3.2.1 operator, LSTM h512 9q), 3 operator seeds, case-clustered bootstrap CI; Track M1 D310"
+  },
+  "m1_merit_shared_h16_AeWake": {
+   "value": 0.5742583741488116,
+   "ci_lo": 0.31204474174859215,
+   "ci_hi": 0.6342547477803195,
+   "macro": "XmeritShAeWake",
+   "fmt": "%.3f",
+   "split": "test_b",
+   "horizon": 16,
+   "seed_sd": 0.015314354177029697,
+   "note": "shared direct multi-horizon forecaster (s3.2.1 operator, LSTM h512 9q), 3 operator seeds, case-clustered bootstrap CI; Track M1 D310"
+  },
+  "m1_merit_shared_h8_AeWake": {
+   "value": 0.6822626985753333,
+   "ci_lo": 0.4925719843948484,
+   "ci_hi": 0.7398943955138486,
+   "macro": "XmeritShEightAeWake",
+   "fmt": "%.3f",
+   "split": "test_b",
+   "horizon": 8,
+   "seed_sd": 0.01885729179090175,
+   "note": "shared direct multi-horizon forecaster (s3.2.1 operator, LSTM h512 9q), 3 operator seeds, case-clustered bootstrap CI; Track M1 D310"
+  },
+  "m1_merit_shared_h16_JepaNowake": {
+   "value": -0.426036115264042,
+   "ci_lo": -2.130326918031027,
+   "ci_hi": 0.21428775818419743,
+   "macro": "XmeritShJepaNowake",
+   "fmt": "%.3f",
+   "split": "test_b",
+   "horizon": 16,
+   "seed_sd": 0.15670690406539628,
+   "note": "shared direct multi-horizon forecaster (s3.2.1 operator, LSTM h512 9q), 3 operator seeds, case-clustered bootstrap CI; Track M1 D310"
+  },
+  "m1_merit_shared_h8_JepaNowake": {
+   "value": -0.08279130162264838,
+   "ci_lo": -1.2209918345431934,
+   "ci_hi": 0.374412553606742,
+   "macro": "XmeritShEightJepaNowake",
+   "fmt": "%.3f",
+   "split": "test_b",
+   "horizon": 8,
+   "seed_sd": 0.13984920776304405,
+   "note": "shared direct multi-horizon forecaster (s3.2.1 operator, LSTM h512 9q), 3 operator seeds, case-clustered bootstrap CI; Track M1 D310"
+  },
+  "m1_merit_shared_h16_AeNowake": {
+   "value": 0.28467254651777746,
+   "ci_lo": -0.2525683342503571,
+   "ci_hi": 0.4041683420953201,
+   "macro": "XmeritShAeNowake",
+   "fmt": "%.3f",
+   "split": "test_b",
+   "horizon": 16,
+   "seed_sd": 0.016751028041739714,
+   "note": "shared direct multi-horizon forecaster (s3.2.1 operator, LSTM h512 9q), 3 operator seeds, case-clustered bootstrap CI; Track M1 D310"
+  },
+  "m1_merit_shared_h8_AeNowake": {
+   "value": 0.3838281383484996,
+   "ci_lo": -0.07554449420454748,
+   "ci_hi": 0.5031463459309821,
+   "macro": "XmeritShEightAeNowake",
+   "fmt": "%.3f",
+   "split": "test_b",
+   "horizon": 8,
+   "seed_sd": 0.02283212626585167,
+   "note": "shared direct multi-horizon forecaster (s3.2.1 operator, LSTM h512 9q), 3 operator seeds, case-clustered bootstrap CI; Track M1 D310"
+  },
+  "m1_merit_shared_h16_RegAE": {
+   "value": 0.06788690091745238,
+   "ci_lo": -0.4184095050751246,
+   "ci_hi": 0.19867792337080434,
+   "macro": "XmeritShRegAE",
+   "fmt": "%.3f",
+   "split": "test_b",
+   "horizon": 16,
+   "seed_sd": 0.04298777765556276,
+   "note": "shared direct multi-horizon forecaster (s3.2.1 operator, LSTM h512 9q), 3 operator seeds, case-clustered bootstrap CI; Track M1 D310"
+  },
+  "m1_merit_shared_h8_RegAE": {
+   "value": 0.16553573667804175,
+   "ci_lo": -0.19433436898959078,
+   "ci_hi": 0.2834554537027631,
+   "macro": "XmeritShEightRegAE",
+   "fmt": "%.3f",
+   "split": "test_b",
+   "horizon": 8,
+   "seed_sd": 0.037136274009375816,
+   "note": "shared direct multi-horizon forecaster (s3.2.1 operator, LSTM h512 9q), 3 operator seeds, case-clustered bootstrap CI; Track M1 D310"
+  },
+  "m1_merit_shared_h16_Bvae": {
+   "value": 0.039660692189514714,
+   "ci_lo": -0.523464368165283,
+   "ci_hi": 0.13966665685587992,
+   "macro": "XmeritShBvae",
+   "fmt": "%.3f",
+   "split": "test_b",
+   "horizon": 16,
+   "seed_sd": 0.04901786277083125,
+   "note": "shared direct multi-horizon forecaster (s3.2.1 operator, LSTM h512 9q), 3 operator seeds, case-clustered bootstrap CI; Track M1 D310"
+  },
+  "m1_merit_shared_h8_Bvae": {
+   "value": 0.36613302420021604,
+   "ci_lo": 0.07390176756380942,
+   "ci_hi": 0.4230304708861801,
+   "macro": "XmeritShEightBvae",
+   "fmt": "%.3f",
+   "split": "test_b",
+   "horizon": 8,
+   "seed_sd": 0.012618777918579929,
+   "note": "shared direct multi-horizon forecaster (s3.2.1 operator, LSTM h512 9q), 3 operator seeds, case-clustered bootstrap CI; Track M1 D310"
+  },
+  "m1_merit_shared_h16_Fukami": {
+   "value": -0.19544370159515304,
+   "ci_lo": -0.7952803148522821,
+   "ci_hi": -0.03589211872140498,
+   "macro": "XmeritShFukami",
+   "fmt": "%.3f",
+   "split": "test_b",
+   "horizon": 16,
+   "seed_sd": 0.08476855415558188,
+   "note": "shared direct multi-horizon forecaster (s3.2.1 operator, LSTM h512 9q), 3 operator seeds, case-clustered bootstrap CI; Track M1 D310"
+  },
+  "m1_merit_shared_h8_Fukami": {
+   "value": 0.14150360480223242,
+   "ci_lo": -0.20520141402410286,
+   "ci_hi": 0.2239972503559715,
+   "macro": "XmeritShEightFukami",
+   "fmt": "%.3f",
+   "split": "test_b",
+   "horizon": 8,
+   "seed_sd": 0.026298530095570444,
+   "note": "shared direct multi-horizon forecaster (s3.2.1 operator, LSTM h512 9q), 3 operator seeds, case-clustered bootstrap CI; Track M1 D310"
+  },
+  "m1_merit_shared_h16_FukamiWake": {
+   "value": 0.1622150824268186,
+   "ci_lo": -0.32248064039291774,
+   "ci_hi": 0.3014548522195906,
+   "macro": "XmeritShFukamiWake",
+   "fmt": "%.3f",
+   "split": "test_b",
+   "horizon": 16,
+   "seed_sd": 0.019725113837082316,
+   "note": "shared direct multi-horizon forecaster (s3.2.1 operator, LSTM h512 9q), 3 operator seeds, case-clustered bootstrap CI; Track M1 D310"
+  },
+  "m1_merit_shared_h8_FukamiWake": {
+   "value": 0.3768406069475854,
+   "ci_lo": -0.07608978063086944,
+   "ci_hi": 0.46787199917013356,
+   "macro": "XmeritShEightFukamiWake",
+   "fmt": "%.3f",
+   "split": "test_b",
+   "horizon": 8,
+   "seed_sd": 0.009791047031123738,
+   "note": "shared direct multi-horizon forecaster (s3.2.1 operator, LSTM h512 9q), 3 operator seeds, case-clustered bootstrap CI; Track M1 D310"
+  },
+  "m1_merit_shared_h16_Pod": {
+   "value": 0.03644927267566178,
+   "ci_lo": -0.6675652495951881,
+   "ci_hi": 0.1790939705891423,
+   "macro": "XmeritShPod",
+   "fmt": "%.3f",
+   "split": "test_b",
+   "horizon": 16,
+   "seed_sd": 0.0410733923867583,
+   "note": "shared direct multi-horizon forecaster (s3.2.1 operator, LSTM h512 9q), 3 operator seeds, case-clustered bootstrap CI; Track M1 D310"
+  },
+  "m1_merit_shared_h8_Pod": {
+   "value": 0.09670538746553764,
+   "ci_lo": -0.6363835646621198,
+   "ci_hi": 0.30500452850749565,
+   "macro": "XmeritShEightPod",
+   "fmt": "%.3f",
+   "split": "test_b",
+   "horizon": 8,
+   "seed_sd": 0.05296468188533553,
+   "note": "shared direct multi-horizon forecaster (s3.2.1 operator, LSTM h512 9q), 3 operator seeds, case-clustered bootstrap CI; Track M1 D310"
+  },
+  "m1_merit_native_h16": {
+   "value": 0.4176959965613949,
+   "macro": "XmeritJepaWakeNativeSixteen",
+   "fmt": "%.3f",
+   "split": "test_b",
+   "horizon": 16,
+   "note": "co-trained vector predictor, H=16 (same source as the h8 XmeritJepaWakeNative in part table_x)"
+  }
+ }
+}

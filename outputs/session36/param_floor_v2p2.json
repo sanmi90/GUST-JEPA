@@ -1,0 +1,100 @@
+{
+ "_provenance": {
+  "script": "scripts/session36/param_floor_v2p2.py",
+  "git_commit": "5acae84",
+  "split": "v2p2 (train fit, test_b score)",
+  "targets_from": "outputs/session34/trackc_latents/latents_pod_*.npz (model-independent cache targets)",
+  "baseline_case": "encoded (G, D, Y) = (0.0, 1.0, 0.0); at G = 0 the vortex is absent so (D, Y) are placeholders",
+  "regressor": "StandardScaler + KernelRidge(RBF), GroupKFold(5) by case, alpha in 10^[-2..2], gamma in 10^[-2..1]",
+  "modes": {
+   "impact": "frame 40, one sample/encounter",
+   "h16": "target frames anchor+16, anchors >= 24, targets in window_mask (M1 sampling)"
+  }
+ },
+ "floors": {
+  "impact": {
+   "C_L": {
+    "r2_test_b": 0.18466269863275941,
+    "cv_r2_train": 0.7265866846385849,
+    "alpha": 0.01,
+    "gamma": 0.31622776601683794,
+    "n_train": 268,
+    "n_test_b": 42
+   },
+   "C_D": {
+    "r2_test_b": 0.34690414481958665,
+    "cv_r2_train": 0.8443017418163024,
+    "alpha": 0.03162277660168379,
+    "gamma": 0.31622776601683794,
+    "n_train": 268,
+    "n_test_b": 42
+   },
+   "wake_enstrophy": {
+    "r2_test_b": 0.6869414146535247,
+    "cv_r2_train": 0.5410667770655349,
+    "alpha": 0.01,
+    "gamma": 0.03162277660168379,
+    "n_train": 268,
+    "n_test_b": 42
+   },
+   "circulation_pos": {
+    "r2_test_b": 0.12574744493066148,
+    "cv_r2_train": 0.504058194458288,
+    "alpha": 0.03162277660168379,
+    "gamma": 0.31622776601683794,
+    "n_train": 268,
+    "n_test_b": 42
+   },
+   "circulation_neg": {
+    "r2_test_b": 0.6850371593452886,
+    "cv_r2_train": 0.3542150131299692,
+    "alpha": 0.01,
+    "gamma": 0.03162277660168379,
+    "n_train": 268,
+    "n_test_b": 42
+   }
+  },
+  "h16": {
+   "C_L": {
+    "r2_test_b": 0.29497415541169236,
+    "cv_r2_train": 0.5631856187916006,
+    "alpha": 0.03162277660168379,
+    "gamma": 0.03162277660168379,
+    "n_train": 12680,
+    "n_test_b": 1971
+   },
+   "C_D": {
+    "r2_test_b": 0.35841246307864494,
+    "cv_r2_train": 0.5155974764040243,
+    "alpha": 0.01,
+    "gamma": 0.03162277660168379,
+    "n_train": 12680,
+    "n_test_b": 1971
+   },
+   "wake_enstrophy": {
+    "r2_test_b": 0.15083356576706108,
+    "cv_r2_train": 0.5075953351461588,
+    "alpha": 0.03162277660168379,
+    "gamma": 0.01,
+    "n_train": 12680,
+    "n_test_b": 1971
+   },
+   "circulation_pos": {
+    "r2_test_b": 0.3357809748956774,
+    "cv_r2_train": 0.6635204127365647,
+    "alpha": 0.03162277660168379,
+    "gamma": 0.01,
+    "n_train": 12680,
+    "n_test_b": 1971
+   },
+   "circulation_neg": {
+    "r2_test_b": 0.7301535881600552,
+    "cv_r2_train": 0.5585162697229433,
+    "alpha": 0.03162277660168379,
+    "gamma": 0.01,
+    "n_train": 12680,
+    "n_test_b": 1971
+   }
+  }
+ }
+}
