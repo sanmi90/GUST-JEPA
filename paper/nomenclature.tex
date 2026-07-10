@@ -1,0 +1,36 @@
+% =====================================================================
+% nomenclature.tex: hand-maintained text macros for the JFM rewrite
+% (Session 36 Stage 2; editorial/upstream/claude_code_jfm_rewrite_v2.md).
+% Model and estimator names appear in prose ONLY through these macros so
+% renames are mechanical. Cube codes (CL, CLN, ...) survive only on the
+% figure 6/7 axes and one legend row of the corresponding table.
+% Auto-generated numeric macros live in macros.tex / macros_v3.tex; this
+% file must stay hand-edited and number-free.
+% =====================================================================
+
+% ------------------------- model states ------------------------------
+% was: CLW / "flagship"
+\newcommand{\PredState}{wake-supervised predictive state}
+\newcommand{\PredStates}{wake-supervised predictive states}
+% was: CLN / "specialist"
+\newcommand{\LiftState}{lift-focused predictive state}
+\newcommand{\LiftStates}{lift-focused predictive states}
+
+% --------------------- forecasters and filters -----------------------
+% was: REX / TiRex-lessons forecaster
+\newcommand{\DirectFC}{direct multi-horizon forecaster}
+% was: REX-EnKF
+\newcommand{\FnoiseKF}{forecast-noise filter}
+% was: two-stage REX
+\newcommand{\TwoStageKF}{two-stage filter}
+% was: LAE-KF
+\newcommand{\LinLatKF}{linear latent filter}
+% was: static E_obs
+\newcommand{\StaticInv}{static delay-embedded inverse}
+
+% --------------------------- split aliases ---------------------------
+% archive names test_a / test_b / test_c are defined once in section 2.2
+% and appear nowhere else in prose or captions.
+\newcommand{\ValSplit}{validation}
+\newcommand{\TestSplit}{in-distribution test}
+\newcommand{\BoundarySplit}{boundary test}
