@@ -137,7 +137,7 @@ cache impact window mask; both frames are stated in Methods.
 - case-clustered resampling: cases resampled with replacement, encounter-mean and case-mean CIs | stats_lib.py:39-81, resample loop :62-66
 - Holm-Bonferroni step-down | stats_lib.py:147-158; applied per question family (Q2_D255 cw_vs_cl, Q2alt_D256 cn_vs_cl, Q1_D257 cwn_vs_cw) | scripts/session34/trackc_gates.py:305-317
 - tau_thresh = 0.1 t/c | trackc_gates.py:84; PR floor 9.6 = 0.3 d | :85; SEEDS = (0, 1, 2) | :87
-- pre-registration citations: trackc_gates.py:1-62 docstring (Track C, written before results); paired_stats_v3.py:4 (HANDOFF D239); outputs/session35/p1_gates.md (Session 35 P1, commit 439d319 BEFORE launch). The M5 fix (cite the archived plan commit for the 0.2 strong-effect bar) [PENDING: locate the exact archived commit hash for the v3-era 0.2 bar at P3, or drop the bar]
+- pre-registration citations: trackc_gates.py:1-62 docstring (Track C, written before results); paired_stats_v3.py:4 (HANDOFF D239); outputs/session35/p1_gates.md (Session 35 P1, commit 439d319 BEFORE launch). The M5 fix (cite the archived plan commit for the 0.2 strong-effect bar) [CLOSED, Session 36: no before-results archived commit exists (earliest Gate O commit 9610035, 2026-07-02, is the results commit itself); the bar is DROPPED from the one surviving sentence (section_4_results.tex, Gate O paragraph, % REVIEW-CLAIM comment in place); the sentence's conclusion is unchanged]
 - seed accounting for the manuscript: 3 encoder seeds (cube cells, d=4 bands, rexpred band T1, fk16 band T4); filter member-noise seeds s0-s4 (T3); single-seed grid cells disclosed per caption
 
 ## MC-12 Reproducibility trail [DONE]

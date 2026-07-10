@@ -121,3 +121,4 @@ paper/edrfcm2026/*.fls
 !outputs/session32/report/
 outputs/session32/report/*
 !outputs/session32/report/*.tex
+paper/build/
