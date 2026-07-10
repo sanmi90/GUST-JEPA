@@ -104,7 +104,7 @@ filter at any time. The frozen observable probes that score the filter
 never enter the innovation: the only measured quantity in
 \eqref{eq:enkf_update} is the $K$-tap wall pressure.
 
-\subsubsection{Linear latent filter with encoded observations}
+\subsubsection{The \LinLatKF{} with encoded observations}
 \label{sec:methods_lae}
 
 The structural-consistency retrofit, adapted from the latent-space
@@ -128,7 +128,7 @@ regresses it onto the state, so that
 \end{equation}
 with $\Gamma$ the covariance of the $E_{\mathrm{obs}}$ training residuals
 plus a $10^{-8}$ jitter. The same $E_{\mathrm{obs}}$, evaluated framewise
-with no dynamics at all, is the static inverse that anchors the estimator
+with no dynamics at all, is the \StaticInv{} that anchors the estimator
 ladder. Filter divergence is declared by one fixed criterion everywhere in
 the paper: the normalised innovation squared exceeds the $\chi^2_{0.99}$
 quantile at the observation dimension for five or more consecutive frames,
@@ -139,8 +139,8 @@ frame and the analysis step is applied every $m$-th frame only.
 \subsubsection{Forecast-derived state-dependent process noise}
 \label{sec:methods_rexenkf}
 
-The REX ensemble filter keeps the encoded observation \eqref{eq:eobs} and
-replaces the member propagation by the direct quantile forecaster of
+The \FnoiseKF{} keeps the encoded observation \eqref{eq:eobs} and
+replaces the member propagation by the \DirectFC{} of
 \S\ref{sec:methods_rex}: each member is advanced by the one-step median
 forecast, and the process noise is read off the forecaster's own
 uncertainty band at forecast time,
@@ -169,8 +169,8 @@ $\nu_t = \mathbf{y}_t - \bar{\zvec}^{f}_t$ and $S_t = P^{f}_t + \Gamma$,
 toward its consistency expectation of one, over the fixed grid
 $c \in \{1.0, 1.4, 1.77, 2.5, 3.5, 4.5, 6.0\}$, followed by a single frozen
 run on the test splits. The outcome of that calibration, reported in
-\S\ref{sec:res_da}, is itself a result. The two-stage variant applies the
-encoded-observation update \eqref{eq:eobs} with REX propagation
+\S\ref{sec:res_da}, is itself a result. The \TwoStageKF{} applies the
+encoded-observation update \eqref{eq:eobs} with the median-forecast propagation
 \eqref{eq:rex_q} inside the impact window only, and outside it propagates
 members with the matched transformer and assimilates in tap space through
 the linear map of \S\ref{sec:methods_enkf}; the schedule boundary is the
@@ -179,7 +179,7 @@ frozen impact-window mask of the cache and is not tuned.
 \begin{figure}
   \centering
   \includegraphics[width=0.92\linewidth]{sections/figures/tikz/fig_estimation_loop.pdf}
-  \caption{The leakage-free predict-correct estimator in the latent space.
+  \caption{The pressure-only predict-correct estimator in the latent space.
   An ensemble of $\FilterMembers$ members is advanced field free (predict),
   then corrected from $\FilterTaps$ span-averaged wall-pressure taps
   (correct); the innovation is the difference between the measured
@@ -211,7 +211,7 @@ recursion over the lag window is
 \end{equation}
 applied over a lag of $L = 5$ frames, that is a fixed reporting latency of
 $0.25\,c/u_\infty$; the smoothed estimate at $t$ uses pressure up to
-$t + L$ and nothing later. The ensemble smoother variant on the REX filter
+$t + L$ and nothing later. The ensemble smoother variant on the \FnoiseKF{}
 (a lagged cross-covariance update of the stored member history) degrades
 the filter and is reported as a negative in
 appendix~\ref{app:failure_modes}.
@@ -256,11 +256,11 @@ placement a given figure uses is stated in its caption.
     \toprule
     estimator & dynamics $F$ & observation $h$ & process noise $Q_t$ & noise scale \\
     \midrule
-    static inverse            & none                & $E_{\mathrm{obs}}$, eq.~\eqref{eq:eobs} & none & none \\
+    \StaticInv{}              & none                & $E_{\mathrm{obs}}$, eq.~\eqref{eq:eobs} & none & none \\
     base EnKF (frozen)        & matched transformer & linear $\zvec \to \mathbf{p}_K$ & teacher-forced residual cov. & $\rho = 1.00$ / $1.05$ \\
-    linear LAE filter         & linear $A$ (SV-clipped) & $E_{\mathrm{obs}}$, $h = \mathrm{Id}$ & $A$-fit residual cov. & $\rho = 1.0$ \\
-    REX-EnKF                  & REX median, eq.~\eqref{eq:rex_q} & $E_{\mathrm{obs}}$, $h = \mathrm{Id}$ & quantile band, eq.~\eqref{eq:rex_q} & $c = 1.77$ (coverage) \\
-    two-stage                 & REX inside impact, transformer outside & $E_{\mathrm{obs}}$ inside, tap space outside & as per stage & $c$ as REX-EnKF \\
+    \LinLatKF{}               & linear $A$ (SV-clipped) & $E_{\mathrm{obs}}$, $h = \mathrm{Id}$ & $A$-fit residual cov. & $\rho = 1.0$ \\
+    \FnoiseKF{}               & forecaster median, eq.~\eqref{eq:rex_q} & $E_{\mathrm{obs}}$, $h = \mathrm{Id}$ & quantile band, eq.~\eqref{eq:rex_q} & $c = 1.77$ (coverage) \\
+    \TwoStageKF{}             & median forecast inside impact, transformer outside & $E_{\mathrm{obs}}$ inside, tap space outside & as per stage & $c$ as the \FnoiseKF{} \\
     fixed-lag RTS             & linear $A$          & $E_{\mathrm{obs}}$, $h = \mathrm{Id}$ & $A$-fit residual cov. & lag $L = 5$ \\
     \bottomrule
   \end{tabular}}

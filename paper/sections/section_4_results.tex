@@ -8,18 +8,20 @@
 % cross-referenced labels are preserved as aliases. British spelling; no em-dashes.
 
 We report the controlled representational comparisons (\S\ref{sec:res_carries} to
-\S\ref{sec:res_wall}) on the in-distribution test\_b encounters and hold the
-out-of-distribution test\_c set in reserve, so that the $|G| = 4$ extrapolation
+\S\ref{sec:res_wall}) on the \TestSplit{} encounters and hold the
+\BoundarySplit{} set in reserve, so that the $|G| = 4$ extrapolation
 enters only as a final reported number and never as a selection signal. The
 estimator, the recovery, and the operating envelope
 (\S\ref{sec:res_tracking}--\S\ref{sec:res_envelope}) are characterised with a
-frozen filter across all encounters, train, validation, test\_b and the test\_c
-boundary alike, and the per-encounter paired tests on test\_b and test\_c are given
+frozen filter across all encounters, training, \ValSplit, \TestSplit{} and
+\BoundarySplit{} sets alike, and the per-encounter paired tests on the \TestSplit{} and
+\BoundarySplit{} sets are given
 in Appendix~\ref{app:reg}. Every quantity quoted below is a held-out value at the
 readout horizon unless stated otherwise. One division of labour is declared
-once and holds throughout: CLW, the wake-supervised flagship, is the
+% REVIEW-CLAIM: (Stage 2) reworded during nomenclature migration, meaning preserved.
+once and holds throughout: the \PredState{} is the
 estimation-thesis state that the assimilation grid and the operating
-envelope run on, and CLN, the lift-critical specialist, is the
+envelope run on, and the \LiftState{} is the
 conditioning result whose accuracy ceiling parts B and C quantify.
 
 \input{sections/v4/s4_a_construction.tex}
@@ -36,7 +38,7 @@ no longer fix the wake enstrophy, while they still fix the forces, so the wake i
 where a representation that has captured the gust-vortex physics parts company
 from one that has captured only its force signature. Table~\ref{tab:closure} reports
 what each pooled coefficient state carries, read by a fixed linear probe from a
-held-out test\_b field with no rollout. The wake is read cleanly by every state that
+held-out \TestSplit{} field with no rollout. The wake is read cleanly by every state that
 carries the wake-supervision head, with a held-out $R^2$ between $\XwakeAeWake$ and
 $\XwakeSupOnly$, and it collapses for every state that does not, falling to
 $\XwakeJepaNowake$ for the predictive latent trained without the head. Instantaneous
@@ -55,7 +57,7 @@ the reconstructive and objective-free supervised controls ($\XmeritAeWake$ and
 $\XmeritSupOnly$), and the seed variation of this quantity is substantial
 (\S\ref{sec:disc_limits}), so we do not rest a claim on that margin. What the
 predictive objective adds more clearly is the as-built model it produces: the
-flagship's own co-trained predictor forecasts the five observables at
+\PredState's own co-trained predictor forecasts the five observables at
 $\XmeritJepaWakeNative$ at the same horizon, above what a matched operator extracts
 from any latent, which is the reduced-order model a deployment would actually run.
 We state the representational result as the supervision's, and turn to what the
@@ -227,7 +229,7 @@ fewer sensors.
   \centering
   \includegraphics[width=\linewidth]{sections/figures/results/fig_t_trade.pdf}
   \caption{Sensors traded for delays. (a) Recovery of each observable from eight
-  wall-pressure taps against the length of the pressure window (test\_b); the
+  wall-pressure taps against the length of the pressure window (\TestSplit{} set); the
   wall-blind wake circulation rises with the window while the force, visible at one
   instant, does not. (b) Coefficient-state recovery over the tap-count by
   window-length grid, with the single-tap, thirty-frame cell and the reference
@@ -369,11 +371,11 @@ dimension outgrows what a fixed tap count and delay window can embed
 (\S\ref{sec:res_wall}). Only at $|G| = 4$ does the mid-plane representation meet the
 genuine three-dimensional observability boundary the field itself reaches
 (\S\ref{sec:flow_physics}), now seen from the filter. The envelope is therefore two
-claims with different owners: its extension beyond every static inverse belongs to
+claims with different owners: its extension beyond every \StaticInv{} belongs to
 the sequential estimator on a nonlinear latent, a property the family comparison of
 \S\ref{sec:res_tracking} shows is shared; its width at the strongest gusts, its
 calibration margin, and the wake content of the state being tracked belong to the
-wake-supervised predictive state. This envelope, not the single-instant
+\PredState. This envelope, not the single-instant
 readability, is what a wall-estimable reduced state is for.
 
 \begin{figure}
@@ -432,7 +434,7 @@ robustness statement and not a tuned operating point.
 
 The parametric manifold coheres with the release parameters where the training data
 resolve them. An impact-frame probe of the predictive latent recovers the gust
-strength and the core diameter well ($\ProbeGJepa$ and $\ProbeDJepa$ on test\_b),
+strength and the core diameter well ($\ProbeGJepa$ and $\ProbeDJepa$ on the \TestSplit{} set),
 which is the atlas of figure~\ref{fig:atlas} coloured by parameter. The wall-normal
 offset, unreadable at the linear-probe level in earlier work, becomes weakly readable
 here ($\ProbeYJepa$ linearly and $\ProbeYkrrJepa$ with a nonlinear probe), plausibly

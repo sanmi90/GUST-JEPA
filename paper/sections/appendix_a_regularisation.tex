@@ -30,15 +30,15 @@ that tiles the vector to a grid and forecasts it convolutionally. The forecast
 merit of table~\ref{tab:closure} reports each latent under the operator that is
 numerically stable on it. The transformer is stable across the pooled states of
 the controlled matrix, forecasting the predictive, supervised, and
-reconstructive-autoencoder latents comparably and placing the predictive flagship
+reconstructive-autoencoder latents comparably and placing the \PredState{}
 at the head of that block; but refitted with the same recipe and budget on the
 reference latents (the $\beta$-VAE and the two Fukami autoencoders, which are plain
 convolutional autoencoders without skip connections) it diverges to large negative
 merit. The residual U-Net is stable on every latent, so it is the operator
 reported for the reference latents; imposing either operator on all families would
 either penalise the pooled states off-class or break on the references. The ensemble filter of
-\S\ref{sec:methods_estimator} uses the same matched transformer on the flagship's
-own pooled trajectories, where it is stable, and the flagship's own co-trained
+\S\ref{sec:methods_estimator} uses the same matched transformer on the \PredState's
+own pooled trajectories, where it is stable, and the \PredState's own co-trained
 predictor, the as-built reduced-order model, is reported alongside. The narrow
 spread of the pooled block under the transformer, and the substantial seed
 variation of the merit, are why we read the fitted-merit ordering as a level with
@@ -82,7 +82,7 @@ determination and mean absolute error in the paper carries three independent
 uncertainty signals, following the reporting protocol fixed with the split. The
 first is a bootstrap confidence interval from $2000$ resamples over the held-out
 test encounters, which is the dominant source of scatter at the present sample
-size ($n = \NTestBEnc$ for test\_b, $n = \NTestCEnc$ for test\_c) and is wide for the individual
+size ($n = \NTestBEnc$ for the \TestSplit{} set, $n = \NTestCEnc$ for the \BoundarySplit{} set) and is wide for the individual
 wake observables, as noted in \S\ref{sec:res_closure}. The second is the variance
 across three encoder retrains from independent random seeds, reported as the
 standard deviation in the objective-times-architecture controls of
@@ -117,10 +117,10 @@ shedding history of a case's encounters.
   endpoints $\{C_L, E_w\}$ in the impact and relaxation windows, one-sided with
   the filter pre-registered as better; $\Delta R^2$ is the median per-case mean
   improvement, the $p$ is a case-level Wilcoxon signed-rank, and Holm corrects
-  within each family. On the pooled test\_b encounters the filter beats the
+  within each family. On the pooled \TestSplit{} encounters the filter beats the
   open-loop forecast decisively on the load but not the static recovery, which is
-  accurate at the moderate gust strengths test\_b samples; the filter's advantage
-  over the static inverse concentrates at strong gusts, where the test\_c annex
+  accurate at the moderate gust strengths the \TestSplit{} set samples; the filter's advantage
+  over the \StaticInv{} concentrates at strong gusts, where the \BoundarySplit{} annex
   (characterisation only, $n = \NTestCCases$ cases) is decisive on the load in
   both windows. The wake enstrophy through the filter does not beat the static
   recovery at the boundary, an honest null.}
@@ -139,8 +139,8 @@ shedding history of a case's encounters.
     F2 (vs open loop) & $C_L$ & relax.\ & $\PsCLRelOlMed$ & $\PsCLRelOlP$ & $\mathbf{\PsCLRelOlHolm}$ \\
     F2 (vs open loop) & $E_w$ & impact & $\PsEwImpOlMed$ & $\PsEwImpOlP$ & $\PsEwImpOlHolm$ \\
     \midrule
-    test\_c annex     & $C_L$ & impact & $\PsCLImpStTcMed$ & $\PsCLImpStTcP$ & -- \\
-    test\_c annex     & $C_L$ & relax.\ & $\PsCLRelStTcMed$ & $\PsCLRelStTcP$ & -- \\
+    \BoundarySplit{} annex     & $C_L$ & impact & $\PsCLImpStTcMed$ & $\PsCLImpStTcP$ & -- \\
+    \BoundarySplit{} annex     & $C_L$ & relax.\ & $\PsCLRelStTcMed$ & $\PsCLRelStTcP$ & -- \\
     \bottomrule
   \end{tabular}}
 \end{table}
@@ -170,7 +170,7 @@ the readout-frame wake-enstrophy target under three training-only clip treatment
 the raw field and re-fitting the frozen-latent-to-wake ridge probe per family: no
 amplitude clip, the production per-encounter $p_{99.99}$ clip, and a single
 leak-free $p_{99.99}$ threshold pooled over the training encounters. The predictive
-latent leads the wake on test\_b under all three (table~\ref{tab:prepsens}), with
+latent leads the wake on the \TestSplit{} set under all three (table~\ref{tab:prepsens}), with
 the largest shift in the predictive-minus-best-baseline advantage relative to the
 production clip being $\PrepSensMaxShift$ in $R^2$. The leak-free training-global
 clip gives the largest predictive advantage, so the per-encounter clip is not the
@@ -182,7 +182,7 @@ source of the wake result.
   established on the previous-generation spatial encoders ($d = 64$, the 85-case
   v2.1 split) and retained as evidence that the amplitude clip does not shape the
   endpoint; the pipeline is unchanged in the present dataset revision, and the
-  probe protocol is identical. Held-out test\_b wake-enstrophy $R^2$ from a
+  probe protocol is identical. Held-out \TestSplit{} wake-enstrophy $R^2$ from a
   frozen-latent ridge probe (no retraining), recomputed under three training-only
   amplitude-clip treatments of the raw $\omegaz$ field. The predictive latent
   leads the wake under every treatment; the advantage keeps its sign and
@@ -193,7 +193,7 @@ source of the wake result.
     \toprule
     Family & no clip & per-encounter & training-global \\
     \midrule
-    predictive (JEPA)       & \PrepSensJepaNone   & \PrepSensJepaPerEnc   & \PrepSensJepaGlobal \\
+    predictive              & \PrepSensJepaNone   & \PrepSensJepaPerEnc   & \PrepSensJepaGlobal \\
     reconstructive (Fukami) & \PrepSensFukamiNone & \PrepSensFukamiPerEnc & \PrepSensFukamiGlobal \\
     linear (POD)            & \PrepSensPodNone    & \PrepSensPodPerEnc    & \PrepSensPodGlobal \\
     \bottomrule

@@ -8,7 +8,7 @@
 \subsection{The transferred-forecasting ledger}
 \label{app:rex_ledger}
 
-The direct forecaster of \S\ref{sec:methods_rex} was built by auditing the
+The \DirectFC{} of \S\ref{sec:methods_rex} was built by auditing the
 TiRex forecasting line \citep{tirex,tirex2} ingredient by ingredient against this
 data. Adopted: the direct multi-horizon head, the quantile output, the
 per-window instance normalisation and the arcsinh transform, each of which
@@ -56,7 +56,7 @@ The forecast-derived filter's band scale carries a full audit trail. The
 production value $c = 1.77$ is the coverage calibration of
 \S\ref{sec:methods_rex}, selected on validation before any test encounter
 was seen. During exploration a band of $c = 4$ was evaluated against
-test\_b and reached \PoneExcludedBandFour{} impact median there; because
+the \TestSplit{} set and reached \PoneExcludedBandFour{} impact median there; because
 that value was selected with the test split in view, it is excluded from
 every table and headline of this paper and quoted only here. The
 pre-registered consistency calibration (grid and rule committed before
@@ -65,7 +65,7 @@ rejects large bands on held-out training encounters even though their
 tracking is better (\S\ref{sec:res_da}): the large-band gain is real and
 reproducible on encounters never used for selection, but it is model-error
 compensation, not calibration, and the paper's protocol-clean route to
-comparable performance is the two-stage schedule instead. The two-stage
+comparable performance is the \TwoStageKF{} instead. The \TwoStageKF{}
 run at the coverage band was itself declared in the pre-registration
 record after the consistency-selected run was seen and before any run at
 the declared configuration existed; both frozen runs are reported in

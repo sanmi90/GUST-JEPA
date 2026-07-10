@@ -1,12 +1,12 @@
 % v4 Methods 3.3 subsection: the shared latent-REX forecast operator (MC-4).
 % Constants from outputs/session35/mc_provenance.md MC-4.
 
-\subsubsection{The shared direct forecaster}
+\subsubsection{The shared \DirectFC}
 \label{sec:methods_rex}
 
 The forecast-merit comparison of \S\ref{sec:res_forecast} requires one
 operator trained identically on every family's latents; the operator used
-throughout is a direct multi-horizon quantile forecaster whose design
+throughout is the \DirectFC, a quantile forecaster whose design
 transfers the deployable ingredients of the TiRex forecasting line \citep{tirex,tirex2} without its foundation-model machinery. Each context window
 of $L$ consecutive states ($L$ drawn uniformly from $16$ to $30$ during
 training, fixed at $L = 25$ at evaluation) is normalised per window,
@@ -35,6 +35,6 @@ stabiliser of \citet{xlstm} ties the LSTM within seed noise and the
 selected operator is the LSTM at width $512$ with nine quantiles. The
 median forecast is the point prediction everywhere; the predicted
 inter-quantile band supplies the state-dependent process noise of
-\S\ref{sec:methods_rexenkf}. The adopted, refuted and rejected TiRex
-ingredients, including the oracle-covariate negative of
+\S\ref{sec:methods_rexenkf}. The adopted, refuted and rejected
+ingredients of that source line, including the oracle-covariate negative of
 \S\ref{sec:res_forecast}, are catalogued in appendix~\ref{app:rex_ledger}.

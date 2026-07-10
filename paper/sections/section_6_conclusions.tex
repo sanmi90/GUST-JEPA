@@ -13,16 +13,17 @@ health, the accuracy claim about a pre-registered increment, and they fail
 independently. Compressing: lift information is dimension-invariant and
 linearly accessible at four coefficients while the wake state needs sixteen,
 so the honest compression statement is two-tier, compact and linear for the
-load, distributed for the wake. Advancing: a direct multi-horizon quantile
-forecaster stays usable over forty steps where autoregressive rollout
+% REVIEW-CLAIM: (Stage 2) reworded during nomenclature migration, meaning preserved.
+load, distributed for the wake. Advancing: a \DirectFC{}
+stays usable over forty steps where autoregressive rollout
 compounds, and an oracle for the true gust parameters makes the forecast
 worse, so the deployable route to the encounter is model plus pressure, not
-parameters. Estimating: a leakage-free ensemble filter family sensing eight
+parameters. Estimating: a pressure-only ensemble filter family sensing eight
 taps tracks the load through the encounter phase by phase and in physical
 units, an impact-phase analysis $R^2$ of \PoneTwoStageCovImpact{} at a
 root-mean-square error of \PoneTwoStageCovRmse{} lift units in distribution
 and \PoneTwoStageCovImpactC{} at the strongest held-out gusts with no
-divergences, delivered by a knob-free two-stage schedule rather than by noise
+divergences, delivered by a knob-free \TwoStageKF{} rather than by noise
 inflation; the innovation-consistency route to a larger noise band is refuted
 on held-out training encounters, which separates what was calibration at
 impact, now fixed by the state-dependent noise, from what is model error in
@@ -32,7 +33,7 @@ uniformly wall-estimatable, where the reconstructive geometry fails
 unpredictably with dimension and with training seed for a verified
 observation-side reason, and this robustness, not any single cell, is the
 deployment argument. Three facts bound the result: the in-distribution impact
-median of the best filter does not beat a static delay-embedded inverse, whose
+median of the best filter does not beat a \StaticInv, whose
 case fails instead in the tails and at the extrapolation boundary; the wake
 enstrophy remains beyond any wall-limited filter of this flow, a sensing-
 geometry bound rather than a state deficiency; and the mid-plane

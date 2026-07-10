@@ -115,21 +115,23 @@ the free-stream Mach number, the domain and spanwise extent, the element and
 solution-point counts, the near-wall spacing, the time step and CFL, the
 gust-release station, and the grid and time-step sensitivity, are listed as an
 author-fill checklist in table~\ref{tab:dns_pending}. The dataset
-comprises $\NCases$ cases partitioned into training, validation (the held-out
-encounters of the training cases, denoted test\_a), an
-in-distribution test set (test\_b), and an out-of-distribution test set
-(test\_c). The in-distribution test set is stratified to span the gust
+comprises $\NCases$ cases partitioned into training, \ValSplit{} (the held-out
+last encounters of the training cases; archive name test\_a),
+\TestSplit{} (test\_b) and \BoundarySplit{} (test\_c) sets;
+the archive names in parentheses label the corresponding records in the data
+release and appear only here. The \TestSplit{} set is stratified to span the gust
 strengths, the three core diameters, and the two source groups
-(figure~\ref{fig:paramspace}); test\_c is the
-$|G| = 4$ extrapolation set, sampled symmetrically in both signs of the gust
+(figure~\ref{fig:paramspace}); the \BoundarySplit{} set is the
+out-of-distribution $|G| = 4$ extrapolation set, sampled symmetrically in both
+signs of the gust
 (\S\ref{sec:flow_observables}). These $\NCases$ cases are separated in
 preprocessing into $\NEncounters$ encounter windows of
-$120$ frames each, one per gust release: $\NTrainEnc$ training, $\NValEnc$ validation
-(test\_a, the held-out last encounters of the training cases), $\NTestBEnc$ test\_b, and
-$\NTestCEnc$ test\_c. The undisturbed reference case is retained in training. Behind these
-encounter counts are far fewer distinct cases: the $\NTestBEnc$ test\_b encounters come
+$120$ frames each, one per gust release: $\NTrainEnc$ training, $\NValEnc$ \ValSplit,
+$\NTestBEnc$ \TestSplit{} and
+$\NTestCEnc$ \BoundarySplit{} encounters. The undisturbed reference case is retained in training. Behind these
+encounter counts are far fewer distinct cases: the $\NTestBEnc$ \TestSplit{} encounters come
 from only $\NTestBCases$ held-out cases ($\NTestBInterior$ interior and $\NTestBBoundary$
-boundary tier) and the $\NTestCEnc$ test\_c encounters from $\NTestCCases$ cases, with
+boundary tier) and the $\NTestCEnc$ \BoundarySplit{} encounters from $\NTestCCases$ cases, with
 most cases contributing four to six
 encounters that share a baseline shedding history. Encounters of the same case are
 therefore not independent, so encounter-level intervals overstate the effective
@@ -237,10 +239,10 @@ substantially.
   \includegraphics[width=\linewidth]{sections/figures/results/fig_paramspace_v3.pdf}
   \caption{Parameter-space sampling of the $\NCases$ cases in the $(G, D, Y)$ gust
   envelope, shown as three two-dimensional projections and coloured by split:
-  training ($\NTrainEnc$ encounters), the stratified in-distribution test set
-  (test\_b, $\NTestBEnc$ encounters from $\NTestBCases$ cases, split into interior
-  and boundary tiers), and the out-of-distribution extrapolation set (test\_c,
-  $\NTestCEnc$ encounters from $\NTestCCases$ cases). The dashed lines mark the
+  training ($\NTrainEnc$ encounters), the stratified \TestSplit{} set
+  ($\NTestBEnc$ encounters from $\NTestBCases$ cases, split into interior
+  and boundary tiers), and the \BoundarySplit{} extrapolation set
+  ($\NTestCEnc$ encounters from $\NTestCCases$ cases). The dashed lines mark the
   $|G| = 4$ extrapolation boundary, now sampled at both signs of the gust so that
   the boundary set is symmetric rather than one-sided. Training mass concentrates
   near $Y/c = 0$, which is why the wall-normal offset is the least well resolved

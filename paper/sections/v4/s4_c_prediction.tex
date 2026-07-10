@@ -7,13 +7,13 @@
 
 The family ordering survives an operator-robust protocol, which resolves
 the operator confound the suited-operator comparison of
-\S\ref{sec:methods_closure} left open: one direct forecaster
+\S\ref{sec:methods_closure} left open: one \DirectFC{}
 (\S\ref{sec:methods_rex}), trained identically on each family's frozen
 latents, is stable on every latent including the reconstructive ones. Under
 it the predictive states are the more forecastable, decoded lift
-$R^2 = \RexFamClw{}$ for the flagship and \RexFamCln{} for CLN against
+$R^2 = \RexFamClw{}$ for the \PredState{} and \RexFamCln{} for the \LiftState{} against
 \RexFamAeLw{} for the reconstructive anchor, three operator-training seeds
-per family on test\_b, with the CLN latents the most forecastable of all
+per family on the \TestSplit{} set, with the \LiftState{} latents the most forecastable of all
 (figure~\ref{fig:forecast}a). The ordering agrees with the suited-operator
 protocol, so it is a property of the states, not of the operator that
 reads them.
@@ -21,8 +21,8 @@ reads them.
 The forecasting mechanism is the direct-versus-autoregressive contrast.
 Rolled autoregressively through the impact, the matched transformer
 compounds its own errors: forty steps from the pre-impact context its
-decoded lift closes at \ArFortyClw{} on the flagship latents and
-\ArFortyCln{} on CLN. The direct forecaster, emitting all forty steps in
+decoded lift closes at \ArFortyClw{} on the \PredState{} latents and
+\ArFortyCln{} on the \LiftState{} latents. The \DirectFC, emitting all forty steps in
 one shot from the same context, closes at \RexTunedCl{} on the identical
 protocol (figure~\ref{fig:forecast}b): rollout compounding, not the state,
 is the failure mode. The direct forecast is a conditional median, and the
@@ -54,8 +54,8 @@ model-plus-pressure route of part D.
     \includegraphics[width=0.92\linewidth]{sections/figures/results/fig_forecast40_v4.pdf}
     \caption{}
   \end{subfigure}
-  \caption{Forecasting the state on test\_b. (a)~Decoded lift $R^2$ of the
-  shared direct forecaster per family (three operator seeds each, bars at
+  \caption{Forecasting the state on the \TestSplit{} set. (a)~Decoded lift $R^2$ of the
+  shared \DirectFC{} per family (three operator seeds each, bars at
   the seed mean) and the conditioning null (three seeds per arm): the
   $(G, D, Y)$ oracle degrades the forecast, the phase covariate is a wash.
   (b)~Direct versus autoregressive over forty steps through the impact

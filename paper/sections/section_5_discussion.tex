@@ -71,7 +71,7 @@ filtered wake estimate, since the analysis wake closure is below the mean
 predictor for every family. Its recoverability advantage over a raw
 high-dimensional field latent is real but modest ($\GateODelta$ in held-out $R^2$
 with a case-clustered interval $[\GateODeltalo, \GateODeltahi]$ over the train and
-test\_b recovery rows, test\_c untouched; \S\ref{sec:res_wall}), so the case for
+\TestSplit{} recovery rows, the \BoundarySplit{} set untouched; \S\ref{sec:res_wall}), so the case for
 the coefficient state rests on the physics-recovery ordering and the envelope, not
 on a large recoverability margin. Its point tracking is good but its uncertainty is under-dispersed at the
 strongest and widest gusts, where the innovations are temporally correlated and
@@ -125,11 +125,11 @@ field-reconstruction objective produces.
 The ladder of \S\ref{sec:res_da} supports explicit selection guidance, in
 the spirit of the method-choice discussions of the assimilation literature
 (Gupta, Chen and Wan, J. Fluid Mech. 1036, A24, 2026). When only the
-in-distribution median matters and latency is irrelevant, the static
-delay-embedded inverse is the strongest and simplest tool, and no dynamics
+in-distribution median matters and latency is irrelevant, the
+\StaticInv{} is the strongest and simplest tool, and no dynamics
 are needed. The moment the tails, the extrapolation boundary or continuous
-state tracking matter, the filters take over: online, the two-stage
-schedule is the working choice, the forecast-derived noise carrying the
+state tracking matter, the filters take over: online, the
+\TwoStageKF{} is the working choice, the forecast-derived noise carrying the
 impact and the tap-space observation carrying the relaxation; with a
 quarter-convective-time latency budget, the closed-form fixed-lag smoother
 on the linear stack is both the cheapest and the best reanalysis. Sparse
@@ -165,7 +165,7 @@ three collapsing), the predictive latent is tighter but not the sharpest
 ($\pm \SeedMeritSdJepaVec$), and the family means overlap. The narrow lead the
 predictive state holds under its suited transformer operator (\S\ref{sec:res_closure})
 is therefore not decisive on its own. The defensible dynamical claim rests instead
-on the as-built model and its rollout: the flagship's own predictor forecasts
+on the as-built model and its rollout: the \PredState's own predictor forecasts
 markedly better than a matched operator extracts from any latent, and the
 multi-step objective buys long-horizon stability and lower drift, not a larger
 instantaneous readability margin. Second, the wall-normal offset $Y$ remains the least
@@ -175,7 +175,7 @@ unreadable before (\S\ref{sec:res_latent_physics}), and we note this without
 leaning on it. Third, the $|G| = 4$ extrapolation degrades for a physical reason:
 the encoder observes a single mid-plane vorticity slice whose information no
 longer determines the three-dimensional dynamics there
-(\S\ref{sec:flow_physics}), so test\_c marks the observability boundary of that
+(\S\ref{sec:flow_physics}), so the \BoundarySplit{} set marks the observability boundary of that
 representation, not a parametric-generalisation claim, and the filter meets the
 same boundary from the sensing side (\S\ref{sec:res_envelope}). Fourth, the
 visualisation decoder is a diagnostic on the frozen encoder, never part of the

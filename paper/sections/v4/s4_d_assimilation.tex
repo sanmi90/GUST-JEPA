@@ -8,7 +8,7 @@
 \label{sec:res_da}
 
 Physical units reorganise the phase story. Read in $R^2$, the relaxation
-phase looks like a failure (\DapRexRelRTwo{} for the filter on test\_b);
+phase looks like a failure (\DapRexRelRTwo{} for the filter on the \TestSplit{} set);
 read in lift units it is the best phase the estimator has
 (root-mean-square error \DapRexRelRmse{} against \DapRexImpRmse{} at
 impact and \DapRexPreRmse{} before it), because the relaxation variance is
@@ -25,12 +25,12 @@ tracks, which is what a scale-invariant estimator must do.
 
 The estimator ladder orders the suite at impact
 (figure~\ref{fig:centerpiece}c), and its top rung is an honest surprise:
-the static delay-embedded inverse, no dynamics at all, posts the best
-test\_b impact median (\DapEobsImpRTwo). The filters' case does not rest
-on the in-distribution median. It rests on the tails, where the static
-inverse posts the only catastrophic encounter in the ladder; on the
-extrapolation boundary, where the two-stage filter reaches
-\PoneTwoStageCovImpactC{} median $R^2$ on the $|G| = 4$ test\_c
+the \StaticInv, no dynamics at all, posts the best
+\TestSplit{} impact median (\DapEobsImpRTwo). The filters' case does not rest
+on the in-distribution median. It rests on the tails, where the
+\StaticInv{} posts the only catastrophic encounter in the ladder; on the
+extrapolation boundary, where the \TwoStageKF{} reaches
+\PoneTwoStageCovImpactC{} median $R^2$ on the $|G| = 4$ \BoundarySplit{}
 encounters with zero catastrophic cases and a positive relaxation
 (\PoneTwoStageCovRelaxC); and on state tracking beyond the single read-out
 the inverse regresses. The linear filter with encoded observations adds
@@ -47,7 +47,7 @@ at the selected edge $c^{*} = \PoneNisCStar$) while the same split's
 tracking improves monotonically with the band
 (figure~\ref{fig:centerpiece}e): innovation consistency and tracking
 optimality point in opposite directions, so the frozen NIS-selected run
-closes at \PoneFrozenRexImpact{} at impact on test\_b and the
+closes at \PoneFrozenRexImpact{} at impact on the \TestSplit{} set and the
 consistency route to a larger band is refuted. The mechanism is model
 error, not miscalibration: inflating the state-dependent noise compensates
 the forecast median's contraction, buying gain at the price of
@@ -55,17 +55,17 @@ consistency, and the test-selected variant excluded by the freeze rule is
 disclosed, with its number, only in appendix~\ref{app:calibration}. The
 member-noise band of the production filter is \PoneRexEnkfImpact{} over
 five seeds. The legitimate gain comes from structure instead of noise: the
-knob-free two-stage schedule of \S\ref{sec:methods_rexenkf}, at the
+knob-free \TwoStageKF{} of \S\ref{sec:methods_rexenkf}, at the
 production coverage band, reaches \PoneTwoStageCovImpact{} at impact on
-test\_b (root-mean-square error \PoneTwoStageCovRmse) and carries the
-test\_c boundary as above, the best protocol-clean filter in the ladder.
+the \TestSplit{} set (root-mean-square error \PoneTwoStageCovRmse) and carries the
+\BoundarySplit{} set as above, the best protocol-clean filter in the ladder.
 
 When a quarter-convective-time latency is acceptable, the smoother
 changes the deployment rule. The fixed-lag recursion of
 \S\ref{sec:methods_rts} on the linear stack cuts the impact error to
 \SmRtsImpRmse{} and the relaxation to \SmRtsRelRmse{} (filter values
 \SmKfImpRmse{} and \SmKfRelRmse), a full-interval reanalysis at lag five;
-the ensemble smoother on the REX filter degrades it
+the ensemble smoother on the \FnoiseKF{} degrades it
 (appendix~\ref{app:failure_modes}). Online estimation therefore takes the
 nonlinear filter and a $0.25\,t/c$ latency budget takes the closed-form
 linear smoother.
@@ -73,10 +73,10 @@ linear smoother.
 What the training objective buys survives to the assimilation stage, and
 own-stack evaluation makes the comparison fair: each family senses at its
 own taps, encodes its own observations, forecasts with its own operator
-and decodes through its own decoder. The wake-supervised predictive state
+and decodes through its own decoder. The \PredState{}
 halves the reconstructive anchor's assimilated load error in every phase
 (impact \OwnClwImpRmse{} against \OwnAeLwImpRmse, relaxation
-\OwnClwRelRmse{} against \OwnAeLwRelRmse; CLN between at
+\OwnClwRelRmse{} against \OwnAeLwRelRmse; the \LiftState{} between at
 \OwnClnImpRmse), while decoded-field fidelity is family-insensitive
 (figure~\ref{fig:ownstack}a). The sensor axis separates the families
 further: the predictive state exploits every added tap monotonically
@@ -133,12 +133,12 @@ any wall-limited estimator of this flow can see.
 \begin{figure}
   \centering
   \includegraphics[width=\linewidth]{sections/figures/results/fig_da_centerpiece_v4.pdf}
-  \caption{Phase-resolved assimilation on test\_b ($n = 42$ encounters,
+  \caption{Phase-resolved assimilation on the \TestSplit{} set ($n = 42$ encounters,
   $K = 8$ taps, delay $10$, $N = 64$ members, every-frame pressure).
   (a,b)~Lift error per phase in physical units and in $R^2$ at the
   val-calibrated band: the relaxation $R^2$ collapse is a variance
   artifact. (c)~The impact-phase estimator ladder with the five-seed
-  member-noise band; open markers are the frozen test\_c values.
+  member-noise band; open markers are the frozen \BoundarySplit{} values.
   (d)~Filter against fixed-lag smoother. (e)~The band-scale calibration on
   the held-out training encounters: consistency and tracking disagree, and
   the selection saturates at the grid edge.}
@@ -148,7 +148,7 @@ any wall-limited estimator of this flow can see.
 \begin{figure}
   \centering
   \includegraphics[width=0.9\linewidth]{sections/figures/results/fig_relative_errors_v4.pdf}
-  \caption{Relative peak error across the gust envelope (test\_b,
+  \caption{Relative peak error across the gust envelope (\TestSplit{} set,
   medians per $|G|$): the forecast-derived filter is scale-invariant near
   $12$ to $14$ per cent while the linear filter is non-uniform; the
   absolute peak error (right) grows with the peak itself.}
@@ -158,7 +158,7 @@ any wall-limited estimator of this flow can see.
 \begin{figure}
   \centering
   \includegraphics[width=\linewidth]{sections/figures/results/fig_ownstack_da_v4.pdf}
-  \caption{Own-stack family comparison (test\_b, $42$ encounters, single
+  \caption{Own-stack family comparison (\TestSplit{} set, $42$ encounters, single
   filter seed): (a)~phase-resolved lift error per family;
   (b)~sensor-budget sweep on each family's own nested placement;
   (c)~tap-noise sweep at $K = 8$.}
@@ -168,7 +168,7 @@ any wall-limited estimator of this flow can see.
 \begin{figure}
   \centering
   \includegraphics[width=0.9\linewidth]{sections/figures/results/fig_deployment_v4.pdf}
-  \caption{Deployment realism (test\_b): (a)~streaming multi-encounter
+  \caption{Deployment realism (\TestSplit{} set): (a)~streaming multi-encounter
   filter against tap noise, three member-noise seeds, protocol-clean band;
   (b)~the $d = 4$ filter band over five member-noise seeds.}
   \label{fig:deploy}
@@ -177,7 +177,7 @@ any wall-limited estimator of this flow can see.
 \begin{figure}
   \centering
   \includegraphics[width=\linewidth]{sections/figures/results/fig_da_dims_grid_v4.pdf}
-  \caption{The assimilation-versus-dimension grid (test\_b, own stacks,
+  \caption{The assimilation-versus-dimension grid (\TestSplit{} set, own stacks,
   $K = 8$, every-frame pressure; single seed per cell except the
   reconstructive $d = 16$ cell, which carries three): impact error and
   relative peak error against dimension for the three families. The

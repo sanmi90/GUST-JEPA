@@ -137,7 +137,7 @@ head's contribution under pre-registered gates.
   table~\ref{tab:architecture}). (a) The encoder maps the mid-plane vorticity
   field to a latent $\zvec_t$, and the predictor, in either of its two
   variants (the vector transformer of table~\ref{tab:architecture} or the
-  direct REX forecaster of \S\ref{sec:methods_rex}), advances the latent
+  \DirectFC{} of \S\ref{sec:methods_rex}), advances the latent
   from its own history; no gust parameters enter the encoder or the
   predictor. The three supervision heads ($L$, $W$, $N$) read $\zvec_t$
   during training with small weights and are never part of the
@@ -169,9 +169,9 @@ to a negative merit (Appendix~\ref{app:reg}), while the U-Net is stable on all. 
 therefore report each latent under the operator that is stable on it, the
 transformer on the pooled states and the U-Net on the reference latents, rather
 than force one operator and either penalise the pooled states off-class or break
-on the references. The flagship's own co-trained predictor, the as-built
+on the references. The \PredState's own co-trained predictor, the as-built
 reduced-order model, is reported alongside, and the sequential estimator of
-\S\ref{sec:methods_estimator} uses the same matched transformer on the flagship's
+\S\ref{sec:methods_estimator} uses the same matched transformer on the \PredState's
 frozen trajectories. Every state is compared at the matched headline
 dimension $d = \LatentDim$; the dimension plateau at $\{16, 32, 64\}$ and the
 minimum-dimension panel of \S\ref{sec:res_latent_physics} establish that this
@@ -195,7 +195,7 @@ The headline figure of merit is representational closure: a fixed linear probe i
 applied to the latent encoded directly from a held-out field, and we ask whether it
 recovers each of the five observables, the wake in particular. This isolates what the
 encoder carries, with no rollout. We report it as the held-out coefficient of
-determination $R^2$ on test\_b and test\_c, with the per-observable mean absolute
+determination $R^2$ on the \TestSplit{} and \BoundarySplit{} sets, with the per-observable mean absolute
 error alongside, and bootstrap $95\%$ confidence intervals over encounters. As a
 secondary, confirmatory measure we also report forecast closure: the
 predictor is rolled recursively from the pre-impact context to $H = 16$, and the same

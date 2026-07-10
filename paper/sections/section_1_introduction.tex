@@ -133,13 +133,14 @@ dimension-invariant and linearly accessible at four coefficients while
 the wake state is distributed and needs sixteen, a two-tier statement in
 which linear-probe readability is a readout property, not an information
 property. Third, we make the family forecast comparison operator-robust
-with one direct multi-horizon forecaster trained identically on every
+with one \DirectFC{} trained identically on every
 latent, and show that autoregressive compounding, not the state, is the
 rollout failure mode, and that conditioning on the true gust parameters
-degrades the forecast. Fourth, we demonstrate the state in a leakage-free
-sequential filter family, leakage-free meaning that the quantities the
+% REVIEW-CLAIM: (Stage 2) reworded during nomenclature migration, meaning preserved.
+degrades the forecast. Fourth, we demonstrate the state in a pressure-only
+sequential filter family, in which the quantities the
 paper scores, the lift and wake probes, can never enter the filter's
-innovation, which senses only wall pressure; we evaluate it
+innovation; we evaluate it
 phase-resolved and in physical units across the gust-intensity envelope,
 attribute its impact-side under-dispersion to calibration and fix it with
 a forecast-derived state-dependent noise, attribute its relaxation error
@@ -147,7 +148,7 @@ to forecast contraction and address that with a fixed-lag smoother, and
 show the predictive states uniformly wall-estimatable across the
 dimension axis where the reconstructive geometry fails unpredictably.
 We are explicit about the limits: the best filter's in-distribution
-impact median does not beat a static delay-embedded inverse, whose case
+impact median does not beat a \StaticInv, whose case
 fails instead in the tails and at the $|G| = 4$ boundary; the wake
 enstrophy remains beyond any wall-limited filter of this flow; and the
 mid-plane representation reaches a three-dimensional observability

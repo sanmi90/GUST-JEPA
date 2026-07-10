@@ -9,8 +9,9 @@ The construction question is settled by a $2 \times 2 \times 2$ cube over
 the three supervision heads $\{L, W, N\}$, trained at three seeds per cell
 on the pooled pipeline of \S\ref{sec:methods_arch} with matched
 reconstructive anchors, under gates written and archived before any result
-was read; probes are fit on train and scored on the held-out test\_b
-encounters, validation steering nothing and test\_c staying in reserve per
+was read; probes are fit on train and scored on the held-out \TestSplit{}
+encounters, the \ValSplit{} set steering nothing and the \BoundarySplit{}
+set staying in reserve per
 the policy above. The central result is structural: under the predictive objective
 the scalar lift head is load-bearing for latent health. Every cell without
 $L$ collapses, with participation ratios between \TcRhoCZero{} (C0) and
@@ -34,13 +35,14 @@ catastrophically: the wake-only cell trails the lift-only cell by
 [\TcDeltaCwVsClPeakLo, \TcDeltaCwVsClPeakHi]), and replacing $L$ by $N$
 fails the same way (\TcDeltaCnVsClPeak{} [\TcDeltaCnVsClPeakLo,
 \TcDeltaCnVsClPeakHi]). On top of $L$, however, the Chang head buys real
-lift accuracy: CLN beats CL by \TcDeltaClnVsClPeak{} points with an
+lift accuracy: the \LiftState{} (cube code CLN) beats the lift-only cell CL
+by \TcDeltaClnVsClPeak{} points with an
 interval that excludes zero ([\TcDeltaClnVsClPeakLo,
 \TcDeltaClnVsClPeakHi]), and is the strongest cell in the cube, with
 pooled peak-region $R^2 = \TcPeakRTwoCLN$ at the tightest seed band
 anywhere and a decoded phase lag of \TcLagCLN{}~$t/c$
 (figure~\ref{fig:cube}b). The wake head's marginal value on top of $L$ is
-geometry, not lift: CLW matches CL on the peaks (interval
+geometry, not lift: the \PredState{} (cube code CLW) matches CL on the peaks (interval
 [\TcDeltaClwVsClPeakLo, \TcDeltaClwVsClPeakHi] straddles zero) while
 adding near-body structural fidelity, SSIM in the Wang convention of
 \S\ref{sec:methods_protocol} (\TcDeltaClwVsClSsimNb{}
@@ -48,9 +50,10 @@ adding near-body structural fidelity, SSIM in the Wang convention of
 
 The three heads therefore divide the labour: $L$ anchors the latent, $N$
 sharpens the load, and $W$ carries the wake state. The wake-enstrophy
-probe makes the last division quantitative: the wake-supervised flagship
+probe makes the last division quantitative: the \PredState{}
 reads $E_w$ at $R^2 = \EwClwLin$ linear and \EwClwMlp{} through a
-multilayer probe (three seeds, test\_b), where the lift-critical CLN
+multilayer probe (three seeds, \TestSplit{} set), where the
+\LiftState{}
 reaches only \EwClnLin{} and \EwClnMlp. Honesty requires the anchor
 comparison too: the reconstructive AE-LW carries the most linearly
 readable wake state of all (\EwAeLwLin{} linear, \EwAeLwMlp{} MLP), as a
@@ -82,7 +85,7 @@ fail independently.
     \includegraphics[width=0.9\linewidth]{sections/figures/results/fig_cube_deltas_v4.pdf}
     \caption{}
   \end{subfigure}
-  \caption{The conditioning cube (test\_b, three encoder seeds per cell).
+  \caption{The conditioning cube (\TestSplit{} set, three encoder seeds per cell).
   (a)~Final participation ratio per cell against the collapse floor
   $0.3\,d = 9.6$: every no-$L$ predictive cell collapses, every $L$ cell is
   healthy; the inset shows the collapse is flat from the start of training
@@ -91,14 +94,14 @@ fail independently.
   case-mean deltas against the lift-only cell CL with case-clustered
   $95\,\%$ bootstrap intervals over the $42$ encounters of $10$ cases
   (right, symmetric-log axis); filled markers mark intervals that exclude
-  zero. CLN is the unique positive increment.}
+  zero. The \LiftState{} cell (CLN) is the unique positive increment.}
   \label{fig:cube}
 \end{figure}
 
 \begin{figure}
   \centering
   \includegraphics[width=0.78\linewidth]{sections/figures/results/fig_readability_v4.pdf}
-  \caption{Task-dependent readability (test\_b, linear probes on the
+  \caption{Task-dependent readability (\TestSplit{} set, linear probes on the
   per-frame state, seed mean over three encoder seeds per cell): lift and
   drag follow the $L$ head, the wake block ($E_w$, $\Gamma^{\pm}$)
   follows the $W$ head or the reconstruction objective, and collapsed
