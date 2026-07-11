@@ -1,44 +1,52 @@
-% Conclusions, v4 (Session 35). Softer opener per the v4 review (quote error
-% and R2 together), the four-part arc, the calibrated-Q partial fix as
-% delivered, honest bounding facts. Numbers are macros.
+% Concluding remarks, bound from editorial/upstream/front_matter_rewrite.tex
+% at the Session 37 Stage 4 front-matter bind (author-approved, D303).
+% Numbers to macros; the n = 4 qualifier added to the three-dimensional
+% observability sentence per editorial memo catch 11.
+% REVIEW-CLAIM: (Stage 4) wholesale replacement of the previous conclusions
+% by the pre-approved draft; the NIS-refutation and smoother specifics stay
+% in \S\ref{sec:res_da} and the calibration appendix rather than here.
+We asked whether a reduced state of an extreme vortex-gust encounter can
+be constructed to carry the wake dynamics, advanced in time, and
+recovered from wall pressure alone. On construction: under the
+predictive objective considered, a scalar lift target is necessary for a
+non-collapsed latent representation, a near-body force-element target
+sharpens the peak loads on top of it (peak-region
+$R^2 = \TcPeakRTwoCLN$ over three seeds),
+and a wake target is required for the state to carry the wake
+observables. The collapse result concerns latent health and the
+peak-load result concerns a paired increment over an already
+lift-supervised baseline; the two rest on different comparisons.
 
-We asked what it takes to build, compress, advance and recover a reduced state
-of an extreme vortex-gust encounter from wall pressure alone, and the answer
-has four parts with a mechanism each. Building: under a predictive objective a
-scalar lift anchor is what keeps the latent alive, a physics-constructed
-near-body force-element head is the one conditioning that sharpens the peak
-loads on top of it (peak-region $R^2$ of \TcPeakRTwoCLN{} across three seeds),
-and the wake head carries the wake state; the anchor claim is about latent
-health, the accuracy claim about a pre-registered increment, and they fail
-independently. Compressing: lift information is dimension-invariant and
-linearly accessible at four coefficients while the wake state needs sixteen,
-so the honest compression statement is two-tier, compact and linear for the
-% REVIEW-CLAIM: (Stage 2) reworded during nomenclature migration, meaning preserved.
-load, distributed for the wake. Advancing: a \DirectFC{}
-stays usable over forty steps where autoregressive rollout
-compounds, and an oracle for the true gust parameters makes the forecast
-worse, so the deployable route to the encounter is model plus pressure, not
-parameters. Estimating: a pressure-only ensemble filter family sensing eight
-taps tracks the load through the encounter phase by phase and in physical
-units, an impact-phase analysis $R^2$ of \PoneTwoStageCovImpact{} at a
-root-mean-square error of \PoneTwoStageCovRmse{} lift units in distribution
-and \PoneTwoStageCovImpactC{} at the strongest held-out gusts with no
-divergences, delivered by a knob-free \TwoStageKF{} rather than by noise
-inflation; the innovation-consistency route to a larger noise band is refuted
-on held-out training encounters, which separates what was calibration at
-impact, now fixed by the state-dependent noise, from what is model error in
-relaxation, where a fixed-lag smoother at a quarter convective time of latency
-is the working answer. Across the design axis the predictive states are
-uniformly wall-estimatable, where the reconstructive geometry fails
-unpredictably with dimension and with training seed for a verified
-observation-side reason, and this robustness, not any single cell, is the
-deployment argument. Three facts bound the result: the in-distribution impact
-median of the best filter does not beat a \StaticInv, whose
-case fails instead in the tails and at the extrapolation boundary; the wake
-enstrophy remains beyond any wall-limited filter of this flow, a sensing-
-geometry bound rather than a state deficiency; and the mid-plane
-representation reaches a three-dimensional observability boundary at the
-highest gust strength. What the paper establishes is a lift-anchored,
-wall-estimable reduced state, the supervision that produces it, and a filter
-family whose failure modes are each attributed to calibration, to model error
-or to sensing geometry rather than left unexplained.
+On compression, the statement is two-tier: load information is
+approximately unchanged over the tested dimensions under a nonlinear
+probe and is linearly accessible at four coefficients, whereas
+wake-field reconstruction requires at least sixteen. On forecasting, a
+\DirectFC{} remains usable over forty steps where
+autoregressive rollout degrades through error accumulation, and
+supplying the true gust parameters provides no benefit, so the
+deployable route to the encounter is a model corrected by pressure
+rather than the release parameters.
+
+On estimation, a two-stage ensemble filter sensing eight wall-pressure
+taps tracks the lift through the encounter, phase-resolved and in
+physical units: impact-phase $R^2 = \PoneTwoStageCovImpact$ at a
+root-mean-square error of $\PoneTwoStageCovRmse$ lift units on the
+\TestSplit{} set, and $R^2 = \PoneTwoStageCovImpactC$
+at the $|G| = 4$ boundary.
+Across latent dimension and training seed the predictive states remain
+uniformly estimable from the wall, whereas the reconstructive geometry
+does not, for a verified observation-side reason; this robustness,
+rather than any single configuration, is the deployment argument.
+
+Three results bound the claims. A \StaticInv{} matches
+the filter's in-distribution impact median, and the filter's advantage
+lies in the tails, at the boundary set and in continuous state tracking.
+The wake enstrophy is not recovered by the tap counts, delay windows and
+estimators considered here, a limit we attribute to the sensing geometry
+rather than to the state. And the mid-plane representation shows an
+indication of a three-dimensional observability limitation at the
+strongest gusts (four cases), where the filter's uncertainty consistency
+degrades even as the median tracking holds. The natural next steps are a
+calibrated process and observation noise model for the filter, and the
+same matched-estimator protocol on other parametric flows, to test how
+general the estimability ordering reported here is.

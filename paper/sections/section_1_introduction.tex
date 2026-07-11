@@ -120,39 +120,33 @@ accurately. Instead, it asks which representation supplies a reduced
 aerodynamic state that can be forecast, decoded and estimated in a form
 relevant to future gust-mitigation systems.
 
-The paper makes four contributions, one per stage of the estimation
-problem. First, we settle what constructs the state: a supervision cube
-over three aerodynamic heads, three seeds per cell under pre-registered
-gates, shows that a scalar lift anchor is load-bearing for predictive
-latent health, that a near-body force-element head constructed from the
-Chang decomposition sharpens the peak loads on top of it, and that the
-wake head carries the wake state; the division of labour replaces the
-single wake-supervision attribution of our earlier framing. Second, we
-give the compression its honest form: lift information is
-dimension-invariant and linearly accessible at four coefficients while
-the wake state is distributed and needs sixteen, a two-tier statement in
-which linear-probe readability is a readout property, not an information
-property. Third, we make the family forecast comparison operator-robust
-with one \DirectFC{} trained identically on every
-latent, and show that autoregressive compounding, not the state, is the
-rollout failure mode, and that conditioning on the true gust parameters
-% REVIEW-CLAIM: (Stage 2) reworded during nomenclature migration, meaning preserved.
-degrades the forecast. Fourth, we demonstrate the state in a pressure-only
-sequential filter family, in which the quantities the
-paper scores, the lift and wake probes, can never enter the filter's
-innovation; we evaluate it
-phase-resolved and in physical units across the gust-intensity envelope,
-attribute its impact-side under-dispersion to calibration and fix it with
-a forecast-derived state-dependent noise, attribute its relaxation error
-to forecast contraction and address that with a fixed-lag smoother, and
-show the predictive states uniformly wall-estimatable across the
-dimension axis where the reconstructive geometry fails unpredictably.
-We are explicit about the limits: the best filter's in-distribution
-impact median does not beat a \StaticInv, whose case
-fails instead in the tails and at the $|G| = 4$ boundary; the wake
-enstrophy remains beyond any wall-limited filter of this flow; and the
-mid-plane representation reaches a three-dimensional observability
-boundary at the strongest gusts. This study investigates a fluid-mechanics question through a learning
-architecture: what kind of reduced state can carry the wake dynamics of an
-extreme gust encounter while remaining estimable from the wall and predictive
-enough to serve as a future plant model?
+% Final paragraph bound from editorial/upstream/front_matter_rewrite.tex at
+% the Session 37 Stage 4 front-matter bind (author-approved, D303). The
+% (i)/(ii)/(iii) requirement list and the roadmap sentence are house style
+% in the lineage corpus.
+% REVIEW-CLAIM: (Stage 4) replaces the four-contribution paragraph with the
+% pre-approved requirements-and-roadmap paragraph.
+Here we ask whether a reduced representation of an extreme vortex-gust
+encounter can satisfy three requirements simultaneously: (i) it must
+carry the wake variables that distinguish post-impact states beyond the
+release parameters; (ii) it must remain usable when advanced by a
+low-order forecast model; and (iii) it must be estimable from the sparse
+wall pressure a vehicle carries. We compare predictive,
+reconstruction-trained and proper-orthogonal-decomposition coefficient
+states at matched dimension, on direct numerical simulations of a
+post-stall NACA 0012 airfoil perturbed by Taylor vortex gusts.
+Controlled ablations separate the roles of the lift, near-body and wake
+supervision targets; one \DirectFC{}, trained identically on every
+state, assesses forecastability; and a sequential estimator that senses
+only wall pressure tests observability. The requirements prove to be
+supplied by different ingredients: observable supervision organises the
+latent geometry and its readability, multi-step predictive training
+stabilises its forward use, and pressure histories recover the
+lift-carrying coordinates but not the complete wake state. The remainder
+of the paper is organised as follows. Section 2 describes the flow
+configuration, data and endpoints; \S 3 the reduced states, forecaster
+and estimators; \S 4 the results, in the order construction
+(\S\ref{sec:res_construct}), compression and forecastability
+(\S\ref{sec:res_compress}), wall observability (\S\ref{sec:res_wallobs})
+and sequential estimation (\S\ref{sec:res_estimation}); \S 5 discusses
+the mechanisms and their limits, and \S 6 concludes.

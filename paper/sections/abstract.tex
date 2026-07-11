@@ -1,31 +1,36 @@
-% Abstract, v4 (Session 35). Four-part arc per SESSION_35.md section 6:
-% construct / reconstruct-compress / advance / estimate, estimation-thesis
-% close, honest boundaries. Numbers are macros. No em-dashes; ends on a fact.
-
-Extreme vortex-gust encounters of a post-stall airfoil are wake-reorganisation
-events: the transient load is the surface signature of leading-edge-vortex
-roll-up and shedding, and the release parameters alone do not fix the wake once
-the gust has passed. We treat the encounter as a state-estimation problem, and
-ask what it takes to build, compress, advance and recover a reduced coefficient
-state from the only sensors a wing carries, its wall pressure. Using direct
-numerical simulations of a NACA~0012 airfoil at $\alpha = 14^\circ$ and
-$\vRe = 5000$, perturbed by Taylor vortices spanning gust strength, core
-diameter and offset, a supervision cube over three aerodynamic heads shows that
-a scalar lift anchor is load-bearing for predictive latent health, a
-physics-constructed near-body force-element head sharpens the peak loads on top
-of it (peak-region $R^2$ of \TcPeakRTwoCLN{} over three seeds), and a wake head
-carries the wake state. Lift information is dimension-invariant down to four
-coefficients, where it is linearly accessible; the wake state is not
-% REVIEW-CLAIM: (Stage 2) reworded during nomenclature migration, meaning preserved.
-compressible below sixteen. A \DirectFC{} advances
-the state where autoregressive rollout compounds, and knowing the true gust
-parameters degrades the forecast. A pressure-only ensemble filter family sensing
-eight taps then tracks the loads through the encounter, phase-resolved and in
-physical units: a knob-free \TwoStageKF{} reaches an impact-phase analysis
-$R^2$ of \PoneTwoStageCovImpact{} in distribution and \PoneTwoStageCovImpactC{}
-at the strongest held-out gusts with no divergences, innovation-consistency
-calibration of the forecast-derived noise is refuted in favour of a model-error
-reading, and the predictive states remain uniformly estimatable across the
-dimension axis where the reconstructive geometry fails unpredictably with
-dimension and training seed. The wake enstrophy stays beyond any wall-limited
-filter of this flow, a bound set by the sensing geometry rather than the state.
+% Abstract, bound from editorial/upstream/front_matter_rewrite.tex at the
+% Session 37 Stage 4 front-matter bind (author-approved, D303/D306 resolved
+% 2026-07-10). Three numbers only, all macros; no divergence-count claims;
+% the attribution sentence and the oracle clause restored per the memo.
+% REVIEW-CLAIM: (Stage 4) wholesale replacement of the previous abstract by
+% the pre-approved draft.
+Extreme vortex gusts drive a post-stall airfoil through a transient
+reorganisation of its wake, and the release parameters alone do not
+determine the flow once the vortex has passed. We ask whether a reduced
+state of such an encounter can retain the wake dynamics, remain usable
+under a low-order forecast model, and be estimated from the sparse wall
+pressure a wing can carry. Direct numerical simulations of a NACA 0012
+airfoil at $\alpha = 14^\circ$ and $\vRe = 5000$, perturbed by Taylor
+vortices spanning gust ratio, core diameter and offset, are used to
+compare predictive, reconstruction-trained and
+proper-orthogonal-decomposition coefficient states at matched dimension.
+A controlled supervision study shows that these requirements are
+supplied by different ingredients. Under the predictive objective
+considered, a scalar lift target is necessary to prevent collapse of the
+latent representation, a near-body force-element target sharpens the
+peak loads, and a wake target is required to retain the wake enstrophy
+and circulation; the multi-step predictive objective contributes
+stability under rollout rather than instantaneous readability. Load
+information remains accessible at four coefficients, whereas wake-field
+reconstruction requires at least sixteen. Under a single \DirectFC{}
+trained identically on every state, the predictive coordinates are the
+most forecastable, autoregressive rollout degrades through error
+accumulation, and supplying the true gust parameters provides no
+benefit. A sequential ensemble filter sensing eight wall-pressure taps
+then tracks the lift through the encounter, with impact-phase
+$R^2 = \PoneTwoStageCovImpact$ (root-mean-square error
+$\PoneTwoStageCovRmse$ in lift units) on the \TestSplit{} set and
+$R^2 = \PoneTwoStageCovImpactC$ at the held-out $|G| = 4$ boundary;
+the wake enstrophy is not recovered by the wall-sensor configurations
+considered, a limit set by the sensing geometry rather than by the
+state.
