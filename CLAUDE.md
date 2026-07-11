@@ -12,7 +12,33 @@ matched latent dimension.
 
 Lead researcher: Carlos Sanmiguel Vila (INTA, UC3M).
 
-## Current focus (read first, set 2026-07-11, Session 37 CLOSED)
+## Current focus (read first, set 2026-07-11, Session 38 CLOSED)
+
+**Sessions 36-38 are COMPLETE on branch `jfm-rewrite-v2`** (pushed through
+`8250575`; one continuous conversation; reports SESSION36/37/38_REPORT.md;
+HANDOFF D266-D269 + D310-D312). The JFM rewrite program (upstream docs at
+`editorial/upstream/`) is executed through Stage 6 except the deferred M3
+figure-engineering pass. State: numbers frozen (M1 shared-operator merit =
+D310 null branch, XmeritSh* at H=16; M2 provenance all v2.2); Results in
+the four target subsections; supplementary.tex exists (S1 ledger, S2
+failure modes, S3 figures, S4 suited-operator table); front matter bound
+(D306 title, abstract 249/250 with the D310 correction); nine claim
+repairs + language table at ZERO banned hits; fig 10 dropped, hero +
+centerpiece regenerated (aliases, precision, de-archived headers); four
+wide tables under \fittab; ledgers MANUSCRIPT_AUDIT / CLAIM_MAP /
+PROVENANCE / FIGURE_PLAN / NUMBER_AUDIT / CHANGELOG in editorial/.
+D268: budgets relaxed for clarity, filter equations stay in Methods.
+Gates: main 48pp rc=0, supplementary 3pp rc=0, refs 0, tracer PASS,
+audit_numbers PASS, lint 0.
+REMAINING: the M3 figure-engineering pass (M3a-M3f merges, atlas slim,
+TikZ schematic redraw; D302/D305 decided there); optional deep prose
+compressions beyond the D268 clarity standard (s2 -357, s4 -1266, s5
+-601); the s3.5 sign-convention audit (% REVIEW-CLAIM open). Carlos-owned:
+session35-branch merge, DNS Table 1 (7 \pending{} rows, THE submission
+blocker), Zenodo DOI, license/CRediT/funding, CLAIM_MAP/PROVENANCE
+read-through.
+
+## Previous focus (Session 37, set 2026-07-11)
 
 **Session 37 is COMPLETE on branch `jfm-rewrite-v2`** (same conversation as
 Session 36, Carlos's overnight "keep going"; commits a8d93fa..bc5337a;
