@@ -30,23 +30,29 @@ MODELS = [
     ("jepa_pool_vec_d4", "JEPA (wake)", "#1b7837"),
     ("cln_rexpred_d4_s0", "JEPA (lift-focused)", "#5aae61"),
 ]
+# C_L panels: the session38 band-1.77 re-run (protocol-clean production band;
+# the frozen dims-grid arm was band 4.0, test-peeked). SSIM panel: the frozen
+# band-4.0 arm (the only arm with decoded-field scores), labelled as such.
+AGG = REPO_ROOT / "outputs/session38/d4_band177_aggregates.json"
 
 
 def main() -> int:
     use_style()
+    agg = json.loads(AGG.read_text())
     rows = []
     for m, label, c in MODELS:
         d = json.loads((REPO_ROOT / f"outputs/session34/da_phase_dim_{m}.json").read_text())
         s = d["summary"]["rex_enkf"]
-        rows.append((label, c, s["impact"]["cl_r2"], s["impact"]["cl_rmse"],
+        rows.append((label, c, agg[m]["median_impact_r2"],
+                     agg[m]["median_impact_rmse"],
                      s["impact"]["ssim_full"], s["impact"]["ssim_nearbody"]))
     x = np.arange(len(rows))
     fig, axes = plt.subplots(1, 3, figsize=(TEXTWIDTH_IN, 0.28 * TEXTWIDTH_IN),
                              constrained_layout=True)
     panels = [
-        ("(a) impact $C_L$ analysis $R^2$", 2, (-0.6, 1.0)),
-        ("(b) impact $C_L$ RMSE (lift units)", 3, None),
-        ("(c) impact decoded-field SSIM", None, (0, 1.0)),
+        ("(a) impact $C_L$ analysis $R^2$ (median, band 1.77)", 2, (-0.6, 1.0)),
+        ("(b) impact $C_L$ RMSE (median, band 1.77)", 3, None),
+        ("(c) decoded-field SSIM (band-4.0 arm)", None, (0, 1.0)),
     ]
     for ax, (title, idx, ylim) in zip(axes, panels):
         if idx is not None:

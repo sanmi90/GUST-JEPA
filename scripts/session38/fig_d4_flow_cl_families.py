@@ -35,13 +35,17 @@ from scripts.session34.latent_rex import LatentRex  # noqa: E402
 CACHE = REPO_ROOT / "outputs/session34/trackc_latents"
 BAND_TO_SIGMA = 2.5631
 SHOW = 8  # frames after impact
-DELAY, K, N, ALPHA, BAND = 10, 8, 64, 1.0, 1.0
+# band 1.77 = the production coverage calibration (T5, validation-only);
+# the dims-grid arm ran 4.0 (test-peeked, excluded from headlines) and
+# the first draft of this script ran 1.0: superseded.
+DELAY, K, N, ALPHA, BAND = 10, 8, 64, 1.0, 1.77
 ENCOUNTER = ("G+3.00_D1.00_Y+0.10", 3, 3.0)  # JEPA-median |G|=3 pick, shared
 
 FAMILIES = [
     ("pod_d4", "POD", "#4d4d4d"),
     ("fukami_wake_d4", "AE + wake head", "#b2182b"),
     ("jepa_pool_vec_d4", "JEPA (wake)", "#1b7837"),
+    ("cln_rexpred_d4_s0", "JEPA (lift-focused)", "#5aae61"),
 ]
 
 
@@ -143,7 +147,7 @@ def main() -> int:
         print(f"[fam] {model} done", flush=True)
 
     fig = plt.figure(figsize=(TEXTWIDTH_IN, 0.52 * TEXTWIDTH_IN))
-    gs = fig.add_gridspec(2, 4, height_ratios=[1.0, 1.0], hspace=0.02, wspace=0.10)
+    gs = fig.add_gridspec(2, 5, height_ratios=[1.0, 1.0], hspace=0.02, wspace=0.10)
     ax = fig.add_subplot(gs[0, 0])
     vort_panel(ax, dns)
     m = re.match(r"G[+-][\d.]+_D([\d.]+)_Y([+-][\d.]+)", cid)
