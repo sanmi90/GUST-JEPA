@@ -161,11 +161,16 @@ lower. Field decode does not separate the compact states at any dimension.
 
 The observables tell the discriminating story the field pixels hide
 (table~\ref{tab:obs_critical}). A linear probe reads the lift and the wake
-enstrophy off each state at the same three instants: the nonlinear supervised
-states carry both through the transient, while the linear basis loses the lift at
+enstrophy off each state at the same three instants. Supervision decides what a
+state carries: the \PredState{} and the wake autoencoder carry both the lift and
+the wake through the transient, whereas the \LiftState{} reads the lift as
+accurately as any state ($R^2 = \CritClClnImp$ at impact) but not the wake
+($\CritEwClnImp$, against $\CritEwJepaImp$ for the \PredState), so the wake
+content is the wake head's contribution and not a by-product of the lift anchor.
+The linear basis fails differently again, losing the lift at
 the very impact instant ($R^2 = \CritClPodImp$, against $\CritClJepaImp$ for the
-predictive state) and never reads the wake enstrophy ($\CritEwPodImp$ through
-impact, against $\CritEwJepaImp$). It is at the critical moments, not on the
+predictive state) and never reading the wake enstrophy ($\CritEwPodImp$ through
+impact). It is at the critical moments, not on the
 window average, that the linear readout breaks down: the energy-optimal basis
 renders the field but cannot read the load or the wake exactly when the encounter
 turns nonlinear.

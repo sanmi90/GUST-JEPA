@@ -34,6 +34,7 @@ FAMILIES = {
                    8: ("jepa_pool_vec_d8", "jepa_pool_vec_d8"),
                    16: ("jepa_pool_vec_d16", "jepa_pool_vec_d16"),
                    32: ("jepa_pool_vec", "jepa_pool_vec")},
+    "predictive (lift)": {32: ("jepa_pool_ln_s0", "jepa_pool_ln_s0")},  # CLN, d32
     "AE (wake)": {32: ("ae_wake_pool", "ae_wake_pool")},
     "Fukami (wake)": {4: ("fukami_wake_d4", "fukami_wake_d4"),
                       8: ("fukami_wake_d8", "fukami_wake_d8"),

@@ -1,5 +1,32 @@
 # CHANGELOG.md (JFM rewrite program; structural moves, wording changes, open author decisions)
 
+## Session 39 continued: family-set consistency in the critical exhibits (Carlos: "why is not figure 8 the POD? why is not JEPA CLN CLW in table 7")
+
+- fig:decode (fig 8): ADDED the POD row. fig_decode_panels_v4.py MODELS 3 -> 4
+  (jepa_pool_vec CLW, jepa_pool_ln_s0 CLN, ae_wake_pool AE-LW, pod_d32 POD). Grid
+  is now DNS + 4 decoded + 4 error = 9 rows. POD's decode is competitive (lowest
+  RMSE at impact 0.19 and relax 0.15), reinforcing that the field decode is a wash
+  -- the linear basis renders the field as faithfully as the nonlinear states.
+- tab:critical_ssim (table 7): ADDED the CLN (lift-supervised predictive) row so
+  it carries both predictive states, matching fig:decode. CLN decode SSIM at d=32
+  is 0.82/0.80/0.82 full, 0.70/0.63/0.66 near-body -- competitive with CLW/AE/POD.
+- tab:obs_critical (table 8): ADDED the CLN row (three encoder seeds
+  jepa_pool_ln_s0/s1/s2). The load-bearing contrast: CLN reads the lift as
+  accurately as any state (R2 0.78 at impact, ties Fukami) but reads the wake
+  enstrophy far worse (0.05 at impact, against 0.56 for CLW), locating the wake
+  content in the wake head, not the lift anchor. Caption + the §4.2.2 body
+  sentence rewritten from "the nonlinear supervised states carry both" to the
+  supervision-decides-what-a-state-carries framing (CLW/AE carry both, CLN carries
+  lift only, POD neither).
+- NEW scripts/session39/emit_critical_parts.py: makes the session39_critical and
+  session39_obscrit numbers-pipeline parts REPRODUCIBLE (they were previously
+  ad-hoc). Reads multi_d_critical_ssim.json + observable_critical.json, emits both
+  parts with the five-family set. CritSeedSd stays 0.09 (blanket seed-SD bound over
+  every cell that reads a real signal; CLN's near-zero wake read is excluded and
+  discussed in prose). multi_d_critical_ssim.py + observable_critical.py FAMILIES
+  extended with "predictive (lift)".
+- Gate: main 55pp rc=0, tracer PASS, 968 macros, 0 em-dashes, 0 undefined refs.
+
 ## Session 39 continued: figure-engineering pass (post-commit 6da0f8e)
 
 - fig:centerpiece SPLIT (D-B, the biggest §4.6 lever): fig_da_centerpiece_v4.py

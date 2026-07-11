@@ -1,7 +1,7 @@
 {
   "_provenance": {
-    "generated_iso": "2026-07-11T20:48:02.291775+00:00",
-    "git_commit": "dc55c5e3c4514f962a94c272b7fbb0163b852e0c",
+    "generated_iso": "2026-07-11T22:57:53.342863+00:00",
+    "git_commit": "d5b1b9ce586ca28728b0fb10951a0ca4ad7bb68f",
     "n_parts": 25,
     "parts": [
       "constants.json",
@@ -78,6 +78,24 @@
       "source": "session39_critical",
       "value": 0.818968687061399
     },
+    "crit_Cln_Imp": {
+      "fmt": "%.2f",
+      "macro": "CritClnImp",
+      "source": "session39_critical",
+      "value": 0.803384923745732
+    },
+    "crit_Cln_Peak": {
+      "fmt": "%.2f",
+      "macro": "CritClnPeak",
+      "source": "session39_critical",
+      "value": 0.8153658801833753
+    },
+    "crit_Cln_Pre": {
+      "fmt": "%.2f",
+      "macro": "CritClnPre",
+      "source": "session39_critical",
+      "value": 0.8201457000224501
+    },
     "crit_Fuk_Imp": {
       "fmt": "%.2f",
       "macro": "CritFukImp",
@@ -149,6 +167,24 @@
       "macro": "CritNbAePre",
       "source": "session39_critical",
       "value": 0.7270000675624414
+    },
+    "critnb_Cln_Imp": {
+      "fmt": "%.2f",
+      "macro": "CritNbClnImp",
+      "source": "session39_critical",
+      "value": 0.6316987273078569
+    },
+    "critnb_Cln_Peak": {
+      "fmt": "%.2f",
+      "macro": "CritNbClnPeak",
+      "source": "session39_critical",
+      "value": 0.6587969010405019
+    },
+    "critnb_Cln_Pre": {
+      "fmt": "%.2f",
+      "macro": "CritNbClnPre",
+      "source": "session39_critical",
+      "value": 0.7048445506958017
     },
     "critnb_Fuk_Imp": {
       "fmt": "%.2f",
@@ -1853,6 +1889,24 @@
       "source": "session39_obscrit",
       "value": 0.8883544578708285
     },
+    "ocl_Cln_Imp": {
+      "fmt": "%.2f",
+      "macro": "CritClClnImp",
+      "source": "session39_obscrit",
+      "value": 0.7830721976287549
+    },
+    "ocl_Cln_Peak": {
+      "fmt": "%.2f",
+      "macro": "CritClClnPeak",
+      "source": "session39_obscrit",
+      "value": 0.8449926223210328
+    },
+    "ocl_Cln_Pre": {
+      "fmt": "%.2f",
+      "macro": "CritClClnPre",
+      "source": "session39_obscrit",
+      "value": 0.9282996200396555
+    },
     "ocl_Fuk_Imp": {
       "fmt": "%.2f",
       "macro": "CritClFukImp",
@@ -1911,7 +1965,7 @@
       "fmt": "%.2f",
       "macro": "CritSeedSd",
       "source": "session39_obscrit",
-      "value": 0.09
+      "value": 0.0930429896366244
     },
     "oclr_Ae_Imp": {
       "fmt": "%.2f",
@@ -1930,6 +1984,24 @@
       "macro": "CritClRmseAePre",
       "source": "session39_obscrit",
       "value": 1.216693244337318
+    },
+    "oclr_Cln_Imp": {
+      "fmt": "%.2f",
+      "macro": "CritClRmseClnImp",
+      "source": "session39_obscrit",
+      "value": 0.7101648061365484
+    },
+    "oclr_Cln_Peak": {
+      "fmt": "%.2f",
+      "macro": "CritClRmseClnPeak",
+      "source": "session39_obscrit",
+      "value": 1.3836285027458526
+    },
+    "oclr_Cln_Pre": {
+      "fmt": "%.2f",
+      "macro": "CritClRmseClnPre",
+      "source": "session39_obscrit",
+      "value": 0.9793394073609193
     },
     "oclr_Fuk_Imp": {
       "fmt": "%.2f",
@@ -2003,6 +2075,24 @@
       "source": "session39_obscrit",
       "value": 0.3913175041355487
     },
+    "oew_Cln_Imp": {
+      "fmt": "%.2f",
+      "macro": "CritEwClnImp",
+      "source": "session39_obscrit",
+      "value": 0.046186627462967124
+    },
+    "oew_Cln_Peak": {
+      "fmt": "%.2f",
+      "macro": "CritEwClnPeak",
+      "source": "session39_obscrit",
+      "value": 0.41988277051631306
+    },
+    "oew_Cln_Pre": {
+      "fmt": "%.2f",
+      "macro": "CritEwClnPre",
+      "source": "session39_obscrit",
+      "value": -0.8204774441638271
+    },
     "oew_Fuk_Imp": {
       "fmt": "%.2f",
       "macro": "CritEwFukImp",
@@ -2074,6 +2164,24 @@
       "macro": "CritEwRmseAePre",
       "source": "session39_obscrit",
       "value": 74.3602876681977
+    },
+    "oewr_Cln_Imp": {
+      "fmt": "%.0f",
+      "macro": "CritEwRmseClnImp",
+      "source": "session39_obscrit",
+      "value": 85.42597432534264
+    },
+    "oewr_Cln_Peak": {
+      "fmt": "%.0f",
+      "macro": "CritEwRmseClnPeak",
+      "source": "session39_obscrit",
+      "value": 95.585448900695
+    },
+    "oewr_Cln_Pre": {
+      "fmt": "%.0f",
+      "macro": "CritEwRmseClnPre",
+      "source": "session39_obscrit",
+      "value": 127.3318215584261
     },
     "oewr_Fuk_Imp": {
       "fmt": "%.0f",

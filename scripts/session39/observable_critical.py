@@ -37,6 +37,7 @@ OBS = {"C_L": "C_L", "E_w": "wake_enstrophy"}
 # seed spread, matching the D130 uncertainty protocol.
 FAMILIES = {
     "predictive": ["jepa_pool_vec", "jepa_pool_vec_s1", "jepa_pool_vec_s2"],
+    "predictive (lift)": ["jepa_pool_ln_s0", "jepa_pool_ln_s1", "jepa_pool_ln_s2"],
     "AE (wake)": ["ae_wake_pool", "ae_wake_pool_s1", "ae_wake_pool_s2"],
     "Fukami (wake)": ["fukami_wake"],
     "POD": ["pod"],

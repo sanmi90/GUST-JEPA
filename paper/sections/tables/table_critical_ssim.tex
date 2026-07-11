@@ -9,12 +9,14 @@
   truth at the pre-impact frame, the impact frame and the peak-lift frame
   (argmax $|C_L|$), for the full field and the near-body band, averaged over the
   $\NTestBEnc$ \TestSplit{} encounters at $d = 32$. Decode floor: the true latent
-  is decoded, with no forecast. The compact nonlinear supervised states and the
-  energy-optimal linear basis all render the field faithfully at every critical
-  instant, including the near-body band; only the published-recipe lineage is a
-  clear step behind. Field decode at the critical instants is thus not where the
-  compact states separate, consistent with the linear basis's field VRMSE
-  advantage; they part on the wake observables and on forecasting. The frozen
+  is decoded, with no forecast. Both nonlinear supervised predictive states, the
+  \PredState{} and the \LiftState, together with
+  the wake autoencoder and the energy-optimal linear basis, all render the field
+  faithfully at every critical instant, including the near-body band; only the
+  published-recipe lineage is a clear step behind. Field decode at the critical
+  instants is thus not where the compact states separate, consistent with the
+  linear basis's field VRMSE advantage; they part on the wake observables
+  (table~\ref{tab:obs_critical}) and on forecasting. The frozen
   decoders exist at a single encoder seed, so the decoded-field tables are
   single-seed.}
   \label{tab:critical_ssim}
@@ -26,6 +28,7 @@
     State & pre-impact & impact & peak lift & pre-impact & impact & peak lift \\
     \midrule
     predictive (\PredState) & $\CritJepaPre$ & $\CritJepaImp$ & $\CritJepaPeak$ & $\CritNbJepaPre$ & $\CritNbJepaImp$ & $\CritNbJepaPeak$ \\
+    predictive (\LiftState) & $\CritClnPre$  & $\CritClnImp$  & $\CritClnPeak$  & $\CritNbClnPre$  & $\CritNbClnImp$  & $\CritNbClnPeak$ \\
     AE (wake)               & $\CritAePre$   & $\CritAeImp$   & $\CritAePeak$   & $\CritNbAePre$   & $\CritNbAeImp$   & $\CritNbAePeak$ \\
     Fukami (wake)           & $\CritFukPre$  & $\CritFukImp$  & $\CritFukPeak$  & $\CritNbFukPre$  & $\CritNbFukImp$  & $\CritNbFukPeak$ \\
     POD                     & $\CritPodPre$  & $\CritPodImp$  & $\CritPodPeak$  & $\CritNbPodPre$  & $\CritNbPodImp$  & $\CritNbPodPeak$ \\

@@ -54,6 +54,7 @@ MODELS = [
     ("jepa_pool_vec", "CLW"),
     ("jepa_pool_ln_s0", "CLN"),
     ("ae_wake_pool", "AE-LW"),
+    ("pod_d32", "POD"),  # Session 39 (Carlos): the linear basis was missing
 ]
 
 

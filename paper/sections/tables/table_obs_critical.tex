@@ -16,16 +16,21 @@
   training window reads each observable off the frozen latent; $d = 32$, on the
   $\NTestBEnc$ \TestSplit{} encounters. The learned predictive and AE states are
   means over three encoder seeds (encoder-seed standard deviation
-  $\le \CritSeedSd$ in $R^2$); the published-recipe lineage has a single seed at
-  this dimension and the linear basis is deterministic. Unlike the decoded field
+  $\le \CritSeedSd$ in $R^2$ on every cell that reads the quantity); the
+  published-recipe lineage has a single seed at this dimension and the linear
+  basis is deterministic. Unlike the decoded field
   (table~\ref{tab:critical_ssim}), the observables separate the states exactly
-  where it matters: the nonlinear supervised states read both the lift and the
-  wake through the transient, whereas the linear basis loses the lift at the
-  impact instant ($R^2 = \CritClPodImp$) and carries the largest lift error at
-  every instant, including where its $R^2$ looks healthy at the high-variance
-  peak ($\CritClPodPeak$ but RMSE $\CritClRmsePodPeak$, the worst in the column),
-  and it never reads the wake enstrophy. The energy-optimal linear basis renders
-  the field but cannot read the load or the wake at the moments that decide the
+  where it matters. The \PredState{} and the
+  wake autoencoder read both the lift and the wake enstrophy through the
+  transient; the \LiftState{} reads the lift as accurately as any
+  state ($R^2 = \CritClClnImp$ at impact) yet reads the wake enstrophy far worse
+  (near zero at impact, $\CritEwClnImp$), locating the wake content in the wake
+  head rather than the lift anchor. The linear basis loses the lift at the impact
+  instant ($R^2 = \CritClPodImp$) and carries the largest lift error at every
+  instant, including where its $R^2$ looks healthy at the high-variance peak
+  ($\CritClPodPeak$ but RMSE $\CritClRmsePodPeak$, the worst in the column), and
+  it never reads the wake enstrophy. The energy-optimal linear basis renders the
+  field but cannot read the load or the wake at the moments that decide the
   encounter.}
   \label{tab:obs_critical}
   \small
@@ -36,6 +41,7 @@
     State & pre-impact & impact & peak lift & pre-impact & impact & peak lift \\
     \midrule
     predictive (\PredState) & $\CritClJepaPre$ ($\CritClRmseJepaPre$) & $\CritClJepaImp$ ($\CritClRmseJepaImp$) & $\CritClJepaPeak$ ($\CritClRmseJepaPeak$) & $\CritEwJepaPre$ ($\CritEwRmseJepaPre$) & $\CritEwJepaImp$ ($\CritEwRmseJepaImp$) & $\CritEwJepaPeak$ ($\CritEwRmseJepaPeak$) \\
+    predictive (\LiftState) & $\CritClClnPre$ ($\CritClRmseClnPre$) & $\CritClClnImp$ ($\CritClRmseClnImp$) & $\CritClClnPeak$ ($\CritClRmseClnPeak$) & $\CritEwClnPre$ ($\CritEwRmseClnPre$) & $\CritEwClnImp$ ($\CritEwRmseClnImp$) & $\CritEwClnPeak$ ($\CritEwRmseClnPeak$) \\
     AE (wake)               & $\CritClAePre$ ($\CritClRmseAePre$) & $\CritClAeImp$ ($\CritClRmseAeImp$) & $\CritClAePeak$ ($\CritClRmseAePeak$) & $\CritEwAePre$ ($\CritEwRmseAePre$) & $\CritEwAeImp$ ($\CritEwRmseAeImp$) & $\CritEwAePeak$ ($\CritEwRmseAePeak$) \\
     Fukami (wake)           & $\CritClFukPre$ ($\CritClRmseFukPre$) & $\CritClFukImp$ ($\CritClRmseFukImp$) & $\CritClFukPeak$ ($\CritClRmseFukPeak$) & $\CritEwFukPre$ ($\CritEwRmseFukPre$) & $\CritEwFukImp$ ($\CritEwRmseFukImp$) & $\CritEwFukPeak$ ($\CritEwRmseFukPeak$) \\
     POD                     & $\CritClPodPre$ ($\CritClRmsePodPre$) & $\CritClPodImp$ ($\CritClRmsePodImp$) & $\CritClPodPeak$ ($\CritClRmsePodPeak$) & $\CritEwPodPre$ ($\CritEwRmsePodPre$) & $\CritEwPodImp$ ($\CritEwRmsePodImp$) & $\CritEwPodPeak$ ($\CritEwRmsePodPeak$) \\
