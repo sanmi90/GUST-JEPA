@@ -36,3 +36,46 @@ readability-matrix TODO died with the figure; the centerpiece precision
 TODO is resolved by the regeneration; the TikZ architecture asset still
 says "direct REX (quantile LSTM, h=512)", rename to the \DirectFC wording
 at the M3b schematic redraw).
+
+## Session 38 figure model-provenance audit (Carlos directive: best models everywhere)
+
+Sweep of all 28 built assets (24 data figures + 4 TikZ schematics): per-figure
+generating script, data inputs, and model generation verified.
+
+CONFIRMED CURRENT (no action): fig_cl_envelope_traces (two-stage b177 on vec),
+fig_da_centerpiece (b177/vec), fig_cube_* (Track C cube, its own experiment),
+fig_da_dims_grid (D261 vec lineage), fig_decode_panels (vec + CLN),
+fig_deployment (b177 d4), fig_dimension_race (S34/35 ladders), fig_forecast40
+(vec REX), fig_forecastability (rex2_cov on vec), fig_ownstack + fig_relative
+_errors (da_phase_eval on vec), fig_phi_panel / fig_staging / fig_paramspace
+(data-only), TikZ schematics. IMPORTANT subtlety: the session-33 physics
+re-runs keep LEGACY KEYS pointing at vec latents (spectrum_dmd + manifold
+atlas "jepa_pool" -> latents_jepa_pool_vec; mechanism "jepa_wake_pool" ->
+latents_jepa_pool_vec), so fig:atlas and tab:mechanism/fig:mechanism_hroll
+ARE the flagship generation despite their labels.
+
+DELIBERATE PREVIOUS-GENERATION (kept, spatial-era by necessity): Gate O
+recovery (tab:recovery) and fig_pooling_cost compare pooled vs SPATIAL
+latents; the vec flagship has no spatial latent, so the spatial-era model is
+the only possible substrate (pooling-losslessness record).
+
+STALE, FIXED THIS SESSION:
+- fig:envelope (15): read the session32 jepa_pool envelope while tab:envelope
+  quotes the vec envelope. Re-pointed to envelope_vec.json / jepa_pool_vec;
+  the off-scale open-loop annotation made data-driven; regenerated.
+- fig:hero (14): traces were the jepa_pool generation (D220-era dump).
+  Re-dumped on the vec flagship (same frozen filter recipe, median-rule
+  picks per |G| in {1, 1.5, 2}) -> outputs/session38/hero_traces_vec.json;
+  regenerated with de-archived |G|, D, Y headers.
+- fig:trade (13) annotation: divergence-boundary note came from the session32
+  jepa_pool envelope; re-pointed to the vec envelope and regenerated.
+- Supplementary decode gallery (fig:recon + fig:field_recovery): decoded the
+  jepa_pool latents; re-pointed to the vec latents + vec OSP taps
+  (regeneration running at write time).
+
+IN FLIGHT, NUMBERS DECISION PENDING: the Track T K x W recovery grid
+(fig:trade cells + the track_t_grid part macros) ran on the pre-vec
+jepa_pool. A protocol-identical re-run on the vec flagship is in flight
+(outputs/session38/track_t_recovery_grid_vec.json); when it lands, compare
+cell-by-cell and EITHER swap the part (numbers change -> macros -> 4.3
+prose) or disclose the generation, Carlos's call with the delta table.
