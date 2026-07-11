@@ -1,8 +1,8 @@
 {
   "_provenance": {
-    "generated_iso": "2026-07-10T23:24:16.665383+00:00",
-    "git_commit": "954635c18ffe84bcceb9df499edf142144684ec6",
-    "n_parts": 20,
+    "generated_iso": "2026-07-11T20:48:02.291775+00:00",
+    "git_commit": "dc55c5e3c4514f962a94c272b7fbb0163b852e0c",
+    "n_parts": 25,
     "parts": [
       "constants.json",
       "dim_plateau.json",
@@ -16,6 +16,11 @@
       "paired_stats.json",
       "physics_latent.json",
       "seed_band.json",
+      "session39_critical.json",
+      "session39_obscrit.json",
+      "session39_t1.json",
+      "session39_t4.json",
+      "session39_t5.json",
       "t2b_filter.json",
       "table_t3.json",
       "table_v_envelope.json",
@@ -54,6 +59,150 @@
       "macro": "AssimPre",
       "source": "constants",
       "value": 24
+    },
+    "crit_Ae_Imp": {
+      "fmt": "%.2f",
+      "macro": "CritAeImp",
+      "source": "session39_critical",
+      "value": 0.8093675109137031
+    },
+    "crit_Ae_Peak": {
+      "fmt": "%.2f",
+      "macro": "CritAePeak",
+      "source": "session39_critical",
+      "value": 0.8089564158569483
+    },
+    "crit_Ae_Pre": {
+      "fmt": "%.2f",
+      "macro": "CritAePre",
+      "source": "session39_critical",
+      "value": 0.818968687061399
+    },
+    "crit_Fuk_Imp": {
+      "fmt": "%.2f",
+      "macro": "CritFukImp",
+      "source": "session39_critical",
+      "value": 0.7163652849170195
+    },
+    "crit_Fuk_Peak": {
+      "fmt": "%.2f",
+      "macro": "CritFukPeak",
+      "source": "session39_critical",
+      "value": 0.7022532513467769
+    },
+    "crit_Fuk_Pre": {
+      "fmt": "%.2f",
+      "macro": "CritFukPre",
+      "source": "session39_critical",
+      "value": 0.7230179606529288
+    },
+    "crit_Jepa_Imp": {
+      "fmt": "%.2f",
+      "macro": "CritJepaImp",
+      "source": "session39_critical",
+      "value": 0.8120898603787742
+    },
+    "crit_Jepa_Peak": {
+      "fmt": "%.2f",
+      "macro": "CritJepaPeak",
+      "source": "session39_critical",
+      "value": 0.8165871651761553
+    },
+    "crit_Jepa_Pre": {
+      "fmt": "%.2f",
+      "macro": "CritJepaPre",
+      "source": "session39_critical",
+      "value": 0.8313412368944297
+    },
+    "crit_Pod_Imp": {
+      "fmt": "%.2f",
+      "macro": "CritPodImp",
+      "source": "session39_critical",
+      "value": 0.8203412410889455
+    },
+    "crit_Pod_Peak": {
+      "fmt": "%.2f",
+      "macro": "CritPodPeak",
+      "source": "session39_critical",
+      "value": 0.8122940542510318
+    },
+    "crit_Pod_Pre": {
+      "fmt": "%.2f",
+      "macro": "CritPodPre",
+      "source": "session39_critical",
+      "value": 0.8229647234636791
+    },
+    "critnb_Ae_Imp": {
+      "fmt": "%.2f",
+      "macro": "CritNbAeImp",
+      "source": "session39_critical",
+      "value": 0.6520501464961049
+    },
+    "critnb_Ae_Peak": {
+      "fmt": "%.2f",
+      "macro": "CritNbAePeak",
+      "source": "session39_critical",
+      "value": 0.6434660655399332
+    },
+    "critnb_Ae_Pre": {
+      "fmt": "%.2f",
+      "macro": "CritNbAePre",
+      "source": "session39_critical",
+      "value": 0.7270000675624414
+    },
+    "critnb_Fuk_Imp": {
+      "fmt": "%.2f",
+      "macro": "CritNbFukImp",
+      "source": "session39_critical",
+      "value": 0.4528777531722947
+    },
+    "critnb_Fuk_Peak": {
+      "fmt": "%.2f",
+      "macro": "CritNbFukPeak",
+      "source": "session39_critical",
+      "value": 0.4052141775130049
+    },
+    "critnb_Fuk_Pre": {
+      "fmt": "%.2f",
+      "macro": "CritNbFukPre",
+      "source": "session39_critical",
+      "value": 0.5402644940868695
+    },
+    "critnb_Jepa_Imp": {
+      "fmt": "%.2f",
+      "macro": "CritNbJepaImp",
+      "source": "session39_critical",
+      "value": 0.6328914351803897
+    },
+    "critnb_Jepa_Peak": {
+      "fmt": "%.2f",
+      "macro": "CritNbJepaPeak",
+      "source": "session39_critical",
+      "value": 0.6501498644420207
+    },
+    "critnb_Jepa_Pre": {
+      "fmt": "%.2f",
+      "macro": "CritNbJepaPre",
+      "source": "session39_critical",
+      "value": 0.7155289571459121
+    },
+    "critnb_Pod_Imp": {
+      "fmt": "%.2f",
+      "macro": "CritNbPodImp",
+      "source": "session39_critical",
+      "value": 0.672776550222706
+    },
+    "critnb_Pod_Peak": {
+      "fmt": "%.2f",
+      "macro": "CritNbPodPeak",
+      "source": "session39_critical",
+      "value": 0.6732203184276229
+    },
+    "critnb_Pod_Pre": {
+      "fmt": "%.2f",
+      "macro": "CritNbPodPre",
+      "source": "session39_critical",
+      "value": 0.7408876300629567
     },
     "dap_eobs_impact_r2": {
       "fmt": "%.2f",
@@ -913,6 +1062,48 @@
       "source": "constants",
       "value": 8
     },
+    "flat_aewake": {
+      "fmt": "%.3f",
+      "macro": "FlatAeWake",
+      "source": "session39_t1",
+      "value": 0.024005393763002723
+    },
+    "flat_fk_delta": {
+      "fmt": "%.3f",
+      "macro": "FlatFukamiDelta",
+      "source": "session39_t1",
+      "value": 0.055746450165400335
+    },
+    "flat_fk_delta_hi": {
+      "fmt": "%.3f",
+      "macro": "FlatFukamiDeltaHi",
+      "source": "session39_t1",
+      "value": 0.06507896548518265
+    },
+    "flat_fk_delta_lo": {
+      "fmt": "%.3f",
+      "macro": "FlatFukamiDeltaLo",
+      "source": "session39_t1",
+      "value": 0.04756572879882939
+    },
+    "flat_fukami": {
+      "fmt": "%.3f",
+      "macro": "FlatFukami",
+      "source": "session39_t1",
+      "value": 0.0679086842296077
+    },
+    "flat_jepawake": {
+      "fmt": "%.3f",
+      "macro": "FlatJepaWake",
+      "source": "session39_t1",
+      "value": 0.012162234064207366
+    },
+    "flat_pod": {
+      "fmt": "%.3f",
+      "macro": "FlatPod",
+      "source": "session39_t1",
+      "value": 0.029984805782062494
+    },
     "gate_o_delta": {
       "ci_hi": 0.14493266092841273,
       "ci_lo": 0.09577619437196355,
@@ -1644,6 +1835,300 @@
       "source": "nearbody _manifest.json",
       "value": 0.7355477151075276
     },
+    "ocl_Ae_Imp": {
+      "fmt": "%.2f",
+      "macro": "CritClAeImp",
+      "source": "session39_obscrit",
+      "value": 0.7563861718263581
+    },
+    "ocl_Ae_Peak": {
+      "fmt": "%.2f",
+      "macro": "CritClAePeak",
+      "source": "session39_obscrit",
+      "value": 0.8103342257342795
+    },
+    "ocl_Ae_Pre": {
+      "fmt": "%.2f",
+      "macro": "CritClAePre",
+      "source": "session39_obscrit",
+      "value": 0.8883544578708285
+    },
+    "ocl_Fuk_Imp": {
+      "fmt": "%.2f",
+      "macro": "CritClFukImp",
+      "source": "session39_obscrit",
+      "value": 0.7940630356615841
+    },
+    "ocl_Fuk_Peak": {
+      "fmt": "%.2f",
+      "macro": "CritClFukPeak",
+      "source": "session39_obscrit",
+      "value": 0.8054952701529774
+    },
+    "ocl_Fuk_Pre": {
+      "fmt": "%.2f",
+      "macro": "CritClFukPre",
+      "source": "session39_obscrit",
+      "value": 0.9275467718590948
+    },
+    "ocl_Jepa_Imp": {
+      "fmt": "%.2f",
+      "macro": "CritClJepaImp",
+      "source": "session39_obscrit",
+      "value": 0.6967784110224183
+    },
+    "ocl_Jepa_Peak": {
+      "fmt": "%.2f",
+      "macro": "CritClJepaPeak",
+      "source": "session39_obscrit",
+      "value": 0.8326044200294668
+    },
+    "ocl_Jepa_Pre": {
+      "fmt": "%.2f",
+      "macro": "CritClJepaPre",
+      "source": "session39_obscrit",
+      "value": 0.9251772388454151
+    },
+    "ocl_Pod_Imp": {
+      "fmt": "%.2f",
+      "macro": "CritClPodImp",
+      "source": "session39_obscrit",
+      "value": -0.054751587833830495
+    },
+    "ocl_Pod_Peak": {
+      "fmt": "%.2f",
+      "macro": "CritClPodPeak",
+      "source": "session39_obscrit",
+      "value": 0.7379913310910776
+    },
+    "ocl_Pod_Pre": {
+      "fmt": "%.2f",
+      "macro": "CritClPodPre",
+      "source": "session39_obscrit",
+      "value": 0.7736410943903286
+    },
+    "ocl_seedsd": {
+      "fmt": "%.2f",
+      "macro": "CritSeedSd",
+      "source": "session39_obscrit",
+      "value": 0.09
+    },
+    "oclr_Ae_Imp": {
+      "fmt": "%.2f",
+      "macro": "CritClRmseAeImp",
+      "source": "session39_obscrit",
+      "value": 0.7492329273932462
+    },
+    "oclr_Ae_Peak": {
+      "fmt": "%.2f",
+      "macro": "CritClRmseAePeak",
+      "source": "session39_obscrit",
+      "value": 1.5251518007878069
+    },
+    "oclr_Ae_Pre": {
+      "fmt": "%.2f",
+      "macro": "CritClRmseAePre",
+      "source": "session39_obscrit",
+      "value": 1.216693244337318
+    },
+    "oclr_Fuk_Imp": {
+      "fmt": "%.2f",
+      "macro": "CritClRmseFukImp",
+      "source": "session39_obscrit",
+      "value": 0.6920884314609139
+    },
+    "oclr_Fuk_Peak": {
+      "fmt": "%.2f",
+      "macro": "CritClRmseFukPeak",
+      "source": "session39_obscrit",
+      "value": 1.5501572365549678
+    },
+    "oclr_Fuk_Pre": {
+      "fmt": "%.2f",
+      "macro": "CritClRmseFukPre",
+      "source": "session39_obscrit",
+      "value": 0.9845063676476403
+    },
+    "oclr_Jepa_Imp": {
+      "fmt": "%.2f",
+      "macro": "CritClRmseJepaImp",
+      "source": "session39_obscrit",
+      "value": 0.83648201911184
+    },
+    "oclr_Jepa_Peak": {
+      "fmt": "%.2f",
+      "macro": "CritClRmseJepaPeak",
+      "source": "session39_obscrit",
+      "value": 1.4364239244855577
+    },
+    "oclr_Jepa_Pre": {
+      "fmt": "%.2f",
+      "macro": "CritClRmseJepaPre",
+      "source": "session39_obscrit",
+      "value": 0.9996813684008815
+    },
+    "oclr_Pod_Imp": {
+      "fmt": "%.2f",
+      "macro": "CritClRmsePodImp",
+      "source": "session39_obscrit",
+      "value": 1.566280461942465
+    },
+    "oclr_Pod_Peak": {
+      "fmt": "%.2f",
+      "macro": "CritClRmsePodPeak",
+      "source": "session39_obscrit",
+      "value": 1.7991546643599539
+    },
+    "oclr_Pod_Pre": {
+      "fmt": "%.2f",
+      "macro": "CritClRmsePodPre",
+      "source": "session39_obscrit",
+      "value": 1.740157077275968
+    },
+    "oew_Ae_Imp": {
+      "fmt": "%.2f",
+      "macro": "CritEwAeImp",
+      "source": "session39_obscrit",
+      "value": 0.7010390154781906
+    },
+    "oew_Ae_Peak": {
+      "fmt": "%.2f",
+      "macro": "CritEwAePeak",
+      "source": "session39_obscrit",
+      "value": 0.8253589467078549
+    },
+    "oew_Ae_Pre": {
+      "fmt": "%.2f",
+      "macro": "CritEwAePre",
+      "source": "session39_obscrit",
+      "value": 0.3913175041355487
+    },
+    "oew_Fuk_Imp": {
+      "fmt": "%.2f",
+      "macro": "CritEwFukImp",
+      "source": "session39_obscrit",
+      "value": 0.7157249799943606
+    },
+    "oew_Fuk_Peak": {
+      "fmt": "%.2f",
+      "macro": "CritEwFukPeak",
+      "source": "session39_obscrit",
+      "value": 0.5842153539691968
+    },
+    "oew_Fuk_Pre": {
+      "fmt": "%.2f",
+      "macro": "CritEwFukPre",
+      "source": "session39_obscrit",
+      "value": 0.7448089627441619
+    },
+    "oew_Jepa_Imp": {
+      "fmt": "%.2f",
+      "macro": "CritEwJepaImp",
+      "source": "session39_obscrit",
+      "value": 0.5612984064779499
+    },
+    "oew_Jepa_Peak": {
+      "fmt": "%.2f",
+      "macro": "CritEwJepaPeak",
+      "source": "session39_obscrit",
+      "value": 0.8685254463564577
+    },
+    "oew_Jepa_Pre": {
+      "fmt": "%.2f",
+      "macro": "CritEwJepaPre",
+      "source": "session39_obscrit",
+      "value": 0.6140127127643672
+    },
+    "oew_Pod_Imp": {
+      "fmt": "%.2f",
+      "macro": "CritEwPodImp",
+      "source": "session39_obscrit",
+      "value": 0.31124787076226335
+    },
+    "oew_Pod_Peak": {
+      "fmt": "%.2f",
+      "macro": "CritEwPodPeak",
+      "source": "session39_obscrit",
+      "value": 0.3106014774117699
+    },
+    "oew_Pod_Pre": {
+      "fmt": "%.2f",
+      "macro": "CritEwPodPre",
+      "source": "session39_obscrit",
+      "value": 0.6564059313232267
+    },
+    "oewr_Ae_Imp": {
+      "fmt": "%.0f",
+      "macro": "CritEwRmseAeImp",
+      "source": "session39_obscrit",
+      "value": 48.450254652772166
+    },
+    "oewr_Ae_Peak": {
+      "fmt": "%.0f",
+      "macro": "CritEwRmseAePeak",
+      "source": "session39_obscrit",
+      "value": 52.43915839268626
+    },
+    "oewr_Ae_Pre": {
+      "fmt": "%.0f",
+      "macro": "CritEwRmseAePre",
+      "source": "session39_obscrit",
+      "value": 74.3602876681977
+    },
+    "oewr_Fuk_Imp": {
+      "fmt": "%.0f",
+      "macro": "CritEwRmseFukImp",
+      "source": "session39_obscrit",
+      "value": 47.81801729661096
+    },
+    "oewr_Fuk_Peak": {
+      "fmt": "%.0f",
+      "macro": "CritEwRmseFukPeak",
+      "source": "session39_obscrit",
+      "value": 81.15906432913074
+    },
+    "oewr_Fuk_Pre": {
+      "fmt": "%.0f",
+      "macro": "CritEwRmseFukPre",
+      "source": "session39_obscrit",
+      "value": 48.286379493090735
+    },
+    "oewr_Jepa_Imp": {
+      "fmt": "%.0f",
+      "macro": "CritEwRmseJepaImp",
+      "source": "session39_obscrit",
+      "value": 59.07529710919429
+    },
+    "oewr_Jepa_Peak": {
+      "fmt": "%.0f",
+      "macro": "CritEwRmseJepaPeak",
+      "source": "session39_obscrit",
+      "value": 45.62438262522566
+    },
+    "oewr_Jepa_Pre": {
+      "fmt": "%.0f",
+      "macro": "CritEwRmseJepaPre",
+      "source": "session39_obscrit",
+      "value": 59.231365283372526
+    },
+    "oewr_Pod_Imp": {
+      "fmt": "%.0f",
+      "macro": "CritEwRmsePodImp",
+      "source": "session39_obscrit",
+      "value": 74.43097236070601
+    },
+    "oewr_Pod_Peak": {
+      "fmt": "%.0f",
+      "macro": "CritEwRmsePodPeak",
+      "source": "session39_obscrit",
+      "value": 104.50521949596266
+    },
+    "oewr_Pod_Pre": {
+      "fmt": "%.0f",
+      "macro": "CritEwRmsePodPre",
+      "source": "session39_obscrit",
+      "value": 56.02924415385502
+    },
     "own_aelw_impact": {
       "fmt": "%.2f",
       "macro": "OwnAeLwImpRmse",
@@ -2081,6 +2566,54 @@
       "split": "test_b",
       "value": 0.887
     },
+    "phase_ae_thru16": {
+      "fmt": "%.2f",
+      "macro": "PhaseAeThruSixteen",
+      "source": "session39_t5",
+      "value": 0.6125672753041322
+    },
+    "phase_ae_thru8": {
+      "fmt": "%.2f",
+      "macro": "PhaseAeThruEight",
+      "source": "session39_t5",
+      "value": 0.700648589749672
+    },
+    "phase_fk_thru16": {
+      "fmt": "%.2f",
+      "macro": "PhaseFukamiThruSixteen",
+      "source": "session39_t5",
+      "value": -0.29238974908296517
+    },
+    "phase_jepa_pre8": {
+      "fmt": "%.2f",
+      "macro": "PhaseJepaPreEight",
+      "source": "session39_t5",
+      "value": 0.7757579151402972
+    },
+    "phase_jepa_thru16": {
+      "fmt": "%.2f",
+      "macro": "PhaseJepaThruSixteen",
+      "source": "session39_t5",
+      "value": 0.572719943849048
+    },
+    "phase_jepa_thru8": {
+      "fmt": "%.2f",
+      "macro": "PhaseJepaThruEight",
+      "source": "session39_t5",
+      "value": 0.6337893246031737
+    },
+    "phase_pod_post16": {
+      "fmt": "%.2f",
+      "macro": "PhasePodPostSixteen",
+      "source": "session39_t5",
+      "value": -0.16264383627823376
+    },
+    "phase_pod_thru16": {
+      "fmt": "%.2f",
+      "macro": "PhasePodThruSixteen",
+      "source": "session39_t5",
+      "value": 0.35852039220171533
+    },
     "plateau_merit_d32": {
       "fmt": "%.3f",
       "macro": "PlateauMeritDThirtyTwo",
@@ -2486,6 +3019,42 @@
       "macro": "SsimL",
       "source": "configs/ssim_data_range.json",
       "value": 8.487
+    },
+    "ssim_fc_ae_nb8": {
+      "fmt": "%.2f",
+      "macro": "SsimFcAeNbEight",
+      "source": "session39_t4",
+      "value": 0.5233554468526186
+    },
+    "ssim_fc_ae_thru8": {
+      "fmt": "%.2f",
+      "macro": "SsimFcAeThruEight",
+      "source": "session39_t4",
+      "value": 0.7592254624578902
+    },
+    "ssim_fc_jepa_nb8": {
+      "fmt": "%.2f",
+      "macro": "SsimFcJepaNbEight",
+      "source": "session39_t4",
+      "value": 0.5396245740233723
+    },
+    "ssim_fc_jepa_thru8": {
+      "fmt": "%.2f",
+      "macro": "SsimFcJepaThruEight",
+      "source": "session39_t4",
+      "value": 0.77630350753234
+    },
+    "ssim_fc_pod_nb8": {
+      "fmt": "%.2f",
+      "macro": "SsimFcPodNbEight",
+      "source": "session39_t4",
+      "value": 0.4933068256164798
+    },
+    "ssim_fc_pod_thru8": {
+      "fmt": "%.2f",
+      "macro": "SsimFcPodThruEight",
+      "source": "session39_t4",
+      "value": 0.76112963630611
     },
     "ssimlad_full_d16": {
       "fmt": "%.3f",
@@ -4038,6 +4607,72 @@
       "source": "trackc",
       "value": 0.2441729739254025
     },
+    "tc_peak_r2_sd_ae_l": {
+      "fmt": "%.3f",
+      "macro": "TcPeakRTwoAeLSd",
+      "source": "trackc",
+      "value": 0.009140247057413502
+    },
+    "tc_peak_r2_sd_ae_lw": {
+      "fmt": "%.3f",
+      "macro": "TcPeakRTwoAeLWSd",
+      "source": "trackc",
+      "value": 0.02561909017350426
+    },
+    "tc_peak_r2_sd_ae_w": {
+      "fmt": "%.3f",
+      "macro": "TcPeakRTwoAeWSd",
+      "source": "trackc",
+      "value": 0.061977041575766764
+    },
+    "tc_peak_r2_sd_c0": {
+      "fmt": "%.3f",
+      "macro": "TcPeakRTwoCZeroSd",
+      "source": "trackc",
+      "value": 0.0524380849234229
+    },
+    "tc_peak_r2_sd_cl": {
+      "fmt": "%.3f",
+      "macro": "TcPeakRTwoCLSd",
+      "source": "trackc",
+      "value": 0.021237887209129787
+    },
+    "tc_peak_r2_sd_cln": {
+      "fmt": "%.3f",
+      "macro": "TcPeakRTwoCLNSd",
+      "source": "trackc",
+      "value": 0.0034861982936229335
+    },
+    "tc_peak_r2_sd_clw": {
+      "fmt": "%.3f",
+      "macro": "TcPeakRTwoCLWSd",
+      "source": "trackc",
+      "value": 0.014956869253811986
+    },
+    "tc_peak_r2_sd_clwn": {
+      "fmt": "%.3f",
+      "macro": "TcPeakRTwoCLWNSd",
+      "source": "trackc",
+      "value": 0.02813624000645648
+    },
+    "tc_peak_r2_sd_cn": {
+      "fmt": "%.3f",
+      "macro": "TcPeakRTwoCNSd",
+      "source": "trackc",
+      "value": 0.10951856062987898
+    },
+    "tc_peak_r2_sd_cw": {
+      "fmt": "%.3f",
+      "macro": "TcPeakRTwoCWSd",
+      "source": "trackc",
+      "value": 0.15231572685333344
+    },
+    "tc_peak_r2_sd_cwn": {
+      "fmt": "%.3f",
+      "macro": "TcPeakRTwoCWNSd",
+      "source": "trackc",
+      "value": 0.054636319867822046
+    },
     "tc_pr_violations": {
       "fmt": "%d",
       "macro": "TcPrViolations",
@@ -4068,68 +4703,101 @@
     "tc_rho_ae_l": {
       "fmt": "%.2f",
       "macro": "TcRhoAeL",
-      "source": "trackc",
-      "value": 1.0
+      "n": 3,
+      "seed_mean": 13.24612553914388,
+      "seed_sd": 0.2828503552908034,
+      "source": "final diag/pr from run metrics (PR floor 0.3 d = 9.6)",
+      "value": 13.24612553914388
     },
     "tc_rho_ae_lw": {
       "fmt": "%.2f",
       "macro": "TcRhoAeLW",
-      "source": "trackc",
-      "value": 1.0
+      "n": 3,
+      "seed_mean": 17.760590235392254,
+      "seed_sd": 0.40832480769601515,
+      "source": "final diag/pr from run metrics (PR floor 0.3 d = 9.6)",
+      "value": 17.760590235392254
     },
     "tc_rho_ae_w": {
       "fmt": "%.2f",
       "macro": "TcRhoAeW",
-      "source": "trackc",
-      "value": 1.0
+      "n": 3,
+      "seed_mean": 21.940778096516926,
+      "seed_sd": 0.9082315082593938,
+      "source": "final diag/pr from run metrics (PR floor 0.3 d = 9.6)",
+      "value": 21.940778096516926
     },
     "tc_rho_c0": {
       "fmt": "%.2f",
       "macro": "TcRhoCZero",
-      "source": "trackc",
-      "value": 1.05
+      "n": 3,
+      "seed_mean": 2.503506660461426,
+      "seed_sd": 0.9175696379024311,
+      "source": "final diag/pr from run metrics (PR floor 0.3 d = 9.6)",
+      "value": 2.503506660461426
     },
     "tc_rho_cl": {
       "fmt": "%.2f",
       "macro": "TcRhoCL",
-      "source": "trackc",
-      "value": 1.0
+      "n": 3,
+      "seed_mean": 13.721467653910318,
+      "seed_sd": 0.4941348208791665,
+      "source": "final diag/pr from run metrics (PR floor 0.3 d = 9.6)",
+      "value": 13.721467653910318
     },
     "tc_rho_cln": {
       "fmt": "%.2f",
       "macro": "TcRhoCLN",
-      "source": "trackc",
-      "value": 1.0
+      "n": 3,
+      "seed_mean": 15.258128801981607,
+      "seed_sd": 0.41546177863672606,
+      "source": "final diag/pr from run metrics (PR floor 0.3 d = 9.6)",
+      "value": 15.258128801981607
     },
     "tc_rho_clw": {
       "fmt": "%.2f",
       "macro": "TcRhoCLW",
-      "source": "trackc",
-      "value": 1.0
+      "n": 3,
+      "seed_mean": 17.706483840942383,
+      "seed_sd": 0.5209732903149488,
+      "source": "final diag/pr from run metrics (PR floor 0.3 d = 9.6)",
+      "value": 17.706483840942383
     },
     "tc_rho_clwn": {
       "fmt": "%.2f",
       "macro": "TcRhoCLWN",
-      "source": "trackc",
-      "value": 1.0
+      "n": 3,
+      "seed_mean": 18.310108184814453,
+      "seed_sd": 0.3492539082368884,
+      "source": "final diag/pr from run metrics (PR floor 0.3 d = 9.6)",
+      "value": 18.310108184814453
     },
     "tc_rho_cn": {
       "fmt": "%.2f",
       "macro": "TcRhoCN",
-      "source": "trackc",
-      "value": 1.0
+      "n": 3,
+      "seed_mean": 2.7337579329808555,
+      "seed_sd": 0.5918455047247916,
+      "source": "final diag/pr from run metrics (PR floor 0.3 d = 9.6)",
+      "value": 2.7337579329808555
     },
     "tc_rho_cw": {
       "fmt": "%.2f",
       "macro": "TcRhoCW",
-      "source": "trackc",
-      "value": 1.0
+      "n": 3,
+      "seed_mean": 2.5548858642578125,
+      "seed_sd": 0.27122960475646885,
+      "source": "final diag/pr from run metrics (PR floor 0.3 d = 9.6)",
+      "value": 2.5548858642578125
     },
     "tc_rho_cwn": {
       "fmt": "%.2f",
       "macro": "TcRhoCWN",
-      "source": "trackc",
-      "value": 1.0
+      "n": 3,
+      "seed_mean": 4.258626540501912,
+      "seed_sd": 1.070134202229727,
+      "source": "final diag/pr from run metrics (PR floor 0.3 d = 9.6)",
+      "value": 4.258626540501912
     },
     "tc_ssim_nb_ae_l": {
       "fmt": "%.3f",
@@ -4819,6 +5487,96 @@
       "macro": "XclSupOnly",
       "source": "table_x",
       "value": 0.6798881420511099
+    },
+    "x_cl_read_AeNowake": {
+      "fmt": "%.3f",
+      "macro": "XclReadAeNowake",
+      "observable": "C_L",
+      "probe": "linear windowed",
+      "source": "table_x",
+      "split": "test_b",
+      "value": 0.8250694662661828
+    },
+    "x_cl_read_AeWake": {
+      "fmt": "%.3f",
+      "macro": "XclReadAeWake",
+      "observable": "C_L",
+      "probe": "linear windowed",
+      "source": "table_x",
+      "split": "test_b",
+      "value": 0.7652312185054577
+    },
+    "x_cl_read_Bvae": {
+      "fmt": "%.3f",
+      "macro": "XclReadBvae",
+      "observable": "C_L",
+      "probe": "linear windowed",
+      "source": "table_x",
+      "split": "test_b",
+      "value": 0.6677232132927018
+    },
+    "x_cl_read_Fukami": {
+      "fmt": "%.3f",
+      "macro": "XclReadFukami",
+      "observable": "C_L",
+      "probe": "linear windowed",
+      "source": "table_x",
+      "split": "test_b",
+      "value": 0.7896754524427718
+    },
+    "x_cl_read_FukamiWake": {
+      "fmt": "%.3f",
+      "macro": "XclReadFukamiWake",
+      "observable": "C_L",
+      "probe": "linear windowed",
+      "source": "table_x",
+      "split": "test_b",
+      "value": 0.7271368708436616
+    },
+    "x_cl_read_JepaNowake": {
+      "fmt": "%.3f",
+      "macro": "XclReadJepaNowake",
+      "observable": "C_L",
+      "probe": "linear windowed",
+      "source": "table_x",
+      "split": "test_b",
+      "value": 0.7973850108616626
+    },
+    "x_cl_read_JepaWake": {
+      "fmt": "%.3f",
+      "macro": "XclReadJepaWake",
+      "observable": "C_L",
+      "probe": "linear windowed",
+      "source": "table_x",
+      "split": "test_b",
+      "value": 0.8125998546435161
+    },
+    "x_cl_read_Pod": {
+      "fmt": "%.3f",
+      "macro": "XclReadPod",
+      "observable": "C_L",
+      "probe": "linear windowed",
+      "source": "table_x",
+      "split": "test_b",
+      "value": 0.6101923721597592
+    },
+    "x_cl_read_RegAE": {
+      "fmt": "%.3f",
+      "macro": "XclReadRegAE",
+      "observable": "C_L",
+      "probe": "linear windowed",
+      "source": "table_x",
+      "split": "test_b",
+      "value": 0.20564620552365265
+    },
+    "x_cl_read_SupOnly": {
+      "fmt": "%.3f",
+      "macro": "XclReadSupOnly",
+      "observable": "C_L",
+      "probe": "linear windowed",
+      "source": "table_x",
+      "split": "test_b",
+      "value": 0.7691370294397142
     },
     "x_merit_AeNowake": {
       "fmt": "%.3f",

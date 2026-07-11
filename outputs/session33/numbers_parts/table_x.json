@@ -9,6 +9,14 @@
       "observable": "wake_enstrophy",
       "probe": "linear windowed"
     },
+    "x_cl_read_JepaWake": {
+      "value": 0.8125998546435161,
+      "macro": "XclReadJepaWake",
+      "fmt": "%.3f",
+      "split": "test_b",
+      "observable": "C_L",
+      "probe": "linear windowed"
+    },
     "x_merit_JepaWake": {
       "value": 0.6549048507294434,
       "macro": "XmeritJepaWake",
@@ -48,6 +56,14 @@
       "observable": "wake_enstrophy",
       "probe": "linear windowed"
     },
+    "x_cl_read_SupOnly": {
+      "value": 0.7691370294397142,
+      "macro": "XclReadSupOnly",
+      "fmt": "%.3f",
+      "split": "test_b",
+      "observable": "C_L",
+      "probe": "linear windowed"
+    },
     "x_merit_SupOnly": {
       "value": 0.6208622016036806,
       "macro": "XmeritSupOnly",
@@ -78,6 +94,14 @@
       "fmt": "%.3f",
       "split": "test_b",
       "observable": "wake_enstrophy",
+      "probe": "linear windowed"
+    },
+    "x_cl_read_AeWake": {
+      "value": 0.7652312185054577,
+      "macro": "XclReadAeWake",
+      "fmt": "%.3f",
+      "split": "test_b",
+      "observable": "C_L",
       "probe": "linear windowed"
     },
     "x_merit_AeWake": {
@@ -112,6 +136,14 @@
       "observable": "wake_enstrophy",
       "probe": "linear windowed"
     },
+    "x_cl_read_JepaNowake": {
+      "value": 0.7973850108616626,
+      "macro": "XclReadJepaNowake",
+      "fmt": "%.3f",
+      "split": "test_b",
+      "observable": "C_L",
+      "probe": "linear windowed"
+    },
     "x_merit_JepaNowake": {
       "value": 0.29424465185168225,
       "macro": "XmeritJepaNowake",
@@ -142,6 +174,14 @@
       "fmt": "%.3f",
       "split": "test_b",
       "observable": "wake_enstrophy",
+      "probe": "linear windowed"
+    },
+    "x_cl_read_AeNowake": {
+      "value": 0.8250694662661828,
+      "macro": "XclReadAeNowake",
+      "fmt": "%.3f",
+      "split": "test_b",
+      "observable": "C_L",
       "probe": "linear windowed"
     },
     "x_merit_AeNowake": {
@@ -176,6 +216,14 @@
       "observable": "wake_enstrophy",
       "probe": "linear windowed"
     },
+    "x_cl_read_RegAE": {
+      "value": 0.20564620552365265,
+      "macro": "XclReadRegAE",
+      "fmt": "%.3f",
+      "split": "test_b",
+      "observable": "C_L",
+      "probe": "linear windowed"
+    },
     "x_merit_RegAE": {
       "value": 0.2862665614217639,
       "macro": "XmeritRegAE",
@@ -206,6 +254,14 @@
       "fmt": "%.3f",
       "split": "test_b",
       "observable": "wake_enstrophy",
+      "probe": "linear windowed"
+    },
+    "x_cl_read_Bvae": {
+      "value": 0.6677232132927018,
+      "macro": "XclReadBvae",
+      "fmt": "%.3f",
+      "split": "test_b",
+      "observable": "C_L",
       "probe": "linear windowed"
     },
     "x_merit_Bvae": {
@@ -240,6 +296,14 @@
       "observable": "wake_enstrophy",
       "probe": "linear windowed"
     },
+    "x_cl_read_Fukami": {
+      "value": 0.7896754524427718,
+      "macro": "XclReadFukami",
+      "fmt": "%.3f",
+      "split": "test_b",
+      "observable": "C_L",
+      "probe": "linear windowed"
+    },
     "x_wake_FukamiWake": {
       "value": 0.432307418183996,
       "macro": "XwakeFukamiWake",
@@ -248,12 +312,28 @@
       "observable": "wake_enstrophy",
       "probe": "linear windowed"
     },
+    "x_cl_read_FukamiWake": {
+      "value": 0.7271368708436616,
+      "macro": "XclReadFukamiWake",
+      "fmt": "%.3f",
+      "split": "test_b",
+      "observable": "C_L",
+      "probe": "linear windowed"
+    },
     "x_wake_Pod": {
       "value": 0.18588590561209983,
       "macro": "XwakePod",
       "fmt": "%.3f",
       "split": "test_b",
       "observable": "wake_enstrophy",
+      "probe": "linear windowed"
+    },
+    "x_cl_read_Pod": {
+      "value": 0.6101923721597592,
+      "macro": "XclReadPod",
+      "fmt": "%.3f",
+      "split": "test_b",
+      "observable": "C_L",
       "probe": "linear windowed"
     },
     "x_merit_Fukami": {

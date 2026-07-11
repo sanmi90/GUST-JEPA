@@ -6,10 +6,47 @@
 % (the v3 numbers live in Section 4.6; the decode galleries go to Appendix C).
 % D244: honest T2b framing, no overselling, Y mentioned only. D243: the merit
 % tie is reported as seed-fragile; readability tie robust.
+% Session 39 (comparison-led reframe, paper_redesign.md section 5): capacity
+% caveat (reviewer risk R3) added to 5.1; the "Choosing the estimator" ladder
+% subsection is demotion-bound to the appendix per D-B (flagged inline).
 
 \subsection{What a wall-estimable state must contain}
 \label{sec:disc_mechanism}
 \label{sec:disc_caveat}
+
+The comparison has a direction, and the deployment ladder of
+figure~\ref{fig:deployment_ladder} reads it off. On the decoded field the three
+families are indistinguishable, the energy-optimal linear basis as sharp as the
+nonlinear states, so field fidelity does not separate them. The separation opens
+at the first task that needs the wake, the observable read-out, where the linear
+basis loses the load at the impact instant and neither it nor the reconstruction
+reads the wake; and it widens at every step toward deployment. Through the impact
+the reconstruction's forecast collapses and the linear basis fades; recovering
+the state from sparse wall pressure, the predictive latent carries the most
+physics from a less recoverable state; and under assimilation at the strong-gust
+boundary the predictive filter is the only one that does not diverge on nearly
+every encounter. The predictive state is the single family that holds all the way
+down the chain, and that is the design rule stated operationally: a state earns
+its place at deployment not by rendering the field but by remaining readable,
+forecastable, wall-recoverable and assimilable at once.
+
+\begin{figure}
+  \centering
+  \includegraphics[width=0.92\linewidth]{sections/figures/results/fig_deployment_ladder.pdf}
+  \caption{The deployment ladder. Each rung is a task a wall-borne reduced state
+  must perform, ordered top to bottom by increasing deployment demand, and each
+  cell is the representative metric from the section that establishes it: field
+  SSIM at impact (\S\ref{sec:res_compress}), wake readability
+  (\S\ref{sec:res_carries}), through-impact forecast merit at $h = 8$
+  (\S\ref{sec:res_forecast}), wall observable recovery (\S\ref{sec:res_wallobs})
+  and filter closure at the $|G| = 4$ boundary (\S\ref{sec:res_estimation});
+  colour marks whether the family holds the rung. Field fidelity does not
+  separate the families; the predictive state is the only one that holds every
+  rung to deployment. The reconstruction column is the Fukami lineage, its field
+  cell the wake-headed variant that alone carries a decoder; at $|G| = 4$ it
+  diverges on almost every encounter.}
+  \label{fig:deployment_ladder}
+\end{figure}
 
 The central result is a design rule for a reduced state that a wall-pressure
 estimator can track. Such a state must carry the wake observables that govern the
@@ -52,6 +89,18 @@ genuinely useful: it is competitive on the body forces, amplitude-accurate in
 reconstruction, and it holds the shedding clock as well as the predictive latent
 (\S\ref{sec:res_latent_physics}); the result is not that POD is obsolete but that
 no linear projection reaches the wake at any dimension we tested.
+
+One caveat is inherited from the compactness-versus-forecast comparison that
+motivates this study \citep{solerarico_compactness_underreview}: a more
+expressive predictor might narrow the forecast gaps between the families. Three
+controls argue that the ordering is a property of the representations rather than
+of an underpowered predictor. The shared forecaster was capacity-selected on the
+\ValSplit{} set, a sequence-LSTM variant included; the matched autoregressive
+transformer diverges on the published-recipe latents at equal recipe and budget,
+so its failure is not a capacity artefact; and a per-family tuned recovery
+estimator raises every family without changing their order (supplementary
+material). The orderings reported here are therefore floors set by the
+representation, not ceilings set by the predictor.
 
 \subsection{The estimation demonstration and its limits}
 \label{sec:disc_estimation}
@@ -116,33 +165,6 @@ fitted-operator forecast merit for the predictive latent (supplementary material
 and it gains nothing in wall recoverability that the coefficient state does not
 already have. The state a controller would carry is therefore not the one a
 field-reconstruction objective produces.
-
-\subsection{Choosing the estimator}
-\label{sec:disc_choosing}
-
-The ladder of \S\ref{sec:res_da} supports explicit selection guidance, in
-the spirit of the method-choice discussions of the assimilation literature
-(Gupta, Chen and Wan, J. Fluid Mech. 1036, A24, 2026). When only the
-in-distribution median matters and latency is irrelevant, the
-\StaticInv{} is the strongest and simplest tool, and no dynamics
-are needed. The moment the tails, the extrapolation boundary or continuous
-state tracking matter, the filters take over: online, the
-\TwoStageKF{} is the working choice, the forecast-derived noise carrying the
-impact and the tap-space observation carrying the relaxation; with a
-quarter-convective-time latency budget, the closed-form fixed-lag smoother
-on the linear stack is both the cheapest and the best reanalysis. Sparse
-or intermittent pressure favours the linear filter with encoded
-observations, the only member with zero divergences and graceful
-degradation under subsampled updates; every-frame pressure is necessary
-for the nonlinear members. Noise calibration should be spent on structure
-before scale: the state-dependent band fixed the impact-side divergences
-outright, while inflating its scale toward better tracking is model-error
-compensation that innovation consistency rejects, so a larger band should
-be read as a diagnostic of forecast contraction, not as a calibration
-target. Across model families the guidance is one sentence: anchored
-latent geometries, predictive or linear, can be selected on dimension and
-budget alone, while unanchored reconstructive geometries require a
-per-configuration estimatability check that their probes do not predict.
 
 \subsection{Limitations and outlook}
 \label{sec:disc_limits}

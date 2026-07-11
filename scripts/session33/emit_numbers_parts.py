@@ -133,6 +133,12 @@ def part_table_x():
     def wake(q1, m):
         return float(q1["models"][m]["probes"]["windowed"]["wake_enstrophy"]["linear_r2"])
 
+    def lift(q1, m):
+        # Session 39 (Carlos): windowed lift readability, the SAME linear-probe
+        # windowed protocol as wake(), so a lift column is matched to the wake
+        # column in tab:closure.
+        return float(q1["models"][m]["probes"]["windowed"]["C_L"]["linear_r2"])
+
     def vec_merit(q2, model, predictor):
         """Mean 5-obs MLP R2 at H=8 for a vec model under a named forecast operator."""
         oc = q2["models"][model]["predictors"][predictor]["observable_closure"]
@@ -180,16 +186,16 @@ def part_table_x():
     # The flagship JepaWake reads the vec eval (readability from q1_vec, closure
     # cell from q2_vec); the baselines keep the frozen ResUNet-era pooled cells.
     rows = {
-        "JepaWake": (wake(q1v, "jepa_pool_vec"), "VEC"),
-        "SupOnly": (wake(q1p, "supervised_only_pool"), "supervised_only_pool"),
-        "AeWake": (wake(q1p, "ae_wake_pool"), "ae_wake_pool"),
-        "JepaNowake": (wake(q1p, "jepa_nowake_pool"), "jepa_nowake_pool"),
-        "AeNowake": (wake(q1p, "ae_nowake_pool"), "ae_nowake_pool"),
-        "RegAE": (wake(q1p, "regAE_pool"), "regAE_pool"),
-        "Bvae": (wake(q1p, "bvae"), "bvae"),
-        "Fukami": (wake(q1r, "fukami"), None),
-        "FukamiWake": (wake(q1r, "fukami_wake"), None),
-        "Pod": (wake(q1r, "pod"), None),
+        "JepaWake": (wake(q1v, "jepa_pool_vec"), lift(q1v, "jepa_pool_vec"), "VEC"),
+        "SupOnly": (wake(q1p, "supervised_only_pool"), lift(q1p, "supervised_only_pool"), "supervised_only_pool"),
+        "AeWake": (wake(q1p, "ae_wake_pool"), lift(q1p, "ae_wake_pool"), "ae_wake_pool"),
+        "JepaNowake": (wake(q1p, "jepa_nowake_pool"), lift(q1p, "jepa_nowake_pool"), "jepa_nowake_pool"),
+        "AeNowake": (wake(q1p, "ae_nowake_pool"), lift(q1p, "ae_nowake_pool"), "ae_nowake_pool"),
+        "RegAE": (wake(q1p, "regAE_pool"), lift(q1p, "regAE_pool"), "regAE_pool"),
+        "Bvae": (wake(q1p, "bvae"), lift(q1p, "bvae"), "bvae"),
+        "Fukami": (wake(q1r, "fukami"), lift(q1r, "fukami"), None),
+        "FukamiWake": (wake(q1r, "fukami_wake"), lift(q1r, "fukami_wake"), None),
+        "Pod": (wake(q1r, "pod"), lift(q1r, "pod"), None),
     }
     # Merit operator per family (D252, user direction): the pooled coefficient
     # states are forecast by their natural sequence operator, the matched
@@ -202,11 +208,14 @@ def part_table_x():
         "AeNowake": "ae_nowake_pool", "RegAE": "regAE_pool",
     }
     numbers = {}
-    for name, (w, ck) in rows.items():
+    for name, (w, cl_read, ck) in rows.items():
         numbers[f"x_wake_{name}"] = rec(
             w, f"Xwake{name}", "%.3f", split="test_b", observable="wake_enstrophy",
             probe="linear windowed",
         )
+        numbers[f"x_cl_read_{name}"] = rec(
+            cl_read, f"XclRead{name}", "%.3f", split="test_b", observable="C_L",
+            probe="linear windowed")
         tfm = tf_merit(pooled_kit[name]) if name in pooled_kit else None
         if ck == "VEC":
             c = vec_cell(q2v, q2vn, q1v, "jepa_pool_vec")

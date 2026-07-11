@@ -32,7 +32,14 @@ Linear-probe $R^2$ is used throughout as a readability metric and never as
 an information metric; the control that motivates this distinction, a
 multilayer probe that equalises what a linear read-out cannot reach, is
 reported alongside every dimension comparison
-(\S\ref{sec:res_reconstruction}).
+(\S\ref{sec:res_reconstruction}). When an observable is read at a specific
+instant of the encounter rather than over the window, the same linear probe,
+fit on the training window, is evaluated on the held-out encounters at the
+pre-impact, impact and peak-lift frames ($\pm 2$), and reported both as its
+$R^2$, with the mean observable at that instant as the baseline, and as its
+physical error, the root-mean-square deviation in the observable's own units;
+the two are complementary, the error exposing a large absolute miss where the
+high cross-encounter variance at a critical instant flatters the $R^2$.
 
 Uncertainty is accounted at three levels and every stochastic number in
 the paper carries its count. Encoder training variance uses three seeds

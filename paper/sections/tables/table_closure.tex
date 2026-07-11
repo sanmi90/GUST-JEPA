@@ -17,7 +17,8 @@
   \centering
   \caption{What each pooled coefficient state carries, at matched dimension
   $d = 32$ on the $\NTestBEnc$ \TestSplit{} encounters. Held-out wake-enstrophy
-  readability (fixed linear probe, no rollout); forecast merit under one shared
+  readability and, on the same windowed linear probe, lift readability (both
+  fixed linear probes, no rollout); forecast merit under one shared
   operator, the \DirectFC{} of \S\ref{sec:methods_rex} trained identically on
   every state (three operator seeds; mean over the five observables of the
   pooled nonlinear-probe $R^2$ at horizon sixteen; seed means, with
@@ -28,28 +29,30 @@
   readability separates on the wake-supervision head, not on the training
   objective, and under the shared operator the three wake-headed states are
   also the most forecastable, statistically indistinguishably from one
-  another. The \PredState's own co-trained predictor leads every fitted
+  another. The lift is read well by every anchored state and, for the
+  predictive state, at least as well as the wake ($\XclReadJepaWake$ against
+  $\XwakeJepaWake$), so the wake supervision does not cost lift accuracy. The \PredState's own co-trained predictor leads every fitted
   operator at short horizon ($\XmeritJepaWakeNative$ at horizon eight) and is
   overtaken by the \DirectFC{} at horizon sixteen
   ($\XmeritJepaWakeNativeSixteen$ against $\XmeritShJepaWake$), the
   error-accumulation contrast of \S\ref{sec:res_forecast}.}
   \label{tab:closure}
   \small
-  \fittab{\begin{tabular}{l l c c c c c}
+  \fittab{\begin{tabular}{l l c c c c c c}
     \toprule
-    State & Objective & Wake head & wake $R^2$ & merit & field VRMSE & SSIM \\
+    State & Objective & Wake head & wake $R^2$ & lift $R^2$ & merit & field VRMSE & SSIM \\
     \midrule
-    predictive (wake)  & predictive     & yes & $\XwakeJepaWake$   & $\XmeritShJepaWake$   & $\XvrmseJepaWake$   & $\XssimJepaWake$ \\
-    supervised only   & none           & yes & $\XwakeSupOnly$    & $\XmeritShSupOnly$    & $\XvrmseSupOnly$    & $\XssimSupOnly$ \\
-    AE (wake)         & reconstruction & yes & $\XwakeAeWake$     & $\XmeritShAeWake$     & $\XvrmseAeWake$     & $\XssimAeWake$ \\
-    predictive (no wake) & predictive     & no  & $\XwakeJepaNowake$ & $\XmeritShJepaNowake$ & $\XvrmseJepaNowake$ & $\XssimJepaNowake$ \\
-    AE (no wake)      & reconstruction & no  & $\XwakeAeNowake$   & $\XmeritShAeNowake$   & $\XvrmseAeNowake$   & $\XssimAeNowake$ \\
-    anti-collapse AE  & reconstruction & no  & $\XwakeRegAE$      & $\XmeritShRegAE$      & $\XvrmseRegAE$      & $\XssimRegAE$ \\
+    predictive (wake)  & predictive     & yes & $\XwakeJepaWake$   & $\XclReadJepaWake$   & $\XmeritShJepaWake$   & $\XvrmseJepaWake$   & $\XssimJepaWake$ \\
+    supervised only   & none           & yes & $\XwakeSupOnly$    & $\XclReadSupOnly$    & $\XmeritShSupOnly$    & $\XvrmseSupOnly$    & $\XssimSupOnly$ \\
+    AE (wake)         & reconstruction & yes & $\XwakeAeWake$     & $\XclReadAeWake$     & $\XmeritShAeWake$     & $\XvrmseAeWake$     & $\XssimAeWake$ \\
+    predictive (no wake) & predictive     & no  & $\XwakeJepaNowake$ & $\XclReadJepaNowake$ & $\XmeritShJepaNowake$ & $\XvrmseJepaNowake$ & $\XssimJepaNowake$ \\
+    AE (no wake)      & reconstruction & no  & $\XwakeAeNowake$   & $\XclReadAeNowake$   & $\XmeritShAeNowake$   & $\XvrmseAeNowake$   & $\XssimAeNowake$ \\
+    anti-collapse AE  & reconstruction & no  & $\XwakeRegAE$      & $\XclReadRegAE$      & $\XmeritShRegAE$      & $\XvrmseRegAE$      & $\XssimRegAE$ \\
     \midrule
-    $\beta$-VAE       & reconstruction & yes & $\XwakeBvae$       & $\XmeritShBvae$       & $\XvrmseBvae$       & $\XssimBvae$ \\
-    Fukami            & reconstruction & no  & $\XwakeFukami$     & $\XmeritShFukami$     & $\XvrmseFukami$     & $\XssimFukami$ \\
-    Fukami (wake)     & reconstruction & yes & $\XwakeFukamiWake$ & $\XmeritShFukamiWake$ & $\XvrmseFukamiWake$ & $\XssimFukamiWake$ \\
-    POD               & linear         & no  & $\XwakePod$        & $\XmeritShPod$        & $\XvrmsePod$        & $\XssimPod$ \\
+    $\beta$-VAE       & reconstruction & yes & $\XwakeBvae$       & $\XclReadBvae$       & $\XmeritShBvae$       & $\XvrmseBvae$       & $\XssimBvae$ \\
+    Fukami            & reconstruction & no  & $\XwakeFukami$     & $\XclReadFukami$     & $\XmeritShFukami$     & $\XvrmseFukami$     & $\XssimFukami$ \\
+    Fukami (wake)     & reconstruction & yes & $\XwakeFukamiWake$ & $\XclReadFukamiWake$ & $\XmeritShFukamiWake$ & $\XvrmseFukamiWake$ & $\XssimFukamiWake$ \\
+    POD               & linear         & no  & $\XwakePod$        & $\XclReadPod$        & $\XmeritShPod$        & $\XvrmsePod$        & $\XssimPod$ \\
     \bottomrule
   \end{tabular}}
 \end{table}

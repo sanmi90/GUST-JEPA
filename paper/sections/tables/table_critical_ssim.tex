@@ -1,0 +1,34 @@
+% Decode SSIM at the critical instants of the encounter (Carlos, 2026-07-11):
+% pre-impact / impact / peak-lift, instead of the window average. Decode floor
+% (true latent -> field, no forecast). Numbers are macros_v3.tex macros
+% (part session39_critical, scripts/session39/critical_ssim.py).
+\begin{table}
+  \centering
+  \caption{Decode fidelity at the critical instants of the encounter, rather than
+  averaged over the window: SSIM between each family's decoded field and the DNS
+  truth at the pre-impact frame, the impact frame and the peak-lift frame
+  (argmax $|C_L|$), for the full field and the near-body band, averaged over the
+  $\NTestBEnc$ \TestSplit{} encounters at $d = 32$. Decode floor: the true latent
+  is decoded, with no forecast. The compact nonlinear supervised states and the
+  energy-optimal linear basis all render the field faithfully at every critical
+  instant, including the near-body band; only the published-recipe lineage is a
+  clear step behind. Field decode at the critical instants is thus not where the
+  compact states separate, consistent with the linear basis's field VRMSE
+  advantage; they part on the wake observables and on forecasting. The frozen
+  decoders exist at a single encoder seed, so the decoded-field tables are
+  single-seed.}
+  \label{tab:critical_ssim}
+  \small
+  \fittab{\begin{tabular}{l c c c c c c}
+    \toprule
+    & \multicolumn{3}{c}{full field} & \multicolumn{3}{c}{near-body band} \\
+    \cmidrule(lr){2-4}\cmidrule(lr){5-7}
+    State & pre-impact & impact & peak lift & pre-impact & impact & peak lift \\
+    \midrule
+    predictive (\PredState) & $\CritJepaPre$ & $\CritJepaImp$ & $\CritJepaPeak$ & $\CritNbJepaPre$ & $\CritNbJepaImp$ & $\CritNbJepaPeak$ \\
+    AE (wake)               & $\CritAePre$   & $\CritAeImp$   & $\CritAePeak$   & $\CritNbAePre$   & $\CritNbAeImp$   & $\CritNbAePeak$ \\
+    Fukami (wake)           & $\CritFukPre$  & $\CritFukImp$  & $\CritFukPeak$  & $\CritNbFukPre$  & $\CritNbFukImp$  & $\CritNbFukPeak$ \\
+    POD                     & $\CritPodPre$  & $\CritPodImp$  & $\CritPodPeak$  & $\CritNbPodPre$  & $\CritNbPodImp$  & $\CritNbPodPeak$ \\
+    \bottomrule
+  \end{tabular}}
+\end{table}

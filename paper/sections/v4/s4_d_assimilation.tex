@@ -86,15 +86,10 @@ halves the reconstructive anchor's assimilated load error in every phase
 further: the predictive state exploits every added tap monotonically
 where the reconstructive one saturates at $K = 8$, and it degrades more
 slowly with tap noise, still beating the clean reconstructive stack at
-twenty per cent noise (figure~\ref{fig:ownstack}b,c). Under the
-deployment-realism protocol, streaming multi-encounter assimilation with
-a pressure-only initialisation and no oracle anywhere, the filter holds
-\PoneStreamCleanZero{} clean and \PoneStreamCleanFive,
-\PoneStreamCleanTen{} and \PoneStreamCleanTwenty{} at five, ten and
-twenty per cent tap noise (three member-noise seeds each,
-figure~\ref{fig:deploy}); the four-dimensional lift-critical state of
-\S\ref{sec:res_reconstruction} supports a filter of its own at
-\PoneDFourFilterImpact{} impact median over five seeds.
+twenty per cent noise (figure~\ref{fig:ownstack}b,c). Streaming
+multi-encounter assimilation under a deployment-realism protocol, and a
+filter on the four-dimensional lift-critical state of
+\S\ref{sec:res_reconstruction}, are reported in appendix~\ref{app:sensing}.
 
 The closing study runs the whole design axis through one identical
 per-family end-to-end protocol: three families at four dimensions
@@ -173,15 +168,6 @@ any wall-limited estimator of this flow can see.
   \label{fig:ownstack}
 \end{figure}
 
-\begin{figure}
-  \centering
-  \includegraphics[width=0.9\linewidth]{sections/figures/results/fig_deployment_v4.pdf}
-  \caption{Deployment realism (\TestSplit{} set): (a)~streaming multi-encounter
-  filter against tap noise, three member-noise seeds, validation-selected
-  band (no test-set reference);
-  (b)~the $d = 4$ filter band over five member-noise seeds.}
-  \label{fig:deploy}
-\end{figure}
 
 \begin{figure}
   \centering

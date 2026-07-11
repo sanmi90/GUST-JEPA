@@ -38,14 +38,16 @@ GATES_JSON = REPO_ROOT / "outputs/session34/trackc_gates.json"
 OUT_PDF = REPO_ROOT / "paper/sections/figures/results/fig_cube_health_v4.pdf"
 
 # Paper order of the 2x2x2 conditioning-cube cells (no-L half first).
-CELL_ORDER = ("c0", "cn", "cw", "cwn", "cl", "cln", "clw", "clwn")
+# Session 39 (D-A): the main-text conditioning figure is trimmed to the L and W
+# axes (the N/near-body cells move to the appendix with the CLN increment).
+CELL_ORDER = ("c0", "cw", "cl", "clw")
 CELL_LABEL = {"c0": "C0", "cn": "CN", "cw": "CW", "cwn": "CWN",
               "cl": "CL", "cln": "CLN", "clw": "CLW", "clwn": "CLWN"}
-NO_L_CELLS = frozenset({"c0", "cn", "cw", "cwn"})
+NO_L_CELLS = frozenset({"c0", "cw"})
 SEEDS = (0, 1, 2)
 
 # Representative trajectories for panel (b): one collapsed, one healthy.
-TRAJ_CELLS = (("cw", 0), ("cln", 0))
+TRAJ_CELLS = (("cw", 0), ("clw", 0))
 
 
 def pr_series(run_name: str) -> tuple[np.ndarray, np.ndarray]:
@@ -113,7 +115,7 @@ def main() -> None:
 
     # ---- panel (b): PR vs iteration, collapsed vs healthy -----------------
     traj_style = {("cw", 0): (FAMILY_COLOR["fukami"], "s", "CW (s0)"),
-                  ("cln", 0): (FAMILY_COLOR["jepa"], "o", "CLN (s0)")}
+                  ("clw", 0): (FAMILY_COLOR["jepa"], "o", "CLW (s0)")}
     for key, (steps, prs) in traj.items():
         color, marker, label = traj_style[key]
         ax_b.plot(steps / 1000.0, prs, color=color, marker=marker, ms=3.0,

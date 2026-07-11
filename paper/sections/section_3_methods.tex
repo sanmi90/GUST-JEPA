@@ -115,6 +115,27 @@ $2 \times 2 \times 2$ conditioning cube of \S\ref{sec:res_construction},
 three seeds per cell with matched reconstructive anchors, isolates each
 head's contribution under gates fixed in advance of evaluation.
 
+Comparing a lift observable against a wake observable is only meaningful if the
+comparison is fair, and five choices make it so. First, both field-observable
+targets are $80$-dimensional and byte-matched, built by the identical
+construction, so no head sees a richer training signal. Second, the heads share
+one network class and one loss weight, so the comparison isolates the
+supervision signal and not the head architecture. Third, the reconstructive
+baselines carry the identical heads, the AE-L, AE-W and AE-LW anchors of
+\S\ref{sec:res_construct}, so supervision is never an advantage of the
+predictive model alone and every supervised-versus-unsupervised and
+predictive-versus-reconstructive contrast is available separately. Fourth, the
+wake descriptor is assembled from established, fixed constructions, the spatial
+pyramid and the radial power spectrum above, and was not tuned against any
+outcome. Fifth, the conditioning gates were written and archived before any
+result was read, three seeds per cell, with probes fit on the training split
+and scored on the held-out split alone. The one asymmetry a reader might raise,
+that the linear basis carries no supervision channel, is by design: supervision
+is a property of trainable encoders, so the proper orthogonal basis is the
+objective-free linear reference, read through the identical frozen probes, and
+the matched-supervision autoencoder exists precisely so that objective and
+supervision are separable.
+
 \input{sections/v4/s3_1_chang_head.tex}
 
 \begin{figure}

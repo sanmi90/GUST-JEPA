@@ -206,3 +206,34 @@ source of the wake result.
 % presented previous-generation d=64 spatial encoders as "the latent". The
 % distributed-code and readability content lives, recomputed on v2.2 pooled, in
 % \S\ref{sec:res_latent_physics}.
+
+% Session 39 (D-A): the near-body (N) conditioning-cube cells and the CLN
+% peak-load increment move here from s4.1, which keeps the L and W axes only.
+\subsection{The near-body conditioning increment}
+\label{app:nearbody}
+
+On top of the lift anchor the near-body force-element (Chang) head confers real
+peak-load accuracy, the strongest cell of the $2 \times 2 \times 2$ conditioning
+cube of \S\ref{sec:res_construct}: the \LiftState{} (cube code CLN) beats the
+lift-only cell CL by \TcDeltaClnVsClPeak{} peak-region $R^2$ points with a
+case-clustered interval that excludes zero ([\TcDeltaClnVsClPeakLo,
+\TcDeltaClnVsClPeakHi]), at a pooled peak-region $R^2 = \TcPeakRTwoCLN \pm
+\TcPeakRTwoCLNSd$ over three seeds, the tightest seed band anywhere in the cube,
+and a decoded phase lag of
+\TcLagCLN{}~$t/c$ (figure~\ref{fig:cube_deltas}). The head construction and its
+pre-committed quality gate are described in \S\ref{sec:methods_chang}.
+Downstream the wake-headed \PredState{} (CLW) is the single predictive
+representative; the near-body head is a lift-sharpening refinement, not the
+flagship state.
+
+\begin{figure}
+  \centering
+  \includegraphics[width=0.85\linewidth]{sections/figures/results/fig_cube_deltas_v4.pdf}
+  \caption{Paired peak-region lift $R^2$ per conditioning-cube cell (left) and
+  case-mean deltas against the lift-only cell CL (right, symmetric-log axis,
+  $95\,\%$ case-clustered bootstrap intervals over the $42$ \TestSplit{}
+  encounters of $10$ cases); filled markers mark intervals that exclude zero.
+  The near-body \LiftState{} cell (CLN) is the unique positive increment; the
+  no-$L$ cells sit one to two orders of magnitude lower.}
+  \label{fig:cube_deltas}
+\end{figure}

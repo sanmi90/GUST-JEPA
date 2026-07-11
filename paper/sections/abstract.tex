@@ -1,37 +1,34 @@
-% Abstract, bound from editorial/upstream/front_matter_rewrite.tex at the
-% Session 37 Stage 4 front-matter bind (author-approved, D303/D306) and
-% trimmed to the 250-word gate at Session 38 per Carlos's instruction
-% (2026-07-11): micro-trims only, no content removed.
-% REVIEW-CLAIM: (Session 38) "the predictive coordinates are the most
-% forecastable" corrected to "the wake-supervised states are the most
-% forecastable": the D310 shared-operator recomputation makes the top block
-% a statistical tie among the wake-headed states, so the draft's sentence
-% (written pre-M1) is no longer supportable as stated.
-Extreme vortex gusts drive a post-stall airfoil through a transient
+% Abstract, Session 39 comparison-led reframe (paper_redesign.md, 2026-07-11).
+% Replaces the Session 37/38 estimation-thesis abstract with the three-way
+% tension lead of the redesign (S1-S8 skeleton, redesign section 7): AE
+% compact-but-irregular, POD forecastable-but-linear, predictive state the
+% third option. At most two numbers (lineage norm; lineage_style_notes.md
+% section 2.1): the two estimation endpoints. Near-body head dropped from the
+% abstract per D-A (demoted to appendix). Consistent with the D310 tie:
+% "readability supplied by the supervision" for predictive and reconstructive
+% encoders alike; the predictive objective supplies rollout stability and the
+% more forecastable LIFT (not the unqualified "most forecastable").
+An extreme vortex gust drives a post-stall airfoil through a transient
 reorganisation of its wake, and the release parameters alone do not
-determine the flow after the vortex passes. We ask whether a reduced
-state of the encounter can retain the wake dynamics, remain usable
-under a low-order forecast model, and be estimated from the sparse wall
-pressure a wing can carry. We compare predictive, reconstruction-trained
-and proper-orthogonal-decomposition coefficient states at matched
-dimension, on direct numerical simulations of a NACA 0012 airfoil at
-$\alpha = 14^\circ$ and $\vRe = 5000$ perturbed by Taylor vortices
-spanning gust ratio, core diameter and offset. A controlled supervision
-study shows different ingredients supply the requirements.
-Under the predictive objective considered, a scalar lift target is
-necessary against latent collapse, a near-body force-element target
-sharpens the peak loads, and a wake target is required for the wake
-enstrophy and circulation; the multi-step predictive objective
-contributes rollout stability rather than instantaneous readability.
-Load information remains accessible at four coefficients, whereas
-wake-field reconstruction requires at least sixteen. Under one
-\DirectFC{} trained identically on every state, the wake-supervised
-states are the most forecastable, autoregressive rollout degrades
-through error accumulation, and supplying the true gust parameters
-provides no benefit. A sequential ensemble filter sensing eight
-wall-pressure taps then tracks the lift through the encounter, with
-impact-phase $R^2 = \PoneTwoStageCovImpact$ (root-mean-square error
-$\PoneTwoStageCovRmse$ in lift units) on the \TestSplit{} set and
-$\PoneTwoStageCovImpactC$ at the held-out $|G| = 4$ boundary; the wake
-enstrophy is not recovered by the wall-sensor configurations considered,
-a limit of the sensing geometry rather than the state.
+determine the flow the vortex leaves behind. Nonlinear autoencoders compress
+such encounters onto compact manifolds, but reconstruction-trained latents
+evolve irregularly and forecast poorly, whereas linear
+proper-orthogonal-decomposition latents forecast well yet reach no wake
+observable at low dimension. We ask whether a predictive training objective
+can instead yield a nonlinear state that is compact, forecastable and
+estimable from the wall. Under this objective an observable anchor is
+structural: a scalar lift target prevents the latent from collapsing where a
+field observable alone does not, and a wake target loads the state with the
+wake. At matched dimension and supervision, readability is supplied by the
+supervision for predictive and reconstructive encoders alike, while the
+multi-step predictive objective supplies rollout stability and the more
+forecastable lift. Load information stays linearly accessible at four
+coefficients, whereas the wake is a distributed code requiring at least
+sixteen. A sequential ensemble filter reading eight wall-pressure taps tracks
+the lift through the encounter, at impact-phase $R^2 =
+\PoneTwoStageCovImpact$ in distribution and $\PoneTwoStageCovImpactC$ at the
+held-out $|G| = 4$ boundary, uniformly across dimension and seed where the
+reconstruction geometry is not. The wake enstrophy itself is not recovered
+from the wall, a limit of the sensing geometry rather than the state. The
+comparison gives a design rule for wall-estimable reduced states of extreme
+aerodynamic flows.

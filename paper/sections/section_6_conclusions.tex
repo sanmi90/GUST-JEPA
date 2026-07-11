@@ -7,39 +7,40 @@
 % in \S\ref{sec:res_da} and the calibration appendix rather than here.
 We asked whether a reduced state of an extreme vortex-gust encounter can
 be constructed to carry the wake dynamics, advanced in time, and
-recovered from wall pressure alone. On construction: under the
-predictive objective considered, a scalar lift target is necessary for a
-non-collapsed latent representation, a near-body force-element target
-sharpens the peak loads on top of it (peak-region
-$R^2 = \TcPeakRTwoCLN$ over three seeds),
-and a wake target is required for the state to carry the wake
-observables. The collapse result concerns latent health and the
+recovered from wall pressure alone. On construction, under the
+predictive objective a scalar lift target is necessary for a
+non-collapsed latent representation and a wake target is what makes the
+state carry the wake observables; the near-body refinement that further
+sharpens the peak load is reported in \S\ref{sec:res_construct}. The
+collapse result concerns latent health and the
 peak-load result concerns a paired increment over an already
 lift-supervised baseline; the two rest on different comparisons.
 
 On compression, the statement is two-tier: load information is
 approximately unchanged over the tested dimensions under a nonlinear
 probe and is linearly accessible at four coefficients, whereas
-wake-field reconstruction requires at least sixteen. On forecasting, a
-\DirectFC{} remains usable over forty steps where
-autoregressive rollout degrades through error accumulation, and
-supplying the true gust parameters provides no benefit, so the
-deployable route to the encounter is a model corrected by pressure
-rather than the release parameters.
+wake-field reconstruction requires at least sixteen. On forecasting, one shared
+\DirectFC{} makes the wake-supervised states the most forecastable and the
+predictive states the most forecastable on the lift; a one-shot forecast
+remains usable over forty steps where autoregressive rollout degrades
+through error accumulation, and supplying the true gust parameters
+provides no benefit, so the deployable route to the encounter is a model
+corrected by pressure rather than the release parameters.
 
 On estimation, a two-stage ensemble filter sensing eight wall-pressure
 taps tracks the lift through the encounter, phase-resolved and in
-physical units: impact-phase $R^2 = \PoneTwoStageCovImpact$ at a
-root-mean-square error of $\PoneTwoStageCovRmse$ lift units on the
-\TestSplit{} set, and $R^2 = \PoneTwoStageCovImpactC$
-at the $|G| = 4$ boundary.
+physical units, with impact-phase $R^2 = \PoneTwoStageCovImpact$ on the
+\TestSplit{} set and $R^2 = \PoneTwoStageCovImpactC$ at the $|G| = 4$
+boundary.
 Across latent dimension and training seed the predictive states remain
 uniformly estimable from the wall, whereas the reconstructive geometry
 does not, for a verified observation-side reason; this robustness,
 rather than any single configuration, is the deployment argument.
 
-Three results bound the claims. A \StaticInv{} matches
-the filter's in-distribution impact median, and the filter's advantage
+The design principle is that a nonlinear latent can be made forecastable
+and wall-estimable by training it predictively under observable
+anchoring, at no cost in compactness. Three results bound the claims. A
+\StaticInv{} matches the filter's in-distribution impact median, and the filter's advantage
 lies in the tails, at the boundary set and in continuous state tracking.
 The wake enstrophy is not recovered by the tap counts, delay windows and
 estimators considered here, a limit we attribute to the sensing geometry

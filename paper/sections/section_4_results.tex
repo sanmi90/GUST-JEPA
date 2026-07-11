@@ -1,42 +1,38 @@
-% Results, restructured for v3 around the estimation thesis. Six subsections in a
-% climbing order (what the state carries -> why it survives rollout -> what the wall
-% sees -> tracking -> envelope -> physics), calibrated to the Fukami & Taira results
-% voice (arXiv 2305.08024, 2403.00263): physics as grammatical subject, present
-% tense, number-as-consequence, each limitation opening the next question. Every
-% number is a macros_v3.tex macro (provenance outputs/session33/numbers.json).
-% Spatial-tier decodability prose moves to Discussion 5.3 + Appendix C. All v2.1
-% cross-referenced labels are preserved as aliases. British spelling; no em-dashes.
+% Results, Session 39 comparison-led restructure (paper_redesign.md section 4,
+% 2026-07-11). Six beats in the redesign order: 4.1 a non-collapsed predictive
+% state, 4.2 representation quality across dimension, 4.3 the physics the latent
+% holds (BEFORE forecastability, decision D-G), 4.4 forecastability, 4.5 what
+% wall pressure observes, 4.6 estimating the encounter from the wall. Every
+% frozen number-bearing block is preserved verbatim and re-parented by
+% scripts/session39/restructure_s4.py; only the connective tissue (preamble,
+% subsection headings, the POD VRMSE-vs-SSIM caveat of precision fix 2.3) is
+% newly authored. The published-recipe DMD prose already scopes precision fix
+% 2.2 ("Fukami-lineage reconstruction, not reconstruction in general").
+% British spelling; no em-dashes.
 
-We report the controlled representational comparisons (\S\ref{sec:res_construct} to \S\ref{sec:res_wallobs}) on the \TestSplit{} encounters and hold the
-\BoundarySplit{} set in reserve, so that the $|G| = 4$ extrapolation
-enters only as a final reported number and never as a selection signal. The
-estimator, the recovery, and the operating envelope
-(\S\ref{sec:res_estimation}) are characterised with a
-frozen filter across all encounters, training, \ValSplit, \TestSplit{} and
-\BoundarySplit{} sets alike, and the per-encounter paired tests on the \TestSplit{} and
-\BoundarySplit{} sets are given
-in Appendix~\ref{app:reg}. Every quantity quoted below is a held-out value at the
-readout horizon unless stated otherwise. One division of labour is declared
-% REVIEW-CLAIM: (Stage 2) reworded during nomenclature migration, meaning preserved.
-once and holds throughout: the \PredState{} is the
-estimation-thesis state that the assimilation grid and the operating
-envelope run on, and the \LiftState{} is the
-conditioning result whose accuracy ceiling parts B and C quantify.
+We evaluate three families of reduced-order state at matched pooled dimension:
+a predictive coefficient state, a matched-supervision reconstruction
+autoencoder, and a linear proper orthogonal basis, with the published-recipe
+reconstruction and a $\beta$-variational autoencoder retained as reference
+recipes. The controlled representational comparisons
+(\S\ref{sec:res_construct} to \S\ref{sec:res_wallobs}) are reported on the
+\TestSplit{} encounters, with the \BoundarySplit{} set held in reserve so that
+the $|G| = 4$ extrapolation enters only as a final reported number and never as
+a selection signal. The estimator and the operating envelope
+(\S\ref{sec:res_estimation}) are characterised with a frozen filter across all
+encounters, training, \ValSplit{}, \TestSplit{} and \BoundarySplit{} sets
+alike, and the per-encounter paired tests on the \TestSplit{} and
+\BoundarySplit{} sets are given in Appendix~\ref{app:reg}. Every quantity quoted
+below is a held-out value at the readout horizon unless stated otherwise. One
+convention holds throughout: the \PredState{} (conditioning-cube cell CLW) is
+the single predictive representative carried into the forecasting and estimation
+comparisons, and the \LiftState{} is the lift-sharpened variant whose accuracy
+ceiling the construction section quantifies.
 
-% ======================================================================
-% Stage 3 (Session 37): Results restructured into the four target
-% subsections (editorial/upstream/claude_code_jfm_rewrite_v2.md Stage 3).
-% Every absorbed block keeps its labels; absorbed \subsection headers are
-% demoted to \subsubsection and pruned at Stage 4. Moves recorded in
-% editorial/CHANGELOG.md.
-% ======================================================================
-
-\subsection{Constructing a physically useful state}
+\subsection{A non-collapsed predictive state}
 \label{sec:res_construct}
 
 \input{sections/v4/s4_a_construction.tex}
-
-\input{sections/v4/s4_b_reconstruction.tex}
 
 \subsubsection{What the coefficient state carries, and what supplies it}
 \label{sec:res_carries}
@@ -53,7 +49,10 @@ carries the wake-supervision head, with a held-out $R^2$ between $\XwakeAeWake$ 
 $\XwakeSupOnly$, and it collapses for every state that does not, falling to
 $\XwakeJepaNowake$ for the predictive latent trained without the head. Instantaneous
 readability of the wake is therefore supplied by the observable supervision, not by
-any training objective.
+any training objective. The lift, read by the same windowed probe, is a different
+story: every anchored state carries it well, and the predictive state reads the lift
+at least as accurately as the wake ($\XclReadJepaWake$ against $\XwakeJepaWake$), so
+the wake supervision sharpens the wake without costing the load.
 
 The objective-free supervised encoder makes this concrete. Trained with the wake
 head but no predictive or reconstructive objective at all, it reads the wake at
@@ -104,56 +103,74 @@ enstrophy that a supervised nonlinear state does.
 % D310-superseded suited-operator merits; dropped outright per the
 % editorial memo (item 1.8). Git history preserves the block.
 
-\subsubsection{The physics the state holds}
-\label{sec:res_latent_physics}
-\label{sec:res_flow_physics} % v2.1 alias
-\label{sec:res_param_phase} % v2.1 alias
-\label{sec:res_physical} % v2.1 alias
-
-The estimation results rest on a representation, and this subsection reads what the
-representation holds in measures that do not depend on the filter. The predictive
-latent carries the shedding clock. Fitting a linear operator to the encoded
-limit-cycle trajectory by dynamic mode decomposition places a marginally stable
-oscillatory mode at Strouhal number $\DmdStJepa$, against the measured shedding line,
-with modulus $\DmdLamJepa$ just below unity. The Fukami-lineage autoencoders lose
-that clock: their leading latent mode is heavily damped and off-frequency
-($\DmdStFukami$ at modulus $\DmdLamFukami$ without the wake head, $\DmdStFukamiWake$
-at $\DmdLamFukamiWake$ with it). The structured states keep it, whether their
-structure comes from prediction, from supervision, from anti-collapse, or from a
-linear basis: the objective-free supervised latent, the anti-collapse
-reconstruction, and the proper orthogonal basis all place the shedding mode near the
-measured frequency on a near-unit-modulus orbit ($\DmdStSupOnly$, $\DmdStRegAE$ and
-$\DmdStPod$ at moduli $\DmdLamSupOnly$, $\DmdLamRegAE$ and $\DmdLamPod$). It is the
-Fukami-lineage reconstruction, not reconstruction in general, that fails to hold the
-shedding spectrum.
-
-The parametric manifold coheres with the release parameters where the training data
-resolve them. An impact-frame probe of the predictive latent recovers the gust
-strength and the core diameter well ($\ProbeGJepa$ and $\ProbeDJepa$ on the \TestSplit{} set),
-which is the atlas of figure~\ref{fig:atlas} coloured by parameter. The wall-normal
-offset, unreadable at the linear-probe level in earlier work, becomes weakly readable
-here ($\ProbeYJepa$ linearly and $\ProbeYkrrJepa$ with a nonlinear probe), plausibly
-because the additional cases sample it more densely near the training centre; we note
-this rather than lean on it, since the offset remains the least resolved parameter
-(\S\ref{sec:flow_observables}).
-
-\begin{figure}
-  \centering
-  \includegraphics[width=\linewidth]{sections/figures/results/fig_atlas_dmd_v3.pdf}
-  \caption{The physics the latent state holds. Top: two-dimensional projections of
-  the predictive coefficient latent coloured by gust strength, core diameter, and
-  shedding phase, showing a parametric manifold that coheres with the release
-  parameters. Bottom: the latent dynamic-mode-decomposition spectrum, modulus
-  against Strouhal number, by family; the predictive and linear latents place a
-  marginally stable mode at the measured shedding frequency while the Fukami-lineage
-  reconstruction is damped and off-frequency.}
-  \label{fig:atlas}
-\end{figure}
-
-\subsection{Compression and forecastability}
+\subsection{Representation quality across dimension}
 \label{sec:res_compress}
 
 \input{sections/v4/s4_b2_dimension.tex}
+
+\input{sections/v4/s4_b_reconstruction.tex}
+
+The linear basis is not disadvantaged in field reconstruction by this
+comparison, and it is worth saying why before the wake result is read. By field
+VRMSE the proper orthogonal basis is the most accurate of the ten families
+($\XvrmsePod$, against $\XvrmseJepaWake$ for the predictive state), and its
+decoded similarity matches the nonlinear states ($\XssimPod$ against
+$\XssimJepaWake$ SSIM in the Wang convention of
+\S\ref{sec:methods_protocol}). VRMSE rewards an energy-optimal linear basis and
+penalises a nonlinear state that carries a high decode floor, so we route
+field-fidelity claims through SSIM and the decoded snapshots and reserve the
+wake-observable readability for the nonlinear-content claim. There the linear
+basis reaches only $\XwakePod$ at $d = 32$, and no linear projection recovers
+the wake at any tested dimension. The proper orthogonal basis holds the shedding
+clock (\S\ref{sec:res_latent_physics}) and stays competitive on the forces; the
+finding is not that it is obsolete but that no linear projection reaches the
+wake.
+
+The window-averaged decode floor can be resolved to the critical instants of the
+encounter, the pre-impact frame, the impact and the peak lift
+(table~\ref{tab:critical_ssim}). Through the impact the compact nonlinear
+supervised states and the linear basis all render the field faithfully, at SSIM
+$\CritJepaImp$ for the predictive state, $\CritAeImp$ for the matched-supervision
+reconstructive and $\CritPodImp$ for the linear basis (near-body
+$\CritNbJepaImp$, $\CritNbAeImp$ and $\CritNbPodImp$), with only the
+published-recipe lineage a clear step behind ($\CritFukImp$ full,
+$\CritNbFukImp$ near-body). Field decode at the critical instants is therefore
+not where the compact states separate: the energy-optimal linear basis
+reconstructs the instant as sharply as the nonlinear states, the same VRMSE
+advantage read above, and the families part company instead on the wake
+observables, which no linear projection reaches, and on forecasting.
+
+\input{sections/tables/table_critical_ssim.tex}
+
+Across dimension the picture is the same (figure~\ref{fig:critical_ssim_dim}):
+decode fidelity at the impact instant rises and saturates for the compact
+nonlinear states and the energy-optimal linear basis together, the two
+indistinguishable at every dimension, while the published-recipe lineage stays
+lower. Field decode does not separate the compact states at any dimension.
+
+\begin{figure}
+  \centering
+  \includegraphics[width=\linewidth]{sections/figures/results/fig_critical_ssim_dim.pdf}
+  \caption{Decode SSIM at the impact instant against latent dimension $d$ (full
+  field and near-body band, \TestSplit{} set, decode floor). The compact
+  nonlinear states and the linear basis improve with $d$ and saturate together;
+  only the published-recipe lineage plateaus lower. Field decode is not the
+  discriminator at any dimension. Single encoder/decoder seed.}
+  \label{fig:critical_ssim_dim}
+\end{figure}
+
+The observables tell the discriminating story the field pixels hide
+(table~\ref{tab:obs_critical}). A linear probe reads the lift and the wake
+enstrophy off each state at the same three instants: the nonlinear supervised
+states carry both through the transient, while the linear basis loses the lift at
+the very impact instant ($R^2 = \CritClPodImp$, against $\CritClJepaImp$ for the
+predictive state) and never reads the wake enstrophy ($\CritEwPodImp$ through
+impact, against $\CritEwJepaImp$). It is at the critical moments, not on the
+window average, that the linear readout breaks down: the energy-optimal basis
+renders the field but cannot read the load or the wake exactly when the encounter
+turns nonlinear.
+
+\input{sections/tables/table_obs_critical.tex}
 
 \subsubsection{The distributed wake code}
 \label{sec:res_code} % v2.1 alias, moved here with the distributed-code content
@@ -179,13 +196,84 @@ trade is the reason the coefficient state, not the field-resolved latent, is the
 object this paper estimates; we take it up in \S\ref{sec:disc_decode} and quantify
 its cost in the supplementary material.
 
-\input{sections/v4/s4_c_prediction.tex}
+\subsection{The physics the latent state holds}
+\label{sec:res_latent_physics}
+\label{sec:res_flow_physics} % v2.1 alias
+\label{sec:res_param_phase} % v2.1 alias
+\label{sec:res_physical} % v2.1 alias
 
-\subsubsection{Why the state stays usable under rollout}
-\label{sec:res_rollout}
-\label{sec:res_controls} % v2.1 alias
-\label{sec:res_horizon} % v2.1 alias
-\label{sec:res_drift} % v2.1 alias
+Before the state is forecast or estimated, we read what the representation holds,
+in measures that do not depend on any filter. The predictive
+latent carries the shedding clock. Fitting a linear operator to the encoded
+limit-cycle trajectory by dynamic mode decomposition places a marginally stable
+oscillatory mode at Strouhal number $\DmdStJepa$, against the measured shedding line,
+with modulus $\DmdLamJepa$ just below unity. The Fukami-lineage autoencoders lose
+that clock: their leading latent mode is heavily damped and off-frequency
+($\DmdStFukami$ at modulus $\DmdLamFukami$ without the wake head, $\DmdStFukamiWake$
+at $\DmdLamFukamiWake$ with it). The structured states keep it, whether their
+structure comes from prediction, from supervision, from anti-collapse, or from a
+linear basis: the objective-free supervised latent, the anti-collapse
+reconstruction, and the proper orthogonal basis all place the shedding mode near the
+measured frequency on a near-unit-modulus orbit ($\DmdStSupOnly$, $\DmdStRegAE$ and
+$\DmdStPod$ at moduli $\DmdLamSupOnly$, $\DmdLamRegAE$ and $\DmdLamPod$). It is the
+Fukami-lineage reconstruction, not reconstruction in general, that fails to hold the
+shedding spectrum.
+
+The coordinate spectra say the same in the frequency domain and locate the
+reconstruction failure precisely. Averaging a per-coordinate Welch spectrum over
+the training encounters, the published-recipe reconstruction spreads its latent
+energy across frequency, at a median spectral flatness of $\FlatFukami$ against
+$\FlatJepaWake$ for the predictive latent, $\FlatAeWake$ for the
+matched-supervision reconstruction and $\FlatPod$ for the linear basis
+(figure~\ref{fig:t1_spectra}); the published recipe exceeds the predictive latent
+by $\FlatFukamiDelta$ in flatness with a case-clustered interval
+$[\FlatFukamiDeltaLo, \FlatFukamiDeltaHi]$ that excludes zero. The predictive
+coordinates are the most sharply peaked at the shedding line, and it is the
+published-recipe reconstruction alone, not the matched-supervision autoencoder,
+whose coordinates are broadband: the broadband, phase-scrambling latent that a
+reconstruction objective without matched supervision produces is the
+frequency-domain signature of the divergence the same latents show under
+rollout. The same contrast appears in the phase portraits of the latent
+trajectories (figure~\ref{fig:t3_portraits}): the predictive, linear and
+matched-supervision states trace coherent cycles that the gust perturbs, while
+the published-recipe reconstruction wanders without a clean orbit.
+
+\begin{figure}
+  \centering
+% FIGURE-TODO (Phase 5, M3): merge these per-coordinate spectra into the physics
+% figure (fig:atlas) per the redesign figure plan (fig 8 = atlas + DMD + T1 + T3).
+  \includegraphics[width=\linewidth]{sections/figures/results/fig_t1_spectra_v4.pdf}
+  \caption{Per-coordinate latent spectra by family (training encounters,
+  $d = 32$; mean Welch power spectral density against Strouhal number,
+  coordinates ordered by peak frequency; the dashed line marks the shedding
+  Strouhal). The predictive coordinates concentrate at the shedding line while
+  the published-recipe reconstruction spreads energy across frequency, and the
+  matched-supervision autoencoder does not.}
+  \label{fig:t1_spectra}
+\end{figure}
+
+\begin{figure}
+  \centering
+% FIGURE-TODO (Phase 5, M3): merge into the physics figure (fig:atlas) per the
+% redesign figure plan (fig 8 = atlas + DMD + T1 + T3).
+  \includegraphics[width=\linewidth]{sections/figures/results/fig_t3_portraits_v4.pdf}
+  \caption{Latent trajectory portraits by family (leading two principal
+  components of the $d = 32$ state; a representative gusted encounter coloured by
+  cycle fraction, undisturbed limit cycle in grey). The predictive, linear and
+  matched-supervision states trace coherent cycles perturbed by the gust; the
+  published-recipe reconstruction does not.}
+  \label{fig:t3_portraits}
+\end{figure}
+
+The parametric manifold coheres with the release parameters where the training data
+resolve them. An impact-frame probe of the predictive latent recovers the gust
+strength and the core diameter well ($\ProbeGJepa$ and $\ProbeDJepa$ on the \TestSplit{} set),
+which is the atlas of figure~\ref{fig:atlas} coloured by parameter. The wall-normal
+offset, unreadable at the linear-probe level in earlier work, becomes weakly readable
+here ($\ProbeYJepa$ linearly and $\ProbeYkrrJepa$ with a nonlinear probe), plausibly
+because the additional cases sample it more densely near the training centre; we note
+this rather than lean on it, since the offset remains the least resolved parameter
+(\S\ref{sec:flow_observables}).
 
 A state that reads the wake at a single instant need not survive a rollout, because
 a probe attached to a drifted latent is queried outside its support. We ask where
@@ -206,6 +294,78 @@ isotropy, as an independent adaptation of the same regulariser to biosignals als
 reports \citep{broustail2026}, and it is the supervision that supplies the geometry
 the rollout needs.
 
+\input{sections/tables/table_mechanism.tex}
+
+\begin{figure}
+  \centering
+  \includegraphics[width=\linewidth]{sections/figures/results/fig_atlas_dmd_v3.pdf}
+  \caption{The physics the latent state holds. Top: two-dimensional projections of
+  the predictive coefficient latent coloured by gust strength, core diameter, and
+  shedding phase, showing a parametric manifold that coheres with the release
+  parameters. Bottom: the latent dynamic-mode-decomposition spectrum, modulus
+  against Strouhal number, by family; the predictive and linear latents place a
+  marginally stable mode at the measured shedding frequency while the Fukami-lineage
+  reconstruction is damped and off-frequency.}
+  \label{fig:atlas}
+\end{figure}
+
+\subsection{Forecastability}
+\label{sec:res_forecast}
+
+\input{sections/v4/s4_c_prediction.tex}
+
+The forecast is not uniformly hard across the encounter, and resolving it by
+phase locates where the families separate (figure~\ref{fig:phasesplit}).
+Splitting every shared-operator forecast by whether its horizon stays in the
+pre-impact shedding or crosses the impact transient, merit is highest before
+impact and drops through it for every family, the \PredState{} from
+\PhaseJepaPreEight{} pre-impact to \PhaseJepaThruEight{} through impact at horizon
+eight. The separation is in the transient: through the impact the wake-supervised
+states carry the encounter (\PhaseJepaThruEight{} for the \PredState{} and
+\PhaseAeThruEight{} for the reconstructive AE-LW at horizon eight,
+\PhaseJepaThruSixteen{} and \PhaseAeThruSixteen{} at horizon sixteen), while the
+published-recipe reconstruction collapses across it (near zero at horizon eight,
+\PhaseFukamiThruSixteen{} at horizon sixteen) and the linear basis holds the
+shedding but fades into the relaxation (through-impact \PhasePodThruSixteen{}
+against post-impact \PhasePodPostSixteen{} at horizon sixteen). The
+through-impact window, not the periodic shedding, is what a forecast model must
+survive, and it is where the anchored, wake-supervised states hold while the
+reconstruction fails.
+
+\begin{figure}
+  \centering
+% FIGURE-TODO (Phase 5, M3): fold into the forecastability figure (fig 9) per the
+% redesign figure plan.
+  \includegraphics[width=\linewidth]{sections/figures/results/fig_t5_phasesplit_v4.pdf}
+  \caption{Shared-operator forecast merit split by phase (pre-impact,
+  through-impact, post-impact), per family at horizons eight and sixteen
+  (\TestSplit{} set, five observables, three operator seeds; bars at the seed
+  mean, case-clustered $95\,\%$ intervals). Through-impact merit separates the
+  families: the wake-supervised states hold, the published-recipe reconstruction
+  collapses across the transient, and the linear basis fades into the relaxation.}
+  \label{fig:phasesplit}
+\end{figure}
+
+When the forecast is decoded to the field rather than read in the latent, the
+families no longer separate. Decoding each family's forecast through its frozen
+decoder and scoring SSIM against the DNS truth, all three states forecast the
+field to comparable fidelity through the impact at horizon eight, SSIM
+$\SsimFcJepaThruEight$ for the predictive state, $\SsimFcAeThruEight$ for the
+reconstructive and $\SsimFcPodThruEight$ for the linear, the predictive state
+only modestly ahead on the near-body band ($\SsimFcJepaNbEight$ against
+$\SsimFcAeNbEight$ and $\SsimFcPodNbEight$). The decoded field, like the decode
+floor of \S\ref{sec:res_compress}, is not where the states separate: the
+energy-optimal linear basis renders the forecast field about as sharply as the
+nonlinear ones. What separates them is the observable content the
+field-averaged SSIM washes out, the wake-observable merit above, where the
+wake-supervised and predictive states lead and the linear basis does not.
+
+\subsubsection{Why the state stays usable under rollout}
+\label{sec:res_rollout}
+\label{sec:res_controls} % v2.1 alias
+\label{sec:res_horizon} % v2.1 alias
+\label{sec:res_drift} % v2.1 alias
+
 What the predictive objective adds is long-horizon stability, and it is the
 multi-step form of the objective that adds it. Trained with a single-step rather
 than a multi-step rollout, the same predictive latent forecasts the five
@@ -222,8 +382,6 @@ predictive training, is the weakest field forecaster of the supervised group. Th
 contribution of the predictive objective is therefore forward rather than
 instantaneous: it keeps the rolled state both in distribution and near the true
 trajectory, which is exactly what a sequential estimator queries.
-
-\input{sections/tables/table_mechanism.tex}
 
 \begin{figure}
   \centering
@@ -328,7 +486,7 @@ fewer sensors.
   \label{fig:trade}
 \end{figure}
 
-\subsection{Sequential estimation and operating limits}
+\subsection{Estimating the encounter from the wall}
 \label{sec:res_estimation}
 
 \subsubsection{Tracking the encounter from the wall}

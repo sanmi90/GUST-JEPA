@@ -93,3 +93,56 @@ delay-embedding guarantees are generic, wall pressure is a physical and
 non-generic observable strongly coupled to the near-body vorticity, and the
 operative evidence is the measured recovery, with the theorem as the organising
 principle rather than a proof that a given tap count suffices.
+
+\subsubsection*{Streaming deployment realism and the four-coefficient filter}
+
+% Moved from Results (Session 39, D-B): the streaming realism and d=4 filter
+% panels leave the main text with the estimator ladder.
+Under a deployment-realism protocol, streaming multi-encounter assimilation with
+a pressure-only initialisation and no oracle anywhere, the filter on the
+\PredState{} holds an impact-phase lift closure of \PoneStreamCleanZero{} on
+clean taps and \PoneStreamCleanFive, \PoneStreamCleanTen{} and
+\PoneStreamCleanTwenty{} at five, ten and twenty per cent tap noise (three
+member-noise seeds each, figure~\ref{fig:deploy}). The four-dimensional
+lift-critical state of \S\ref{sec:res_reconstruction} supports a filter of its
+own at \PoneDFourFilterImpact{} impact median over five seeds, so a
+four-coefficient state is estimable from the wall as well as forecastable.
+
+\begin{figure}
+  \centering
+  \includegraphics[width=0.9\linewidth]{sections/figures/results/fig_deployment_v4.pdf}
+  \caption{Deployment realism (\TestSplit{} set): (a)~streaming multi-encounter
+  filter against tap noise, three member-noise seeds, validation-selected
+  band (no test-set reference);
+  (b)~the $d = 4$ filter band over five member-noise seeds.}
+  \label{fig:deploy}
+\end{figure}
+
+\subsubsection*{Choosing among the estimators}
+\label{sec:disc_choosing}
+
+% Moved from Discussion (Session 39, D-B): the estimator-selection guidance
+% lives with the sensing appendix in the comparison-led revision.
+The ladder of \S\ref{sec:res_da} supports explicit selection guidance, in
+the spirit of the method-choice discussions of the assimilation literature
+(Gupta, Chen and Wan, J. Fluid Mech. 1036, A24, 2026). When only the
+in-distribution median matters and latency is irrelevant, the
+\StaticInv{} is the strongest and simplest tool, and no dynamics
+are needed. The moment the tails, the extrapolation boundary or continuous
+state tracking matter, the filters take over: online, the
+\TwoStageKF{} is the working choice, the forecast-derived noise carrying the
+impact and the tap-space observation carrying the relaxation; with a
+quarter-convective-time latency budget, the closed-form fixed-lag smoother
+on the linear stack is both the cheapest and the best reanalysis. Sparse
+or intermittent pressure favours the linear filter with encoded
+observations, the only member with zero divergences and graceful
+degradation under subsampled updates; every-frame pressure is necessary
+for the nonlinear members. Noise calibration should be spent on structure
+before scale: the state-dependent band fixed the impact-side divergences
+outright, while inflating its scale toward better tracking is model-error
+compensation that innovation consistency rejects, so a larger band should
+be read as a diagnostic of forecast contraction, not as a calibration
+target. Across model families the guidance is one sentence: anchored
+latent geometries, predictive or linear, can be selected on dimension and
+budget alone, while unanchored reconstructive geometries require a
+per-configuration estimatability check that their probes do not predict.

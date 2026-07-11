@@ -88,6 +88,10 @@ def main() -> int:
                 float(np.mean(r2s)), f"TcPeakRTwo{word}", "%.2f",
                 seed_mean=float(np.mean(r2s)), seed_sd=float(np.std(r2s)),
                 n=len(r2s))
+            # Session 39: bind the 3-seed SD so the peak-lift band is quotable
+            # per cell (Carlos: the predictive/JEPA lift deviation was not shown).
+            numbers[f"tc_peak_r2_sd_{cell}"] = rec(
+                float(np.std(r2s)), f"TcPeakRTwo{word}Sd", "%.3f")
             numbers[f"tc_lag_{cell}"] = rec(
                 float(np.median(lags)), f"TcLag{word}", "%.3f")
     else:
@@ -118,9 +122,38 @@ def main() -> int:
         numbers[f"tc_filter_cl_r2_{cell}"] = rec(
             float(np.median(r2s)), f"TcFilterClRTwo{word}", "%.2f",
             n=len(recs), note="median over test_b encounters")
-        if tuning and CELLS[cell][0] in tuning:
+    # ---- participation ratio per cell (final diag/pr, seed mean) ----------------
+    # T6.1 fix (Session 39, paper_redesign.md 2.1): the TcRho* macros previously
+    # bound the EnKF covariance-inflation factor
+    # (filter_tuning_trackc.json[run]["rho"] ~ 1.0), NOT the participation ratio
+    # PR(z) the prose calls them. The real PR is the final diag/pr from each
+    # cell's training run, exactly as fig_cube_health_v4.py reads it, so text and
+    # figure now agree. Mean over the three seeds; collapse floor is 0.3 d = 9.6.
+    from scripts.session34.trackc_cells import CELLS, RUNS_BASE
+
+    def _final_pr(run: str):
+        p = RUNS_BASE / run / "metrics.jsonl"
+        if not p.exists():
+            return None
+        last = None
+        for line in p.read_text().splitlines():
+            r = json.loads(line)
+            if "diag/pr" in r:
+                last = r["diag/pr"]
+        return last
+
+    for cell, word in CELL_WORD.items():
+        seedmap = CELLS.get(cell)
+        if not seedmap:
+            continue
+        prs = [v for v in (_final_pr(rn) for rn in seedmap.values())
+               if v is not None]
+        if prs:
             numbers[f"tc_rho_{cell}"] = rec(
-                tuning[CELLS[cell][0]]["rho"], f"TcRho{word}", "%.2f")
+                float(np.mean(prs)), f"TcRho{word}", "%.2f",
+                seed_mean=float(np.mean(prs)), seed_sd=float(np.std(prs)),
+                n=len(prs),
+                source="final diag/pr from run metrics (PR floor 0.3 d = 9.6)")
 
     # ---- gate verdicts ---------------------------------------------------------------
     gates = _load(S34 / "trackc_gates.json")

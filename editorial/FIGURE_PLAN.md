@@ -1,3 +1,45 @@
+# FIGURE_PLAN.md
+
+## Session 39 (comparison-led reframe): the redesign figure plan (target 13 main)
+
+Per paper_redesign.md section 5, the main-text figure target is 13, mapped to
+the six-beat structure. This pass is figure-engineering (matplotlib regen; the
+GPU compute tracks T1/T3/T4 feed panels here) and carries the D-A and D-B
+demotions, which are figure-coupled and MUST move prose + figure together:
+
+| new # | content | source (existing) | needs |
+|---|---|---|---|
+| 1 | gust sweep: lift + vorticity | fig:staging | keep |
+| 2 | parameter space + splits | fig:paramspace | relabel |
+| 3 | pipeline schematic: 3 families -> probe + forecaster | rework fig 4 + fig 22 panel | TikZ redraw |
+| 4 | conditioning: PR + peak-load readability, **L and W axes only** | fig:cube trimmed (drop N cols) | regen (D-A) |
+| 5 | task-dependent readability heatmap, trimmed rows | fig:readability | regen |
+| 6 | dimension axis: peak lift, probe dilution, decoded SSIM | fig:dimrace | keep |
+| 7 | decoded instants, 3 phases, 3 families + **POD row (T2)** | fig:decode + T2 | T2 (POD decode) |
+| 8 | physics: atlas, DMD, **per-coord spectra (T1)**, **portraits (T3)** | fig:atlas + T1 + T3 | T1,T3 (GPU) |
+| 9 | forecastability: shared-op bars, horizon curves w/ **phase split (T5)**, direct-vs-AR | fig:forecast + T5 | T5 |
+| 10 | rollout geometry: near-null + drift (or fold into 8) | fig:mechanism_hroll | regen |
+| 11 | sensors traded for delays + recovery grid | fig:trade + tab:recovery | keep |
+| 12 | filter tracking across envelope + sign asymmetry | fig:hero/cl_envelope/envelope condensed | regen |
+| 13 | assimilation vs dimension grid | fig:dimsgrid | keep |
+
+TO APPENDICES (D-A/D-B, figure-coupled, do WITH the prose move):
+- D-A: fig:phi (Chang construction) + the N columns of fig:cube; s4_a N-cube
+  prose trims to one CLN sentence, N detail -> appendix.
+- D-B: fig:centerpiece(c ladder, d smoother, e NIS), fig:relerr, fig:deploy
+  (streaming, d=4 panel) -> appendix; s4_d ladder/NIS/smoother/streaming prose
+  -> appendix with one pointer in sec:res_estimation. (The §5.4 "Choosing the
+  estimator" discussion synthesis already moved to appendix_b_sensing.tex.)
+- Also to appendix: fig 18 peak-error scaling, figs 19/20 per-family phase and
+  sensor sweeps, fig 23 recovered-field, fig 22 training-contrast (unless used in 3).
+
+Compute tracks feeding these (paper_redesign.md section 6): T1 per-coordinate
+Welch PSD spectral flatness (GPU; gates the D-E "broadband" wording); T2 POD
+decode row (light); T3 latent PC1-PC2 portraits (GPU); T4 decoded-forecast SSIM
+(GPU); T5 phase-split forecast re-aggregation (light, existing records).
+
+---
+
 # FIGURE_PLAN.md (Session 38, Stage 5)
 
 Dispositions per the editorial memo section 7 (target 11-12 main figures, 5
