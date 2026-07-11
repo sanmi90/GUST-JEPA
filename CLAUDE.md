@@ -12,7 +12,29 @@ matched latent dimension.
 
 Lead researcher: Carlos Sanmiguel Vila (INTA, UC3M).
 
-## Current focus (read first, set 2026-07-11, Session 36 CLOSED)
+## Current focus (read first, set 2026-07-11, Session 37 CLOSED)
+
+**Session 37 is COMPLETE on branch `jfm-rewrite-v2`** (same conversation as
+Session 36, Carlos's overnight "keep going"; commits a8d93fa..bc5337a;
+report `SESSION37_REPORT.md`; HANDOFF D267). Stage 3 DONE: Results in the
+four target subsections (labels preserved), appendix D dissolved (D.3 ->
+in-paper appendix C; D.1/D.2 -> supplementary S1/S2), NEW
+`paper/supplementary.tex` (xr cross-refs, S4 = suited-operator merit
+table). Stage 4 CORE DONE: front matter bound (new D306 title, approved
+abstract/intro-ending/Concluding remarks, all numbers macro-bound), the
+nine mandatory claim repairs applied (% REVIEW-CLAIM-marked; tab:envelope
+gained the RMSE column; D304 wording landed), language table swept to ZERO
+banned hits (divergent = impact R2 < -1, defined once). Gates: main 49pp
+rc=0, supplementary 3pp rc=0, refs 0, tracer PASS, lint 0.
+STOPPED at the word-budget compression, CARLOS DECIDES: Methods budget 2600
+vs the Session 35 Gupta MC contract (proposal: OSP + smoother + eq-free
+config prose to appendix B ~ -700 w, keep filter equations); s4 -1290
+(prune multiply-stated claims), s5 -605 (three-mechanism reorg), s2 -357.
+Also his: abstract 264/250 acceptance, s3.5 sign-convention audit
+(% REVIEW-CLAIM), CLAIM_MAP/PROVENANCE read-through, D302/D305 at Stage 5.
+Session 38 = compression per decisions + Stage 5 figures (M3) + Stage 6.
+
+## Previous focus (Session 36, set 2026-07-11)
 
 **Session 36 is COMPLETE on branch `jfm-rewrite-v2`** (off
 session35-manuscript-v4). It is phase 1 of the three-session JFM rewrite
