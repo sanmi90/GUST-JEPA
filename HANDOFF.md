@@ -10828,3 +10828,18 @@ are the most forecastable" (% REVIEW-CLAIM; forced by the D310 tie), and
 s4_c's three-family shared-REX passage was scoped to the LIFT readout and
 explicitly reconciled with the ten-family five-observable tie of
 tab:closure.
+
+### D269 (SESSION38 close: Stage 5 subset + Stage 6 done; program at the figure-engineering gate) (2026-07-11, Session 38)
+
+D268 decisions applied (abstract 249; s4_c and the abstract reconciled with
+the D310 tie, % REVIEW-CLAIM). Stage 5 subset: fig:readability_matrix
+dropped; fig:hero headers de-archived (|G|, D, Y; G sign awaits the s3.5
+audit); fig:centerpiece panel (e) alias + precision fixed; FIGURE_PLAN.md
+written (M3a-M3f deferred to the figure-engineering pass, D302/D305 there).
+Stage 6: four wide tables under \fittab (residual overfulls = the TikZ
+assets, M3b); NUMBER_AUDIT.md documents the tooling-enforced audit. Gates
+at close: main 48pp / supplementary 3pp rc=0, refs 0, tracer PASS,
+audit_numbers PASS, lint 0, abstract 249/250. Remaining: the M3 pass, the
+optional deep compressions beyond the D268 clarity standard, the sign
+audit, and the Carlos-owned submission items (DNS Table 1 is the blocker).
+Report SESSION38_REPORT.md.
