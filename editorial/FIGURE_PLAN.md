@@ -87,3 +87,19 @@ replicates GATE T2 STRONG with the same strong cells and the same
 (K=1, W=30) pick. Against the old jepa_pool grid, all 24 vec cells sit
 uniformly lower by 0.02-0.07 with identical ordering: the trade structure
 is generation-robust.
+
+## Session 38 correction (d = 4 lineage reading)
+
+An earlier session-38 note framed the T6 deployment number
+(\PoneDFourFilterImpact = 0.782, lift-focused CLN-rexpred d4 with its own
+tuned stack, five seeds) as "winning" at d = 4. WRONG, and Carlos caught
+it: the paper's own dims grid posts the WAKE lineage at d4 at R2 0.782 /
+RMSE 0.298 (best recipe eobs), equal R2 and better RMSE, and the shared
+band-1.77 rex_enkf arm agrees on the ordering (wake 0.75 vs lift-focused
+0.43 through the wall). The consistent reading across every table: at
+d = 4 the WAKE-supervised state is the better wall-estimated one; the
+lift-focused lineage's 0.782 is the self-contained-deployable-package
+viability result (own co-trained forecaster, dimension-insensitive peak
+readability), not a superiority claim. No paper text asserts the wrong
+version; the correction applies to the session-38 exploratory commentary
+(commit message of the band-1.77 set included the confounded framing).
