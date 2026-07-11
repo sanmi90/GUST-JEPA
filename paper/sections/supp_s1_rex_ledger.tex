@@ -1,0 +1,22 @@
+% Supplementary S1: forecaster ledger (moved from appendix D.1 at the
+% Session 37 Stage 3 restructure; content unchanged).
+
+\section{The transferred-forecasting ledger}
+\label{app:rex_ledger}
+
+The \DirectFC{} of \S\ref{sec:methods_rex} was built by auditing the
+TiRex forecasting line \citep{tirex,tirex2} ingredient by ingredient against this
+data. Adopted: the direct multi-horizon head, the quantile output, the
+per-window instance normalisation and the arcsinh transform, each of which
+survived ablation on validation. Refuted for this data: future-known
+covariate conditioning; the oracle $(G, D, Y)$ arm degrades the forecast
+in all three seeds (\S\ref{sec:res_forecast}), overfitting held-out
+parameter combinations at the present case count. Rejected: capped-weight
+robustness in both forms tried, a saturating output nonlinearity that
+exploded during the gust transient and a loss-side weight cap that
+down-weighted exactly the transients the encounter is about. Deferred:
+the variate mixer and test-time adaptation, neither needed at this scale.
+The backbone bake-off at matched budget ties a hand-written
+exponential-gated cell \citep{xlstm} with the plain LSTM within seed
+noise; the plain cell at width $512$ with nine quantiles is used
+throughout.

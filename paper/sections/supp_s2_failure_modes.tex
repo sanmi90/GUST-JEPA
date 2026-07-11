@@ -1,0 +1,27 @@
+% Supplementary S2: failure modes (moved from appendix D.2 at the
+% Session 37 Stage 3 restructure; content unchanged except the internal
+% cross-reference wording).
+
+\section{Failure modes}
+\label{app:failure_modes}
+
+Four mechanistic negatives complete the estimation story. First, filter
+divergence under the fixed criterion of \S\ref{sec:methods_lae} is a
+transformer-forecast phenomenon: the linear filter with encoded
+observations posts zero divergences where the transformer stack posts
+four, and under subsampled assimilation the transformer-forecast hybrid
+collapses already at every-second-frame updates while the linear filter
+degrades gracefully; every-frame pressure is load-bearing for the
+nonlinear filter. Second, the reconstructive baseline's estimatability
+failure in the dimension grid is an observation-side failure, verified
+three ways: linear probes on its true latents are healthy at every
+dimension and seed, the failure is insensitive to the observation map's
+ridge strength over three orders of magnitude, and the identical protocol
+succeeds for the linear and predictive families in every cell. Third, the
+ensemble smoother on the forecast-derived filter degrades it: at
+$N = 64$ the lagged cross-covariances are sampling noise, and the
+closed-form recursion on the linear stack is the working smoother.
+Fourth, the oracle-covariate negative of \S\ref{app:rex_ledger}
+belongs to this list from the deployment side: more information, worse
+forecast, when the information indexes a family of held-out dynamics
+rather than the current state.

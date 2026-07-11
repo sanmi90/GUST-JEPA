@@ -1,0 +1,55 @@
+% Supplementary material for the JFM submission. Build: latexmk -pdf supplementary
+% (after main, so xr can resolve cross-document references from main.aux).
+% Created at the Session 37 Stage 3 restructure; contents moved from the
+% in-paper appendices C/D per editorial/upstream/claude_code_jfm_rewrite_v2.md.
+
+\documentclass[lineno,paper]{JFM-FLM_Au}
+
+\usepackage{amsmath}
+\usepackage{subcaption}
+\usepackage{xr}
+\externaldocument{main}
+
+\emergencystretch=2em
+
+\newcommand{\fittab}[1]{\resizebox{\ifdim\width>\linewidth\linewidth\else\width\fi}{!}{#1}}
+\newcommand{\vRe}{\mathrm{Re}}
+\newcommand{\zvec}{\mathbf{z}}
+\newcommand{\xvec}{\mathbf{x}}
+\newcommand{\cvec}{\mathbf{c}}
+\newcommand{\uvec}{\mathbf{u}}
+\newcommand{\omegaz}{\omega_z}
+\newcommand{\pending}[1]{{\color{red}\textbf{[PENDING: #1]}}}
+
+\input{macros.tex}
+\input{macros_v3.tex}
+\input{nomenclature}
+
+\renewcommand{\thesection}{S\arabic{section}}
+\renewcommand{\thefigure}{S\arabic{figure}}
+\renewcommand{\thetable}{S\arabic{table}}
+
+\lefttitle{Solera-Rico, Mir\'o, Lehmkuhl and Sanmiguel Vila}
+\righttitle{Journal of Fluid Mechanics: supplementary material}
+
+\begin{document}
+\nolinenumbers
+
+\begin{center}
+{\Large Supplementary material}\\[4pt]
+{\large Predictive reduced-order states for wall-pressure estimation of
+extreme vortex gust--airfoil interactions}
+\end{center}
+\vspace{1em}
+
+\input{sections/supp_s1_rex_ledger.tex}
+
+\input{sections/supp_s2_failure_modes.tex}
+
+\section{Supplementary figures}
+\label{s:suppfigs}
+\input{sections/appendix_c_supplementary_figures.tex}
+
+\input{sections/supp_s4_suited_operator.tex}
+
+\end{document}

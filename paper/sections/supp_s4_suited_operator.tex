@@ -1,0 +1,47 @@
+% Supplementary S4: the suited-operator forecast merit (superseded as the
+% primary cross-family comparison by the shared-operator column of the main
+% families table; Session 36 Track M1, HANDOFF D310, null gate branch).
+
+\section{The suited-operator forecast merit}
+\label{s:suited_merit}
+
+Before the shared-operator recomputation, the families table scored each
+state's forecast merit under the operator numerically stable on it: a
+matched autoregressive transformer on the pooled states of the controlled
+matrix and a matched residual U-Net on the reference latents, on which the
+transformer diverges. Those values, at horizon eight, are retained here
+because the choice of operator is itself informative: the no-wake
+predictive state that collapses under the shared \DirectFC{}
+($\XmeritShEightJepaNowake$ at the same horizon) posts $\XmeritJepaNowake$
+under its suited transformer, and the reference recipes reorder. The
+shared-operator column of the main text (table~\ref{tab:closure}) is the
+primary comparison; this table documents the superseded protocol.
+
+\begin{table}
+  \centering
+  \caption{Suited-operator forecast merit (mean over the five observables
+  of the pooled nonlinear-probe $R^2$ at horizon eight) on the
+  \TestSplit{} encounters, single fitted operator per family: matched
+  transformer for the pooled controlled matrix, residual U-Net for the
+  reference recipes. The \PredState's co-trained vector predictor reaches
+  $\XmeritJepaWakeNative$ under the same convention.}
+  \label{tab:suited_merit}
+  \small
+  \begin{tabular}{l c}
+    \toprule
+    State & suited-operator merit \\
+    \midrule
+    predictive (wake)     & $\XmeritJepaWake$ \\
+    supervised only       & $\XmeritSupOnly$ \\
+    AE (wake)             & $\XmeritAeWake$ \\
+    predictive (no wake)  & $\XmeritJepaNowake$ \\
+    AE (no wake)          & $\XmeritAeNowake$ \\
+    anti-collapse AE      & $\XmeritRegAE$ \\
+    \midrule
+    $\beta$-VAE           & $\XmeritBvae$ \\
+    Fukami                & $\XmeritFukami$ \\
+    Fukami (wake)         & $\XmeritFukamiWake$ \\
+    POD                   & $\XmeritPod$ \\
+    \bottomrule
+  \end{tabular}
+\end{table}
