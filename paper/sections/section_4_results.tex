@@ -427,6 +427,26 @@ visibility analysis found blind to the wake circulation.
 
 \input{sections/tables/table_envelope.tex}
 
+Figure~\ref{fig:cl_envelope_traces} shows what the envelope numbers summarise,
+one representative encounter per gust intensity: the analysis follows the lift
+from the pre-impact shedding through the impact excursion and the relaxation at
+every intensity, including the $|G| = 4$ boundary, while the open-loop rollout
+reverts to the climatology of the shedding cycle.
+
+\begin{figure}
+  \centering
+  \includegraphics[width=\linewidth]{sections/figures/results/fig_cl_envelope_traces_v4.pdf}
+  \caption{$C_L$ estimation before and after impact across the gust-intensity
+  envelope. DNS truth, frozen-filter analysis (band: $\pm 2$ ensemble standard
+  deviations) and open-loop rollout for one representative encounter per
+  $|G|$ stratum (median-rule pick on the frozen envelope records;
+  \TestSplit{} set for $|G| \le 3$, \BoundarySplit{} set at $|G| = 4$; the
+  full per-stratum statistics are in table~\ref{tab:envelope}). The analysis
+  tracks the lift through impact and relaxation at every intensity while the
+  open loop reverts to the shedding cycle.}
+  \label{fig:cl_envelope_traces}
+\end{figure}
+
 Run identically on each family, each under its own validation-tuned inflation, the
 comparison is a division of degradation rather than a clean win
 (table~\ref{tab:filter_error}). At moderate gusts every filter tracks the load, the
