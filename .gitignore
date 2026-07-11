@@ -106,6 +106,13 @@ paper/main.out
 paper/main.toc
 paper/main.fdb_latexmk
 paper/main.fls
+paper/supplementary.aux
+paper/supplementary.log
+paper/supplementary.fdb_latexmk
+paper/supplementary.fls
+paper/supplementary.out
+paper/supplementary.bbl
+paper/supplementary.blg
 paper/.compile_cache/
 paper/sections/figures/tikz/*.aux
 paper/sections/figures/tikz/*.log
