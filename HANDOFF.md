@@ -10782,3 +10782,34 @@ untouched). Caption/number defect found and fixed en route: the old
 tab:closure caption claimed horizon sixteen over h8 values. Session-36
 gates at close: build rc=0 (50pp), zero undefined refs, tracer PASS,
 macros/json cross-check 835/735 zero mismatches.
+
+### D267 (SESSION37 overnight: Stage 3 restructure + Stage 4 front matter, claim repairs, language sweep; compression stopped at the MC conflict) (2026-07-11, Session 37)
+
+Continuation of the Session 36 conversation at Carlos's "keep going", same
+branch jfm-rewrite-v2, commits a8d93fa..fe7f2e4, report SESSION37_REPORT.md.
+Stage 3 COMPLETE: Results in the four target subsections (labels preserved,
+headers demoted; physics subsection split, DMD+atlas to 4.1 and the
+distributed code to 4.2 with sec:res_code moved); appendix D dissolved
+(D.3 -> in-paper appendix C calibration disclosure; D.1/D.2 -> supplementary
+S1/S2); NEW supplementary.tex (JFM class, xr, S-numbering, + S4
+suited-operator merit table documenting the D310-superseded protocol);
+sections 2/3 retitled. Stage 4 CORE COMPLETE: front matter bound (D303/D306
+title/abstract/intro-ending/Concluding remarks, numbers macro-bound,
+divergence-count claim gone); the nine mandatory claim repairs applied
+(% REVIEW-CLAIM; tab:envelope gained the RMSE column; D304 wording landed);
+language table swept to ZERO banned hits with the divergent criterion
+(impact R2 < -1) defined once. Gates at close: main 49pp rc=0,
+supplementary 3pp rc=0, refs 0 both, tracer PASS, audit_numbers PASS,
+lint 0.
+
+STOPPED DELIBERATELY at the word-budget compression: the Methods budget
+(2600 words; currently 4641) collides with the Session 35 Gupta MC
+completeness contract (numbered filter equations, MC-1..MC-12). Proposal on
+the table: move OSP placement + smoother config + eq-free config prose to
+appendix B (~-700 words), keep the filter equations, and either relax the
+budget or explicitly undo MC for the rest. s4/s5/s2 compressions
+(author-judgment cuts) deferred with concrete targets in the report.
+Also flagged for Carlos: the s3.5 inventory-sign-convention sentence vs the
+physical-G rule (% REVIEW-CLAIM, audit at Stage 5), the abstract at 264
+texcount words vs the 250 gate (counting artifact on the approved draft),
+and the unreviewed CLAIM_MAP/PROVENANCE ledgers.
