@@ -195,8 +195,11 @@ def fig_dimension(t3, t2b, env):
 
 def main():
     use_style()
-    grid = _load(S33 / "track_t_recovery_grid.json")
-    t3 = _load(S33 / "track_t3_effective_dimension.json")
+    # Session 38 audit: the heatmap/curves read the ORIGINAL jepa_pool grid
+    # while the paper's macros come from the vec re-runs; re-pointed to the
+    # same vec artifacts the numbers pipeline uses (figure = table).
+    grid = _load(S33 / "track_t_grid_vec.json")
+    t3 = _load(S33 / "track_t3_vec.json")
     t2b = _load(S33 / "t2b_reduced_filter.json")
     # Session 38 audit: divergence-boundary annotation from the vec envelope
     env = _load(S33 / "envelope_vec.json")

@@ -73,9 +73,17 @@ STALE, FIXED THIS SESSION:
   jepa_pool latents; re-pointed to the vec latents + vec OSP taps
   (regeneration running at write time).
 
-IN FLIGHT, NUMBERS DECISION PENDING: the Track T K x W recovery grid
-(fig:trade cells + the track_t_grid part macros) ran on the pre-vec
-jepa_pool. A protocol-identical re-run on the vec flagship is in flight
-(outputs/session38/track_t_recovery_grid_vec.json); when it lands, compare
-cell-by-cell and EITHER swap the part (numbers change -> macros -> 4.3
-prose) or disclose the generation, Carlos's call with the delta table.
+RESOLVED (no numbers change needed): the Track T story. The paper's macros
+were ALREADY on vec re-runs made at the session-33 freeze (parts read
+track_t_grid_vec.json / track_t3_vec.json; t2b_reduced_filter.json is
+itself the vec run, model field checked) but fig:trade still plotted the
+ORIGINAL jepa_pool grid: figure/table generation mismatch, same class as
+the envelope. Fixed: fig_track_t re-pointed to the same vec artifacts the
+numbers pipeline uses; regenerated. BONUS VERIFICATION: an independent
+protocol-identical re-run of the full K x W grid on the vec flagship
+(outputs/session38/track_t_recovery_grid_vec.json, GPU 1) REPRODUCES the
+frozen session-33 vec grid to numerical noise (max cell delta < 0.001) and
+replicates GATE T2 STRONG with the same strong cells and the same
+(K=1, W=30) pick. Against the old jepa_pool grid, all 24 vec cells sit
+uniformly lower by 0.02-0.07 with identical ordering: the trade structure
+is generation-robust.
