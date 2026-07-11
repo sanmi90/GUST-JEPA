@@ -27,7 +27,10 @@ import matplotlib.pyplot as plt  # noqa: E402
 
 from figstyle import TEXTWIDTH_IN, use_style  # noqa: E402
 
-SRC = REPO_ROOT / "outputs/session38/hero_traces_envelope.json"
+# Session 38 second pass: the figure now shows the HEADLINE two-stage
+# filter (Carlos: the REX adaptation is the impact-window forecast model);
+# the base-filter traces remain at hero_traces_envelope.json.
+SRC = REPO_ROOT / "outputs/session38/two_stage_traces.json"
 OUT = REPO_ROOT / "paper/sections/figures/results"
 
 COLORS = {
@@ -51,19 +54,25 @@ def main() -> int:
     for j, tr in enumerate(traces):
         ax = axes[j]
         frames = np.asarray(tr["frames"], dtype=float)
+        sel = (frames >= 10) & (frames <= 88)  # post warm-up, through relaxation
+        frames = frames[sel]
         t = (frames - tr["t_impact"]) * tr["dt_tc"]
-        truth = np.asarray(tr["truth"]["C_L"])
-        filt = np.asarray(tr["filter_analysis"]["C_L"])
-        std = np.asarray(tr["filter_analysis"]["C_L_ens_std"])
-        ol = np.asarray(tr["open_loop"]["C_L"])
+        truth = np.asarray(tr["truth"]["C_L"])[sel]
+        filt = np.asarray(tr["filter_analysis"]["C_L"])[sel]
+        std = np.asarray(tr["filter_analysis"]["C_L_ens_std"])[sel]
+        ol = np.asarray(tr["open_loop"]["C_L"])[sel]
         ax.fill_between(t, filt - 2 * std, filt + 2 * std,
                         color=COLORS["filter"], alpha=0.18, lw=0)
         ax.plot(t, ol, color=COLORS["open_loop"], lw=0.9, ls="--",
-                label="open-loop rollout")
+                label="open loop (no pressure)")
         ax.plot(t, filt, color=COLORS["filter"], lw=1.1,
                 label=r"filter analysis ($\pm 2\sigma$)")
         ax.plot(t, truth, color=COLORS["truth"], lw=1.1, label="DNS truth")
         ax.axvline(0.0, color="0.75", lw=0.6, zorder=0)
+        lo = min(truth.min(), (filt - 2 * std).min())
+        hi = max(truth.max(), (filt + 2 * std).max())
+        pad = 0.15 * (hi - lo)
+        ax.set_ylim(lo - pad, hi + pad)  # open loop may exit the frame
         rec = tr["envelope_record"]
         g = rec["abs_G"]
         split = {"test_b": "in-distribution test", "test_c": "boundary test"}.get(
