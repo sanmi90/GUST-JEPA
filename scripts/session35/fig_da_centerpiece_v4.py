@@ -197,14 +197,14 @@ def main() -> None:
                 va="bottom", color=color)
         ax_c.plot([val], [y], marker="o", ms=5.5 if best else 4.5, color=color,
                   zorder=4, mec="black" if best else color, mew=0.6)
-        ax_c.annotate(f"{val:.3f} ({cat}/{n_b})", xy=(val, y - 0.40), fontsize=5.5,
+        ax_c.annotate(f"{val:.2f} ({cat}/{n_b})", xy=(val, y - 0.40), fontsize=5.5,
                       ha="center", va="top", color="0.15")
         if agg_c is not None:
             vc = agg_c["median_CL_r2_impact"]
             cc = agg_c["catastrophic_impact_lt_-1"]
             ax_c.plot([vc], [y], marker="o", ms=4.5, mfc="none", mec=color, mew=0.9,
                       zorder=4)
-            ax_c.annotate(f"C: {vc:.3f} ({cc}/{n_c})", xy=(vc, y - 0.82),
+            ax_c.annotate(f"C: {vc:.2f} ({cc}/{n_c})", xy=(vc, y - 0.82),
                           fontsize=5.5, ha="center", va="top", color=color)
         parts = label.split("\n")
         ax_c.text(-0.02, y + (0.26 if len(parts) > 1 else 0.0), parts[0],
@@ -307,7 +307,7 @@ def main() -> None:
     ax_e.set_ylim(0, 1.14)
     ax_e2.set_ylim(0.54, 0.88)
     ax_e.set_xlim(0.8, 6.2)
-    ax_e.set_title(f"(e) NIS band calibration (test A, $n={n_a}$)",
+    ax_e.set_title(f"(e) NIS band calibration (validation, $n={n_a}$)",
                    loc="left", fontsize=TITLE_FS)
     ax_e.legend(handles=[l1, l2], loc="center right", fontsize=6, handlelength=1.3,
                 borderaxespad=0.4, labelspacing=0.25)

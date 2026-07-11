@@ -73,8 +73,15 @@ def main():
             ax.axvline(0.0, color="0.75", lw=0.6, zorder=0)
             if i == 0:
                 g = abs(tr["envelope_record"]["abs_G"])
-                ax.set_title(
-                    f"$|G| = {g:g}$  ({tr['case_id']})", fontsize=6.5)
+                # Session 38 Stage 5 (memo catch 8): archive-signed case_id
+                # removed from the header (rule: archive identifiers only in
+                # the data appendix); D and Y parsed from it are sign-safe,
+                # the G sign stays out pending the s3.5 sign audit.
+                import re as _re
+                _m = _re.match(r"G[+-][\d.]+_D([\d.]+)_Y([+-][\d.]+)", tr["case_id"])
+                _d, _y = (float(_m.group(1)), float(_m.group(2))) if _m else (None, None)
+                _sub = f", $D = {_d:g}$, $Y = {_y:+g}$" if _m else ""
+                ax.set_title(f"$|G| = {g:g}${_sub}", fontsize=6.5)
             if j == 0:
                 ax.set_ylabel(label)
             if i == 1:
