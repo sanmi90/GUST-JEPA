@@ -10813,3 +10813,18 @@ Also flagged for Carlos: the s3.5 inventory-sign-convention sentence vs the
 physical-G rule (% REVIEW-CLAIM, audit at Stage 5), the abstract at 264
 texcount words vs the 250 gate (counting artifact on the approved draft),
 and the unreviewed CLAIM_MAP/PROVENANCE ledgers.
+
+### D268 (SESSION38 open: budgets relaxed for clarity, equations stay; abstract trimmed to the 250 gate) (2026-07-11, Session 38)
+
+Carlos's decisions on the Session 37 stop-points: (1) the Methods word
+budget is RELAXED; clarity is the criterion and the filter equations stay
+in s3 per the Session 35 Gupta MC contract (wordcount.py s3 gate moved to
+5000, reported not enforced; the remaining section budgets stay as
+clarity-driven targets, pruning limited to genuine redundancy); (2) the
+abstract MUST meet 250: trimmed to 249 texcount words with micro-trims
+only. En route the abstract's pre-M1 sentence "the predictive coordinates
+are the most forecastable" was corrected to "the wake-supervised states
+are the most forecastable" (% REVIEW-CLAIM; forced by the D310 tie), and
+s4_c's three-family shared-REX passage was scoped to the LIFT readout and
+explicitly reconciled with the ten-family five-observable tie of
+tab:closure.

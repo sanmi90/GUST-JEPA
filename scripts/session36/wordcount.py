@@ -29,8 +29,11 @@ GROUPS: dict[str, tuple[int, list[Path]]] = {
     "abstract": (250, [SEC / "abstract.tex"]),
     "s1_introduction": (1300, [SEC / "section_1_introduction.tex"]),
     "s2_flow_and_data": (1600, [SEC / "section_2_flow_and_data.tex"]),
+    # D268 (2026-07-11, Carlos): Methods budget RELAXED; clarity wins and the
+    # filter equations stay in s3 per the Session 35 MC contract. Reported,
+    # not gated.
     "s3_methods": (
-        2600,
+        5000,
         [SEC / "section_3_methods.tex"] + sorted(V4.glob("s3_*.tex")),
     ),
     "s4_results (aggregate 4.1-4.4)": (

@@ -10,13 +10,24 @@ the operator confound the suited-operator comparison of
 \S\ref{sec:methods_closure} left open: one \DirectFC{}
 (\S\ref{sec:methods_rex}), trained identically on each family's frozen
 latents, is stable on every latent including the reconstructive ones. Under
-it the predictive states are the more forecastable, decoded lift
+% REVIEW-CLAIM: (Session 38, D310 consistency) the claim is scoped to the
+% LIFT readout: on the five-observable merit the shared-operator
+% recomputation places the wake-headed states in a statistical tie, so the
+% unqualified "predictive states are the more forecastable" is no longer
+% supportable; the lift-readout lead is what the three-family comparison
+% actually measures, and the reconciliation with tab:closure is stated.
+it the predictive states carry the more forecastable lift, decoded lift
 $R^2 = \RexFamClw{}$ for the \PredState{} and \RexFamCln{} for the \LiftState{} against
 \RexFamAeLw{} for the reconstructive anchor, three operator-training seeds
-per family on the \TestSplit{} set, with the \LiftState{} latents the most forecastable of all
-(figure~\ref{fig:forecast}a). The ordering agrees with the suited-operator
-protocol, so it is a property of the states, not of the operator that
-reads them.
+per family on the \TestSplit{} set, with the \LiftState{} latents the most
+lift-forecastable of all
+(figure~\ref{fig:forecast}a). On the five-observable merit of
+table~\ref{tab:closure}, recomputed under the same shared operator across
+all ten families, the wake-headed states are statistically tied
+(\S\ref{sec:res_construct}), so the operator-robust statement is two-fold:
+supervision, not the training objective, decides which states are
+forecastable at all, and the lift-focused predictive state leads
+specifically on the lift readout.
 
 The forecasting mechanism is the direct-versus-autoregressive contrast.
 Rolled autoregressively through the impact, the matched transformer

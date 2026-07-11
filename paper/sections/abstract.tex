@@ -1,36 +1,37 @@
 % Abstract, bound from editorial/upstream/front_matter_rewrite.tex at the
-% Session 37 Stage 4 front-matter bind (author-approved, D303/D306 resolved
-% 2026-07-10). Three numbers only, all macros; no divergence-count claims;
-% the attribution sentence and the oracle clause restored per the memo.
-% REVIEW-CLAIM: (Stage 4) wholesale replacement of the previous abstract by
-% the pre-approved draft.
+% Session 37 Stage 4 front-matter bind (author-approved, D303/D306) and
+% trimmed to the 250-word gate at Session 38 per Carlos's instruction
+% (2026-07-11): micro-trims only, no content removed.
+% REVIEW-CLAIM: (Session 38) "the predictive coordinates are the most
+% forecastable" corrected to "the wake-supervised states are the most
+% forecastable": the D310 shared-operator recomputation makes the top block
+% a statistical tie among the wake-headed states, so the draft's sentence
+% (written pre-M1) is no longer supportable as stated.
 Extreme vortex gusts drive a post-stall airfoil through a transient
 reorganisation of its wake, and the release parameters alone do not
-determine the flow once the vortex has passed. We ask whether a reduced
-state of such an encounter can retain the wake dynamics, remain usable
+determine the flow after the vortex passes. We ask whether a reduced
+state of the encounter can retain the wake dynamics, remain usable
 under a low-order forecast model, and be estimated from the sparse wall
-pressure a wing can carry. Direct numerical simulations of a NACA 0012
-airfoil at $\alpha = 14^\circ$ and $\vRe = 5000$, perturbed by Taylor
-vortices spanning gust ratio, core diameter and offset, are used to
-compare predictive, reconstruction-trained and
-proper-orthogonal-decomposition coefficient states at matched dimension.
-A controlled supervision study shows that these requirements are
-supplied by different ingredients. Under the predictive objective
-considered, a scalar lift target is necessary to prevent collapse of the
-latent representation, a near-body force-element target sharpens the
-peak loads, and a wake target is required to retain the wake enstrophy
-and circulation; the multi-step predictive objective contributes
-stability under rollout rather than instantaneous readability. Load
-information remains accessible at four coefficients, whereas wake-field
-reconstruction requires at least sixteen. Under a single \DirectFC{}
-trained identically on every state, the predictive coordinates are the
-most forecastable, autoregressive rollout degrades through error
-accumulation, and supplying the true gust parameters provides no
-benefit. A sequential ensemble filter sensing eight wall-pressure taps
-then tracks the lift through the encounter, with impact-phase
-$R^2 = \PoneTwoStageCovImpact$ (root-mean-square error
+pressure a wing can carry. We compare predictive, reconstruction-trained
+and proper-orthogonal-decomposition coefficient states at matched
+dimension, on direct numerical simulations of a NACA 0012 airfoil at
+$\alpha = 14^\circ$ and $\vRe = 5000$ perturbed by Taylor vortices
+spanning gust ratio, core diameter and offset. A controlled supervision
+study shows different ingredients supply the requirements.
+Under the predictive objective considered, a scalar lift target is
+necessary against latent collapse, a near-body force-element target
+sharpens the peak loads, and a wake target is required for the wake
+enstrophy and circulation; the multi-step predictive objective
+contributes rollout stability rather than instantaneous readability.
+Load information remains accessible at four coefficients, whereas
+wake-field reconstruction requires at least sixteen. Under one
+\DirectFC{} trained identically on every state, the wake-supervised
+states are the most forecastable, autoregressive rollout degrades
+through error accumulation, and supplying the true gust parameters
+provides no benefit. A sequential ensemble filter sensing eight
+wall-pressure taps then tracks the lift through the encounter, with
+impact-phase $R^2 = \PoneTwoStageCovImpact$ (root-mean-square error
 $\PoneTwoStageCovRmse$ in lift units) on the \TestSplit{} set and
-$R^2 = \PoneTwoStageCovImpactC$ at the held-out $|G| = 4$ boundary;
-the wake enstrophy is not recovered by the wall-sensor configurations
-considered, a limit set by the sensing geometry rather than by the
-state.
+$\PoneTwoStageCovImpactC$ at the held-out $|G| = 4$ boundary; the wake
+enstrophy is not recovered by the wall-sensor configurations considered,
+a limit of the sensing geometry rather than the state.
