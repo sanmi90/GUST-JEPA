@@ -62,8 +62,11 @@ def series(byg, metric, stat="median"):
 
 def main():
     use_style()
-    env = json.loads((S32 / "envelope_by_gust.json").read_text())
-    m = env["models"]["jepa_pool"]
+    # Session 38 figure-provenance audit: the OLD source here was the
+    # session32 jepa_pool envelope while tab:envelope quotes the vec
+    # envelope; re-pointed to the flagship generation.
+    env = json.loads((REPO_ROOT / "outputs" / "session33" / "envelope_vec.json").read_text())
+    m = env["models"]["jepa_pool_vec"]
     byg = m["aggregates"]["by_G"]
     bysg = m["aggregates"]["by_sign_and_G"]
 
@@ -93,7 +96,12 @@ def main():
     ax.tick_params(labelbottom=False)
     ax.text(3.9, -0.35, "worse than the mean", fontsize=5.5, color="0.4",
             ha="right")
-    ax.text(0.45, -2.05, r"open-loop medians $-17$ to $-540$", fontsize=5.0,
+    _ol = [blk["forecast_CL_r2_impact"]["median"] for blk in byg.values()
+           if blk.get("forecast_CL_r2_impact")
+           and blk["forecast_CL_r2_impact"].get("median") is not None]
+    _lo, _hi = min(_ol), max(_ol)
+    ax.text(0.45, -2.05,
+            rf"open-loop medians ${_hi:.0f}$ to ${_lo:.0f}$", fontsize=5.0,
             color="0.45", ha="left")
 
     # divergence strip

@@ -146,7 +146,7 @@ def fig_dimension(t3, t2b, env):
                    color="#e08214")
     ax2.tick_params(axis="y", labelsize=6, colors="#e08214")
     # divergence boundary (D <= 1.0 compact cores) from the envelope thresholds
-    thr = env["models"]["jepa_pool"]["thresholds"].get("1.0", {})
+    thr = env["models"]["jepa_pool_vec"]["thresholds"].get("1.0", {})
     b = thr.get("div_rate_exceeds_50pct_at_absG")
     if b is not None:
         ax.axvline(b, color="#c0392b", lw=0.9, ls="--")
@@ -174,7 +174,7 @@ def fig_dimension(t3, t2b, env):
         ax.plot(xs, ys, marker="o", ms=3, lw=1.0, color=c, label=f"$K = {k}$")
     xs, ys = [], []
     for g in GORDER:
-        agg = env["models"]["jepa_pool"]["aggregates"]["by_G"].get(g, {})
+        agg = env["models"]["jepa_pool_vec"]["aggregates"]["by_G"].get(g, {})
         med = agg.get("filter_CL_analysis_r2_impact", {}).get("median")
         if med is not None:
             xs.append(GX[g])
@@ -198,7 +198,8 @@ def main():
     grid = _load(S33 / "track_t_recovery_grid.json")
     t3 = _load(S33 / "track_t3_effective_dimension.json")
     t2b = _load(S33 / "t2b_reduced_filter.json")
-    env = _load(S32 / "envelope_by_gust.json")
+    # Session 38 audit: divergence-boundary annotation from the vec envelope
+    env = _load(S33 / "envelope_vec.json")
     fig_trade(grid)
     fig_dimension(t3, t2b, env)
     return 0

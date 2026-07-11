@@ -39,7 +39,11 @@ COLORS = {
 
 def main():
     use_style()
-    blob = json.loads((S33 / "hero_traces.json").read_text())
+    # Session 38 audit: traces re-dumped on the vec flagship (the old file
+    # was the jepa_pool generation); frozen original kept at
+    # outputs/session33/hero_traces.json.
+    blob = json.loads((REPO_ROOT / "outputs" / "session38" /
+                       "hero_traces_vec.json").read_text())
     traces = blob["traces"]
     n = len(traces)
     fig, axes = plt.subplots(

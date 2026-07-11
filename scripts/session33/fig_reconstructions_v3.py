@@ -39,7 +39,8 @@ from figstyle import TEXTWIDTH_IN, use_style, vort_panel  # noqa: E402
 
 CASE = ("G+1.50_D1.50_Y+0.10", 1)  # hero representative pick, |G| = 1.5
 FAMS = [
-    ("jepa_pool", "predictive (JEPA)", "outputs/session31/q1_latents"),
+    # Session 38 audit: predictive entry re-pointed to the vec flagship
+    ("jepa_pool_vec", "predictive (JEPA)", "outputs/session33/q1_vec_latents"),
     ("fukami", "reconstructive (Fukami)", "outputs/session31/q1_latents"),
     ("pod", "linear (POD)", "outputs/session31/q1_latents"),
 ]
@@ -100,8 +101,11 @@ def main(argv=None):
     dns = np.asarray(fd["omega_norm"], dtype=np.float32)[sel][order]
 
     osp = json.loads((REPO_ROOT / args.osp_taps).read_text())
+    # vec flagship taps live in the session33 OSP file; merge both sources
+    osp.update(json.loads(
+        (REPO_ROOT / "outputs/session33/osp_taps_vec.json").read_text()))
     # test_b pressure rows aligned to the encounter
-    ltb = np.load(REPO_ROOT / "outputs/session31/q1_latents/latents_jepa_pool_test_b.npz",
+    ltb = np.load(REPO_ROOT / "outputs/session33/q1_vec_latents/latents_jepa_pool_vec_test_b.npz",
                   allow_pickle=True)
     p_tb = load_pressure_for_alignment(
         ltb["case_id"].astype(str), ltb["encounter_index"], ltb["frame"],
