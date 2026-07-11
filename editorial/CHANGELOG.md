@@ -52,3 +52,30 @@
   the recommendation; confirm or move to supplementary at the Stage 5 STOP.
 - Carlos-owned: session35 branch merge, DNS Table 1 (tab:dns_pending, 7
   \pending{} rows), Zenodo DOI, license/CRediT/funding.
+
+## Session 37 Stage 4 (2026-07-11, overnight autonomous run)
+
+- Front matter bound (D303/D306): new title in main.tex; abstract, intro
+  requirements-and-roadmap paragraph, Concluding remarks replaced by the
+  approved drafts, numbers macro-bound; roadmap bound to subsection labels;
+  "Concluding remarks" section title.
+- Mandatory claim repairs applied (memo catches 1, 2, 3/D304, 4 as
+  FIGURE-TODO, 5 via the new tab:envelope RMSE column, 7, 12; 6 and 13
+  resolved by the draft binding). All % REVIEW-CLAIM-marked.
+- Language table swept to ZERO banned hits (was 85 at Stage 0, 66 after the
+  front matter). Divergent criterion (impact R2 below -1) defined once.
+- s3.5 sign-convention sentence flagged: inventory convention vs the
+  physical-G rule; audit due at the Stage 5 figure pass.
+- Word budgets: s1 1235/1300 OK, s6 376/450 OK, abstract 264/250 (macro-token
+  counting artifact on the approved draft; Carlos to accept or trim).
+- COMPRESSION DELIBERATELY STOPPED, Carlos decision needed: the Methods
+  budget (2600; currently 4641) collides with the Session 35 Gupta MC
+  completeness contract (numbered equations for every filter in s3.4,
+  MC-1..MC-12 mapped in outputs/session35/mc_provenance.md). Proposal on the
+  table: move the placement (OSP) subsubsection, the smoother configuration
+  detail and eq-free configuration prose to appendix B (~-700 words), keep
+  the filter-defining equations in s3.4; the remaining ~-1300 needs either a
+  relaxed budget or moving equations to the appendix (undoing MC). Same
+  spirit for s4 (-1290: prune multiply-stated claims per CLAIM_MAP), s5
+  (-605: three-mechanism reorganisation), s2 (-357). These are
+  author-judgment cuts, deferred to the next working session.
