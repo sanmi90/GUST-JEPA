@@ -87,16 +87,20 @@ def main() -> None:
     c_star = envelope["c_star"]                              # 1.0 NIS band
     peeked_val = smoother["summary"]["rex_enkf"]["impact"]["cl_r2"]  # 0.840, excluded
 
-    fig = plt.figure(figsize=(TEXTWIDTH_IN, 6.7))
-    gs = fig.add_gridspec(
-        3, 2, height_ratios=[1.0, 1.30, 0.98], hspace=0.58, wspace=0.40,
-        left=0.165, right=0.895, top=0.965, bottom=0.09,
-    )
-    ax_a = fig.add_subplot(gs[0, 0])
-    ax_b = fig.add_subplot(gs[0, 1])
-    ax_c = fig.add_subplot(gs[1, 0])
-    ax_d = fig.add_subplot(gs[1, 1])
-    ax_e = fig.add_subplot(gs[2, :])
+    # Session 39 figure pass (D-B): split into a main-text tracking figure
+    # (a, b) and an appendix calibration figure (c ladder, d smoother, e NIS).
+    fig_t = plt.figure(figsize=(TEXTWIDTH_IN, 2.5))
+    gs_t = fig_t.add_gridspec(1, 2, wspace=0.40, left=0.11, right=0.90,
+                              top=0.88, bottom=0.22)
+    ax_a = fig_t.add_subplot(gs_t[0, 0])
+    ax_b = fig_t.add_subplot(gs_t[0, 1])
+    fig_c = plt.figure(figsize=(TEXTWIDTH_IN, 5.1))
+    gs_c = fig_c.add_gridspec(2, 2, height_ratios=[1.30, 0.98], hspace=0.55,
+                              wspace=0.40, left=0.165, right=0.895,
+                              top=0.95, bottom=0.11)
+    ax_c = fig_c.add_subplot(gs_c[0, 0])
+    ax_d = fig_c.add_subplot(gs_c[0, 1])
+    ax_e = fig_c.add_subplot(gs_c[1, :])
 
     n_b = len(phase["records"]["rex_enkf"])  # 42 test_b encounters
 
@@ -312,23 +316,20 @@ def main() -> None:
     ax_e.legend(handles=[l1, l2], loc="center right", fontsize=6, handlelength=1.3,
                 borderaxespad=0.4, labelspacing=0.25)
 
-    # ---- footer: shared protocol (read from the JSON protocol blocks) ----------
-    fig.text(0.165, 0.028,
-             f"Protocol: $K={k_sensors}$ wall-pressure sensors, delay-{delay} "
-             f"embedding, $N={members}$ ensemble members, frozen decode-floor decoder.",
-             fontsize=5.5, color="0.3")
-    fig.text(0.165, 0.008,
-             f"(a, b) phase evaluation at the val-calibrated band $c={band_prefreeze:g}$; "
-             f"(c) frozen bands only; (e) selection on the validation split only.",
-             fontsize=5.5, color="0.3")
+    # ---- footers: shared protocol, split with the panels ----------------------
+    fig_t.text(0.11, 0.03,
+               f"$K={k_sensors}$ wall-pressure taps, delay-{delay}, $N={members}$ "
+               f"members; phase evaluation at the val-calibrated band "
+               f"$c={band_prefreeze:g}$.", fontsize=5.5, color="0.3")
+    fig_c.text(0.165, 0.02,
+               f"(c) frozen bands only; (e) selection on the validation split only; "
+               f"$K={k_sensors}$ taps, $N={members}$ members.",
+               fontsize=5.5, color="0.3")
 
     OUT_DIR.mkdir(parents=True, exist_ok=True)
-    pdf = OUT_DIR / "fig_da_centerpiece_v4.pdf"
-    png = OUT_DIR / "fig_da_centerpiece_v4.png"
-    fig.savefig(pdf)
-    fig.savefig(png, dpi=200)
-    print(f"wrote {pdf}")
-    print(f"wrote {png}")
+    fig_t.savefig(OUT_DIR / "fig_da_tracking_v4.pdf")
+    fig_c.savefig(OUT_DIR / "fig_da_calibration_v4.pdf")
+    print("wrote fig_da_tracking_v4.pdf + fig_da_calibration_v4.pdf")
 
 
 if __name__ == "__main__":

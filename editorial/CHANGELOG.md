@@ -1,5 +1,23 @@
 # CHANGELOG.md (JFM rewrite program; structural moves, wording changes, open author decisions)
 
+## Session 39 continued: figure-engineering pass (post-commit 6da0f8e)
+
+- fig:centerpiece SPLIT (D-B, the biggest §4.6 lever): fig_da_centerpiece_v4.py
+  refactored into two figures -- fig_da_tracking_v4 (a,b, main §4.6, the phase
+  tracking result) and fig_da_calibration_v4 (c ladder, d smoother, e NIS,
+  appendix C). Panel code unchanged; only the figure/gridspec setup, two footers
+  and the save changed. Paper: fig:centerpiece -> fig:tracking in main; new
+  fig:calibration in appendix C; the three panel references redirected.
+- fig:relerr (peak-error scaling) -> appendix B (like fig:deploy earlier); the
+  §4.6 scale-invariance sentence auto-resolves to it.
+- Result: the main-text estimation figure shrinks from a 5-panel centerpiece to a
+  2-panel tracking figure; the calibration machinery (ladder/NIS/smoother) is in
+  the appendix. Main §4+§5 figure labels now 19 (target ~14).
+- REMAINING figure merges: physics (fig:t1_spectra + fig:t3_portraits + fig:atlas
+  -> one), forecast (fig:mechanism_hroll + fig:forecast + fig:phasesplit -> two),
+  estimation tracking condense (fig:hero + fig:cl_envelope_traces -> one),
+  fig:ownstack -> appendix. Gate: main 54pp rc=0, tracer PASS.
+
 ## Session 39 continued: the deployment ladder (Carlos: not just observables -- the chain)
 
 - NEW fig:deployment_ladder (scripts/session39/fig_deployment_ladder.py): the money

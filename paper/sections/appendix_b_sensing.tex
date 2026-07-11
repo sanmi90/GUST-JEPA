@@ -118,6 +118,29 @@ four-coefficient state is estimable from the wall as well as forecastable.
   \label{fig:deploy}
 \end{figure}
 
+% Moved from Results (Session 39, figure pass): the scale-invariance panel is an
+% envelope diagnostic; the main-text sentence (\S\ref{sec:res_estimation}) points here.
+\begin{figure}
+  \centering
+  \includegraphics[width=0.9\linewidth]{sections/figures/results/fig_relative_errors_v4.pdf}
+  \caption{Relative peak error across the gust envelope (\TestSplit{} set,
+  medians per $|G|$): the forecast-derived filter is scale-invariant near
+  $12$ to $14$ per cent while the linear filter is non-uniform; the
+  absolute peak error (right) grows with the peak itself.}
+  \label{fig:relerr}
+\end{figure}
+
+% Moved from Results (Session 39 figure pass): the per-family end-to-end sweeps.
+\begin{figure}
+  \centering
+  \includegraphics[width=\linewidth]{sections/figures/results/fig_ownstack_da_v4.pdf}
+  \caption{Per-family end-to-end comparison (\TestSplit{} set, $42$ encounters,
+  single filter seed): (a)~phase-resolved lift error per family;
+  (b)~sensor-budget sweep on each family's own nested placement;
+  (c)~tap-noise sweep at $K = 8$.}
+  \label{fig:ownstack}
+\end{figure}
+
 \subsubsection*{Choosing among the estimators}
 \label{sec:disc_choosing}
 

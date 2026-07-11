@@ -21,3 +21,17 @@ record after the consistency-selected run was seen and before any run at
 the declared configuration existed; both frozen runs are reported in
 \S\ref{sec:res_da} regardless of outcome, and the declaration order ships
 with the data record.
+
+% Moved from Results (Session 39 figure pass, D-B): the estimator-ladder, smoother
+% and NIS-calibration panels split off the main-text tracking figure.
+\begin{figure}
+  \centering
+  \includegraphics[width=0.82\linewidth]{sections/figures/results/fig_da_calibration_v4.pdf}
+  \caption{Estimator calibration and selection (\TestSplit{} and \ValSplit{}
+  sets). (top left) The impact-phase estimator ladder with the five-seed
+  member-noise band, open markers the frozen \BoundarySplit{} values; (top right)
+  the filter against the fixed-lag smoother; (bottom) the band-scale calibration
+  on the held-out training encounters, where innovation consistency and tracking
+  disagree and the selection saturates at the grid edge.}
+  \label{fig:calibration}
+\end{figure}

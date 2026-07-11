@@ -59,7 +59,7 @@ reconstruction objective should; the predictive family's wake advantage is
 not probe readability but what survives forecasting and assimilation,
 quantified in \S\ref{sec:res_forecast} and \S\ref{sec:res_da}. The full
 task-dependent readability matrix, five observables across every cell and
-anchor, is figure~\ref{fig:readability}: the wake block lights up exactly
+anchor, is figure~\ref{fig:readability} in appendix~\ref{app:reg}: the wake block lights up exactly
 where wake supervision or a reconstruction objective sits, and nowhere
 else. One
 circularity deserves preemption: supervising on lift and winning on lift
@@ -83,13 +83,3 @@ fail independently.
   \label{fig:cube}
 \end{figure}
 
-\begin{figure}
-  \centering
-  \includegraphics[width=0.78\linewidth]{sections/figures/results/fig_readability_v4.pdf}
-  \caption{Task-dependent readability (\TestSplit{} set, linear probes on the
-  per-frame state, seed mean over three encoder seeds per cell): lift and
-  drag follow the $L$ head, the wake block ($E_w$, $\Gamma^{\pm}$)
-  follows the $W$ head or the reconstruction objective, and collapsed
-  cells (asterisks) read nothing linearly.}
-  \label{fig:readability}
-\end{figure}

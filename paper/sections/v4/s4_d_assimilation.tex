@@ -13,7 +13,7 @@ read in lift units it is the best phase the estimator has
 (root-mean-square error \DapRexRelRmse{} against \DapRexImpRmse{} at
 impact and \DapRexPreRmse{} before it), because the relaxation variance is
 small and the ratio, not the error, collapses
-(figure~\ref{fig:centerpiece}a,b). Assimilation is decisive at impact:
+(figure~\ref{fig:tracking}). Assimilation is decisive at impact:
 the open loop drifts to \DapOlImpRmse{} where the filter holds
 \DapRexImpRmse, a five-fold reduction, with the median peak error at
 \DapRexPeakErr{} per cent of the true peak and peak timing within one
@@ -24,7 +24,7 @@ forecast-derived filter while the linear filter is non-uniform
 tracks, which is what a scale-invariant estimator must do.
 
 The estimator ladder orders the suite at impact
-(figure~\ref{fig:centerpiece}c), and its top rung is unexpected:
+(appendix~\ref{app:calibration}, figure~\ref{fig:calibration}), and its top rung is unexpected:
 the \StaticInv, no dynamics at all, posts the best
 \TestSplit{} impact median (\DapEobsImpRTwo). The filters' case does not rest
 on the in-distribution median. It rests on the tails, where the
@@ -46,7 +46,7 @@ training encounters the pooled impact-phase innovation statistic sits
 below one at every band scale in the grid fixed in advance (\PoneNisAtCStar{}
 at the selected edge $c^{*} = \PoneNisCStar$) while the same split's
 tracking improves monotonically with the band
-(figure~\ref{fig:centerpiece}e): innovation consistency and tracking
+(figure~\ref{fig:calibration}): innovation consistency and tracking
 optimality point in opposite directions, so the frozen NIS-selected run
 closes at \PoneFrozenRexImpact{} at impact on the \TestSplit{} set and the
 consistency route to a larger band is not supported by the held-out
@@ -131,42 +131,18 @@ any wall-limited estimator of this flow can see.
 
 \begin{figure}
   \centering
-% FIGURE-TODO: (Stage 4, memo catch 4) the ladder panel prints the static
-% inverse at three decimals (0.825) while the prose macro renders %.2f
-% (0.83): same source value dap_eobs_impact_r2 = 0.8254. At the M3e
-% redraw print the panel annotation at the prose precision.
-  \includegraphics[width=\linewidth]{sections/figures/results/fig_da_centerpiece_v4.pdf}
-  \caption{Phase-resolved assimilation on the \TestSplit{} set ($n = 42$ encounters,
-  $K = 8$ taps, delay $10$, $N = 64$ members, every-frame pressure).
-  (a,b)~Lift error per phase in physical units and in $R^2$ at the
-  val-calibrated band: the relaxation $R^2$ collapse is a variance
-  artifact. (c)~The impact-phase estimator ladder with the five-seed
-  member-noise band; open markers are the frozen \BoundarySplit{} values.
-  (d)~Filter against fixed-lag smoother. (e)~The band-scale calibration on
-  the held-out training encounters: consistency and tracking disagree, and
-  the selection saturates at the grid edge.}
-  \label{fig:centerpiece}
+  \includegraphics[width=0.82\linewidth]{sections/figures/results/fig_da_tracking_v4.pdf}
+  \caption{Phase-resolved lift tracking on the \TestSplit{} set ($n = 42$
+  encounters, $K = 8$ taps, delay $10$, $N = 64$ members, every-frame pressure).
+  Lift error per phase in physical units (a) and in $R^2$ (b) at the
+  val-calibrated band: the relaxation $R^2$ collapse is a variance artifact, the
+  physical error the honest phase metric. The estimator ladder, its noise
+  calibration and the fixed-lag smoother are in
+  appendix~\ref{app:calibration} (figure~\ref{fig:calibration}).}
+  \label{fig:tracking}
 \end{figure}
 
-\begin{figure}
-  \centering
-  \includegraphics[width=0.9\linewidth]{sections/figures/results/fig_relative_errors_v4.pdf}
-  \caption{Relative peak error across the gust envelope (\TestSplit{} set,
-  medians per $|G|$): the forecast-derived filter is scale-invariant near
-  $12$ to $14$ per cent while the linear filter is non-uniform; the
-  absolute peak error (right) grows with the peak itself.}
-  \label{fig:relerr}
-\end{figure}
 
-\begin{figure}
-  \centering
-  \includegraphics[width=\linewidth]{sections/figures/results/fig_ownstack_da_v4.pdf}
-  \caption{Per-family end-to-end comparison (\TestSplit{} set, $42$ encounters, single
-  filter seed): (a)~phase-resolved lift error per family;
-  (b)~sensor-budget sweep on each family's own nested placement;
-  (c)~tap-noise sweep at $K = 8$.}
-  \label{fig:ownstack}
-\end{figure}
 
 
 \begin{figure}

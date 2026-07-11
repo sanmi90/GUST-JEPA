@@ -237,3 +237,29 @@ flagship state.
   no-$L$ cells sit one to two orders of magnitude lower.}
   \label{fig:cube_deltas}
 \end{figure}
+
+% Moved from Results (Session 39 figure pass): the latent trajectory portraits
+% complement the per-coordinate spectra of \S\ref{sec:res_latent_physics}.
+\begin{figure}
+  \centering
+  \includegraphics[width=\linewidth]{sections/figures/results/fig_t3_portraits_v4.pdf}
+  \caption{Latent trajectory portraits by family (leading two principal
+  components of the $d = 32$ state; a representative gusted encounter coloured by
+  cycle fraction, undisturbed limit cycle in grey). The predictive, linear and
+  matched-supervision states trace coherent cycles perturbed by the gust; the
+  published-recipe reconstruction does not.}
+  \label{fig:t3_portraits}
+\end{figure}
+
+% Moved from Results (Session 39 figure pass): the full task-dependent readability
+% matrix; the headline readability numbers are in tab:closure and tab:obs_critical.
+\begin{figure}
+  \centering
+  \includegraphics[width=0.78\linewidth]{sections/figures/results/fig_readability_v4.pdf}
+  \caption{Task-dependent readability (\TestSplit{} set, linear probes on the
+  per-frame state, seed mean over three encoder seeds per cell): lift and
+  drag follow the $L$ head, the wake block ($E_w$, $\Gamma^{\pm}$)
+  follows the $W$ head or the reconstruction objective, and collapsed
+  cells (asterisks) read nothing linearly.}
+  \label{fig:readability}
+\end{figure}
