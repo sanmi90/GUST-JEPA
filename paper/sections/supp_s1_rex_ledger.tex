@@ -8,7 +8,8 @@ The \DirectFC{} of \S\ref{sec:methods_rex} was built by auditing the
 TiRex forecasting line \citep{tirex,tirex2} ingredient by ingredient against this
 data. Adopted: the direct multi-horizon head, the quantile output, the
 per-window instance normalisation and the arcsinh transform, each of which
-survived ablation on validation. Refuted for this data: future-known
+survived ablation on validation. Not supported by validation for this
+data: future-known
 covariate conditioning; the oracle $(G, D, Y)$ arm degrades the forecast
 in all three seeds (\S\ref{sec:res_forecast}), overfitting held-out
 parameter combinations at the present case count. Rejected: capped-weight

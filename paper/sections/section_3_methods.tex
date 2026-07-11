@@ -93,7 +93,7 @@ constructed in \S\ref{sec:methods_chang} below, that maps $\zvec_t$ to an
 $80$-dimensional lift-element observable of byte-matched capacity. All are
 trained with small weights jointly with the representation and none is part of
 the latent-prediction loss. The scalar-lift lineage is the observable
-augmentation of \citet{fukami2023,fukami2025}; which head buys which property
+augmentation of \citet{fukami2023,fukami2025}; which head supplies which property
 of the state is the subject of the conditioning study of
 \S\ref{sec:res_construction}. The wake target itself is a fixed
 descriptor chosen by design rather than tuned: it pairs a coarse signed spatial
@@ -113,7 +113,7 @@ structure without over-parameterising the target on the available training
 encounters. The head-supervision axis is no longer a confound: the
 $2 \times 2 \times 2$ conditioning cube of \S\ref{sec:res_construction},
 three seeds per cell with matched reconstructive anchors, isolates each
-head's contribution under pre-registered gates.
+head's contribution under gates fixed in advance of evaluation.
 
 \input{sections/v4/s3_1_chang_head.tex}
 
@@ -169,7 +169,7 @@ to a negative merit (Appendix~\ref{app:reg}), while the U-Net is stable on all. 
 therefore report each latent under the operator that is stable on it, the
 transformer on the pooled states and the U-Net on the reference latents, rather
 than force one operator and either penalise the pooled states off-class or break
-on the references. The \PredState's own co-trained predictor, the as-built
+on the references. The \PredState's own co-trained predictor, the co-trained
 reduced-order model, is reported alongside, and the sequential estimator of
 \S\ref{sec:methods_estimator} uses the same matched transformer on the \PredState's
 frozen trajectories. Every state is compared at the matched headline
@@ -232,8 +232,7 @@ rollout stays within the natural spread of the training latents; a large ratio
 means it has gone out of distribution, so that the probe is then queried outside
 its support.
 
-The second diagnostic is a parameter-only floor, which carries particular force
-here because the model never sees the gust parameters: it bounds what the
+The second diagnostic is a parameter-only floor, which matters here because the model never sees the gust parameters: it bounds what the
 parameters alone could explain, so that any closure above it is genuinely supplied
 by the latent state. We compute it with a kernel-ridge regressor that maps
 $\cvec = (G,D,Y)$ directly to each observable at $H = 16$, with no latent input, fit

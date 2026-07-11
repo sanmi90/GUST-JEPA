@@ -26,12 +26,13 @@ The probe-dilution control disciplines how the first tier may be read
 (figure~\ref{fig:dimrace}b). A multilayer probe nearly equalises every
 dimension (from \PdMlpDFour{} at $d = 4$ to \PdMlpDThirtyTwo{} at
 $d = 32$ on the \TestSplit{} set): the lift information in the state is
-dimension-invariant, and small states do not know more. What changes with
+approximately unchanged over the tested dimensions, and small states do not
+know more. What changes with
 dimension is linear accessibility. The best four coordinates of a larger
 state recover only \PdBestFourDEight{} to \PdBestFourDThirtyTwo{} through
 a linear read-out, so the code is distributed rather than diluted, and the
 $d = 4$ advantage is exactly that four coordinates are what a linear
-probe, a filter gain, or a controller reads directly. The honest form of
+probe, a filter gain, or a controller reads directly. The precise form of
 the two-tier claim is therefore: compact and linear at $d = 4$,
 distributed and partly nonlinear above.
 

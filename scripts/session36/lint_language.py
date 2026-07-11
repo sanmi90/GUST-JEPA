@@ -37,7 +37,7 @@ BANNED = [
     r"earns its keep",
     r"erratic\w*",
     r"own[- ]stack",
-    r"as[- ]built",
+    r"\bas-built\b",
     r"kit strength",
     r"pre[- ]registered",  # allowed exactly once in s3.5 after Stage 4; every hit reported
     r"dimension[- ]invariant",

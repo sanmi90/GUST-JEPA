@@ -39,7 +39,7 @@ reported for the reference latents; imposing either operator on all families wou
 either penalise the pooled states off-class or break on the references. The ensemble filter of
 \S\ref{sec:methods_estimator} uses the same matched transformer on the \PredState's
 own pooled trajectories, where it is stable, and the \PredState's own co-trained
-predictor, the as-built reduced-order model, is reported alongside. The narrow
+predictor, the co-trained reduced-order model, is reported alongside. The narrow
 spread of the pooled block under the transformer, and the substantial seed
 variation of the merit, are why we read the fitted-merit ordering as a level with
 a small predictive edge rather than a decisive separation.
@@ -102,7 +102,7 @@ lower than the training fit, as it must be. We therefore do not tabulate the
 training-set fit, which would invite reading an in-distribution number as a result.
 
 \subsubsection*{Paired tests on the estimation endpoints}
-Table~\ref{tab:paired_closure} reports the pre-registered per-encounter paired
+Table~\ref{tab:paired_closure} reports the per-encounter paired
 family behind the tracking and envelope claims of \S\ref{sec:res_tracking} and
 \S\ref{sec:res_envelope}. Pairing cancels the encounter-to-encounter difficulty
 that widens marginal intervals, and clustering by case respects the shared
@@ -111,11 +111,11 @@ shedding history of a case's encounters.
 \begin{table}
   \centering
   \caption{Paired per-encounter tests for the estimation endpoints, on the frozen
-  filter records. The family was pre-registered before any statistic was
+  filter records. The family was fixed before any statistic was
   computed: the primary family F1 compares the filter analysis against the static
   single-frame recovery and F2 against the field-free open-loop forecast, on the
   endpoints $\{C_L, E_w\}$ in the impact and relaxation windows, one-sided with
-  the filter pre-registered as better; $\Delta R^2$ is the median per-case mean
+  the filter declared in advance as better; $\Delta R^2$ is the median per-case mean
   improvement, the $p$ is a case-level Wilcoxon signed-rank, and Holm corrects
   within each family. On the pooled \TestSplit{} encounters the filter beats the
   open-loop forecast decisively on the load but not the static recovery, which is
@@ -123,7 +123,7 @@ shedding history of a case's encounters.
   over the \StaticInv{} concentrates at strong gusts, where the \BoundarySplit{} annex
   (characterisation only, $n = \NTestCCases$ cases) is decisive on the load in
   both windows. The wake enstrophy through the filter does not beat the static
-  recovery at the boundary, an honest null.}
+  recovery at the boundary, a null result.}
   \label{tab:paired_closure}
   \small
   \fittab{\begin{tabular}{l l l r l r}
