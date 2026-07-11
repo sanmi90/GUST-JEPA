@@ -69,11 +69,9 @@ estimator is the strong-gust boundary, the calibration margin, and a tracked
 state whose coordinates carry the wake; what no state yet contributes is a
 filtered wake estimate, since the analysis wake closure is below the mean
 predictor for every family. Its recoverability advantage over a raw
-high-dimensional field latent is real but modest ($\GateODelta$ in held-out $R^2$
-with a case-clustered interval $[\GateODeltalo, \GateODeltahi]$ over the train and
-\TestSplit{} recovery rows, the \BoundarySplit{} set untouched; \S\ref{sec:res_wall}), so the case for
-the coefficient state rests on the physics-recovery ordering and the envelope, not
-on a large recoverability margin. Its point tracking is good but its uncertainty is under-dispersed at the
+high-dimensional field latent is real but modest (\S\ref{sec:res_wall}), so the
+case for the coefficient state rests on the physics-recovery ordering and the
+envelope, not on a large recoverability margin. Its point tracking is good but its uncertainty is under-dispersed at the
 strongest and widest gusts, where the innovations are temporally correlated and
 the ensemble collapses. The visibility analysis suggests the mechanism: the
 forward model has large gain along the data-unconstrained near-null directions it

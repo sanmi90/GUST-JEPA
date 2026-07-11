@@ -373,10 +373,16 @@ full wall array recovers only $\DirectCLAllTapsGFour$ at the boundary, so the
 sequential accumulation of pressure through a learned nonlinear state, rather
 than any particular training objective, is what carries the load into the
 strong-gust regime. Where the objectives separate is at that boundary and in the
-filter's statistical health: the predictive state alone combines the highest
-boundary closure ($\VfiltCLGFour$ against $\FfCLAeWakeGFour$ to
-$\FfCLFukamiWakeGFour$ for the alternatives), the lowest divergence rate at
-every gust strength, and the least-degraded wake readout. Second, no family's
+filter's statistical health.
+% REVIEW-CLAIM: (Stage 4, memo catch 1) the previous "highest boundary
+% closure" was a false superlative (the wake-headed reconstructive baseline
+% posts 0.85 against 0.84); rewritten as the combination claim.
+The predictive state combines a boundary closure among the highest
+($\VfiltCLGFour$, against $\FfCLAeWakeGFour$ to $\FfCLFukamiWakeGFour$ for
+the alternatives), by far the lowest divergence rate there ($\VdivGFour$
+against $\FfDivAeWakeGFour$ to $\FfDivFukamiGFour$), consistency across gust
+strengths where the wake-headed reconstructive baseline posts
+$\FfCLFukamiWakeGOne$ at $|G| = 1$, and the least-degraded wake readout. Second, no family's
 filter tracks the wake enstrophy: the analysis wake closure is below the mean
 predictor for every state, least badly for the predictive one, so the wake
 content of the encounter is established at the representational tier
@@ -420,7 +426,8 @@ strong gust deposits. Reading the same taps through the learned dynamics, the fi
 follows the load further, but the accuracy that matters at deployment is the error
 in real lift units, not the variance-normalised score, and that error grows with
 the gust. The median analysis $C_L$ error rises from $\VfiltCLrmseGOne$ at $|G| = 1$
-to $\VfiltCLrmseGThree$ at a ratio of three and $\VfiltCLrmseGFour$ at the boundary,
+to $\VfiltCLrmseGThree$ at a ratio of three and $\VfiltCLrmseGFour$ at the boundary
+(table~\ref{tab:envelope}),
 even as its $R^2$ rises to $\VfiltCLGFour$: the strong gust inflates the lift
 excursion faster than the error grows, so the normalised score flatters the
 extreme-gust tracking while the absolute error roughly doubles. The open-loop
@@ -443,12 +450,20 @@ regime rather than a solved one.
 
 \input{sections/tables/table_filter_error.tex}
 
-What weakens with gust strength is not the tracking but the filter's own account of
-its uncertainty. The divergence rate climbs from none at $|G| = 1$ to a fraction
+What weakens with gust strength is not the tracking, whose median holds through
+$|G| = 4$ (table~\ref{tab:envelope}), but the filter's own account of its
+uncertainty, which degrades from a gust ratio of about three. The divergence rate climbs from none at $|G| = 1$ to a fraction
 $\VdivGFour$ of encounters at the boundary, and the mean normalised innovation squared from
-near unity in the undisturbed limit ($\VnisGZero$) to nearly twenty at $|G| = 4$
-($\VnisGFour$), crossing the half-divergence mark near a ratio of $\VdivThreshDOne$
-for the compact cores and near $\VdivThreshDOneHalf$ for the widest. The ensemble
+$\VnisGZero$ in the undisturbed limit to $\VnisGFour$ at $|G| = 4$, crossing
+% REVIEW-CLAIM: (Stage 4, memo catch 3 / D304 retired) the two thresholds are
+% genuinely equal: the mark is defined as first exceedance of a one-half
+% divergence rate on the discrete |G| ladder {0.5, 1, 1.5, 2, 3, 4}, and both
+% core diameters quantize to 3 (envelope_vec.json thresholds block); the
+% false core-diameter contrast is replaced by the grid-resolution statement.
+the half-divergence mark at a gust ratio of $\VdivThreshDOne$ for the
+intermediate and the widest cores alike, at the resolution of the tested
+$|G|$ grid; the widest core already reaches a rate of one half at $|G| = 2$,
+and the most compact does not cross the mark inside the envelope. The ensemble
 collapses while the analysis mean still follows the load, so the filter is
 under-dispersed rather than mistracking. We read this as the signature of a missing
 noise model: the innovations are correlated in time rather than white, and the
