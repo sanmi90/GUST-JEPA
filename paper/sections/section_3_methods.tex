@@ -46,35 +46,11 @@ the predictive model encodes the fields at $t$ and $t+\Delta t$ with shared
 weights and incurs a latent-space error between the predicted and observed target
 embeddings, with no field-space loss, is drawn in Appendix~\ref{app:reg}
 (figure~\ref{fig:predictive_vs_reconstructive}).
-Table~\ref{tab:architecture} summarises the two networks.
-
-\begin{table}
-  \centering
-  \caption{Encoder and training-predictor configuration, counted from the
-  released $d = \LatentDim$ checkpoint. The model is unconditional: no gust
-  parameters $\cvec = (G,D,Y)$ enter the encoder or the predictor. Two small
-  auxiliary heads read observables off the encoder output during training (a
-  lift head and an $80$-dimensional wake-spectrum head;
-  \S\ref{sec:methods_loss}). The estimation-stage forecast model of
-  \S\ref{sec:methods_estimator} is a predictor of the same class refitted on the
-  frozen pooled trajectories.}
-  \label{tab:architecture}
-  \small
-  \fittab{\begin{tabular}{l l l}
-    \toprule
-     & Encoder $E_\theta$ & Predictor $P_\phi$ \\
-    \midrule
-    role            & field $\to$ pooled state (unconditional) & pooled-state rollout (unconditional) \\
-    input           & $\omegaz \in \mathbb{R}^{192 \times 96}$ & pooled states $\zvec \in \mathbb{R}^{\LatentDim}$ \\
-    backbone        & 3 conv.\ stages $+$ 6-layer ViT & 6-layer causal transformer (RoPE) \\
-    width / heads   & $256$ / $8$ & $384$ / $16$ \\
-    image tokens / context & $24 \times 12 = 288$ & $2$ frames, rolled $8$ steps open loop \\
-    conditioning    & none & none \\
-    state read-out  & class token $\to$ linear $\to$ BatchNorm & next pooled state \\
-    parameters      & $\EncParams$M & $\PredParams$M \\
-    \bottomrule
-  \end{tabular}}
-\end{table}
+The two networks are an unconditional hybrid convolution-ViT encoder mapping the
+$\omegaz$ field to the pooled $d = \LatentDim$ state and a six-layer causal
+transformer predictor rolling that state; their full configuration, widths and
+parameter counts are in table~\ref{tab:architecture} in
+appendix~\ref{app:methods_tables}.
 
 The predictive encoder and predictor are trained jointly on a multi-step
 open-loop rollout term, the predictor rolled eight steps from its own outputs
