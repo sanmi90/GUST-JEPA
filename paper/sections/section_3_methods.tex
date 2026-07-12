@@ -125,26 +125,28 @@ supervision are separable.
   \\[1.5ex]
   \begin{subfigure}{\linewidth}
     \centering
-    \includegraphics[width=0.98\linewidth]{sections/figures/tikz/fig_eval_protocol.pdf}
+    \includegraphics[width=0.9\linewidth]{sections/figures/tikz/fig_estimation_loop.pdf}
     \caption{}
-    \label{fig:method_eval}
+    \label{fig:estimation_loop}
   \end{subfigure}
-  \caption{The predictive model and how it is evaluated, drawn schematically
-  (the training predictor is the vector transformer of
-  table~\ref{tab:architecture}). (a) The encoder maps the mid-plane vorticity
-  field to a latent $\zvec_t$, and the predictor, in either of its two
-  variants (the vector transformer of table~\ref{tab:architecture} or the
-  \DirectFC{} of \S\ref{sec:methods_rex}), advances the latent
-  from its own history; no gust parameters enter the encoder or the
-  predictor. The three supervision heads ($L$, $W$, $N$) read $\zvec_t$
+  \caption{The framework, from representation to deployment. (a) The encoder maps
+  the mid-plane vorticity field to a latent $\zvec_t$, and the predictor, in
+  either of its two variants (the vector transformer of
+  table~\ref{tab:architecture} or the \DirectFC{} of \S\ref{sec:methods_rex}),
+  advances the latent from its own history; no gust parameters enter the encoder
+  or the predictor, the three supervision heads ($L$, $W$, $N$) read $\zvec_t$
   during training with small weights and are never part of the
-  latent-prediction loss. The visualisation decoder is trained only
-  after the encoder is frozen and is used solely for the diagnostic decodes,
-  never in the predictive loss. (b) Evaluation refits the same matched forecast
-  operator and applies the same probe family $g$ to every encoder family: a
-  probe on the simulation-encoded latent measures representational closure, the
-  headline, and the same probe on the rolled-out latent
-  $\widehat{\zvec}_{t+H}$ measures forecast closure, reported as secondary.}
+  latent-prediction loss, and the visualisation decoder is trained only after the
+  encoder is frozen. (b) At deployment the pressure-only predict-correct estimator
+  advances an ensemble of $\FilterMembers$ members field free, then corrects them
+  from $\FilterTaps$ span-averaged wall-pressure taps; the innovation is the
+  measured minus the predicted observation, in tap space for the base filter of
+  \S\ref{sec:methods_enkf} and in encoded latent space for the filters of
+  \S\ref{sec:methods_lae} and \S\ref{sec:methods_rexenkf}. No vorticity field
+  enters the loop and the lift and wake probes never enter the innovation. The
+  evaluation protocol, the matched forecast operator and probe family applied
+  identically to every encoder, is figure~\ref{fig:eval_protocol} in
+  appendix~\ref{app:reg}.}
   \label{fig:method}
 \end{figure}
 

@@ -53,7 +53,7 @@ table~\ref{tab:filter_params} collects every parameter. The frozen probes
 that read the lift and the wake enstrophy off the state can never enter
 the innovation: this leakage guarantee is enforced by construction and by
 a unit test, so the reported analysis closure is a genuine estimate, not a
-quantity the filter was given (figure~\ref{fig:estimation_loop}). Two evaluation
+quantity the filter was given (figure~\ref{fig:estimation_loop}b). Two evaluation
 frames are used and always stated. The envelope frame assimilates over
 $[t_{\mathrm{imp}} - 24,\, t_{\mathrm{imp}} + 48]$ frames with a field-free
 initialisation at the window start; the ladder frame runs the full
@@ -182,21 +182,6 @@ members with the matched transformer and assimilates in tap space through
 the linear map of \S\ref{sec:methods_enkf}; the schedule boundary is the
 frozen impact-window mask of the cache and is not tuned.
 
-\begin{figure}
-  \centering
-  \includegraphics[width=0.92\linewidth]{sections/figures/tikz/fig_estimation_loop.pdf}
-  \caption{The pressure-only predict-correct estimator in the latent space.
-  An ensemble of $\FilterMembers$ members is advanced field free (predict),
-  then corrected from $\FilterTaps$ span-averaged wall-pressure taps
-  (correct); the innovation is the difference between the measured
-  observation and the observation predicted from the forecast state, in
-  tap space for the base filter of \S\ref{sec:methods_enkf} and in encoded
-  latent space for the filters of \S\ref{sec:methods_lae} and
-  \S\ref{sec:methods_rexenkf}. No vorticity field enters the loop and the
-  lift and wake probes never enter the innovation. The state is the same
-  $\LatentDim$-vector at every step.}
-  \label{fig:estimation_loop}
-\end{figure}
 
 \subsubsection{Fixed-lag smoother}
 \label{sec:methods_rts}
