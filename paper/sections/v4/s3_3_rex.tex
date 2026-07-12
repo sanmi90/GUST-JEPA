@@ -25,16 +25,11 @@ Training minimises the pinball loss
   \rho_q(u) = \max\!\left(q u,\ (q - 1) u\right),
   \label{eq:pinball}
 \end{equation}
-with AdamW (learning rate $10^{-3}$, weight decay $10^{-4}$), cosine
-decay, batch $64$, gradient clipping at unit norm, and $6000$ iterations.
-The backbone and width were selected once on a held-out $15\,\%$ case
-split of the training pool over $\{\mathrm{LSTM}, \mathrm{sLSTM}\} \times
-\{256, 512\} \times \{3, 9\}$ quantiles by validation decoded-lift skill;
-a pure-PyTorch sLSTM cell with exponential gating and the log-domain
-stabiliser of \citet{xlstm} ties the LSTM within seed noise and the
-selected operator is the LSTM at width $512$ with nine quantiles. The
+with AdamW. The
 median forecast is the point prediction everywhere; the predicted
 inter-quantile band supplies the state-dependent process noise of
-\S\ref{sec:methods_rexenkf}. The adopted and rejected
-ingredients of that source line, including the oracle-covariate negative of
+\S\ref{sec:methods_rexenkf}. The optimiser settings, the one-off backbone and
+width selection (LSTM against an sLSTM cell \citep{xlstm} at two widths and two
+quantile counts, the sLSTM tying within seed noise), and the adopted and rejected
+ingredients of the TiRex source line, including the oracle-covariate negative of
 \S\ref{sec:res_forecast}, are catalogued in the supplementary material.
