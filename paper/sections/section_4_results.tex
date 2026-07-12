@@ -536,6 +536,9 @@ How far into the gust the load recovery holds is the operating envelope of
 \subsubsection{The gust-intensity operating envelope}
 \label{sec:res_envelope}
 
+This subsection diagnoses the reach of the base frozen filter across the envelope;
+the production estimator whose performance we report is the two-stage filter of
+\S\ref{sec:res_da}, and the two are kept distinct throughout.
 A reduced state earns its place at deployment only if it can be followed from the
 sensors that are present, and the wall pressure a small vehicle can carry does not,
 at a single instant, fix the wake it leaves behind (\S\ref{sec:res_wall}). The
@@ -632,13 +635,17 @@ readability, is what a wall-estimable reduced state is for.
 \begin{figure}
   \centering
   \includegraphics[width=\linewidth]{sections/figures/results/fig_envelope_v3.pdf}
-  \caption{The gust-intensity operating envelope. (a) Median analysis lift closure
-  ($R^2$, impact window) against gust strength for the frozen filter, the static
+  \caption{The gust-intensity operating envelope, diagnosed with the base frozen
+  filter (the production estimator is the two-stage filter of
+  \S\ref{sec:res_da}, figure~\ref{fig:tracking}). (a) Median analysis lift closure
+  ($R^2$, impact window) against gust strength for the base filter, the static
   single-frame recovery, and the truth-initialised open-loop forecast, with the
   filter consistency-failure rate as the strip beneath; the shaded band marks closure worse
   than predicting the encounter mean, and the open-loop forecast lies off the scale
-  below it. (b) The same filter closure resolved by the physical sign of the gust,
-  showing the wider usable envelope of the positive gusts.}
+  below it. The base filter tracks the median throughout but becomes
+  under-dispersed from a gust ratio of about three, where the consistency-failure
+  rate climbs. (b) The same base-filter closure resolved by the physical sign of
+  the gust, showing the wider usable envelope of the positive gusts.}
   \label{fig:envelope}
 \end{figure}
 
