@@ -46,7 +46,7 @@
   \node[predictor, below=12mm of zt] (pred)
     {\textbf{Predictor} $P_{\phi}$ (unconditional) \\[2pt]
      AR transformer (6 layers, hidden 384, RoPE) \\[1pt]
-     \emph{or} direct REX (quantile LSTM, $h = 512$)};
+     \emph{or} direct forecaster (quantile LSTM, $h = 512$)};
   \node[state, below=12mm of pred] (zhat) {$\widehat{\mathbf{z}}_{t+\Delta t}$};
   \node[decoder, below=16mm of zhat] (dec)
     {\textbf{Visualization decoder} $D_{\psi}$ \\[2pt]

@@ -36,6 +36,9 @@ from scripts.session34.trackc_cells import CELLS, RUNS_BASE  # noqa: E402
 
 GATES_JSON = REPO_ROOT / "outputs/session34/trackc_gates.json"
 OUT_PDF = REPO_ROOT / "paper/sections/figures/results/fig_cube_health_v4.pdf"
+# Session 39 (Carlos's assessment, fig 6): the main-text cube figure keeps only the
+# final-PR panel; the PR-versus-iteration training history moves to the supplement.
+OUT_PDF_HISTORY = REPO_ROOT / "paper/sections/figures/results/fig_cube_history_v4.pdf"
 
 # Paper order of the 2x2x2 conditioning-cube cells (no-L half first).
 # Session 39 (D-A): the main-text conditioning figure is trimmed to the L and W
@@ -78,9 +81,10 @@ def main() -> None:
     traj = {(cell, seed): pr_series(CELLS[cell][seed]) for cell, seed in TRAJ_CELLS}
 
     fig_w = TEXTWIDTH_IN
-    fig, (ax_a, ax_b) = plt.subplots(
-        1, 2, figsize=(fig_w, fig_w * 0.42),
-        gridspec_kw={"width_ratios": [1.55, 1.0], "wspace": 0.32})
+    # Main-text figure: the final-PR panel alone. History panel is a separate
+    # single-panel supplementary figure (built below).
+    fig_a, ax_a = plt.subplots(1, 1, figsize=(fig_w * 0.64, fig_w * 0.50))
+    fig_b, ax_b = plt.subplots(1, 1, figsize=(fig_w * 0.55, fig_w * 0.44))
 
     # ---- panel (a): final PR per cell, 3 seeds with jitter -----------------
     jitter = (-0.16, 0.0, 0.16)
@@ -99,7 +103,7 @@ def main() -> None:
                          rotation=30, ha="right", rotation_mode="anchor")
     ax_a.set_xlim(-0.6, len(CELL_ORDER) - 0.4)
     ax_a.set_ylim(0, None)
-    ax_a.set_ylabel(r"final participation ratio $\mathrm{PR}(z)$")
+    ax_a.set_ylabel(r"participation ratio $\mathrm{PR}(z)$")
     ax_a.set_xlabel("conditioning cell")
 
     handles = [
@@ -127,16 +131,13 @@ def main() -> None:
     ax_b.legend(loc="center right", fontsize=6.5, handletextpad=0.4,
                 borderaxespad=0.3)
 
-    for ax, tag in ((ax_a, "(a)"), (ax_b, "(b)")):
-        ax.text(-0.02, 1.04, tag, transform=ax.transAxes,
-                ha="right", va="bottom", fontsize=8.5)
-
     OUT_PDF.parent.mkdir(parents=True, exist_ok=True)
-    fig.savefig(OUT_PDF)
-    fig.savefig(OUT_PDF.with_suffix(".png"), dpi=200)
-    plt.close(fig)
-    print(f"wrote {OUT_PDF}")
-    print(f"wrote {OUT_PDF.with_suffix('.png')}")
+    for fig, out in ((fig_a, OUT_PDF), (fig_b, OUT_PDF_HISTORY)):
+        fig.tight_layout()
+        fig.savefig(out, bbox_inches="tight")
+        fig.savefig(out.with_suffix(".png"), dpi=200, bbox_inches="tight")
+        plt.close(fig)
+        print(f"wrote {out}")
     print(f"pr_floor = {pr_floor}")
     for cell in CELL_ORDER:
         print(f"  {CELL_LABEL[cell]:5s} final PR: "

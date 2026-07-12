@@ -45,7 +45,7 @@ S35 = REPO / "outputs/session35"
 # rexpred cells share the prefix and must not leak into the seed count).
 FAMILIES = {
     "clw": {
-        "label": "JEPA-CLW",
+        "label": "predictive\n(wake)",
         "files": [S34 / "latent_rex_jepa_pool_vec.json",
                   S34 / "latent_rex_jepa_pool_vec_s1.json",
                   S34 / "latent_rex_jepa_pool_vec_s2.json"],
@@ -53,7 +53,7 @@ FAMILIES = {
         "marker": figstyle.FAMILY_MARKER["jepa"],
     },
     "cln": {
-        "label": "JEPA-CLN",
+        "label": "predictive\n(lift)",
         "files": [S34 / "latent_rex_jepa_pool_ln_s0.json",
                   S34 / "latent_rex_jepa_pool_ln_s1.json",
                   S34 / "latent_rex_jepa_pool_ln_s2.json"],
@@ -61,7 +61,7 @@ FAMILIES = {
         "marker": "D",
     },
     "ae_lw": {
-        "label": "AE-LW",
+        "label": "AE (wake)",
         "files": [S34 / "latent_rex_ae_wake_pool.json",
                   S34 / "latent_rex_ae_wake_pool_s1.json",
                   S34 / "latent_rex_ae_wake_pool_s2.json"],
@@ -96,11 +96,13 @@ def seed_scatter(ax, x, vals, color, marker):
 def main() -> None:
     figstyle.use_style()
 
-    fig, (ax_a, ax_b) = plt.subplots(
-        1, 2,
-        figsize=(figstyle.TEXTWIDTH_IN, figstyle.TEXTWIDTH_IN * 0.38),
-        gridspec_kw={"width_ratios": [1.25, 1.0]},
-    )
+    # Session 39 (Carlos's assessment, fig 11): the main-text forecast figure keeps
+    # only the shared-operator family merit; the conditioning/oracle null moves to
+    # the appendix as a separate figure.
+    fig_a, ax_a = plt.subplots(
+        1, 1, figsize=(figstyle.TEXTWIDTH_IN * 0.60, figstyle.TEXTWIDTH_IN * 0.40))
+    fig_b, ax_b = plt.subplots(
+        1, 1, figsize=(figstyle.TEXTWIDTH_IN * 0.50, figstyle.TEXTWIDTH_IN * 0.40))
 
     # ------------------------------------------------------------- panel (a)
     for i, (key, spec) in enumerate(FAMILIES.items()):
@@ -116,10 +118,10 @@ def main() -> None:
         print(f"  (a) {spec['label']:9s} n={len(vals)}  "
               f"mean={mean:+.4f}  seeds={[round(v, 4) for v in vals]}")
     ax_a.set_xticks(range(len(FAMILIES)))
-    ax_a.set_xticklabels([s["label"] for s in FAMILIES.values()])
+    ax_a.set_xticklabels([s["label"] for s in FAMILIES.values()], fontsize=6.5)
     ax_a.set_ylabel(r"decoded $C_L$ $R^2$")
     ax_a.set_ylim(0.0, 0.85)
-    ax_a.set_title("(a) shared REX operator, encoder seeds", fontsize=8)
+    ax_a.set_title("shared direct forecaster, encoder seeds", fontsize=8)
 
     # ------------------------------------------------------------- panel (b)
     null = []
@@ -140,23 +142,18 @@ def main() -> None:
     ax_b.set_ylim(0.0, 0.85)
     ax_b.text(2, 0.045, "oracle", ha="center", va="bottom",
               fontsize=6, color="white", zorder=5)
-    ax_b.set_title(f"(b) conditioning null (tuned REX, CLW),\n"
+    ax_b.set_title(f"conditioning null (predictive wake),\n"
                    f"$n={len(null)}$ operator seeds", fontsize=8)
-
-    fig.text(
-        0.995, 0.01,
-        "direct 40-step forecast, context 25, split test B (42 encounters)",
-        ha="right", va="bottom", fontsize=6, color="#404040",
-    )
-
-    fig.tight_layout(w_pad=1.6, rect=(0, 0.04, 1, 1))
 
     out_dir = REPO / "paper/sections/figures/results"
     out_dir.mkdir(parents=True, exist_ok=True)
-    fig.savefig(out_dir / "fig_forecastability_v4.pdf")
-    fig.savefig(out_dir / "fig_forecastability_v4.png", dpi=200)
-    print("wrote", out_dir / "fig_forecastability_v4.pdf")
-    print("wrote", out_dir / "fig_forecastability_v4.png")
+    for fig, out in ((fig_a, out_dir / "fig_forecastability_v4.pdf"),
+                     (fig_b, out_dir / "fig_forecast_null_v4.pdf")):
+        fig.tight_layout()
+        fig.savefig(out, bbox_inches="tight")
+        fig.savefig(out.with_suffix(".png"), dpi=200, bbox_inches="tight")
+        plt.close(fig)
+        print("wrote", out)
 
 
 if __name__ == "__main__":

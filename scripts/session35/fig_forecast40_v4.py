@@ -79,9 +79,9 @@ def main() -> None:
     ax_a.plot(frames, truth, color=C_TRUTH, linewidth=1.0, label="DNS truth")
     f_roll = np.arange(CTX, CTX + H)
     ax_a.plot(f_roll, roll_clw, color=C_AR, linewidth=1.0,
-              label="AR rollout (CLW)")
+              label="AR rollout (wake)")
     ax_a.plot(f_roll, roll_cln, color=C_AR_LIGHT, linewidth=1.0,
-              linestyle="--", label="AR rollout (CLN)")
+              linestyle="--", label="AR rollout (lift)")
     ymin = min(truth.min(), roll_clw.min(), roll_cln.min())
     ymax = max(truth.max(), roll_clw.max(), roll_cln.max())
     ax_a.text(CTX / 2, ymax, "context", ha="center", va="top",
@@ -93,29 +93,27 @@ def main() -> None:
     ax_a.set_ylabel(r"$C_L$")
     ax_a.legend(fontsize=6, loc="upper right", handlelength=1.4,
                 borderaxespad=0.2)
-    ax_a.set_title("(a) representative test B encounter", fontsize=8)
+    ax_a.set_title("(a) representative encounter", fontsize=8)
 
     # ------------------------------------------------------------- panel (b)
     rows = [
         {
-            "label": "direct REX (tuned "
-                     f"{rex_tuned['winner']['kind'].upper()} "
-                     f"h{rex_tuned['winner']['hidden']})",
+            "label": "direct forecaster (tuned)",
             "vals": [rex_tuned["decoded_cl_r2"]],
             "color": C_DIRECT, "marker": "o", "filled": True,
         },
         {
-            "label": "direct REX (default,\n2 encoder seeds)",
+            "label": "direct forecaster (default,\n2 encoder seeds)",
             "vals": [rex_s0["decoded_cl_r2"], rex_s1["decoded_cl_r2"]],
             "color": C_DIRECT, "marker": "o", "filled": False,
         },
         {
-            "label": "AR transformer (CLW)",
+            "label": "AR transformer (wake)",
             "vals": [fc["clw"]["rolled_cl_r2"]],
             "color": C_AR, "marker": "s", "filled": True,
         },
         {
-            "label": "AR transformer (CLN)",
+            "label": "AR transformer (lift)",
             "vals": [fc["cln"]["rolled_cl_r2"]],
             "color": C_AR_LIGHT, "marker": "s", "filled": True,
         },
@@ -137,7 +135,7 @@ def main() -> None:
     ax_b.set_ylim(-0.6, len(rows) - 0.2)
     ax_b.set_xlim(-0.85, 0.95)
     ax_b.set_xlabel(r"decoded $C_L$ $R^2$")
-    ax_b.set_title("(b) 40-step forecast, context 25, test B", fontsize=8)
+    ax_b.set_title("(b) 40-step forecast, context 25", fontsize=8)
     ax_b.spines["left"].set_visible(False)
     ax_b.tick_params(axis="y", length=0)
 
@@ -146,9 +144,9 @@ def main() -> None:
     skill_ar40 = fc["clw"]["latent"]["40"]["vs_persist"]
     fig.text(
         0.995, 0.01,
-        "latent-space skill vs persistence: direct REX "
+        "latent-space skill vs persistence: direct forecaster "
         f"{skill_rex:+.2f} (pooled H=40), AR rollout {skill_ar40:+.2f} at h=40; "
-        "split test B (42 encounters)",
+        "test set (42 encounters)",
         ha="right", va="bottom", fontsize=6, color="#404040",
     )
 
