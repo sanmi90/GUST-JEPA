@@ -284,8 +284,6 @@ frozen latent; we use the operator that is numerically stable on it, a transform
 on the pooled states and a residual U-Net on the reference latents, on which the
 transformer diverges (\S\ref{sec:methods_protocol}, Appendix~\ref{app:reg}).
 
-\input{sections/tables/table_baselines.tex}
-
 Every held-out $R^2$ and mean absolute error reported below carries three
 independent uncertainty signals, following the reporting protocol fixed with the
 data split: a $2000$-resample bootstrap over the held-out encounters, the standard

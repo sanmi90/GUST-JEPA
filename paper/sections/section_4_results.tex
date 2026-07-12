@@ -145,22 +145,12 @@ observables, which the POD coefficients do not reach, and on forecasting.
 
 \input{sections/tables/table_critical_ssim.tex}
 
-Across dimension the picture is the same (figure~\ref{fig:critical_ssim_dim}):
+Across dimension the picture is the same
+(figure~\ref{fig:critical_ssim_dim} in appendix~\ref{app:decode_figures}):
 decode fidelity at the impact instant rises and saturates for the compact
 nonlinear states and the energy-optimal linear basis together, the two
 indistinguishable at every dimension, while the published-recipe lineage stays
 lower. Field decode does not separate the compact states at any dimension.
-
-\begin{figure}
-  \centering
-  \includegraphics[width=\linewidth]{sections/figures/results/fig_critical_ssim_dim.pdf}
-  \caption{Decode SSIM at the impact instant against latent dimension $d$ (full
-  field and near-body band, \TestSplit{} set, decode floor). The compact
-  nonlinear states and the linear basis improve with $d$ and saturate together;
-  only the published-recipe lineage plateaus lower. Field decode is not the
-  discriminator at any dimension. Single encoder/decoder seed.}
-  \label{fig:critical_ssim_dim}
-\end{figure}
 
 The observables tell the discriminating story the field pixels hide
 (table~\ref{tab:obs_critical}). A linear probe reads the lift and the wake
@@ -290,8 +280,6 @@ isotropy, as an independent adaptation of the same regulariser to biosignals als
 reports \citep{broustail2026}, and it is the supervision that supplies the geometry
 the rollout needs.
 
-\input{sections/tables/table_mechanism.tex}
-
 \begin{figure}
   \centering
   \includegraphics[width=\linewidth]{sections/figures/results/fig_atlas_dmd_v3.pdf}
@@ -326,21 +314,8 @@ shedding but fades into the relaxation (through-impact \PhasePodThruSixteen{}
 against post-impact \PhasePodPostSixteen{} at horizon sixteen). The
 through-impact window, not the periodic shedding, is what a forecast model must
 survive, and it is where the anchored, wake-supervised states hold while the
-reconstruction fails.
-
-\begin{figure}
-  \centering
-% FIGURE-TODO (Phase 5, M3): fold into the forecastability figure (fig 9) per the
-% redesign figure plan.
-  \includegraphics[width=\linewidth]{sections/figures/results/fig_t5_phasesplit_v4.pdf}
-  \caption{Shared-operator forecast merit split by phase (pre-impact,
-  through-impact, post-impact), per family at horizons eight and sixteen
-  (\TestSplit{} set, five observables, three operator seeds; bars at the seed
-  mean, case-clustered $95\,\%$ intervals). Through-impact merit separates the
-  families: the wake-supervised states hold, the published-recipe reconstruction
-  collapses across the transient, and the linear basis fades into the relaxation.}
-  \label{fig:phasesplit}
-\end{figure}
+reconstruction fails (figure~\ref{fig:phasesplit} in
+appendix~\ref{app:decode_figures}).
 
 When the forecast is decoded to the field rather than read in the latent, the
 families no longer separate. Decoding each family's forecast through its frozen

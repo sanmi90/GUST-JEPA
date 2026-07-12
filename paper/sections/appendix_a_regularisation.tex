@@ -263,3 +263,94 @@ primary state.
   cells (asterisks) read nothing linearly.}
   \label{fig:readability}
 \end{figure}
+
+\subsection{Field-decode and phase-resolved figures}
+\label{app:decode_figures}
+% Demoted from the main text (Session 39 structural pass, Carlos's assessment
+% section 5): the field decode is a wash across families, so the decode panels and
+% the decode-SSIM-versus-dimension curve support the body claim rather than lead
+% it; the phase-split forecast merit is a robustness cut of the forecastability
+% result. The Chang auxiliary-potential panel supports the near-body head above.
+
+\begin{figure}
+  \centering
+  \includegraphics[width=0.92\linewidth]{sections/figures/results/fig_phi_panel_v4.pdf}
+  \caption{The Chang auxiliary potential $\phi_L$ of
+  equation~\eqref{eq:phiL} on the cache grid (contours), the feathered
+  $\delta_n = 0.3c$ supervision band (dashed) and the airfoil footprint;
+  the inset shows the lift direction $\mathbf{e}_L$ against the inclined
+  freestream at $\alpha = 14^\circ$.}
+  \label{fig:phi}
+\end{figure}
+
+\begin{figure}
+  \centering
+  \includegraphics[width=\linewidth]{sections/figures/results/fig_decode_panels_v4.pdf}
+  \caption{Decode floor on a representative held-out \TestSplit{} encounter
+  (one decoder seed per model):
+  DNS, the \PredState, the \LiftState, the wake autoencoder and the linear basis,
+  and the error rows at three phases. Identical-capacity frozen decoders;
+  normalised vorticity at the fixed $\pm 3$ range. All four states render the
+  field faithfully, including the linear basis: field decode is not where the
+  states separate.}
+  \label{fig:decode}
+\end{figure}
+
+\begin{figure}
+  \centering
+  \includegraphics[width=\linewidth]{sections/figures/results/fig_critical_ssim_dim.pdf}
+  \caption{Decode SSIM at the impact instant against latent dimension $d$ (full
+  field and near-body band, \TestSplit{} set, decode floor). The compact
+  nonlinear states and the linear basis improve with $d$ and saturate together;
+  only the published-recipe lineage plateaus lower. Field decode is not the
+  discriminator at any dimension. Single encoder/decoder seed.}
+  \label{fig:critical_ssim_dim}
+\end{figure}
+
+\begin{figure}
+  \centering
+  \includegraphics[width=\linewidth]{sections/figures/results/fig_t5_phasesplit_v4.pdf}
+  \caption{Shared-operator forecast merit split by phase (pre-impact,
+  through-impact, post-impact), per family at horizons eight and sixteen
+  (\TestSplit{} set, five observables, three operator seeds; bars at the seed
+  mean, case-clustered $95\,\%$ intervals). Through-impact merit separates the
+  families: the wake-supervised states hold, the published-recipe reconstruction
+  collapses across the transient, and the linear basis fades into the relaxation.}
+  \label{fig:phasesplit}
+\end{figure}
+
+\subsection{Methods and comparison tables}
+\label{app:methods_tables}
+% Demoted from the main text (Session 39 structural pass, Carlos's assessment
+% section 4): the reduced-state comparison recipes, the EnKF setup, the forecast
+% mechanism numbers and the per-estimator configuration support the Methods and
+% Results rather than lead them.
+
+\input{sections/tables/table_baselines.tex}
+\input{sections/tables/table_enkf.tex}
+\input{sections/tables/table_mechanism.tex}
+
+\begin{table}
+  \centering
+  \caption{Per-estimator configuration (Gupta \emph{et al.} 2026, table~1
+  analogue). All fits use the training split only; $\rho$ and the two $c$
+  calibrations use validation-family splits as stated in the text and
+  nothing downstream of them. Ensemble size $N = 64$, taps $K = 8$ at the
+  family's own placement, delay $m = 10$, every-frame assimilation, and
+  the consistency-failure criterion of \S\ref{sec:methods_lae} are common to all
+  rows.}
+  \label{tab:filter_params}
+  \small
+  \fittab{\begin{tabular}{l l l l l}
+    \toprule
+    estimator & dynamics $F$ & observation $h$ & process noise $Q_t$ & noise scale \\
+    \midrule
+    \StaticInv{}              & none                & $E_{\mathrm{obs}}$, eq.~\eqref{eq:eobs} & none & none \\
+    base EnKF (frozen)        & matched transformer & linear $\zvec \to \mathbf{p}_K$ & teacher-forced residual cov. & $\rho = 1.00$ / $1.05$ \\
+    \LinLatKF{}               & linear $A$ (SV-clipped) & $E_{\mathrm{obs}}$, $h = \mathrm{Id}$ & $A$-fit residual cov. & $\rho = 1.0$ \\
+    \FnoiseKF{}               & forecaster median, eq.~\eqref{eq:rex_q} & $E_{\mathrm{obs}}$, $h = \mathrm{Id}$ & quantile band, eq.~\eqref{eq:rex_q} & $c = 1.77$ (coverage) \\
+    \TwoStageKF{}             & median forecast inside impact, transformer outside & $E_{\mathrm{obs}}$ inside, tap space outside & as per stage & $c$ as the \FnoiseKF{} \\
+    fixed-lag RTS             & linear $A$          & $E_{\mathrm{obs}}$, $h = \mathrm{Id}$ & $A$-fit residual cov. & lag $L = 5$ \\
+    \bottomrule
+  \end{tabular}}
+\end{table}

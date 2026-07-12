@@ -198,8 +198,6 @@ frozen impact-window mask of the cache and is not tuned.
   \label{fig:estimation_loop}
 \end{figure}
 
-\input{sections/tables/table_enkf.tex}
-
 \subsubsection{Fixed-lag smoother}
 \label{sec:methods_rts}
 
@@ -245,29 +243,6 @@ each budget warm-starts
 from the previous selection, so the $K = 16$ array contains the $K = 8$
 array. The shared target-blind reference array is the column-pivoted QR
 (qDEIM) selection of \citet{drmac2016qdeim} on the leading pressure modes. Which
-placement a given figure uses is stated in its caption.
-
-\begin{table}
-  \centering
-  \caption{Per-estimator configuration (Gupta \emph{et al.} 2026, table~1
-  analogue). All fits use the training split only; $\rho$ and the two $c$
-  calibrations use validation-family splits as stated in the text and
-  nothing downstream of them. Ensemble size $N = 64$, taps $K = 8$ at the
-  family's own placement, delay $m = 10$, every-frame assimilation, and
-  the consistency-failure criterion of \S\ref{sec:methods_lae} are common to all
-  rows.}
-  \label{tab:filter_params}
-  \small
-  \fittab{\begin{tabular}{l l l l l}
-    \toprule
-    estimator & dynamics $F$ & observation $h$ & process noise $Q_t$ & noise scale \\
-    \midrule
-    \StaticInv{}              & none                & $E_{\mathrm{obs}}$, eq.~\eqref{eq:eobs} & none & none \\
-    base EnKF (frozen)        & matched transformer & linear $\zvec \to \mathbf{p}_K$ & teacher-forced residual cov. & $\rho = 1.00$ / $1.05$ \\
-    \LinLatKF{}               & linear $A$ (SV-clipped) & $E_{\mathrm{obs}}$, $h = \mathrm{Id}$ & $A$-fit residual cov. & $\rho = 1.0$ \\
-    \FnoiseKF{}               & forecaster median, eq.~\eqref{eq:rex_q} & $E_{\mathrm{obs}}$, $h = \mathrm{Id}$ & quantile band, eq.~\eqref{eq:rex_q} & $c = 1.77$ (coverage) \\
-    \TwoStageKF{}             & median forecast inside impact, transformer outside & $E_{\mathrm{obs}}$ inside, tap space outside & as per stage & $c$ as the \FnoiseKF{} \\
-    fixed-lag RTS             & linear $A$          & $E_{\mathrm{obs}}$, $h = \mathrm{Id}$ & $A$-fit residual cov. & lag $L = 5$ \\
-    \bottomrule
-  \end{tabular}}
-\end{table}
+placement a given figure uses is stated in its caption. The per-estimator
+configuration is collected in table~\ref{tab:filter_params} in
+appendix~\ref{app:methods_tables}.

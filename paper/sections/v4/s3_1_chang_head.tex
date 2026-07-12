@@ -52,15 +52,5 @@ the gust-bearing training encounters (lag search $|\ell| \le 25$ frames)
 to exceed $0.4$; the achieved value is \NbQcMedianCorr. The principled
 weighting is not interchangeable with a plain vorticity-magnitude proxy:
 the patch-block cosine between the two targets is \NbProxyCosine{} on the
-comparison sample.
-
-\begin{figure}
-  \centering
-  \includegraphics[width=0.92\linewidth]{sections/figures/results/fig_phi_panel_v4.pdf}
-  \caption{The Chang auxiliary potential $\phi_L$ of
-  equation~\eqref{eq:phiL} on the cache grid (contours), the feathered
-  $\delta_n = 0.3c$ supervision band (dashed) and the airfoil footprint;
-  the inset shows the lift direction $\mathbf{e}_L$ against the inclined
-  freestream at $\alpha = 14^\circ$.}
-  \label{fig:phi}
-\end{figure}
+comparison sample. The auxiliary potential and its supervision band are shown in
+figure~\ref{fig:phi} in appendix~\ref{app:decode_figures}.
