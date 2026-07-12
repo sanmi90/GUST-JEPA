@@ -62,23 +62,19 @@ sequence.
 \begin{figure}
   \centering
   \includegraphics[width=\linewidth]{sections/figures/results/fig_staging_v2p1.pdf}
-  \caption{The vortex gust as a wake-reorganisation event, shown as a
-  gust-strength sweep at fixed core diameter $D = 0.5$ and wall-normal offset
-  $Y = -0.1$ (the first encounter of each case). (a) The lift coefficient $C_L$
-  against convective time $t/c$ for the four cases, with $t/c = 0$ the gust-release
-  instant and impact near $t/c = 2$; the undisturbed baseline ($G = 0$) is grey, and
-  the load excursion deepens and widens monotonically with the gust strength $|G|$.
-  (b) The mid-plane spanwise vorticity $\omegaz$ for each case (rows, $G = 0$, $-0.5$,
-  $-1.5$, $-4$) at four convective times (columns, $t/c = 1$, $2$, $3$, $4$), in raw
-  physical units with the colourbar clipped at $\pm 3$ (the intense cores saturate;
-  the wake structure away from them lies within the range), and the airfoil drawn as
-  a filled polygon. The strong
-  gust injects a vortex that reorganises the wake through impact, while the weak
-  cases perturb the baseline shedding only slightly; $G = -4$ is the $|G| = 4$
-  extrapolation case, shown here only as a physical illustration. The load spike and
-  the wake reorganisation are the surface and field signatures of the same event,
-  and the release parameters alone do not fix where the wake sits afterwards, which
-  is why the wake, not only $C_L$, is the endpoint a reduced state must carry.}
+  \caption{The vortex gust as a wake-reorganisation event: a gust-strength sweep
+  at fixed core diameter $D = 0.5$ and offset $Y = -0.1$ (first encounter of each
+  case). (a) Lift coefficient $C_L$ against convective time, with $t/c = 0$ the
+  release and $t_{\mathrm{imp}}$ (dashed) the leading-edge crossing near
+  $t/c = 2$; the load excursion deepens and widens with $|G|$, the baseline
+  ($G = 0$) in grey. (b) Mid-plane spanwise vorticity $\omegaz$ per case (rows
+  $G = 0$, $-0.5$, $-1.5$, $-4$) at four times (columns $t/c = 1$, $2$, $3$, $4$),
+  raw units, colourbar clipped at $\pm 3$ (intense cores saturate), airfoil
+  filled. The strong gust reorganises the wake through impact while the weak cases
+  barely perturb the shedding; $G = -4$ is the $|G| = 4$ extrapolation case, shown
+  only for illustration. The release parameters alone do not fix where the wake
+  sits afterwards, which is why the wake, not only $C_L$, is the endpoint a reduced
+  state must carry.}
   \label{fig:staging}
 \end{figure}
 
@@ -244,9 +240,9 @@ substantially.
   \includegraphics[width=\linewidth]{sections/figures/results/fig_paramspace_v3.pdf}
   \caption{Parameter-space sampling of the $\NCases$ cases in the $(G, D, Y)$ gust
   envelope, shown as three two-dimensional projections and coloured by split:
-  training ($\NTrainEnc$ encounters), the stratified \TestSplit{} set
-  ($\NTestBEnc$ encounters from $\NTestBCases$ cases, split into interior
-  and boundary tiers), and the \BoundarySplit{} extrapolation set
+  training ($\NTrainEnc$ encounters), the stratified in-distribution test set
+  ($\NTestBEnc$ encounters from $\NTestBCases$ cases, split into in-distribution
+  and edge-of-training tiers), and the $|G| = 4$ extrapolation set
   ($\NTestCEnc$ encounters from $\NTestCCases$ cases). The dashed lines mark the
   $|G| = 4$ extrapolation boundary, now sampled at both signs of the gust so that
   the boundary set is symmetric rather than one-sided. Training mass concentrates

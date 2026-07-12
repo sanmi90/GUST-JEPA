@@ -65,6 +65,12 @@ def main() -> None:
     proj = [(0, 1, "$G$", "$D$"), (0, 2, "$G$", "$Y/c$"), (1, 2, "$D$", "$Y/c$")]
     # draw order: training underneath, held-out on top
     order = ["train", "test_b_interior", "test_b_boundary", "test_c"]
+    # Physical legend labels (Carlos's assessment, fig 2): archive tier names
+    # (test_b interior/boundary, test_c) are internal; the figure reads physically.
+    phys_label = {"train": "training",
+                  "test_b_interior": "in-distribution test",
+                  "test_b_boundary": "edge-of-training test",
+                  "test_c": r"$|G|=4$ extrapolation test"}
     for ax, (a, b, xl, yl) in zip(axes, proj):
         for key in order:
             if key not in pts:
@@ -75,7 +81,7 @@ def main() -> None:
                        edgecolors="white", linewidths=0.4,
                        alpha=0.95 if key != "train" else 0.7,
                        zorder=3 if key != "train" else 2,
-                       label=fs.SPLIT_TIER_LABEL[key])
+                       label=phys_label[key])
         ax.set_xlabel(xl)
         ax.set_ylabel(yl)
         ax.axvline(0, color="0.85", lw=0.6, zorder=0)

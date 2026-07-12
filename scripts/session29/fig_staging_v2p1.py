@@ -219,6 +219,12 @@ def build_figure(cases, frames, root: Path, pipe):
     # the others, nudged to the side recorded in LABEL_ANCHOR so it clears the line.
     y0, y1 = ax_cl.get_ylim()
     pad = 0.05 * (y1 - y0)
+    # impact-time marker (Carlos's assessment, fig 1): t_imp is the leading-edge
+    # crossing at t/c = 2.0; t/c = 0 is the gust release.
+    t_imp = IMPACT_FRAME * DT_TC
+    ax_cl.axvline(t_imp, color="0.55", lw=0.7, ls=(0, (3, 2)), zorder=1)
+    ax_cl.text(t_imp, y1 - pad, r"$t_{\mathrm{imp}}$", fontsize=7, color="0.35",
+               ha="center", va="top")
     for curve_label, gval, t, cl, color in curves:
         frame, va = LABEL_ANCHOR.get(gval, (len(cl) - 1, "bottom"))
         j = min(frame, len(cl) - 1)
