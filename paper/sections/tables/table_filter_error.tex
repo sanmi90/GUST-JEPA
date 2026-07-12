@@ -5,23 +5,27 @@
 \begin{table}
   \centering
   \caption{What the wall-pressure filter costs in real lift units. Median analysis
-  $C_L$ error (RMSE, dimensionless) and filter divergence rate at the impact
+  $C_L$ error (RMSE, dimensionless) and filter consistency-failure rate at the impact
   window, by gust strength, each family run with its own
   validation-selected inflation ($\rho = \FeRhoJepa$ for the predictive filter,
-  $\FeRhoFukami$ for Fukami, $\FeRhoPod$ for POD). The variance-normalised $R^2$
-  rises with gust amplitude and hides this: at $|G| = 4$ the predictive filter
-  scores $R^2 = \FeCLrtwoJepaGFour$ while its absolute error is
+  $\FeRhoFukami$ for Fukami, $\FeRhoPod$ for POD). The consistency-failure rate is
+  the fraction of encounters flagged by the fixed innovation-consistency criterion
+  of \S\ref{sec:methods_lae} (sustained normalised innovation squared or an
+  analysis Mahalanobis ratio above the threshold); the ensemble mean can still
+  track the load where the consistency diagnostic fails. The variance-normalised
+  $R^2$ rises with gust amplitude and hides the cost: at $|G| = 4$ the predictive
+  filter scores $R^2 = \FeCLrtwoJepaGFour$ while its absolute error is
   $\FeCLrmseJepaGFour$. Two readings follow. At moderate gusts every filter
   tracks the load, the reconstruction filter marginally best. At the strongest
-  gusts every filter degrades, with divergence rates of
+  gusts every filter degrades, with consistency-failure rates of
   $\FeDivJepaGFour$--$\FeDivPodGFour$; the predictive filter degrades least, in
-  both error and divergence, and the linear filter worst. This is a least-bad
-  regime, not a solved one.}
+  both error and consistency, and the linear filter worst. The strongest gusts
+  remain a degraded regime for every filter, not a solved one.}
   \label{tab:filter_error}
   \small
   \fittab{\begin{tabular}{l c c c c c c}
     \toprule
-    & \multicolumn{3}{c}{median $C_L$ RMSE} & \multicolumn{3}{c}{divergence rate} \\
+    & \multicolumn{3}{c}{median $C_L$ RMSE} & \multicolumn{3}{c}{consistency-failure rate} \\
     \cmidrule(lr){2-4} \cmidrule(lr){5-7}
     Filter & $|G|{=}1$ & $|G|{=}2$ & $|G|{=}4$ & $|G|{=}1$ & $|G|{=}2$ & $|G|{=}4$ \\
     \midrule

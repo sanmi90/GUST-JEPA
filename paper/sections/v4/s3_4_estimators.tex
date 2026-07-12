@@ -131,10 +131,14 @@ regresses it onto the state, so that
 with $\Gamma$ the covariance of the $E_{\mathrm{obs}}$ training residuals
 plus a $10^{-8}$ jitter. The same $E_{\mathrm{obs}}$, evaluated framewise
 with no dynamics at all, is the \StaticInv{} that anchors the estimator
-ladder. Filter divergence is declared by one fixed criterion everywhere in
-the paper: the normalised innovation squared exceeds the $\chi^2_{0.99}$
-quantile at the observation dimension for five or more consecutive frames,
-or any analysis Mahalanobis ratio exceeds $3$. The observation-rate
+ladder. Filter consistency failure is an ensemble-consistency diagnostic,
+declared by one fixed criterion everywhere in the paper: the normalised
+innovation squared exceeds the $\chi^2_{0.99}$ quantile at the observation
+dimension for five or more consecutive frames, or any analysis Mahalanobis ratio
+exceeds $3$. It flags an under-dispersed or inconsistent ensemble and is distinct
+from a large-error encounter, for which the analysis lift itself fails
+(impact-phase $R^2$ below $-1$); a filter can post consistency failures while its
+mean still tracks the load. The observation-rate
 protocol subsamples the update, not the sensor: pressure is recorded every
 frame and the analysis step is applied every $m$-th frame only.
 
@@ -250,7 +254,7 @@ placement a given figure uses is stated in its caption.
   calibrations use validation-family splits as stated in the text and
   nothing downstream of them. Ensemble size $N = 64$, taps $K = 8$ at the
   family's own placement, delay $m = 10$, every-frame assimilation, and
-  the divergence criterion of \S\ref{sec:methods_lae} are common to all
+  the consistency-failure criterion of \S\ref{sec:methods_lae} are common to all
   rows.}
   \label{tab:filter_params}
   \small

@@ -28,14 +28,14 @@ The estimator ladder orders the suite at impact
 the \StaticInv, no dynamics at all, posts the best
 \TestSplit{} impact median (\DapEobsImpRTwo). The filters' case does not rest
 on the in-distribution median. It rests on the tails, where the
-\StaticInv{} posts the ladder's single divergent encounter (impact-phase $R^2$ below $-1$,
-the criterion we use for divergent throughout); on the
+\StaticInv{} posts the ladder's single large-error encounter, its impact-phase
+$R^2$ falling below $-1$; on the
 extrapolation boundary, where the \TwoStageKF{} reaches
 \PoneTwoStageCovImpactC{} median $R^2$ on the $|G| = 4$ \BoundarySplit{}
-encounters with no divergent case and a positive relaxation
+encounters with no large-error case and a positive relaxation
 (\PoneTwoStageCovRelaxC); and on state tracking beyond the single read-out
 the inverse regresses. The linear filter with encoded observations adds
-the robustness column: zero divergences under the fixed criterion of
+the robustness column: zero consistency failures under the fixed criterion of
 \S\ref{sec:methods_lae} and graceful degradation as the assimilation rate
 drops, where the transformer-forecast hybrid collapses already at
 every-second-frame updates (figure in appendix~\ref{app:sensing}).
@@ -118,7 +118,7 @@ estimatable, which is the deployment-robustness argument of this paper.
 
 Two loose ends close the section. The under-dispersion of the base filter
 has two regimes, not one: at impact it was calibration, and the
-state-dependent noise removes the divergent encounters entirely; in
+state-dependent noise removes the consistency failures entirely; in
 relaxation it is model error, the forecast median's contraction, which no
 noise model fixes and the smoother does. And the wake-enstrophy null of
 the frozen filter, no family's filter tracks $E_w$, now has its

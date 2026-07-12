@@ -521,7 +521,7 @@ filter's statistical health.
 % posts 0.85 against 0.84); rewritten as the combination claim.
 The predictive state combines a boundary closure among the highest
 ($\VfiltCLGFour$, against $\FfCLAeWakeGFour$ to $\FfCLFukamiWakeGFour$ for
-the alternatives), by far the lowest divergence rate there ($\VdivGFour$
+the alternatives), by far the lowest consistency-failure rate there ($\VdivGFour$
 against $\FfDivAeWakeGFour$ to $\FfDivFukamiGFour$), consistency across gust
 strengths where the wake-headed reconstructive baseline posts
 $\FfCLFukamiWakeGOne$ at $|G| = 1$, and the least-degraded wake readout. Second, no family's
@@ -602,7 +602,7 @@ loop, with no pressure, lose the transient.
   deterministically without pressure. One representative encounter per $|G|$
   stratum (median impact closure on the frozen \TwoStageKF{} records;
   \TestSplit{} set for $|G| \le 3$, \BoundarySplit{} set at $|G| = 4$,
-  where this filter posts no divergent encounter). The analysis tracks the
+  where this filter posts no large-error encounter). The analysis tracks the
   lift through impact and relaxation at every intensity; the open loop loses
   the transient.}
   \label{fig:cl_envelope_traces}
@@ -612,26 +612,26 @@ Run identically on each family, each under its own validation-tuned inflation, t
 comparison is a division of degradation rather than a clean win
 (table~\ref{tab:filter_error}). At moderate gusts every filter tracks the load, the
 reconstruction filter marginally best. At the $|G| = 4$ boundary every filter is
-stressed, diverging on $\FeDivJepaGFour$ to $\FeDivFukamiGFour$ of encounters; the
+stressed, its innovations flagged inconsistent on $\FeDivJepaGFour$ to $\FeDivFukamiGFour$ of encounters; the
 predictive filter degrades least, with the lowest median error ($\FeCLrmseJepaGFour$
 against $\FeCLrmseFukamiGFour$ for the reconstruction and $\FeCLrmsePodGFour$ for the
-linear basis) and the lowest divergence rate, and the linear filter degrades worst.
-The predictive state's advantage at the boundary is one of robustness, a least-bad
+linear basis) and the lowest consistency-failure rate, and the linear filter degrades worst.
+The predictive state's advantage at the boundary is one of robustness, a degraded
 regime rather than a solved one.
 
 \input{sections/tables/table_filter_error.tex}
 
 What weakens with gust strength is not the tracking, whose median holds through
 $|G| = 4$ (table~\ref{tab:envelope}), but the filter's own account of its
-uncertainty, which degrades from a gust ratio of about three. The divergence rate climbs from none at $|G| = 1$ to a fraction
+uncertainty, which degrades from a gust ratio of about three. The consistency-failure rate climbs from none at $|G| = 1$ to a fraction
 $\VdivGFour$ of encounters at the boundary, and the mean normalised innovation squared from
 $\VnisGZero$ in the undisturbed limit to $\VnisGFour$ at $|G| = 4$, crossing
 % REVIEW-CLAIM: (Stage 4, memo catch 3 / D304 retired) the two thresholds are
 % genuinely equal: the mark is defined as first exceedance of a one-half
-% divergence rate on the discrete |G| ladder {0.5, 1, 1.5, 2, 3, 4}, and both
+% consistency-failure rate on the discrete |G| ladder {0.5, 1, 1.5, 2, 3, 4}, and both
 % core diameters quantize to 3 (envelope_vec.json thresholds block); the
 % false core-diameter contrast is replaced by the grid-resolution statement.
-the half-divergence mark at a gust ratio of $\VdivThreshDOne$ for the
+the half-consistency-failure mark at a gust ratio of $\VdivThreshDOne$ for the
 intermediate and the widest cores alike, at the resolution of the tested
 $|G|$ grid; the widest core already reaches a rate of one half at $|G| = 2$,
 and the most compact does not cross the mark inside the envelope. The ensemble
@@ -673,7 +673,7 @@ readability, is what a wall-estimable reduced state is for.
   \caption{The gust-intensity operating envelope. (a) Median analysis lift closure
   ($R^2$, impact window) against gust strength for the frozen filter, the static
   single-frame recovery, and the truth-initialised open-loop forecast, with the
-  filter divergence rate as the strip beneath; the shaded band marks closure worse
+  filter consistency-failure rate as the strip beneath; the shaded band marks closure worse
   than predicting the encounter mean, and the open-loop forecast lies off the scale
   below it. (b) The same filter closure resolved by the physical sign of the gust,
   showing the wider usable envelope of the positive gusts.}

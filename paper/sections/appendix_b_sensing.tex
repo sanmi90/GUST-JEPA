@@ -158,10 +158,10 @@ impact and the tap-space observation carrying the relaxation; with a
 quarter-convective-time latency budget, the closed-form fixed-lag smoother
 on the linear stack is both the cheapest and the best reanalysis. Sparse
 or intermittent pressure favours the linear filter with encoded
-observations, the only member with zero divergences and graceful
+observations, the only member with zero consistency failures and graceful
 degradation under subsampled updates; every-frame pressure is necessary
 for the nonlinear members. Noise calibration should be spent on structure
-before scale: the state-dependent band fixed the impact-side divergences
+before scale: the state-dependent band fixed the impact-side consistency failures
 outright, while inflating its scale toward better tracking is model-error
 compensation that innovation consistency rejects, so a larger band should
 be read as a diagnostic of forecast contraction, not as a calibration

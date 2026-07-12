@@ -3,8 +3,12 @@
 \begin{table}
   \centering
   \caption{The operating envelope, by gust strength, for the predictive coefficient
-  state under the frozen filter. Median analysis lift closure, median analysis lift error in lift units,
-  and divergence rate of the filter against the static single-frame recovery, over all encounters (train,
+  state under the base frozen filter, used here as a diagnostic; the final production
+  estimator is the two-stage filter of \S\ref{sec:res_da}. Median analysis lift closure,
+  median analysis lift error in lift units,
+  and consistency-failure rate of the filter (the fixed innovation-consistency
+  criterion of \S\ref{sec:methods_lae}, not a load-tracking failure) against the
+  static single-frame recovery, over all encounters (train,
   \ValSplit, \TestSplit, and the $|G| = 4$ \BoundarySplit{} sets), stratified by $|G|$. The
   $|G| \le 0.5$ closure is near zero because the true lift is near-constant there and
   the $R^2$ denominator vanishes, not because the filter fails; the per-encounter
@@ -13,7 +17,7 @@
   \small
   \fittab{\begin{tabular}{l c c c c}
     \toprule
-    $|G|$ & filter $C_L$ $R^2$ & filter $C_L$ RMSE & filter divergence rate & static recovery $C_L$ $R^2$ \\
+    $|G|$ & filter $C_L$ $R^2$ & filter $C_L$ RMSE & consistency-failure rate & static recovery $C_L$ $R^2$ \\
     \midrule
     $\le 0.5$ & $\VfiltCLGHalf$    & $\VfiltCLrmseGHalf$    & $\VdivGHalf$    & $\VrecCLGHalf$ \\
     $1$       & $\VfiltCLGOne$     & $\VfiltCLrmseGOne$     & $\VdivGOne$     & $\VrecCLGOne$ \\
