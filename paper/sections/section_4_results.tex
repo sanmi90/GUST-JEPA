@@ -510,14 +510,27 @@ How far into the gust the load recovery holds is the operating envelope of
 \begin{figure}
   \centering
   \includegraphics[width=\linewidth]{sections/figures/results/fig_hero_traces_v3.pdf}
-  \caption{The estimator tracks the encounter from wall pressure alone. Columns are
-  representative held-out encounters at $|G| = 1$, $1.5$ and $2$; rows are the lift
-  coefficient and the wake enstrophy. Each panel shows the DNS truth, the filter
+  \par\vspace{4pt}
+  \includegraphics[width=\linewidth]{sections/figures/results/fig_cl_envelope_traces_v4.pdf}
+  \caption{The estimator tracks the encounter from wall pressure alone. Top:
+  representative held-out encounters at $|G| = 1$, $1.5$ and $2$ (columns), lift
+  coefficient and wake enstrophy (rows); each panel shows the DNS truth, the filter
   analysis with its $\pm 2\sigma$ ensemble band, the pressure-only regression, and
-  the open-loop rollout; the vertical line marks impact. The filter follows the load
-  through impact and relaxation where the open-loop forecast loses it and the
-  pressure-only regression goes stale.}
+  the open-loop rollout, the vertical line marking impact. The filter follows the
+  load through impact and relaxation where the open-loop forecast loses it and the
+  pressure-only regression goes stale. Bottom: $C_L$ estimation across the
+  gust-intensity envelope on the \PredState{} ($d = 32$) under the \TwoStageKF{}
+  of \S\ref{sec:methods_rexenkf} (one representative encounter per $|G|$ stratum,
+  \TestSplit{} set for $|G| \le 3$ and \BoundarySplit{} set at $|G| = 4$, where
+  this filter posts no large-error encounter); inside the impact window the members
+  are advanced by the \DirectFC's median with its quantile band as state-dependent
+  process noise (production scale $c = 1.77$, validation-calibrated) and corrected
+  by the encoded pressure observation, outside it by the matched transformer with
+  the tap-space update. Eight wall-pressure taps, $N = 64$ members; the lift probe
+  producing the read-out never enters the innovation; grey is the same forecast run
+  open loop.}
   \label{fig:hero}
+  \label{fig:cl_envelope_traces}
 \end{figure}
 
 \subsubsection{The gust-intensity operating envelope}
@@ -549,34 +562,13 @@ visibility analysis found blind to the wake circulation.
 
 \input{sections/tables/table_envelope.tex}
 
-Figure~\ref{fig:cl_envelope_traces} shows the \TwoStageKF{} of
+The lower panels of the tracking figure (figure~\ref{fig:cl_envelope_traces})
+show the \TwoStageKF{} of
 \S\ref{sec:methods_rexenkf} at work, one representative encounter per gust
 intensity: the analysis follows the lift from the pre-impact shedding through
 the impact excursion and the relaxation at every intensity, including the
 $|G| = 4$ boundary, while the same stage-scheduled forecast models run open
 loop, with no pressure, lose the transient.
-
-\begin{figure}
-  \centering
-  \includegraphics[width=\linewidth]{sections/figures/results/fig_cl_envelope_traces_v4.pdf}
-  \caption{$C_L$ estimation before and after impact across the gust-intensity
-  envelope, on the \PredState{} ($d = 32$) under the \TwoStageKF{} of
-  \S\ref{sec:methods_rexenkf}: inside the impact window the members are
-  advanced by the \DirectFC's median forecast with its quantile band as
-  state-dependent process noise (production scale $c = 1.77$,
-  validation-calibrated) and corrected by the encoded pressure observation;
-  outside it, by the matched transformer with the tap-space update. Eight
-  wall-pressure taps, $N = 64$ members; the lift probe that produces the
-  plotted read-out never enters the innovation. Band: $\pm 2$ ensemble
-  standard deviations; grey, the same stage-scheduled forecast models rolled
-  deterministically without pressure. One representative encounter per $|G|$
-  stratum (median impact closure on the frozen \TwoStageKF{} records;
-  \TestSplit{} set for $|G| \le 3$, \BoundarySplit{} set at $|G| = 4$,
-  where this filter posts no large-error encounter). The analysis tracks the
-  lift through impact and relaxation at every intensity; the open loop loses
-  the transient.}
-  \label{fig:cl_envelope_traces}
-\end{figure}
 
 Run identically on each family, each under its own validation-tuned inflation, the
 comparison is a division of degradation rather than a clean win
