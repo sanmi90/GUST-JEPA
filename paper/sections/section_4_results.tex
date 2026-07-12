@@ -93,7 +93,7 @@ while the wake is not, the distributed-code signature we return to in
 \S\ref{sec:res_latent_physics}. Among the reference recipes the lift-augmented
 reconstructive autoencoder reads the wake only when it carries the wake head
 ($\XwakeFukamiWake$ against $\XwakeFukami$ without it), and the linear basis does
-not reach the wake at all ($\XwakePod$), so no linear projection recovers the
+not reach the wake at all ($\XwakePod$), so the POD basis does not recover the
 enstrophy that a supervised nonlinear state does.
 
 \input{sections/tables/table_closure.tex}
@@ -120,11 +120,12 @@ $\XssimJepaWake$ SSIM in the Wang convention of
 penalises a nonlinear state that carries a high decode floor, so we route
 field-fidelity claims through SSIM and the decoded snapshots and reserve the
 wake-observable readability for the nonlinear-content claim. There the linear
-basis reaches only $\XwakePod$ at $d = 32$, and no linear projection recovers
-the wake at any tested dimension. The proper orthogonal basis holds the shedding
-clock (\S\ref{sec:res_latent_physics}) and stays competitive on the forces; the
-finding is not that it is obsolete but that no linear projection reaches the
-wake.
+basis reaches only $\XwakePod$ at $d = 32$, and the POD coefficients do not
+recover the wake at any tested dimension. The proper orthogonal basis holds the
+shedding clock (\S\ref{sec:res_latent_physics}) and stays competitive on the
+forces; the finding is not that it is obsolete but that the POD coefficients do
+not achieve comparable linear readability of the wake-enstrophy target at the
+dimensions tested.
 
 The window-averaged decode floor can be resolved to the critical instants of the
 encounter, the pre-impact frame, the impact and the peak lift
@@ -138,7 +139,7 @@ $\CritNbFukImp$ near-body). Field decode at the critical instants is therefore
 not where the compact states separate: the energy-optimal linear basis
 reconstructs the instant as sharply as the nonlinear states, the same VRMSE
 advantage read above, and the families part company instead on the wake
-observables, which no linear projection reaches, and on forecasting.
+observables, which the POD coefficients do not reach, and on forecasting.
 
 \input{sections/tables/table_critical_ssim.tex}
 
@@ -438,8 +439,8 @@ $\ToneCircDelta$ with a case-clustered interval $[\ToneCircDeltalo,
 instant, barely moves. The delays recover the coordinate the sensors cannot.
 
 Varying the tap count and the window together traces a spatial-for-temporal trade
-(figure~\ref{fig:trade}). A single tap read over a thirty-frame window recovers the
-coefficient state as well as eight taps read at one instant, and intermediate
+(figure~\ref{fig:trade}). A single tap read over a thirty-frame window approaches the
+recovery obtained from eight taps read at one instant, and intermediate
 combinations of tap count and window meet in between, because the encounter is
 low-dimensional and a state that filled its ambient dimension would not admit the
 trade. The eight-tap, thirty-frame recovery reconciles exactly with the static
@@ -654,10 +655,10 @@ gap in training coverage. Read through delay coordinates the two limits are one.
 filter follows the load where the single frame fails because it reconstructs the
 state from a window of pressure rather than an instant
 (\S\ref{sec:methods_estimator}), and it loses its calibration where the strengthening
-gust drives the interaction three-dimensional and the encounter's effective
-dimension outgrows what a fixed tap count and delay window can embed
+gust drives the interaction three-dimensional and the mid-plane pressure history
+captures a smaller fraction of the state
 (\S\ref{sec:res_wall}). Only at $|G| = 4$ does the mid-plane representation meet the
-genuine three-dimensional observability boundary the field itself reaches
+substantially larger three-dimensional content the field itself carries
 (\S\ref{sec:flow_physics}), now seen from the filter. The envelope is therefore two
 claims with different owners: its extension beyond every \StaticInv{} belongs to
 the sequential estimator on a nonlinear latent, a property the family comparison of

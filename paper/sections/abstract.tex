@@ -1,34 +1,32 @@
-% Abstract, Session 39 comparison-led reframe (paper_redesign.md, 2026-07-11).
-% Replaces the Session 37/38 estimation-thesis abstract with the three-way
-% tension lead of the redesign (S1-S8 skeleton, redesign section 7): AE
-% compact-but-irregular, POD forecastable-but-linear, predictive state the
-% third option. At most two numbers (lineage norm; lineage_style_notes.md
-% section 2.1): the two estimation endpoints. Near-body head dropped from the
-% abstract per D-A (demoted to appendix). Consistent with the D310 tie:
-% "readability supplied by the supervision" for predictive and reconstructive
-% encoders alike; the predictive objective supplies rollout stability and the
-% more forecastable LIFT (not the unqualified "most forecastable").
-An extreme vortex gust drives a post-stall airfoil through a transient
-reorganisation of its wake, and the release parameters alone do not
-determine the flow the vortex leaves behind. Nonlinear autoencoders compress
-such encounters onto compact manifolds, but reconstruction-trained latents
-evolve irregularly and forecast poorly, whereas linear
-proper-orthogonal-decomposition latents forecast well yet reach no wake
-observable at low dimension. We ask whether a predictive training objective
-can instead yield a nonlinear state that is compact, forecastable and
-estimable from the wall. Under this objective an observable anchor is
-structural: a scalar lift target prevents the latent from collapsing where a
-field observable alone does not, and a wake target loads the state with the
-wake. At matched dimension and supervision, readability is supplied by the
-supervision for predictive and reconstructive encoders alike, while the
-multi-step predictive objective supplies rollout stability and the more
-forecastable lift. Load information stays linearly accessible at four
-coefficients, whereas the wake is a distributed code requiring at least
-sixteen. A sequential ensemble filter reading eight wall-pressure taps tracks
-the lift through the encounter, at impact-phase $R^2 =
-\PoneTwoStageCovImpact$ in distribution and $\PoneTwoStageCovImpactC$ at the
-held-out $|G| = 4$ boundary, uniformly across dimension and seed where the
-reconstruction geometry is not. The wake enstrophy itself is not recovered
-from the wall, a limit of the sensing geometry rather than the state. The
-comparison gives a design rule for wall-estimable reduced states of extreme
-aerodynamic flows.
+% Abstract, Session 39 revision (Carlos's referee-grade assessment, 2026-07-12):
+% replaces the comparison-led three-tension abstract with the more measured,
+% role-separating version Carlos supplied. Only the two estimation endpoints are
+% numeric and both are macros (\PoneTwoStageCovImpact / \PoneTwoStageCovImpactC,
+% the FINAL two-stage estimator). Claims corrected per the assessment: the wake
+% is "a larger distributed representation" not "at least sixteen" (1.5); wake
+% enstrophy "not reliably recovered by the wall-sensor configurations considered"
+% (1.2/section 7); the common direct forecaster gives the predictive states the
+% most accurate LIFT forecasts, recursive prediction limited by rollout error.
+Extreme vortex gusts drive a post-stall airfoil through transient wake
+reorganisations that the gust parameters alone do not determine. We investigate
+whether a reduced state can retain this wake dynamics, remain suitable for
+forward prediction and be estimated from sparse wall pressure. Direct numerical
+simulations of a NACA~0012 airfoil at $\alpha = 14^\circ$ and $\vRe = 5000$,
+subjected to Taylor vortices of varying strength, size and offset, compare
+predictive, reconstruction-trained and proper-orthogonal-decomposition states at
+matched dimension. A controlled supervision study shows that, within the
+predictive formulation considered, a lift target is necessary to avoid latent
+collapse, a near-body force-element target improves peak-load readability, and
+wake supervision is required to retain the wake enstrophy and circulation. Lift
+stays linearly accessible from four coefficients over the dimensions tested,
+whereas the spatial wake structure requires a larger distributed representation.
+Under a common direct multi-horizon forecaster the predictive states give the
+most accurate lift forecasts, while recursive prediction is limited by
+accumulated rollout error. A pressure-only ensemble estimator using eight wall
+taps tracks the lift through the impact and relaxation phases, reaching
+impact-phase $R^2 = \PoneTwoStageCovImpact$ in distribution and
+$\PoneTwoStageCovImpactC$ for the held-out $|G| = 4$ cases with the final
+two-stage configuration. Wake enstrophy is not reliably recovered by the
+wall-sensor configurations considered. The results separate the roles of
+observable supervision, predictive training and sensing geometry in constructing
+reduced states for extreme aerodynamic transients.

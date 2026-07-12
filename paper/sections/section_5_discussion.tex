@@ -41,10 +41,10 @@ forecastable, wall-recoverable and assimilable at once.
   (\S\ref{sec:res_forecast}), wall observable recovery (\S\ref{sec:res_wallobs})
   and filter closure at the $|G| = 4$ boundary (\S\ref{sec:res_estimation});
   colour marks whether the family holds the rung. Field fidelity does not
-  separate the families; the predictive state is the only one that holds every
-  rung to deployment. The reconstruction column is the Fukami lineage, its field
-  cell the wake-headed variant that alone carries a decoder; at $|G| = 4$ it
-  diverges on almost every encounter.}
+  separate the families; the separation emerges down the chain, at the wake
+  readout, the wall recovery and the boundary filter. The reconstruction column
+  is the Fukami lineage, its field cell the wake-headed variant that alone carries
+  a decoder; at $|G| = 4$ it fails to track on almost every encounter.}
   \label{fig:deployment_ladder}
 \end{figure}
 
@@ -88,7 +88,8 @@ mode the estimation results expose. The linear basis, for its part, remains
 genuinely useful: it is competitive on the body forces, amplitude-accurate in
 reconstruction, and it holds the shedding clock as well as the predictive latent
 (\S\ref{sec:res_latent_physics}); the result is not that POD is obsolete but that
-no linear projection reaches the wake at any dimension we tested.
+the POD coefficients do not achieve comparable linear readability of the
+wake-enstrophy target at any dimension we tested.
 
 One caveat is inherited from the compactness-versus-forecast comparison that
 motivates this study \citep{solerarico_compactness_underreview}: a more
@@ -199,11 +200,11 @@ resolved release parameter because the training mass concentrates near
 $Y \approx 0$; the additional cases make it weakly readable where it was
 unreadable before (\S\ref{sec:res_latent_physics}), and we note this without
 leaning on it. Third, the $|G| = 4$ extrapolation degrades for a physical reason:
-the encoder observes a single mid-plane vorticity slice whose information no
-longer determines the three-dimensional dynamics there
-(\S\ref{sec:flow_physics}), so the \BoundarySplit{} set marks the observability boundary of that
-representation, not a parametric-generalisation claim, and the filter meets the
-same boundary from the sensing side (\S\ref{sec:res_envelope}). Fourth, the
+the encoder observes a single mid-plane vorticity slice that captures a
+substantially smaller fraction of the three-dimensional content there
+(\S\ref{sec:flow_physics}), so the \BoundarySplit{} set marks where that
+representation becomes incomplete, not a parametric-generalisation claim, and the
+filter meets the same limit from the sensing side (\S\ref{sec:res_envelope}). Fourth, the
 visualisation decoder is a diagnostic on the frozen encoder, never part of the
 predictive loss, and the pooled coefficient state trades decode sharpness for
 estimability by construction (\S\ref{sec:disc_decode}). Fifth, and foremost for

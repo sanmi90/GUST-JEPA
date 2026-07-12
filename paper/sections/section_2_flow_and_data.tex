@@ -37,8 +37,10 @@ sampling follow the configuration of \citet{fukami2025prf}. The training envelop
 3.0\}$ with $G = 0$ as the undisturbed reference, $D \in \{0.5, 1.0, 1.5\}$
 chords, and $Y \in [-0.4, +0.4]$; the value $|G| = 4$ is held out as an
 extrapolation boundary, for reasons that are physical and that we return to
-below. Convective time $t$ is measured in chords and set to zero when the
-vortex centre reaches the leading edge.
+below. Convective time $t$ is measured in chords from the vortex release,
+$t = 0$, while $t_{\mathrm{imp}}$ denotes the instant at which the vortex centre
+reaches the leading edge, near $t/c = 2$ for this configuration; all phase
+windows below are referred to $t_{\mathrm{imp}}$.
 
 Without a gust, the $\alpha = 14^\circ$ wake at this Reynolds number is
 massively separated and sheds periodically; in dynamical terms the undisturbed
@@ -89,13 +91,16 @@ impact. We confirm this from the full three-dimensional vorticity fields: the
 fraction of the spanwise-vorticity ($\omegaz$) enstrophy not captured by its
 spanwise mean, the content a mid-plane slice discards, is roughly constant across
 the training range ($|G| \le 3$, post-impact wake median $\approx 0.20$) and rises
-about threefold at $|G| = 4$ ($\approx 0.56$, over the four available cases).
-Because the encoder in this work consumes a single mid-plane vorticity
+about threefold at $|G| = 4$ ($\approx 0.56$, computed on the four boundary cases
+for which the full three-dimensional fields were retained). Because the encoder
+in this work consumes a single mid-plane vorticity
 field (\S\ref{sec:flow_observables}), the held-out $|G| = 4$ case is not merely
 one parameter step beyond the training range; it is a regime in which the
-quantity the encoder observes no longer determines the true dynamics. We
-therefore treat $|G| = 4$ as a physical observability boundary rather than as a
-claim of parametric generalisation.
+mid-plane representation omits a substantially larger fraction of the
+three-dimensional vorticity content, so that more of the dynamics is not
+captured by what the encoder sees. We therefore treat $|G| = 4$ as a physically
+more demanding extrapolation set in which a mid-plane state is incomplete, rather
+than as a claim of parametric generalisation.
 
 \subsection{Data, fields, and observables}
 \label{sec:flow_observables}

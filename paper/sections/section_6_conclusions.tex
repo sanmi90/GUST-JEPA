@@ -18,14 +18,17 @@ lift-supervised baseline; the two rest on different comparisons.
 
 On compression, the statement is two-tier: load information is
 approximately unchanged over the tested dimensions under a nonlinear
-probe and is linearly accessible at four coefficients, whereas
-wake-field reconstruction requires at least sixteen. On forecasting, one shared
+probe and is linearly accessible at four coefficients, whereas moderate
+linear readability of the wake diagnostics appears from eight coefficients
+and stable reconstruction of the spatial wake structure requires
+approximately sixteen or more over the tested dimensions. On forecasting, one shared
 \DirectFC{} makes the wake-supervised states the most forecastable and the
 predictive states the most forecastable on the lift; a one-shot forecast
 remains usable over forty steps where autoregressive rollout degrades
-through error accumulation, and supplying the true gust parameters
-provides no benefit, so the deployable route to the encounter is a model
-corrected by pressure rather than the release parameters.
+through error accumulation, and supplying the true gust parameters did not
+improve the direct forecaster for this dataset and model class, so the
+deployable route to the encounter is a model corrected by pressure rather
+than the release parameters.
 
 On estimation, a two-stage ensemble filter sensing eight wall-pressure
 taps tracks the lift through the encounter, phase-resolved and in
@@ -42,12 +45,12 @@ and wall-estimable by training it predictively under observable
 anchoring, at no cost in compactness. Three results bound the claims. A
 \StaticInv{} matches the filter's in-distribution impact median, and the filter's advantage
 lies in the tails, at the boundary set and in continuous state tracking.
-The wake enstrophy is not recovered by the tap counts, delay windows and
-estimators considered here, a limit we attribute to the sensing geometry
-rather than to the state. And the mid-plane representation shows an
-indication of a three-dimensional observability limitation at the
-strongest gusts (four cases), where the filter's uncertainty consistency
-degrades even as the median tracking holds. The natural next steps are a
+The wake enstrophy is not reliably recovered by the tap counts, delay windows
+and estimators considered here, although the encoded state retains it, which
+points to the present observation configuration rather than to the state. And
+the mid-plane representation omits a substantially larger fraction of the
+three-dimensional vorticity content at the strongest gusts (four cases), where
+the filter's uncertainty consistency degrades even as the median tracking holds. The natural next steps are a
 calibrated process and observation noise model for the filter, and the
 same matched-estimator protocol on other parametric flows, to test how
 general the estimability ordering reported here is.

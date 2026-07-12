@@ -16,14 +16,16 @@ reason a single frame is not enough, and a window is, is a statement about
 the dynamics rather than about the number of sensors. The encounter lies
 on an attractor of low effective dimension, a limit cycle with a gust
 excursion and a relaxation, into which the encoded latent concentrates its
-variance (\S\ref{sec:res_latent_physics}). By the delay-embedding theorem
-\citep{takens1981,sauer1991}, a generic observation of such a system, read
-over a window of delays, reconstructs its state up to a diffeomorphism,
-and with $K$ simultaneous taps over $m$ delays the reconstruction is
-generic once the product $mK$ exceeds twice the attractor dimension.
-Because that dimension is small, a handful of taps over a modest window
-suffices, and the delay window can substitute for sensor count, a trade
-quantified in \S\ref{sec:res_wall}. A coordinate the instantaneous
+variance (\S\ref{sec:res_latent_physics}). Delay-embedding theory
+\citep{takens1981,sauer1991} motivates reading the wall pressure over a window
+of delays rather than at a single instant, since a generic observation of a
+low-dimensional system reconstructs its state up to a diffeomorphism once the
+product of tap count $K$ and delay count $m$ exceeds twice the attractor
+dimension. Its generic guarantees do not directly establish sufficiency for the
+finite, parametrically forced transient family considered here, so we take the
+theorem as an organising principle and treat the sensor-delay map of
+\S\ref{sec:res_wall} as the empirical evidence; there, a handful of taps over a
+modest window suffices and the delay window substitutes for sensor count. A coordinate the instantaneous
 pressure misses, the wake circulation, is still reconstructed by the
 window provided it is dynamically coupled to what the pressure sees, which
 for the coupled vortex dynamics it is. The estimator must therefore be

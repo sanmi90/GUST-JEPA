@@ -67,8 +67,8 @@ because the basis is linear, but pay for it in compactness, needing many more
 coordinates to represent the same flow structures
 \citep{solerarico_compactness_underreview}. The linear basis, however,
 buys that forecastable dynamics at the price of the nonlinear wake content of
-the encounter: in the present flow no linear projection reaches the wake
-observables at any tested dimension. Compactness trades against
+the encounter: in the present flow the POD coefficients do not reach the wake
+observables at any dimension we tested. Compactness trades against
 forecastability, and nonlinearity against wake reach, and extreme gusts are
 the arena where the trade cannot be evaded, because there the linear escape
 route genuinely fails.
@@ -100,28 +100,24 @@ orient the latent towards physically relevant quantities. A healthy latent
 and a useful one are then different achievements: the lift anchors the state,
 and a wake target is what loads it with the wake.
 
-We therefore compare predictive, reconstruction-trained and linear
-proper-orthogonal-decomposition coefficient states at matched latent
-dimension, on direct numerical simulations of a post-stall NACA 0012 airfoil
-at $\alpha = 14^\circ$ and $\vRe = 5000$ perturbed by Taylor vortex gusts
-spanning gust ratio, core diameter and offset. The gust parameters are never
-supplied to the model: the encoder sees only the instantaneous field, and the
-predictor advances the latent from its own history. Reconstruction baselines
-carry the identical observable heads, so that supervision is never a
-predictive-model advantage and every supervised-versus-unsupervised and
-predictive-versus-reconstructive contrast is isolated. Evaluating the states
-as representations, as forecast targets and as estimation targets, we find
-that (i) an observable anchor is necessary against collapse and the scalar
-lift is the anchor that works; (ii) at matched dimension and supervision
-instantaneous readability is set by the supervision, with load information
-linearly accessible at four coefficients and the wake a distributed code
-needing at least sixteen; (iii) under one shared forecaster the
-wake-supervised states are the most forecastable and the predictive states
-carry the most forecastable lift, an advantage of the multi-step objective
-rather than of the parameters, which help not at all; and (iv) a sequential
-filter reading only wall pressure tracks the load through the encounter and
-degrades least at the strong-gust boundary, uniformly across dimension and
-seed.
+We examine whether a reduced representation of an extreme vortex-gust encounter
+can satisfy three requirements simultaneously: it must retain the wake variables
+that distinguish post-impact states, remain usable under forward prediction, and
+be recoverable from sparse wall pressure. Direct numerical simulations of a
+post-stall NACA~0012 airfoil at $\alpha = 14^\circ$ and $\vRe = 5000$, perturbed
+by Taylor vortex gusts spanning gust ratio, core diameter and offset, are used
+to compare predictive, reconstruction-trained and proper-orthogonal-decomposition
+states at matched dimension. Controlled supervision ablations identify which
+physical targets organise the latent representation; a common direct forecaster
+separates representation quality from operator choice, the encoder never seeing
+the gust parameters and the reconstruction baselines carrying the identical
+observable heads; and a pressure-only sequential estimator tests which parts of
+the state are observable from the wall. The results show that observable
+supervision determines the physical content of the state, multi-step predictive
+training improves its forward stability, and wall-pressure histories recover the
+load-bearing directions more reliably than the complete wake state. The strongest
+gusts expose the remaining limitation of a mid-plane representation and an
+under-dispersed estimator.
 
 The remainder of the paper is organised as follows. Section 2 describes the
 flow configuration, data and endpoints; \S 3 the reduced states, the shared

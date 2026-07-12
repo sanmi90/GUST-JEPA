@@ -32,8 +32,10 @@ compounds its own errors: forty steps from the pre-impact context its
 decoded lift closes at \ArFortyClw{} on the \PredState{} latents and
 \ArFortyCln{} on the \LiftState{} latents. The \DirectFC, emitting all forty steps in
 one shot from the same context, closes at \RexTunedCl{} on the identical
-protocol (figure~\ref{fig:forecast}b): rollout compounding, not the state,
-is the failure mode. The direct forecast is a conditional median, and the
+protocol (figure~\ref{fig:forecast}b): the large improvement of the direct
+multi-horizon forecast indicates that recursive error accumulation is the
+dominant limitation of the autoregressive implementation over this horizon.
+The direct forecast is a conditional median, and the
 correct reading is that of a median: it contracts toward the climatology of
 the shedding cycle where the encounter is unresolved, which is precisely
 the model-error regime the assimilation of \S\ref{sec:res_da} must
