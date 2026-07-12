@@ -223,7 +223,7 @@ the training encounters, the published-recipe reconstruction spreads its latent
 energy across frequency, at a median spectral flatness of $\FlatFukami$ against
 $\FlatJepaWake$ for the predictive latent, $\FlatAeWake$ for the
 matched-supervision reconstruction and $\FlatPod$ for the linear basis
-(figure~\ref{fig:t1_spectra}); the published recipe exceeds the predictive latent
+(figure~\ref{fig:t1_spectra}, bottom); the published recipe exceeds the predictive latent
 by $\FlatFukamiDelta$ in flatness with a case-clustered interval
 $[\FlatFukamiDeltaLo, \FlatFukamiDeltaHi]$ that excludes zero. The predictive
 coordinates are the most sharply peaked at the shedding line, and it is the
@@ -236,25 +236,10 @@ trajectories (figure~\ref{fig:t3_portraits}): the predictive, linear and
 matched-supervision states trace coherent cycles that the gust perturbs, while
 the published-recipe reconstruction wanders without a clean orbit.
 
-\begin{figure}
-  \centering
-% FIGURE-TODO (Phase 5, M3): merge these per-coordinate spectra into the physics
-% figure (fig:atlas) per the redesign figure plan (fig 8 = atlas + DMD + T1 + T3).
-  \includegraphics[width=\linewidth]{sections/figures/results/fig_t1_spectra_v4.pdf}
-  \caption{Per-coordinate latent spectra by family (training encounters,
-  $d = 32$; mean Welch power spectral density against Strouhal number,
-  coordinates ordered by peak frequency; the dashed line marks the shedding
-  Strouhal). The predictive coordinates concentrate at the shedding line while
-  the published-recipe reconstruction spreads energy across frequency, and the
-  matched-supervision autoencoder does not.}
-  \label{fig:t1_spectra}
-\end{figure}
-
-
 The parametric manifold coheres with the release parameters where the training data
 resolve them. An impact-frame probe of the predictive latent recovers the gust
 strength and the core diameter well ($\ProbeGJepa$ and $\ProbeDJepa$ on the \TestSplit{} set),
-which is the atlas of figure~\ref{fig:atlas} coloured by parameter. The wall-normal
+which is the atlas of figure~\ref{fig:atlas} (top) coloured by parameter. The wall-normal
 offset, unreadable at the linear-probe level in earlier work, becomes weakly readable
 here ($\ProbeYJepa$ linearly and $\ProbeYkrrJepa$ with a nonlinear probe), plausibly
 because the additional cases sample it more densely near the training centre; we note
@@ -283,14 +268,22 @@ the rollout needs.
 \begin{figure}
   \centering
   \includegraphics[width=\linewidth]{sections/figures/results/fig_atlas_dmd_v3.pdf}
+  \par\vspace{3pt}
+  \includegraphics[width=\linewidth]{sections/figures/results/fig_t1_spectra_v4.pdf}
   \caption{The physics the latent state holds. Top: two-dimensional projections of
-  the predictive coefficient latent coloured by gust strength, core diameter, and
+  the predictive coefficient latent coloured by gust strength, core diameter and
   shedding phase, showing a parametric manifold that coheres with the release
-  parameters. Bottom: the latent dynamic-mode-decomposition spectrum, modulus
+  parameters, with the latent dynamic-mode-decomposition spectrum (modulus
   against Strouhal number, by family; the predictive and linear latents place a
-  marginally stable mode at the measured shedding frequency while the Fukami-lineage
-  reconstruction is damped and off-frequency.}
+  marginally stable mode at the measured shedding frequency while the
+  Fukami-lineage reconstruction is damped and off-frequency). Bottom:
+  per-coordinate latent spectra by family (training encounters, $d = 32$; mean
+  Welch power spectral density against Strouhal number, coordinates ordered by peak
+  frequency, dashed line the shedding Strouhal): the predictive coordinates
+  concentrate at the shedding line while the published-recipe reconstruction
+  spreads energy across frequency and the matched-supervision autoencoder does not.}
   \label{fig:atlas}
+  \label{fig:t1_spectra}
 \end{figure}
 
 \subsection{Forecastability}
