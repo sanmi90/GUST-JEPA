@@ -14,8 +14,8 @@
 \label{sec:disc_mechanism}
 \label{sec:disc_caveat}
 
-The comparison has a direction, and the deployment ladder of
-figure~\ref{fig:deployment_ladder} reads it off. On the decoded field the three
+The comparison has a direction, read off the chain of tasks a wall-borne reduced
+state must perform. On the decoded field the three
 families are indistinguishable, the energy-optimal linear basis as sharp as the
 nonlinear states, so field fidelity does not separate them. The separation opens
 at the first task that needs the wake, the observable read-out, where the linear
@@ -29,24 +29,6 @@ on nearly every encounter. The predictive state holds furthest down the chain,
 and that is the design rule stated operationally: a state earns
 its place at deployment not by rendering the field but by remaining readable,
 forecastable, wall-recoverable and assimilable at once.
-
-\begin{figure}
-  \centering
-  \includegraphics[width=0.92\linewidth]{sections/figures/results/fig_deployment_ladder.pdf}
-  \caption{The deployment ladder. Each rung is a task a wall-borne reduced state
-  must perform, ordered top to bottom by increasing deployment demand, and each
-  cell is the representative metric from the section that establishes it: field
-  SSIM at impact (\S\ref{sec:res_compress}), wake readability
-  (\S\ref{sec:res_carries}), through-impact forecast merit at $h = 8$
-  (\S\ref{sec:res_forecast}), wall observable recovery (\S\ref{sec:res_wallobs})
-  and filter closure at the $|G| = 4$ boundary (\S\ref{sec:res_estimation});
-  colour marks whether the family holds the rung. Field fidelity does not
-  separate the families; the separation emerges down the chain, at the wake
-  readout, the wall recovery and the boundary filter. The reconstruction column
-  is the Fukami lineage, its field cell the wake-headed variant that alone carries
-  a decoder; at $|G| = 4$ it fails to track on almost every encounter.}
-  \label{fig:deployment_ladder}
-\end{figure}
 
 The central result is a design rule for a reduced state that a wall-pressure
 estimator can track. Such a state must carry the wake observables that govern the

@@ -12,8 +12,8 @@ reconstructive anchors, under gates written and archived before any result
 was read; probes are fit on train and scored on the held-out \TestSplit{}
 encounters, the \ValSplit{} set steering nothing and the \BoundarySplit{}
 set staying in reserve per
-the policy above. The central result is structural: under the predictive objective
-the scalar lift head is necessary for latent health under the present objective. Every cell without
+the policy above. Under the predictive objective
+the scalar lift head is necessary for latent health. Every cell without
 $L$ collapses, with participation ratios of \TcRhoCZero{} (C0) and
 \TcRhoCW{} (CW) against a floor of $9.6$, flat from the first
 diagnostic; neither the wake observable (figure~\ref{fig:cube}) nor the
@@ -61,14 +61,12 @@ quantified in \S\ref{sec:res_forecast} and \S\ref{sec:res_da}. The full
 task-dependent readability matrix, five observables across every cell and
 anchor, is figure~\ref{fig:readability} in appendix~\ref{app:reg}: the wake block lights up exactly
 where wake supervision or a reconstruction objective sits, and nowhere
-else. One
-circularity deserves preemption: supervising on lift and winning on lift
-would be circular if the anchor claim were an accuracy claim. It is not.
-The anchor claim is about latent health, established by the collapse
-pattern of the no-$L$ cells; the accuracy claim is the increment of $N$
-over an already lift-supervised baseline, established under paired
-gates fixed in advance of evaluation. The two claims rest on different comparisons and
-fail independently.
+else. Because lift is included during training, lift accuracy alone cannot
+establish the role of the lift head. Its structural role is instead identified
+from the collapse of every predictive state trained without that head; the
+incremental effect of the near-body target is evaluated relative to an already
+lift-supervised state, under paired gates fixed in advance of evaluation. The
+two claims rest on different comparisons and fail independently.
 
 \begin{figure}
   \centering

@@ -73,32 +73,27 @@ forecastability, and nonlinearity against wake reach, and extreme gusts are
 the arena where the trade cannot be evaded, because there the linear escape
 route genuinely fails.
 
-This tension motivates a predictive training objective. Rather than
-compressing for reconstruction and hoping the latent is forecastable, one can
-train the encoder together with a latent predictor so that the coordinates
-are shaped in the space the forward model will use. This is the idea of a
-joint-embedding predictive architecture \citep{lecun2022}: unlike an
-autoencoder it does not reconstruct the input field, but learns an encoder
-and a predictor such that the present latent state predicts a future latent
-state, an idea developed for images and video as non-generative
-self-supervised prediction in representation space \citep{ijepa,vjepa2}. Here
-it serves less as an end in itself than as a diagnostic instrument, a way to
-ask the paper's central question: whether predictive training can yield a
-nonlinear state that is at once more compact than the linear basis and more
-forecastable than a reconstruction-trained latent, combining the two
-properties the established routes hold only separately.
+This tension motivates a predictive training objective: rather than compressing
+for reconstruction and hoping the latent is forecastable, one trains the encoder
+together with a latent predictor so the coordinates are shaped in the space the
+forward model will use. This is a joint-embedding predictive architecture
+\citep{lecun2022}, which learns an encoder and a predictor such that the present
+latent predicts a future latent rather than reconstructing the field, developed
+for images and video as non-generative prediction in representation space
+\citep{ijepa,vjepa2}. Here it is a diagnostic instrument for the paper's central
+question: whether predictive training yields a nonlinear state at once more
+compact than the linear basis and more forecastable than a reconstruction-trained
+latent.
 
-Training such a state on a forced wake exposes a structural requirement that
-an autoencoder does not face. Without an observable anchor the predictive
-latent collapses, and, unexpectedly, it is the scalar lift, not a
-high-dimensional field descriptor, that prevents the collapse; the field
-observable alone does not. This turns the observable heads from an assumption
-into a finding, and connects the predictive objective directly to the
-observable-augmented manifold learning of the autoencoder lineage
-\citep{fukami2023,fukami2025}, in which physical observables are added to
-orient the latent towards physically relevant quantities. A healthy latent
-and a useful one are then different achievements: the lift anchors the state,
-and a wake target is what loads it with the wake.
+Training such a state on a forced wake exposes a structural requirement an
+autoencoder does not face: without an observable anchor the predictive latent
+collapses, and it is the scalar lift, not a high-dimensional field descriptor,
+that prevents it. This turns the observable heads from an assumption into a
+finding and connects the objective to the observable-augmented manifold learning
+of the autoencoder lineage \citep{fukami2023,fukami2025}, in which physical
+observables orient the latent towards physically relevant quantities. A healthy
+latent and a useful one are different achievements: the lift anchors the state,
+and a wake target loads it with the wake.
 
 We examine whether a reduced representation of an extreme vortex-gust encounter
 can satisfy three requirements simultaneously: it must retain the wake variables
