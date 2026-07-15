@@ -10843,3 +10843,38 @@ audit_numbers PASS, lint 0, abstract 249/250. Remaining: the M3 pass, the
 optional deep compressions beyond the D268 clarity standard, the sign
 audit, and the Carlos-owned submission items (DNS Table 1 is the blocker).
 Report SESSION38_REPORT.md.
+
+### D-W1 (main_30 review 2026-07-15: cite Ahnert et al. 2026 in the outlook) (2026-07-15, Session 39)
+Two-sentence outlook paragraph added to §5.4 naming weak equation-space
+coordinates (Ahnert, Lagemann, Bae, Taira, Vinuesa, Lagemann & Brunton,
+arXiv:2606.29047, 2026) as the principled successor wake target: inner products of
+the conservation-form vorticity-transport terms against compactly supported test
+functions, capacity-matched to the present descriptor, aligning the protected
+subspace with the mechanisms. ahnert2026 added to refs_to_add.bib. DONE.
+
+### D-W2 (main_30 review: NOT a §3.1 methods citation) (2026-07-15, Session 39)
+DECLINED by default. Citing weak equation-space in the wake-descriptor motivation
+invites "why not equation-space coordinates then"; the descriptor's defence is
+representational adequacy (fixed by design, byte-matched to N, untuned), not
+physical optimality. Reconsider only if D-W3 runs cleanly into supplementary.
+
+### D-W3 (main_30 review: probe-only W-eq readability study) (2026-07-15, Session 39)
+OPEN, PRIVATE. Compute weak equation-space coordinates (advective flux, viscous,
+unsteady, residual) offline on the cache; fit the frozen linear/MLP probes per
+family; score on the in-distribution test set as fig:readability does. No retrain.
+Answers whether any latent carries the mechanisms (term-split readability) and
+whether the wall is blind specifically to the advective-flux coordinates. Run as
+validation for the follow-up; supplementary only, labelled exploratory, if clean.
+
+### D-W4 (main_30 review: follow-up campaign, Track W-eq) (2026-07-15, Session 39)
+PARKED as the core of paper 2. Swap the wake target to weak equation-space at
+matched 80 dimensions under a fresh pre-registered cube, with an L-sweep unifying
+Track T4. A full re-run under a new declaration; must NOT touch main_30. The
+byte-matched W-vs-N contrast is redesigned since W becomes equation-grounded like N.
+
+### D-W5 (main_30 review I.7: Track T4 declared out of scope for this paper) (2026-07-15, Session 39)
+Track T4 (multiscale observability, DoG banding at fixed chord fractions) is OUT OF
+SCOPE for main_30. The observability story is carried by the delay-embedding grid
+(§4.5.1) and the visibility analysis; if a multiscale decomposition is ever run,
+the weak test-function construction (D-W4) subsumes the DoG banding with better
+physics grounding.
