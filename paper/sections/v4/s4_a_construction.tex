@@ -30,21 +30,18 @@ mechanism rather than masking it.
 
 Nothing replaces the lift anchor. Replacing $L$ by $W$ fails decisively, the
 wake-only cell trailing the lift-only cell by \TcDeltaCwVsClPeak{} peak-region
-$R^2$ points (all paired $R^2$ differences reported here are in units of
-$10^{-2}$; case-clustered interval [\TcDeltaCwVsClPeakLo,
-\TcDeltaCwVsClPeakHi]), and replacing $L$ by $N$ fails the same way
-(\TcDeltaCnVsClPeak{} [\TcDeltaCnVsClPeakLo, \TcDeltaCnVsClPeakHi]). On top of
+$R^2$ points (paired $R^2$ differences throughout are in units of $10^{-2}$, with
+case-clustered intervals in figure~\ref{fig:cube_deltas}), and replacing $L$ by
+$N$ fails the same way (\TcDeltaCnVsClPeak). On top of
 $L$, a near-body force-element head sharpens the peak load further and is the
 strongest cell in the cube (appendix~\ref{app:nearbody}). We carry the
-wake-headed \PredState{} (cube code CLW) as the single predictive representative
+wake-headed \PredState{} as the single predictive representative
 downstream: its marginal value on top of $L$ is geometry rather than lift,
-matching the lift-only cell on the peaks (peak-region $R^2 = \TcPeakRTwoCLW \pm
-\TcPeakRTwoCLWSd$ over three seeds against $\TcPeakRTwoCL \pm \TcPeakRTwoCLSd$ for
-the lift-only cell, the paired difference straddling zero at
-[\TcDeltaClwVsClPeakLo, \TcDeltaClwVsClPeakHi]) while adding near-body structural
-fidelity
-(\TcDeltaClwVsClSsimNb{} [\TcDeltaClwVsClSsimNbLo, \TcDeltaClwVsClSsimNbHi] SSIM
-in the Wang convention of \S\ref{sec:methods_protocol}).
+matching the lift-only cell on the peaks (the paired difference straddles zero)
+while adding near-body structural
+fidelity (\TcDeltaClwVsClSsimNb{} SSIM in the Wang convention of
+\S\ref{sec:methods_protocol}); the per-cell peak-region $R^2$, seed spreads and
+intervals are in figure~\ref{fig:cube_deltas} and appendix~\ref{app:nearbody}.
 
 The three heads therefore divide the labour: $L$ anchors the latent, $N$
 sharpens the load, and $W$ carries the wake state. The wake-enstrophy

@@ -23,10 +23,11 @@ whereas the spatial wake structure requires a larger distributed representation.
 Under a common direct multi-horizon forecaster the predictive states give the
 most accurate lift forecasts, while recursive prediction is limited by
 accumulated rollout error. A pressure-only ensemble estimator using eight wall
-taps tracks the lift through the impact and relaxation phases, reaching
-impact-phase $R^2 = \PoneTwoStageCovImpact$ in distribution and
-$\PoneTwoStageCovImpactC$ for the held-out $|G| = 4$ cases with the final
-two-stage configuration. Wake enstrophy is not reliably recovered by the
+taps tracks the lift through the impact and relaxation phases; where a static
+single-frame inverse matches it in distribution, the filter's advantage is in the
+tails, in continuous state tracking, and at the held-out $|G| = 4$ boundary, where
+it reaches impact-phase $R^2 = \PoneTwoStageCovImpactC$ with the final two-stage
+configuration. Wake enstrophy is not reliably recovered by the
 wall-sensor configurations considered. The results separate the roles of
 observable supervision, predictive training and sensing geometry in constructing
 reduced states for extreme aerodynamic transients.

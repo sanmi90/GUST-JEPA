@@ -7,15 +7,12 @@
 \subsubsection{The estimator ladder, its calibration and its deployment envelope}
 \label{sec:res_da}
 
-Physical units reorganise the phase story. Read in $R^2$, the relaxation
-phase looks like a failure (\DapRexRelRTwo{} for the filter on the \TestSplit{} set);
-read in lift units it is the best phase the estimator has
-(root-mean-square error \DapRexRelRmse{} against \DapRexImpRmse{} at
-impact and \DapRexPreRmse{} before it), because the relaxation variance is
-small and the ratio, not the error, collapses
-(figure~\ref{fig:tracking}). Assimilation is decisive at impact:
-the open loop drifts to \DapOlImpRmse{} where the filter holds
-\DapRexImpRmse, a five-fold reduction, with the median peak error at
+Physical units reorganise the phase story. Read in $R^2$ the relaxation
+phase looks like a failure; read in lift units it is the best phase the estimator
+has, because the relaxation variance is small and the ratio, not the error,
+collapses (figure~\ref{fig:tracking}, which carries the per-phase errors).
+Assimilation is decisive at impact: the filter cuts the open-loop drift about
+five-fold, to \DapRexImpRmse{} in lift units, with the median peak error at
 \DapRexPeakErr{} per cent of the true peak and peak timing within one
 frame. Relative accuracy is scale-invariant across the training envelope,
 near $12$ to $14$ per cent at every gust intensity for the
@@ -47,8 +44,10 @@ below one at every band scale in the grid fixed in advance (\PoneNisAtCStar{}
 at the selected edge $c^{*} = \PoneNisCStar$) while the same split's
 tracking improves monotonically with the band
 (figure~\ref{fig:calibration}): innovation consistency and tracking
-optimality point in opposite directions, so the frozen NIS-selected run
-closes at \PoneFrozenRexImpact{} at impact on the \TestSplit{} set and the
+optimality point in opposite directions, so the frozen NIS-selected run, the
+single-stage forecast-noise filter at the NIS-selected band $c^{*}$, closes at
+\PoneFrozenRexImpact{} at impact on the \TestSplit{} set, below the
+production two-stage rung, and the
 consistency route to a larger band is not supported by the held-out
 training encounters. The mechanism is model
 error, not miscalibration: inflating the state-dependent noise compensates

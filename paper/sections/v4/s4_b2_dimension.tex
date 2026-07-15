@@ -9,17 +9,14 @@
 The dimension axis splits into two tiers, and the split is the paper's
 compression statement (figure~\ref{fig:dimrace}a). At $d = 4$ the
 predictive families read the peak loads through a linear probe at
-\PoneLowdJepa{} (\PredState{} lineage) and \PoneLowdAero{} (coupled-objective
-arm) against \PoneLowdFukami{} for the reconstructive baseline, three
-seeds each with non-overlapping ranges; the \LiftState{} lineage trained through
-the \DirectFC{} is close to dimension-insensitive on the peaks, from
-\LadRexpredDFour{} at $d = 4$ to \PoneRexpredPeak{} at $d = 32$ (three
-seeds at both ends), where the \PredState{} lineage declines with $d$ (from
-\LadClwDFour{} to \LadClwDThirtyTwo). A four-coefficient lift-critical
-state is therefore viable. The wake state is not compressible to it: the
-decoded structural fidelity of the same lineage rises monotonically with
-dimension (full-frame SSIM \SsimLadFullDFour{} to \SsimLadFullDThirtyTwo,
-near-body \SsimLadNbDFour{} to \SsimLadNbDThirtyTwo), so the wake-bearing
+\PoneLowdJepa{} for the \PredState{} lineage against \PoneLowdFukami{} for the
+reconstructive baseline, three seeds each with non-overlapping ranges; the
+lift-focused lineage forecast through the \DirectFC{} rather than the
+autoregressive predictor is close to dimension-insensitive on the peaks, where
+the \PredState{} lineage declines with $d$ (figure~\ref{fig:dimrace}a). A
+four-coefficient lift-critical state is therefore viable. The wake state is not
+compressible to it: the decoded structural fidelity of the same lineage rises
+monotonically with dimension (figure~\ref{fig:dimrace}c), so the wake-bearing
 state needs $d \geq 16$ while the lift saturates by $d \approx 4$ to $8$.
 
 The probe-dilution control disciplines how the first tier may be read
