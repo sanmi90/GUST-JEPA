@@ -51,7 +51,7 @@ C_EXCL = "#b2182b"     # excluded test-peeked band
 
 RECIPE_LABEL = {
     "openloop": "open loop",
-    "eobs": r"static $E_{\mathrm{obs}}$",
+    "eobs": "static inverse",
     "linear_lae": "linear LAE-KF",
     "rex_enkf": "REX-EnKF",
 }
@@ -177,22 +177,22 @@ def main() -> None:
     rows = [  # top -> bottom; (label, color, test_b val, test_b cat, test_c agg or None)
         (RECIPE_LABEL["eobs"], C_EOBS, eobs_med, eobs_cat, None),
         (RECIPE_LABEL["linear_lae"], C_LIN, lin_med, lin_cat, None),
-        (f"REX-EnKF ($c={band_cov}$)", C_REX, rex_anchor, rex_cat, rex177_c),
-        (f"two-stage ($c^*={c_star:g}$, NIS)", C_2ST_L,
+        (f"forecast-noise filter ($c={band_cov}$)", C_REX, rex_anchor, rex_cat, rex177_c),
+        (f"two-stage filter ($c^*={c_star:g}$, NIS)", C_2ST_L,
          ts10_b["median_CL_r2_impact"], ts10_b["catastrophic_impact_lt_-1"], ts10_c),
-        (f"two-stage ($c={band_cov}$)", C_2ST,
+        (f"two-stage filter ($c={band_cov}$)", C_2ST,
          ts177_b["median_CL_r2_impact"], ts177_b["catastrophic_impact_lt_-1"], ts177_c),
     ]
     pitch = 1.7
     x0, x1 = 0.585, 0.93
     ys = np.arange(len(rows))[::-1] * pitch  # first row on top
     for y, (label, color, val, cat, agg_c) in zip(ys, rows):
-        best = label.startswith(f"two-stage ($c={band_cov}")
+        best = label.startswith(f"two-stage filter ($c={band_cov}")
         if best:  # best protocol-clean filter: shaded row + tagged label
             ax_c.add_patch(Rectangle((x0, y - 1.20), x1 - x0, 1.70, facecolor=color,
                                      alpha=0.10, edgecolor="none", zorder=1))
             label = label + "\nbest protocol-clean filter"
-        if label.startswith("REX-EnKF"):  # 5-seed member-noise band (mean +- sd)
+        if label.startswith("forecast-noise filter"):  # 5-seed member-noise band (mean +- sd)
             ax_c.fill_betweenx([y - 0.34, y + 0.34], band_lo, band_hi,
                                color=color, alpha=0.22, lw=0, zorder=2)
             ax_c.annotate(

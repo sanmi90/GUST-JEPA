@@ -38,19 +38,19 @@ RECIPES = ("rex_enkf", "linear_lae", "eobs")
 # family key: (display label, phase-file path, da_grid model prefix, colour, marker)
 FAMILIES = {
     "jepa_pool_vec": {
-        "label": "JEPA-CLW",
+        "label": "predictive (wake)",
         "phase_file": REPO / "outputs/session34/da_phase_eval.json",
         "color": figstyle.FAMILY_COLOR["jepa"],
         "marker": figstyle.FAMILY_MARKER["jepa"],
     },
     "jepa_pool_ln_s0": {
-        "label": "JEPA-CLN",
+        "label": "predictive (lift)",
         "phase_file": REPO / "outputs/session34/da_phase_jepa_pool_ln_s0.json",
         "color": "#74c476",  # lighter green: same family ramp as figstyle shading
         "marker": "D",
     },
     "ae_wake_pool": {
-        "label": "AE-LW",
+        "label": "AE (wake)",
         "phase_file": REPO / "outputs/session34/da_phase_ae_wake_pool.json",
         "color": figstyle.FAMILY_COLOR["fukami"],
         "marker": figstyle.FAMILY_MARKER["fukami"],

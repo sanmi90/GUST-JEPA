@@ -46,19 +46,19 @@ OUT_STEM = "fig_relative_errors_v4"
 # linear_lae the linear stack (blue), eobs the filter-free pressure readout.
 FILTER_STYLE = {
     "rex_enkf": {
-        "label": "REX-EnKF (nonlinear)",
+        "label": "forecast-noise filter",
         "color": fs.FAMILY_COLOR["jepa"],
         "marker": "o",
         "ls": "-",
     },
     "linear_lae": {
-        "label": "linear LAE-EnKF",
+        "label": "linear-latent filter",
         "color": fs.FAMILY_COLOR["pod"],
         "marker": "^",
         "ls": "--",
     },
     "eobs": {
-        "label": r"direct $E_{\mathrm{obs}}$",
+        "label": "static inverse",
         "color": fs.SPLIT_COLOR["test_b_boundary"],
         "marker": "s",
         "ls": "-.",
