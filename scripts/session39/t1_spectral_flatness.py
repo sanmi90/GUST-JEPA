@@ -31,12 +31,16 @@ CACHE = REPO / "outputs/session34/trackc_latents"
 OUT_JSON = REPO / "outputs/session39/t1_spectral_flatness.json"
 OUT_FIG = REPO / "paper/sections/figures/results/fig_t1_spectra_v4.pdf"
 
-FAMILIES = {  # paper label -> latent cache run (d = 32, matched)
+FAMILIES = {  # internal key -> latent cache run (d = 32, matched)
     "Pod": "pod",
     "JepaWake": "jepa_pool_vec",      # predictive CLW
     "AeWake": "ae_wake_pool",         # AE-LW (matched-supervision)
     "Fukami": "fukami",               # published-recipe reconstruction
 }
+# Canonical figure labels (Carlos's assessment #5: figures use the paper's names,
+# not internal codenames). Keys above stay as data references.
+DISPLAY_LABEL = {"Pod": "POD", "JepaWake": "predictive (wake)",
+                 "AeWake": "AE (wake)", "Fukami": "reconstructive"}
 DT_TC = 0.05                          # cache cadence; fs = 1/dt in cycles per t/c
 FS = 1.0 / DT_TC                      # = 20 ; frequency axis IS the Strouhal number
 NPERSEG = 64
@@ -181,7 +185,8 @@ def main() -> None:
                                P[order], vmin=vmin, vmax=vmax,
                                cmap="magma", shading="auto")
             ax.axvline(ST_SHED, color="c", lw=0.7, ls=(0, (3, 2)))
-            ax.set_title(f"{label} (flatness {per_family[label]['median']:.2f})",
+            ax.set_title(f"{DISPLAY_LABEL.get(label, label)} "
+                         f"(flatness {per_family[label]['median']:.2f})",
                          fontsize=7)
         for ax in axes[-1]:
             ax.set_xlabel(r"Strouhal number $St$")

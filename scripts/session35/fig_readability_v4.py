@@ -79,7 +79,7 @@ def main() -> int:
                         for k, lab in enumerate(labels)], fontsize=6.2)
     ax.set_xlabel("observable (linear probe, per-frame $z$)")
     cb = fig.colorbar(im, ax=ax, fraction=0.04, pad=0.02)
-    cb.set_label(r"test\_b $R^2$ (clipped at 0)", fontsize=6.5)
+    cb.set_label(r"in-distribution $R^2$ (clipped at 0)", fontsize=6.5)
     ax.set_title("task-dependent readability; * = collapsed cell",
                  fontsize=7.5)
     fig.tight_layout()
