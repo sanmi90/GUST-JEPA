@@ -52,8 +52,8 @@ C_EXCL = "#b2182b"     # excluded test-peeked band
 RECIPE_LABEL = {
     "openloop": "open loop",
     "eobs": "static inverse",
-    "linear_lae": "linear LAE-KF",
-    "rex_enkf": "REX-EnKF",
+    "linear_lae": "linear-latent filter",
+    "rex_enkf": "forecast-noise filter",
 }
 RECIPE_COLOR = {"openloop": C_OPEN, "eobs": C_EOBS, "linear_lae": C_LIN, "rex_enkf": C_REX}
 PHASES = ["pre", "impact", "relax"]
