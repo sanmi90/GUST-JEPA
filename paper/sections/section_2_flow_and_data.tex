@@ -120,7 +120,7 @@ comprises $\NCases$ cases partitioned into training, \ValSplit{} (the held-out
 last encounters of the training cases; archive name test\_a),
 \TestSplit{} (test\_b) and \BoundarySplit{} (test\_c) sets;
 the archive names in parentheses label the corresponding records in the data
-release and appear only here. The \TestSplit{} set is stratified to span the gust
+release and are not used again in the running text. The \TestSplit{} set is stratified to span the gust
 strengths, the three core diameters, and the two source groups
 (figure~\ref{fig:paramspace}); the \BoundarySplit{} set is the
 out-of-distribution $|G| = 4$ extrapolation set, sampled symmetrically in both
@@ -132,7 +132,8 @@ $\NTestBEnc$ \TestSplit{} and
 $\NTestCEnc$ \BoundarySplit{} encounters. The undisturbed reference case is retained in training. Behind these
 encounter counts are far fewer distinct cases: the $\NTestBEnc$ \TestSplit{} encounters come
 from only $\NTestBCases$ held-out cases ($\NTestBInterior$ interior and $\NTestBBoundary$
-boundary tier) and the $\NTestCEnc$ \BoundarySplit{} encounters from $\NTestCCases$ cases, with
+boundary tier, the latter the edge-of-training tier of figure~\ref{fig:paramspace})
+and the $\NTestCEnc$ \BoundarySplit{} encounters from $\NTestCCases$ cases, with
 most cases contributing four to six
 encounters that share a baseline shedding history. Encounters of the same case are
 therefore not independent, so encounter-level intervals overstate the effective
