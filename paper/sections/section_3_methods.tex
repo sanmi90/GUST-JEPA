@@ -64,7 +64,12 @@ regulariser of \citet{lejepa,lewm}, which matches the latent distribution to an
 isotropic Gaussian through a small number of random projections, with an
 automatic fall-back to a variance-covariance objective \citep{vicreg} should the
 participation ratio of the latent indicate collapse. Its configuration is given
-in Appendix~\ref{app:reg}.
+in Appendix~\ref{app:reg}. A variant lineage, referred to below as the
+direct-forecaster-coupled lineage, replaces the autoregressive transformer in this
+rollout term with the direct multi-horizon forecaster of \S\ref{sec:methods_rex}
+as the training predictor, so that the encoder is shaped against a one-shot rather
+than a recursive forward model; it is compared at low dimension in
+\S\ref{sec:res_dimension}.
 
 Three auxiliary heads read aerodynamic observables off the encoder output during
 training: a lift head that maps $\zvec_t$ to $C_L(t)$, a wake head that maps

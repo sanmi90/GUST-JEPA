@@ -146,26 +146,15 @@ four-coefficient state is estimable from the wall as well as forecastable.
 
 % Moved from Discussion (Session 39, D-B): the estimator-selection guidance
 % lives with the sensing appendix in the comparison-led revision.
-The ladder of \S\ref{sec:res_da} supports explicit selection guidance, in
-the spirit of the method-choice discussions of the assimilation literature
-\citep{gupta2026}. When only the
-in-distribution median matters and latency is irrelevant, the
-\StaticInv{} is the strongest and simplest tool, and no dynamics
-are needed. The moment the tails, the extrapolation boundary or continuous
-state tracking matter, the filters take over: online, the
-\TwoStageKF{} is the working choice, the forecast-derived noise carrying the
-impact and the tap-space observation carrying the relaxation; with a
-quarter-convective-time latency budget, the closed-form fixed-lag smoother
-on the linear stack is both the cheapest and the best reanalysis. Sparse
-or intermittent pressure favours the linear filter with encoded
-observations, the only member with zero consistency failures and graceful
-degradation under subsampled updates; every-frame pressure is necessary
-for the nonlinear members. Noise calibration should be spent on structure
-before scale: the state-dependent band fixed the impact-side consistency failures
-outright, while inflating its scale toward better tracking is model-error
-compensation that innovation consistency rejects, so a larger band should
-be read as a diagnostic of forecast contraction, not as a calibration
-target. Across model families the guidance is one sentence: anchored
-latent geometries, predictive or linear, can be selected on dimension and
-budget alone, while unanchored reconstructive geometries require a
-per-configuration estimatability check that their probes do not predict.
+The ladder of \S\ref{sec:res_da} supports explicit selection guidance
+\citep{gupta2026}. When only the in-distribution median matters and latency is
+irrelevant, the \StaticInv{} is the strongest and simplest tool; the moment the
+tails, the extrapolation boundary or continuous state tracking matter, the filters
+take over, the \TwoStageKF{} online and the closed-form fixed-lag smoother on the
+linear stack within a quarter-convective-time latency budget, while sparse or
+intermittent pressure favours the linear filter with encoded observations (the
+only member with zero consistency failures under subsampled updates). Across model
+families the guidance is one sentence: anchored latent geometries, predictive or
+linear, can be selected on dimension and budget alone, while unanchored
+reconstructive geometries require a per-configuration estimatability check that
+their probes do not predict.
