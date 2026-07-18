@@ -1,5 +1,10 @@
 # MANUSCRIPT_AUDIT.md (Session 36, Stage 0)
 
+> HISTORICAL (marked 2026-07-18): this audit describes the pre-session-39
+> build; the session-39 comparison-led revision (main_30) restructured the
+> figures/tables and the line numbers below no longer match. Current state:
+> editorial/CHANGELOG.md and paper/BUILD.md.
+
 Baseline: branch `jfm-rewrite-v2` at the Session 35 close state plus the M5
 closure edit below. Build `latexmk -pdf main` rc=0, 50 pages, snapshot at
 `paper/build/baseline.pdf` (untracked). Zero undefined references or

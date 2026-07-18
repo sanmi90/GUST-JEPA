@@ -49,7 +49,7 @@ Carlos available for the layout calls (D302/D305 land there too).
 
 | # | Label | Disposition | Status |
 |---|---|---|---|
-| 1 | fig:staging | KEEP | done (no change) |
+| 1 | fig:staging | KEEP | done (no change; v2p1 asset, see provenance note below the table) |
 | 2 | fig:paramspace | KEEP; split aliases in labels | TODO (M3, relabel pass) |
 | 3 | fig:phi | MOVE to appendix (Chang construction) | TODO (M3) |
 | 4+5 | fig:method(+arch/eval), fig:estimation_loop | REDRAW as one pipeline schematic | TODO (M3b) |
@@ -68,6 +68,12 @@ Carlos available for the layout calls (D302/D305 land there too).
 | 19 | fig:deploy | MOVE to appendix/supplementary | TODO (M3) |
 | 21 | fig:atlas | REDRAW slim (DMD spectrum + one atlas panel), stays in 4.1 per the memo recommendation; D302 confirm | TODO (M3f) |
 | 22-25 | appendix figs (incl. fig:recon, fig:pooling_cost already moved to supplementary S3) | remainder to supplementary | partially DONE |
+
+Provenance note (2026-07-18 audit): fig:staging is built from `fig_staging_v2p1.pdf`
+(scripts/session29, v2p1 cache) while every other data figure is v2p2. This is
+data-identical, not stale: the v2p2 cache symlinks the 87 v2p1 encounters and the
+staging sweep draws only pre-existing cases, so a v2p2 regen would reproduce the
+same fields. Deliberate; do not regenerate.
 
 Caption contract for every kept/redrawn figure (checked at the M3 pass):
 content; split and n; uncertainty convention; the single primary inference.

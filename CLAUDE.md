@@ -12,7 +12,29 @@ matched latent dimension.
 
 Lead researcher: Carlos Sanmiguel Vila (INTA, UC3M).
 
-## Current focus (read first, set 2026-07-11, Session 38 CLOSED)
+## Current focus (read first, set 2026-07-18, Session 39)
+
+**The canonical manuscript is main_30 on branch `session39-comparison-lead`**
+(NOT jfm-rewrite-v2; that branch ended at Session 38). Session 39 executed
+Carlos's referee-grade assessment of the comparison-led manuscript in three
+waves, all pushed: the scientific-consistency + prose batch (time origin,
+abstract, the divergence->consistency-failure/large-error terminology split,
+§7 claim rewrites), the structural surgery (body figures 21 -> 13, tables
+13 -> 8, demotions to appendix A, three figure combines, §1.3
+base-vs-two-stage envelope reconciliation), and the main_30 review + Ahnert
+assessment (v2.2 blocker, four references, nomenclature figure regens,
+abstract to one result number, D-W1..D-W6). The 2026-07-18 audit session
+verified the full state: gates all PASS (main 55pp rc=0, supp 3pp rc=0,
+tracer/audit_numbers PASS, 0 undefined refs, 0 em-dashes), numbers.json ->
+macros_v3.tex regeneration byte-identical, all figures on v2p2 (fig 1's
+v2p1 asset data-identical, documented in FIGURE_PLAN.md), and fixed the
+four oversized-box layout defects (figs 3/6 caption-footer collisions,
+tables 10/13 lineno overfulls; see paper/BUILD.md for the class traits).
+Build + gates + figure lineage: `paper/BUILD.md` (rewritten 2026-07-18).
+Carlos-owned submission blockers: DNS Table 1 (seven \pending rows, THE
+blocker), Zenodo DOI, license/CRediT/funding, Table-1 column retitle (#16).
+
+## Previous focus (Sessions 36-38, set 2026-07-11, Session 38 CLOSED)
 
 **Sessions 36-38 are COMPLETE on branch `jfm-rewrite-v2`** (pushed through
 `8250575`; one continuous conversation; reports SESSION36/37/38_REPORT.md;

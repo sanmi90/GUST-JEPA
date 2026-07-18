@@ -1,4 +1,8 @@
-# REVISION_PLAN.md — structural surgery pass (Carlos's referee-grade assessment)
+# REVISION_PLAN.md: structural surgery pass (Carlos's referee-grade assessment)
+
+> EXECUTED (marked 2026-07-18): the surgery this plan describes was applied in
+> full during session 39 (commits 9878801..ca146d1). Retained as the design
+> record; current state in editorial/CHANGELOG.md.
 
 Status after the scientific-consistency + prose sweeps (commits `d87bc89`..`3c4d8b0`,
 all pushed). This plan covers ONLY the structural surgery Carlos asked me to plan
