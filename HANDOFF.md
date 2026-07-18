@@ -10894,3 +10894,53 @@ wake head (weaker fit than Ahnert D-W1) and does not compete with the estimation
 results. ONE follow-up thread worth remembering: nudging/AOT as a cheaper
 latent-filter alternative to the EnKF for paper 2, its arbitrary-IC property
 matching our streaming pressure-only initialisation. Parked, not actioned.
+
+### D-W7 (2026-07-18 full audit: gates, training consistency, JFM figure QC, claims-vs-evidence; main_30 -> 56 pp) (2026-07-18, Session 39)
+
+Carlos asked for a full audit of main_30: paper status, results/figures
+versus the latest training, workflow quality, JFM-standard figure QC, and
+(added mid-plan) narrative plus claims-vs-evidence. Executed end-to-end on
+session39-comparison-lead (commits 2c53d6d..63132e3, pushed).
+VERDICTS. (1) Numbers-vs-training: CONSISTENT. numbers.json (25 parts,
+frozen commit d5b1b9c) and macros_v3.tex regenerate byte-identically
+modulo the provenance header; the one post-freeze artifact
+(t1_spectral_flatness.json, Jul 15) is value-identical to its frozen part;
+the two ledger flags (suited-merit H=8 caption, 0.83/0.825 precision) were
+already fixed in the tex. (2) Layout: fixed four oversized-box defects
+(figs 3/6 caption-over-footer clipping; tab:enkf/tab:prepsens 365/238 pt
+phantom overfulls, a lineno-class artifact cured by the conditional
+\fittab, same fix applied to supplementary table S1). The page-1 33.95 pt
+overfull vbox is the class's draft banner, no action. Booktabs
+top/mid-rules do not render under JFM-FLM_Au.cls anywhere; uniform class
+trait, documented in BUILD.md, not "fixed". (3) Figure QC: the session-39
+nomenclature pass had covered captions/prose but NOT matplotlib internals;
+sixteen scripts relabelled + regenerated on frozen inputs (codenames,
+test_b tags, collisions: atlas legend strike, fig 7 nested letters,
+rotated-row-label overprints in figs 22/25/S1, fig 27 inset, fig 28
+legend-on-bar, fig 29 lettering + (D3) leak). (4) Claims-vs-evidence
+(four-agent fan-out, findings independently verified): the load-bearing
+results all survive; repaired an optimistic-direction cluster, most
+seriously the fig 12 caption presenting the forecast-noise filter as the
+two-stage production filter, appendix A + tab:baselines still describing
+the pre-D310 suited-operator protocol as tab:closure's, the s5 boundary
+"innovations stay consistent on nearly every encounter" (record: 0.72
+failure fraction, fewest of the families), and the s2 training envelope
+omitting |G| = 0.25 (run4). Full per-claim record: CLAIM_MAP.md session-39
+re-anchor. (5) Docs: BUILD.md rewritten to main_30 (was the dead v1
+MD->TeX pipeline), CLAUDE.md Current focus repointed to this branch,
+MANUSCRIPT_AUDIT/REVISION_PLAN marked historical/executed, FIGURE_PLAN
+records fig 1's v2p1-data-identical provenance.
+GATES at close: main 56 pp rc=0 (55 -> 56 from repair prose), supp 3 pp
+rc=0, tracer PASS, audit_numbers PASS (968/868, 0 mismatches), 0 undefined
+refs, 0 em-dashes, 0 float-too-large, abstract 242/250.
+OPEN for Carlos: fig 7 seed-axis attribution (panel says encoder seeds,
+caption says operator seeds; artifact check); no printed bands for the
+RexFam lift forecasts and the 0.755 co-trained value; per-family
+wake-closure and ladder-median macros if the dropped comparatives should
+return; the two-stage "removes the consistency failures" sentence has no
+bound macro; the s3.5 sign-convention audit; the abstract/s6
+static-inverse "matches" wording (body now matches it); plus the standing
+blockers (DNS Table 1, Zenodo DOI, license/CRediT/funding, Table-1
+retitle #16). The main_30 review's spend-limit note: two figure-regen
+subagents died at report time; their disk state was verified edit-by-edit
+before use.
