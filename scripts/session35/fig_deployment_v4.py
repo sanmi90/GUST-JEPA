@@ -113,7 +113,7 @@ def main() -> None:
               transform=ax_b.transAxes, fontsize=6, color="#404040",
               ha="left", va="bottom")
 
-    fig.text(0.995, 0.01, "split test B", ha="right", va="bottom",
+    fig.text(0.995, 0.01, "in-distribution test set", ha="right", va="bottom",
              fontsize=6, color="#404040")
 
     fig.tight_layout(w_pad=1.5, rect=(0, 0.03, 1, 1))

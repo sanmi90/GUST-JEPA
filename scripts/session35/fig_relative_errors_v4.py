@@ -142,7 +142,7 @@ def main() -> int:
     ax_a.text(
         0.98,
         0.10,
-        "test B, per-|G| medians",
+        "in-distribution test, per-|G| medians",
         transform=ax_a.transAxes,
         fontsize=6.5,
         color="0.35",
@@ -160,7 +160,14 @@ def main() -> int:
     ax_a.text(-0.20, 1.02, "(a)", transform=ax_a.transAxes, fontsize=8.5, fontweight="bold")
 
     # (a) inset: same statistic aggregated by gust diameter D
-    ax_in = ax_a.inset_axes([0.63, 0.50, 0.34, 0.36])
+    # Placed high in the empty upper-right region (all curves stay below
+    # y = 18% for |G| >= 2) so neither the box nor its tick/axis labels
+    # touch main-panel ink; opaque white patch so nothing shows through.
+    ax_in = ax_a.inset_axes([0.60, 0.60, 0.29, 0.31])
+    ax_in.set_facecolor("white")
+    ax_in.patch.set_alpha(1.0)
+    for sp in ax_in.spines.values():
+        sp.set_linewidth(0.6)
     for fam, sty in FILTER_STYLE.items():
         d = rel[fam]["peak_rel_err_pct_by_D"]
         dd = np.array([float(k) for k in d])

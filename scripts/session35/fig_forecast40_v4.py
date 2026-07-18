@@ -93,7 +93,7 @@ def main() -> None:
     ax_a.set_ylabel(r"$C_L$")
     ax_a.legend(fontsize=6, loc="upper right", handlelength=1.4,
                 borderaxespad=0.2)
-    ax_a.set_title("(a) representative encounter", fontsize=8)
+    ax_a.set_title("representative encounter", fontsize=8)
 
     # ------------------------------------------------------------- panel (b)
     rows = [
@@ -135,7 +135,7 @@ def main() -> None:
     ax_b.set_ylim(-0.6, len(rows) - 0.2)
     ax_b.set_xlim(-0.85, 0.95)
     ax_b.set_xlabel(r"decoded $C_L$ $R^2$")
-    ax_b.set_title("(b) 40-step forecast, context 25", fontsize=8)
+    ax_b.set_title("40-step forecast, context 25", fontsize=8)
     ax_b.spines["left"].set_visible(False)
     ax_b.tick_params(axis="y", length=0)
 
@@ -145,7 +145,7 @@ def main() -> None:
     fig.text(
         0.995, 0.01,
         "latent-space skill vs persistence: direct forecaster "
-        f"{skill_rex:+.2f} (pooled H=40), AR rollout {skill_ar40:+.2f} at h=40; "
+        f"{skill_rex:+.2f} (pooled H=40), AR rollout {skill_ar40:+.2f} at H=40; "
         "test set (42 encounters)",
         ha="right", va="bottom", fontsize=6, color="#404040",
     )

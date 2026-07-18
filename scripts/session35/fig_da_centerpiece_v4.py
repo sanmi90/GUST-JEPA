@@ -116,7 +116,7 @@ def main() -> None:
     ax_a.set_xticklabels(PHASES)
     ax_a.set_ylim(0, 1.78)
     ax_a.set_ylabel(r"$C_L$ RMSE")
-    ax_a.set_title(f"(a) $C_L$ RMSE by phase (test B, $n={n_b}$)",
+    ax_a.set_title(f"(a) $C_L$ RMSE by phase\n(in-distribution test, $n={n_b}$)",
                    loc="left", fontsize=TITLE_FS)
     ax_a.legend(loc="upper right", fontsize=5.5, handlelength=1.0,
                 borderaxespad=0.1, labelspacing=0.25)
@@ -143,13 +143,13 @@ def main() -> None:
     ax_b.set_xticks(xs)
     ax_b.set_xticklabels(PHASES)
     ax_b.set_ylabel(r"$C_L$ $R^2$")
-    ax_b.set_title(f"(b) $C_L$ $R^2$ by phase (test B, $n={n_b}$)",
+    ax_b.set_title(f"(b) $C_L$ $R^2$ by phase\n(in-distribution test, $n={n_b}$)",
                    loc="left", fontsize=TITLE_FS)
     rex_relax_r2 = phase["summary"]["rex_enkf"]["relax"]["cl_r2"]
     rex_relax_rmse = phase["summary"]["rex_enkf"]["relax"]["cl_rmse"]
     ax_b.annotate(
         f"relax: $R^2<0$ at\nthe best RMSE ({rex_relax_rmse:.2f});\n"
-        "variance artifact,\nnot failure",
+        "variance artefact,\nnot failure",
         xy=(2 + 1.5 * width, rex_relax_r2), xytext=(-0.32, -1.55), fontsize=6,
         va="top", bbox=dict(fc="white", ec="none", alpha=0.85, pad=0.6),
         arrowprops=dict(arrowstyle="-", lw=0.6, color="0.3"), zorder=5)
@@ -222,12 +222,12 @@ def main() -> None:
     ax_c.set_ylim(-1.45, ys[0] + 1.95)
     ax_c.set_xlim(x0, x1)
     ax_c.set_xlabel(r"impact-phase median $C_L$ $R^2$")
-    ax_c.set_title("(c) impact-phase estimator ladder",
+    ax_c.set_title("(a) impact-phase estimator ladder",
                    loc="left", fontsize=TITLE_FS)
     hb = plt.Line2D([], [], marker="o", ls="none", color="0.2", ms=4,
-                    label=f"test B ($n={n_b}$)")
+                    label=f"in-distribution test ($n={n_b}$)")
     hc = plt.Line2D([], [], marker="o", ls="none", mfc="none", mec="0.2", ms=4,
-                    label=f"test C, $|G|=4$ ($n={n_c}$)")
+                    label=f"boundary test, $|G|=4$ ($n={n_c}$)")
     ax_c.legend(handles=[hb, hc], loc="upper center", ncol=2, fontsize=5.5,
                 handletextpad=0.2, borderaxespad=0.0, columnspacing=0.8)
 
@@ -239,7 +239,7 @@ def main() -> None:
     methods = [  # (summary key, label, color, is_smoother)
         ("kf", "linear\nKF", C_LIN, False),
         (f"rts_lag{rts_lag_frames}", f"+RTS\nlag {rts_lag_frames}", C_LIN, True),
-        ("rex_enkf", "REX-\nEnKF", C_REX, False),
+        ("rex_enkf", "forecast-\nnoise", C_REX, False),
         ("rex_enks", "+EnKS", C_REX, True),
     ]
     xd = np.arange(len(methods))
@@ -256,7 +256,7 @@ def main() -> None:
     ax_d.set_xticklabels([m[1] for m in methods], fontsize=6)
     ax_d.set_ylabel(r"$C_L$ RMSE")
     ax_d.set_ylim(0, 0.62)
-    ax_d.set_title(f"(d) filter vs smoother (test B, $n={n_b}$)",
+    ax_d.set_title(f"(b) filter vs smoother (in-distribution test, $n={n_b}$)",
                    loc="left", fontsize=TITLE_FS)
     handles_d = [
         Patch(facecolor="0.35", label="impact"),
@@ -298,10 +298,12 @@ def main() -> None:
         f"and picks the lowest-$R^2$ band",
         xy=(bx[isel] + 0.07, nis_vals[isel] - 0.03), xytext=(2.0, 0.63),
         fontsize=6, va="top", arrowprops=dict(arrowstyle="-", lw=0.6, color="0.3"))
-    # excluded test-peeked band (D3): annotate, do NOT plot its 0.840 value
+    # excluded test-peeked band: annotate, do NOT plot its 0.840 value.
+    # Text sits in the empty band between the NIS curve (below 0.42 for
+    # c > 2.5) and the R^2 curve (above 0.93 there), clear of both.
     ax_e.axvline(band_prefreeze, color=C_EXCL, lw=0.8, ls=(0, (2, 2)))
-    ax_e.annotate(f"$c={band_prefreeze:g}$: test-peeked {peeked_val:.3f} excluded (D3)",
-                  xy=(band_prefreeze + 0.07, 0.30), fontsize=6,
+    ax_e.annotate(f"$c={band_prefreeze:g}$: test-peeked {peeked_val:.3f} excluded",
+                  xy=(2.60, 0.87), fontsize=6,
                   color=C_EXCL, va="top", ha="left")
     ax_e.set_xlabel("innovation-band scale $c$")
     ax_e.set_ylabel("pooled impact NIS", color="0.25")
@@ -311,7 +313,7 @@ def main() -> None:
     ax_e.set_ylim(0, 1.14)
     ax_e2.set_ylim(0.54, 0.88)
     ax_e.set_xlim(0.8, 6.2)
-    ax_e.set_title(f"(e) NIS band calibration (validation, $n={n_a}$)",
+    ax_e.set_title(f"(c) NIS band calibration (validation, $n={n_a}$)",
                    loc="left", fontsize=TITLE_FS)
     ax_e.legend(handles=[l1, l2], loc="center right", fontsize=6, handlelength=1.3,
                 borderaxespad=0.4, labelspacing=0.25)
@@ -322,7 +324,7 @@ def main() -> None:
                f"members; phase evaluation at the val-calibrated band "
                f"$c={band_prefreeze:g}$.", fontsize=5.5, color="0.3")
     fig_c.text(0.165, 0.02,
-               f"(c) frozen bands only; (e) selection on the validation split only; "
+               f"(a) frozen bands only; (c) selection on the validation split only; "
                f"$K={k_sensors}$ taps, $N={members}$ members.",
                fontsize=5.5, color="0.3")
 

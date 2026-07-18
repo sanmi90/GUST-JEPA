@@ -131,7 +131,7 @@ def main() -> None:
                           left=0.075, right=0.93, top=0.945, bottom=0.045)
 
     row_labels = (["DNS"] + [f"{lab}" for _, lab in MODELS]
-                  + [f"{lab} $-$ DNS" for _, lab in MODELS])
+                  + [rf"$\Delta$ {lab}" for _, lab in MODELS])
     field_rows = [truth] + [decoded[run] for run, _ in MODELS]
     error_rows = [decoded[run] - truth for run, _ in MODELS]
 
@@ -171,7 +171,7 @@ def main() -> None:
     cb_e.ax.tick_params(labelsize=6)
 
     fig.text(0.5, 0.008,
-             f"case {CASE} (test_b), encounter {ENC}; seed s0 per model; "
+             f"case {CASE} (in-distribution test), encounter {ENC}; seed s0 per model; "
              "pooled z tiled to the 24 x 12 grid, "
              "frozen-encoder decode-floor decoders",
              ha="center", va="bottom", fontsize=6.2, color="#404040")

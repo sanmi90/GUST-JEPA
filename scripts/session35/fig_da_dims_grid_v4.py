@@ -37,17 +37,17 @@ DIMS = (4, 8, 16, 32)
 
 MAIN_FAMILIES = {
     "POD": {
-        "label": "POD (own stack)",
+        "label": "linear (POD, own stack)",
         "color": figstyle.FAMILY_COLOR["pod"],
         "marker": figstyle.FAMILY_MARKER["pod"],
     },
     "Fukami AE": {
-        "label": "Fukami AE (own stack)",
+        "label": "reconstructive (Fukami, own stack)",
         "color": figstyle.FAMILY_COLOR["fukami"],
         "marker": figstyle.FAMILY_MARKER["fukami"],
     },
     "JEPA CLW": {
-        "label": "JEPA CLW (own stack)",
+        "label": "predictive (wake, own stack)",
         "color": figstyle.FAMILY_COLOR["jepa"],
         "marker": figstyle.FAMILY_MARKER["jepa"],
     },
@@ -87,7 +87,7 @@ def draw_panel(ax, grid: list[dict], band: dict, metric: str, band_key: str,
     ax.plot(cln_ds, [cln[d][metric] for d in cln_ds], linestyle=":",
             linewidth=0.8, marker="D", markersize=4, color=CLN_COLOR,
             markerfacecolor="none", markeredgewidth=1.0,
-            label="JEPA CLN-rexpred", zorder=3)
+            label="lift-focused predictive", zorder=3)
 
     # kit AE-LW d = 32 anchor
     ae = rows_for(grid, "kit AE-LW")
@@ -95,7 +95,7 @@ def draw_panel(ax, grid: list[dict], band: dict, metric: str, band_key: str,
         ax.plot([d], [row[metric]], marker="v", markersize=4.5,
                 color=AE_KIT_COLOR, markerfacecolor="none",
                 markeredgewidth=1.0, linestyle="none",
-                label=f"kit AE-LW ($d={d}$)", zorder=3)
+                label=f"AE (wake) ($d={d}$)", zorder=3)
 
     # Fukami d = 16 three-seed band: individual open markers + vertical line
     seed_vals = band[band_key]["values"]
@@ -152,7 +152,7 @@ def main() -> None:
                bbox_to_anchor=(0.5, 0.045))
 
     fig.text(0.995, 0.005,
-             "split test B, $K=8$ taps, every-frame wall pressure",
+             "in-distribution test set, $K=8$ taps, every-frame wall pressure",
              ha="right", va="bottom", fontsize=6, color="#404040")
 
     fig.tight_layout(w_pad=1.5, rect=(0, 0.14, 1, 1))

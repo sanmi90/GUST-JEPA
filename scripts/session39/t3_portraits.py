@@ -22,10 +22,10 @@ CACHE = REPO / "outputs/session34/trackc_latents"
 OUT_FIG = REPO / "paper/sections/figures/results/fig_t3_portraits_v4.pdf"
 
 FAMILIES = {
-    "Pod": "pod",
-    "JepaWake": "jepa_pool_vec",
-    "AeWake": "ae_wake_pool",
-    "Fukami": "fukami",
+    "(a) linear (POD)": "pod",
+    "(b) predictive (wake)": "jepa_pool_vec",
+    "(c) AE (wake)": "ae_wake_pool",
+    "(d) reconstructive (Fukami)": "fukami",
 }
 REP_CASE = "G-0.50_D1.00_Y-0.40"     # representative gusted encounter (decode fig)
 

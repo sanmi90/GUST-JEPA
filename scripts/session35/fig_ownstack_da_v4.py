@@ -123,8 +123,6 @@ def main() -> None:
     ax_a.set_ylabel(r"$C_L$ RMSE")
     ax_a.set_xlabel("encounter phase")
     ax_a.set_ylim(0, ax_a.get_ylim()[1] * 1.30)
-    ax_a.legend(fontsize=6, loc="upper left", handlelength=1.0,
-                borderaxespad=0.2, ncol=1)
     ax_a.set_title(r"(a) phase-resolved, $K=8$", fontsize=8)
 
     # ------------------------------------------------------------- panel (b)
@@ -170,14 +168,21 @@ def main() -> None:
     fig.text(
         0.995,
         0.01,
-        "own-stack DA, split test B (42 encounters), single filter seed",
+        "own-stack DA, in-distribution test (42 encounters), single filter seed",
         ha="right",
         va="bottom",
         fontsize=6,
         color="#404040",
     )
 
-    fig.tight_layout(w_pad=1.2, rect=(0, 0.03, 1, 1))
+    fig.tight_layout(w_pad=1.2, rect=(0, 0.03, 1, 0.90))
+
+    # single figure-level legend above the panels (the three families apply
+    # to all of (a)-(c)); keeps the legend clear of every bar in panel (a).
+    handles, labels = ax_a.get_legend_handles_labels()
+    fig.legend(handles, labels, loc="upper center", ncol=3, fontsize=6,
+               frameon=False, handlelength=1.0, columnspacing=1.2,
+               bbox_to_anchor=(0.5, 1.0))
 
     out_dir = REPO / "paper/sections/figures/results"
     out_dir.mkdir(parents=True, exist_ok=True)

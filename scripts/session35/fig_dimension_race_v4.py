@@ -110,16 +110,16 @@ def main() -> None:
 
     # ---------------- (a) linear-probe peak R2 vs d, three lineages ----------
     for lineage, color, ls, marker, label in [
-        ("cln_rexpred", green, "-", figstyle.FAMILY_MARKER["jepa"], "CLN-rexpred"),
-        ("flagship_clw", green_lt, "--", figstyle.FAMILY_MARKER["jepa"], "CLW flagship"),
-        ("fukami_wake", red, "-", figstyle.FAMILY_MARKER["fukami"], "Fukami AE"),
+        ("cln_rexpred", green, "-", figstyle.FAMILY_MARKER["jepa"], "lift-focused"),
+        ("flagship_clw", green_lt, "--", figstyle.FAMILY_MARKER["jepa"], "wake-supervised"),
+        ("fukami_wake", red, "-", figstyle.FAMILY_MARKER["fukami"], "reconstructive (Fukami)"),
     ]:
         seed_lists = [seeds_for(ladder, lowd, band35, lineage, d) for d in DS]
         plot_lineage(ax_a, DS, seed_lists, color, ls, marker, label)
 
     ax_a.set_ylabel(r"peak $C_L$ $R^2$ (linear probe)")
     ax_a.set_ylim(0.70, 0.965)
-    ax_a.legend(loc="lower right", fontsize=6, handlelength=1.5,
+    ax_a.legend(loc="lower right", fontsize=5, handlelength=1.2,
                 borderaxespad=0.2, labelspacing=0.3)
     ax_a.text(0.03, 0.975, "open markers: single seed\nbands: seed min-max",
               transform=ax_a.transAxes, fontsize=6, color="0.35", va="top")
@@ -146,7 +146,7 @@ def main() -> None:
     ax_b.set_ylim(0.5, 0.965)
     ax_b.legend(loc="lower left", fontsize=6, handlelength=1.5,
                 borderaxespad=0.2, labelspacing=0.3)
-    ax_b.text(0.97, 0.975, "CLW lineage", transform=ax_b.transAxes,
+    ax_b.text(0.97, 0.975, "wake-supervised lineage", transform=ax_b.transAxes,
               fontsize=6, color="0.35", ha="right", va="top")
 
     # ---------------- (c) decoded SSIM vs d, cln_rexpred ---------------------
@@ -160,7 +160,7 @@ def main() -> None:
     ax_c.set_ylim(0.50, 0.82)
     ax_c.legend(loc="lower right", fontsize=6, handlelength=1.7,
                 borderaxespad=0.2)
-    ax_c.text(0.03, 0.97, "CLN-rexpred", transform=ax_c.transAxes,
+    ax_c.text(0.03, 0.97, "lift-focused lineage", transform=ax_c.transAxes,
               fontsize=6, color="0.35", va="top")
 
     for ax, lab in zip(axes, "abc"):
@@ -172,7 +172,7 @@ def main() -> None:
         ax.text(-0.14, 1.04, f"({lab})", transform=ax.transAxes,
                 fontsize=8.5, fontweight="bold", va="bottom")
 
-    fig.text(0.995, 0.01, "split: test_b", ha="right", va="bottom",
+    fig.text(0.995, 0.01, "in-distribution test set", ha="right", va="bottom",
              fontsize=6.2, color="0.35")
     fig.tight_layout(w_pad=1.2)
 

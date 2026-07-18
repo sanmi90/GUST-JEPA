@@ -17,7 +17,7 @@ from scripts.session21.figstyle import TEXTWIDTH_IN, use_style  # noqa: E402
 
 OUT = REPO / "paper/sections/figures/results/fig_critical_ssim_dim.pdf"
 DIMS = [4, 8, 16, 32]
-STYLE = {"predictive": ("#1b7837", "o", "predictive (JEPA)"),
+STYLE = {"predictive": ("#1b7837", "o", "predictive (wake)"),
          "AE (wake)": ("#762a83", "s", "AE (wake)"),
          "Fukami (wake)": ("#e08214", "^", "Fukami (wake)"),
          "POD": ("#2166ac", "D", "POD")}

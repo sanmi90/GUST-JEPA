@@ -34,9 +34,9 @@ OUT_PDF = REPO / "outputs/session33/figures/fig_mechanism_hroll_v3.pdf"
 # candidate in the reconstructive family red, supervised-only as the intermediate
 # (orange, matches the figstyle boundary accent), the full objective in JEPA green.
 BAR_MODELS = [
-    ("regAE_pool", "regAE", FAMILY_COLOR["fukami"]),
+    ("regAE_pool", "anti-collapse\nAE", FAMILY_COLOR["fukami"]),
     ("supervised_only_pool", "supervised\nonly", "#e08214"),
-    ("jepa_wake_pool", "JEPA\n+wake", FAMILY_COLOR["jepa"]),
+    ("jepa_wake_pool", "predictive\n(wake)", FAMILY_COLOR["jepa"]),
 ]
 HROLL_STYLE = {
     "H_roll_1": {"color": "#7f7f7f", "ls": "--", "marker": "s",
@@ -95,7 +95,7 @@ def panel_a(ax, mech: dict) -> None:
     ax.set_yscale("log")
     ax.set_ylim(6e-3, 0.55)
     ax.set_xticks(list(xs))
-    ax.set_xticklabels([lbl for _, lbl, _ in BAR_MODELS], fontsize=6.2)
+    ax.set_xticklabels([lbl for _, lbl, _ in BAR_MODELS], fontsize=4.8)
     ax.set_ylabel("near-null departure\nenergy fraction")
     ax.set_title("(a) supervision builds the\nprotected subspace", fontsize=7.5)
 

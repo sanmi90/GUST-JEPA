@@ -39,6 +39,10 @@ DOWNSAMPLE = 3                       # every 3rd frame keeps the pdf small
 DMD_FAMILIES = {"jepa_pool": "jepa", "fukami": "fukami", "pod": "pod"}
 EVR_FAMILIES = {"jepa_pool": "jepa", "fukami": "fukami", "pod": "pod"}
 ST_XMAX = 1.05                       # damped high-St modes are counted, not drawn
+# Panel (d) legend: canonical family names for the DA/ownstack figure set
+# (local override; FAMILY_LABEL in figstyle stays untouched for other figures).
+DMD_LEGEND_LABEL = {"jepa": "predictive (wake)", "fukami": "reconstructive (Fukami)",
+                    "pod": "linear (POD)"}
 
 
 def load_atlas() -> dict:
@@ -96,8 +100,9 @@ def dmd_panel(ax, dmd: dict) -> None:
     ax.axhline(1.0, color="0.4", ls=(0, (4, 3)), lw=0.8, zorder=1)
     ax.axvline(dmd["St_ref"], color="0.75", ls="-", lw=0.8, zorder=1)
     ax.axvline(dmd["St_sub"], color="0.75", ls=":", lw=0.8, zorder=1)
-    ax.text(dmd["St_ref"], 0.07, rf"$St = {dmd['St_ref']:.3f}$" + "\n(measured shedding)",
-            ha="center", va="bottom", fontsize=6, color="0.35")
+    ax.text(dmd["St_ref"] + 0.015, 0.56,
+            rf"$St = {dmd['St_ref']:.3f}$" + "\n(measured shedding)",
+            ha="left", va="bottom", fontsize=6, color="0.35")
     ax.text(dmd["St_sub"] + 0.012, 0.345, r"$St/2$",
             ha="left", va="bottom", fontsize=6, color="0.35")
     n_clip, clip_max = 0, 0.0
@@ -109,7 +114,7 @@ def dmd_panel(ax, dmd: dict) -> None:
             clip_max = max(clip_max, float(f["mod"][~show].max()))
         ax.scatter(f["St"][show], f["mod"][show], s=13, marker=FAMILY_MARKER[key],
                    color=FAMILY_COLOR[key], alpha=0.75, linewidths=0, zorder=3,
-                   label=FAMILY_LABEL[key])
+                   label=DMD_LEGEND_LABEL.get(key, FAMILY_LABEL[key]))
         dom = f["dominant"]
         ax.scatter([dom["St"]], [dom["modulus"]], s=52, marker=FAMILY_MARKER[key],
                    facecolor=FAMILY_COLOR[key], edgecolor="black", linewidths=0.8,

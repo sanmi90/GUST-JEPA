@@ -40,8 +40,8 @@ from figstyle import TEXTWIDTH_IN, use_style, vort_panel  # noqa: E402
 CASE = ("G+1.50_D1.50_Y+0.10", 1)  # hero representative pick, |G| = 1.5
 FAMS = [
     # Session 38 audit: predictive entry re-pointed to the vec flagship
-    ("jepa_pool_vec", "predictive (JEPA)", "outputs/session33/q1_vec_latents"),
-    ("fukami", "reconstructive (Fukami)", "outputs/session31/q1_latents"),
+    ("jepa_pool_vec", "predictive", "outputs/session33/q1_vec_latents"),
+    ("fukami", "reconstructive", "outputs/session31/q1_latents"),
     ("pod", "linear (POD)", "outputs/session31/q1_latents"),
 ]
 SSIM_L = 8.487

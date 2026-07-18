@@ -74,7 +74,7 @@ def fig_trade(grid):
     ax.set_xticks(ws)
     ax.set_xticklabels([str(w) for w in ws])
     ax.set_xlabel(r"window $W$ (frames), $K = 8$ taps")
-    ax.set_ylabel(r"recovered $R^2$ (test B)")
+    ax.set_ylabel(r"recovered $R^2$ (in-distribution test)")
     ax.axhline(0.0, color="0.8", lw=0.6, zorder=0)
     ax.legend(frameon=False, fontsize=6, loc="lower right")
     ax.set_title("(a) delays recover the wall-blind coordinate", fontsize=7)

@@ -94,7 +94,7 @@ def main():
     ax.legend(frameon=False, fontsize=6, loc="center left")
     ax.set_title("(a) the operating envelope", fontsize=7)
     ax.tick_params(labelbottom=False)
-    ax.text(3.9, -0.35, "worse than the mean", fontsize=5.5, color="0.4",
+    ax.text(3.9, -1.6, "worse than the mean", fontsize=5.5, color="0.4",
             ha="right")
     _ol = [blk["forecast_CL_r2_impact"]["median"] for blk in byg.values()
            if blk.get("forecast_CL_r2_impact")
@@ -119,8 +119,8 @@ def main():
     axd.set_xlabel(r"gust strength $|G|$")
 
     # (b) sign asymmetry (physical sign; G_phys = -G_inv per D224)
-    for inv_key, label, c in (("neg_Ginv", r"$G_{\mathrm{phys}} > 0$", "#1b7837"),
-                              ("pos_Ginv", r"$G_{\mathrm{phys}} < 0$", "#7570b3")):
+    for inv_key, label, c in (("neg_Ginv", r"$G > 0$", "#1b7837"),
+                              ("pos_Ginv", r"$G < 0$", "#7570b3")):
         xs, ys = [], []
         for g in GORDER:
             blk = bysg.get(g, {}).get(inv_key, {})

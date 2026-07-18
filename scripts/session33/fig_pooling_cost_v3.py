@@ -34,12 +34,12 @@ OUT_PDF = REPO / "outputs/session33/figures/fig_pooling_cost_v3.pdf"
 
 # json key -> (display label, colour); order = top-to-bottom row order
 FAMILIES = {
-    "jepa_wake_pool": ("JEPA + wake", FAMILY_COLOR["jepa"]),
+    "jepa_wake_pool": ("predictive\n(wake)", FAMILY_COLOR["jepa"]),
     "supervised_only_pool": ("supervised only", "#e08214"),
-    "ae_wake_pool": ("AE + wake", FAMILY_COLOR["fukami"]),
-    "jepa_nowake_pool": ("JEPA", FAMILY_COLOR["jepa"]),
-    "ae_nowake_pool": ("AE", FAMILY_COLOR["fukami"]),
-    "regAE_pool": ("reg. AE", FAMILY_COLOR["fukami"]),
+    "ae_wake_pool": ("AE (wake)", FAMILY_COLOR["fukami"]),
+    "jepa_nowake_pool": ("predictive\n(no wake)", FAMILY_COLOR["jepa"]),
+    "ae_nowake_pool": ("AE (no wake)", FAMILY_COLOR["fukami"]),
+    "regAE_pool": ("anti-collapse\nAE", FAMILY_COLOR["fukami"]),
 }
 
 # (json key, xlabel, direction of improvement)
@@ -93,7 +93,7 @@ def main() -> None:
                 transform=ax.transAxes)
 
     axes[0].set_yticks(ys)
-    axes[0].set_yticklabels([lab for _, lab, _ in rows])
+    axes[0].set_yticklabels([lab for _, lab, _ in rows], fontsize=6)
 
     handles = [
         plt.Line2D([], [], marker="o", ms=4.0, mfc="white", mec="0.15",
