@@ -17,7 +17,7 @@ it the predictive states carry the more forecastable lift, decoded lift
 $R^2 = \RexFamClw{}$ for the \PredState{} and \RexFamCln{} for the \LiftState{} against
 \RexFamAeLw{} for the reconstructive anchor, three operator-training seeds
 per family on the \TestSplit{} set, with the \LiftState{} latents the most
-lift-forecastable of all
+lift-forecastable at the seed mean
 (figure~\ref{fig:forecast}a). On the five-observable merit of
 table~\ref{tab:closure}, recomputed under the same shared operator across
 all ten families, the wake-headed states are statistically tied
@@ -66,7 +66,7 @@ model-plus-pressure route of part D.
   \end{subfigure}
   \caption{Forecasting the state on the \TestSplit{} set. (a)~Decoded lift $R^2$ of the
   shared \DirectFC{} per family (three operator seeds each, bars at
-  the seed mean): the wake-supervised states forecast the lift best.
+  the seed mean): the predictive states forecast the lift best.
   (b)~Direct versus autoregressive over forty steps through the impact
   from a $25$-frame context: the one-shot forecast stays usable where the
   rollout compounds. The conditioning null, where the $(G, D, Y)$ oracle

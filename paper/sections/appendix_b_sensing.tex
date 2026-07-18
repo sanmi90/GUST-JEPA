@@ -24,7 +24,7 @@ optimum of the wall-pressure modes \citep{manohar2018sensors}, nested so that
 every tap count is a prefix of the next, because a sensor-budget claim must not
 depend on a placement tuned to any model. The two meet where their sensing
 coincides: the grid's eight-tap, thirty-frame cell rerun on the
-model-conditioned taps reproduces the table's recovery exactly
+model-conditioned taps closely reproduces the table's recovery
 ($\TbridgeState$). The energy-versus-information split of \S\ref{sec:res_wall}
 is also placement-robust: under the shared target-blind array with the
 kernel-ridge estimator alone, the reconstructive state remains the most
@@ -74,7 +74,7 @@ wall reading the force-carrying directions best (\S\ref{sec:res_wall}).
 At the $|G| = 4$ boundary every static approach fails on the load, the
 via-latent recovery at $\VrecCLGFour$ and the direct no-latent regression at
 $\DirectCLKeightGFour$ from the same taps ($\DirectCLAllTapsGFour$ with the full
-array), while the filters still track it (table~\ref{tab:family_filter}). The
+array), while the nonlinear filters still track it (table~\ref{tab:family_filter}). The
 boundary is the same larger three-dimensional content the field carries there
 (\S\ref{sec:flow_physics}): the mid-plane state captures less of the dynamics, so
 a \StaticInv{} recovers little from a single instant, and only the accumulated
@@ -124,8 +124,9 @@ four-coefficient state is estimable from the wall as well as forecastable.
   \centering
   \includegraphics[width=0.9\linewidth]{sections/figures/results/fig_relative_errors_v4.pdf}
   \caption{Relative peak error across the gust envelope (\TestSplit{} set,
-  medians per $|G|$): the forecast-derived filter is scale-invariant near
-  $12$ to $14$ per cent while the linear filter is non-uniform; the
+  medians per $|G|$): the forecast-derived filter stays near
+  $12$ to $14$ per cent at all but the $|G| = 1$ stratum while the linear
+  filter is non-uniform; the
   absolute peak error (right) grows with the peak itself.}
   \label{fig:relerr}
 \end{figure}

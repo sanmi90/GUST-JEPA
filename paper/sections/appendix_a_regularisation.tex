@@ -27,22 +27,23 @@ latent, identically across families. Every family produces a pooled coefficient
 vector at the same dimension, and two matched forecast operators apply to all of
 them: an autoregressive transformer on the vector sequence, and a residual U-Net
 that tiles the vector to a grid and forecasts it convolutionally. The forecast
-merit of table~\ref{tab:closure} reports each latent under the operator that is
-numerically stable on it. The transformer is stable across the pooled states of
-the controlled matrix, forecasting the predictive, supervised, and
-reconstructive-autoencoder latents comparably and placing the \PredState{}
-at the head of that block; but refitted with the same recipe and budget on the
+merit of table~\ref{tab:closure} is computed under ONE shared operator, the
+\DirectFC{} of \S\ref{sec:methods_rex} trained identically on every state, and
+under it the three controlled wake-headed states are statistically tied
+(\S\ref{sec:res_construct}). The two fitted operators above describe the
+superseded suited-operator protocol, retained in the supplementary material:
+the transformer is stable across the pooled states of
+the controlled matrix, but refitted with the same recipe and budget on the
 reference latents (the $\beta$-VAE and the two Fukami autoencoders, which are plain
 convolutional autoencoders without skip connections) it diverges to large negative
-merit. The residual U-Net is stable on every latent, so it is the operator
-reported for the reference latents; imposing either operator on all families would
-either penalise the pooled states off-class or break on the references. The ensemble filter of
+merit, and the residual U-Net is stable on every latent, so the suited protocol
+reported each latent under the operator numerically stable on it. The choice of
+operator is itself informative, which is why the suited table survives in the
+supplement, but the cross-family comparison the paper reports is the
+shared-operator one. The ensemble filter of
 \S\ref{sec:methods_estimator} uses the same matched transformer on the \PredState's
 own pooled trajectories, where it is stable, and the \PredState's own co-trained
-predictor, the co-trained reduced-order model, is reported alongside. The narrow
-spread of the pooled block under the transformer, and the substantial seed
-variation of the merit, are why we read the fitted-merit ordering as a level with
-a small predictive edge rather than a decisive separation.
+predictor, the co-trained reduced-order model, is reported alongside.
 
 \begin{figure}
   \centering
@@ -88,9 +89,8 @@ across three encoder retrains from independent random seeds, reported as the
 standard deviation in the objective-times-architecture controls of
 \S\ref{sec:res_controls}. The third is a five-fold cross-validation over cases on
 the read-out (probe) step, which guards against a probe that overfits the
-particular held-out split. Together these approximate what a full five-fold
-case-level cross-validation of the entire pipeline would buy, at a fraction of the
-training cost; a single split with bootstrap intervals is the community standard
+particular held-out split. A single split with bootstrap intervals, seed
+retrains and probe-level cross-validation is the community standard
 for this class of study.
 
 
@@ -114,8 +114,9 @@ shedding history of a case's encounters.
   open-loop forecast decisively on the load but not the static recovery, which is
   accurate at the moderate gust strengths the \TestSplit{} set samples; the filter's advantage
   over the \StaticInv{} concentrates at strong gusts, where the \BoundarySplit{} annex
-  (characterisation only, $n = \NTestCCases$ cases) is decisive on the load in
-  both windows. The wake enstrophy through the filter does not beat the static
+  (characterisation only, $n = \NTestCCases$ cases) is consistent on the load in
+  both windows at the smallest $p$ the sample size resolves (uncorrected).
+  The wake enstrophy through the filter does not beat the static
   recovery at the boundary, a null result.}
   \label{tab:paired_closure}
   \small
@@ -300,6 +301,12 @@ primary state.
 % it; the phase-split forecast merit is a robustness cut of the forecastability
 % result. The Chang auxiliary-potential panel supports the near-body head above.
 
+The figures collected here support the decode-floor, physics and
+forecastability claims of \S\ref{sec:res_compress}--\S\ref{sec:res_forecast}:
+the Chang auxiliary potential behind the near-body head, the decode galleries
+and their dimension curve, and the phase-resolved cut of the shared-operator
+forecast merit.
+
 \begin{figure}
   \centering
   \includegraphics[width=0.92\linewidth]{sections/figures/results/fig_phi_panel_v4.pdf}
@@ -353,6 +360,11 @@ primary state.
 % section 4): the reduced-state comparison recipes, the EnKF setup, the forecast
 % mechanism numbers and the per-estimator configuration support the Methods and
 % Results rather than lead them.
+
+The tables collected here give the full configuration record: the encoder and
+training-predictor architecture, the compared families, the ensemble-filter
+configuration (table~\ref{tab:enkf}), the rollout-departure decomposition, and
+the per-estimator settings of the ladder.
 
 \begin{table}
   \centering

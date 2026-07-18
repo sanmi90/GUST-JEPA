@@ -29,8 +29,10 @@ iteration threshold the pooled runs never reach, so the cube exposes the
 mechanism rather than masking it.
 
 Nothing replaces the lift anchor. Replacing $L$ by $W$ fails decisively, the
-wake-only cell trailing the lift-only cell by \TcDeltaCwVsClPeak{} peak-region
-$R^2$ points (paired $R^2$ differences throughout are in units of $10^{-2}$, with
+wake-only cell trailing the lift-only cell by a paired difference of
+\TcDeltaCwVsClPeak{} peak-region
+$R^2$ points (paired $R^2$ differences throughout are in units of $10^{-2}$,
+signed towards the modified cell, with
 case-clustered intervals in figure~\ref{fig:cube_deltas}), and replacing $L$ by
 $N$ fails the same way (\TcDeltaCnVsClPeak). On top of
 $L$, a near-body force-element head sharpens the peak load further and is the
@@ -52,7 +54,7 @@ enstrophy-specific probe is distinct from the pooled wake-descriptor
 readability $\XwakeJepaWake$ quoted in table~\ref{tab:closure}), where the
 \LiftState{} reaches only \EwClnLin{} and \EwClnMlp. The anchor
 comparison is required too: the reconstructive AE-LW carries the most linearly
-readable wake state of all (\EwAeLwLin{} linear, \EwAeLwMlp{} MLP), as a
+readable wake state of the anchors compared (\EwAeLwLin{} linear, \EwAeLwMlp{} MLP), as a
 reconstruction objective should; the predictive family's wake advantage is
 not probe readability but what survives forecasting and assimilation,
 quantified in \S\ref{sec:res_forecast} and \S\ref{sec:res_da}. The full

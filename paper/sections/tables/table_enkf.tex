@@ -20,7 +20,7 @@
     Ensemble size $N$       & $\FilterMembers$ members \\
     Forecast model          & matched autoregressive transformer, refit on frozen train trajectories \\
     Observation operator $\mathcal{H}$ & $\zvec \mapsto$ $K$ span-averaged wall-pressure taps \\
-    Sensor count $K$        & $\FilterTaps$ taps, per-model optimal (OSP) placement \\
+    Sensor count $K$        & $\FilterTaps$ taps, per-model optimal sensor placement (OSP) \\
     Process noise $\mathbf{Q}$ & from the predictor's one-step residual covariance \\
     Observation noise $\mathbf{R}$ & calibrated from held-out pressure residuals \\
     Inflation $\rho$        & validation-selected per family ($\FeRhoJepa$ predictive/linear, $\FeRhoFukami$ reconstruction) \\

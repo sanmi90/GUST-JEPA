@@ -33,7 +33,7 @@ centre, the displacement normal to the chord (the laboratory coordinates are
 rotated by the angle of attack to define $Y$). The released-data case identifiers
 encode the solver's opposite sign convention, $s = -G$, so a case labelled
 \texttt{G+4.00} in the archive corresponds to $G = -4$ here. The profile and the $(G, D, Y)$
-sampling follow the configuration of \citet{fukami2025prf}. The training envelope spans $|G| \in \{0.5, 1.0, 1.5, 2.0,
+sampling follow the configuration of \citet{fukami2025prf}. The training envelope spans $|G| \in \{0.25, 0.5, 1.0, 1.5, 2.0,
 3.0\}$ with $G = 0$ as the undisturbed reference, $D \in \{0.5, 1.0, 1.5\}$
 chords, and $Y \in [-0.4, +0.4]$; the value $|G| = 4$ is held out as an
 extrapolation boundary, for reasons that are physical and that we return to
@@ -64,10 +64,10 @@ sequence.
   \includegraphics[width=\linewidth]{sections/figures/results/fig_staging_v2p1.pdf}
   \caption{The vortex gust as a wake-reorganisation event: a gust-strength sweep
   at fixed core diameter $D = 0.5$ and offset $Y = -0.1$ (first encounter of each
-  case). (a) Lift coefficient $C_L$ against convective time, with $t/c = 0$ the
+  case). Top: lift coefficient $C_L$ against convective time, with $t/c = 0$ the
   release and $t_{\mathrm{imp}}$ (dashed) the leading-edge crossing near
   $t/c = 2$; the load excursion deepens and widens with $|G|$, the baseline
-  ($G = 0$) in grey. (b) Mid-plane spanwise vorticity $\omegaz$ per case (rows
+  ($G = 0$) in grey. Bottom: mid-plane spanwise vorticity $\omegaz$ per case (rows
   $G = 0$, $-0.5$, $-1.5$, $-4$) at four times (columns $t/c = 1$, $2$, $3$, $4$),
   raw units, colourbar clipped at $\pm 3$ (intense cores saturate), airfoil
   filled. The strong gust reorganises the wake through impact while the weak cases
@@ -124,8 +124,7 @@ release and are not used again in the running text. The \TestSplit{} set is stra
 strengths, the three core diameters, and the two source groups
 (figure~\ref{fig:paramspace}); the \BoundarySplit{} set is the
 out-of-distribution $|G| = 4$ extrapolation set, sampled symmetrically in both
-signs of the gust
-(\S\ref{sec:flow_observables}). These $\NCases$ cases are separated in
+signs of the gust. These $\NCases$ cases are separated in
 preprocessing into $\NEncounters$ encounter windows of
 $120$ frames each, one per gust release: $\NTrainEnc$ training, $\NValEnc$ \ValSplit,
 $\NTestBEnc$ \TestSplit{} and

@@ -4,7 +4,7 @@
 
 The forecast-derived filter's band scale carries a full audit trail. The
 production value $c = 1.77$ is the coverage calibration of
-\S\ref{sec:methods_rex}, selected on validation before any test encounter
+\S\ref{sec:methods_rexenkf}, selected on validation before any test encounter
 was seen. During exploration a band of $c = 4$ was evaluated against
 the \TestSplit{} set and reached \PoneExcludedBandFour{} impact median there; because
 that value was selected with the test split in view, it is excluded from
@@ -27,10 +27,13 @@ with the data record.
 \begin{figure}
   \centering
   \includegraphics[width=0.82\linewidth]{sections/figures/results/fig_da_calibration_v4.pdf}
-  \caption{Estimator calibration and selection (\TestSplit{} and \ValSplit{}
-  sets). (top left) The impact-phase estimator ladder with the five-seed
-  member-noise band, open markers the frozen \BoundarySplit{} values; (top right)
-  the filter against the fixed-lag smoother; (bottom) the band-scale calibration
+  \caption{Estimator calibration and selection (\TestSplit, \ValSplit{} and,
+  through the open markers, \BoundarySplit{}
+  sets; parenthetical counts on the ladder are large-error encounters,
+  impact-phase $R^2 < -1$, per set). (a) The impact-phase estimator ladder with
+  the five-seed
+  member-noise band, open markers the frozen \BoundarySplit{} values; (b)
+  the filter against the fixed-lag smoother; (c) the band-scale calibration
   on the held-out training encounters, where innovation consistency and tracking
   disagree and the selection saturates at the grid edge.}
   \label{fig:calibration}

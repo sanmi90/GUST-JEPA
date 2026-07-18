@@ -19,13 +19,16 @@ state must perform. On the decoded field the three
 families are indistinguishable, the energy-optimal linear basis as sharp as the
 nonlinear states, so field fidelity does not separate them. The separation opens
 at the first task that needs the wake, the observable read-out, where the linear
-basis loses the load at the impact instant and neither it nor the reconstruction
+basis loses the load at the impact instant and neither it nor the published-recipe
+reconstruction
 reads the wake; and it widens at every step toward deployment. Through the impact
-the reconstruction's forecast collapses and the linear basis fades; recovering
+the published-recipe reconstruction's forecast collapses and the linear basis
+fades; recovering
 the state from sparse wall pressure, the predictive latent carries the most
 physics from a less recoverable state; and under assimilation at the strong-gust
-boundary the predictive filter is the only one whose innovations stay consistent
-on nearly every encounter. The predictive state holds furthest down the chain,
+boundary every filter is stressed, but the predictive filter posts by far the
+fewest innovation-consistency failures ($\VdivGFour$ of encounters against
+$\FfDivAeWakeGFour$ to $\FfDivFukamiGFour$ for the others). The predictive state holds furthest down the chain,
 and that is the design rule stated operationally: a state earns
 its place at deployment not by rendering the field but by remaining readable,
 forecastable, wall-recoverable and assimilable at once.
@@ -64,7 +67,7 @@ The forces are carried redundantly in every family, so an energy or reconstructi
 objective retains the force signature of an encounter without retaining the
 distributed combination of coordinates that carries the vorticity redistribution
 producing it. The gust parameters alone predict the forces well and fail on the
-wake at the readout horizon, so a state can look accurate on the load while
+wake enstrophy at the readout horizon, so a state can look accurate on the load while
 carrying none of the physics the load is built from, which is exactly the failure
 mode the estimation results expose. The linear basis, for its part, remains
 genuinely useful: it is competitive on the body forces, amplitude-accurate in
@@ -81,7 +84,7 @@ of an underpowered predictor. The shared forecaster was capacity-selected on the
 \ValSplit{} set, a sequence-LSTM variant included; the matched autoregressive
 transformer diverges on the published-recipe latents at equal recipe and budget,
 so its failure is not a capacity artefact; and a per-family tuned recovery
-estimator raises every family without changing their order (supplementary
+estimator raises every family without changing their order (table~\ref{tab:recovery}; supplementary
 material). The orderings reported here are therefore floors set by the
 representation, not ceilings set by the predictor.
 
@@ -105,10 +108,13 @@ high-dimensional field latent is real but modest (\S\ref{sec:res_wall}), so the
 case for the coefficient state rests on the physics-recovery ordering and the
 envelope, not on a large recoverability margin. Its point tracking is good but its uncertainty is under-dispersed at the
 strongest and widest gusts, where the innovations are temporally correlated and
-the ensemble collapses. The visibility analysis suggests the mechanism: the
-forward model has large gain along the data-unconstrained near-null directions it
-never learned to damp, and those inject spread-consuming noise during
-assimilation. This points to a calibrated process and observation noise model,
+the ensemble collapses. We conjecture, beyond what the exhibits establish, that
+the forward model carries gain along data-unconstrained directions it
+never learned to damp, and that those inject spread-consuming noise during
+assimilation; what the record does establish is that the innovations are
+temporally correlated rather than white
+(\S\ref{sec:res_envelope}). Either reading points to a calibrated process and
+observation noise model,
 rather than covariance inflation, as the outstanding requirement, and we report
 the filter as a feasibility demonstration with a characterised soft spot, not as a
 deployed estimator.
@@ -169,7 +175,7 @@ statistically indistinguishable, with overlapping case-clustered intervals. An
 earlier seed study of the fitted merit, run under the residual U-Net operator
 as a stability check, cautions the same way: the supervised
 control is seed-fragile (spread $\SeedMeritSdSupOnly$, with one healthy retrain in
-three collapsing), the predictive latent is tighter but not the sharpest
+three collapsing), the predictive latent is tighter
 ($\pm \SeedMeritSdJepaVec$), and the family means overlap. No fitted-operator
 margin between the wake-headed states
 is therefore decisive on its own. The defensible dynamical claim rests instead

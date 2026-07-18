@@ -17,10 +17,12 @@
   published reference recipes: the Fukami autoencoder and the $\beta$-VAE are
   plain convolutional autoencoders, a convolutional stack down to a
   fully-connected bottleneck with no skip connections, and POD is a linear basis.
-  The forecast merit of table~\ref{tab:closure} reads each latent through a
-  separate matched forecast operator; the operators (an autoregressive transformer
-  and a residual U-Net) and the reason a different one is stable on the reference
-  latents are described there and in Appendix~\ref{app:reg}.}
+  The forecast merit of table~\ref{tab:closure} reads every latent through one
+  shared operator, the \DirectFC{} trained identically on each; the superseded
+  suited-operator protocol (an autoregressive transformer
+  and a residual U-Net, a different one stable on the reference
+  latents) is described in Appendix~\ref{app:reg} and its table retained in the
+  supplementary material.}
   \label{tab:baselines}
   \small
   \fittab{\begin{tabular}{l l l l l}

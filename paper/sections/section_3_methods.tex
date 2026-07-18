@@ -15,8 +15,8 @@ $(G, D, Y)$. The predictive encoder $E_\theta$ maps the mid-plane vorticity fiel
 $\omegaz(192,96)$ to a latent $\zvec \in \mathbb{R}^d$ at the headline dimension
 $d = \LatentDim$. This dimension is a deployment criterion rather than an
 accuracy-tuned choice: it is close to the largest state a sequential estimator
-can still track from eight wall-pressure taps, as the tap-versus-window grid of
-\S\ref{sec:res_wall} makes explicit, and the representation results below confirm
+can still track from eight wall-pressure taps under the delay-embedding bound of
+\S\ref{sec:methods_estimator}, and the representation results below confirm
 it also sits on a readability plateau. The encoder
 is a hybrid network: three convolutional downsampling stages produce a
 $24 \times 12 \times 256$ feature map, a six-layer vision transformer processes
@@ -42,8 +42,10 @@ heads, the probes, and the estimator all read the same $32$-vector, and nothing
 in the model carries more. The estimator of \S\ref{sec:methods_estimator} refits
 a predictor of this same class on the frozen pooled trajectories for its forecast
 step, so the training and estimation dynamics share a function class. Internal structure for both is given in Appendix~\ref{app:reg}. Figure~\ref{fig:method}(a) shows
-the encoder and predictor, and panel~(b) sets out the matched-predictor evaluation
-protocol used throughout; the contrast between the predictive training signal and
+the encoder and predictor, and panel~(b) the deployment predict-correct loop;
+the matched evaluation
+protocol used throughout is figure~\ref{fig:eval_protocol} in
+appendix~\ref{app:reg}. The contrast between the predictive training signal and
 the reconstructive one, in which the reconstructive autoencoder passes the field at
 time $t$ through an encoder and a decoder and incurs a field-space error whereas
 the predictive model encodes the fields at $t$ and $t+\Delta t$ with shared
@@ -165,7 +167,7 @@ The comparison rests on a single principle: every baseline is the same
 pipeline, and only the encoder differs. Each encoder produces a latent
 trajectory $\zvec_{1:T}$ from the vorticity fields, and an identical probe family
 maps a latent to a physical observable for evaluation
-(figure~\ref{fig:method}(b)). Every latent is a pooled coefficient vector at the
+(figure~\ref{fig:eval_protocol}, appendix~\ref{app:reg}). Every latent is a pooled coefficient vector at the
 same dimension, so the same two forecast operators apply to all of them: a matched
 autoregressive transformer that reads the vector sequence directly, and a matched
 residual U-Net that tiles the vector to a grid and forecasts it convolutionally,
