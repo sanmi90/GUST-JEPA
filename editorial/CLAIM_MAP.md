@@ -125,3 +125,57 @@ under that rule (D = 1.5 already reaches a rate of exactly 0.5 at |G| = 2;
 D = 0.5 never exceeds 0.5 on the tested envelope, threshold null). The
 Stage 4 fix is to drop the false core-diameter contrast and state the
 threshold once with the grid resolution caveat. Author input not required.
+
+## Session 39 re-anchor (2026-07-18 audit)
+
+The four primary claims re-verified against the main_30 build (56 pp,
+comparison-led structure) by a four-agent claims-vs-evidence audit with
+every finding independently confirmed before repair. Line numbers above are
+Stage-0 historical; current statement sites are the restructured ones below.
+
+P1 State construction: HOLDS. Sites: abstract; s1 P6; s4.1
+(sec:res_construct + sec:res_carries); s6 first paragraph. Evidence:
+tab:closure (shared-operator, D310), fig:cube, fig:cube_deltas,
+tab:mechanism + fig:mechanism_hroll(a). Audit repairs: the "every state /
+collapses" wake-readability sentence scoped to the controlled block (the
+reference recipes straddle it: beta-VAE 0.728 with head, Fukami-wake 0.432);
+the "one inversion" superlatives scoped to the controlled states; the
+shared-merit tie now prints its three case-clustered intervals in the text.
+
+P2 Compression: HOLDS. Sites: abstract ("at four coefficients", corrected
+from "from"); s4.2 (sec:res_dimension + sec:res_code); s6 second paragraph.
+Evidence: fig:dimrace (regenerated to canonical labels), probe-dilution
+control. Audit repair: the d >= 16 decode bar and the d = 8 wake-readability
+bar are now stated as distinct thresholds.
+
+P3 Common-operator forecasting: HOLDS with the D310 wording. The ledger's
+original claim sentence ("the predictive coordinates are the most
+forecastable") is SUPERSEDED: the wake-supervised states as a group are the
+most forecastable on the five-observable merit (statistical tie), and the
+predictive states lead specifically on the lift readout at the seed mean.
+Sites: s4.1 (shared-merit paragraph), s4.3 (s4_c), s6. Audit repairs:
+"overtaken at horizon sixteen" softened to the point contrast (0.418 sits
+inside the shared operator's interval); the fig:forecast caption corrected
+("the predictive states forecast the lift best", was "wake-supervised");
+appendix A + tab:baselines caption rewritten from the stale suited-operator
+account to the shared-operator one. OPEN (Carlos): fig 7's panel says
+"encoder seeds" where text/caption say operator seeds; RexFam seed sds and
+the 0.755 co-trained value carry no printed band.
+
+P4 Wall-pressure estimation: HOLDS with repairs. Sites: abstract (0.837
+delivered in s4.6.1 at identical scope); s4.5-4.6; s5.2; s6 third paragraph.
+Audit repairs (the optimistic-direction cluster): fig:tracking caption
+re-attributed to the forecast-noise filter at the production band (was
+mislabelled two-stage); static-inverse "posts the best" softened to
+"matches the best on the ladder" (metric mixing); smoother relaxation
+truthed (0.149 vs 0.141, not a cut); own-stack "halves in every phase"
+corrected; grid range corrected to 0.265-0.359; relative-error
+scale-invariance scoped (|G|=1 stratum ~18%); "held-out" dropped from the
+pooled envelope strata; boundary consistency claim in s5 corrected (0.72
+failure fraction, fewest of the families, not "consistent on nearly every
+encounter"); ladder counts defined as large-error encounters in the
+fig:calibration caption; per-family wake-closure comparatives dropped
+(no exhibit backs them). OPEN (Carlos): emit per-family wake-closure and
+ladder-median macros if the dropped comparatives should return; the
+"state-dependent noise removes the consistency failures entirely" two-stage
+claim has no bound macro; the s3.5 sign-convention audit remains open.
