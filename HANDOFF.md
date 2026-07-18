@@ -10878,3 +10878,19 @@ SCOPE for main_30. The observability story is carried by the delay-embedding gri
 (§4.5.1) and the visibility analysis; if a multiscale decomposition is ever run,
 the weak test-function construction (D-W4) subsumes the DoG banding with better
 physics grounding.
+
+### D-W6 (Ahmad, Biswas & Hoffman arXiv:2606.29291 assessed: NOT for main_30) (2026-07-18, Session 39)
+Carlos asked for a read on "A data-assimilation-augmented optimization framework
+for parameter estimation in dynamical systems" (Ahmad, Biswas & Hoffman, math.DS,
+2026-06-28). VERDICT: tangential, do NOT cite in main_30. It estimates ODE
+*parameters* via nudging/AOT (time-delayed observation-vs-nudged mismatch) on
+Lorenz-63; three decisive mismatches with this paper: (i) target is parameters,
+not the latent state, and our own result is that (G,D,Y) conditioning HURTS
+(oracle-hurts, unconditional encoder), so a parameter-ID method points away from
+the thesis; (ii) machinery is nudging, not the EnKF stack we already have;
+(iii) toy known-ODE system, not a learned ROM with a decoder and sparse wall
+sensors, so the identifiability theorems do not transfer. It does not justify the
+wake head (weaker fit than Ahnert D-W1) and does not compete with the estimation
+results. ONE follow-up thread worth remembering: nudging/AOT as a cheaper
+latent-filter alternative to the EnKF for paper 2, its arbitrary-IC property
+matching our streaming pressure-only initialisation. Parked, not actioned.
