@@ -10944,6 +10944,7 @@ blockers (DNS Table 1, Zenodo DOI, license/CRediT/funding, Table-1
 retitle #16). The main_30 review's spend-limit note: two figure-regen
 subagents died at report time; their disk state was verified edit-by-edit
 before use.
+
 ### D-W8 (Wu, Balestriero & Levine arXiv:2606.02572 VISReg assessed: optional s5.1 cite, NOT methods) (2026-07-19, Session 39)
 
 Carlos pointed at "VISReg: Variance-Invariance-Sketching Regularization for
