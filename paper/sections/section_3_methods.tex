@@ -28,11 +28,21 @@ observable a controller would have access to, since at deployment the gust
 parameters are not known a priori (\S\ref{sec:discussion}).
 
 The predictor $P_\phi$ advances the pooled state in time, from its own history
-alone, so the model is unconditioned end to end. It is a vector sequence model:
-a six-layer autoregressive transformer with rotary temporal positions and a
-causal mask that maps a short history of $32$-vectors to the next $32$-vector,
-with no gust input. From the two most recent encoded states it rolls eight steps
-open loop, feeding its own predictions back in, and the loss is the multi-step
+alone, so the model is unconditioned end to end. Throughout the paper the
+forecasting task is one map, from a context of $L$ past states to the future
+latent sequence over a horizon $H$,
+\begin{equation}
+  [\hat{\zvec}_{t+1}, \dots, \hat{\zvec}_{t+H}]
+  = f\!\left(\zvec_{t-L+1}, \dots, \zvec_{t}\right),
+  \label{eq:forecast}
+\end{equation}
+with no gust parameters among the inputs; what varies between models is how
+$f$ is realised. The training predictor realises it recursively: a six-layer
+autoregressive transformer with rotary temporal positions and a causal mask
+maps a short history of $32$-vectors to the next $32$-vector and feeds its own
+prediction back in, one step at a time, so its errors can compound along the
+horizon. During training it rolls eight steps
+open loop from the two most recent encoded states, and the loss is the multi-step
 error between the rolled coefficients and the online encoder outputs at the
 matching frames, detached. The pipeline is therefore as plain as a linear or
 autoencoder reduced-order model: $32$ numbers in, a dynamics model on the vector,
@@ -165,21 +175,23 @@ supervision are separable.
 
 The comparison rests on a single principle: every baseline is the same
 pipeline, and only the encoder differs. Each encoder produces a latent
-trajectory $\zvec_{1:T}$ from the vorticity fields, and an identical probe family
+trajectory $\zvec_{1:T}$ from the vorticity fields, a pooled coefficient vector
+at the same dimension for every family (the vector of proper-orthogonal
+temporal coefficients for the linear basis, the bottleneck vector for the
+autoencoders), and an identical probe family
 maps a latent to a physical observable for evaluation
-(figure~\ref{fig:eval_protocol}, appendix~\ref{app:reg}). Every latent is a pooled coefficient vector at the
-same dimension, so the same two forecast operators apply to all of them: a matched
-autoregressive transformer that reads the vector sequence directly, and a matched
-residual U-Net that tiles the vector to a grid and forecasts it convolutionally,
-both fitted with the same recipe and budget. They are not interchangeable in
-practice: the transformer is numerically stable on the pooled states of the
-controlled matrix but diverges when refitted on the reference latents, collapsing
-to a negative merit (Appendix~\ref{app:reg}), while the U-Net is stable on all. We
-therefore report each latent under the operator that is stable on it, the
-transformer on the pooled states and the U-Net on the reference latents, rather
-than force one operator and either penalise the pooled states off-class or break
-on the references. The \PredState's own co-trained predictor, the co-trained
-reduced-order model, is reported alongside, and the sequential estimator of
+(figure~\ref{fig:eval_protocol}, appendix~\ref{app:reg}). The primary
+forecast-merit comparison of \S\ref{sec:res_forecast} realises the map of
+equation~\eqref{eq:forecast} with a single shared operator, the \DirectFC{} of
+\S\ref{sec:methods_rex}, trained identically on every family's latents, so the
+family ordering cannot be an artefact of operator choice. A legacy
+suited-operator protocol, a matched autoregressive transformer on the pooled
+states and a matched residual U-Net on the reference latents, each latent read
+under the operator numerically stable on it, is retained in
+appendix~\ref{app:reg} and the supplementary material, where the stability
+split itself is documented. The \PredState's own co-trained predictor, the
+co-trained reduced-order model, is reported alongside, and the sequential
+estimator of
 \S\ref{sec:methods_estimator} uses the same matched transformer on the \PredState's
 frozen trajectories. Every state is compared at the matched headline
 dimension $d = \LatentDim$; the dimension plateau at $\{16, 32, 64\}$ and the
@@ -192,11 +204,7 @@ activations and group normalisation rather than the strict published variant
 comparison is therefore against a tuned baseline, not a hobbled one. The
 observable heads are pinned to the same current-frame form for every family, so
 no family gains an accidental advantage from a differently-shaped supervision
-signal. The transformer-or-U-Net split above is retained as the
-legacy suited-operator protocol; the primary forecast-merit comparison of
-\S\ref{sec:res_forecast} uses one further operator, trained identically on
-every family's latents, so the family ordering cannot be an artefact of
-operator choice.
+signal.
 
 \input{sections/v4/s3_3_rex.tex}
 
