@@ -1,0 +1,130 @@
+% Fig: gust-airfoil case geometry schematic.
+%
+% Geometry facts this figure encodes, verified (not assumed) against primary
+% sources before drawing:
+%   - Fukami, Smith & Taira 2025 (PRF 10, 084703), Sec. II: "a strong vortex
+%     gust is introduced upstream of an airfoil at x0/c = -2 ... vertical
+%     position of the disturbance y0/c = Y ... relative to the wing", with
+%     the leading edge at the domain origin. This is free-stream-aligned: X
+%     upstream distance, Y measured normal to the free stream, NOT normal to
+%     the chord.
+%   - Our own release-point parser (scripts/100c_raw_cases_inventory.py,
+%     locked Plan v3.3) recovers this same (X=-2, Y) from the archived
+%     (x_file, y_file) via the inverse of a rotate-by-alpha map, e.g.
+%     y_from_y = (y_file + 2 sin(alpha)) / cos(alpha); the additive constants
+%     0.484/1.941 in that script are exactly 2 sin(14deg)/2 cos(14deg).
+%   - The archived/cached domain frame (the one used for every omega_z field
+%     figure in the paper) is CHORD-aligned, not flow-aligned: the airfoil
+%     polygon in Baseline.h5 (/airfoil_xy) has LE = (0,0), TE = (1,0) exactly
+%     (checked directly, not inferred). That chord-aligned frame is the
+%     rotate-by-+alpha image of the flow-aligned (X, Y) frame drawn here.
+% This figure draws the flow-aligned definition frame directly (free stream
+% horizontal, airfoil pitched by alpha within it), matching how Fukami's
+% paper and our (G, D, Y) parametrisation define the release point; it does
+% not depict the solver's internal chord-aligned mesh frame.
+%
+% Schematic only: airfoil outline and Taylor-vortex core drawn for one
+% illustrative (D, Y); not to scale. The core's rotation glyph is drawn
+% clockwise, the sense of positive G in the field-plot convention (per
+% Carlos, 2026-07-24).
+%
+% Standalone-compilable: pdflatex fig_case_geometry.tex
+
+\documentclass[border=8pt,tikz]{standalone}
+\usepackage{tikz}
+\usepackage{amsmath,amssymb}
+\usetikzlibrary{positioning,arrows.meta,calc,angles,quotes,decorations.pathreplacing}
+
+\begin{document}
+
+% Illustrative values (not data): Y = +0.30 c, D = 0.5 c (R = 0.25 c),
+% alpha = 14 deg, fixed release distance 2c. All drawn directly in the
+% free-stream-aligned (X, Y) definition frame; only the airfoil is rotated.
+\def\AoA{14}
+\def\Yval{0.30}
+\def\Rval{0.25}
+
+\begin{tikzpicture}[
+    scale=2.2,
+    >=Stealth,
+    font=\footnotesize,
+    axis/.style={-{Stealth[length=1.6mm]}, semithick},
+    dimline/.style={{Stealth[length=1.8mm]}-{Stealth[length=1.8mm]}, black!65, thin},
+    extline/.style={black!45, thin},
+    ref/.style={dashed, black!55, thick},
+  ]
+
+  % ===== free-stream-aligned definition frame: everything except the
+  % airfoil itself is drawn directly here, with NO rotation, since (X, Y)
+  % are already free-stream-aligned coordinates =====
+  \coordinate (LE) at (0,0);
+  \coordinate (Foot) at (-2,0);
+  \coordinate (Vcenter) at (-2,\Yval);
+
+  % horizontal reference through LE (also the alpha reference)
+  \draw[ref] (LE) -- (-0.9,0);
+
+  % free-stream arrow: small, placed close to the geometry
+  \draw[axis] (-2.55,0.78) -- (-2.05,0.78)
+    node[midway, above, font=\footnotesize] {$U_\infty$};
+
+  % ---- 2c fixed upstream distance: dimension line below the reference ----
+  \draw[extline] (LE) -- (0,-0.55);
+  \draw[extline] (Foot) -- (-2,-0.55);
+  \draw[dimline] (0,-0.48) -- (-2,-0.48)
+    node[midway, below=2pt, font=\scriptsize] {$2c$};
+
+  % ---- Y offset: dimension line left of the vortex ----
+  \draw[extline] (Foot) -- (-2.7,0);
+  \draw[extline] (Vcenter) -- (-2.7,\Yval);
+  \draw[dimline] (-2.6,0) -- (-2.6,\Yval)
+    node[midway, left=2pt, font=\scriptsize] {$Y$};
+
+  % ---- vortex core ----
+  \draw[draw=blue!55!black, fill=blue!4] (Vcenter) circle (\Rval);
+  \fill (Vcenter) circle (0.6pt);
+  % rotation glyph: positive G is clockwise, matching the field-plot
+  % convention (decreasing angle in this standard-orientation drawing)
+  \draw[-{Stealth[length=1.6mm]}, blue!55!black]
+    (Vcenter) ++(280:0.18) arc[start angle=280, end angle=140, radius=0.18];
+  \node[font=\scriptsize] at ($(Vcenter)+(0,-0.13)$) {$G$};
+
+  % ---- D dimension: to the right of the circle ----
+  \draw[extline] ($(Vcenter)+(0,\Rval)$) -- ++(0.55,0);
+  \draw[extline] ($(Vcenter)+(0,-\Rval)$) -- ++(0.55,0);
+  \draw[dimline] ($(Vcenter)+(0.45,\Rval)$) -- ($(Vcenter)+(0.45,-\Rval)$)
+    node[midway, right=2pt, font=\scriptsize] {$D$};
+
+  % ===== airfoil: pitched by -alpha (clockwise) about the LE, so the
+  % trailing edge trails BELOW the leading edge at positive alpha =====
+  \begin{scope}[rotate=-\AoA]
+    \coordinate (TE) at (1,0);
+    \draw[ref] (LE) -- (-0.9,0);
+
+    % NACA-0012-like symmetric outline (schematic, not to scale)
+    \draw[fill=black!85, draw=black]
+      (LE)
+        .. controls (0.05,0.070) and (0.25,0.065) .. (0.40,0.055)
+        .. controls (0.70,0.035) and (0.90,0.012) .. (TE)
+        .. controls (0.90,-0.012) and (0.70,-0.035) .. (0.40,-0.055)
+        .. controls (0.25,-0.065) and (0.05,-0.070) .. (LE) -- cycle;
+
+    \coordinate (ChordRef) at (-0.9,0);
+
+    % ---- c: chord-length dimension, parallel to and above the chord ----
+    \draw[extline] (LE) -- (0,0.15);
+    \draw[extline] (TE) -- (1,0.15);
+    \draw[dimline] (0,0.13) -- (1,0.13)
+      node[midway, above=1pt, font=\scriptsize] {$c$};
+  \end{scope}
+
+  % ===== angle of attack marker, arrow at the top (chord) end. Ray order
+  % must stay ChordRef (smaller polar angle first) then Foot so the pic
+  % sweeps the minor 14deg arc, not the 346deg reflex; the arrowhead is
+  % put at the START of that path (the ChordRef/top end) instead. =====
+  \draw pic["$\alpha$", {Stealth[length=1.4mm]}-, draw=black, angle radius=9mm,
+        angle eccentricity=1.5, font=\footnotesize] {angle=ChordRef--LE--Foot};
+
+\end{tikzpicture}
+
+\end{document}

@@ -28,9 +28,13 @@ The vortex has the azimuthal velocity profile
 \end{equation}
 which peaks at the core radius $r = R$ \citep{taylor1918}, and is parametrised by
 three scalars: the signed gust ratio $G \equiv u_{\theta,\max}/u_\infty$, the
-core diameter $D \equiv 2R/c$, and the wall-normal offset $Y$ of the vortex
-centre, the displacement normal to the chord (the laboratory coordinates are
-rotated by the angle of attack to define $Y$). The released-data case identifiers
+core diameter $D \equiv 2R/c$, and the offset $Y$ of the vortex centre,
+measured normal to the free stream (figure~\ref{fig:geometry}). The release
+point is fixed at $2c$ upstream of the leading edge and offset by $Y$, both
+measured in axes aligned with the free stream, following
+\citet{fukami2025prf}; the chord is pitched by the angle of attack $\alpha$
+relative to these axes, and the vortex convects downstream parallel to the
+free stream, not along the tilted chord. The released-data case identifiers
 encode the solver's opposite sign convention, $s = -G$, so a case labelled
 \texttt{G+4.00} in the archive corresponds to $G = -4$ here. The profile and the $(G, D, Y)$
 sampling follow the configuration of \citet{fukami2025prf}. The training envelope spans $|G| \in \{0.25, 0.5, 1.0, 1.5, 2.0,
@@ -41,6 +45,22 @@ below. Convective time $t$ is measured in chords from the vortex release,
 $t = 0$, while $t_{\mathrm{imp}}$ denotes the instant at which the vortex centre
 reaches the leading edge, near $t/c = 2$ for this configuration; all phase
 windows below are referred to $t_{\mathrm{imp}}$.
+
+\begin{figure}
+  \centering
+  \includegraphics[width=\linewidth]{sections/figures/tikz/fig_case_geometry.pdf}
+  \caption{Case geometry (schematic, not to scale), drawn directly in the
+  free-stream-aligned axes in which $(G, D, Y)$ are defined, following
+  \citet{fukami2025prf}. The vortex core is released a fixed $2c$ upstream of
+  the leading edge (LE), offset by $Y$ normal to the free stream $U_\infty$,
+  and convects downstream parallel to it, not along the chord. The chord is
+  pitched by the angle of attack $\alpha = 14^\circ$ relative to these axes,
+  trailing edge (TE) below leading edge. The core has diameter $D = 2R/c$
+  (core radius $R$) and peak azimuthal velocity $u_{\theta,\max}$ setting the
+  signed gust ratio $G \equiv u_{\theta,\max}/u_\infty$; the arrow shows the
+  clockwise sense of rotation for $G > 0$. Only $(G, D, Y)$ vary across cases.}
+  \label{fig:geometry}
+\end{figure}
 
 Without a gust, the $\alpha = 14^\circ$ wake at this Reynolds number is
 massively separated and sheds periodically; in dynamical terms the undisturbed

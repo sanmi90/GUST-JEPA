@@ -3,7 +3,8 @@
 Canonical branch: `session39-comparison-lead`. The manuscript is authored
 directly in LaTeX (the v1-era Markdown-to-TeX pipeline is retired; the old
 instructions live in git history of this file). Output: `paper/main.pdf`
-(55 pp) and `paper/supplementary.pdf` (3 pp).
+(56 pp as of the 2026-07-24 fig:geometry addition, was 55 pp) and
+`paper/supplementary.pdf` (3 pp).
 
 ## One-shot build
 
@@ -14,7 +15,7 @@ latexmk -pdf -interaction=nonstopmode main.tex
 latexmk -pdf -interaction=nonstopmode supplementary.tex
 ```
 
-Both must exit 0. Expected page counts: main 55, supplementary 3 (check with
+Both must exit 0. Expected page counts: main 56, supplementary 3 (check with
 `pdfinfo`). `supplementary.tex` cross-references `main.aux` via the `xr`
 package, so build main first.
 
@@ -98,17 +99,18 @@ TikZ sources live in `paper/sections/figures/tikz/`.
 
 | Figure | Asset | Generator |
 |---|---|---|
-| 1 fig:staging | fig_staging_v2p1.pdf | scripts/session29/fig_staging_v2p1.py |
-| 2 fig:paramspace | fig_paramspace_v3.pdf | scripts/session33 |
-| 3 fig:method | tikz/fig1_jepa_architecture.pdf + tikz/fig_estimation_loop.pdf | tikz sources |
-| 4 fig:cube | fig_cube_*_v4.pdf | scripts/session35 (split at session 39) |
-| 5 fig:dimrace | dimension-axis panels | scripts/session34/35 |
-| 6 fig:atlas | fig_atlas_dmd_v3.pdf + fig_t1_spectra_v4.pdf | scripts/session33/fig_atlas_dmd_v3.py + scripts/session39/t1_spectral_flatness.py |
-| 7-9 forecast/mechanism/trade | fig_forecast*, fig_mechanism_hroll_v3, fig_t_trade | scripts/session33/35/39 |
-| 10 fig:hero | fig_hero_traces_v3.pdf + fig_cl_envelope_traces_v4.pdf | scripts/session33/38 |
-| 11 fig:envelope | fig_envelope_v3.pdf | scripts/session33 |
-| 12 tracking / 13 fig:dimsgrid | fig_deployment-family panels / DA grid | scripts/session35 |
-| 14-29 appendix | fig_*_v4.pdf, portraits, decode, calibration | scripts/session35/39 (grep scripts/ for the asset name) |
+| 1 fig:geometry | tikz/fig_case_geometry.pdf | tikz source (session 2026-07-24; geometry verified against ~/CasosSOD2D/Naca_BSC_gusts_generator/CambioEjes.ods) |
+| 2 fig:staging | fig_staging_v2p1.pdf | scripts/session29/fig_staging_v2p1.py |
+| 3 fig:paramspace | fig_paramspace_v3.pdf | scripts/session33 |
+| 4 fig:method | tikz/fig1_jepa_architecture.pdf + tikz/fig_estimation_loop.pdf | tikz sources |
+| 5 fig:cube | fig_cube_*_v4.pdf | scripts/session35 (split at session 39) |
+| 6 fig:dimrace | dimension-axis panels | scripts/session34/35 |
+| 7 fig:atlas | fig_atlas_dmd_v3.pdf + fig_t1_spectra_v4.pdf | scripts/session33/fig_atlas_dmd_v3.py + scripts/session39/t1_spectral_flatness.py |
+| 8-10 forecast/mechanism/trade | fig_forecast*, fig_mechanism_hroll_v3, fig_t_trade | scripts/session33/35/39 |
+| 11 fig:hero | fig_hero_traces_v3.pdf + fig_cl_envelope_traces_v4.pdf | scripts/session33/38 |
+| 12 fig:envelope | fig_envelope_v3.pdf | scripts/session33 |
+| 13 tracking / 14 fig:dimsgrid | fig_deployment-family panels / DA grid | scripts/session35 |
+| 15-30 appendix | fig_*_v4.pdf, portraits, decode, calibration | scripts/session35/39 (grep scripts/ for the asset name) |
 
 To find any figure's generator: `grep -rn "<asset name>" scripts/`.
 Regenerate only on frozen inputs; figure edits never change numbers (the
