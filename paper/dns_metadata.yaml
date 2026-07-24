@@ -4,45 +4,79 @@
 # Submission gate (CI):     python scripts/session29/check_dns_metadata.py --mode submission
 #   (submission mode exits non-zero while any required value is null / PENDING / TBD)
 #
-# Partner-owned resolution values are null until the simulation collaborators
-# supply them. Do NOT fabricate DNS values, and do NOT hand-edit the generated
-# .tex: edit this file and re-render. Only facts already established in the
-# manuscript and CLAUDE.md are filled (solver, discretisation, subgrid, wall);
-# everything resolution-specific stays null.
+# Do NOT hand-edit the generated .tex: edit this file and re-render.
+#
+# 2026-07-24: six of seven rows filled from the simulation setup directory
+# (~/CasosSOD2D/Naca_BSC_gusts_generator on the asolera account), read
+# directly rather than guessed:
+#   - solver.polynomial_order, resolution, domain, wall_spacing:
+#     BaseCase/naca_base.h5 (SOD2D mesh file): dims/order=4,
+#     dims/numElements=39342, dims/numNodes=2632900, coords bounding box
+#     x/c in [-15,17], y/c in [-15,15], z/c in [0,1]. Near-wall spacing is
+#     the nearest-neighbour distance from each airfoil-wall node
+#     (boundFacesId==1, the bc_type_non_slip_adiabatic surface) to the mesh,
+#     restricted to a z/c=0.5 slice (312 wall nodes); minimum reported.
+#     Wall units use an instantaneous restart snapshot
+#     (BaseCase/20260314_Gust_01/restart_20260314_Gust_01-1_1.h5, t=95.4c/u_inf):
+#     tau_wall ~ nu * |u_1|/dn_min with nu = 1/Re (the mue field in that
+#     restart is uniformly zero -- not populated for this constant-property
+#     run -- so nu is taken from Re=5000 directly), giving Delta n+ ~ 1-4
+#     across the sampled wall nodes (median ~3.5). This is a first-neighbour
+#     finite-difference estimate from one instant, not a boundary-layer
+#     profile fit; reported as an order-of-magnitude wall-unit indicator.
+#   - mach: the case configuration
+#     (BaseCase/BluffBodySolverIncompGust_01.json) has "type":
+#     "BluffBodySolverIncompGust" -- a constant-density incompressible
+#     pressure-projection solver, not a compressible or low-Mach scheme, so
+#     M = 0 exactly by construction (confirmed directly by the user,
+#     2026-07-24), superseding the manuscript's earlier "low-Mach regime"
+#     description.
+#   - timestep: same JSON, "use_constant_dt":1, "dt":2.5e-4, "cfl_conv":0.5.
+#     The reference scales in the same file (v0=1.0, delta=1.0 = chord)
+#     confirm dt is already in convective units c/u_inf; cross-checked
+#     against the cache's own dt_tc=0.05 via
+#     save_resultsFile_step=200 * dt = 0.05 (exact match).
+#   - gust_station: same JSON, gust_x0_position=-1.9648 at Y=0, which is
+#     exactly 2*cos(14deg) upstream along the free-stream axis, i.e.
+#     x0/c = -2 -- consistent with the value already used throughout
+#     Sec. 2 and figure fig:geometry.
+# convergence (grid/time-step sensitivity) is NOT in the folder (no
+# mesh-refinement or dt-refinement comparison run was found) and remains
+# collaborator-owned; do not fabricate it.
 
 solver:
   name: SOD2D
   discretisation: spectral-element
   subgrid_model: none
   airfoil_wall_condition: no-slip
-  polynomial_order: null   # partner to confirm
+  polynomial_order: 4
 
 # Referee-facing reproducibility rows of Table 1. value: null renders as [PENDING].
 # The 'why' text is the referee rationale shown in the third column.
 rows:
   - key: mach
     quantity: "Free-stream Mach number (or incompressible-limit confirmation)"
-    value: null
-    why: "Confirms the low-Mach formulation is effectively incompressible at $\\vRe = 5000$."
+    value: "$M = 0$ (constant-density incompressible pressure-projection solver)"
+    why: "Confirms the solver formulation is incompressible at $\\vRe = 5000$."
   - key: domain
     quantity: "Computational domain and spanwise extent $L_z/c$"
-    value: null
+    value: "$x/c \\in [-15, 17]$, $y/c \\in [-15, 15]$, $L_z/c = 1$"
     why: "Bounds domain blockage and confirms the span resolves the three-dimensional wake."
   - key: resolution
     quantity: "Element and solution-point counts"
-    value: null
+    value: "$39\\,342$ elements ($p = 4$), $2\\,632\\,900$ solution points"
     why: "Fixes the spatial resolution of the spectral-element discretisation."
   - key: wall_spacing
     quantity: "Minimum wall-normal spacing $\\Delta n_{\\min}/c$ and wall units $\\Delta n^+$"
-    value: null
+    value: "$\\Delta n_{\\min}/c \\approx 2.2\\times10^{-3}$; $\\Delta n^+ \\sim 1$--$4$ (instantaneous estimate)"
     why: "Shows the near-wall layer is resolved without a wall model."
   - key: timestep
     quantity: "Time step $\\Delta t\\,u_\\infty/c$ and maximum CFL"
-    value: null
+    value: "$\\Delta t\\,u_\\infty/c = 2.5\\times10^{-4}$ (fixed), target CFL $= 0.5$"
     why: "Establishes the temporal resolution and stability of the integration."
   - key: gust_station
     quantity: "Gust-release station $x_0/c$"
-    value: null
+    value: "$x_0/c = -2$"
     why: "Sets the upstream distance over which the Taylor vortex develops before impact."
   - key: convergence
     quantity: "Grid and time-step sensitivity check (baseline and a representative gust case)"

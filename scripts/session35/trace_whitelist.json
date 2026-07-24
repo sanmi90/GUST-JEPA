@@ -162,6 +162,10 @@
    "why": "pre-impact wake-median characterisation value (section 2 survey)"
   },
   {
+   "pattern": "approx\\s+2\\.2",
+   "why": "DNS near-wall spacing Delta n_min/c (Table 1; measured directly from the mesh file naca_base.h5, a configuration constant, not a pipeline result). Must precede the generic approx\\s+\\d entry below, which otherwise partially consumes '2.2' and breaks this match (both entries are applied as sequential substitutions in list order)."
+  },
+  {
    "pattern": "approx\\s+\\d",
    "why": "approximate DNS-survey characterisation values in section 2 prose"
   }

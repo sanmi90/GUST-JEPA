@@ -87,6 +87,13 @@ def main() -> None:
         ax.axvline(0, color="0.85", lw=0.6, zorder=0)
         if yl == "$Y/c$":
             ax.axhline(0, color="0.85", lw=0.6, zorder=0)
+        # explicit xticks: the |G|=4 extrapolation boundary must be readable
+        # directly off the axis (not just the dashed marker line), and the D
+        # axis should show exactly the three sampled core diameters
+        if xl == "$G$":
+            ax.set_xticks(range(-4, 5))
+        elif xl == "$D$":
+            ax.set_xticks([0.5, 1.0, 1.5])
     # mark the SYMMETRIC |G|=4 extrapolation boundary (both signs, v2.2)
     for ax, (a, b, xl, yl) in zip(axes, proj):
         if xl == "$G$":

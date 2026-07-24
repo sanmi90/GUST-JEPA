@@ -16,8 +16,9 @@ spanwise-oriented Taylor vortex released upstream of the leading edge. The data
 analysed here are our own direct numerical simulations of this configuration,
 computed with the GPU-enabled spectral-element solver SOD2D
 \citep{gasparino2024sod2d} with no subgrid-scale model, so that all scales of the
-separated wake are resolved at this Reynolds number. The solver is run in the
-low-Mach regime in which the flow is effectively incompressible. The configuration and its physical characterisation follow
+separated wake are resolved at this Reynolds number. The solver uses an
+incompressible, constant-density pressure-projection formulation
+($M = 0$; table~\ref{tab:dns_pending}). The configuration and its physical characterisation follow
 Fukami, Smith \& Taira \citeyearpar{fukami2025prf}, which is the reference for the
 physics, not the source of the data.
 The vortex has the azimuthal velocity profile
@@ -32,11 +33,8 @@ core diameter $D \equiv 2R/c$, and the offset $Y$ of the vortex centre,
 measured normal to the free stream (figure~\ref{fig:geometry}). The release
 point is fixed at $2c$ upstream of the leading edge and offset by $Y$, both
 measured in axes aligned with the free stream, following
-\citet{fukami2025prf}; the chord is pitched by the angle of attack $\alpha$
-relative to these axes, and the vortex convects downstream parallel to the
-free stream, not along the tilted chord. The released-data case identifiers
-encode the solver's opposite sign convention, $s = -G$, so a case labelled
-\texttt{G+4.00} in the archive corresponds to $G = -4$ here. The profile and the $(G, D, Y)$
+\citet{fukami2025prf} and the chord is pitched by the angle of attack $\alpha$
+relative to these axes. The profile and the $(G, D, Y)$
 sampling follow the configuration of \citet{fukami2025prf}. The training envelope spans $|G| \in \{0.25, 0.5, 1.0, 1.5, 2.0,
 3.0\}$ with $G = 0$ as the undisturbed reference, $D \in \{0.5, 1.0, 1.5\}$
 chords, and $Y \in [-0.4, +0.4]$; the value $|G| = 4$ is held out as an
@@ -62,8 +60,7 @@ windows below are referred to $t_{\mathrm{imp}}$.
   \label{fig:geometry}
 \end{figure}
 
-Without a gust, the $\alpha = 14^\circ$ wake at this Reynolds number is
-massively separated and sheds periodically; in dynamical terms the undisturbed
+Without a gust, the $\alpha = 14^\circ$ wake at this Reynolds number is separated and sheds periodically; in dynamical terms the undisturbed
 flow is a limit cycle. A gust encounter is then a transient excursion from this
 limit cycle and back, and it is helpful to read it in stages
 (figure~\ref{fig:staging}) \citep{smith2024,fukami2025prf,odaka2026}. The vortex
@@ -104,7 +101,9 @@ two-dimensional, so a mid-plane slice of the spanwise vorticity carries the
 relevant large-scale dynamics; for $|G| \ge 4$ the interaction becomes
 genuinely three-dimensional, with fine-scale instabilities developing during
 impact. We confirm this from the full three-dimensional vorticity fields: the
-fraction of the spanwise-vorticity ($\omegaz$) enstrophy not captured by its
+fraction of the spanwise-vorticity ($\omegaz$) enstrophy (the integral of
+squared vorticity over a region, formalised for the wake window in
+\S\ref{sec:flow_observables}, eq.~\ref{eq:enstrophy}) not captured by its
 spanwise mean, the content a mid-plane slice discards, is roughly constant across
 the training range ($|G| \le 3$, post-impact wake median $\approx 0.20$) and rises
 about threefold at $|G| = 4$ ($\approx 0.56$, computed on the four boundary cases
@@ -131,11 +130,9 @@ data-driven subdomain of the source characterisation \citep{fukami2025prf}. The
 lift and drag coefficients are $C_L = F_L/(\tfrac12 \rho u_\infty^2 c)$ and
 $C_D = F_D/(\tfrac12 \rho u_\infty^2 c)$, obtained by integrating the pressure
 and viscous stresses over the airfoil surface.
-The remaining DNS solver-resolution details required for full reproducibility,
-the free-stream Mach number, the domain and spanwise extent, the element and
-solution-point counts, the near-wall spacing, the time step and CFL, the
-gust-release station, and the grid and time-step sensitivity, are listed as an
-author-fill checklist in table~\ref{tab:dns_pending}. The dataset
+The remaining DNS solver-resolution details required for full reproducibility
+are listed in table~\ref{tab:dns_pending}; the grid and time-step sensitivity
+check is still pending from the simulation collaborators. The dataset
 comprises $\NCases$ cases partitioned into training, \ValSplit{} (the held-out
 last encounters of the training cases; archive name test\_a),
 \TestSplit{} (test\_b) and \BoundarySplit{} (test\_c) sets;
@@ -189,7 +186,7 @@ and the lift and drag coefficients $C_L, C_D$. The vorticity is normalised by a
 fixed pipeline: a spatial mask removes the solid and one adjacent cell layer to
 suppress the leading-edge finite-difference artefact, a per-encounter
 high-percentile clip caps spikes, and the field is scaled by three times the
-training standard deviation ($\sigma_{\mathrm{train}} = \TrainStd$) with no mean
+training standard deviation with no mean
 shift, preserving the vorticity antisymmetry.
 All representation and probe losses are computed in this normalised space;
 unnormalised values are used only for physical-units metrics and figures. The
@@ -199,13 +196,13 @@ $K_2 = 0.03$ and a dataset-dependent dynamic range $L = \SsimL$, set to twice th
 global $99.9$th percentile of the normalised target magnitude over the validation
 split so that the index is comparable across reruns.
 Appendix~\ref{app:reg} repeats the primary wake probe under no amplitude clip and
-under a single training-pooled leak-free threshold (established on the
-previous-generation encoders; the pipeline is unchanged in this revision), and the
-family ordering is unchanged, so the per-encounter clip does not drive the result.
+under a single training-pooled leak-free threshold,% (established on the previous-generation encoders; the pipeline is unchanged in this revision)
+and the family ordering is unchanged, so the per-encounter clip does not drive the result.
 
 We evaluate forward closure against five physical observables that together span
 body-force and spatially distributed wake diagnostics. The
-lift and drag coefficients $C_L$ and $C_D$ are the body forces. The wake enstrophy and the positive and negative circulation are
+lift and drag coefficients $C_L$ and $C_D$ are the body forces. The wake enstrophy and the positive and negative circulation
+(defined below, eq.~\ref{eq:enstrophy} and eq.~\ref{eq:circulation}) are
 spatially distributed wake observables: they integrate (signed) vorticity over
 the wake region and are the most demanding to forecast, because they are
 sensitive to the redistribution of vorticity that the LEV roll-up and shedding
@@ -222,21 +219,35 @@ family-wide multiplicity correction in Appendix~\ref{app:reg} is applied against
 
 The five observables are defined on each frame of the masked vorticity field
 $\omegaz$ described above. The lift and drag coefficients $C_L, C_D$ are as
-defined earlier in this section. On the wake window
-$\Omega_w = \{(x, y) : x/c \in [0.5, 4],\ |y/c| \le 1\}$ the wake enstrophy is
+defined earlier in this section. The remaining three are computed on a fixed
+downstream window $\Omega_w = \{(x, y) : x/c \in [0.5, 4],\ |y/c| \le 1\}$,
+chosen to exclude the boundary layer and leading-edge region ($x/c < 0.5$)
+and to cover the region into which the shed wake convects. The wake
+enstrophy is the mean-square vorticity integrated over this window,
 \begin{equation}
   E_w(t) = \int_{\Omega_w} \omegaz^2 \,\mathrm{d}A,
   \label{eq:enstrophy}
 \end{equation}
-and the signed wake circulations integrate the vorticity over its strongly
-rotational parts,
+a single non-negative scalar that summarises how much rotational activity, of
+either sign, the wake carries at a given instant; it rises sharply as the LEV
+rolls up and sheds and falls back as the wake relaxes. Because $E_w$ sums
+$\omegaz^2$, it cannot distinguish a wake dominated by one strong vortex from
+one holding two opposite-signed structures of the same net strength, so the
+signed wake circulations recover that sign information by integrating the
+vorticity itself, separately over its positive and negative parts, above a
+magnitude threshold that keeps only the coherent vortex cores and discards
+the weak, spatially diffuse vorticity of the ambient shear layer:
 \begin{equation}
   \Gamma^{+}(t) = \!\!\int_{\Omega_w,\,\omegaz > \omega_c}\!\!\! \omegaz \,\mathrm{d}A,
   \qquad
   \Gamma^{-}(t) = \!\!\int_{\Omega_w,\,\omegaz < -\omega_c}\!\!\! \omegaz \,\mathrm{d}A,
   \label{eq:circulation}
 \end{equation}
-with threshold $\omega_c = 1$ in the cleaned vorticity units. The signed
+with threshold $\omega_c = 1$ in the cleaned vorticity units. $\Gamma^{+}$
+tracks the strength of positively-signed structures in the wake and
+$\Gamma^{-}$ the negatively-signed ones (for instance the leading- and
+trailing-edge vortices of an encounter), independently of how the two
+partially cancel inside $E_w$. The signed
 circulations at $\omega_c \in \{0.5, 1, 2\}$ are nearly collinear (pairwise Pearson
 well above $0.9$ across held-out frames) and the predictive latent's circulation
 closure advantage over the reconstructive baseline is essentially unchanged across
@@ -253,7 +264,12 @@ in distribution), whereas $C_L$ and $C_D$ are true three-dimensional
 surface-integrated forces. The closure therefore compares mid-plane wake
 diagnostics against three-dimensional forces, and the mid-plane proxy is weakest at
 the $|G| = 4$ extrapolation boundary, where the out-of-plane fraction rises
-substantially.
+substantially. This split also matches what a physical rig can measure: the
+mid-plane vorticity field is the kind of planar slice a particle-image
+velocimetry (PIV) system would resolve, while $C_L$ and $C_D$ are exactly the
+integrated quantities a load cell reports, so the five observables are
+realisable measurements in an experimental setup and not only diagnostics
+available because the full DNS field happens to exist.
 
 \begin{figure}
   \centering

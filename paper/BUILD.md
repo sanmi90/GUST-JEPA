@@ -3,8 +3,8 @@
 Canonical branch: `session39-comparison-lead`. The manuscript is authored
 directly in LaTeX (the v1-era Markdown-to-TeX pipeline is retired; the old
 instructions live in git history of this file). Output: `paper/main.pdf`
-(56 pp as of the 2026-07-24 fig:geometry addition, was 55 pp) and
-`paper/supplementary.pdf` (3 pp).
+(57 pp as of the 2026-07-24 session (fig:geometry addition + section 2
+expansion), was 55 pp) and `paper/supplementary.pdf` (3 pp).
 
 ## One-shot build
 
@@ -15,7 +15,7 @@ latexmk -pdf -interaction=nonstopmode main.tex
 latexmk -pdf -interaction=nonstopmode supplementary.tex
 ```
 
-Both must exit 0. Expected page counts: main 56, supplementary 3 (check with
+Both must exit 0. Expected page counts: main 57, supplementary 3 (check with
 `pdfinfo`). `supplementary.tex` cross-references `main.aux` via the `xr`
 package, so build main first.
 
@@ -127,8 +127,14 @@ refer to the pre-session-39 build), `editorial/REVISION_PLAN.md` (executed).
 
 ## What still needs the authors (submission blockers)
 
-- Table 1: seven `\pending{}` DNS solver-resolution rows, filled from
-  `paper/dns_metadata.yaml` by the simulation collaborators
+- Table 1: six of seven rows filled 2026-07-24 from the simulation setup
+  directory (`~/CasosSOD2D/Naca_BSC_gusts_generator`, provenance recorded in
+  `paper/dns_metadata.yaml`'s header comment: mesh file `naca_base.h5` for
+  element/node counts, domain, near-wall spacing; case JSON for Mach,
+  timestep, CFL, gust station). The one remaining `\pending{}` row, the grid
+  and time-step sensitivity (convergence) check, was NOT found in that
+  directory (no mesh- or dt-refinement comparison run exists there) and is
+  still owned by the simulation collaborators
   (`scripts/session28/DNS_COLLABORATOR_PACKAGE.md`). THE blocker.
 - Zenodo DOI, license, CRediT, funding statements in the front matter.
 - Retitle the Table 1 value column once filled (main_30 review item #16).
