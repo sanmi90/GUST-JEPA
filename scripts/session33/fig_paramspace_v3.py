@@ -91,9 +91,9 @@ def main() -> None:
         # directly off the axis (not just the dashed marker line), and the D
         # axis should show exactly the three sampled core diameters
         if xl == "$G$":
-            ax.set_xticks(range(-4, 5))
+            ax.set_xticks(range(-4, 5, 2))
         elif xl == "$D$":
-            ax.set_xticks([0.5, 1.0, 1.5])
+            ax.set_xticks([0, 0.5, 1.0, 1.5])
     # mark the SYMMETRIC |G|=4 extrapolation boundary (both signs, v2.2)
     for ax, (a, b, xl, yl) in zip(axes, proj):
         if xl == "$G$":

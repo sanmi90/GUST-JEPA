@@ -55,8 +55,8 @@ solver:
 # The 'why' text is the referee rationale shown in the third column.
 rows:
   - key: mach
-    quantity: "Free-stream Mach number (or incompressible-limit confirmation)"
-    value: "$M = 0$ (constant-density incompressible pressure-projection solver)"
+    quantity: "Free-stream Mach number"
+    value: "$M = 0$ (constant-density incompressible solver)"
     why: "Confirms the solver formulation is incompressible at $\\vRe = 5000$."
   - key: domain
     quantity: "Computational domain and spanwise extent $L_z/c$"
@@ -72,7 +72,7 @@ rows:
     why: "Shows the near-wall layer is resolved without a wall model."
   - key: timestep
     quantity: "Time step $\\Delta t\\,u_\\infty/c$ and maximum CFL"
-    value: "$\\Delta t\\,u_\\infty/c = 2.5\\times10^{-4}$ (fixed), target CFL $= 0.5$"
+    value: "$\\Delta t\\,u_\\infty/c = 2.5\\times10^{-4}$ (fixed), CFL $< 0.5$"
     why: "Establishes the temporal resolution and stability of the integration."
   - key: gust_station
     quantity: "Gust-release station $x_0/c$"
