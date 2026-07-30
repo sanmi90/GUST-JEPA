@@ -15,111 +15,19 @@
 % matched-supervision AE (flatness 0.024) is NOT broadband, so the claim is
 % scoped to the published-recipe reconstruction.
 
-Small uncrewed aerial vehicles are increasingly expected to operate where
-the incoming flow is neither steady nor weakly disturbed. Urban canyons,
-mountainous terrain, coastal regions and the wakes of ships and buildings
-can expose a small wing to gusts whose length scale is comparable to the
-chord and whose velocity is of the order of the flight speed
-\citep{jones2022,mohamed2023gusts,fukami2023}. In this regime a gust is not
-a small perturbation of an otherwise steady aerodynamic state: the strongest
-encounters reorganise separation, vortex shedding and wake recovery rather
-than merely modulate the instantaneous force, and the resulting transient
-loads bear directly on navigability, control authority and flight safety.
+Small uncrewed aerial vehicles are increasingly expected to operate where the incoming flow is neither steady nor weakly disturbed. Urban canyons, mountainous terrain, coastal regions and the wakes of ships and buildings can expose a small wing to gusts whose length scale is comparable to the chord and whose velocity is of the order of the flight speed \citep{jones2022,mohamed2023gusts,fukami2023}. In this regime a gust is not a small perturbation of an otherwise steady aerodynamic state: the strongest encounters reorganise separation, vortex shedding and wake recovery rather than merely modulate the instantaneous force, and the resulting transient loads bear directly on navigability, control authority and flight safety.
 
-This regime has motivated a growing body of work on extreme aerodynamics
-\citep{taira2026extreme}. Its canonical problem is the interaction between a
-discrete vortex gust and a wing, where the disturbance is strong enough to
-reorganise the near wake rather than merely modulate the force
-\citep{fukami2025prf}, and its central empirical discovery is that these
-apparently complex encounters admit unexpectedly low-dimensional
-descriptions. Lift-augmented autoencoders reveal compact manifolds for
-extreme vortex-gust airfoil interactions \citep{fukami2023}, the same reduced
-description supports phase-amplitude analysis and data-driven transient lift
-attenuation \citep{fukami2024control}, and large-scale vortical structures
-show similar organisation across laminar and turbulent extreme-gust
-encounters \citep{odaka2026}. The dynamical organisation of these flows is
-therefore simpler than the full field dimension suggests.
+This regime has motivated a growing body of work on extreme aerodynamics \citep{taira2026extreme}. Its canonical problem is the interaction between a discrete vortex gust and a wing, where the disturbance is strong enough to reorganise the near wake rather than merely modulate the force \citep{fukami2025prf}, and its central empirical discovery is that these apparently complex encounters admit unexpectedly low-dimensional descriptions. Lift-augmented autoencoders reveal compact manifolds for extreme vortex-gust airfoil interactions \citep{fukami2023}, the same reduced description supports phase-amplitude analysis and data-driven transient lift attenuation \citep{fukami2024control}, and large-scale vortical structures show similar organisation across laminar and turbulent extreme-gust encounters \citep{odaka2026}. The dynamical organisation of these flows is therefore simpler than the full field dimension suggests.
 
-For deployment, however, compactness alone is not sufficient. A reduced
-description intended for gust mitigation must serve as a plant state: it must
-be advanced in time by a low-order forecast model and estimated from the
-sparse sensors a wing can carry \citep{loiseau2018}. Surface pressure is
-central here, because it is one of the few high-bandwidth measurements
-available on an aerodynamic body, and recent gust studies use sparse pressure
-histories to infer unsteady loads and to bridge spatial pressure correlations
-with temporal flow memory \citep{zhong2023sparse,haughn2024deep,chen2026bridging},
-while Bayesian sequential estimation has begun to close the loop between
-pressure and low-order aerodynamic states, carrying uncertainty alongside the
-estimate \citep{mousavi2025,eldredge2025guide}. These advances sharpen a prior
-question: what reduced state should be estimated from the wall in the first
-place?
+For deployment, however, compactness alone is not sufficient. A reduced description intended for gust mitigation must serve as a plant state: it must be advanced in time by a low-order forecast model and estimated from the sparse sensors a wing can carry \citep{loiseau2018}. Surface pressure is central here, because it is one of the few high-bandwidth measurements available on an aerodynamic body, and recent gust studies use sparse pressure histories to infer unsteady loads and to bridge spatial pressure correlations with temporal flow memory \citep{zhong2023sparse,haughn2024deep,chen2026bridging}, while Bayesian sequential estimation has begun to close the loop between pressure and low-order aerodynamic states, carrying uncertainty alongside the estimate \citep{mousavi2025,eldredge2025guide}. These advances sharpen a prior question: what reduced state should be estimated from the wall in the first place?
 
-The two established routes to such a state pull in opposite directions.
-Nonlinear reconstruction buys compactness but not forecastability. A decoder
-fixes the latent only up to an arbitrary reparametrisation of the manifold,
-so the coordinates a reconstruction objective produces need not be the
-coordinates a time-advancing model can use, and controlled comparisons in
-wake flows report that autoencoder latents mix high and low frequencies in
-their coordinates and evolve irregularly, so that autoregressive predictors
-built on them diverge, whereas linear proper-orthogonal-decomposition
-predictors forecast more accurately and with a narrower spread precisely
-because the basis is linear, but pay for it in compactness, needing many more
-coordinates to represent the same flow structures
-\citep{solerarico_compactness_underreview}. The linear basis, however,
-buys that forecastable dynamics at the price of the nonlinear wake content of
-the encounter: in the present flow the POD coefficients do not reach the wake
-enstrophy at any dimension we tested. Compactness trades against
-forecastability, and nonlinearity against wake reach, and extreme gusts are
-the arena where the trade cannot be evaded, because there the linear escape
-route genuinely fails.
+The two established routes to such a state pull in opposite directions. Nonlinear reconstruction buys compactness but not forecastability. A decoder fixes the latent only up to an arbitrary reparametrisation of the manifold, so the coordinates a reconstruction objective produces need not be the coordinates a time-advancing model can use, and controlled comparisons in wake flows report that autoencoder latents mix high and low frequencies in their coordinates and evolve irregularly, so that autoregressive predictors built on them diverge, whereas linear proper-orthogonal-decomposition predictors forecast more accurately and with a narrower spread precisely because the basis is linear, but pay for it in compactness, needing many more coordinates to represent the same flow structures \citep{solerarico_compactness_underreview}. The linear basis, however, buys that forecastable dynamics at the price of the nonlinear wake content of the encounter: in the present flow the POD coefficients do not reach the wake enstrophy at any dimension we tested. Compactness trades against forecastability, and nonlinearity against wake reach, and extreme gusts are the arena where the trade cannot be evaded, because there the linear escape route genuinely fails.
 
-This tension motivates a predictive training objective: rather than compressing
-for reconstruction and hoping the latent is forecastable, one trains the encoder
-together with a latent predictor so the coordinates are shaped in the space the
-forward model will use. This is a joint-embedding predictive architecture
-\citep{lecun2022}, which learns an encoder and a predictor such that the present
-latent predicts a future latent rather than reconstructing the field, developed
-for images and video as non-generative prediction in representation space
-\citep{ijepa,vjepa2}. Here it is a diagnostic instrument for the paper's central
-question: whether predictive training yields a nonlinear state at once more
-compact than the linear basis and more forecastable than a reconstruction-trained
-latent.
+This tension motivates a predictive training objective: rather than compressing for reconstruction and hoping the latent is forecastable, one trains the encoder together with a latent predictor so the coordinates are shaped in the space the forward model will use. This is a joint-embedding predictive architecture \citep{lecun2022}, which learns an encoder and a predictor such that the present latent predicts a future latent rather than reconstructing the field, developed for images and video as non-generative prediction in representation space \citep{ijepa,vjepa2}. Here it is a diagnostic instrument for the paper's central question: whether predictive training yields a nonlinear state at once more compact than the linear basis and more forecastable than a reconstruction-trained latent.
 
-Training such a state on a forced wake exposes a structural requirement an
-autoencoder does not face: without an observable anchor the predictive latent
-collapses, and it is the scalar lift, not a high-dimensional field descriptor,
-that prevents it. This turns the observable heads from an assumption into a
-finding and connects the objective to the observable-augmented manifold learning
-of the autoencoder lineage \citep{fukami2023,fukami2025}, in which physical
-observables orient the latent towards physically relevant quantities. A healthy
-latent and a useful one are different achievements: the lift anchors the state,
-and a wake target loads it with the wake.
+Training such a state on a forced wake exposes a structural requirement an autoencoder does not face: without an observable anchor the predictive latent collapses, and it is the scalar lift, not a high-dimensional field descriptor, that prevents it. This turns the observable heads from an assumption into a finding and connects the objective to the observable-augmented manifold learning of the autoencoder lineage \citep{fukami2023,fukami2025}, in which physical observables orient the latent towards physically relevant quantities. A healthy latent and a useful one are different achievements: the lift anchors the state, and a wake target loads it with the wake.
 
-We examine whether a reduced representation of an extreme vortex-gust encounter
-can satisfy three requirements simultaneously: it must retain the wake variables
-that distinguish post-impact states, remain usable under forward prediction, and
-be recoverable from sparse wall pressure. Direct numerical simulations of a
-post-stall NACA~0012 airfoil at $\alpha = 14^\circ$ and $\vRe = 5000$, perturbed
-by Taylor vortex gusts spanning gust ratio, core diameter and offset, are used
-to compare predictive, reconstruction-trained and proper-orthogonal-decomposition
-states at matched dimension. Controlled supervision ablations identify which
-physical targets organise the latent representation; a common direct forecaster
-separates representation quality from operator choice, the encoder never seeing
-the gust parameters and the reconstruction baselines carrying the identical
-observable heads; and a pressure-only sequential estimator tests which parts of
-the state are observable from the wall. The results show that observable
-supervision determines the physical content of the state, multi-step predictive
-training improves its forward stability, and wall-pressure histories recover the
-load-bearing directions more reliably than the complete wake state. The strongest
-gusts expose the remaining limitation of a mid-plane representation and an
-under-dispersed estimator.
+We examine whether a reduced representation of an extreme vortex-gust encounter can satisfy three requirements simultaneously: it must retain the wake variables that distinguish post-impact states, remain usable under forward prediction, and be recoverable from sparse wall pressure. Direct numerical simulations of a post-stall NACA~0012 airfoil at $\alpha = 14^\circ$ and $\vRe = 5000$, perturbed by Taylor vortex gusts spanning gust ratio, core diameter and offset, are used to compare predictive, reconstruction-trained and proper-orthogonal-decomposition states at matched dimension. Controlled supervision ablations identify which physical targets organise the latent representation; a common direct forecaster separates representation quality from operator choice, the encoder never seeing the gust parameters and the reconstruction baselines carrying the identical observable heads; and a pressure-only sequential estimator tests which parts of the state are observable from the wall. The results show that observable supervision determines the physical content of the state, multi-step predictive training improves its forward stability, and wall-pressure histories recover the load-bearing directions more reliably than the complete wake state. The strongest gusts expose the remaining limitation of a mid-plane representation and an under-dispersed estimator.
 
-The remainder of the paper is organised as follows. \S 2 describes the
-flow configuration, data and endpoints; \S 3 the reduced states, the shared
-forecaster and the wall-pressure estimator; \S 4 the results, in the order of
-construction (\S\ref{sec:res_construct}), representation across dimension
-(\S\ref{sec:res_compress}), the physics the state holds
-(\S\ref{sec:res_latent_physics}), forecastability
-(\S\ref{sec:res_forecast}), wall observability (\S\ref{sec:res_wallobs}) and
-sequential estimation (\S\ref{sec:res_estimation}); \S 5 discusses the
-mechanisms and their limits, and \S 6 concludes.
+The remainder of the paper is organised as follows. \S 2 describes the flow configuration, data and endpoints; \S 3 the reduced states, the shared forecaster and the wall-pressure estimator; \S 4 the results, in the order of construction (\S\ref{sec:res_construct}), representation across dimension (\S\ref{sec:res_compress}), the physics the state holds (\S\ref{sec:res_latent_physics}), forecastability (\S\ref{sec:res_forecast}), wall observability (\S\ref{sec:res_wallobs}) and sequential estimation (\S\ref{sec:res_estimation}); \S 5 discusses the mechanisms and their limits, and \S 6 concludes.
+
