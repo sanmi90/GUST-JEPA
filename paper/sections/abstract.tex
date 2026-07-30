@@ -1,16 +1,23 @@
 % Abstract, Session 39 revision (Carlos's referee-grade assessment, 2026-07-12):
 % replaces the comparison-led three-tension abstract with the more measured,
-% role-separating version Carlos supplied. Only the two estimation endpoints are
-% numeric and both are macros (\PoneTwoStageCovImpact / \PoneTwoStageCovImpactC,
-% the FINAL two-stage estimator). Claims corrected per the assessment: the wake
+% role-separating version Carlos supplied. Only the estimation endpoint is
+% numeric and both figures are macros (\PoneTwoStageCovImpact with its
+% \PoneTwoStageCovRmse, the FINAL two-stage estimator).
+% F01 (2026-07-30, option B): the headline number was the BOUNDARY score
+% \PoneTwoStageCovImpactC quoted without a lift-unit error, which
+% \S\ref{sec:res_envelope} warns is the metric that flatters extreme-gust
+% tracking, and which read as higher than the in-distribution 0.794. Replaced by
+% the in-distribution pair, R^2 with its RMSE, per project decision D252; the
+% boundary result stays qualitative here and quantitative in \S4.6/\S5.
+% Claims corrected per the assessment: the wake
 % is "a larger distributed representation" not "at least sixteen" (1.5); wake
 % enstrophy "not reliably recovered by the wall-sensor configurations considered"
 % (1.2/section 7); the common direct forecaster gives the predictive states the
 % most accurate LIFT forecasts, recursive prediction limited by rollout error.
 Extreme vortex gusts drive a post-stall airfoil through transient wake
 reorganisations that the gust parameters alone do not determine. We investigate
-whether a reduced state can retain this wake dynamics, remain suitable for
-forward prediction and be estimated from sparse wall pressure. Direct numerical
+whether a reduced state can retain this wake dynamics, remain predictable and
+be estimated from sparse wall pressure. Direct numerical
 simulations of a NACA~0012 airfoil at $\alpha = 14^\circ$ and $\vRe = 5000$,
 subjected to Taylor vortices of varying strength, size and offset, compare
 predictive, reconstruction-trained and proper-orthogonal-decomposition states at
@@ -22,12 +29,12 @@ stays linearly accessible at four coefficients over the dimensions tested,
 whereas the spatial wake structure requires a larger distributed representation.
 Under a common direct multi-horizon forecaster the predictive states give the
 most accurate lift forecasts, while recursive prediction is limited by
-accumulated rollout error. A pressure-only ensemble estimator using eight wall pressure
-taps tracks the lift through the impact and relaxation phases; where a static
+accumulated rollout error. A pressure-only ensemble estimator with eight wall-pressure
+taps tracks the lift through impact and relaxation, reaching impact-phase
+$R^2 = \PoneTwoStageCovImpact$ at a root-mean-square lift error of
+\PoneTwoStageCovRmse{} with the final two-stage configuration. Where a static
 single-frame inverse matches it in distribution, the filter's advantage is in the
-tails, in continuous state tracking, and at the held-out $|G| = 4$ boundary, where
-it reaches impact-phase $R^2 = \PoneTwoStageCovImpactC$ with the final two-stage
-configuration. Wake enstrophy is not reliably recovered by the
+tails, in continuous state tracking, and at the held-out $|G| = 4$ boundary. Wake enstrophy is not reliably recovered by the
 wall-sensor configurations considered. The results separate the roles of
 observable supervision, predictive training and sensing geometry in constructing
 reduced states for extreme aerodynamic transients.

@@ -103,8 +103,7 @@ while the wake is not, the distributed-code signature we return to in
 \S\ref{sec:res_latent_physics}. Among the reference recipes the lift-augmented
 reconstructive autoencoder reads the wake only when it carries the wake head
 ($\XwakeFukamiWake$ against $\XwakeFukami$ without it), and the linear basis does
-not reach the wake at all ($\XwakePod$), so the POD basis does not recover the
-enstrophy that a supervised nonlinear state does.
+not reach the wake at all ($\XwakePod$).
 
 \input{sections/tables/table_closure.tex}
 
@@ -131,11 +130,7 @@ penalises a nonlinear state that carries a high decode floor, so we route
 field-fidelity claims through SSIM and the decoded snapshots and reserve the
 wake-observable readability for the nonlinear-content claim. There the linear
 basis reaches only $\XwakePod$ at $d = 32$, and the POD coefficients do not
-recover the wake at any tested dimension. The proper orthogonal basis holds the
-shedding clock (\S\ref{sec:res_latent_physics}) and stays competitive on the
-forces; the finding is not that it is obsolete but that the POD coefficients do
-not achieve comparable linear readability of the wake-enstrophy target at the
-dimensions tested.
+recover the wake at any tested dimension.
 
 The window-averaged decode floor can be resolved to the critical instants of the
 encounter, the pre-impact frame, the impact and the peak lift
@@ -158,7 +153,7 @@ Across dimension the picture is the same
 decode fidelity at the impact instant rises and saturates for the compact
 nonlinear states and the energy-optimal linear basis together, the two
 indistinguishable at every dimension, while the published-recipe lineage stays
-lower. Field decode does not separate the compact states at any dimension.
+lower.
 
 The observables tell the discriminating story the field pixels hide
 (table~\ref{tab:obs_critical}). A linear probe reads the lift and the wake
@@ -197,12 +192,9 @@ the wake readability moving only $\PlateauSpread$ across sixteen, thirty-two and
 sixty-four ($\PlateauWakeDThirtyTwo$ at thirty-two), so the choice of dimension is a
 robustness statement and not a tuned operating point.
 
-A spatially resolved latent decodes the vorticity field more sharply than this
-coefficient state, but it is of far higher dimension than the wall measurement and
-so is not recoverable from sparse pressure. That decodability-versus-estimability
-trade is the reason the coefficient state, not the field-resolved latent, is the
-object this paper estimates; we take it up in \S\ref{sec:disc_decode} and quantify
-its cost in the supplementary material.
+The decodability-versus-estimability trade this raises, and why the coefficient
+state rather than a field-resolved latent is the object estimated here, is taken
+up in \S\ref{sec:disc_decode}.
 
 \subsection{The physics the latent state holds}
 \label{sec:res_latent_physics}
@@ -332,9 +324,8 @@ $\SsimFcJepaThruEight$ for the predictive state, $\SsimFcAeThruEight$ for the
 reconstructive and $\SsimFcPodThruEight$ for the linear, the predictive state
 only modestly ahead on the near-body band ($\SsimFcJepaNbEight$ against
 $\SsimFcAeNbEight$ and $\SsimFcPodNbEight$). The decoded field, like the decode
-floor of \S\ref{sec:res_compress}, is not where the states separate: the
-energy-optimal linear basis renders the forecast field about as sharply as the
-nonlinear ones. What separates them is the observable content the
+floor of \S\ref{sec:res_compress}, is not where the states separate. What
+separates them is the observable content the
 field-averaged SSIM washes out, the wake-observable merit above, where the
 wake-supervised and predictive states lead and the linear basis does not.
 
@@ -524,9 +515,6 @@ wake estimator, and we say so plainly.
 
 \input{sections/tables/table_family_filter.tex}
 
-How far into the gust the load recovery holds is the operating envelope of
-\S\ref{sec:res_envelope}.
-
 \begin{figure}
   \centering
   \includegraphics[width=\linewidth]{sections/figures/results/fig_hero_traces_v3.pdf}
@@ -586,13 +574,10 @@ visibility analysis found blind to the wake circulation.
 
 \input{sections/tables/table_envelope.tex}
 
-The lower panels of the tracking figure (figure~\ref{fig:cl_envelope_traces})
-show the \TwoStageKF{} of
-\S\ref{sec:methods_rexenkf} at work, one representative encounter per gust
-intensity: the analysis follows the lift from the pre-impact shedding through
-the impact excursion and the relaxation at every intensity, including the
-$|G| = 4$ boundary, while the same stage-scheduled forecast models run open
-loop, with no pressure, lose the transient.
+The lower panels of figure~\ref{fig:cl_envelope_traces} show the \TwoStageKF{}
+of \S\ref{sec:methods_rexenkf} tracking one representative encounter per gust
+intensity, including the $|G| = 4$ boundary, where the same models run open
+loop lose the transient.
 
 Run identically on each family, each under its own validation-tuned inflation, the
 comparison is a division of degradation rather than a clean win

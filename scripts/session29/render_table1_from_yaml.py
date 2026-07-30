@@ -43,7 +43,7 @@ def main() -> None:
         "  {\\small",
         "  \\fittab{\\begin{tabular}{@{}p{0.29\\textwidth}l p{0.43\\textwidth}@{}}",
         "    \\toprule",
-        "    Quantity & Value & Why a referee needs it \\\\",
+        "    Quantity & Value & Why it is reported \\\\",
         "    \\midrule",
         *body,
         "    \\bottomrule",
@@ -51,9 +51,9 @@ def main() -> None:
         "  \\caption{DNS solver-resolution details required for full reproducibility",
         "  (\\S\\ref{sec:flow_observables}). The data are direct numerical simulations",
         "  with no subgrid-scale model, so all scales are resolved and no large-eddy",
-        "  closure is involved. Values marked pending are owned by the simulation",
-        "  collaborators and are filled from \\texttt{paper/dns\\_metadata.yaml} before",
-        "  submission.}",
+        "  closure is involved."
+        + (" Rows marked pending await the simulation collaborators.}"
+           if n_pending else "}"),
         "  \\label{tab:dns_pending}",
         "\\end{table}",
     ]

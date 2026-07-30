@@ -5,6 +5,9 @@
 % REVIEW-CLAIM: (Stage 4) wholesale replacement of the previous conclusions
 % by the pre-approved draft; the NIS-refutation and smoother specifics stay
 % in \S\ref{sec:res_da} and the calibration appendix rather than here.
+% F01 (2026-07-30, option B): the estimation sentence quoted both R^2 values
+% with neither error. Now the \TestSplit{} pair (R^2 with its RMSE) per D252;
+% the boundary result is stated qualitatively, its number staying in \S4.6.
 We asked whether a reduced state of an extreme vortex-gust encounter can
 be constructed to carry the wake dynamics, advanced in time, and
 recovered from wall pressure alone. On construction, under the
@@ -32,9 +35,9 @@ than the release parameters.
 
 On estimation, a two-stage ensemble filter sensing eight wall-pressure
 taps tracks the lift through the encounter, phase-resolved and in
-physical units, with an impact-phase median $R^2 = \PoneTwoStageCovImpact$ on the
-\TestSplit{} set and $R^2 = \PoneTwoStageCovImpactC$ at the $|G| = 4$
-boundary.
+physical units, with an impact-phase median $R^2 = \PoneTwoStageCovImpact$ at a
+root-mean-square lift error of \PoneTwoStageCovRmse{} on the \TestSplit{} set,
+and holds its median tracking at the $|G| = 4$ boundary.
 Across latent dimension and training seed the predictive states remain
 uniformly estimable from the wall, whereas the reconstructive geometry
 does not, for a verified observation-side reason; this robustness,

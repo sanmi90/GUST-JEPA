@@ -55,17 +55,11 @@ step, so the training and estimation dynamics share a function class. Internal s
 the encoder and predictor, and panel~(b) the deployment predict-correct loop;
 the matched evaluation
 protocol used throughout is figure~\ref{fig:eval_protocol} in
-appendix~\ref{app:reg}. The contrast between the predictive training signal and
-the reconstructive one, in which the reconstructive autoencoder passes the field at
-time $t$ through an encoder and a decoder and incurs a field-space error whereas
-the predictive model encodes the fields at $t$ and $t+\Delta t$ with shared
-weights and incurs a latent-space error between the predicted and observed target
-embeddings, with no field-space loss, is drawn in Appendix~\ref{app:reg}
-(figure~\ref{fig:predictive_vs_reconstructive}).
-The two networks are an unconditional hybrid convolution-ViT encoder mapping the
-$\omegaz$ field to the pooled $d = \LatentDim$ state and a six-layer causal
-transformer predictor rolling that state; their full configuration, widths and
-parameter counts are in table~\ref{tab:architecture} in
+appendix~\ref{app:reg}, which also draws the contrast between the predictive
+training signal, a latent-space error against a shared-weight target embedding,
+and the reconstructive one, a field-space error through a decoder
+(figure~\ref{fig:predictive_vs_reconstructive}). Full configuration, widths and
+parameter counts for both networks are in table~\ref{tab:architecture} in
 appendix~\ref{app:methods_tables}.
 
 The predictive encoder and predictor are trained jointly on a multi-step
@@ -124,9 +118,8 @@ predictive model alone and every supervised-versus-unsupervised and
 predictive-versus-reconstructive contrast is available separately. Fourth, the
 wake descriptor is assembled from established, fixed constructions, the spatial
 pyramid and the radial power spectrum above, and was not tuned against any
-outcome. Fifth, the conditioning gates were written and archived before any
-result was read, three seeds per cell, with probes fit on the training split
-and scored on the held-out split alone. The one asymmetry a reader might raise,
+outcome. Fifth, the probes are fit on the training split and scored on the
+held-out split alone. The one asymmetry a reader might raise,
 that the linear basis carries no supervision channel, is by design: supervision
 is a property of trainable encoders, so the proper orthogonal basis is the
 objective-free linear reference, read through the identical frozen probes, and
@@ -194,9 +187,7 @@ co-trained reduced-order model, is reported alongside, and the sequential
 estimator of
 \S\ref{sec:methods_estimator} uses the same matched transformer on the \PredState's
 frozen trajectories. Every state is compared at the matched headline
-dimension $d = \LatentDim$; the dimension plateau at $\{16, 32, 64\}$ and the
-minimum-dimension panel of \S\ref{sec:res_latent_physics} establish that this
-choice is a robustness statement rather than a tuned operating point. This
+dimension $d = \LatentDim$. This
 isolation is the only fair way to attribute representation quality to the
 encoder rather than to incidental differences in the readout. The reconstructive references use their best-documented configuration, with ReLU
 activations and group normalisation rather than the strict published variant
@@ -275,10 +266,8 @@ observable heads alone supply. The published reference recipes, a plain convolut
 Fukami--Taira lineage \citep{fukami2023,fukami2025}, the $\beta$-variational
 autoencoder of \citet{solera2024}, and a linear proper-orthogonal-decomposition
 basis, use their own native architectures but produce a pooled coefficient vector
-at the same latent dimension. The forecast merit refits a matched operator on each
-frozen latent; we use the operator that is numerically stable on it, a transformer
-on the pooled states and a residual U-Net on the reference latents, on which the
-transformer diverges (\S\ref{sec:methods_protocol}, Appendix~\ref{app:reg}).
+at the same latent dimension. Their forecast merit is refit under the legacy
+suited-operator protocol of \S\ref{sec:methods_closure}.
 
 Every held-out $R^2$ and mean absolute error reported below carries three
 independent uncertainty signals, following the reporting protocol fixed with the
