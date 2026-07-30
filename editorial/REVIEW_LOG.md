@@ -146,8 +146,75 @@ Gates after rounds 1 and 2: main rc=0 at 56 pp, `trace_numbers` PASS,
 `audit_numbers` PASS (968 macros / 868 json, 0 mismatches), 0 em-dashes, 0
 undefined references beyond the benign hyperref `\thepage` note.
 
-Still open: F22 (six audit items), F07 (wake-descriptor trim), F21 (panel
-lettering in figures 7 and 11).
+## Applied 2026-07-30: open-issue walkthrough, round 3
+
+- **F07 dismissed.** The wake-descriptor justification stays. Re-reading
+  `section_3_methods.tex:25`, the wavelet-scattering sentence is not
+  decorative: it is the passage's argument that pairing a spatial pooling with
+  a radial spectrum is a principled construction rather than an ad hoc one,
+  and it cites a turbulence application doing it for that reason. Cutting it
+  would weaken the defence of a descriptor the same passage calls "chosen by
+  design rather than tuned", which is where a referee would press.
+- **F21 applied in LaTeX, no figure regeneration.** Both floats stack two
+  independent graphics, so the lettering is a float-level edit. Figure 7's top
+  graphic already carries internal panels (a)-(e), so its lower graphic became
+  (f) and the caption's "Top:"/"Bottom:" became "(a-e)"/"(f)". Figure 11 had
+  no internal letters, so its two graphics became (a) and (b). Two prose call
+  sites were updated to the new letters: `section_4_results.tex:79`
+  ("figure~\ref{fig:t1_spectra}, bottom" to "...}f") and `:225` ("The lower
+  panels of figure~..." to "Figure~...b shows"). Note: the labels are set in
+  the body font, so figure 7's (f) does not match the sans lettering of its
+  own (a)-(e). In-figure lettering would be cleaner and is now possible (see
+  the artefact note below); it was not done because it needs a regeneration of
+  `fig_t1_spectra_v4.pdf` off the 63 GB latent cache.
+  Gate note: the first attempt used `\makebox[0.78\linewidth]` to align the
+  label to the graphic, which `trace_numbers` correctly flagged (it strips
+  `\includegraphics` widths but not `\makebox`). Changed to `\linewidth`
+  rather than whitelisting a decimal.
+
+### F22.1 RESOLVED, and the ledger's premise was backwards
+
+CLAIM_MAP recorded this as "fig 7's panel says 'encoder seeds' where
+text/caption say operator seeds", implying the text needed fixing. The
+opposite is true, and the figure was the defect.
+
+Evidence: `scripts/session34/latent_rex.py` loads a **frozen** encoder run by
+`--run` (`load_cache(CACHE, args.run, ...)`) and uses `--seed` only to seed
+operator training (`torch.manual_seed`), writing the `_s{n}` suffix. So
+`latent_rex_jepa_pool_vec{,_s1,_s2}.json` are one encoder under three
+**operator** seeds. The generator's own docstring called the identical
+mechanism "operator seeds" for panel (b) while calling it "encoder-seed
+retrains" for panel (a), which is the internal contradiction that settles it.
+
+So `v4/s4_c_prediction.tex:18` and `:68` ("three operator seeds") were
+**correct** and are unchanged. Fixed instead:
+`scripts/session35/fig_forecastability_v4.py` panel (a) title
+("encoder seeds" to "operator seeds") and its docstring, and the figure asset
+was regenerated. Data is unchanged: the CLW per-seed values
+[0.6646, 0.5713, 0.6792] have mean 0.638382, matching `\RexFamClw` to seven
+digits, and `fig_forecast_null_v4.pdf` came back text-identical.
+
+Checked and found correct, not changed: `tables/table_closure.tex:23` and
+`appendix_a_regularisation.tex:267,350` all say "operator seeds" and are
+right, because `scripts/session36/rex_families_m1.py` also seeds operator
+training (`train_operator(Zt, seed, ...)`).
+
+### Artefact availability, discovered while resolving F22.1
+
+Ten of the twelve JSONs this figure plots, the upstream
+`outputs/session34/trackc_latents` cache and the session33 encoder
+checkpoints are all **absent from this working tree**. They exist in
+`/home/carlos/GUST-JEPA/outputs/` (read-only), which is where the ten JSONs
+were recovered from. `outputs/` is gitignored, so nothing was lost from
+version control, but a figure regeneration cannot be assumed to work from a
+fresh clone of this tree alone. Anyone regenerating a body figure should check
+Carlos's tree first and must not simply run a generator that says "n from the
+files present on disk": with the inputs missing it would have silently emitted
+a degraded n=1 figure instead of failing.
+
+Still open: F22 items 2-5 (RexFam/co-trained bands, per-family wake-closure
+and ladder-median macros, the unbound two-stage consistency claim, the §3.5
+sign-convention audit).
 
 ## F01 in detail
 

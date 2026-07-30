@@ -76,7 +76,7 @@ The decodability-versus-estimability trade this raises, and why the coefficient 
 
 Before the state is forecast or estimated, we read what the representation holds, in measures that do not depend on any filter. The predictive latent carries the shedding clock. Fitting a linear operator to the encoded limit-cycle trajectory by dynamic mode decomposition places a marginally stable oscillatory mode at Strouhal number $\DmdStJepa$, against the measured shedding line marked in figure~\ref{fig:atlas}(d), with modulus $\DmdLamJepa$ just below unity. The Fukami-lineage autoencoders lose that clock: their leading latent mode is heavily damped and off-frequency ($\DmdStFukami$ at modulus $\DmdLamFukami$ without the wake head, $\DmdStFukamiWake$ at $\DmdLamFukamiWake$ with it). The structured states keep it, whether their structure comes from prediction, from supervision, from anti-collapse, or from a linear basis: the objective-free supervised latent, the anti-collapse reconstruction, and the proper orthogonal basis all place the shedding mode near the measured frequency on a near-unit-modulus orbit ($\DmdStSupOnly$, $\DmdStRegAE$ and $\DmdStPod$ at moduli $\DmdLamSupOnly$, $\DmdLamRegAE$ and $\DmdLamPod$). It is the Fukami-lineage reconstruction, not reconstruction in general, that fails to hold the shedding spectrum.
 
-The coordinate spectra say the same in the frequency domain and locate the reconstruction failure precisely. Averaging a per-coordinate Welch spectrum over the training encounters, the published-recipe reconstruction spreads its latent energy across frequency, at a median spectral flatness of $\FlatFukami$ against $\FlatJepaWake$ for the predictive latent, $\FlatAeWake$ for the matched-supervision reconstruction and $\FlatPod$ for the linear basis (figure~\ref{fig:t1_spectra}, bottom); the published recipe exceeds the predictive latent by $\FlatFukamiDelta$ in flatness with a case-clustered interval $[\FlatFukamiDeltaLo, \FlatFukamiDeltaHi]$ that excludes zero. The predictive coordinates are the most sharply peaked at the shedding line, and it is the published-recipe reconstruction alone, not the matched-supervision autoencoder, whose coordinates are broadband: the broadband, phase-scrambling latent that a reconstruction objective without matched supervision produces is the frequency-domain signature of the rollout collapse the same latents show under the shared forecast operator. The same contrast appears in the phase portraits of the latent trajectories (figure~\ref{fig:t3_portraits}): the predictive, linear and matched-supervision states trace coherent cycles that the gust perturbs, while the published-recipe reconstruction wanders without a clean orbit.
+The coordinate spectra say the same in the frequency domain and locate the reconstruction failure precisely. Averaging a per-coordinate Welch spectrum over the training encounters, the published-recipe reconstruction spreads its latent energy across frequency, at a median spectral flatness of $\FlatFukami$ against $\FlatJepaWake$ for the predictive latent, $\FlatAeWake$ for the matched-supervision reconstruction and $\FlatPod$ for the linear basis (figure~\ref{fig:t1_spectra}f); the published recipe exceeds the predictive latent by $\FlatFukamiDelta$ in flatness with a case-clustered interval $[\FlatFukamiDeltaLo, \FlatFukamiDeltaHi]$ that excludes zero. The predictive coordinates are the most sharply peaked at the shedding line, and it is the published-recipe reconstruction alone, not the matched-supervision autoencoder, whose coordinates are broadband: the broadband, phase-scrambling latent that a reconstruction objective without matched supervision produces is the frequency-domain signature of the rollout collapse the same latents show under the shared forecast operator. The same contrast appears in the phase portraits of the latent trajectories (figure~\ref{fig:t3_portraits}): the predictive, linear and matched-supervision states trace coherent cycles that the gust perturbs, while the published-recipe reconstruction wanders without a clean orbit.
 
 The parametric manifold coheres with the release parameters where the training data resolve them. An impact-frame probe of the predictive latent recovers the gust strength and the core diameter well ($\ProbeGJepa$ and $\ProbeDJepa$ on the \TestSplit{} set), which is the atlas of figure~\ref{fig:atlas} (top) coloured by parameter. The wall-normal offset, unreadable at the linear-probe level in earlier work, becomes weakly readable at the linear level here ($\ProbeYJepa$; $\ProbeYkrrJepa$ under a nonlinear probe), plausibly because the additional cases sample it more densely near the training centre; we note this rather than lean on it, since the offset remains the least resolved parameter (\S\ref{sec:flow_observables}).
 
@@ -86,8 +86,9 @@ A state that reads the wake at a single instant need not survive a rollout, beca
   \centering
   \includegraphics[width=0.92\linewidth]{sections/figures/results/fig_atlas_dmd_v3.pdf}
   \par\vspace{3pt}
+  \makebox[\linewidth][l]{\textbf{(f)}}\par\vspace{1pt}
   \includegraphics[width=0.78\linewidth]{sections/figures/results/fig_t1_spectra_v4.pdf}
-  \caption{The physics the latent state holds. Top: two-dimensional projections of
+  \caption{The physics the latent state holds. (a-e) Two-dimensional projections of
   the predictive coefficient latent coloured by gust strength, core diameter and
   shedding phase, showing a parametric manifold that coheres with the release
   parameters, with the latent dynamic-mode-decomposition spectrum (modulus
@@ -95,8 +96,7 @@ A state that reads the wake at a single instant need not survive a rollout, beca
   marginally stable mode at the measured shedding frequency while the
   Fukami-lineage reconstruction is damped and off-frequency), and the
   explained-variance ratio of the leading atlas principal components per
-  family (e; colours as in d). Bottom:
-  per-coordinate latent spectra by family (training encounters, $d = 32$; mean
+  family (e; colours as in d). (f) Per-coordinate latent spectra by family (training encounters, $d = 32$; mean
   Welch power spectral density against Strouhal number, coordinates ordered by peak
   frequency, dashed line the shedding Strouhal): the predictive coordinates
   concentrate at the shedding line while the published-recipe reconstruction
@@ -190,16 +190,17 @@ The predictive state combines a boundary closure among the highest ($\VfiltCLGFo
 
 \begin{figure}
   \centering
+  \makebox[\linewidth][l]{\textbf{(a)}}\par\vspace{1pt}
   \includegraphics[width=\linewidth]{sections/figures/results/fig_hero_traces_v3.pdf}
   \par\vspace{4pt}
+  \makebox[\linewidth][l]{\textbf{(b)}}\par\vspace{1pt}
   \includegraphics[width=\linewidth]{sections/figures/results/fig_cl_envelope_traces_v4.pdf}
-  \caption{The estimator tracks the encounter from wall pressure alone. Top:
-  representative held-out encounters at $|G| = 1$, $1.5$ and $2$ (columns), lift
+  \caption{The estimator tracks the encounter from wall pressure alone. (a) Representative held-out encounters at $|G| = 1$, $1.5$ and $2$ (columns), lift
   coefficient and wake enstrophy (rows); each panel shows the DNS truth, the filter
   analysis with its $\pm 2\sigma$ ensemble band, the pressure-only regression, and
   the open-loop rollout, the vertical line marking impact. The filter follows the
   load through impact and relaxation where the open-loop forecast loses it and the
-  pressure-only regression goes stale. Bottom: $C_L$ estimation across the
+  pressure-only regression goes stale. (b) $C_L$ estimation across the
   gust-intensity envelope on the \PredState{} ($d = 32$) under the \TwoStageKF{}
   of \S\ref{sec:methods_rexenkf} (one representative encounter per $|G|$ stratum,
   \TestSplit{} set for $|G| \le 3$ and \BoundarySplit{} set at $|G| = 4$, where
@@ -221,7 +222,7 @@ This subsection diagnoses the reach of the base frozen filter across the envelop
 
 \input{sections/tables/table_envelope.tex}
 
-The lower panels of figure~\ref{fig:cl_envelope_traces} show the \TwoStageKF{} of \S\ref{sec:methods_rexenkf} tracking one representative encounter per gust intensity, including the $|G| = 4$ boundary, where the same models run open loop lose the transient.
+Figure~\ref{fig:cl_envelope_traces}b shows the \TwoStageKF{} of \S\ref{sec:methods_rexenkf} tracking one representative encounter per gust intensity, including the $|G| = 4$ boundary, where the same models run open loop lose the transient.
 
 Run identically on each family, each under its own validation-tuned inflation, the comparison is a division of degradation rather than a clean win (table~\ref{tab:filter_error}). At moderate gusts every filter tracks the load, the reconstruction filter marginally best. At the $|G| = 4$ boundary every filter is stressed, its innovations flagged inconsistent on $\FeDivJepaGFour$ to $\FeDivFukamiGFour$ of encounters; the predictive filter degrades least, with the lowest median error ($\FeCLrmseJepaGFour$ against $\FeCLrmseFukamiGFour$ for the reconstruction and $\FeCLrmsePodGFour$ for the linear basis) and the lowest consistency-failure rate, and the linear filter degrades worst. The predictive state's advantage at the boundary is one of robustness, a degraded regime rather than a solved one.
 

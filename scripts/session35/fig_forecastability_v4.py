@@ -6,8 +6,13 @@ Panels
       operator (identical architecture, training recipe and protocol per
       family; the operator confound fix). Families: JEPA-CLW (native vector
       flagship), JEPA-CLN (Chang lift-element head cell), kit AE-LW. Bar =
-      mean over encoder-seed retrains, points = individual seeds, n from the
-      files present on disk.
+      mean over operator seeds, points = individual seeds, n from the
+      files present on disk. The seeds are OPERATOR seeds: latent_rex.py
+      loads a frozen encoder run by --run and uses --seed only for operator
+      training (the _s{n} suffix), so the three files per family share one
+      encoder. An earlier version of this docstring and of panel (a)'s title
+      said "encoder seeds"; that was wrong and contradicted panel (b) below,
+      which uses the same mechanism. See editorial/REVIEW_LOG.md F22.1.
   (b) the conditioning null on the tuned REX (LSTM h512, CLW latents): arms
       none / +phase / +phase+(G,D,Y) oracle, 3 operator seeds each. Oracle
       gust parameters DEGRADE the forecast; the deployable phase covariate is
@@ -121,7 +126,7 @@ def main() -> None:
     ax_a.set_xticklabels([s["label"] for s in FAMILIES.values()], fontsize=6.5)
     ax_a.set_ylabel(r"decoded $C_L$ $R^2$")
     ax_a.set_ylim(0.0, 0.85)
-    ax_a.set_title("shared direct forecaster, encoder seeds", fontsize=8)
+    ax_a.set_title("shared direct forecaster, operator seeds", fontsize=8)
 
     # ------------------------------------------------------------- panel (b)
     null = []
