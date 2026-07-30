@@ -1,32 +1,75 @@
 % EnKF configuration table. tab:enkf.
 % The frozen predict-correct estimator settings (D220), all fixed before any test
 % encounter. Macro-bound counts where available.
+%
+% 2026-07-30: widened from a single-filter configuration list to a
+% per-configuration comparison. The previous version documented only the base
+% filter of sec:methods_enkf while its caption read as though it described "the"
+% estimator, so the four configurations the paper actually runs (base,
+% linear-latent, forecast-noise, two-stage) were never laid side by side
+% anywhere. The shared block below holds what is common to all four; the
+% comparison block holds the only two things that differ, which is also what
+% fig:estimation_loop annotates in place.
 \begin{table}
   \centering
-  \caption{Configuration of the pressure-only ensemble Kalman filter in the latent
-  space (\S\ref{sec:methods_estimator}, figure~\ref{fig:estimation_loop}). Every
-  setting is frozen before the held-out evaluation. The multiplicative inflation is
-  selected per family on the validation split, since the families differ in
-  dispersion: the predictive and linear filters select no inflation
-  ($\rho = \FeRhoJepa$), being under-dispersed, while the reconstruction filter
-  selects $\rho = \FeRhoFukami$.}
+  \caption{Configuration of the pressure-only ensemble Kalman estimator in the
+  latent space (\S\ref{sec:methods_estimator},
+  figure~\ref{fig:estimation_loop}). Every setting is frozen before the held-out
+  evaluation. The four configurations share one predict-correct loop and differ
+  only in how members are propagated and what is assimilated; the two-stage
+  configuration is the production estimator and switches between the other two
+  regimes at the frozen impact-window boundary, which is not tuned. The
+  multiplicative inflation is selected per family on the validation split, since
+  the families differ in dispersion: the predictive and linear filters select no
+  inflation ($\rho = \FeRhoJepa$), being under-dispersed, while the
+  reconstruction filter selects $\rho = \FeRhoFukami$.}
   \label{tab:enkf}
   \small
   \fittab{\begin{tabular}{l l}
     \toprule
-    Component & Choice \\
+    \multicolumn{2}{@{}l}{\emph{Shared by every configuration}} \\
     \midrule
     Filter                 & stochastic ensemble Kalman filter, latent space \\
     Ensemble size $N$       & $\FilterMembers$ members \\
-    Forecast model          & matched autoregressive transformer, refit on frozen train trajectories \\
-    Observation operator $\mathcal{H}$ & $\zvec \mapsto$ $K$ span-averaged wall-pressure taps \\
     Sensor count $K$        & $\FilterTaps$ taps, per-model optimal sensor placement (OSP) \\
-    Process noise $\mathbf{Q}$ & from the predictor's one-step residual covariance \\
     Observation noise $\mathbf{R}$ & calibrated from held-out pressure residuals \\
     Inflation $\rho$        & validation-selected per family ($\FeRhoJepa$ predictive/linear, $\FeRhoFukami$ reconstruction) \\
     Initialisation          & field-free: windowed pressure-to-latent regressor $+$ its residual covariance \\
     Assimilation window     & $[\,$impact $-\,\AssimPre$, impact $+\,\AssimPost\,]$ frames \\
     Leakage guard           & lift and wake probes never enter the innovation (enforced, unit-tested) \\
+    \bottomrule
+  \end{tabular}}
+
+  \vspace{1.2ex}
+
+  \fittab{\begin{tabular}{l l l}
+    \toprule
+    Configuration & Propagation $F$, $\mathbf{Q}$ & Assimilated observation \\
+    \midrule
+    Base (\S\ref{sec:methods_enkf})
+      & matched autoregressive transformer,
+      & $K$ taps through a ridge read-out; \\
+      & state-independent $\mathbf{Q}$ from its
+      & innovation in tap space \\
+      & one-step residual covariance & \\[2pt]
+    \LinLatKF{} (\S\ref{sec:methods_lae})
+      & linear $F(\zvec) = A\zvec$, singular values
+      & encoded $E_{\mathrm{obs}}$, eq.~\eqref{eq:eobs}: \\
+      & projected onto $[0, 1]$; $\mathbf{Q}$ the
+      & delay-embedded tap history, $h = \mathrm{Id}$; \\
+      & covariance of its fit residuals
+      & innovation in state space \\[2pt]
+    \FnoiseKF{} (\S\ref{sec:methods_rexenkf})
+      & \DirectFC{} median, eq.~\eqref{eq:rex_q};
+      & encoded $E_{\mathrm{obs}}$, as above \\
+      & state-dependent $\mathbf{Q}$ read off its
+      & \\
+      & predicted inter-quantile width & \\[2pt]
+    \textbf{\TwoStageKF{}} (production)
+      & \FnoiseKF{} inside the impact window,
+      & encoded inside the window, \\
+      & matched transformer outside
+      & tap space outside \\
     \bottomrule
   \end{tabular}}
 \end{table}

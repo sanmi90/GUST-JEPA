@@ -17,6 +17,14 @@
 % entering the update from the right so no connector meets another. Descriptive
 % text has moved to the caption.
 %
+% 2026-07-30, second pass: the two slots that distinguish the four estimator
+% configurations are annotated in place (propagation F,Q and the observation
+% path), because all four are the SAME loop with only those two swapped. The
+% per-configuration detail lives in tab:enkf, not here. The stage is named
+% "predict" throughout, per the Kalman predict-correct convention; "forecaster"
+% is reserved for the \DirectFC operator, which is a different object from the
+% co-trained predictor P_phi.
+%
 % Standalone-compilable: pdflatex fig_estimation_loop.tex
 
 \documentclass[border=10pt,tikz]{standalone}
@@ -24,12 +32,14 @@
 \usepackage{amsmath,amssymb}
 \usetikzlibrary{positioning,arrows.meta,fit,shapes.geometric,calc,backgrounds}
 
+\newcommand{\slot}[1]{{\footnotesize\itshape #1}}
+
 \begin{document}
 
 \begin{tikzpicture}[
     font=\normalsize,
     box/.style={draw, rounded corners=2pt, align=center, inner sep=6pt, thick,
-                minimum width=36mm, minimum height=13mm},
+                minimum width=42mm, minimum height=17mm},
     fcst/.style={box, fill=orange!12},
     obsop/.style={box, fill=green!12},
     upd/.style={box, fill=blue!10},
@@ -43,14 +53,18 @@
 
   % ===== top edge: predict, left to right =====
   \node[state] (za) {$\mathbf{z}^{a}_{t}$};
-  \node[fcst, right=12mm of za] (pred) {\textbf{Forecast} (predict)};
+  \node[fcst, right=12mm of za] (pred)
+    {\textbf{Predict} \\[2pt]
+     \slot{$F,\,Q$: transformer,} \\ \slot{linear $A$, or direct forecaster}};
   \node[state, right=12mm of pred] (zf) {$\mathbf{z}^{f}_{t+1}$};
 
   \draw[arr] (za) -- (pred);
   \draw[arr] (pred) -- (zf);
 
   % ===== right edge: observation operator =====
-  \node[obsop, below=14mm of zf] (H) {\textbf{Observation} $\mathcal{H}$};
+  \node[obsop, below=14mm of zf] (H)
+    {\textbf{Observation} $\mathcal{H}$ \\[2pt]
+     \slot{$K$ taps (tap space), or} \\ \slot{encoded $E_{\mathrm{obs}}$ (state space)}};
   \draw[arr] (zf) -- (H) node[midway, right, lbl] {$\mathcal{H}\mathbf{z}^{f}$};
 
   % ===== bottom right: update =====
@@ -59,7 +73,7 @@
 
   % measured pressure enters the update from the RIGHT: nothing else is there,
   % so this connector crosses nothing
-  \node[sensor, right=16mm of K] (y) {wall pressure $\mathbf{y}_{t+1}$};
+  \node[sensor, right=12mm of K] (y) {wall pressure $\mathbf{y}_{t+1}$};
   \draw[obsarr] (y) -- (K)
     node[midway, above, lbl, black] {$\mathbf{y}-\mathcal{H}\mathbf{z}^{f}$};
 
@@ -71,13 +85,18 @@
   \draw[arr] (zanext) -- (za)
     node[midway, left, lbl, align=center] {advance \\ one step};
 
+  \node[below=13mm of zanext.south, anchor=north west, align=left,
+        font=\footnotesize, xshift=-12mm] (note)
+    {\textit{Production (two-stage):} direct forecaster $+$ encoded $E_{\mathrm{obs}}$ \\
+     inside the impact window, matched transformer $+$ tap space outside.};
+
   \begin{scope}[on background layer]
     \node[draw=orange!35, rounded corners=4pt, dashed, inner sep=4mm,
           fit=(za)(pred)(zf),
-          label={[orange!55!black,font=\small]above:Predict (field-free forecast)}] {};
+          label={[orange!55!black,font=\small]above:Predict: field free, no vorticity enters}] {};
     \node[draw=blue!30, rounded corners=4pt, dashed, inner sep=4mm,
           fit=(zanext)(K)(H)(y),
-          label={[blue!50!black,font=\small]below:Correct (sparse wall pressure)}] {};
+          label={[blue!50!black,font=\small]below:Correct: sparse wall pressure}] {};
   \end{scope}
 
 \end{tikzpicture}
