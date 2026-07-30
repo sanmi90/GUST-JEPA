@@ -93,6 +93,62 @@ Gates after: main rc=0 at 56 pp, supplementary rc=0 at 3 pp rebuilt after main,
 `trace_numbers` PASS, `audit_numbers` PASS (968 macros / 868 json, 0 mismatches),
 0 em-dashes, 0 undefined references beyond the benign hyperref `\thepage` note.
 
+## Applied 2026-07-30: open-issue walkthrough, rounds 1 and 2
+
+Six findings closed with Carlos in the loop, one decision each.
+
+- **F16 rescoped.** "the predictive filter posts by far the fewest
+  innovation-consistency failures" became "every filter is stressed: all of
+  them fail innovation consistency on most encounters, least often the
+  predictive filter". The ordering survives, the superlative does not, and the
+  shared failure is now stated rather than left for a referee to compute from
+  the macros (0.72 against 0.93 to 0.97).
+- **F24 applied, F02 premise corrected.** Appendix C retitled "Estimator
+  selection and calibration disclosure", which is what its three panels carry.
+  F02's original framing was wrong and is withdrawn: the abstract's
+  static-inverse qualifier is *not* evidenced only in an appendix.
+  `v4/s4_d_assimilation.tex:24-40` states the claim in the body with a bound
+  macro (\DapEobsImpRTwo) and rebuts it three ways (tails, boundary, state
+  tracking beyond a single read-out). Only the plot is remote. Promoting it
+  would have added a 14th body figure to a paper flagged as long.
+- **F18 verified, no change.** The companion paper is still under review at
+  JFM. The `@unpublished` entry renders "Under review, Journal of Fluid
+  Mechanics" in `main.bbl`; §1:24 attributes a specific empirical finding
+  rather than an authority claim, and §5.1:23 flags it as an inherited caveat
+  and then argues past it with three controls. Author-owned residue: confirm
+  coauthor spelling and final title before submission (`refs_to_add.bib:85`).
+- **F15 resolved without demotion.** The base/production split is declared once
+  at the head of §4.6 and the two repeats are gone (the `fig:envelope` caption
+  parenthetical and the `tab:envelope` caption clause). Both captions keep
+  "under the base frozen filter" so they stay self-contained. Demotion was
+  rejected on evidence: the base-filter consistency strip in `fig:envelope`(a)
+  is the exhibit for §6's "the filter's uncertainty consistency degrades even
+  as the median tracking holds", so moving it to the supplementary would have
+  cost a §6 claim. The "one filter in the body" line in CRITICAL_ASSESSMENT
+  overreached and is withdrawn.
+- **F23 CLOSED, budget re-baselined.** The Session 37 impasse assumed ~700
+  words of Methods were movable. After F04-F08 landed, §3 is 4997 words and
+  what remains movable is the fixed-lag smoother (115 w) plus sensor placement
+  (192 w) into appendix B: 307 words, which fragments the estimator
+  description across body and appendix while §4.6 keeps referring to the
+  smoother. **Budget of record is now ~19,100 body words.** The 12,500 figure
+  was a Session 37/38 internal target, relaxed at D268 and never re-derived
+  against any JFM constraint; JFM sets no hard limit. F23 is not to be
+  re-litigated without a new reason.
+- **F19 applied as an enumeration.** §1's findings sentence became "The
+  results support four claims: (i) ... (iv) ...", inline rather than as an
+  itemize list, so the prose register holds. Note for the record: my finding
+  claimed CLAIM_MAP carried a lost (i)-(iv) list at P7. It does not; that
+  premise was unverified and is withdrawn. The change stands as a deliberate
+  scannability choice, not a restoration.
+
+Gates after rounds 1 and 2: main rc=0 at 56 pp, `trace_numbers` PASS,
+`audit_numbers` PASS (968 macros / 868 json, 0 mismatches), 0 em-dashes, 0
+undefined references beyond the benign hyperref `\thepage` note.
+
+Still open: F22 (six audit items), F07 (wake-descriptor trim), F21 (panel
+lettering in figures 7 and 11).
+
 ## F01 in detail
 
 `sections/v4/s4_d_assimilation.tex:63-64` reports the in-distribution result as
