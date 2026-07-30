@@ -41,12 +41,17 @@ physical error, the root-mean-square deviation in the observable's own units;
 the two are complementary, the error exposing a large absolute miss where the
 high cross-encounter variance at a critical instant flatters the $R^2$.
 
-Uncertainty is accounted at three levels and every stochastic number in
+Uncertainty is accounted at four levels and every stochastic number in
 the paper carries its count. Encoder training variance uses three seeds
 wherever a cell is compared (the conditioning cube, the $d = 4$ bands, the
 direct-predictor and reconstruction-baseline bands); single-seed cells
 appear only in the dimension grid and are disclosed as such in each
-caption. Filter member-noise variance uses five seeds of the perturbed
+caption. Operator training variance uses three seeds of the shared
+forecaster trained on a frozen representation, and is the band reported
+wherever families are compared under one forecast operator
+(\S\ref{sec:res_forecast}, table~\ref{tab:closure}); it isolates the
+forecaster's own training noise and does not include encoder
+variability. Filter member-noise variance uses five seeds of the perturbed
 observations and initial ensemble. Paired family comparisons use a
 case-clustered bootstrap that resamples whole cases with replacement
 ($2000$ resamples on encounter means, $10^4$ on case means) and reports

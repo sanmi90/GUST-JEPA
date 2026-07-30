@@ -126,7 +126,7 @@ def main() -> None:
     ax_a.set_xticklabels([s["label"] for s in FAMILIES.values()], fontsize=6.5)
     ax_a.set_ylabel(r"decoded $C_L$ $R^2$")
     ax_a.set_ylim(0.0, 0.85)
-    ax_a.set_title("shared direct forecaster, operator seeds", fontsize=8)
+    ax_a.set_title("shared direct forecaster, 3 seeds (encoder frozen)", fontsize=8)
 
     # ------------------------------------------------------------- panel (b)
     null = []

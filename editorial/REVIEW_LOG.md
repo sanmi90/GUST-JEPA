@@ -265,3 +265,45 @@ Internal budget of record: ~12,500 body words (Session 37/38), relaxed at D268
 without a re-baseline. Identified duplication in F04-F14 totals roughly 700
 words. Reaching 13-15k requires the structural calls in F15, F19 and F23, not
 prose trimming alone.
+
+## Applied 2026-07-30: the operator-seed axis was never declared (F22.1b)
+
+Raised by Carlos while reviewing the F22.1 fix: "operator seeds" is not
+defined anywhere the reader can find it. Investigating it found a
+Methods/Results inconsistency rather than a wording problem.
+
+`v4/s3_5_protocol.tex` declared uncertainty "at three levels": encoder
+training variance (three seeds), filter member-noise variance (five seeds),
+and the case-clustered bootstrap. Operator training variance was not among
+them, yet "three operator seeds" appears at five sites (the fig:forecast
+caption, `v4/s4_c_prediction.tex:18` and `:46`, `tables/table_closure.tex:23`,
+`appendix_a_regularisation.tex:267` and `:350`). Worse,
+`section_3_methods.tex:88` told the reader that every reported band is "the
+standard deviation across three encoder retrains", so a reader arrives at the
+Results primed to misread every operator-seed band as an encoder-seed band.
+
+Applied:
+
+- `s3_5_protocol.tex`: "three levels" to "four levels", with operator
+  training variance declared as its own level, scoped explicitly: it isolates
+  the forecaster's training noise on a frozen representation and does NOT
+  include encoder variability. That scoping matters because the family gaps in
+  fig:forecast(a) are therefore not bracketed by encoder-retrain uncertainty.
+- `section_3_methods.tex:88`: no longer claims every band is an encoder
+  retrain; now "three independent retrains ... of the encoder or, where
+  families are compared under one shared forecaster, of that forecaster on a
+  frozen representation".
+- Figure title regenerated from "shared direct forecaster, operator seeds" to
+  "shared direct forecaster, 3 seeds (encoder frozen)", which states what
+  varies and what is held fixed without the jargon.
+- fig:forecast caption made self-contained: "three operator seeds each, the
+  forecaster retrained on a frozen representation".
+
+Ledger numbering note: CLAIM_MAP calls this "fig 7". The figure carrying the
+title is `fig:forecast`, not figure 7 (which is fig:atlas/fig:t1_spectra). The
+CLAIM_MAP numbering predates the Session 39 figure renumber and should not be
+trusted for figure identity.
+
+Gates after: main rc=0 at 56 pp, `trace_numbers` PASS, `audit_numbers` PASS
+(968/868, 0 mismatches), 0 em-dashes, 0 undefined references beyond the benign
+hyperref note.
