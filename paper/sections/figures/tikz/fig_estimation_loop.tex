@@ -1,9 +1,21 @@
-% Fig (methods, estimation) - leakage-free ensemble-Kalman predict-correct loop.
+% Fig 4(b) (methods, estimation) - leakage-free ensemble-Kalman predict-correct
+% loop.
 %
 % The deployment claim of the paper: the pooled coefficient state is advanced by
 % the matched forecast model (predict) and corrected from a sparse set of wall
 % pressure taps through the observation operator (correct). No field ever enters
 % the loop; the state is the same 32-vector throughout.
+%
+% Redrawn 2026-07-30 on Carlos's request. The previous version had three
+% crossing connectors, all caused by routing the return path through the middle
+% of the diagram:
+%   \draw[arr] (zanext) |- (za.west)   ran vertically THROUGH the wall-pressure
+%                                      box to reach the state at top left
+%   \draw[obsarr] (y) |- (K)           crossed that same return path
+% The loop is now a clean rectangular cycle running clockwise, with the return
+% leg on the far left where nothing else sits, and the measured pressure
+% entering the update from the right so no connector meets another. Descriptive
+% text has moved to the caption.
 %
 % Standalone-compilable: pdflatex fig_estimation_loop.tex
 
@@ -15,71 +27,56 @@
 \begin{document}
 
 \begin{tikzpicture}[
-    font=\small,
-    box/.style={draw, rounded corners=2pt, align=center, inner sep=5pt, thick},
-    fcst/.style={box, fill=orange!10, minimum width=36mm, minimum height=14mm,
-                 font=\footnotesize},
-    obsop/.style={box, fill=green!12, minimum width=34mm, minimum height=14mm,
-                  font=\footnotesize},
-    upd/.style={box, fill=blue!9, minimum width=34mm, minimum height=14mm,
-                font=\footnotesize},
-    sensor/.style={box, fill=gray!8, minimum width=34mm, minimum height=12mm,
-                   font=\footnotesize},
+    font=\normalsize,
+    box/.style={draw, rounded corners=2pt, align=center, inner sep=6pt, thick,
+                minimum width=36mm, minimum height=13mm},
+    fcst/.style={box, fill=orange!12},
+    obsop/.style={box, fill=green!12},
+    upd/.style={box, fill=blue!10},
+    sensor/.style={box, fill=gray!8, dashed},
     state/.style={draw, rectangle, rounded corners=1pt, fill=white,
-                  minimum height=10mm, minimum width=24mm, inner sep=3pt},
-    arr/.style={-{Stealth[length=2.5mm]}, thick},
-    obsarr/.style={-{Stealth[length=2.5mm]}, thick, green!45!black}
+                  minimum height=10mm, minimum width=24mm, inner sep=4pt},
+    arr/.style={-{Stealth[length=2.6mm]}, thick},
+    obsarr/.style={-{Stealth[length=2.6mm]}, thick, green!45!black},
+    lbl/.style={font=\footnotesize}
   ]
 
-  % ---- top row: predict ----
+  % ===== top edge: predict, left to right =====
   \node[state] (za) {$\mathbf{z}^{a}_{t}$};
-  \node[fcst, right=10mm of za] (pred)
-    {\textbf{Forecast} (predict) \\[2pt]
-     matched AR transformer \\[1pt]
-     ensemble of $N{=}64$};
-  \node[state, right=10mm of pred] (zf) {$\mathbf{z}^{f}_{t+1}$};
+  \node[fcst, right=12mm of za] (pred) {\textbf{Forecast} (predict)};
+  \node[state, right=12mm of pred] (zf) {$\mathbf{z}^{f}_{t+1}$};
 
   \draw[arr] (za) -- (pred);
   \draw[arr] (pred) -- (zf);
 
-  % ---- observation operator (predicted pressure) ----
-  \node[obsop, below=12mm of zf] (H)
-    {\textbf{Observation} $\mathcal{H}$ \\[2pt]
-     $8$ wall-pressure taps \\[1pt]
-     (per-model OSP)};
-  \draw[arr] (zf) -- (H) node[midway, right, font=\footnotesize] {$\mathcal{H}\mathbf{z}^{f}$};
+  % ===== right edge: observation operator =====
+  \node[obsop, below=14mm of zf] (H) {\textbf{Observation} $\mathcal{H}$};
+  \draw[arr] (zf) -- (H) node[midway, right, lbl] {$\mathcal{H}\mathbf{z}^{f}$};
 
-  % ---- measured wall pressure from DNS ----
-  \node[sensor, left=14mm of H] (y)
-    {wall pressure $\mathbf{y}_{t+1}$ \\[1pt]
-     ($8$ taps, held out)};
-
-  % ---- update (correct) ----
-  \node[upd, below=12mm of H] (K)
-    {\textbf{Update} (correct) \\[2pt]
-     stochastic EnKF \\[1pt]
-     $\rho{=}1$, calibrated $\mathbf{Q},\mathbf{R}$};
+  % ===== bottom right: update =====
+  \node[upd, below=14mm of H] (K) {\textbf{Update} (correct)};
   \draw[arr] (H) -- (K);
-  \draw[obsarr] (y) |- (K) node[near end, above, font=\footnotesize, black]
-    {innovation $\mathbf{y}-\mathcal{H}\mathbf{z}^{f}$};
 
-  % ---- corrected state, loop back ----
-  \node[state, left=32mm of K] (zanext) {$\mathbf{z}^{a}_{t+1}$};
+  % measured pressure enters the update from the RIGHT: nothing else is there,
+  % so this connector crosses nothing
+  \node[sensor, right=16mm of K] (y) {wall pressure $\mathbf{y}_{t+1}$};
+  \draw[obsarr] (y) -- (K)
+    node[midway, above, lbl, black] {$\mathbf{y}-\mathcal{H}\mathbf{z}^{f}$};
+
+  % ===== bottom edge: corrected state, directly below z^a_t =====
+  \node[state] (zanext) at (za |- K) {$\mathbf{z}^{a}_{t+1}$};
   \draw[arr] (K) -- (zanext);
-  \draw[arr] (zanext) |- (za.west)
-    node[near start, left, font=\footnotesize, align=center] {advance\\one step};
 
-  % ---- framing note ----
-  \node[align=center, font=\footnotesize\itshape, text width=40mm,
-        right=10mm of K]
-    {No field enters the loop: the state is the same $32$-vector at every step.};
+  % ===== left edge: return leg, straight up the outside =====
+  \draw[arr] (zanext) -- (za)
+    node[midway, left, lbl, align=center] {advance \\ one step};
 
   \begin{scope}[on background layer]
     \node[draw=orange!35, rounded corners=4pt, dashed, inner sep=4mm,
           fit=(za)(pred)(zf),
           label={[orange!55!black,font=\small]above:Predict (field-free forecast)}] {};
     \node[draw=blue!30, rounded corners=4pt, dashed, inner sep=4mm,
-          fit=(y)(H)(K)(zanext),
+          fit=(zanext)(K)(H)(y),
           label={[blue!50!black,font=\small]below:Correct (sparse wall pressure)}] {};
   \end{scope}
 

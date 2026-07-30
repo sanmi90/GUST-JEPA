@@ -32,34 +32,46 @@ Comparing a lift observable against a wake observable is only meaningful if the 
   \centering
   \begin{subfigure}{\linewidth}
     \centering
-    \includegraphics[width=0.46\linewidth]{sections/figures/tikz/fig1_jepa_architecture.pdf}
+    \includegraphics[width=\linewidth]{sections/figures/tikz/fig1_jepa_architecture.pdf}
     \caption{}
     \label{fig:method_arch}
   \end{subfigure}
   \\[0.5ex]
   \begin{subfigure}{\linewidth}
     \centering
-    \includegraphics[width=0.84\linewidth]{sections/figures/tikz/fig_estimation_loop.pdf}
+    \includegraphics[width=\linewidth]{sections/figures/tikz/fig_estimation_loop.pdf}
     \caption{}
     \label{fig:estimation_loop}
   \end{subfigure}
-  \caption{The framework, from representation to deployment. (a) The encoder maps
-  the mid-plane vorticity field to a latent $\zvec_t$, and the predictor, in
-  either of its two variants (the vector transformer of
-  table~\ref{tab:architecture} or the \DirectFC{} of \S\ref{sec:methods_rex}),
-  advances the latent from its own history; no gust parameters enter the encoder
-  or the predictor, the three supervision heads ($L$, $W$, $N$) read $\zvec_t$
-  during training with small weights and are never part of the
-  latent-prediction loss, and the visualisation decoder is trained only after the
-  encoder is frozen. (b) At deployment the pressure-only predict-correct estimator
-  advances an ensemble of $\FilterMembers$ members field free, then corrects them
-  from $\FilterTaps$ span-averaged wall-pressure taps; the innovation is the
-  measured minus the predicted observation, in tap space for the base filter of
-  \S\ref{sec:methods_enkf} and in encoded latent space for the filters of
-  \S\ref{sec:methods_lae} and \S\ref{sec:methods_rexenkf}. No vorticity field
-  enters the loop and the lift and wake probes never enter the innovation. The
-  evaluation protocol applied identically to every encoder is
-  figure~\ref{fig:eval_protocol} (appendix~\ref{app:reg}).}
+  \caption{The framework, from representation to deployment. Each module in (a)
+  carries the stages in which it is active: the encoder is used in training and
+  in the analyses that read $\zvec_t$, the three supervision heads are dropped
+  once training ends, the predictor is the only trained module that also runs at
+  deployment, and the visualisation decoder is trained on the frozen encoder and
+  serves analysis alone. (a) The encoder maps the mid-plane vorticity field
+  $\boldsymbol{\omega}_z \in \mathbb{R}^{192 \times 96}$ to a latent $\zvec_t$
+  through a CNN stem, a six-layer ViT and a BatchNorm projection, and the
+  predictor advances the latent from its own history in either of its two
+  variants: the six-layer autoregressive transformer with rotary temporal
+  positions of table~\ref{tab:architecture}, or the \DirectFC{} of
+  \S\ref{sec:methods_rex}. No gust parameters enter either network; both are
+  unconditional. The heads read $\zvec_t$ during training under a smooth-$L_1$
+  loss at unit weight, mapping it to the scalar lift $C_L(t)$ ($L$), an
+  $80$-dimensional wake observable ($W$) and an $80$-dimensional Chang
+  lift-element observable ($N$); none is part of the latent-prediction loss. The
+  decoder $D_\psi$ pairs LapFiLM with a spectral loss. (b) At deployment the
+  pressure-only predict-correct estimator advances an ensemble of
+  $\FilterMembers$ members field free through the matched forecast model, then
+  corrects them from $\FilterTaps$ span-averaged wall-pressure taps held out
+  from training and placed by the per-model sensor selection. The innovation is
+  the measured minus the predicted observation, in tap space for the base filter
+  of \S\ref{sec:methods_enkf} and in encoded latent space for the filters of
+  \S\ref{sec:methods_lae} and \S\ref{sec:methods_rexenkf}, and the update is a
+  stochastic ensemble Kalman step at inflation $\rho = 1$ with calibrated
+  $\mathbf{Q}$ and $\mathbf{R}$. No vorticity field enters the loop, the state
+  is the same $32$-vector at every step, and the lift and wake probes never
+  enter the innovation. The evaluation protocol applied identically to every
+  encoder is figure~\ref{fig:eval_protocol} (appendix~\ref{app:reg}).}
   \label{fig:method}
 \end{figure}
 
