@@ -132,6 +132,7 @@ def pdf_annotations(pdf: Path) -> list[dict]:
                 "subtype": (subtype or "?").lstrip("/"),
                 "contents": contents,
                 "author": _pdf_string(a.get("/T")),
+                "subj": _pdf_string(a.get("/Subj")),
                 "date": _pdf_date(_pdf_string(a.get("/M"))),
                 "rect": rect,
                 "quads": quads,
@@ -209,9 +210,14 @@ def resolve(pdf: Path) -> list[dict]:
         anchor_key = min((b[1], b[0]) for b in boxes)          # (top, left)
         anchor_key = (round(anchor_key[0] / 4), anchor_key[1])
         # An ID inside the covered text wins: the comment is on the tag itself.
+        # A comment written by carry_comments stamps its block into /Subj, so
+        # its geometry does not have to be interpreted at all.
+        stamped = BARE_ID.match((a.get("subj") or "").strip())
         inline = [ID_TOKEN.search(w.text).group(1) for w in covered
                   if ID_TOKEN.search(w.text)]
-        if inline:
+        if stamped:
+            a["block"] = stamped.group(1)
+        elif inline:
             a["block"] = inline[0]
         else:
             prior = [bid for key, bid in anchors[a["page"]] if key <= anchor_key]

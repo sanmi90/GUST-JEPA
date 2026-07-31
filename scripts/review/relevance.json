@@ -10,6 +10,9 @@
   "ledger": "editorial/RELEVANCE_MAP.md",
   "preview": "editorial/RELEVANCE_PREVIEW.md",
 
+  "_comments_comment": "Where carry_comments.py keeps PDF comments between rebuilds.",
+  "comments": "editorial/pdf_comments.json",
+
   "_exclude_comment": "Regexes matched against the discovered path, relative to the root's directory. Preamble includes carry no prose.",
   "exclude": [
     "^macros",

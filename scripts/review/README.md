@@ -86,15 +86,71 @@ boxes are all read. `/Link` annotations are ignored, which matters because
 Needs only `qpdf` and `pdftotext`, both already required by the build. No
 Python dependencies.
 
+### Keeping comments across a rebuild
+
+`latexmk` regenerates the PDF from scratch, so anything a reader wrote into it
+is destroyed. Rebuild through the wrapper instead and the comments survive:
+
+```bash
+scripts/review/rebuild.sh                        # paper/main.tex
+scripts/review/rebuild.sh paper/supplementary.tex
+scripts/review/rebuild.sh paper/main.tex -g      # extra latexmk arguments
+```
+
+It saves the comments, builds, and puts them back. The build runs before the
+restore and the script stops on failure, so a broken build never produces a PDF
+with comments stamped into it. The same three steps by hand:
+
+```bash
+python scripts/review/carry_comments.py --save    paper/main.pdf
+cd paper && latexmk -pdf main.tex
+python scripts/review/carry_comments.py --restore paper/main.pdf
+```
+
+Comments live in the sidecar named by `relevance.json` (`comments`), keyed by
+block identifier, so a restored comment is re-anchored on its block after the
+text reflows rather than pinned to a coordinate that has moved. `--save` merges,
+so nothing is duplicated and nothing already recorded is lost. `--restore` is
+idempotent, which matters because latexmk sometimes decides a rebuild is
+unnecessary and leaves the previous restore in place.
+
+Closing a comment you have acted on:
+
+```bash
+python scripts/review/carry_comments.py --resolve S1-08
+python scripts/review/carry_comments.py --reopen  S1-08
+python scripts/review/carry_comments.py --list
+```
+
+A closed comment is not deleted. It comes back in a muted green with a
+different icon and its text prefixed `[done]`, so the record of what was raised
+and dealt with stays in the document. Open comments stay yellow.
+
+Restored comments are placed just outside the margin note, on the row of its
+identifier, where the overlay leaves the page empty. That is deliberate:
+poppler ignores the annotation rectangle and draws a fixed-size icon, so
+anything placed against the prose covers a few characters. Placement carries no
+meaning anyway, since each restored comment records its block in `/Subj`, which
+the reader trusts ahead of any geometry.
+
 ### Readers that work
 
 | platform | reader | notes |
 |---|---|---|
-| Ubuntu | **Okular** | Best annotation set. After annotating press Ctrl+S; older versions keep notes in `~/.local/share/okular/docdata/` unless you save into the file. |
-| Ubuntu | **Evince / Papers** | Already installed on GNOME. Sticky notes and highlights only. Save with "Save a Copy". |
+| Ubuntu | **Evince / Papers** | What this workflow is used with, and verified end to end. Right-click, "Add text annotation", type, then Ctrl+S. Sticky notes and highlights only, which is all that is needed. |
+| Ubuntu | **Okular** | A wider annotation set (strikeout, squiggle, free text). Press Ctrl+S after annotating; older versions keep notes in `~/.local/share/okular/docdata/` rather than in the file. |
 | Ubuntu | **Firefox** | Zero install: open the PDF, use the highlight, text and draw tools, then Save. |
 | Android | **Xodo** | The reliable free option. Notes, highlight, strikeout, free text. |
 | Android | **Adobe Acrobat Reader** | Notes, highlight, strikeout. Save, do not "share a flattened copy". |
+
+Evince and Okular both render through poppler, so the open and closed styles
+show as intended there: a yellow speech bubble against a muted green note. A
+reader that draws its own icon regardless still shows the `[done]` prefix.
+
+Evince keeps the file open while you work on it. After `rebuild.sh` replaces the
+PDF underneath, press Ctrl+R (or reopen) to see the new one; if Evince asks to
+save on exit after that, say no, or it will write the stale in-memory copy back
+over the rebuilt file.
 
 **Avoid Xournal++**: its PDF export flattens annotations into the page content,
 so they cannot be read back. The same is true of anything offering to "print to
