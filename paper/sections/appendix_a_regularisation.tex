@@ -78,20 +78,19 @@ parameter probe is still uninformative; on the runs reported here the
 participation ratio stays healthy and the fall-back does not trigger.\re
 
 \subsubsection*{Uncertainty quantification}
-\rb{T}{APA-03}{The uncertainty protocol for the third time, and at three levels where S35-02 says four. Fix or drop, but it cannot stay as it stands.}Every held-out coefficient of
-determination and mean absolute error in the paper carries three independent
-uncertainty signals, following the reporting protocol fixed with the split. The
-first is a bootstrap confidence interval from $2000$ resamples over the held-out
-test encounters, which is the dominant source of scatter at the present sample
-size ($n = \NTestBEnc$ for the \TestSplit{} set, $n = \NTestCEnc$ for the \BoundarySplit{} set) and is wide for the individual
-wake observables, as noted in \S\ref{sec:res_closure}. The second is the variance
-across three encoder retrains from independent random seeds, reported as the
-standard deviation in the objective-times-architecture controls of
-\S\ref{sec:res_controls}. The third is a five-fold cross-validation over cases on
-the read-out (probe) step, which guards against a probe that overfits the
-particular held-out split. A single split with bootstrap intervals, seed
-retrains and probe-level cross-validation is the community standard
-for this class of study.\re
+\rb{K}{APA-03}{What the accounting table cannot say: which source dominates at this sample size, and why the plain encounter bootstrap overstates it. No longer re-enumerates the protocol.}The six sources of uncertainty, their
+units and their counts are collected in table~\ref{tab:uncertainty}; this
+paragraph records what that table cannot, which is how they compare at the
+present sample size. The encounter bootstrap dominates the scatter: with
+$n = \NTestBEnc$ held-out \TestSplit{} encounters and $n = \NTestCEnc$
+\BoundarySplit{} encounters its interval is wide for the individual wake
+observables, as noted in \S\ref{sec:res_closure}, and wider than the seed
+spread of any cell reported here. Because encounters of one case share a
+shedding history, the plain encounter bootstrap overstates the effective
+sample size, which is why every paired family comparison is additionally read
+through the case-clustered resampling of the same table. A single split with
+bootstrap intervals, seed retrains and probe-level cross-validation is the
+community standard for this class of study.\re
 
 
 \subsubsection*{Paired tests on the estimation endpoints}
@@ -363,8 +362,9 @@ forecast merit.\re
 
 \rb{T}{APA-09}{A one-sentence list of the tables that follow, each of which has a caption. Pure connective tissue.}The tables collected here give the full configuration record: the encoder and
 training-predictor architecture, the compared families, the ensemble-filter
-configuration (table~\ref{tab:enkf}), the rollout-departure decomposition, and
-the per-estimator settings of the ladder.\re
+configuration (table~\ref{tab:enkf}), the rollout-departure decomposition, the
+per-estimator settings of the ladder, and the uncertainty accounting
+(table~\ref{tab:uncertainty}).\re
 
 \begin{table}
   \centering
@@ -419,6 +419,57 @@ the per-estimator settings of the ladder.\re
     \FnoiseKF{}               & forecaster median, eq.~\eqref{eq:rex_q} & $E_{\mathrm{obs}}$, $h = \mathrm{Id}$ & quantile band, eq.~\eqref{eq:rex_q} & $c = 1.77$ (coverage) \\
     \TwoStageKF{}             & median forecast inside impact, transformer outside & $E_{\mathrm{obs}}$ inside, tap space outside & as per stage & $c$ as the \FnoiseKF{} \\
     fixed-lag RTS             & linear $A$          & $E_{\mathrm{obs}}$, $h = \mathrm{Id}$ & $A$-fit residual cov. & lag $L = 5$ \\
+    \bottomrule
+  \end{tabular}}
+\end{table}
+
+% One authoritative uncertainty accounting (2026-07-31). It replaces three
+% partial statements that did not agree: \S3.4 and this appendix listed "three
+% independent uncertainty signals" (bootstrap, seed retrains, probe
+% cross-validation) while \S3.5 listed "four levels" (encoder seeds, operator
+% seeds, filter member seeds, case-clustered bootstrap). Neither was a superset
+% of the other: the probe cross-validation appeared only in the first and the
+% filter member seeds only in the second, and the "every number carries" framing
+% was false for both. Six sources, stated once, with what each one varies.
+\begin{table}
+  \centering
+  \caption{\rb{K}{APA-C16}{The single authoritative uncertainty accounting, six sources with their units and counts. Replaces three partial statements that disagreed with each other.}The six sources of uncertainty, with the unit each one varies or
+  resamples, its count, and the results that carry it. No single number carries
+  all six: which apply depends on what was varied to produce it. Seed counts are
+  the number of independent trainings; single-seed cells occur only in the
+  dimension grid and say so in their captions. All resampling is on held-out
+  data, and no interval is computed on the \BoundarySplit{} set for any purpose
+  other than reporting.\re}
+  \label{tab:uncertainty}
+  \small
+  \fittab{\begin{tabular}{l l l l}
+    \toprule
+    Source & Unit varied or resampled & Count & Carried by \\
+    \midrule
+    Sampling
+      & held-out encounter, with replacement
+      & $2000$
+      & every held-out $R^2$ and mean absolute error \\
+    Sampling, clustered
+      & whole case, with replacement
+      & $2000$ / $10^4$
+      & every paired family comparison, Holm-corrected \\
+    Encoder training
+      & random seed
+      & $3$
+      & conditioning cube, $d = 4$ bands, baseline bands \\
+    Operator training
+      & random seed, frozen representation
+      & $3$
+      & shared-forecaster comparisons (table~\ref{tab:closure}) \\
+    Filter member noise
+      & random seed, perturbed observations
+      & $5$
+      & filter bands and the estimator ladder \\
+    Read-out
+      & five-fold cross-validation over cases
+      & $5$
+      & every probe $R^2$ \\
     \bottomrule
   \end{tabular}}
 \end{table}

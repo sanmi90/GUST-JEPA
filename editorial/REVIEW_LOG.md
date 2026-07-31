@@ -384,3 +384,60 @@ Gates with the overlay on: main rc=0 at 57 pp (56 plus the legend),
 em-dashes, 0 undefined references beyond the benign hyperref note. With
 `\reviewmarksfalse`: 56 pp at the JFM trim, and `pdftotext` output identical to
 the committed `main.pdf` on branch `solera`.
+
+### Resolutions (2026-07-31)
+
+**Finding 1, the orphan protocol box: deleted.** `sections/protocol_box.tex`
+was input by nothing and stale on top of it, quoting headline numbers at
+d = 64, horizons {4, 8, 16, 32} and the v2.1-era D130/D165 primary endpoint.
+It was the only user of `\CommitHash`; that macro is emitted into `macros.tex`
+from `numbers.json` and is left alone. Removed from the `trace_numbers`
+content globs. Git history preserves the box.
+
+**Finding 2, the misnamed file: renamed.**
+`sections/appendix_c_supplementary_figures.tex` is now
+`sections/supp_s3_figures.tex`, matching its three siblings in
+`supplementary.tex` and its actual role as supplementary section S3. The
+claimed label collision was not real; see the correction in the finding itself.
+
+**Finding 3, the uncertainty protocol: one accounting, six sources.** The
+disagreement was worse than a count. The two statements enumerated different
+things and neither was a superset: `S3-12` and `APA-03` listed bootstrap, seed
+retrains and probe cross-validation, while `S35-02` listed encoder seeds,
+operator seeds, filter member seeds and the case-clustered bootstrap. Deleting
+either side would have dropped a real disclosure, the probe cross-validation on
+one side and the filter member seeds on the other. There are six sources, not
+three or four. A second defect ran through all three sites independently of the
+count: "every held-out R^2 and mean absolute error carries three independent
+uncertainty signals" is false, since filter numbers carry member-noise seeds
+and no probe cross-validation, and `S35-02` itself concedes single-seed cells.
+
+Resolved as (author's choice among three options) one table in appendix A:
+
+- New `tab:uncertainty`, six rows, each naming the source, the unit varied or
+  resampled, the count, and the results that carry it. Placed with the other
+  configuration tables at the end of appendix A, deliberately, so that no
+  existing caption identifier in `RELEVANCE_MAP.md` shifts.
+- `S3-12` deleted. Its subsection was titled "Diagnostics, controls, and
+  uncertainty" and is now "Diagnostics and controls", since the heading was
+  naming content that had left.
+- `S35-02` keeps the protocol's own two sentences and points at the table; the
+  four-level enumeration is gone, the single-seed disclosure stays.
+- `APA-03` no longer re-enumerates. It now carries only what a table cannot:
+  which source dominates at this sample size, the n values, why the plain
+  encounter bootstrap overstates the effective sample size, and the
+  community-standard defence.
+- The universal quantifier is gone from all three sites: "no single number
+  carries all six; which apply depends on what was varied to produce it".
+
+Net effect on the body: one paragraph out of Methods, one enumeration
+compressed to a pointer, one table into the appendix. Ledger updated
+(`S35-02` and `APA-03` re-noted, `S3-12` dropped, `APA-C16` added, still 164
+blocks).
+
+Gates: main rc=0, 57 pp with the overlay on and 56 pp with `\reviewmarksfalse`,
+supplementary rc=0 at 3 pp, `trace_numbers` PASS, `audit_numbers` PASS
+(968/868, 0 mismatches), 0 em-dashes, 0 undefined references beyond the benign
+hyperref note. The clean build no longer matches the `solera` baseline, by
+design: a word-level diff shows exactly the five intended changes above and
+nothing else.
