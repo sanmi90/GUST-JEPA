@@ -56,7 +56,53 @@ At the top of `paper/reviewmarks.tex`:
 | `\reviewnotesfalse` | keep the colouring, drop the margin notes |
 | `\reviewidsfalse` | keep everything, drop the inline `[ID]` tags |
 
-## Reusing it on another project
+## Commenting on the PDF and getting the comments back
+
+Annotate the overlay build in any reader that writes **standard PDF
+annotations**, then:
+
+```bash
+python scripts/review/read_annotations.py reviewed.pdf
+python scripts/review/read_annotations.py reviewed.pdf --out editorial/COMMENTS.md
+python scripts/review/read_annotations.py reviewed.pdf --apply-classes
+```
+
+The report is keyed by block identifier, not by page or coordinate. Every
+paragraph and caption prints its `[ID]` in the PDF, so each comment is attached
+to the block whose tag most recently precedes it, and a highlight or strikeout
+arrives with the text it was drawn over. Comments therefore survive a rebuild:
+the coordinates move, the identifiers do not.
+
+`--apply-classes` reads a comment that *begins* with a bare class letter and
+sets that class on the block's ledger row. `D`, `T: too long`, `A - move this`
+all work; `Keep this` does not, deliberately, since it does not start with a
+standalone letter. Nothing else in the ledger is touched and every change is
+printed, so `git diff` is the review.
+
+Sticky notes, highlights, underlines, strikeouts, squiggles, free text, ink and
+boxes are all read. `/Link` annotations are ignored, which matters because
+`hyperref` puts one on every cross-reference (454 of them in this document).
+
+Needs only `qpdf` and `pdftotext`, both already required by the build. No
+Python dependencies.
+
+### Readers that work
+
+| platform | reader | notes |
+|---|---|---|
+| Ubuntu | **Okular** | Best annotation set. After annotating press Ctrl+S; older versions keep notes in `~/.local/share/okular/docdata/` unless you save into the file. |
+| Ubuntu | **Evince / Papers** | Already installed on GNOME. Sticky notes and highlights only. Save with "Save a Copy". |
+| Ubuntu | **Firefox** | Zero install: open the PDF, use the highlight, text and draw tools, then Save. |
+| Android | **Xodo** | The reliable free option. Notes, highlight, strikeout, free text. |
+| Android | **Adobe Acrobat Reader** | Notes, highlight, strikeout. Save, do not "share a flattened copy". |
+
+**Avoid Xournal++**: its PDF export flattens annotations into the page content,
+so they cannot be read back. The same is true of anything offering to "print to
+PDF" or "flatten" on the way out.
+
+If a reader turns out to keep its comments in a sidecar database rather than in
+the file, `read_annotations.py` will simply report none, which is the test.
+Round-trip one comment before doing a full pass.
 
 Copy `paper/reviewmarks.tex` and the `scripts/review/` directory, then:
 
