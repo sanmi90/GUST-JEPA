@@ -34,7 +34,6 @@ CONTENT_GLOBS = [
     "sections/*.tex",
     "sections/tables/*.tex",
     "sections/captions/*.tex",
-    "protocol_box.tex",
 ]
 EXCLUDE_NAMES = re.compile(r"^macros")
 

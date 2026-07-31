@@ -347,10 +347,17 @@ identified in `CRITICAL_ASSESSMENT.md`, now located to the paragraph.
 1. `sections/protocol_box.tex` is input by nothing. It is an orphan file
    carrying an evaluation-protocol box that no longer reaches the PDF.
 2. `sections/appendix_c_supplementary_figures.tex` is input by
-   `supplementary.tex`, not by `main.tex`. Its label `app:decode_figures`
-   resolves only because appendix A defines the same label at line 297, so the
-   body's "appendix~\ref{app:decode_figures}" pointers land in appendix A. That
-   works, but the file name says otherwise and will mislead the next reader.
+   `supplementary.tex`, not by `main.tex`, while its name says it is in-paper
+   appendix C. Its three siblings in that document are named `supp_s1_*`,
+   `supp_s2_*`, `supp_s4_*`; this is supplementary section S3 and should be
+   `supp_s3_figures.tex`.
+
+   CORRECTION (2026-07-31): the first version of this entry also claimed the
+   file defined `app:decode_figures` and collided with appendix A. It does not.
+   `app:decode_figures` is defined once, in `appendix_a_regularisation.tex:297`,
+   and the body's pointers resolve there correctly. The file defines only
+   `fig:recon` and `fig:pooling_cost`, both referenced only from inside itself.
+   The defect is the name and nothing else.
 3. `APA-03` and `S35-02` disagree on the number of uncertainty levels, three
    against four. `S3-12` states it a third time. One of the three has to go and
    the other two have to agree.

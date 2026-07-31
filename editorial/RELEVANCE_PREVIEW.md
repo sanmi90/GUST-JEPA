@@ -31,6 +31,10 @@
 - **S2-09** (para, L259-272) One definitional point bounds how these observables are read. The wake and flow observables (the enstrophy and the two circulations) are computed on the same mi
 - **S2-C3** (caption, L277-286) Parameter-space sampling of the $\NCases$ cases in the $(G, D, Y)$ gust envelope, shown as three two-dimensional projections and coloured by split: training ($\
 
+## sections/tables/table_dns_metadata.tex  (TDNS, 1 blocks)
+
+- **TDNS-C1** (caption, L20-23) DNS solver-resolution details required for full reproducibility (\S\ref{sec:flow_observables}). The data are direct numerical simulations with no subgrid-scale 
+
 ## sections/section_3_methods.tex  (S3, 13 blocks)
 
 - **S3-01** (para, L13-13) The model takes no gust parameters: neither the encoder nor the predictor receives $(G, D, Y)$. The predictive encoder $E_\theta$ maps the mid-plane vorticity f
@@ -115,9 +119,9 @@
 - **S4A-03** (para, L48-69) The three heads therefore divide the labour: $L$ anchors the latent, $N$ sharpens the load, and $W$ carries the wake state. The wake-enstrophy probe makes the l
 - **S4A-C1** (caption, L74-81) The conditioning cube on the lift and wake axes: final participation ratio per cell (\TestSplit{} set, three encoder seeds per cell) against the collapse floor 
 
-## sections/v4/s4_b_reconstruction.tex  (S4B, 1 blocks)
+## sections/tables/table_closure.tex  (TCLO, 1 blocks)
 
-- **S4B-01** (para, L8-25) Decoding closes the loop on the construction story: the same division of labour that the probes read appears in the decoded fields, scored on the \TestSplit{} s
+- **TCLO-C1** (caption, L18-38) What each pooled coefficient state carries, at matched dimension $d = 32$ on the $\NTestBEnc$ \TestSplit{} encounters. Held-out wake-enstrophy readability and, 
 
 ## sections/v4/s4_b2_dimension.tex  (S4B2, 3 blocks)
 
@@ -125,12 +129,40 @@
 - **S4B2-02** (para, L25-37) The probe-dilution control disciplines how the first tier may be read (figure~\ref{fig:dimrace}b). A multilayer probe nearly equalises every dimension (from \Pd
 - **S4B2-C1** (caption, L42-49) The dimension axis on the \TestSplit{} set. (a)~Peak-region lift $R^2$ (linear probe) against latent dimension for the three lineages; shaded bands are three-se
 
+## sections/v4/s4_b_reconstruction.tex  (S4B, 1 blocks)
+
+- **S4B-01** (para, L8-25) Decoding closes the loop on the construction story: the same division of labour that the probes read appears in the decoded fields, scored on the \TestSplit{} s
+
+## sections/tables/table_critical_ssim.tex  (TSSI, 1 blocks)
+
+- **TSSI-C1** (caption, L7-21) Decode fidelity at the critical instants of the encounter, rather than averaged over the window: SSIM between each family's decoded field and the DNS truth at t
+
+## sections/tables/table_obs_critical.tex  (TOBS, 1 blocks)
+
+- **TOBS-C1** (caption, L10-36) Where the families separate at the critical instants: held-out readability of the lift $C_L$ and the wake enstrophy $E_w$ at the pre-impact, impact and peak-lif
+
 ## sections/v4/s4_c_prediction.tex  (S4C, 4 blocks)
 
 - **S4C-01** (para, L5-27) The family ordering survives an operator-robust protocol, which resolves the operator confound the suited-operator comparison of \S\ref{sec:methods_closure} lef
 - **S4C-02** (para, L29-42) The forecasting mechanism is the direct-versus-autoregressive contrast. Rolled autoregressively through the impact, the matched transformer compounds its own er
 - **S4C-03** (para, L44-52) Knowing the gust does not help. Conditioning the forecaster on the true episode parameters $(G, D, Y)$, an oracle no deployment has, degrades the forecast in ev
 - **S4C-C1** (caption, L67-75) Forecasting the state on the \TestSplit{} set. (a)~Decoded lift $R^2$ of the shared \DirectFC{} per family (three operator seeds each, the forecaster retrained 
+
+## sections/tables/table_recovery.tex  (TREC, 1 blocks)
+
+- **TREC-C1** (caption, L5-16) What eight wall-pressure taps recover of each family's coefficient state, on the \TestSplit{} set, with the recovery estimator selected by cross-validation per 
+
+## sections/tables/table_family_filter.tex  (TFAM, 1 blocks)
+
+- **TFAM-C1** (caption, L5-13) The frozen filter run identically on every family: median analysis lift closure by gust strength, with the consistency-failure rate (\S\ref{sec:methods_lae}) at
+
+## sections/tables/table_envelope.tex  (TENV, 1 blocks)
+
+- **TENV-C1** (caption, L5-14) The operating envelope, by gust strength, for the predictive coefficient state under the base frozen filter, used here as a diagnostic. Median analysis lift clo
+
+## sections/tables/table_filter_error.tex  (TFIL, 1 blocks)
+
+- **TFIL-C1** (caption, L7-23) What the wall-pressure filter costs in real lift units. Median analysis $C_L$ error (RMSE, dimensionless) and filter consistency-failure rate at the impact wind
 
 ## sections/v4/s4_d_assimilation.tex  (S4D, 9 blocks)
 
@@ -191,6 +223,18 @@
 - **APA-C14** (caption, L371-378) Encoder and training-predictor configuration, counted from the released $d = \LatentDim$ checkpoint. The model is unconditional: no gust parameters $\cvec = (G,
 - **APA-C15** (caption, L403-409) Per-estimator configuration (Gupta \emph{et al.} 2026, table~1 analogue). All fits use the training split only; $\rho$ and the two $c$ calibrations use validati
 
+## sections/tables/table_baselines.tex  (TBAS, 1 blocks)
+
+- **TBAS-C1** (caption, L9-25) The compared families: encoder, latent, and training objective. Every family produces a pooled $d = \LatentDim$ coefficient vector at the same dimension. The to
+
+## sections/tables/table_enkf.tex  (TENK, 1 blocks)
+
+- **TENK-C1** (caption, L15-25) Configuration of the pressure-only ensemble Kalman estimator in the latent space (\S\ref{sec:methods_estimator}, figure~\ref{fig:estimation_loop}). Every settin
+
+## sections/tables/table_mechanism.tex  (TMEC, 1 blocks)
+
+- **TMEC-C1** (caption, L5-11) Where each rolled state goes relative to the training distribution, on the \TestSplit{} set at rollout horizon sixteen. The latent covariance condition number m
+
 ## sections/appendix_b_sensing.tex  (APB, 12 blocks)
 
 - **APB-01** (para, L8-15) At deployment the vorticity field is not available; only the wall pressure is. This appendix records the sensing conventions behind \S\ref{sec:res_wall} and \S\
@@ -210,47 +254,3 @@
 
 - **APC-01** (para, L5-23) The forecast-derived filter's band scale carries a full audit trail. The production value $c = 1.77$ is the coverage calibration of \S\ref{sec:methods_rexenkf},
 - **APC-C1** (caption, L30-38) Estimator calibration and selection (\TestSplit, \ValSplit{} and, through the open markers, \BoundarySplit{} sets; parenthetical counts on the ladder are large-
-
-## sections/tables/table_baselines.tex  (TBAS, 1 blocks)
-
-- **TBAS-C1** (caption, L9-25) The compared families: encoder, latent, and training objective. Every family produces a pooled $d = \LatentDim$ coefficient vector at the same dimension. The to
-
-## sections/tables/table_closure.tex  (TCLO, 1 blocks)
-
-- **TCLO-C1** (caption, L18-38) What each pooled coefficient state carries, at matched dimension $d = 32$ on the $\NTestBEnc$ \TestSplit{} encounters. Held-out wake-enstrophy readability and, 
-
-## sections/tables/table_critical_ssim.tex  (TSSI, 1 blocks)
-
-- **TSSI-C1** (caption, L7-21) Decode fidelity at the critical instants of the encounter, rather than averaged over the window: SSIM between each family's decoded field and the DNS truth at t
-
-## sections/tables/table_dns_metadata.tex  (TDNS, 1 blocks)
-
-- **TDNS-C1** (caption, L20-23) DNS solver-resolution details required for full reproducibility (\S\ref{sec:flow_observables}). The data are direct numerical simulations with no subgrid-scale 
-
-## sections/tables/table_enkf.tex  (TENK, 1 blocks)
-
-- **TENK-C1** (caption, L15-25) Configuration of the pressure-only ensemble Kalman estimator in the latent space (\S\ref{sec:methods_estimator}, figure~\ref{fig:estimation_loop}). Every settin
-
-## sections/tables/table_envelope.tex  (TENV, 1 blocks)
-
-- **TENV-C1** (caption, L5-14) The operating envelope, by gust strength, for the predictive coefficient state under the base frozen filter, used here as a diagnostic. Median analysis lift clo
-
-## sections/tables/table_family_filter.tex  (TFAM, 1 blocks)
-
-- **TFAM-C1** (caption, L5-13) The frozen filter run identically on every family: median analysis lift closure by gust strength, with the consistency-failure rate (\S\ref{sec:methods_lae}) at
-
-## sections/tables/table_filter_error.tex  (TFIL, 1 blocks)
-
-- **TFIL-C1** (caption, L7-23) What the wall-pressure filter costs in real lift units. Median analysis $C_L$ error (RMSE, dimensionless) and filter consistency-failure rate at the impact wind
-
-## sections/tables/table_mechanism.tex  (TMEC, 1 blocks)
-
-- **TMEC-C1** (caption, L5-11) Where each rolled state goes relative to the training distribution, on the \TestSplit{} set at rollout horizon sixteen. The latent covariance condition number m
-
-## sections/tables/table_obs_critical.tex  (TOBS, 1 blocks)
-
-- **TOBS-C1** (caption, L10-36) Where the families separate at the critical instants: held-out readability of the lift $C_L$ and the wake enstrophy $E_w$ at the pre-impact, impact and peak-lif
-
-## sections/tables/table_recovery.tex  (TREC, 1 blocks)
-
-- **TREC-C1** (caption, L5-16) What eight wall-pressure taps recover of each family's coefficient state, on the \TestSplit{} set, with the recovery estimator selected by cross-validation per 

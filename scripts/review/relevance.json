@@ -1,0 +1,64 @@
+{
+  "_comment": [
+    "Configuration for scripts/review/annotate_relevance.py. Paths are relative",
+    "to the repository root. Everything here has a working default in the script,",
+    "so a fresh project needs only `roots` and, optionally, `prefixes`."
+  ],
+
+  "roots": ["paper/main.tex"],
+
+  "ledger": "editorial/RELEVANCE_MAP.md",
+  "preview": "editorial/RELEVANCE_PREVIEW.md",
+
+  "_exclude_comment": "Regexes matched against the discovered path, relative to the root's directory. Preamble includes carry no prose.",
+  "exclude": [
+    "^macros",
+    "^nomenclature",
+    "^reviewmarks"
+  ],
+
+  "_prefixes_comment": [
+    "File stem -> ID prefix. An identifier is <prefix>-<nn> for a paragraph and",
+    "<prefix>-C<n> for a caption, numbered in source order within the file, so an",
+    "ID stays stable as long as that file's block sequence does. Stems not listed",
+    "get initials of the stem, deduplicated; list a stem here only to pin a",
+    "prettier or historically stable prefix."
+  ],
+  "prefixes": {
+    "abstract": "AB",
+    "section_1_introduction": "S1",
+    "section_2_flow_and_data": "S2",
+    "section_3_methods": "S3",
+    "section_4_results": "S4",
+    "section_5_discussion": "S5",
+    "section_6_conclusions": "S6",
+    "s3_1_chang_head": "S31",
+    "s3_3_rex": "S33",
+    "s3_4_estimators": "S34",
+    "s3_5_protocol": "S35",
+    "s4_a_construction": "S4A",
+    "s4_b_reconstruction": "S4B",
+    "s4_b2_dimension": "S4B2",
+    "s4_c_prediction": "S4C",
+    "s4_d_assimilation": "S4D",
+    "appendix_a_regularisation": "APA",
+    "appendix_b_sensing": "APB",
+    "appendix_c_calibration": "APC",
+    "table_baselines": "TBAS",
+    "table_closure": "TCLO",
+    "table_critical_ssim": "TSSI",
+    "table_dns_metadata": "TDNS",
+    "table_enkf": "TENK",
+    "table_envelope": "TENV",
+    "table_family_filter": "TFAM",
+    "table_filter_error": "TFIL",
+    "table_mechanism": "TMEC",
+    "table_obs_critical": "TOBS",
+    "table_recovery": "TREC"
+  },
+
+  "_generated_comment": "Files written by a generator. --apply still marks them, but re-running the generator drops the marker, so they are reported after every apply.",
+  "generated": [
+    "sections/tables/table_dns_metadata.tex"
+  ]
+}

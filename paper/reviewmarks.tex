@@ -45,15 +45,25 @@
 % PAGE SIZE
 %
 % The JFM trim (174mm) leaves 21.5mm of right margin, which cannot hold a
-% legible note. In review mode the paper is widened to 236mm and the extra
-% 62mm is given to the right margin; the text block keeps its exact position
-% and its 32pc measure, so line breaking and pagination are unchanged and the
-% annotated PDF paginates identically to the clean one. \@twosidefalse and
-% the equalised side margins force every note into the right margin
-% (marginnote picks its side from \if@twoside).
+% legible note. In review mode the paper grows by \reviewextrawidth and all of
+% the extra goes to the right margin; the text block keeps its exact position
+% and its measure, so line breaking is unaffected by the widening itself.
+% \@twosidefalse and the equalised side margins force every note into the right
+% margin (marginnote picks its side from \if@twoside).
+%
+% Nothing below is JFM-specific: the widening is relative to whatever page size
+% the class set. To retune, \providecommand any of these BEFORE \input:
+%
+%   \reviewextrawidth   how much wider the page becomes   (default 62mm)
+%   \reviewnotewidth    margin-note measure               (default 46mm)
+%   \reviewnotegutter   gap between text block and note   (default 5mm)
 % ===========================================================================
 
 \usepackage{marginnote}
+
+\providecommand{\reviewextrawidth}{62mm}
+\providecommand{\reviewnotewidth}{46mm}
+\providecommand{\reviewnotegutter}{5mm}
 
 % This file is \input from the main.tex preamble, where @ is not a letter, so
 % the internal \rv@... macros need the catcode change for the whole file.
@@ -89,13 +99,13 @@
   \AtBeginDocument{%
     \@twosidefalse                        % all notes to the right margin
     \setlength\evensidemargin{\oddsidemargin}%
-    \setlength\marginparwidth{46mm}%
-    \setlength\marginparsep{5mm}%
+    \setlength\marginparwidth{\reviewnotewidth}%
+    \setlength\marginparsep{\reviewnotegutter}%
     \setlength\marginparpush{4\p@}%
     \renewcommand*{\marginfont}{\normalfont}%
   }
-  \pdfpagewidth=236mm
-  \special{papersize=236mm,247mm}
+  \pdfpagewidth=\dimexpr\pdfpagewidth+\reviewextrawidth\relax
+  \special{papersize=\the\pdfpagewidth,\the\pdfpageheight}
 \fi
 
 % The margin note: a coloured rule, the ID and class, then the rationale.
