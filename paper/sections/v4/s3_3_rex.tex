@@ -4,7 +4,7 @@
 \subsubsection{The shared \DirectFC}
 \label{sec:methods_rex}
 
-The forecast-merit comparison of \S\ref{sec:res_forecast} requires one
+\rb{K}{S33-01}{Defines the one operator under which every family is compared. The forecast result and the filter's process noise both depend on this specification.}The forecast-merit comparison of \S\ref{sec:res_forecast} requires one
 operator trained identically on every family's latents; the operator used
 throughout is the \DirectFC, a direct sequence-to-sequence realisation of
 equation~\eqref{eq:forecast} that emits the full horizon in one pass. It is a
@@ -34,4 +34,4 @@ inter-quantile band supplies the state-dependent process noise of
 width selection (LSTM against an sLSTM cell \citep{xlstm} at two widths and two
 quantile counts, the sLSTM tying within seed noise), and the adopted and rejected
 ingredients of the TiRex source line, including the oracle-covariate negative of
-\S\ref{sec:res_forecast}, are catalogued in the supplementary material.
+\S\ref{sec:res_forecast}, are catalogued in the supplementary material.\re

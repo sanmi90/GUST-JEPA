@@ -5,7 +5,7 @@
 \subsubsection{The near-body lift-element head}
 \label{sec:methods_chang}
 
-The third supervision head targets a physically constructed near-body
+\rb{A}{S31-01}{Full construction of a head the paper itself calls a lift-sharpening refinement, not the primary state, with two equations and its own quality gate. Its result already sits in appendix A, so the method should join it.}The third supervision head targets a physically constructed near-body
 observable built on the force-element decomposition of \citet{chang1992},
 in the form popularised for vortex-dominated
 flows by \citet{menon2021}. An auxiliary
@@ -53,4 +53,4 @@ to exceed $0.4$; the achieved value is \NbQcMedianCorr. The principled
 weighting is not interchangeable with a plain vorticity-magnitude proxy:
 the patch-block cosine between the two targets is \NbProxyCosine{} on the
 comparison sample. The auxiliary potential and its supervision band are shown in
-figure~\ref{fig:phi} in appendix~\ref{app:decode_figures}.
+figure~\ref{fig:phi} in appendix~\ref{app:decode_figures}.\re

@@ -5,7 +5,7 @@
 \subsubsection{Constructing the state: which supervision supplies which property}
 \label{sec:res_construction}
 
-The construction question is answered by a $2 \times 2 \times 2$ cube over
+\rb{K}{S4A-01}{The conditioning cube and the collapse without the lift head. The construction finding the abstract leads with.}The construction question is answered by a $2 \times 2 \times 2$ cube over
 the three supervision heads $\{L, W, N\}$, trained at three seeds per cell
 on the pooled pipeline of \S\ref{sec:methods_arch} with matched
 reconstructive anchors, under gates written and archived before any result
@@ -26,9 +26,9 @@ are different achievements. The collapse is the low-intrinsic-dimension
 failure mode anticipated for the characteristic-function regulariser at
 its default configuration; the automatic variance-covariance fallback is armed at an
 iteration threshold the pooled runs never reach, so the cube exposes the
-mechanism rather than masking it.
+mechanism rather than masking it.\re
 
-Nothing replaces the lift anchor. Replacing $L$ by $W$ fails decisively, the
+\rb{K}{S4A-02}{Nothing substitutes for the scalar anchor, with the paired differences. Also fixes the wake-headed state as the representative carried downstream.}Nothing replaces the lift anchor. Replacing $L$ by $W$ fails decisively, the
 wake-only cell trailing the lift-only cell by a paired difference of
 \TcDeltaCwVsClPeak{} peak-region
 $R^2$ points (paired $R^2$ differences throughout are in units of $10^{-2}$,
@@ -43,9 +43,9 @@ matching the lift-only cell on the peaks (the paired difference straddles zero)
 while adding near-body structural
 fidelity (\TcDeltaClwVsClSsimNb{} SSIM in the Wang convention of
 \S\ref{sec:methods_protocol}); the per-cell peak-region $R^2$, seed spreads and
-intervals are in figure~\ref{fig:cube_deltas} and appendix~\ref{app:nearbody}.
+intervals are in figure~\ref{fig:cube_deltas} and appendix~\ref{app:nearbody}.\re
 
-The three heads therefore divide the labour: $L$ anchors the latent, $N$
+\rb{K}{S4A-03}{The division of labour between the three heads, with the enstrophy probe. The closing caveat about which comparison supports which claim is worth keeping.}The three heads therefore divide the labour: $L$ anchors the latent, $N$
 sharpens the load, and $W$ carries the wake state. The wake-enstrophy
 probe makes the last division quantitative: the \PredState{}
 reads the wake enstrophy $E_w$ at $R^2 = \EwClwLin$ linear and \EwClwMlp{}
@@ -66,19 +66,19 @@ establish the role of the lift head. Its structural role is instead identified
 from the collapse of every predictive state trained without that head; the
 incremental effect of the near-body target is evaluated relative to an already
 lift-supervised state, under paired gates fixed in advance of evaluation. The
-two claims rest on different comparisons and fail independently.
+two claims rest on different comparisons and fail independently.\re
 
 \begin{figure}
   \centering
   \includegraphics[width=0.66\linewidth]{sections/figures/results/fig_cube_health_v4.pdf}
-  \caption{The conditioning cube on the lift and wake axes: final participation
+  \caption{\rb{K}{S4A-C1}{The collapse against the participation-ratio floor, with the demoted panels named. Self-contained.}The conditioning cube on the lift and wake axes: final participation
   ratio per cell (\TestSplit{} set, three encoder seeds per cell) against
   the collapse floor $0.3\,d = 9.6$, every no-$L$ predictive cell (C0, CW)
   collapsing and every $L$ cell (CL, CLW) healthy. The training history of the
   collapse, flat from the start of training while a healthy cell crosses the floor
   within the first quarter of the run, is figure~\ref{fig:cube_history} in
   appendix~\ref{app:reg}; the near-body ($N$) cells and the paired peak-load
-  increments are in appendix~\ref{app:nearbody}.}
+  increments are in appendix~\ref{app:nearbody}.\re}
   \label{fig:cube}
 \end{figure}
 

@@ -10,7 +10,7 @@
 \subsection{Vortex gust-airfoil interaction}
 \label{sec:flow_physics}
 
-We study a NACA~0012 airfoil at angle of attack $\alpha = 14^\circ$ and chord
+\rb{K}{S2-01}{Configuration, solver provenance and the gust parametrisation. The DNS-not-LES and Fukami-as-reference-not-source distinctions live here.}We study a NACA~0012 airfoil at angle of attack $\alpha = 14^\circ$ and chord
 Reynolds number $\vRe = 5000$, perturbed by a discrete vortex gust modelled as a
 spanwise-oriented Taylor vortex released upstream of the leading edge. The data
 analysed here are our own direct numerical simulations of this configuration,
@@ -42,12 +42,12 @@ extrapolation boundary, for reasons that are physical and that we return to
 below. Convective time $t$ is measured in chords from the vortex release,
 $t = 0$, while $t_{\mathrm{imp}}$ denotes the instant at which the vortex centre
 reaches the leading edge, near $t/c = 2$ for this configuration; all phase
-windows below are referred to $t_{\mathrm{imp}}$.
+windows below are referred to $t_{\mathrm{imp}}$.\re
 
 \begin{figure}
   \centering
   \includegraphics[width=\linewidth]{sections/figures/tikz/fig_case_geometry.pdf}
-  \caption{Case geometry (schematic, not to scale), drawn directly in the
+  \caption{\rb{K}{S2-C1}{Defines the free-stream-aligned axes in which $(G,D,Y)$ are read. Without it the sign conventions of the envelope result are ambiguous.}Case geometry (schematic, not to scale), drawn directly in the
   free-stream-aligned axes in which $(G, D, Y)$ are defined, following
   \citet{fukami2025prf}. The vortex core is released a fixed $2c$ upstream of
   the leading edge (LE), offset by $Y$ normal to the free stream $U_\infty$,
@@ -56,11 +56,11 @@ windows below are referred to $t_{\mathrm{imp}}$.
   trailing edge (TE) below leading edge. The core has diameter $D = 2R/c$
   (core radius $R$) and peak azimuthal velocity $u_{\theta,\max}$ setting the
   signed gust ratio $G \equiv u_{\theta,\max}/u_\infty$; the arrow shows the
-  clockwise sense of rotation for $G > 0$. Only $(G, D, Y)$ vary across cases.}
+  clockwise sense of rotation for $G > 0$. Only $(G, D, Y)$ vary across cases.\re}
   \label{fig:geometry}
 \end{figure}
 
-Without a gust, the $\alpha = 14^\circ$ wake at this Reynolds number is separated and sheds periodically; in dynamical terms the undisturbed
+\rb{K}{S2-02}{The staged reading of the encounter that the five observables summarise. Physics framing the Results repeatedly refer back to.}Without a gust, the $\alpha = 14^\circ$ wake at this Reynolds number is separated and sheds periodically; in dynamical terms the undisturbed
 flow is a limit cycle. A gust encounter is then a transient excursion from this
 limit cycle and back, and it is helpful to read it in stages
 (figure~\ref{fig:staging}) \citep{smith2024,fukami2025prf,odaka2026}. The vortex
@@ -74,12 +74,12 @@ strength of the impingement, $D$ sets how much of the encounter is dominated by
 the vortex core, and the impact timing sets the phase of the baseline cycle at
 which the disturbance arrives. The five observables defined in
 \S\ref{sec:flow_observables} are quantitative summaries of exactly this
-sequence.
+sequence.\re
 
 \begin{figure}
   \centering
   \includegraphics[width=\linewidth]{sections/figures/results/fig_staging_v2p1.pdf}
-  \caption{The vortex gust as a wake-reorganisation event: a gust-strength sweep
+  \caption{\rb{K}{S2-C2}{The gust-strength sweep that shows the wake reorganisation the paper is about. Also states why the wake, not only $C_L$, is the endpoint.}The vortex gust as a wake-reorganisation event: a gust-strength sweep
   at fixed core diameter $D = 0.5$ and offset $Y = -0.1$ (first encounter of each
   case). Top: lift coefficient $C_L$ against convective time, with $t/c = 0$ the
   release and $t_{\mathrm{imp}}$ (dashed) the leading-edge crossing near
@@ -91,11 +91,11 @@ sequence.
   barely perturb the shedding; $G = -4$ is the $|G| = 4$ extrapolation case, shown
   only for illustration. The release parameters alone do not fix where the wake
   sits afterwards, which is why the wake, not only $C_L$, is the endpoint a reduced
-  state must carry.}
+  state must carry.\re}
   \label{fig:staging}
 \end{figure}
 
-A consequence of the source characterisation \citep{fukami2025prf} is central to
+\rb{K}{S2-03}{The physical reason $\lvert G\rvert = 4$ is a regime change and not one parameter step. This paragraph is what licenses the boundary reading in \S4.6, \S5.4 and \S6.}A consequence of the source characterisation \citep{fukami2025prf} is central to
 how we read the extrapolation case. For $|G| \le 3$ the encounter is primarily
 two-dimensional, so a mid-plane slice of the spanwise vorticity carries the
 relevant large-scale dynamics; for $|G| \ge 4$ the interaction becomes
@@ -115,12 +115,12 @@ mid-plane representation omits a substantially larger fraction of the
 three-dimensional vorticity content, so that more of the dynamics is not
 captured by what the encoder sees. We therefore treat $|G| = 4$ as a physically
 more demanding extrapolation set in which a mid-plane state is incomplete, rather
-than as a claim of parametric generalisation.
+than as a claim of parametric generalisation.\re
 
 \subsection{Data, fields, and observables}
 \label{sec:flow_observables}
 
-Each simulation case is one long run partitioned into encounters of $120$ cached
+\rb{K}{S2-04}{Partition, encounter counts and the non-independence caveat behind the case-clustered statistics. Reproducibility rests on it.}Each simulation case is one long run partitioned into encounters of $120$ cached
 frames at $\Delta t = 0.05\,t/c$, one encounter per gust release. The
 simulations use a spectral-element discretisation of polynomial order $p = 4$,
 and the fields are cached on a structured grid of $192 \times 96 \times 32$
@@ -155,12 +155,12 @@ encounters that share a baseline shedding history. Encounters of the same case a
 therefore not independent, so encounter-level intervals overstate the effective
 sample size; the headline comparisons are reported additionally with a
 case-clustered bootstrap and a case-level paired test (Appendix~\ref{app:reg}). The
-partition is fixed once and used identically by every model and baseline.
+partition is fixed once and used identically by every model and baseline.\re
 
 % Peak-lift values (+8.3, -7.6) are the mirror pair at D=1.0, Y=+0.10, read from
 % the v2.2 cache (encounter 00 C_L extrema); a data-integrity sanity check, not a
 % result. See HANDOFF D224 (run4 physical-sign verification).
-The $|G| = 4$ extrapolation boundary is sampled symmetrically by combining the
+\rb{S}{S2-05}{A data-integrity check on the run4 cases, not a result: the mirror-image lift transients confirm the file metadata. The one load-bearing sentence, that the boundary is sampled at both signs, is already in S2-04 and the fig:paramspace caption.}The $|G| = 4$ extrapolation boundary is sampled symmetrically by combining the
 periodic archive cases with four additionally released cases at the opposite sign
 of the gust. We verified the additional cases against the archive by a physical
 consistency check on the load rather than by trusting the file metadata: at
@@ -172,7 +172,7 @@ halves of the symmetric boundary set are physically consistent and that the
 sign-asymmetry analysis of the operating envelope (\S\ref{sec:res_envelope}) is
 sound. Sampling the boundary at both signs is a genuine improvement over a
 one-sided $|G| = 4$ set: it lets the sign asymmetry be measured rather than
-assumed.
+assumed.\re
 
 % DNS Table 1 is generated from paper/dns_metadata.yaml (single source of truth)
 % by scripts/session29/render_table1_from_yaml.py; the submission gate
@@ -180,7 +180,7 @@ assumed.
 % is pending. Do not edit the generated file by hand; edit the YAML and re-render.
 \input{sections/tables/table_dns_metadata.tex}
 
-For each frame the cache stores the mid-plane spanwise vorticity
+\rb{K}{S2-06}{What the cache stores and how the vorticity is normalised. Trim internally: the SSIM constants are restated verbatim in S35-01.}For each frame the cache stores the mid-plane spanwise vorticity
 $\omegaz(192, 96)$, the span-averaged wall pressure $p_{\mathrm{wall}}(192)$,
 and the lift and drag coefficients $C_L, C_D$. The vorticity is normalised by a
 fixed pipeline: a spatial mask removes the solid and one adjacent cell layer to
@@ -197,9 +197,9 @@ global $99.9$th percentile of the normalised target magnitude over the validatio
 split so that the index is comparable across reruns.
 Appendix~\ref{app:reg} repeats the primary wake probe under no amplitude clip and
 under a single training-pooled leak-free threshold,% (established on the previous-generation encoders; the pipeline is unchanged in this revision)
-and the family ordering is unchanged, so the per-encounter clip does not drive the result.
+and the family ordering is unchanged, so the per-encounter clip does not drive the result.\re
 
-We evaluate forward closure against five physical observables that together span
+\rb{K}{S2-07}{Pre-registers the two co-primary endpoints. The multiplicity correction in appendix A is applied against exactly this declaration.}We evaluate forward closure against five physical observables that together span
 body-force and spatially distributed wake diagnostics. The
 lift and drag coefficients $C_L$ and $C_D$ are the body forces. The wake enstrophy and the positive and negative circulation
 (defined below, eq.~\ref{eq:enstrophy} and eq.~\ref{eq:circulation}) are
@@ -215,9 +215,9 @@ carry beyond the release parameters, and the lift coefficient $C_L$, which the
 sequential wall-pressure estimator of \S\ref{sec:methods_estimator} tracks and in
 which the operating envelope is stated. The remaining three observables are
 reported as secondary and descriptive. This pre-registration is what the
-family-wide multiplicity correction in Appendix~\ref{app:reg} is applied against.
+family-wide multiplicity correction in Appendix~\ref{app:reg} is applied against.\re
 
-The five observables are defined on each frame of the masked vorticity field
+\rb{K}{S2-08}{Defines $E_w$ and $\Gamma^{\pm}$, the endpoints of the whole comparison. The threshold-collinearity check inside it could move to the data record.}The five observables are defined on each frame of the masked vorticity field
 $\omegaz$ described above. The lift and drag coefficients $C_L, C_D$ are as
 defined earlier in this section. The remaining three are computed on a fixed
 downstream window $\Omega_w = \{(x, y) : x/c \in [0.5, 4],\ |y/c| \le 1\}$,
@@ -254,9 +254,9 @@ closure advantage over the reconstructive baseline is essentially unchanged acro
 them, so the closure does not depend on this threshold. Every case uses the same fixed window and
 mask, and values are reported in the cache vorticity units integrated over
 chord-normalised area. The forecast horizon $H = 16$ is the sixteenth cached
-frame after impact, $t = 16\,\Delta t = 0.8\,c/u_\infty$.
+frame after impact, $t = 16\,\Delta t = 0.8\,c/u_\infty$.\re
 
-One definitional point bounds how these observables are read. The wake and flow
+\rb{K}{S2-09}{Bounds how the closure may be read: mid-plane wake diagnostics against three-dimensional forces. The PIV and load-cell realisability sentence is the removable part.}One definitional point bounds how these observables are read. The wake and flow
 observables (the enstrophy and the two circulations) are computed on the
 same mid-plane slice the encoder consumes, so they omit the out-of-plane content
 quantified in \S\ref{sec:flow_physics} (roughly a fifth of the $\omegaz$ enstrophy
@@ -269,12 +269,12 @@ mid-plane vorticity field is the kind of planar slice a particle-image
 velocimetry (PIV) system would resolve, while $C_L$ and $C_D$ are exactly the
 integrated quantities a load cell reports, so the five observables are
 realisable measurements in an experimental setup and not only diagnostics
-available because the full DNS field happens to exist.
+available because the full DNS field happens to exist.\re
 
 \begin{figure}
   \centering
   \includegraphics[width=\linewidth]{sections/figures/results/fig_paramspace_v3.pdf}
-  \caption{Parameter-space sampling of the $\NCases$ cases in the $(G, D, Y)$ gust
+  \caption{\rb{K}{S2-C3}{Shows the sampling and the symmetric boundary, and names the $Y$ under-sampling that \S5.4 lists as a limitation.}Parameter-space sampling of the $\NCases$ cases in the $(G, D, Y)$ gust
   envelope, shown as three two-dimensional projections and coloured by split:
   training ($\NTrainEnc$ encounters), the stratified in-distribution test set
   ($\NTestBEnc$ encounters from $\NTestBCases$ cases, split into in-distribution
@@ -283,6 +283,6 @@ available because the full DNS field happens to exist.
   $|G| = 4$ extrapolation boundary, now sampled at both signs of the gust so that
   the boundary set is symmetric rather than one-sided. Training mass concentrates
   near $Y/c = 0$, which is why the wall-normal offset is the least well resolved
-  parameter (\S\ref{sec:res_latent_physics}).}
+  parameter (\S\ref{sec:res_latent_physics}).\re}
   \label{fig:paramspace}
 \end{figure}

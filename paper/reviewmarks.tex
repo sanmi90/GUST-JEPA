@@ -1,0 +1,182 @@
+% ===========================================================================
+% reviewmarks.tex -- relevance colour-coding and margin commentary.
+%
+% TEMPORARY REVIEW APPARATUS. Lives on branch review-colour-map only; it is
+% not part of the submitted manuscript and must not be merged into a
+% submission branch without first setting \reviewmarksfalse (or removing the
+% \input from main.tex and the \rb/\re markers from the sections).
+%
+% ---------------------------------------------------------------------------
+% WHAT IT DOES
+%
+% Every prose paragraph and every figure/table caption in the body and the
+% appendices is wrapped as
+%
+%     \rb{<class>}{<ID>}{<two-sentence rationale>}%
+%     ... the paragraph, untouched ...\re
+%
+% \rb opens a group, colours everything up to the matching \re according to
+% <class>, prints the ID inline as a small coloured tag, and emits a margin
+% note carrying the ID, the class and the rationale. \re closes the group.
+% The manuscript text itself is never edited by this apparatus: turning the
+% master switch off restores the manuscript exactly.
+%
+% Five classes, per the request that drove this branch:
+%
+%   K  green   keep      must stay in the body as it is
+%   T  orange  trim      could be removed; the paper survives without it
+%   A  purple  annex     belongs in an appendix, not the body
+%   S  brown   supp      belongs in the supplementary material
+%   D  red     delete    can be deleted outright, nothing is lost
+%
+% ---------------------------------------------------------------------------
+% SWITCHES
+%
+%   \reviewmarksfalse    MASTER. Off = clean manuscript, no colour, no notes,
+%                        no tags, normal JFM page size. All other switches
+%                        are then irrelevant.
+%   \reviewcolourfalse   keep the notes and tags, drop the text colouring
+%   \reviewnotesfalse    keep the colouring, drop the margin notes
+%   \reviewidsfalse      keep everything, drop the inline [ID] tags
+%
+% Flip them in the block marked SWITCHES below.
+%
+% ---------------------------------------------------------------------------
+% PAGE SIZE
+%
+% The JFM trim (174mm) leaves 21.5mm of right margin, which cannot hold a
+% legible note. In review mode the paper is widened to 236mm and the extra
+% 62mm is given to the right margin; the text block keeps its exact position
+% and its 32pc measure, so line breaking and pagination are unchanged and the
+% annotated PDF paginates identically to the clean one. \@twosidefalse and
+% the equalised side margins force every note into the right margin
+% (marginnote picks its side from \if@twoside).
+% ===========================================================================
+
+\usepackage{marginnote}
+
+% This file is \input from the main.tex preamble, where @ is not a letter, so
+% the internal \rv@... macros need the catcode change for the whole file.
+\makeatletter
+
+% ------------------------------- SWITCHES ---------------------------------
+\newif\ifreviewmarks   \reviewmarkstrue    % MASTER
+\newif\ifreviewcolour  \reviewcolourtrue
+\newif\ifreviewnotes   \reviewnotestrue
+\newif\ifreviewids     \reviewidstrue
+% --------------------------------------------------------------------------
+
+% Colours are defined unconditionally (cheap, and \pending already uses red).
+% The class preloads `color`, so \definecolor is available without xcolor.
+\definecolor{rvK}{rgb}{0.00,0.42,0.16}   % green   keep
+\definecolor{rvT}{rgb}{0.78,0.42,0.00}   % orange  trim
+\definecolor{rvA}{rgb}{0.44,0.12,0.60}   % purple  annex
+\definecolor{rvS}{rgb}{0.42,0.26,0.09}   % brown   supplementary
+\definecolor{rvD}{rgb}{0.78,0.06,0.06}   % red     delete
+\definecolor{rvGrey}{rgb}{0.35,0.35,0.35}
+
+\expandafter\def\csname rvname@K\endcsname{KEEP}
+\expandafter\def\csname rvname@T\endcsname{TRIM?}
+\expandafter\def\csname rvname@A\endcsname{ANNEX}
+\expandafter\def\csname rvname@S\endcsname{SUPPL.}
+\expandafter\def\csname rvname@D\endcsname{DELETE}
+
+% Deferred to \AtBeginDocument: lineno-FLM.sty, which the JFM class loads for
+% the `lineno' option, ends by forcing \marginparwidth to 2.6pc, and it is
+% loaded after this file is read. Setting the lengths here instead is what
+% makes the notes 46mm wide rather than 11mm.
+\ifreviewmarks
+  \AtBeginDocument{%
+    \@twosidefalse                        % all notes to the right margin
+    \setlength\evensidemargin{\oddsidemargin}%
+    \setlength\marginparwidth{46mm}%
+    \setlength\marginparsep{5mm}%
+    \setlength\marginparpush{4\p@}%
+    \renewcommand*{\marginfont}{\normalfont}%
+  }
+  \pdfpagewidth=236mm
+  \special{papersize=236mm,247mm}
+\fi
+
+% The margin note: a coloured rule, the ID and class, then the rationale.
+\newcommand{\rv@note}[3]{%
+  \marginnote{%
+    \raggedright\setlength{\parindent}{0pt}\normalfont
+    {\color{rv#1}\rule{\marginparwidth}{1.1pt}}\par\nobreak\vspace{1.5pt}
+    {\scriptsize\bfseries\color{rv#1}#2\hfill\csname rvname@#1\endcsname}\par
+    \nobreak\vspace{1pt}
+    {\scriptsize\color{rvGrey}#3\par}%
+  }%
+}
+
+% The inline tag, so an ID is still readable when the notes are switched off
+% and so a colour can be traced to a row of the ledger from the text itself.
+% It inherits the class colour from \rb, which sets it first.
+\newcommand{\rv@tag}[2]{{\scriptsize [#2]}\,}
+
+% \rb{class}{id}{note} ... \re
+% The \fi sits inside the group deliberately: TeX does not require \begingroup
+% and \endgroup to nest with conditionals, and this keeps both macros
+% single-token no-ops when the master switch is off.
+% Both are robust: the caption markers sit inside \caption{}, which the caption
+% package double-scans and writes to main.lof, and a fragile \if... there breaks
+% brace balance ("Argument of \caption@ydblarg has an extra }").
+% Two details here are load-bearing, both found by bisection after the captions
+% came out coloured and the body prose stayed black:
+%   \leavevmode  -- at the head of a body paragraph \rb runs in vertical mode,
+%                   where \color does not reach the paragraph that follows.
+%                   Captions worked from the start because they are already in
+%                   horizontal mode.
+%   \color twice -- \marginnote typesets its note in a box whose own colour
+%                   push and pop leave the surrounding text back at black, so
+%                   the class colour has to be re-asserted after the note. The
+%                   two pushes pair with two \reset@color at \re's \endgroup.
+\DeclareRobustCommand{\rb}[3]{%
+  \ifreviewmarks
+    \begingroup
+    \leavevmode
+    \ifreviewcolour\color{rv#1}\fi
+    \ifreviewnotes\rv@note{#1}{#2}{#3}\fi
+    \ifreviewcolour\color{rv#1}\fi
+    \ifreviewids\rv@tag{#1}{#2}\fi
+  \fi
+  \ignorespaces
+}
+\DeclareRobustCommand{\re}{%
+  \ifreviewmarks
+    \endgroup
+  \fi
+}
+
+% Legend, placed once at the head of the body.
+\newcommand{\rv@key}[2]{%
+  \raisebox{0.5ex}{\color{rv#1}\rule{9pt}{4pt}}~{\color{rv#1}\textbf{#1}}~#2%
+}
+\newcommand{\reviewlegend}{%
+  \ifreviewmarks
+    \begingroup
+    \small\noindent
+    \fbox{\parbox{\dimexpr\textwidth-2\fboxsep-2\fboxrule\relax}{%
+      \footnotesize\setlength{\parindent}{0pt}%
+      \textbf{Editorial overlay (not part of the manuscript).} Every paragraph
+      and caption is colour-coded for its value to the paper and carries a
+      unique identifier; the margin note gives the reason. Switch the overlay
+      off with \texttt{\textbackslash reviewmarksfalse} in
+      \texttt{reviewmarks.tex}.\par\vspace{3pt}
+      \rv@key{K}{keep in the body.}\quad
+      \rv@key{T}{could be removed.}\par\vspace{1pt}
+      \rv@key{A}{move to an appendix.}\quad
+      \rv@key{S}{move to the supplementary material.}\quad
+      \rv@key{D}{delete.}\par\vspace{3pt}
+      Identifiers are \texttt{<unit>-<nn>}: \texttt{AB} abstract, \texttt{S1}
+      to \texttt{S6} the numbered sections (\texttt{S31}, \texttt{S34} and so
+      on for the \texttt{v4} subfiles), \texttt{APA} to \texttt{APC} the
+      appendices; \texttt{C} in the number marks a caption. The full ledger,
+      with the same identifiers, is
+      \texttt{editorial/RELEVANCE\_MAP.md}.%
+    }}\par\vspace{6pt}
+    \endgroup
+  \fi
+}
+
+\makeatother

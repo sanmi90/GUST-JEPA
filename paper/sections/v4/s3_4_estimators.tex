@@ -9,7 +9,7 @@
 \label{sec:methods_estimators}
 \label{sec:methods_estimator}
 
-At deployment the vorticity field is unavailable and the wall pressure is
+\rb{K}{S34-01}{Why estimation must be sequential, and the delay-embedding principle honestly scoped as an organising idea rather than a guarantee. \S4.5 is read against it.}At deployment the vorticity field is unavailable and the wall pressure is
 not, by itself, enough to fix the state: a single pressure frame recovers
 little of the wake through any of the latents (\S\ref{sec:res_wall}). The
 reason a single frame is not enough, and a window is, is a statement about
@@ -30,9 +30,9 @@ pressure misses, the wake circulation, is still reconstructed by the
 window provided it is dynamically coupled to what the pressure sees, which
 for the coupled vortex dynamics it is. The estimator must therefore be
 sequential, accumulating pressure innovations through learned dynamics,
-which is the setting of data assimilation.
+which is the setting of data assimilation.\re
 
-Every estimator in this paper solves the same discrete state-estimation
+\rb{K}{S34-02}{The shared state-space problem, equations (5) and (6), plus the leakage guarantee. Every filter in the suite is defined by naming four ingredients of this pair.}Every estimator in this paper solves the same discrete state-estimation
 problem on the frozen coefficient state. Writing $\zvec_t \in
 \mathbb{R}^{d}$ for the encoded state at frame $t$ (time base $\Delta t =
 0.05\,c/u_\infty$, the cache frame spacing) and $\mathbf{p}_t \in
@@ -60,12 +60,12 @@ initialisation at the window start; the ladder frame runs the full
 encounter with the ensemble initialised from the encoded observation at
 $t_0 = 9$ (the delay-embedding warm-up) and scores on the same impact
 window. All estimator fits, without exception, use the training split
-only.
+only.\re
 
 \subsubsection{Base stochastic ensemble filter}
 \label{sec:methods_enkf}
 
-The frozen production filter is a stochastic ensemble Kalman filter
+\rb{K}{S34-03}{The base filter with its update equations. It is a diagnostic rather than the production estimator, but the equations are shared by the whole suite.}The frozen production filter is a stochastic ensemble Kalman filter
 \citep{evensen2003} with $N = 64$ members. The prediction model $F$ is the
 matched autoregressive transformer of \S\ref{sec:methods_arch}, refitted on
 the frozen pooled training trajectories; each member carries its own buffer
@@ -104,12 +104,12 @@ $12$-frame causal pressure window) by sampling its training-residual
 covariance around the regressed mean, so no field information enters the
 filter at any time. The frozen observable probes that score the filter
 never enter the innovation: the only measured quantity in
-\eqref{eq:enkf_update} is the $K$-tap wall pressure.
+\eqref{eq:enkf_update} is the $K$-tap wall pressure.\re
 
 \subsubsection{The \LinLatKF{} with encoded observations}
 \label{sec:methods_lae}
 
-The structural-consistency retrofit, adapted from the latent-space
+\rb{K}{S34-04}{Carries equation (9), the encoded observation used by three of the four configurations, and the one fixed definition of consistency failure. Load-bearing well beyond its own subsection.}The structural-consistency retrofit, adapted from the latent-space
 assimilation construction of \citet{tong2026},
 replaces both $F$ and $h$. The dynamics are linear,
 $F(\zvec) = A\zvec$, with $A$ the ridge solution of
@@ -140,12 +140,12 @@ from a large-error encounter, for which the analysis lift itself fails
 (impact-phase $R^2$ below $-1$); a filter can post consistency failures while its
 mean still tracks the load. The observation-rate
 protocol subsamples the update, not the sensor: pressure is recorded every
-frame and the analysis step is applied every $m$-th frame only.
+frame and the analysis step is applied every $m$-th frame only.\re
 
 \subsubsection{Forecast-derived state-dependent process noise}
 \label{sec:methods_rexenkf}
 
-The \FnoiseKF{} keeps the encoded observation \eqref{eq:eobs} and
+\rb{K}{S34-05}{The production route: state-dependent noise, its two independent calibrations, and the two-stage schedule. This is the estimator the headline number comes from.}The \FnoiseKF{} keeps the encoded observation \eqref{eq:eobs} and
 replaces the member propagation by the \DirectFC{} of
 \S\ref{sec:methods_rex}: each member is advanced by the one-step median
 forecast, and the process noise is read off the forecaster's own
@@ -180,13 +180,13 @@ encoded-observation update \eqref{eq:eobs} with the median-forecast propagation
 \eqref{eq:rex_q} inside the impact window only, and outside it propagates
 members with the matched transformer and assimilates in tap space through
 the linear map of \S\ref{sec:methods_enkf}; the schedule boundary is the
-frozen impact-window mask of the cache and is not tuned.
+frozen impact-window mask of the cache and is not tuned.\re
 
 
 \subsubsection{Fixed-lag smoother}
 \label{sec:methods_rts}
 
-On the linear stack of \S\ref{sec:methods_lae} a fixed-lag
+\rb{A}{S34-06}{A textbook fixed-lag recursion whose result is three sentences in \S4.6.3 and one clause of appendix B guidance. The recursion itself can sit in appendix A with the other configuration detail.}On the linear stack of \S\ref{sec:methods_lae} a fixed-lag
 Rauch--Tung--Striebel smoother provides the reanalysis reference. With
 forecast and analysis moments $(\zvec^{f}_k, P^{f}_k)$ and
 $(\zvec^{a}_k, P^{a}_k)$ from the forward Kalman pass, the backward
@@ -203,12 +203,12 @@ $0.25\,c/u_\infty$; the smoothed estimate at $t$ uses pressure up to
 $t + L$ and nothing later. The ensemble smoother variant on the \FnoiseKF{}
 (a lagged cross-covariance update of the stored member history) degrades
 the filter and is reported as a negative in
-the supplementary material.
+the supplementary material.\re
 
 \subsubsection{Sensor placement}
 \label{sec:methods_osp}
 
-Each family senses at its own taps. The per-family placement is a greedy
+\rb{A}{S34-07}{The greedy placement criterion, whose own text notes that two of its four terms dominate. Placement robustness is already argued in appendix B, so the criterion belongs beside it.}Each family senses at its own taps. The per-family placement is a greedy
 forward selection over the $192$ physical wall taps: at each step the
 candidate tap whose $30$-frame causal pressure window, concatenated to the
 already-selected windows, best ridge-predicts the leading principal
@@ -230,4 +230,4 @@ array. The shared target-blind reference array is the column-pivoted QR
 (qDEIM) selection of \citet{drmac2016qdeim} on the leading pressure modes. Which
 placement a given figure uses is stated in its caption. The per-estimator
 configuration is collected in table~\ref{tab:filter_params} in
-appendix~\ref{app:methods_tables}.
+appendix~\ref{app:methods_tables}.\re

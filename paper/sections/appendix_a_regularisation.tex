@@ -5,7 +5,7 @@
 % scale development study and is deliberately NOT claimed here.
 
 \subsubsection*{Architecture detail}
-The encoder is a hybrid convolutional stem
+\rb{T}{APA-01}{Opens by restating the architecture already given in \S3.1 and table 14, then spends twenty lines narrating a suited-operator protocol the paper no longer uses. The superseded narrative belongs with the suited table in the supplementary material.}The encoder is a hybrid convolutional stem
 followed by a small vision transformer. Three downsampling convolutional stages
 map the single-channel $192 \times 96$ vorticity field to a $24 \times 12$ feature
 map at $256$ channels, that is $288$ image tokens, which a six-layer
@@ -43,24 +43,24 @@ supplement, but the cross-family comparison the paper reports is the
 shared-operator one. The ensemble filter of
 \S\ref{sec:methods_estimator} uses the same matched transformer on the \PredState's
 own pooled trajectories, where it is stable, and the \PredState's own co-trained
-predictor, the co-trained reduced-order model, is reported alongside.
+predictor, the co-trained reduced-order model, is reported alongside.\re
 
 \begin{figure}
   \centering
   \includegraphics[width=0.95\linewidth]{sections/figures/tikz/fig2_predictive_vs_reconstructive.pdf}
-  \caption{Predictive versus reconstructive training. Left: the reconstructive
+  \caption{\rb{K}{APA-C1}{The predictive-against-reconstructive schematic, which is the clearest statement of what the objective changes. Referenced from \S3.1.}Predictive versus reconstructive training. Left: the reconstructive
   autoencoder encodes the field at $t$, decodes it, and incurs a field-space
   error. Right: the predictive model encodes the fields at $t$ and $t+\Delta t$
   with shared weights and incurs a latent-space error between the predicted and
   observed target embeddings, with no field-space loss and no decoder during
   training. This is the contrast the matched-predictor protocol of
   \S\ref{sec:methods_closure} evaluates; the visualisation decoder is trained
-  only afterwards, on the frozen encoder.}
+  only afterwards, on the frozen encoder.\re}
   \label{fig:predictive_vs_reconstructive}
 \end{figure}
 
 \subsubsection*{Anti-collapse regularisation}
-Because the encoder and predictor are
+\rb{K}{APA-02}{The anti-collapse regulariser, its weight and its safeguard. Needed to reproduce the training.}Because the encoder and predictor are
 trained end to end on latent-space prediction with no decoder, the latent is held
 away from a collapsed solution by an explicit regulariser rather than by a
 reconstruction term. We use SIGReg, the characteristic-function (Epps--Pulley)
@@ -75,10 +75,10 @@ consistent with the supervision-anisotropy mechanism of
 monitored every thousand iterations, with an automatic fall-back to a
 variance-covariance objective \citep{vicreg} if it indicates collapse while the
 parameter probe is still uninformative; on the runs reported here the
-participation ratio stays healthy and the fall-back does not trigger.
+participation ratio stays healthy and the fall-back does not trigger.\re
 
 \subsubsection*{Uncertainty quantification}
-Every held-out coefficient of
+\rb{T}{APA-03}{The uncertainty protocol for the third time, and at three levels where S35-02 says four. Fix or drop, but it cannot stay as it stands.}Every held-out coefficient of
 determination and mean absolute error in the paper carries three independent
 uncertainty signals, following the reporting protocol fixed with the split. The
 first is a bootstrap confidence interval from $2000$ resamples over the held-out
@@ -91,19 +91,19 @@ standard deviation in the objective-times-architecture controls of
 the read-out (probe) step, which guards against a probe that overfits the
 particular held-out split. A single split with bootstrap intervals, seed
 retrains and probe-level cross-validation is the community standard
-for this class of study.
+for this class of study.\re
 
 
 \subsubsection*{Paired tests on the estimation endpoints}
-Table~\ref{tab:paired_closure} reports the per-encounter paired
+\rb{K}{APA-04}{Explains why the estimation endpoints are tested paired and case-clustered. Two sentences that justify table 15.}Table~\ref{tab:paired_closure} reports the per-encounter paired
 family behind the tracking and envelope claims of \S\ref{sec:res_tracking} and
 \S\ref{sec:res_envelope}. Pairing cancels the encounter-to-encounter difficulty
 that widens marginal intervals, and clustering by case respects the shared
-shedding history of a case's encounters.
+shedding history of a case's encounters.\re
 
 \begin{table}
   \centering
-  \caption{Paired per-encounter tests for the estimation endpoints, on the frozen
+  \caption{\rb{K}{APA-C2}{The paired-test table, including the null on the wake enstrophy. The pre-declared family structure is stated in the caption.}Paired per-encounter tests for the estimation endpoints, on the frozen
   filter records. The family was fixed before any statistic was
   computed: the primary family F1 compares the filter analysis against the static
   single-frame recovery and F2 against the field-free open-loop forecast, on the
@@ -117,7 +117,7 @@ shedding history of a case's encounters.
   (characterisation only, $n = \NTestCCases$ cases) is consistent on the load in
   both windows at the smallest $p$ the sample size resolves (uncorrected).
   The wake enstrophy through the filter does not beat the static
-  recovery at the boundary, a null result.}
+  recovery at the boundary, a null result.\re}
   \label{tab:paired_closure}
   \small
   \fittab{\begin{tabular}{l l l r l r}
@@ -140,7 +140,7 @@ shedding history of a case's encounters.
 \end{table}
 
 \subsubsection*{Topology of the encoded encounter}
-A coordinate-free check on the geometric mechanism of \S\ref{sec:res_rollout}:
+\rb{S}{APA-05}{A coordinate-free topology check that no claim in the body depends on. Genuine supporting evidence, which is what the supplementary material is for.}A coordinate-free check on the geometric mechanism of \S\ref{sec:res_rollout}:
 Vietoris--Rips persistence of the encoded trajectories, per family, with a
 generator declared significant when its persistence exceeds a noise floor set at
 a fraction of the cloud diameter, after per-family standardisation so that
@@ -154,10 +154,10 @@ whitening, so the fragmentation is a property of the reconstructive encoding
 rather than of any coordinate scale. The linear basis keeps the cleanest no-gust
 loop of all ($\TopoCtrlPod$), consistent with a linear projection of a smooth
 field; the claim is that the anti-collapse reconstruction fragments, not that
-only the predictive latent carries a loop.
+only the predictive latent carries a loop.\re
 
 \subsubsection*{Preprocessing robustness}
-The wake enstrophy squares the vorticity, so the per-encounter high-percentile
+\rb{S}{APA-06}{A robustness check run on the previous-generation $d = 64$ encoders, honestly disclosed as such. The body sentence it supports can point at the supplementary material instead.}The wake enstrophy squares the vorticity, so the per-encounter high-percentile
 amplitude clip of the $\omegaz$ preprocessing could in principle shape the primary
 endpoint. We test this on the frozen encoders, with no retraining, by recomputing
 the readout-frame wake-enstrophy target under three training-only clip treatments of
@@ -168,11 +168,11 @@ latent leads the wake on the \TestSplit{} set under all three (table~\ref{tab:pr
 the largest shift in the predictive-minus-best-baseline advantage relative to the
 production clip being $\PrepSensMaxShift$ in $R^2$. The leak-free training-global
 clip gives the largest predictive advantage, so the per-encounter clip is not the
-source of the wake result.
+source of the wake result.\re
 
 \begin{table}
   \centering
-  \caption{Preprocessing robustness of the representational wake closure,
+  \caption{\rb{S}{APA-C3}{The preprocessing-robustness table, on the same superseded encoders as APA-06. Moves with it.}Preprocessing robustness of the representational wake closure,
   established on the previous-generation spatial encoders ($d = 64$, the 85-case
   v2.1 split) and retained as evidence that the amplitude clip does not shape the
   endpoint; the pipeline is unchanged in the present dataset revision, and the
@@ -180,7 +180,7 @@ source of the wake result.
   frozen-latent ridge probe (no retraining), recomputed under three training-only
   amplitude-clip treatments of the raw $\omegaz$ field. The predictive latent
   leads the wake under every treatment; the advantage keeps its sign and
-  approximate magnitude.}
+  approximate magnitude.\re}
   \label{tab:prepsens}
   \small
   \fittab{\begin{tabular}{l c c c}
@@ -206,7 +206,7 @@ source of the wake result.
 \subsection{The near-body conditioning increment}
 \label{app:nearbody}
 
-On top of the lift anchor the near-body force-element (Chang) head confers real
+\rb{K}{APA-07}{The near-body conditioning increment, demoted here from \S4.1 and referenced from it. The strongest cell in the cube deserves this much.}On top of the lift anchor the near-body force-element (Chang) head confers real
 peak-load accuracy, the strongest cell of the $2 \times 2 \times 2$ conditioning
 cube of \S\ref{sec:res_construct}: the \LiftState{} (cube code CLN) beats the
 lift-only cell CL by \TcDeltaClnVsClPeak{} peak-region $R^2$ points with a
@@ -218,17 +218,17 @@ and a decoded phase lag of
 pre-committed quality gate are described in \S\ref{sec:methods_chang}.
 Downstream the wake-headed \PredState{} is the single predictive
 representative; the near-body head is a lift-sharpening refinement, not the
-primary state.
+primary state.\re
 
 \begin{figure}
   \centering
   \includegraphics[width=0.85\linewidth]{sections/figures/results/fig_cube_deltas_v4.pdf}
-  \caption{Paired peak-region lift $R^2$ per conditioning-cube cell (left) and
+  \caption{\rb{K}{APA-C4}{The paired cube deltas with case-clustered intervals. Self-contained.}Paired peak-region lift $R^2$ per conditioning-cube cell (left) and
   case-mean deltas against the lift-only cell CL (right, symmetric-log axis,
   $95\,\%$ case-clustered bootstrap intervals over the $42$ \TestSplit{}
   encounters of $10$ cases); filled markers mark intervals that exclude zero.
   The near-body \LiftState{} cell (CLN) is the unique positive increment; the
-  no-$L$ cells sit one to two orders of magnitude lower.}
+  no-$L$ cells sit one to two orders of magnitude lower.\re}
   \label{fig:cube_deltas}
 \end{figure}
 
@@ -237,11 +237,11 @@ primary state.
 \begin{figure}
   \centering
   \includegraphics[width=\linewidth]{sections/figures/results/fig_t3_portraits_v4.pdf}
-  \caption{Latent trajectory portraits by family (leading two principal
+  \caption{\rb{K}{APA-C5}{The latent portraits that corroborate the spectral result qualitatively. Referenced from \S4.3.}Latent trajectory portraits by family (leading two principal
   components of the $d = 32$ state; a representative gusted encounter coloured by
   cycle fraction, undisturbed limit cycle in grey). The predictive, linear and
   matched-supervision states trace coherent cycles perturbed by the gust; the
-  published-recipe reconstruction does not.}
+  published-recipe reconstruction does not.\re}
   \label{fig:t3_portraits}
 \end{figure}
 
@@ -250,46 +250,46 @@ primary state.
 \begin{figure}
   \centering
   \includegraphics[width=0.78\linewidth]{sections/figures/results/fig_readability_v4.pdf}
-  \caption{Task-dependent readability (\TestSplit{} set, linear probes on the
+  \caption{\rb{K}{APA-C6}{The full task-dependent readability matrix behind the division-of-labour claim. Referenced from \S4.1.}Task-dependent readability (\TestSplit{} set, linear probes on the
   per-frame state, seed mean over three encoder seeds per cell): lift and
   drag follow the $L$ head, the wake block ($E_w$, $\Gamma^{\pm}$)
   follows the $W$ head or the reconstruction objective, and collapsed
-  cells (asterisks) read nothing linearly.}
+  cells (asterisks) read nothing linearly.\re}
   \label{fig:readability}
 \end{figure}
 
 \begin{figure}
   \centering
   \includegraphics[width=0.55\linewidth]{sections/figures/results/fig_forecast_null_v4.pdf}
-  \caption{The conditioning null on the shared \DirectFC{} (demoted from the
+  \caption{\rb{K}{APA-C7}{The conditioning null, demoted from the forecast figure and referenced from \S4.4. Self-contained.}The conditioning null on the shared \DirectFC{} (demoted from the
   forecast figure~\ref{fig:forecast}): decoded lift $R^2$ of the tuned forecaster
   on the \PredState{} latents under no covariate, an added phase covariate, and an
   added $(G, D, Y)$ gust-parameter oracle (three operator seeds per arm). The
   deployable phase covariate is a wash with the unconditioned forecaster, while
-  the gust-parameter oracle degrades it.}
+  the gust-parameter oracle degrades it.\re}
   \label{fig:forecast_null}
 \end{figure}
 
 \begin{figure}
   \centering
   \includegraphics[width=0.55\linewidth]{sections/figures/results/fig_cube_history_v4.pdf}
-  \caption{Training history of the conditioning-cube collapse (demoted from
+  \caption{\rb{K}{APA-C8}{The collapse training history, demoted from the cube figure. Shows the collapse is flat from the first diagnostic.}Training history of the conditioning-cube collapse (demoted from
   figure~\ref{fig:cube}): participation ratio against iteration for one
   representative collapsed cell (CW, seed 0) and one healthy cell (CLW, seed 0),
   with the collapse flat from the first diagnostic while the healthy cell crosses
-  the floor within the first quarter of the run.}
+  the floor within the first quarter of the run.\re}
   \label{fig:cube_history}
 \end{figure}
 
 \begin{figure}
   \centering
   \includegraphics[width=0.98\linewidth]{sections/figures/tikz/fig_eval_protocol.pdf}
-  \caption{The evaluation protocol, applied identically to every encoder family
+  \caption{\rb{K}{APA-C9}{The evaluation protocol applied identically to every family. Referenced from \S3.2 and the framework caption.}The evaluation protocol, applied identically to every encoder family
   (demoted from the framework figure~\ref{fig:method}). The same matched forecast
   operator is refit and the same probe family $g$ is applied to every encoder: a
   probe on the simulation-encoded latent measures representational closure, the
   headline, and the same probe on the rolled-out latent $\widehat{\zvec}_{t+H}$
-  measures forecast closure, reported as secondary.}
+  measures forecast closure, reported as secondary.\re}
   \label{fig:eval_protocol}
 \end{figure}
 
@@ -301,56 +301,56 @@ primary state.
 % it; the phase-split forecast merit is a robustness cut of the forecastability
 % result. The Chang auxiliary-potential panel supports the near-body head above.
 
-The figures collected here support the decode-floor, physics and
+\rb{T}{APA-08}{A list of what the following figures show, immediately before figures whose captions each say it. Pure connective tissue.}The figures collected here support the decode-floor, physics and
 forecastability claims of \S\ref{sec:res_compress}--\S\ref{sec:res_forecast}:
 the Chang auxiliary potential behind the near-body head, the decode galleries
 and their dimension curve, and the phase-resolved cut of the shared-operator
-forecast merit.
+forecast merit.\re
 
 \begin{figure}
   \centering
   \includegraphics[width=0.92\linewidth]{sections/figures/results/fig_phi_panel_v4.pdf}
-  \caption{The Chang auxiliary potential $\phi_L$ of
+  \caption{\rb{K}{APA-C10}{The Chang auxiliary potential and its supervision band. Referenced from \S3.1.2.}The Chang auxiliary potential $\phi_L$ of
   equation~\eqref{eq:phiL} on the cache grid (contours), the feathered
   $\delta_n = 0.3c$ supervision band (dashed) and the airfoil footprint;
   the inset shows the lift direction $\mathbf{e}_L$ against the inclined
-  freestream at $\alpha = 14^\circ$.}
+  freestream at $\alpha = 14^\circ$.\re}
   \label{fig:phi}
 \end{figure}
 
 \begin{figure}
   \centering
   \includegraphics[width=\linewidth]{sections/figures/results/fig_decode_panels_v4.pdf}
-  \caption{Decode floor on a representative held-out \TestSplit{} encounter
+  \caption{\rb{K}{APA-C11}{The decode gallery behind the decode-floor claim, with the linear basis included. Self-contained.}Decode floor on a representative held-out \TestSplit{} encounter
   (one decoder seed per model):
   DNS, the \PredState, the \LiftState, the wake autoencoder and the linear basis,
   and the error rows at three phases. Identical-capacity frozen decoders;
   normalised vorticity at the fixed $\pm 3$ range. All four states render the
   field faithfully, including the linear basis: field decode is not where the
-  states separate.}
+  states separate.\re}
   \label{fig:decode}
 \end{figure}
 
 \begin{figure}
   \centering
   \includegraphics[width=\linewidth]{sections/figures/results/fig_critical_ssim_dim.pdf}
-  \caption{Decode SSIM at the impact instant against latent dimension $d$ (full
+  \caption{\rb{K}{APA-C12}{Decode fidelity against dimension, the exhibit S4-07 points at. Single-seed provenance disclosed.}Decode SSIM at the impact instant against latent dimension $d$ (full
   field and near-body band, \TestSplit{} set, decode floor). The compact
   nonlinear states and the linear basis improve with $d$ and saturate together;
   only the published-recipe lineage plateaus lower. Field decode is not the
-  discriminator at any dimension. Single encoder/decoder seed.}
+  discriminator at any dimension. Single encoder/decoder seed.\re}
   \label{fig:critical_ssim_dim}
 \end{figure}
 
 \begin{figure}
   \centering
   \includegraphics[width=\linewidth]{sections/figures/results/fig_t5_phasesplit_v4.pdf}
-  \caption{Shared-operator forecast merit split by phase (pre-impact,
+  \caption{\rb{K}{APA-C13}{The phase-split forecast merit, the exhibit S4-15 narrates. Self-contained.}Shared-operator forecast merit split by phase (pre-impact,
   through-impact, post-impact), per family at horizons eight and sixteen
   (\TestSplit{} set, five observables, three operator seeds; bars at the seed
   mean, case-clustered $95\,\%$ intervals). Through-impact merit separates the
   families: the wake-supervised states hold, the published-recipe reconstruction
-  collapses across the transient, and the linear basis fades into the relaxation.}
+  collapses across the transient, and the linear basis fades into the relaxation.\re}
   \label{fig:phasesplit}
 \end{figure}
 
@@ -361,21 +361,21 @@ forecast merit.
 % mechanism numbers and the per-estimator configuration support the Methods and
 % Results rather than lead them.
 
-The tables collected here give the full configuration record: the encoder and
+\rb{T}{APA-09}{A one-sentence list of the tables that follow, each of which has a caption. Pure connective tissue.}The tables collected here give the full configuration record: the encoder and
 training-predictor architecture, the compared families, the ensemble-filter
 configuration (table~\ref{tab:enkf}), the rollout-departure decomposition, and
-the per-estimator settings of the ladder.
+the per-estimator settings of the ladder.\re
 
 \begin{table}
   \centering
-  \caption{Encoder and training-predictor configuration, counted from the
+  \caption{\rb{K}{APA-C14}{The encoder and predictor configuration, counted from the released checkpoint. The reproducibility record.}Encoder and training-predictor configuration, counted from the
   released $d = \LatentDim$ checkpoint. The model is unconditional: no gust
   parameters $\cvec = (G,D,Y)$ enter the encoder or the predictor. Two small
   auxiliary heads read observables off the encoder output during training (a
   lift head and an $80$-dimensional wake-spectrum head;
   \S\ref{sec:methods_loss}). The estimation-stage prediction model of
   \S\ref{sec:methods_estimator} is a predictor of the same class refitted on the
-  frozen pooled trajectories.}
+  frozen pooled trajectories.\re}
   \label{tab:architecture}
   \small
   \fittab{\begin{tabular}{l l l}
@@ -400,13 +400,13 @@ the per-estimator settings of the ladder.
 
 \begin{table}
   \centering
-  \caption{Per-estimator configuration (Gupta \emph{et al.} 2026, table~1
+  \caption{\rb{K}{APA-C15}{The per-estimator configuration table, the Gupta table-1 analogue. What makes the estimator suite reproducible.}Per-estimator configuration (Gupta \emph{et al.} 2026, table~1
   analogue). All fits use the training split only; $\rho$ and the two $c$
   calibrations use validation-family splits as stated in the text and
   nothing downstream of them. Ensemble size $N = 64$, taps $K = 8$ at the
   family's own placement, delay $m = 10$, every-frame assimilation, and
   the consistency-failure criterion of \S\ref{sec:methods_lae} are common to all
-  rows.}
+  rows.\re}
   \label{tab:filter_params}
   \small
   \fittab{\begin{tabular}{l l l l l}

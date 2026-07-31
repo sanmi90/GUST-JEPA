@@ -7,7 +7,7 @@
 \subsubsection{The estimator ladder, its calibration and its deployment envelope}
 \label{sec:res_da}
 
-Physical units reorganise the phase story. Read in $R^2$ the relaxation
+\rb{K}{S4D-01}{Physical units reorganise the phase story and expose the relaxation $R^2$ as a variance artefact. Decision D252 in one paragraph.}Physical units reorganise the phase story. Read in $R^2$ the relaxation
 phase looks like a failure; read in lift units it is the best phase the estimator
 has, because the relaxation variance is small and the ratio, not the error,
 collapses (figure~\ref{fig:tracking}, which carries the per-phase errors).
@@ -19,9 +19,9 @@ envelope, near $12$ to $14$ per cent for the
 forecast-derived filter at all but the $|G| = 1$ stratum, which sits somewhat
 higher, while the linear filter is non-uniform
 (figure~\ref{fig:relerr}); the absolute error grows with the peak it
-tracks, which is what a scale-invariant estimator must do.
+tracks, which is what a scale-invariant estimator must do.\re
 
-The estimator ladder orders the suite at impact
+\rb{K}{S4D-02}{The estimator ladder with the static inverse on top, the qualifier that scopes the entire estimation result. The abstract depends on this paragraph.}The estimator ladder orders the suite at impact
 (appendix~\ref{app:calibration}, figure~\ref{fig:calibration}), and its top rung is unexpected:
 the \StaticInv, no dynamics at all, matches the best
 \TestSplit{} impact medians on the ladder (\DapEobsImpRTwo;
@@ -37,9 +37,9 @@ the inverse regresses. The linear filter with encoded observations adds
 the robustness column: zero consistency failures under the fixed criterion of
 \S\ref{sec:methods_lae} and graceful degradation as the assimilation rate
 drops, where the base filter collapses already at
-every-second-frame updates (supplementary material).
+every-second-frame updates (supplementary material).\re
 
-Calibrating the forecast-derived noise did not go the way the calibration
+\rb{A}{S4D-03}{The full calibration narrative, including the excluded test-selected variant, told at length in the body. Appendix C already exists for exactly this audit trail; the body needs the one-sentence outcome.}Calibrating the forecast-derived noise did not go the way the calibration
 hypothesis expected, and the failure is informative. On the held-out
 training encounters the pooled impact-phase innovation statistic sits
 below one at every band scale in the grid fixed in advance (\PoneNisAtCStar{}
@@ -63,9 +63,9 @@ band (a single validation-calibrated noise scale, no test-set tuning),
 reaches \PoneTwoStageCovImpact{} at impact on
 the \TestSplit{} set (root-mean-square error \PoneTwoStageCovRmse) and carries the
 \BoundarySplit{} set as above, the best filter in the ladder among those selected without reference to
-the test set.
+the test set.\re
 
-When a quarter-convective-time latency is acceptable, the smoother
+\rb{K}{S4D-04}{The smoother result and the deployment rule it changes. Short, concrete and cited in appendix B guidance.}When a quarter-convective-time latency is acceptable, the smoother
 changes the deployment rule. The fixed-lag recursion of
 \S\ref{sec:methods_rts} on the linear stack cuts the impact error to
 \SmRtsImpRmse{} from the filter's \SmKfImpRmse{} and leaves the relaxation
@@ -74,9 +74,9 @@ essentially unchanged (\SmRtsRelRmse{} against
 the ensemble smoother on the \FnoiseKF{} degrades it
 (supplementary material). Online estimation therefore takes the
 nonlinear filter and a $0.25\,t/c$ latency budget takes the closed-form
-linear smoother.
+linear smoother.\re
 
-What the training objective confers survives to the assimilation stage, and
+\rb{K}{S4D-05}{The per-family end-to-end comparison, which is the fair version of the estimator claim. Also the sensor-budget and noise-robustness separation.}What the training objective confers survives to the assimilation stage, and
 per-family end-to-end evaluation makes the comparison fair: each family senses at its
 own taps, encodes its own observations, forecasts with its own operator
 and decodes through its own decoder. The \PredState{}
@@ -92,9 +92,9 @@ slowly with tap noise, still beating the clean reconstructive stack at
 twenty per cent noise (figure~\ref{fig:ownstack}b,c). Streaming
 multi-encounter assimilation under a deployment-realism protocol, and a
 filter on the four-dimensional lift-critical state of
-\S\ref{sec:res_dimension}, are reported in appendix~\ref{app:sensing}.
+\S\ref{sec:res_dimension}, are reported in appendix~\ref{app:sensing}.\re
 
-The closing study runs the whole design axis through one identical
+\rb{K}{S4D-06}{The dimension-by-family grid and the reconstructive seed fragility, with the observation-side mechanism verified. This is the deployment-robustness argument of the paper.}The closing study runs the whole design axis through one identical
 per-family end-to-end protocol: three families at four dimensions
 (figure~\ref{fig:dimsgrid}). The predictive family is uniform, impact
 error between \GridJepDThirtyTwoRmse{} and \GridJepDEightRmse{} across
@@ -117,9 +117,9 @@ directions, insensitive to its regularisation, under a protocol that
 succeeds for the other two families in every cell. Wall-pressure
 estimatability of the reconstructive geometry is unpredictable across
 both dimension and training seed; the anchored families are uniformly
-estimatable, which is the deployment-robustness argument of this paper.
+estimatable, which is the deployment-robustness argument of this paper.\re
 
-Two loose ends close the section. The under-dispersion of the base filter
+\rb{T}{S4D-07}{Two loose ends that restate \S4.6.2's under-dispersion and \S4.5's sensing geometry. Its consistency-failures-removed claim is also the one number in the section with no bound macro.}Two loose ends close the section. The under-dispersion of the base filter
 has two regimes, not one: at impact it was calibration, and the
 state-dependent noise removes the consistency failures entirely; in
 relaxation it is model error, the forecast median's contraction, which no
@@ -130,12 +130,12 @@ the ones the Chang decomposition of \S\ref{sec:methods_chang} weights,
 while the wake enstrophy lives in shed structure the taps reach only
 through the delay window, so the null is the sensing geometry, not the
 state; the delay-for-sensors trade of \S\ref{sec:res_wall} bounds what
-any wall-limited estimator of this flow can see.
+any wall-limited estimator of this flow can see.\re
 
 \begin{figure}
   \centering
   \includegraphics[width=0.82\linewidth]{sections/figures/results/fig_da_tracking_v4.pdf}
-  \caption{Phase-resolved lift tracking with the \FnoiseKF{} at the production
+  \caption{\rb{K}{S4D-C1}{The phase-resolved tracking figure with the production band stated. Self-contained.}Phase-resolved lift tracking with the \FnoiseKF{} at the production
   coverage band on the \TestSplit{} set
   ($n = 42$
   encounters, $K = 8$ taps, delay $10$, $N = 64$ members, every-frame pressure).
@@ -143,7 +143,7 @@ any wall-limited estimator of this flow can see.
   val-calibrated band: the relaxation $R^2$ collapse is a variance artefact, the
   physical error the honest phase metric. The estimator ladder, its noise
   calibration and the fixed-lag smoother are in
-  appendix~\ref{app:calibration} (figure~\ref{fig:calibration}).}
+  appendix~\ref{app:calibration} (figure~\ref{fig:calibration}).\re}
   \label{fig:tracking}
 \end{figure}
 
@@ -153,12 +153,12 @@ any wall-limited estimator of this flow can see.
 \begin{figure}
   \centering
   \includegraphics[width=\linewidth]{sections/figures/results/fig_da_dims_grid_v4.pdf}
-  \caption{The assimilation-versus-dimension grid (\TestSplit{} set, per-family end-to-end stacks,
+  \caption{\rb{K}{S4D-C2}{The dimension grid, with the single-seed disclosure per cell. Self-contained.}The assimilation-versus-dimension grid (\TestSplit{} set, per-family end-to-end stacks,
   $K = 8$, every-frame pressure; single seed per cell except the
   reconstructive $d = 16$ cell, which carries three): impact error and
   relative peak error against dimension for the three families. The
   predictive family is uniform, the linear basis stable, the
   reconstructive baseline non-monotonic in dimension and irreproducible
-  across seeds.}
+  across seeds.\re}
   \label{fig:dimsgrid}
 \end{figure}

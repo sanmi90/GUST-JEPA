@@ -55,6 +55,11 @@ STRIP_COMMANDS = [
     r"\\cmidrule(?:\([^)]*\))?\{[^{}]*\}",
     r"\\(?:toprule|midrule|bottomrule)(?:\[[^\]]*\])?",
     r"\\pending\{[^{}]*\}",  # author-owned placeholders are exempt by definition
+    # Editorial relevance overlay (branch review-colour-map, reviewmarks.tex):
+    # \rb{class}{ID}{rationale} is margin commentary, not manuscript prose, so
+    # its section references and block identifiers are not paper numbers. The
+    # pattern matches nothing on a branch without the overlay.
+    r"\\rb\{[^{}]*\}\{[^{}]*\}\{[^{}]*\}",
 ]
 
 SUPERSUB = re.compile(r"[\^_]\{?\d+\}?")

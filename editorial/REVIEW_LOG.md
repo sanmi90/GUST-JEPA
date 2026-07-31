@@ -307,3 +307,73 @@ trusted for figure identity.
 Gates after: main rc=0 at 56 pp, `trace_numbers` PASS, `audit_numbers` PASS
 (968/868, 0 mismatches), 0 em-dashes, 0 undefined references beyond the benign
 hyperref note.
+
+---
+
+## Relevance overlay (2026-07-31, branch `review-colour-map`)
+
+A colour-coded relevance map over the whole manuscript, requested to answer one
+question directly: what has to stay, and what can go. It is an overlay, not an
+edit. The manuscript text is never rewritten; every marker is inserted inline
+and `--strip` restores the sources byte for byte, verified by a round-trip
+assertion inside the apply step and by `git diff` returning clean.
+
+**Apparatus.** `paper/reviewmarks.tex` (master switch plus three sub-switches,
+five colour classes, margin-note emitter, inline ID tags, legend, review-mode
+page widening) and `scripts/review/annotate_relevance.py` (`--inventory`,
+`--apply`, `--strip`). The ledger is `editorial/RELEVANCE_MAP.md`, one row per
+block, and it is the thing to read; the PDF is how to read it in context.
+
+**Coverage.** 164 blocks: every prose paragraph and every figure or table
+caption that `main.tex` typesets, across the abstract, the six sections, the
+`v4` subfiles, the three appendices and the eleven table files. Classified
+K 135, T 16, A 6, S 4, D 3.
+
+**What the map says.** The three deletions are duplication, not content:
+`S3-08` is a two-sentence analogy nothing refers to, `S3-12` states the
+uncertainty protocol a third time (and at three levels where `S35-02` says
+four), `S4-10` is a bare forward pointer. The six annex marks are the Chang
+head construction (`S31-01`), the fairness enumeration (`S3-05`), the smoother
+recursion and the placement criterion (`S34-06`, `S34-07`), the phase-split
+narration whose figure is already in appendix A (`S4-15`), and the calibration
+narrative that appendix C exists to hold (`S4D-03`). The four supplementary
+marks are the run4 sign-check (`S2-05`) and the topology and preprocessing
+robustness checks on the superseded d = 64 encoders (`APA-05`, `APA-06`,
+`APA-C3`). Of the sixteen trims, six are the duplication F09 to F14 already
+identified in `CRITICAL_ASSESSMENT.md`, now located to the paragraph.
+
+**Three findings that came out of building it.**
+
+1. `sections/protocol_box.tex` is input by nothing. It is an orphan file
+   carrying an evaluation-protocol box that no longer reaches the PDF.
+2. `sections/appendix_c_supplementary_figures.tex` is input by
+   `supplementary.tex`, not by `main.tex`. Its label `app:decode_figures`
+   resolves only because appendix A defines the same label at line 297, so the
+   body's "appendix~\ref{app:decode_figures}" pointers land in appendix A. That
+   works, but the file name says otherwise and will mislead the next reader.
+3. `APA-03` and `S35-02` disagree on the number of uncertainty levels, three
+   against four. `S3-12` states it a third time. One of the three has to go and
+   the other two have to agree.
+
+**Two bugs found and fixed while building it, both worth recording.**
+
+- The strip step matched `\re` inside `\ref`, turning every cross-reference
+  into `f{...}` across 30 files. Caught by inspecting the diff before building,
+  reverted with `git checkout`, and fixed with a negative lookahead. The apply
+  step now round-trips through strip and refuses to write if the result differs
+  from the input.
+- Colour reached the captions but not the body prose. Two causes, found by
+  bisection: `\rb` runs in vertical mode at the head of a paragraph, where
+  `\color` does not reach the paragraph that follows, and `\marginnote` leaves
+  the surrounding text back at black. Fixed with `\leavevmode` and by
+  re-asserting the colour after the note.
+
+`scripts/session35/trace_numbers.py` gained one strip rule so that the section
+references and block identifiers inside `\rb{}{}{}` are not read as manuscript
+numerals. The pattern matches nothing on a branch without the overlay.
+
+Gates with the overlay on: main rc=0 at 57 pp (56 plus the legend),
+`trace_numbers` PASS, `audit_numbers` PASS (968/868, 0 mismatches), 0
+em-dashes, 0 undefined references beyond the benign hyperref note. With
+`\reviewmarksfalse`: 56 pp at the JFM trim, and `pdftotext` output identical to
+the committed `main.pdf` on branch `solera`.

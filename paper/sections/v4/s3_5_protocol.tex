@@ -4,7 +4,7 @@
 \subsection{Protocol, phases and uncertainty accounting}
 \label{sec:methods_protocol}
 
-Every encounter is scored in three phases anchored to its impact frame:
+\rb{K}{S35-01}{Defines the three phases and every load metric used in the paper. Trim internally: the SSIM convention is already given in S2-06.}Every encounter is scored in three phases anchored to its impact frame:
 lead-in $[t_{\mathrm{imp}} - 8,\, t_{\mathrm{imp}})$, impact
 $[t_{\mathrm{imp}},\, t_{\mathrm{imp}} + 16)$ and relaxation
 $[t_{\mathrm{imp}} + 16,\, t_{\mathrm{imp}} + 48)$, all half-open in
@@ -39,9 +39,9 @@ pre-impact, impact and peak-lift frames ($\pm 2$), and reported both as its
 $R^2$, with the mean observable at that instant as the baseline, and as its
 physical error, the root-mean-square deviation in the observable's own units;
 the two are complementary, the error exposing a large absolute miss where the
-high cross-encounter variance at a critical instant flatters the $R^2$.
+high cross-encounter variance at a critical instant flatters the $R^2$.\re
 
-Uncertainty is accounted at four levels and every stochastic number in
+\rb{K}{S35-02}{The canonical uncertainty statement, at four levels with counts, closing on the no-boundary-set-selection guarantee. Keep this one and drop the two restatements; the sign-convention clause is still an open REVIEW-CLAIM.}Uncertainty is accounted at four levels and every stochastic number in
 the paper carries its count. Encoder training variance uses three seeds
 wherever a cell is compared (the conditioning cube, the $d = 4$ bands, the
 direct-predictor and reconstruction-baseline bands); single-seed cells
@@ -69,4 +69,4 @@ data record.
 % before the convention sentence is rewritten. Carlos to confirm.
 The gust-intensity axis is
 reported in the inventory sign convention, and no test-C quantity is used
-for any selection anywhere in the pipeline.
+for any selection anywhere in the pipeline.\re

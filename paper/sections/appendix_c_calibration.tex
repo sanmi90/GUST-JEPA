@@ -2,7 +2,7 @@
 % the paper for integrity per the editorial memo / decision stub D305
 % recommendation; content unchanged).
 
-The forecast-derived filter's band scale carries a full audit trail. The
+\rb{K}{APC-01}{The full audit trail for the band scale, including the excluded test-selected value quoted only here. Integrity material that must stay in the paper.}The forecast-derived filter's band scale carries a full audit trail. The
 production value $c = 1.77$ is the coverage calibration of
 \S\ref{sec:methods_rexenkf}, selected on validation before any test encounter
 was seen. During exploration a band of $c = 4$ was evaluated against
@@ -20,14 +20,14 @@ run at the coverage band was itself declared in the pre-registration
 record after the consistency-selected run was seen and before any run at
 the declared configuration existed; both frozen runs are reported in
 \S\ref{sec:res_da} regardless of outcome, and the declaration order ships
-with the data record.
+with the data record.\re
 
 % Moved from Results (Session 39 figure pass, D-B): the estimator-ladder, smoother
 % and NIS-calibration panels split off the main-text tracking figure.
 \begin{figure}
   \centering
   \includegraphics[width=0.82\linewidth]{sections/figures/results/fig_da_calibration_v4.pdf}
-  \caption{Estimator calibration and selection (\TestSplit, \ValSplit{} and,
+  \caption{\rb{K}{APC-C1}{The estimator ladder, the smoother comparison and the band calibration in one figure. Carries the static-inverse claim the abstract makes.}Estimator calibration and selection (\TestSplit, \ValSplit{} and,
   through the open markers, \BoundarySplit{}
   sets; parenthetical counts on the ladder are large-error encounters,
   impact-phase $R^2 < -1$, per set). (a) The impact-phase estimator ladder with
@@ -35,6 +35,6 @@ with the data record.
   member-noise band, open markers the frozen \BoundarySplit{} values; (b)
   the filter against the fixed-lag smoother; (c) the band-scale calibration
   on the held-out training encounters, where innovation consistency and tracking
-  disagree and the selection saturates at the grid edge.}
+  disagree and the selection saturates at the grid edge.\re}
   \label{fig:calibration}
 \end{figure}

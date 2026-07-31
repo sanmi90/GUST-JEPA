@@ -2,7 +2,7 @@
 % v3 operator confound (C1) with the shared-REX protocol; direct vs
 % autoregressive; the conditioning null with seed bands (T2 correction).
 
-The family ordering survives an operator-robust protocol, which resolves
+\rb{K}{S4C-01}{The operator-robust protocol that removes the operator confound, and the lift-forecastability result scoped to the lift readout. Carefully reconciled with the five-observable tie and should stay that way.}The family ordering survives an operator-robust protocol, which resolves
 the operator confound the suited-operator comparison of
 \S\ref{sec:methods_closure} left open: one \DirectFC{}
 (\S\ref{sec:methods_rex}), trained identically on each family's frozen
@@ -24,9 +24,9 @@ all ten families, the wake-headed states are statistically tied
 (\S\ref{sec:res_construct}), so the operator-robust statement is two-fold:
 supervision, not the training objective, decides which states are
 forecastable at all, and the lift-focused predictive state leads
-specifically on the lift readout.
+specifically on the lift readout.\re
 
-The forecasting mechanism is the direct-versus-autoregressive contrast.
+\rb{K}{S4C-02}{Direct against autoregressive: the mechanism behind the forecasting result. Also flags the median-contraction behaviour the filter must correct.}The forecasting mechanism is the direct-versus-autoregressive contrast.
 Rolled autoregressively through the impact, the matched transformer
 compounds its own errors: forty steps from the pre-impact context its
 decoded lift closes at \ArFortyClw{} on the \PredState{} latents and
@@ -39,9 +39,9 @@ The direct forecast is a conditional median, and the
 correct reading is that of a median: it contracts toward the climatology of
 the shedding cycle where the encounter is unresolved, which is precisely
 the model-error regime the assimilation of \S\ref{sec:res_da} must
-correct.
+correct.\re
 
-Knowing the gust does not help. Conditioning the forecaster on the true
+\rb{K}{S4C-03}{The oracle-conditioning negative, which closes the deployment argument from the third side. A genuine negative result worth its space.}Knowing the gust does not help. Conditioning the forecaster on the true
 episode parameters $(G, D, Y)$, an oracle no deployment has, degrades the
 forecast in every one of three operator seeds, \PoneCovOracle{} against
 \PoneCovNone{} unconditioned, with non-overlapping seed bands: at the
@@ -49,7 +49,7 @@ present case count the oracle covariates overfit held-out parameter
 combinations. A deployable phase covariate is a wash within seed noise
 (\PoneCovPhase). This closes the estimation thesis from the third side:
 forecast alone contracts, parameter oracles hurt, and what remains is the
-model-plus-pressure route of part D.
+model-plus-pressure route of part D.\re
 
 \begin{figure}
   \centering
@@ -64,7 +64,7 @@ model-plus-pressure route of part D.
     \includegraphics[width=0.92\linewidth]{sections/figures/results/fig_forecast40_v4.pdf}
     \caption{}
   \end{subfigure}
-  \caption{Forecasting the state on the \TestSplit{} set. (a)~Decoded lift $R^2$ of the
+  \caption{\rb{K}{S4C-C1}{Both forecast panels with the seed provenance corrected to operator seeds. Self-contained.}Forecasting the state on the \TestSplit{} set. (a)~Decoded lift $R^2$ of the
   shared \DirectFC{} per family (three operator seeds each, the forecaster
   retrained on a frozen representation, bars at
   the seed mean): the predictive states forecast the lift best.
@@ -72,6 +72,6 @@ model-plus-pressure route of part D.
   from a $25$-frame context: the one-shot forecast stays usable where the
   rollout compounds. The conditioning null, where the $(G, D, Y)$ oracle
   degrades the forecast and the phase covariate is a wash, is
-  figure~\ref{fig:forecast_null} in appendix~\ref{app:reg}.}
+  figure~\ref{fig:forecast_null} in appendix~\ref{app:reg}.\re}
   \label{fig:forecast}
 \end{figure}

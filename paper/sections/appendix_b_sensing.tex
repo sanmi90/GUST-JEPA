@@ -5,17 +5,17 @@
 % recoverable there; fukami most recoverable here) -- that split-brain is the
 % audit finding this rewrite removes. Every number is a macros_v3 macro.
 
-At deployment the vorticity field is not available; only the wall pressure is.
+\rb{K}{APB-01}{States the sensing conventions and how the recovery estimator is selected. Needed before any recovery number can be read.}At deployment the vorticity field is not available; only the wall pressure is.
 This appendix records the sensing conventions behind \S\ref{sec:res_wall} and
 \S\ref{sec:res_tracking} and the placement-robustness checks that the main text
 summarises. The input throughout is the span-averaged pressure on the $192$
 surface taps; the recovery estimator is selected per family by encounter-grouped
 cross-validation among a kernel-ridge regressor on the flattened window, a
 multilayer perceptron, and a recurrent network over the window sequence, and the
-recovered state is read by the same frozen probes as everywhere else.
+recovered state is read by the same frozen probes as everywhere else.\re
 
 \subsubsection*{Placement, and why it does not drive the ordering}
-Two placements are used, deliberately. The filter and the recovery of
+\rb{K}{APB-02}{Why the ordering is not an artefact of model-conditioned placement, with the target-blind rerun. Answers a real objection.}Two placements are used, deliberately. The filter and the recovery of
 table~\ref{tab:recovery} sense at each family's own model-conditioned taps, the
 greedy selection that best exposes that family's latent, because the estimator
 comparison should give every family its best sensing. The delay-trade grid of
@@ -32,10 +32,10 @@ recoverable in variance ($\WqStateFukami$ against $\WqStateJepa$ for the
 predictive and $\WqStatePod$ for the linear basis) and the predictive state
 retains the most recoverable physics ($\WqObsJepa$ against $\WqObsFukami$ and
 $\WqObsPod$), so neither ordering is an artefact of the model-conditioned
-placement.
+placement.\re
 
 \subsubsection*{What the window recovers that the instant cannot}
-At a single frame the wall is blind to the wake-circulation direction of the
+\rb{T}{APB-03}{Restates the window-against-instant result already given in S4-20 and S4-21, with the same macros. The appendix adds only the enstrophy figure.}At a single frame the wall is blind to the wake-circulation direction of the
 predictive state (\S\ref{sec:res_wall}); over the thirty-frame window the blind
 coordinate becomes partially recoverable ($\ToneCircNegWThirty$ held-out, from
 near zero at one frame), and the wake enstrophy read through the recovered state
@@ -44,44 +44,44 @@ the same quantities barely move as taps are added at a fixed single frame. This
 is the delay-coordinate content of the sensing result, quantified in the grid of
 \S\ref{sec:res_delays}; it is a statement about the static reconstruction, and
 the filter inherits the sequential version of it through its assimilation
-window rather than through any explicit delay embedding.
+window rather than through any explicit delay embedding.\re
 
 \subsubsection*{The recovered field}
-Decoding the pressure-recovered state through each family's diagnostic decoder
+\rb{K}{APB-04}{Reads the recovered-field panels and localises the loss to the wake structures. Connects the sensing result to physical space.}Decoding the pressure-recovered state through each family's diagnostic decoder
 makes the recovery visible in physical space
 (figure~\ref{fig:field_recovery}). The comparison within each row, recovered
 field against that family's own decode ceiling, isolates the pressure step from
 the decoder's reconstruction limit: the loss from ceiling to recovery is the
 part attributable to the eight-tap window, and the panels show it concentrating
 in the wake structures rather than in the near-body field, consistent with the
-wall reading the force-carrying directions best (\S\ref{sec:res_wall}).
+wall reading the force-carrying directions best (\S\ref{sec:res_wall}).\re
 
 \begin{figure}
   \centering
   \includegraphics[width=\linewidth]{sections/figures/results/fig_field_recovery_v3.pdf}
-  \caption{Flow recovered from eight wall-pressure taps on the representative
+  \caption{\rb{K}{APB-C1}{The recovered field against each family's own decode ceiling, which is the only fair comparison. The caption says so.}Flow recovered from eight wall-pressure taps on the representative
   held-out encounter of figure~\ref{fig:hero}, at the impact-side frame, one row
   per family. Columns: the field decoded from the pressure-recovered coefficient
   state, the decode ceiling (the same decoder applied to the encoded state, no
   pressure step), and the simulation; per-panel structural similarity annotated.
   The comparison is within each row, since the decoders' ceilings differ
   (\S\ref{sec:disc_decode}); the ceiling-to-recovered gap is the cost of the
-  pressure step.}
+  pressure step.\re}
   \label{fig:field_recovery}
 \end{figure}
 
 \subsubsection*{The out-of-distribution boundary from the sensing side}
-At the $|G| = 4$ boundary every static approach fails on the load, the
+\rb{T}{APB-05}{Restates the boundary failure of every static approach, already carried by S4-25 and table 12. The appendix repeats the numbers without adding evidence.}At the $|G| = 4$ boundary every static approach fails on the load, the
 via-latent recovery at $\VrecCLGFour$ and the direct no-latent regression at
 $\DirectCLKeightGFour$ from the same taps ($\DirectCLAllTapsGFour$ with the full
 array), while the nonlinear filters still track it (table~\ref{tab:family_filter}). The
 boundary is the same larger three-dimensional content the field carries there
 (\S\ref{sec:flow_physics}): the mid-plane state captures less of the dynamics, so
 a \StaticInv{} recovers little from a single instant, and only the accumulated
-pressure history carries the load through.
+pressure history carries the load through.\re
 
 \subsubsection*{Delay-coordinate knobs}
-The window sweeps of \S\ref{sec:res_delays} keep the delay stride at the cache
+\rb{K}{APB-06}{Justifies the delay stride and window as convention rather than tuning, and declines the false-nearest-neighbours criterion honestly. Methodologically careful.}The window sweeps of \S\ref{sec:res_delays} keep the delay stride at the cache
 cadence ($\Delta t = \DtTc\,c/u_\infty$), and this choice is a convention rather
 than a tuning: the first minimum of the time-lagged mutual information of the
 tap signals \citep{fraser1986} sits near $\TmiTau$ frames, about one shedding
@@ -92,13 +92,13 @@ measured recovery trade rather than by a false-nearest-neighbours criterion
 delay-embedding guarantees are generic, wall pressure is a physical and
 non-generic observable strongly coupled to the near-body vorticity, and the
 operative evidence is the measured recovery, with the theorem as the organising
-principle rather than a proof that a given tap count suffices.
+principle rather than a proof that a given tap count suffices.\re
 
 \subsubsection*{Streaming deployment realism and the four-coefficient filter}
 
 % Moved from Results (Session 39, D-B): the streaming realism and d=4 filter
 % panels leave the main text with the estimator ladder.
-Under a deployment-realism protocol, streaming multi-encounter assimilation with
+\rb{K}{APB-07}{The streaming realism protocol and the four-coefficient filter, both demoted from \S4.6. Real results, correctly placed.}Under a deployment-realism protocol, streaming multi-encounter assimilation with
 a pressure-only initialisation and no oracle anywhere, the filter on the
 \PredState{} holds an impact-phase lift closure of \PoneStreamCleanZero{} on
 clean taps and \PoneStreamCleanFive, \PoneStreamCleanTen{} and
@@ -106,15 +106,15 @@ clean taps and \PoneStreamCleanFive, \PoneStreamCleanTen{} and
 member-noise seeds each, figure~\ref{fig:deploy}). The four-dimensional
 lift-critical state of \S\ref{sec:res_dimension} supports a filter of its
 own at \PoneDFourFilterImpact{} impact median over five seeds, so a
-four-coefficient state is estimable from the wall as well as forecastable.
+four-coefficient state is estimable from the wall as well as forecastable.\re
 
 \begin{figure}
   \centering
   \includegraphics[width=0.9\linewidth]{sections/figures/results/fig_deployment_v4.pdf}
-  \caption{Deployment realism (\TestSplit{} set): (a)~streaming multi-encounter
+  \caption{\rb{K}{APB-C2}{The deployment-realism panels with the seed counts. Self-contained.}Deployment realism (\TestSplit{} set): (a)~streaming multi-encounter
   filter against tap noise, three member-noise seeds, validation-selected
   band (no test-set reference);
-  (b)~the $d = 4$ filter band over five member-noise seeds.}
+  (b)~the $d = 4$ filter band over five member-noise seeds.\re}
   \label{fig:deploy}
 \end{figure}
 
@@ -123,11 +123,11 @@ four-coefficient state is estimable from the wall as well as forecastable.
 \begin{figure}
   \centering
   \includegraphics[width=0.9\linewidth]{sections/figures/results/fig_relative_errors_v4.pdf}
-  \caption{Relative peak error across the gust envelope (\TestSplit{} set,
+  \caption{\rb{K}{APB-C3}{Relative peak error across the envelope, the scale-invariance exhibit \S4.6.3 points at. Self-contained.}Relative peak error across the gust envelope (\TestSplit{} set,
   medians per $|G|$): the forecast-derived filter stays near
   $12$ to $14$ per cent at all but the $|G| = 1$ stratum while the linear
   filter is non-uniform; the
-  absolute peak error (right) grows with the peak itself.}
+  absolute peak error (right) grows with the peak itself.\re}
   \label{fig:relerr}
 \end{figure}
 
@@ -135,10 +135,10 @@ four-coefficient state is estimable from the wall as well as forecastable.
 \begin{figure}
   \centering
   \includegraphics[width=\linewidth]{sections/figures/results/fig_ownstack_da_v4.pdf}
-  \caption{Per-family end-to-end comparison (\TestSplit{} set, $42$ encounters,
+  \caption{\rb{K}{APB-C4}{The per-family end-to-end sweeps behind the own-stack claim. Single-seed provenance disclosed.}Per-family end-to-end comparison (\TestSplit{} set, $42$ encounters,
   single filter seed): (a)~phase-resolved lift error per family;
   (b)~sensor-budget sweep on each family's own nested placement;
-  (c)~tap-noise sweep at $K = 8$.}
+  (c)~tap-noise sweep at $K = 8$.\re}
   \label{fig:ownstack}
 \end{figure}
 
@@ -147,7 +147,7 @@ four-coefficient state is estimable from the wall as well as forecastable.
 
 % Moved from Discussion (Session 39, D-B): the estimator-selection guidance
 % lives with the sensing appendix in the comparison-led revision.
-The ladder of \S\ref{sec:res_da} supports explicit selection guidance
+\rb{K}{APB-08}{Explicit estimator-selection guidance in the Gupta idiom, ending in one sentence a practitioner can act on. The most useful paragraph in the appendices.}The ladder of \S\ref{sec:res_da} supports explicit selection guidance
 \citep{gupta2026}. When only the in-distribution median matters and latency is
 irrelevant, the \StaticInv{} is the strongest and simplest tool; the moment the
 tails, the extrapolation boundary or continuous state tracking matter, the filters
@@ -158,4 +158,4 @@ only member with zero consistency failures under subsampled updates). Across mod
 families the guidance is one sentence: anchored latent geometries, predictive or
 linear, can be selected on dimension and budget alone, while unanchored
 reconstructive geometries require a per-configuration estimatability check that
-their probes do not predict.
+their probes do not predict.\re

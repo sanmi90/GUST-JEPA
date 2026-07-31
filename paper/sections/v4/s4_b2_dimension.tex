@@ -6,7 +6,7 @@
 \subsubsection{How small the state can be}
 \label{sec:res_dimension}
 
-The dimension axis splits into two tiers, and the split is the paper's
+\rb{K}{S4B2-01}{The two-tier compression statement, which is the paper's answer on how small the state can be. \S6 quotes it directly.}The dimension axis splits into two tiers, and the split is the paper's
 compression statement (figure~\ref{fig:dimrace}a). At $d = 4$ the
 predictive families read the peak loads through a linear probe at
 \PoneLowdJepa{} for the \PredState{} lineage against \PoneLowdFukami{} for the
@@ -20,9 +20,9 @@ monotonically with dimension (figure~\ref{fig:dimrace}c), so the wake-bearing
 state needs $d \geq 16$ while the lift saturates by $d \approx 4$ to $8$. This
 decode-fidelity bar is distinct from, and stricter than, the wake-readability
 threshold of \S\ref{sec:res_code}, where a wake $R^2$ of one half is reached
-from eight coefficients.
+from eight coefficients.\re
 
-The probe-dilution control disciplines how the first tier may be read
+\rb{K}{S4B2-02}{The probe-dilution control that disciplines the $d = 4$ claim. Without it the compression result would be over-read.}The probe-dilution control disciplines how the first tier may be read
 (figure~\ref{fig:dimrace}b). A multilayer probe nearly equalises every
 dimension (from \PdMlpDFour{} at $d = 4$ to \PdMlpDThirtyTwo{} at
 $d = 32$ on the \TestSplit{} set): the lift information in the state is
@@ -34,18 +34,18 @@ a linear read-out, so the code is distributed rather than diluted, and the
 $d = 4$ advantage is exactly that four coordinates are what a linear
 probe, a filter gain, or a controller reads directly. The precise form of
 the two-tier claim is therefore: compact and linear at $d = 4$,
-distributed and partly nonlinear above.
+distributed and partly nonlinear above.\re
 
 \begin{figure}
   \centering
   \includegraphics[width=\linewidth]{sections/figures/results/fig_dimension_race_v4.pdf}
-  \caption{The dimension axis on the \TestSplit{} set. (a)~Peak-region lift $R^2$
+  \caption{\rb{K}{S4B2-C1}{Three panels including the control, with the seed provenance stated. Self-contained.}The dimension axis on the \TestSplit{} set. (a)~Peak-region lift $R^2$
   (linear probe) against latent dimension for the three lineages; shaded
   bands are three-seed min-max ranges, open markers single seeds.
   (b)~The probe-dilution control: a multilayer probe is flat in $d$ while
   the best-four-coordinate linear probe falls, so the $d = 4$ advantage is
   linear accessibility of a distributed code, not information.
   (c)~Decoded SSIM (Wang convention, \S\ref{sec:methods_protocol}) of the
-  lift-focused lineage rises with $d$: the wake tier is not compressible.}
+  lift-focused lineage rises with $d$: the wake tier is not compressible.\re}
   \label{fig:dimrace}
 \end{figure}

@@ -19,6 +19,12 @@
 \usepackage{amsmath}
 \usepackage{subcaption}
 
+% TEMPORARY (branch review-colour-map): relevance colour-coding and margin
+% commentary over every paragraph and caption. Set \reviewmarksfalse inside
+% reviewmarks.tex to get the clean manuscript back; the \rb/\re markers in the
+% sections then expand to nothing and the page returns to the JFM trim.
+\input{reviewmarks}
+
 % Let TeX absorb the few sub-2pt line-break overflows that the narrower JFM
 % Times measure produces in dense technical prose, without changing content.
 \emergencystretch=2em
@@ -111,6 +117,8 @@ Fluid Dynamics, Pla\c{c}a d'Eusebi G\"uell, 1-3, 08034 Barcelona, Spain}
 vortex shedding, low-dimensional models, machine learning
 \end{keywords}
 \runninglinenumbers
+
+\reviewlegend
 
 \section{Introduction}
 \label{sec:introduction}
