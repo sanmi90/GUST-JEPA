@@ -41,7 +41,7 @@
 - **S3-02** (para, L15-21) The predictor $P_\phi$ advances the pooled state in time, from its own history alone, so the model is unconditioned end to end. Throughout the paper the forecas
 - **S3-03** (para, L23-23) The encoder and the predictor are trained jointly on two terms. The first is a multi-step rollout error. From the two most recent encoded states the predictor i
 - **S3-04** (para, L25-40) Three auxiliary heads map the latent state to aerodynamic observables during training. They exist because predictability alone does not fix what the state conta
-- **S3-05** (para, L42-42) Comparing a lift observable against a wake observable is only meaningful if the comparison is fair, and five choices make it so. First, both field-observable ta
+- **S3-05** (para, L42-42) One asymmetry in that comparison is worth naming, because it is a design choice and not an oversight: the linear basis carries no supervision channel at all. Su
 - **S3-C1** (caption, L61-89) The framework, from representation to deployment. Each module in (a) carries the stages in which it is active: the encoder is used in training and in the analys
 - **S3-06** (para, L96-96) The comparison rests on a single principle: every baseline is the same pipeline, and only the encoder differs. Each encoder produces a latent trajectory $\zvec_
 - **S3-07** (para, L100-100) The headline figure of merit is representational closure: a fixed linear probe is applied to the latent encoded directly from a held-out field, and we ask wheth
@@ -52,7 +52,7 @@
 
 ## sections/v4/s3_1_chang_head.tex  (S31, 1 blocks)
 
-- **S31-01** (para, L8-56) The third supervision head targets a physically constructed near-body observable built on the force-element decomposition of \citet{chang1992}, in the form popu
+- **S31-01** (para, L11-11) The near-body head targets a physically constructed observable rather than a raw field, because not all vorticity contributes equally to the lift. The force-ele
 
 ## sections/v4/s3_3_rex.tex  (S33, 1 blocks)
 
@@ -195,7 +195,7 @@
 - **S6-03** (para, L15-15) On estimation, a two-stage ensemble filter sensing eight wall-pressure taps tracks the lift through the encounter, phase-resolved and in physical units, with an
 - **S6-04** (para, L17-17) The design principle is that a nonlinear latent can be made forecastable and wall-estimable by training it predictively under observable anchoring, at no cost i
 
-## sections/appendix_a_regularisation.tex  (APA, 25 blocks)
+## sections/appendix_a_regularisation.tex  (APA, 26 blocks)
 
 - **APA-01** (para, L8-46) The encoder is a hybrid convolutional stem followed by a small vision transformer. Three downsampling convolutional stages map the single-channel $192 \times 96
 - **APA-C1** (caption, L51-58) Predictive versus reconstructive training. Left: the reconstructive autoencoder encodes the field at $t$, decodes it, and incurs a field-space error. Right: the
@@ -206,22 +206,23 @@
 - **APA-05** (para, L142-156) A coordinate-free check on the geometric mechanism of \S\ref{sec:res_rollout}: Vietoris--Rips persistence of the encoded trajectories, per family, with a genera
 - **APA-06** (para, L159-170) The wake enstrophy squares the vorticity, so the per-encounter high-percentile amplitude clip of the $\omegaz$ preprocessing could in principle shape the primar
 - **APA-C3** (caption, L174-182) Preprocessing robustness of the representational wake closure, established on the previous-generation spatial encoders ($d = 64$, the 85-case v2.1 split) and re
-- **APA-07** (para, L208-220) On top of the lift anchor the near-body force-element (Chang) head confers real peak-load accuracy, the strongest cell of the $2 \times 2 \times 2$ conditioning
-- **APA-C4** (caption, L225-230) Paired peak-region lift $R^2$ per conditioning-cube cell (left) and case-mean deltas against the lift-only cell CL (right, symmetric-log axis, $95\,\%$ case-clu
-- **APA-C5** (caption, L239-243) Latent trajectory portraits by family (leading two principal components of the $d = 32$ state; a representative gusted encounter coloured by cycle fraction, und
-- **APA-C6** (caption, L252-256) Task-dependent readability (\TestSplit{} set, linear probes on the per-frame state, seed mean over three encoder seeds per cell): lift and drag follow the $L$ h
-- **APA-C7** (caption, L263-268) The conditioning null on the shared \DirectFC{} (demoted from the forecast figure~\ref{fig:forecast}): decoded lift $R^2$ of the tuned forecaster on the \PredSt
-- **APA-C8** (caption, L275-279) Training history of the conditioning-cube collapse (demoted from figure~\ref{fig:cube}): participation ratio against iteration for one representative collapsed 
-- **APA-C9** (caption, L286-291) The evaluation protocol, applied identically to every encoder family (demoted from the framework figure~\ref{fig:method}). The same matched forecast operator is
-- **APA-08** (para, L303-307) The figures collected here support the decode-floor, physics and forecastability claims of \S\ref{sec:res_compress}--\S\ref{sec:res_forecast}: the Chang auxilia
-- **APA-C10** (caption, L312-316) The Chang auxiliary potential $\phi_L$ of equation~\eqref{eq:phiL} on the cache grid (contours), the feathered $\delta_n = 0.3c$ supervision band (dashed) and t
-- **APA-C11** (caption, L323-329) Decode floor on a representative held-out \TestSplit{} encounter (one decoder seed per model): DNS, the \PredState, the \LiftState, the wake autoencoder and the
-- **APA-C12** (caption, L336-340) Decode SSIM at the impact instant against latent dimension $d$ (full field and near-body band, \TestSplit{} set, decode floor). The compact nonlinear states and
-- **APA-C13** (caption, L347-352) Shared-operator forecast merit split by phase (pre-impact, through-impact, post-impact), per family at horizons eight and sixteen (\TestSplit{} set, five observ
-- **APA-09** (para, L363-367) The tables collected here give the full configuration record: the encoder and training-predictor architecture, the compared families, the ensemble-filter config
-- **APA-C14** (caption, L371-378) Encoder and training-predictor configuration, counted from the released $d = \LatentDim$ checkpoint. The model is unconditional: no gust parameters $\cvec = (G,
-- **APA-C15** (caption, L403-409) Per-estimator configuration (Gupta \emph{et al.} 2026, table~1 analogue). All fits use the training split only; $\rho$ and the two $c$ calibrations use validati
-- **APA-C16** (caption, L436-442) The six sources of uncertainty, with the unit each one varies or resamples, its count, and the results that carry it. No single number carries all six: which ap
+- **APA-07** (para, L212-254) The auxiliary potential $\phi_L$ behind the lift-element density of \S\ref{sec:methods_chang} is defined by the exterior boundary-value problem with $\mathbf{e}
+- **APA-08** (para, L256-267) On top of the lift anchor the near-body force-element (Chang) head confers real peak-load accuracy, the strongest cell of the $2 \times 2 \times 2$ conditioning
+- **APA-C4** (caption, L272-277) Paired peak-region lift $R^2$ per conditioning-cube cell (left) and case-mean deltas against the lift-only cell CL (right, symmetric-log axis, $95\,\%$ case-clu
+- **APA-C5** (caption, L286-290) Latent trajectory portraits by family (leading two principal components of the $d = 32$ state; a representative gusted encounter coloured by cycle fraction, und
+- **APA-C6** (caption, L299-303) Task-dependent readability (\TestSplit{} set, linear probes on the per-frame state, seed mean over three encoder seeds per cell): lift and drag follow the $L$ h
+- **APA-C7** (caption, L310-315) The conditioning null on the shared \DirectFC{} (demoted from the forecast figure~\ref{fig:forecast}): decoded lift $R^2$ of the tuned forecaster on the \PredSt
+- **APA-C8** (caption, L322-326) Training history of the conditioning-cube collapse (demoted from figure~\ref{fig:cube}): participation ratio against iteration for one representative collapsed 
+- **APA-C9** (caption, L333-338) The evaluation protocol, applied identically to every encoder family (demoted from the framework figure~\ref{fig:method}). The same matched forecast operator is
+- **APA-09** (para, L350-354) The figures collected here support the decode-floor, physics and forecastability claims of \S\ref{sec:res_compress}--\S\ref{sec:res_forecast}: the Chang auxilia
+- **APA-C10** (caption, L359-363) The Chang auxiliary potential $\phi_L$ of equation~\eqref{eq:phiL} on the cache grid (contours), the feathered $\delta_n = 0.3c$ supervision band (dashed) and t
+- **APA-C11** (caption, L370-376) Decode floor on a representative held-out \TestSplit{} encounter (one decoder seed per model): DNS, the \PredState, the \LiftState, the wake autoencoder and the
+- **APA-C12** (caption, L383-387) Decode SSIM at the impact instant against latent dimension $d$ (full field and near-body band, \TestSplit{} set, decode floor). The compact nonlinear states and
+- **APA-C13** (caption, L394-399) Shared-operator forecast merit split by phase (pre-impact, through-impact, post-impact), per family at horizons eight and sixteen (\TestSplit{} set, five observ
+- **APA-10** (para, L410-414) The tables collected here give the full configuration record: the encoder and training-predictor architecture, the compared families, the ensemble-filter config
+- **APA-C14** (caption, L418-425) Encoder and training-predictor configuration, counted from the released $d = \LatentDim$ checkpoint. The model is unconditional: no gust parameters $\cvec = (G,
+- **APA-C15** (caption, L450-456) Per-estimator configuration (Gupta \emph{et al.} 2026, table~1 analogue). All fits use the training split only; $\rho$ and the two $c$ calibrations use validati
+- **APA-C16** (caption, L483-489) The six sources of uncertainty, with the unit each one varies or resamples, its count, and the results that carry it. No single number carries all six: which ap
 
 ## sections/tables/table_baselines.tex  (TBAS, 1 blocks)
 

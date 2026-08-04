@@ -202,10 +202,58 @@ source of the wake result.\re
 
 % Session 39 (D-A): the near-body (N) conditioning-cube cells and the CLN
 % peak-load increment move here from s4.1, which keeps the L and W axes only.
-\subsection{The near-body conditioning increment}
+\subsection{The near-body lift-element head}
 \label{app:nearbody}
 
-\rb{K}{APA-07}{The near-body conditioning increment, demoted here from \S4.1 and referenced from it. The strongest cell in the cube deserves this much.}On top of the lift anchor the near-body force-element (Chang) head confers real
+% Construction moved here from Methods \S3.1 so that all three supervision heads
+% are described at the same depth in the body; \S3.1 keeps what the observable is
+% and why. The two equations, the discretisation, the QC gate and the proxy
+% control land next to this head's own result below and its figure (fig:phi).
+\rb{K}{APA-07}{The full construction of the near-body head, moved out of Methods so the three heads sit at one depth in the body. Two equations, the discretisation and the pre-committed gate.}The auxiliary potential $\phi_L$ behind the lift-element density of
+\S\ref{sec:methods_chang} is defined by the exterior boundary-value problem
+\begin{equation}
+  \nabla^2 \phi_L = 0 \ \ \text{outside the body}, \qquad
+  -\,\mathbf{n} \cdot \nabla \phi_L = \mathbf{n} \cdot \mathbf{e}_L
+  \ \ \text{on the body}, \qquad
+  \phi_L \to 0 \ \ \text{far away},
+  \label{eq:phiL}
+\end{equation}
+with $\mathbf{e}_L = (-\sin\alpha, \cos\alpha)$ the lift direction at
+$\alpha = 14^\circ$. Equation~\eqref{eq:phiL} is discretised once on the
+$192 \times 96$ cache grid with a staircase immersed Neumann condition on
+the solid-adjacent cell faces and a homogeneous Dirichlet far field, and
+solved directly (figure~\ref{fig:phi}); the interior Laplacian residual of the
+stored solution is $6.4 \times 10^{-13}$ in the maximum norm. The lift-element
+density is then the pointwise field
+\begin{equation}
+  e(\mathbf{x}, t) = \omega_z \left(-v\,\partial_x \phi_L
+  + u\,\partial_y \phi_L\right),
+  \label{eq:lift_element}
+\end{equation}
+evaluated from the raw mid-plane velocity and vorticity with the stored
+sign convention verified empirically (the cache stores
+$\partial u/\partial y - \partial v/\partial x$, so the standard
+$\omega_z$ is its negation). Because the cache window truncates the
+domain, the full-domain integral of \eqref{eq:lift_element} does not track
+the lift; the band-restricted field does, which is why the head supervises $e$
+inside the feathered band $w(\mathbf{x}) =
+\max\{0,\, 1 - \delta(\mathbf{x})/0.3c\}$, with $\delta$ the Euclidean
+distance to the body and its adjacent cells. The banded field $w\,e$,
+scaled by a fixed constant chosen so its 99th percentile magnitude is
+order one, is compressed to its $80$-dimensional target by exactly the
+wake-observable construction of \S\ref{sec:methods_loss}: $64$ sign-preserving
+patch energies (an $8 \times 4$ grid of $\log(1 + \mathrm{relu}(\pm x)^2)$
+pooled energies) concatenated with a $16$-bin Hann-windowed radial power
+spectrum. A precompute quality gate requires the median lagged
+correlation between the band-integrated element and the stored lift over
+the gust-bearing training encounters (lag search $|\ell| \le 25$ frames)
+to exceed $0.4$; the achieved value is \NbQcMedianCorr. The principled
+weighting is not interchangeable with a plain vorticity-magnitude proxy:
+the patch-block cosine between the two targets is \NbProxyCosine{} on the
+comparison sample. The potential and its supervision band are shown in
+figure~\ref{fig:phi} in appendix~\ref{app:decode_figures}.\re
+
+\rb{K}{APA-08}{The near-body conditioning increment, demoted here from \S4.1 and referenced from it. The strongest cell in the cube deserves this much.}On top of the lift anchor the near-body force-element (Chang) head confers real
 peak-load accuracy, the strongest cell of the $2 \times 2 \times 2$ conditioning
 cube of \S\ref{sec:res_construct}: the \LiftState{} (cube code CLN) beats the
 lift-only cell CL by \TcDeltaClnVsClPeak{} peak-region $R^2$ points with a
@@ -213,8 +261,7 @@ case-clustered interval that excludes zero ([\TcDeltaClnVsClPeakLo,
 \TcDeltaClnVsClPeakHi]), at a pooled peak-region $R^2 = \TcPeakRTwoCLN \pm
 \TcPeakRTwoCLNSd$ over three seeds, the tightest seed band anywhere in the cube,
 and a decoded phase lag of
-\TcLagCLN{}~$t/c$ (figure~\ref{fig:cube_deltas}). The head construction and its
-pre-committed quality gate are described in \S\ref{sec:methods_chang}.
+\TcLagCLN{}~$t/c$ (figure~\ref{fig:cube_deltas}).
 Downstream the wake-headed \PredState{} is the single predictive
 representative; the near-body head is a lift-sharpening refinement, not the
 primary state.\re
@@ -300,7 +347,7 @@ primary state.\re
 % it; the phase-split forecast merit is a robustness cut of the forecastability
 % result. The Chang auxiliary-potential panel supports the near-body head above.
 
-\rb{T}{APA-08}{A list of what the following figures show, immediately before figures whose captions each say it. Pure connective tissue.}The figures collected here support the decode-floor, physics and
+\rb{T}{APA-09}{A list of what the following figures show, immediately before figures whose captions each say it. Pure connective tissue.}The figures collected here support the decode-floor, physics and
 forecastability claims of \S\ref{sec:res_compress}--\S\ref{sec:res_forecast}:
 the Chang auxiliary potential behind the near-body head, the decode galleries
 and their dimension curve, and the phase-resolved cut of the shared-operator
@@ -360,7 +407,7 @@ forecast merit.\re
 % mechanism numbers and the per-estimator configuration support the Methods and
 % Results rather than lead them.
 
-\rb{T}{APA-09}{A one-sentence list of the tables that follow, each of which has a caption. Pure connective tissue.}The tables collected here give the full configuration record: the encoder and
+\rb{T}{APA-10}{A one-sentence list of the tables that follow, each of which has a caption. Pure connective tissue.}The tables collected here give the full configuration record: the encoder and
 training-predictor architecture, the compared families, the ensemble-filter
 configuration (table~\ref{tab:enkf}), the rollout-departure decomposition, the
 per-estimator settings of the ladder, and the uncertainty accounting

@@ -1,174 +1,178 @@
 {
- "note": "Whitelist for trace_numbers.py. Policy (Session 35 P4): result values in this manuscript are decimals and flow through macros_v3; standalone INTEGERS are dimensional/protocol constants (latent d, taps K, members N, context/horizon lengths, layer/token/grid counts, encounter counts) and are waived as a class. Decimals are flagged unless individually justified below as physical or configuration constants. Never add a result value here.",
- "entries": [
-  {
-   "pattern": "(?<![\\d.])\\d+(?![\\d.])",
-   "why": "standalone integers = dimensional/protocol constants; results are decimals via macros"
-  },
-  {
-   "pattern": "NACA[~ ]?0012",
-   "why": "airfoil designation"
-  },
-  {
-   "pattern": "0012",
-   "why": "airfoil designation fragment"
-  },
-  {
-   "pattern": "5000",
-   "why": "Reynolds number (configuration)"
-  },
-  {
-   "pattern": "0\\.05",
-   "why": "cache frame spacing dt = 0.05 c/u_inf"
-  },
-  {
-   "pattern": "0\\.25",
-   "why": "smoother latency 5 frames x 0.05 = 0.25 t/c"
-  },
-  {
-   "pattern": "0\\.3",
-   "why": "near-body band half-width delta_n = 0.3c (design constant)"
-  },
-  {
-   "pattern": "0\\.1",
-   "why": "phase-lag gate tau = 0.1 t/c; quantile grid endpoints 0.1/0.9 (protocol constants)"
-  },
-  {
-   "pattern": "0\\.9",
-   "why": "quantile grid endpoint (protocol constant)"
-  },
-  {
-   "pattern": "0\\.01",
-   "why": "SSIM K1 (Wang convention)"
-  },
-  {
-   "pattern": "0\\.03",
-   "why": "SSIM K2 (Wang convention)"
-  },
-  {
-   "pattern": "0\\.02",
-   "why": "SIGReg weight lambda_S (locked training constant)"
-  },
-  {
-   "pattern": "0\\.5",
-   "why": "L_roll weight 0.5 (locked loss); gust D/G parameter values in case labels"
-  },
-  {
-   "pattern": "1\\.5",
-   "why": "domain extent (-1.5, 4.5) x (-1.5, 1.5); gust D = 1.5 parameter value"
-  },
-  {
-   "pattern": "4\\.5",
-   "why": "domain / wake-mask x extent (code constant, decoder_metrics)"
-  },
-  {
-   "pattern": "1\\.25",
-   "why": "wake-mask |y/c| bound (code constant, decoder_metrics)"
-  },
-  {
-   "pattern": "9\\.6",
-   "why": "PR collapse floor 0.3 d at d = 32 (pre-registered protocol constant)"
-  },
-  {
-   "pattern": "1\\.77",
-   "why": "coverage-calibrated band scale (configuration constant, rex_tune winner)"
-  },
-  {
-   "pattern": "1\\.05",
-   "why": "per-family inflation rho for the reconstructive family (validation-selected configuration)"
-  },
-  {
-   "pattern": "1\\.00",
-   "why": "per-family inflation rho (validation-selected configuration)"
-  },
-  {
-   "pattern": "99\\.9",
-   "why": "SSIM data-range percentile (convention constant)"
-  },
-  {
-   "pattern": "99\\.99",
-   "why": "pipeline clip percentile (preprocessing constant)"
-  },
-  {
-   "pattern": "1\\.28155",
-   "why": "Gaussian q90-q10 to sigma conversion (mathematical constant)"
-  },
-  {
-   "pattern": "8\\.487",
-   "why": "SSIM data range L for split v2.2 (pinned convention constant)"
-  },
-  {
-   "pattern": "3\\.5",
-   "why": "band-scale grid value (pre-registered grid constant)"
-  },
-  {
-   "pattern": "2\\.5",
-   "why": "band-scale grid value (pre-registered grid constant)"
-  },
-  {
-   "pattern": "1\\.4",
-   "why": "band-scale grid value (pre-registered grid constant)"
-  },
-  {
-   "pattern": "1\\.0",
-   "why": "band-scale grid value / unit inflation (protocol constants)"
-  },
-  {
-   "pattern": "6\\.0",
-   "why": "band-scale grid value (pre-registered grid constant)"
-  },
-  {
-   "pattern": "v\\d\\.\\d",
-   "why": "dataset/split version numbers"
-  },
-  {
-   "pattern": "0\\.\\d+\\\\textwidth",
-   "why": "LaTeX column-width layout constants"
-  },
-  {
-   "pattern": "[GD][+-]?\\d\\.\\d\\d?",
-   "why": "gust-parameter case labels (configuration)"
-  },
-  {
-   "pattern": "\\d\\.\\d\\d?\\\\}\\$ with",
-   "why": "envelope set notation"
-  },
-  {
-   "pattern": "(?<=\\{)\\s*\\d\\.\\d(?=[,}])",
-   "why": "gust envelope parameter values in set notation"
-  },
-  {
-   "pattern": "0\\.4",
-   "why": "offset envelope bound Y in [-0.4, 0.4] (configuration)"
-  },
-  {
-   "pattern": "2\\.0|3\\.0|4\\.00",
-   "why": "gust-ratio envelope values (configuration)"
-  },
-  {
-   "pattern": "99\\}",
-   "why": "p99.99 percentile fragment after subscript stripping"
-  },
-  {
-   "pattern": "8\\.3|7\\.6",
-   "why": "C_L extremes of the DNS characterisation survey (section 2); convert to macros at freeze if the survey is regenerated"
-  },
-  {
-   "pattern": "0\\.8\\\\,c/u",
-   "why": "16 frames x 0.05 time conversion in the section 2 prose"
-  },
-  {
-   "pattern": "0\\.20\\$\\)",
-   "why": "pre-impact wake-median characterisation value (section 2 survey)"
-  },
-  {
-   "pattern": "approx\\s+2\\.2",
-   "why": "DNS near-wall spacing Delta n_min/c (Table 1; measured directly from the mesh file naca_base.h5, a configuration constant, not a pipeline result). Must precede the generic approx\\s+\\d entry below, which otherwise partially consumes '2.2' and breaks this match (both entries are applied as sequential substitutions in list order)."
-  },
-  {
-   "pattern": "approx\\s+\\d",
-   "why": "approximate DNS-survey characterisation values in section 2 prose"
-  }
- ],
- "generated_files": []
+  "note": "Whitelist for trace_numbers.py. Policy (Session 35 P4): result values in this manuscript are decimals and flow through macros_v3; standalone INTEGERS are dimensional/protocol constants (latent d, taps K, members N, context/horizon lengths, layer/token/grid counts, encounter counts) and are waived as a class. Decimals are flagged unless individually justified below as physical or configuration constants. Never add a result value here.",
+  "entries": [
+    {
+      "pattern": "(?<![\\d.])\\d+(?![\\d.])",
+      "why": "standalone integers = dimensional/protocol constants; results are decimals via macros"
+    },
+    {
+      "pattern": "NACA[~ ]?0012",
+      "why": "airfoil designation"
+    },
+    {
+      "pattern": "0012",
+      "why": "airfoil designation fragment"
+    },
+    {
+      "pattern": "5000",
+      "why": "Reynolds number (configuration)"
+    },
+    {
+      "pattern": "0\\.05",
+      "why": "cache frame spacing dt = 0.05 c/u_inf"
+    },
+    {
+      "pattern": "0\\.25",
+      "why": "smoother latency 5 frames x 0.05 = 0.25 t/c"
+    },
+    {
+      "pattern": "0\\.3",
+      "why": "near-body band half-width delta_n = 0.3c (design constant)"
+    },
+    {
+      "pattern": "0\\.1",
+      "why": "phase-lag gate tau = 0.1 t/c; quantile grid endpoints 0.1/0.9 (protocol constants)"
+    },
+    {
+      "pattern": "0\\.9",
+      "why": "quantile grid endpoint (protocol constant)"
+    },
+    {
+      "pattern": "0\\.01",
+      "why": "SSIM K1 (Wang convention)"
+    },
+    {
+      "pattern": "0\\.03",
+      "why": "SSIM K2 (Wang convention)"
+    },
+    {
+      "pattern": "0\\.02",
+      "why": "SIGReg weight lambda_S (locked training constant)"
+    },
+    {
+      "pattern": "0\\.5",
+      "why": "L_roll weight 0.5 (locked loss); gust D/G parameter values in case labels"
+    },
+    {
+      "pattern": "1\\.5",
+      "why": "domain extent (-1.5, 4.5) x (-1.5, 1.5); gust D = 1.5 parameter value"
+    },
+    {
+      "pattern": "4\\.5",
+      "why": "domain / wake-mask x extent (code constant, decoder_metrics)"
+    },
+    {
+      "pattern": "1\\.25",
+      "why": "wake-mask |y/c| bound (code constant, decoder_metrics)"
+    },
+    {
+      "pattern": "9\\.6",
+      "why": "PR collapse floor 0.3 d at d = 32 (pre-registered protocol constant)"
+    },
+    {
+      "pattern": "1\\.77",
+      "why": "coverage-calibrated band scale (configuration constant, rex_tune winner)"
+    },
+    {
+      "pattern": "1\\.05",
+      "why": "per-family inflation rho for the reconstructive family (validation-selected configuration)"
+    },
+    {
+      "pattern": "1\\.00",
+      "why": "per-family inflation rho (validation-selected configuration)"
+    },
+    {
+      "pattern": "99\\.9",
+      "why": "SSIM data-range percentile (convention constant)"
+    },
+    {
+      "pattern": "99\\.99",
+      "why": "pipeline clip percentile (preprocessing constant)"
+    },
+    {
+      "pattern": "1\\.28155",
+      "why": "Gaussian q90-q10 to sigma conversion (mathematical constant)"
+    },
+    {
+      "pattern": "8\\.487",
+      "why": "SSIM data range L for split v2.2 (pinned convention constant)"
+    },
+    {
+      "pattern": "3\\.5",
+      "why": "band-scale grid value (pre-registered grid constant)"
+    },
+    {
+      "pattern": "2\\.5",
+      "why": "band-scale grid value (pre-registered grid constant)"
+    },
+    {
+      "pattern": "1\\.4",
+      "why": "band-scale grid value (pre-registered grid constant)"
+    },
+    {
+      "pattern": "1\\.0",
+      "why": "band-scale grid value / unit inflation (protocol constants)"
+    },
+    {
+      "pattern": "6\\.0",
+      "why": "band-scale grid value (pre-registered grid constant)"
+    },
+    {
+      "pattern": "v\\d\\.\\d",
+      "why": "dataset/split version numbers"
+    },
+    {
+      "pattern": "0\\.\\d+\\\\textwidth",
+      "why": "LaTeX column-width layout constants"
+    },
+    {
+      "pattern": "[GD][+-]?\\d\\.\\d\\d?",
+      "why": "gust-parameter case labels (configuration)"
+    },
+    {
+      "pattern": "\\d\\.\\d\\d?\\\\}\\$ with",
+      "why": "envelope set notation"
+    },
+    {
+      "pattern": "(?<=\\{)\\s*\\d\\.\\d(?=[,}])",
+      "why": "gust envelope parameter values in set notation"
+    },
+    {
+      "pattern": "0\\.4",
+      "why": "offset envelope bound Y in [-0.4, 0.4] (configuration)"
+    },
+    {
+      "pattern": "2\\.0|3\\.0|4\\.00",
+      "why": "gust-ratio envelope values (configuration)"
+    },
+    {
+      "pattern": "99\\}",
+      "why": "p99.99 percentile fragment after subscript stripping"
+    },
+    {
+      "pattern": "8\\.3|7\\.6",
+      "why": "C_L extremes of the DNS characterisation survey (section 2); convert to macros at freeze if the survey is regenerated"
+    },
+    {
+      "pattern": "0\\.8\\\\,c/u",
+      "why": "16 frames x 0.05 time conversion in the section 2 prose"
+    },
+    {
+      "pattern": "0\\.20\\$\\)",
+      "why": "pre-impact wake-median characterisation value (section 2 survey)"
+    },
+    {
+      "pattern": "approx\\s+2\\.2",
+      "why": "DNS near-wall spacing Delta n_min/c (Table 1; measured directly from the mesh file naca_base.h5, a configuration constant, not a pipeline result). Must precede the generic approx\\s+\\d entry below, which otherwise partially consumes '2.2' and breaks this match (both entries are applied as sequential substitutions in list order)."
+    },
+    {
+      "pattern": "approx\\s+\\d",
+      "why": "approximate DNS-survey characterisation values in section 2 prose"
+    },
+    {
+      "pattern": "6\\.4 \\\\times",
+      "why": "Interior Laplacian residual of the stored phi_L solution (appendix A, near-body head): a solver verification constant recorded once from the discretised solve, not a pipeline result, so it has no numbers.json entry. Never flagged before because it lived in sections/v4/, which CONTENT_GLOBS does not scan; moving the construction into appendix A brought it into scanned territory. The pattern stops at \\times on purpose: entries are applied as sequential substitutions and the generic integer entry above has already consumed the 10 and the 13 of the exponent by the time this one runs."
+    }
+  ],
+  "generated_files": []
 }

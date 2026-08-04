@@ -531,3 +531,74 @@ That change exposed a latent bug in `scripts/session35/trace_numbers.py`:
 only one, so the register name was removed and the length `1.6em` was left behind
 and reported as a hand-typed manuscript number. No existing call used a decimal
 length, so it had never fired. Given its own two-argument rule.
+
+## Applied 2026-08-04, second round: S3-04, S3-05, S31-01
+
+**S3-04, the wake target.** The descriptor was described only by what it was
+made of, not by what its numbers are. Now stated concretely and checked against
+`src/data/wake_observables.py`: $80$ numbers, $64$ patch energies on an
+$8 \times 4$ grid taken separately for positive and negative $\omegaz$, plus a
+$16$-bin radially-averaged power spectrum. The five-citation provenance stays
+but is attached to the part of the construction each citation justifies rather
+than run together in one sentence.
+
+**S3-04, the closing sentence.** "The head-supervision axis is no longer a
+confound" was an internal-history statement, and "gates fixed in advance of
+evaluation" is stated at the point of use in \S4.1.1 anyway. Rewritten to say
+what the cube is and what it buys: the heads switch independently, so
+\S4.1.1 trains all eight on-off combinations and each head's contribution is
+read off the cube rather than inferred from one configuration.
+
+**S3-05.** Five points, four of which are stated where they bind (byte-matched
+targets and shared head class in S3-04, identical heads on the reconstructive
+anchors in S3-11 and table 12, the probe rule in \S3.5). Cut to the one point
+that is not stated elsewhere, the POD asymmetry, plus a pointer to the full
+control set. Reclassified `A` -> `K`: at three sentences there is nothing left
+to demote.
+
+**S31-01.** The near-body head was the only one of the three with its own
+`\subsubsection`, and carried two equations, a discretisation, a residual, a
+band definition, a quality gate and a proxy control while the other two got a
+clause each. Levelling up was the wrong direction for a paper already 19.4k
+words against a 12.5k budget, so the construction moved to appendix A, into the
+`app:nearbody` subsection that already holds this head's own result (APA-08) and
+its figure (fig:phi). The body keeps what the observable is and why it is not
+the wake target, at the same depth as the other two heads. Heading removed;
+`\label{sec:methods_chang}` stays in \S3.1 so the three body references still
+resolve, and the enumerate item now points at appendix~\ref{app:nearbody} for
+the construction instead of at its own subsection. Reclassified `A` -> `K`.
+
+### Gate coverage gap found while doing this (not fixed here)
+
+Moving the construction into `appendix_a_regularisation.tex` made the tracer
+fail on the $\phi_L$ Laplacian residual $6.4 \times 10^{-13}$. The number had
+not changed; it had moved into scanned territory. `CONTENT_GLOBS` in
+`scripts/session35/trace_numbers.py` covers `sections/*.tex`,
+`sections/tables/*.tex` and `sections/captions/*.tex` but **not**
+`sections/v4/*.tex`, which holds four Methods subsections and five Results
+subsections, roughly a third of the manuscript's prose. That prose has never
+been number-audited.
+
+Measured: scanning `sections/v4/*.tex` yields 129 raw hits, 8 after the existing
+whitelist. Of those 8:
+
+- 4 are false positives from decimal subscripts. `SUPERSUB` is
+  `[\^_]\{?\d+\}?`, which does not handle a decimal, so `q_{0.9}` leaves `.9}`
+  behind (`s3_4_estimators.tex:132,135`).
+- 1 is a false positive from a LaTeX optional argument, `\\[1.2ex]`
+  (`s4_c_prediction.tex:61`).
+- 3 are genuine: the Fukami $d = 16$ lucky-seed values $0.18$, $0.65$, $5.93$
+  are hand-typed in `s4_d_assimilation.tex:111` and are result values, so they
+  should be macro-bound.
+
+Not fixed in this commit, because closing it means a numbers-pipeline change
+(three new macros through `emit_numbers_parts.py` -> `numbers.json` ->
+`macros_v3.tex`) plus two tracer regex fixes, and expanding `CONTENT_GLOBS`
+before those land would fail the gate. The residual itself is whitelisted with
+justification: it is a solver verification constant, not a pipeline result.
+
+Gates: main rc=0 at 57 pp, supplementary rc=0 at 3 pp, `audit_numbers` PASS,
+`trace_numbers` PASS, 0 em-dashes, 1 benign hyperref note, ledger 165 blocks / 0
+unclassified. Appendix A block IDs shifted by one (APA-07..APA-09 ->
+APA-08..APA-10) because a block was inserted mid-appendix; the four affected
+ledger rows were realigned by hand and verified against the preview.

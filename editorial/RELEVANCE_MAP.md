@@ -39,7 +39,7 @@ has to be re-run: `sections/tables/table_dns_metadata.tex`.
 | A | 6 |
 | S | 4 |
 | D | 2 |
-| **total** | **164** |
+| **total** | **165** |
 
 Blocks not marked keep, by file:
 
@@ -85,7 +85,7 @@ Blocks not marked keep, by file:
 | S3-02 | sections/section_3_methods.tex | 15-21 | para | K | Carries equation (1), the one statement of the forecasting problem. The two-network description duplicates APA-01, which is where the detail belongs. |
 | S3-03 | sections/section_3_methods.tex | 23-23 | para | K | The training objective and the anti-collapse term. Names the direct-forecaster-coupled lineage used at low dimension. |
 | S3-04 | sections/section_3_methods.tex | 25-40 | para | K | Defines the three supervision heads and the wake descriptor. The five-citation provenance of the descriptor design could move to appendix A. |
-| S3-05 | sections/section_3_methods.tex | 42-42 | para | A | A five-point fairness enumeration whose content is stated again in S3-06, S3-11 and S31-01. Appendix A is where a controls-and-fairness ledger belongs; the body needs one sentence. |
+| S3-05 | sections/section_3_methods.tex | 42-42 | para | K | The one asymmetry in the head comparison that is a design choice rather than an oversight: the linear basis carries no supervision channel. Cut from a five-point enumeration whose other four points are stated where they bind. |
 | S3-C1 | sections/section_3_methods.tex | 61-89 | caption | K | Carries the stage attribution for every module, which no other text states. Long, but that is the cost of emptying the boxes. |
 | S3-06 | sections/section_3_methods.tex | 96-96 | para | K | The single principle the comparison rests on: same pipeline, only the encoder differs. Also names the shared operator and the retired suited-operator protocol. |
 | S3-07 | sections/section_3_methods.tex | 100-100 | para | K | Defines representational closure, the headline figure of merit, and scopes the rollout as secondary. The whole Results section is read through this definition. |
@@ -93,7 +93,7 @@ Blocks not marked keep, by file:
 | S3-09 | sections/section_3_methods.tex | 113-113 | para | K | Defines the latent-drift diagnostic used in table 8 and \S4.4. Without it the near-null decomposition cannot be read. |
 | S3-10 | sections/section_3_methods.tex | 115-115 | para | K | Defines the parameter-only floor that makes the wake result non-trivial. \S4.1 and \S5.1 both depend on it. |
 | S3-11 | sections/section_3_methods.tex | 117-117 | para | K | The one-factor-at-a-time controls and the objective-free supervised control. This is the paragraph that answers the confound objection. |
-| S31-01 | sections/v4/s3_1_chang_head.tex | 8-56 | para | A | Full construction of a head the paper itself calls a lift-sharpening refinement, not the primary state, with two equations and its own quality gate. Its result already sits in appendix A, so the method should join it. |
+| S31-01 | sections/v4/s3_1_chang_head.tex | 11-11 | para | K | The near-body head at the same depth as the other two: what the observable is, why it is not the wake target, and where the construction lives. Full construction moved to appendix A. |
 | S33-01 | sections/v4/s3_3_rex.tex | 7-37 | para | K | Defines the one operator under which every family is compared. The forecast result and the filter's process noise both depend on this specification. |
 | S34-01 | sections/v4/s3_4_estimators.tex | 12-33 | para | K | Why estimation must be sequential, and the delay-embedding principle honestly scoped as an organising idea rather than a guarantee. \S4.5 is read against it. |
 | S34-02 | sections/v4/s3_4_estimators.tex | 35-63 | para | K | The shared state-space problem, equations (5) and (6), plus the leakage guarantee. Every filter in the suite is defined by naming four ingredients of this pair. |
@@ -190,22 +190,23 @@ Blocks not marked keep, by file:
 | APA-05 | sections/appendix_a_regularisation.tex | 142-156 | para | S | A coordinate-free topology check that no claim in the body depends on. Genuine supporting evidence, which is what the supplementary material is for. |
 | APA-06 | sections/appendix_a_regularisation.tex | 159-170 | para | S | A robustness check run on the previous-generation $d = 64$ encoders, honestly disclosed as such. The body sentence it supports can point at the supplementary material instead. |
 | APA-C3 | sections/appendix_a_regularisation.tex | 174-182 | caption | S | The preprocessing-robustness table, on the same superseded encoders as APA-06. Moves with it. |
-| APA-07 | sections/appendix_a_regularisation.tex | 208-220 | para | K | The near-body conditioning increment, demoted here from \S4.1 and referenced from it. The strongest cell in the cube deserves this much. |
-| APA-C4 | sections/appendix_a_regularisation.tex | 225-230 | caption | K | The paired cube deltas with case-clustered intervals. Self-contained. |
-| APA-C5 | sections/appendix_a_regularisation.tex | 239-243 | caption | K | The latent portraits that corroborate the spectral result qualitatively. Referenced from \S4.3. |
-| APA-C6 | sections/appendix_a_regularisation.tex | 252-256 | caption | K | The full task-dependent readability matrix behind the division-of-labour claim. Referenced from \S4.1. |
-| APA-C7 | sections/appendix_a_regularisation.tex | 263-268 | caption | K | The conditioning null, demoted from the forecast figure and referenced from \S4.4. Self-contained. |
-| APA-C8 | sections/appendix_a_regularisation.tex | 275-279 | caption | K | The collapse training history, demoted from the cube figure. Shows the collapse is flat from the first diagnostic. |
-| APA-C9 | sections/appendix_a_regularisation.tex | 286-291 | caption | K | The evaluation protocol applied identically to every family. Referenced from \S3.2 and the framework caption. |
-| APA-08 | sections/appendix_a_regularisation.tex | 303-307 | para | T | A list of what the following figures show, immediately before figures whose captions each say it. Pure connective tissue. |
-| APA-C10 | sections/appendix_a_regularisation.tex | 312-316 | caption | K | The Chang auxiliary potential and its supervision band. Referenced from \S3.1.2. |
-| APA-C11 | sections/appendix_a_regularisation.tex | 323-329 | caption | K | The decode gallery behind the decode-floor claim, with the linear basis included. Self-contained. |
-| APA-C12 | sections/appendix_a_regularisation.tex | 336-340 | caption | K | Decode fidelity against dimension, the exhibit S4-07 points at. Single-seed provenance disclosed. |
-| APA-C13 | sections/appendix_a_regularisation.tex | 347-352 | caption | K | The phase-split forecast merit, the exhibit S4-15 narrates. Self-contained. |
-| APA-09 | sections/appendix_a_regularisation.tex | 363-367 | para | T | A one-sentence list of the tables that follow, each of which has a caption. Pure connective tissue. |
-| APA-C14 | sections/appendix_a_regularisation.tex | 371-378 | caption | K | The encoder and predictor configuration, counted from the released checkpoint. The reproducibility record. |
-| APA-C15 | sections/appendix_a_regularisation.tex | 403-409 | caption | K | The per-estimator configuration table, the Gupta table-1 analogue. What makes the estimator suite reproducible. |
-| APA-C16 | sections/appendix_a_regularisation.tex | 436-442 | caption | K | The single authoritative uncertainty accounting, six sources with their units and counts. Replaces three partial statements that disagreed with each other. |
+| APA-07 | sections/appendix_a_regularisation.tex | 212-254 | para | K | The full construction of the near-body head, moved out of Methods so the three heads sit at one depth in the body. Two equations, the discretisation and the pre-committed gate. |
+| APA-08 | sections/appendix_a_regularisation.tex | 256-267 | para | K | The near-body conditioning increment, demoted here from \S4.1 and referenced from it. The strongest cell in the cube deserves this much. |
+| APA-C4 | sections/appendix_a_regularisation.tex | 272-277 | caption | K | The paired cube deltas with case-clustered intervals. Self-contained. |
+| APA-C5 | sections/appendix_a_regularisation.tex | 286-290 | caption | K | The latent portraits that corroborate the spectral result qualitatively. Referenced from \S4.3. |
+| APA-C6 | sections/appendix_a_regularisation.tex | 299-303 | caption | K | The full task-dependent readability matrix behind the division-of-labour claim. Referenced from \S4.1. |
+| APA-C7 | sections/appendix_a_regularisation.tex | 310-315 | caption | K | The conditioning null, demoted from the forecast figure and referenced from \S4.4. Self-contained. |
+| APA-C8 | sections/appendix_a_regularisation.tex | 322-326 | caption | K | The collapse training history, demoted from the cube figure. Shows the collapse is flat from the first diagnostic. |
+| APA-C9 | sections/appendix_a_regularisation.tex | 333-338 | caption | K | The evaluation protocol applied identically to every family. Referenced from \S3.2 and the framework caption. |
+| APA-09 | sections/appendix_a_regularisation.tex | 350-354 | para | T | A list of what the following figures show, immediately before figures whose captions each say it. Pure connective tissue. |
+| APA-C10 | sections/appendix_a_regularisation.tex | 359-363 | caption | K | The Chang auxiliary potential and its supervision band. Referenced from \S3.1.2. |
+| APA-C11 | sections/appendix_a_regularisation.tex | 370-376 | caption | K | The decode gallery behind the decode-floor claim, with the linear basis included. Self-contained. |
+| APA-C12 | sections/appendix_a_regularisation.tex | 383-387 | caption | K | Decode fidelity against dimension, the exhibit S4-07 points at. Single-seed provenance disclosed. |
+| APA-C13 | sections/appendix_a_regularisation.tex | 394-399 | caption | K | The phase-split forecast merit, the exhibit S4-15 narrates. Self-contained. |
+| APA-10 | sections/appendix_a_regularisation.tex | 410-414 | para | T | A one-sentence list of the tables that follow, each of which has a caption. Pure connective tissue. |
+| APA-C14 | sections/appendix_a_regularisation.tex | 418-425 | caption | K | The encoder and predictor configuration, counted from the released checkpoint. The reproducibility record. |
+| APA-C15 | sections/appendix_a_regularisation.tex | 450-456 | caption | K | The per-estimator configuration table, the Gupta table-1 analogue. What makes the estimator suite reproducible. |
+| APA-C16 | sections/appendix_a_regularisation.tex | 483-489 | caption | K | The single authoritative uncertainty accounting, six sources with their units and counts. Replaces three partial statements that disagreed with each other. |
 | TBAS-C1 | sections/tables/table_baselines.tex | 9-25 | caption | K | Defines every compared family in one place. The matched-dimension claim is checkable only against this table. |
 | TENK-C1 | sections/tables/table_enkf.tex | 15-25 | caption | K | The four estimator configurations side by side, which no other exhibit gives. Recently widened from a single-filter list. |
 | TMEC-C1 | sections/tables/table_mechanism.tex | 5-11 | caption | K | The rollout-departure decomposition behind the protected-subspace mechanism. Referenced from \S4.3. |

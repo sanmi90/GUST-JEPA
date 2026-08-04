@@ -53,6 +53,33 @@
       "contents": "Clarify this sentence \"Three auxiliary heads read aerodynamic observables off the encoder output\" -> Three auxiliary heads map predicted latent variables to aerodynamic observables.\n\nExplain why we add these heads (to enhance descriptive content of the latent space or dimilar)\n\nUse an enumeration to separate the description for each head in a clearer way.",
       "quoted": "",
       "resolved": true
+    },
+    {
+      "block": "S3-04",
+      "author": "asolera",
+      "date": "2026-08-04 13:59",
+      "subtype": "Text",
+      "contents": "The wake target description should be clarified. \n\nclarify also the last sentence: \"The head-supervision axis is no longer a confound: the 2 × 2 × 2\nconditioning cube of §4.1.1, three seeds per cell with matched reconstructive anchors,\nisolates each head’s contribution under gates fixed in advance of evaluation.\"",
+      "quoted": "",
+      "resolved": true
+    },
+    {
+      "block": "S3-05",
+      "author": "asolera",
+      "date": "2026-08-04 14:00",
+      "subtype": "Text",
+      "contents": "Clarify a lot or remove",
+      "quoted": "",
+      "resolved": true
+    },
+    {
+      "block": "S31-01",
+      "author": "asolera",
+      "date": "2026-08-04 14:22",
+      "subtype": "Text",
+      "contents": "this head should be at the same level as others, remove this subsubsection or include them for the other 2 heads\n\nThis should be greatly clarified",
+      "quoted": "",
+      "resolved": true
     }
   ]
 }
