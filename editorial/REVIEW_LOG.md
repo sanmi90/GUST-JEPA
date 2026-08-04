@@ -492,12 +492,9 @@ Two deviations from the comments as written, both deliberate:
   output, so the text says "map the latent state" and adds a sentence making the
   distinction explicit. Writing it the other way would have misdescribed the
   model.
-- S3-04 asked for a displayed enumeration. `JFM-FLM_Au.cls` builds its list
-  label box `\leftmargini` wide less `\labelsep` and ships both at zero, so
-  every label renders butted against its own text ("1.a lift head"), with or
-  without `\item[...]` overrides and with or without resetting those lengths.
-  Rather than patch a journal class for cosmetics, the enumeration is inline as
-  (i), (ii), (iii), which is the idiom S3-05 and S3-11 already use.
+- (superseded the same day, see below) S3-04's enumeration was first written
+  inline because the displayed list rendered wrong. It is now a displayed
+  enumerated list, as asked.
 
 Two tool bugs surfaced and were fixed:
 
@@ -516,3 +513,21 @@ Gates: main rc=0 at 57 pp, supplementary rc=0 at 3 pp, `audit_numbers` PASS
 (968/868, 0 mismatches), `trace_numbers` PASS, 0 em-dashes, 1 undefined (the
 benign hyperref `\thepage` note), ledger 164 blocks / 0 unclassified / no ID
 churn.
+
+### Correction, 2026-08-04: the displayed list
+
+Carlos clarified that S3-04 wanted a real enumerated list, so substituting an
+inline (i)/(ii)/(iii) was wrong. The class defect was real but I had misdiagnosed
+the knob. `\enummax` (`JFM-FLM_Au.cls` l.992) measures the label and sets
+`\leftmargini` to exactly that width, so `\labelwidth` comes out *narrower* than
+the label; TeX sets an oversized label flush and drops the separation, which is
+why neither `\labelsep` nor `\labelsepi` nor `\item[...]` overrides changed
+anything. `\listtextleftmargin` (l.1003) is the class's own override for
+`\leftmargini`; at 1.6em the label has room. Set locally, so it is scoped by the
+`\rb` group and no other list in the document is affected.
+
+That change exposed a latent bug in `scripts/session35/trace_numbers.py`:
+`\setlength` and `\addtolength` take two arguments, but the strip rule matched
+only one, so the register name was removed and the length `1.6em` was left behind
+and reported as a hand-typed manuscript number. No existing call used a decimal
+length, so it had never fired. Given its own two-argument rule.

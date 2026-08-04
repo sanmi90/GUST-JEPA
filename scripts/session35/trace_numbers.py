@@ -45,6 +45,10 @@ STRIP_COMMANDS = [
     r"bibliography|bibliographystyle|graphicspath|pgfplotsset|definecolor)\*?"
     r"(?:\[[^\]]*\])?\{[^{}]*\}",
     r"\\includegraphics(?:\[[^\]]*\])?\{[^{}]*\}",
+    # \setlength and \addtolength take TWO arguments, and it is the second that
+    # carries the length. The one-argument rule below stripped only the register
+    # name and left "1.6em" behind to be reported as a manuscript number.
+    r"\\(?:setlength|addtolength)\*?\{[^{}]*\}\s*\{[^{}]*\}",
     r"\\(?:vspace|hspace|setlength|addtolength|rule|resizebox)\*?\{[^{}]*\}",
     r"\\begin\{tabular\}\{[^{}]*\}",
     r"\\begin\{[a-zA-Z*]+\}(?:\[[^\]]*\])?",

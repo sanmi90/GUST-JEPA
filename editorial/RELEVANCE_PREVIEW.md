@@ -40,15 +40,15 @@
 - **S3-01** (para, L13-13) The model takes no gust parameters: neither the encoder nor the predictor receives $(G, D, Y)$. The predictive encoder $E_\theta$ maps the mid-plane vorticity f
 - **S3-02** (para, L15-21) The predictor $P_\phi$ advances the pooled state in time, from its own history alone, so the model is unconditioned end to end. Throughout the paper the forecas
 - **S3-03** (para, L23-23) The encoder and the predictor are trained jointly on two terms. The first is a multi-step rollout error. From the two most recent encoded states the predictor i
-- **S3-04** (para, L25-25) Three auxiliary heads map the latent state to aerodynamic observables during training. They exist because predictability alone does not fix what the state conta
-- **S3-05** (para, L27-27) Comparing a lift observable against a wake observable is only meaningful if the comparison is fair, and five choices make it so. First, both field-observable ta
-- **S3-C1** (caption, L46-74) The framework, from representation to deployment. Each module in (a) carries the stages in which it is active: the encoder is used in training and in the analys
-- **S3-06** (para, L81-81) The comparison rests on a single principle: every baseline is the same pipeline, and only the encoder differs. Each encoder produces a latent trajectory $\zvec_
-- **S3-07** (para, L85-85) The headline figure of merit is representational closure: a fixed linear probe is applied to the latent encoded directly from a held-out field, and we ask wheth
-- **S3-08** (para, L89-89) The mixed timescales of this estimator, a transition map trained on sequences and an emission map trained per instant, mirror the structure of the training obje
-- **S3-09** (para, L98-98) Two diagnostics turn the closure result into a mechanism. The first is the latent drift, which addresses the fact that a predictor with low one-step error need 
-- **S3-10** (para, L100-100) The second diagnostic is a parameter-only floor, which matters here because the model never sees the gust parameters: it bounds what the parameters alone could 
-- **S3-11** (para, L102-102) Because the predictive encoder differs from the reconstructive baseline in objective, architecture, and auxiliary supervision at once, the comparison is accompa
+- **S3-04** (para, L25-40) Three auxiliary heads map the latent state to aerodynamic observables during training. They exist because predictability alone does not fix what the state conta
+- **S3-05** (para, L42-42) Comparing a lift observable against a wake observable is only meaningful if the comparison is fair, and five choices make it so. First, both field-observable ta
+- **S3-C1** (caption, L61-89) The framework, from representation to deployment. Each module in (a) carries the stages in which it is active: the encoder is used in training and in the analys
+- **S3-06** (para, L96-96) The comparison rests on a single principle: every baseline is the same pipeline, and only the encoder differs. Each encoder produces a latent trajectory $\zvec_
+- **S3-07** (para, L100-100) The headline figure of merit is representational closure: a fixed linear probe is applied to the latent encoded directly from a held-out field, and we ask wheth
+- **S3-08** (para, L104-104) The mixed timescales of this estimator, a transition map trained on sequences and an emission map trained per instant, mirror the structure of the training obje
+- **S3-09** (para, L113-113) Two diagnostics turn the closure result into a mechanism. The first is the latent drift, which addresses the fact that a predictor with low one-step error need 
+- **S3-10** (para, L115-115) The second diagnostic is a parameter-only floor, which matters here because the model never sees the gust parameters: it bounds what the parameters alone could 
+- **S3-11** (para, L117-117) Because the predictive encoder differs from the reconstructive baseline in objective, architecture, and auxiliary supervision at once, the comparison is accompa
 
 ## sections/v4/s3_1_chang_head.tex  (S31, 1 blocks)
 
