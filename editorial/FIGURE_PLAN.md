@@ -151,3 +151,37 @@ viability result (own co-trained forecaster, dimension-insensitive peak
 readability), not a superiority claim. No paper text asserts the wrong
 version; the correction applies to the session-38 exploratory commentary
 (commit message of the band-1.77 set included the confounded framing).
+
+## 2026-08-04: framework float split, near-body schematic added (S3-C1, S31-01)
+
+Body figures 13 -> 15. Both changes are Carlos's, from PDF comments.
+
+**Split (S3-C1).** The combined framework float, two full-width TikZ panels
+under one caption, became two figures. It could only ever be placed at a page
+top, and one caption had to carry both a training-time architecture and a
+deployment loop. Now:
+
+| figure | source | placed |
+|---|---|---|
+| `fig:method_arch` (alias `fig:method`) | `tikz/fig1_jepa_architecture.pdf` | \S3.1, unchanged position |
+| `fig:estimation_loop` | `tikz/fig_estimation_loop.pdf` | \S3.3, next to its first use |
+
+No artwork was regenerated; the two PDFs are the ones the subfigures already
+carried. The alias `fig:method` is kept on the architecture float so the
+appendix A reference still resolves. Call sites updated: the panel letters in
+`section_3_methods.tex` (two), `s3_4_estimators.tex:80` (`\ref{...}b` on what is
+now a whole figure) and `appendix_a_regularisation.tex`. This also closes
+REVIEW_LOG finding 7 for this float, the multi-label case where three `\ref`s
+resolved to one number.
+
+**New (S31-01).** `tikz/fig_nearbody_head.tex` -> `fig:nearbody_head`, in \S3.1.
+The head had a field panel (`fig:phi`, appendix A) but no schematic of the
+pipeline from raw fields to the $80$-dimensional target. Standalone-compilable
+with `pdflatex`, same colour convention as `fig_estimation_loop.tex`.
+
+Sizing note for anything drawn next: the placer scales artwork to `\linewidth`
+= 384 pt, so a wide standalone loses label size in proportion. The first draft
+was 593 pt natural, a $0.65$ scale that put `\scriptsize` under 5 pt. It is now
+484 pt ($0.79$), reached by tightening the node geometry and by deleting two
+long annotation strings that the caption already carried. `fig_estimation_loop`
+sits at $0.70$ and `fig1_jepa_architecture` at $0.74$ for comparison.

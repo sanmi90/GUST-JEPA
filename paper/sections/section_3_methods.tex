@@ -10,7 +10,7 @@
 \label{sec:methods_arch}
 \label{sec:methods_loss}
 
-\rb{K}{S3-01}{The encoder and the justification of $d = 32$ as a deployment criterion rather than a tuned choice. Referees will look for exactly this.}The model takes no gust parameters: neither the encoder nor the predictor receives $(G, D, Y)$. The predictive encoder $E_\theta$ maps the mid-plane vorticity field $\omegaz(192,96)$ to a latent $\zvec \in \mathbb{R}^d$ at the headline dimension $d = \LatentDim$. This dimension is a deployment criterion rather than an accuracy-tuned choice, and the criterion is the sensing budget the estimator has to work with. Reading $K$ wall-pressure taps over a window of $m$ delays gives $Km$ scalar measurements per update, and the delay-embedding bound of \S\ref{sec:methods_estimator} holds a state of dimension $d$ to be generically reconstructible from them once $Km > 2d$. The production budget of \S\ref{sec:methods_estimator} is $K = \FilterTaps$ taps over a ten-frame window, which admits $d$ up to $40$; $d = \LatentDim$ sits just inside that ceiling, so the state is as large as the wall can support and no larger. The representation results below confirm it also sits on a readability plateau. The encoder is a hybrid network (figure~\ref{fig:method}a): three convolutional downsampling stages produce a $24 \times 12 \times 256$ feature map, a six-layer vision transformer processes the resulting tokens, and the class-token output is projected to $\zvec$ through a single linear layer with a batch-normalisation boundary, which the characteristic-function regulariser below requires. Layer counts, widths and parameter counts for the encoder and the predictor are in table~\ref{tab:architecture} (appendix~\ref{app:methods_tables}). The encoder is therefore a pure state map, and this is the property that lets the latent itself serve as the observable a controller would have access to, since at deployment the gust parameters are not known a priori (\S\ref{sec:discussion}).\re
+\rb{K}{S3-01}{The encoder and the justification of $d = 32$ as a deployment criterion rather than a tuned choice. Referees will look for exactly this.}The model takes no gust parameters: neither the encoder nor the predictor receives $(G, D, Y)$. The predictive encoder $E_\theta$ maps the mid-plane vorticity field $\omegaz(192,96)$ to a latent $\zvec \in \mathbb{R}^d$ at the headline dimension $d = \LatentDim$. This dimension is a deployment criterion rather than an accuracy-tuned choice, and the criterion is the sensing budget the estimator has to work with. Reading $K$ wall-pressure taps over a window of $m$ delays gives $Km$ scalar measurements per update, and the delay-embedding bound of \S\ref{sec:methods_estimator} holds a state of dimension $d$ to be generically reconstructible from them once $Km > 2d$. The production budget of \S\ref{sec:methods_estimator} is $K = \FilterTaps$ taps over a ten-frame window, which admits $d$ up to $40$; $d = \LatentDim$ sits just inside that ceiling, so the state is as large as the wall can support and no larger. The representation results below confirm it also sits on a readability plateau. The encoder is a hybrid network (figure~\ref{fig:method_arch}): three convolutional downsampling stages produce a $24 \times 12 \times 256$ feature map, a six-layer vision transformer processes the resulting tokens, and the class-token output is projected to $\zvec$ through a single linear layer with a batch-normalisation boundary, which the characteristic-function regulariser below requires. Layer counts, widths and parameter counts for the encoder and the predictor are in table~\ref{tab:architecture} (appendix~\ref{app:methods_tables}). The encoder is therefore a pure state map, and this is the property that lets the latent itself serve as the observable a controller would have access to, since at deployment the gust parameters are not known a priori (\S\ref{sec:discussion}).\re
 
 \rb{K}{S3-02}{Carries equation (1), the one statement of the forecasting problem. The two-network description duplicates APA-01, which is where the detail belongs.}The predictor $P_\phi$ advances the pooled state in time, from its own history alone, so the model is unconditioned end to end. Throughout the paper the forecasting task is one map, from a context of $L$ past states to the future latent sequence over a horizon $H$,
 \begin{equation}
@@ -18,7 +18,7 @@
   = f\!\left(\zvec_{t-L+1}, \dots, \zvec_{t}\right),
   \label{eq:forecast}
 \end{equation}
-with no gust parameters among the inputs; what varies between models is how $f$ is realised. The training predictor is a recursive single-step model rather than a sequence-to-sequence one: a six-layer autoregressive transformer with rotary temporal positions and a causal mask maps a short history of $32$-vectors to the next $32$-vector alone, and the horizon is covered by feeding that prediction back in as the newest history element and repeating, so its errors can compound along the horizon. The one-shot alternative, which emits all $H$ future states from one forward pass and so cannot compound, is the direct multi-horizon forecaster of \S\ref{sec:methods_rex}; the two are compared in \S\ref{sec:res_forecast}. During training it rolls eight steps open loop from the two most recent encoded states, and the loss is the multi-step error between the rolled coefficients and the online encoder outputs at the matching frames, detached. The pipeline is therefore as plain as a linear or autoencoder reduced-order model: $32$ numbers in, a dynamics model on the vector, $32$ numbers out, with no spatial map anywhere in the loop. The state is the pooled vector at every stage: the anti-collapse regulariser, the observable heads, the probes, and the estimator all read the same $32$-vector, and nothing in the model carries more. The estimator of \S\ref{sec:methods_estimator}, an ensemble Kalman filter that advances a cloud of candidate states through a prediction model and corrects them against sparse wall-pressure measurements at each frame, refits a predictor of this same class on the frozen pooled trajectories for its predict step, so the training and estimation dynamics share a function class. Figure~\ref{fig:method}(a) shows the encoder and predictor, and panel~(b) the deployment predict-correct loop; the matched evaluation protocol used throughout is figure~\ref{fig:eval_protocol} in appendix~\ref{app:reg}, which also draws the contrast between the predictive training signal, a latent-space error against a shared-weight target embedding, and the reconstructive one, a field-space error through a decoder (figure~\ref{fig:predictive_vs_reconstructive}). Full configuration, widths and parameter counts for both networks are in table~\ref{tab:architecture} in appendix~\ref{app:methods_tables}.\re
+with no gust parameters among the inputs; what varies between models is how $f$ is realised. The training predictor is a recursive single-step model rather than a sequence-to-sequence one: a six-layer autoregressive transformer with rotary temporal positions and a causal mask maps a short history of $32$-vectors to the next $32$-vector alone, and the horizon is covered by feeding that prediction back in as the newest history element and repeating, so its errors can compound along the horizon. The one-shot alternative, which emits all $H$ future states from one forward pass and so cannot compound, is the direct multi-horizon forecaster of \S\ref{sec:methods_rex}; the two are compared in \S\ref{sec:res_forecast}. During training it rolls eight steps open loop from the two most recent encoded states, and the loss is the multi-step error between the rolled coefficients and the online encoder outputs at the matching frames, detached. The pipeline is therefore as plain as a linear or autoencoder reduced-order model: $32$ numbers in, a dynamics model on the vector, $32$ numbers out, with no spatial map anywhere in the loop. The state is the pooled vector at every stage: the anti-collapse regulariser, the observable heads, the probes, and the estimator all read the same $32$-vector, and nothing in the model carries more. The estimator of \S\ref{sec:methods_estimator}, an ensemble Kalman filter that advances a cloud of candidate states through a prediction model and corrects them against sparse wall-pressure measurements at each frame, refits a predictor of this same class on the frozen pooled trajectories for its predict step, so the training and estimation dynamics share a function class. Figure~\ref{fig:method_arch} shows the encoder and predictor, and figure~\ref{fig:estimation_loop} the deployment predict-correct loop; the matched evaluation protocol used throughout is figure~\ref{fig:eval_protocol} in appendix~\ref{app:reg}, which also draws the contrast between the predictive training signal, a latent-space error against a shared-weight target embedding, and the reconstructive one, a field-space error through a decoder (figure~\ref{fig:predictive_vs_reconstructive}). Full configuration, widths and parameter counts for both networks are in table~\ref{tab:architecture} in appendix~\ref{app:methods_tables}.\re
 
 \rb{K}{S3-03}{The training objective and the anti-collapse term. Names the direct-forecaster-coupled lineage used at low dimension.}The encoder and the predictor are trained jointly on two terms. The first is a multi-step rollout error. From the two most recent encoded states the predictor is rolled eight steps forward on its own outputs, never being handed the true state at any intermediate step, and the eight predicted latents are compared with the latents the encoder produces from the corresponding true fields. Those targets are computed by the same encoder as it trains, not by a separate frozen copy, but the gradient is blocked from flowing back through them, so the encoder is optimised to make its own trajectory predictable rather than to move the target towards the prediction. The second term exists because that first one has a trivial solution: an encoder that maps every field to the same constant vector makes the future perfectly predictable and drives the rollout error to zero while carrying no information about the flow. This is representational collapse, and it is a genuine attractor of the objective rather than a hypothetical. We suppress it with the characteristic-function regulariser of \citet{lejepa,lewm}, which matches the distribution of latents in a batch to an isotropic Gaussian along a small number of random projections; a constant encoder has zero variance along every projection, so the term penalises exactly the degenerate solution and keeps the latent covariance full rank. An automatic fall-back to a variance-covariance objective \citep{vicreg} is armed should the participation ratio of the latent indicate collapse regardless. Its configuration is given in appendix~\ref{app:reg}, and \S\ref{sec:res_construction} shows which supervision choices collapse in practice. A variant lineage, referred to below as the direct-forecaster-coupled lineage, replaces the autoregressive transformer in this rollout term with the direct multi-horizon forecaster of \S\ref{sec:methods_rex} as the training predictor, so that the encoder is shaped against a one-shot rather than a recursive forward model; it is compared at low dimension in \S\ref{sec:res_dimension}.\re
 
@@ -41,54 +41,38 @@ All three read the encoder output, not the predictor output, so they constrain t
 
 \rb{K}{S3-05}{The one asymmetry in the head comparison that is a design choice rather than an oversight: the linear basis carries no supervision channel. Cut from a five-point enumeration whose other four points are stated where they bind.}One asymmetry in that comparison is worth naming, because it is a design choice and not an oversight: the linear basis carries no supervision channel at all. Supervision is a property of trainable encoders, so the proper orthogonal basis serves as the objective-free linear reference, read through the identical frozen probes, and the matched-supervision autoencoder exists precisely so that objective and supervision stay separable. The remaining conditions that keep the head comparison fair are the byte-matched targets and shared head class above, the identical heads carried by the reconstructive anchors, and the fit-on-train, score-on-held-out probe rule; the full set of matched controls is table~\ref{tab:baselines} and \S\ref{sec:methods_diag}.\re
 
-\input{sections/v4/s3_1_chang_head.tex}
-
+% Split from the combined framework float on Carlos's request (S3-C1): the two
+% panels were a full-page object that the placer could only put at a page top,
+% and one caption had to serve both. The estimation loop is now its own figure
+% next to \S3.3, where it is first used.
 \begin{figure}
   \centering
-  \begin{subfigure}{\linewidth}
-    \centering
-    \includegraphics[width=\linewidth]{sections/figures/tikz/fig1_jepa_architecture.pdf}
-    \caption{}
-    \label{fig:method_arch}
-  \end{subfigure}
-  \\[0.5ex]
-  \begin{subfigure}{\linewidth}
-    \centering
-    \includegraphics[width=\linewidth]{sections/figures/tikz/fig_estimation_loop.pdf}
-    \caption{}
-    \label{fig:estimation_loop}
-  \end{subfigure}
-  \caption{\rb{K}{S3-C1}{Carries the stage attribution for every module, which no other text states. Long, but that is the cost of emptying the boxes.}The framework, from representation to deployment. Each module in (a)
-  carries the stages in which it is active: the encoder is used in training and
-  in the analyses that read $\zvec_t$, the three supervision heads are dropped
-  once training ends, the predictor is the only trained module that also runs at
-  deployment, and the visualisation decoder is trained on the frozen encoder and
-  serves analysis alone. (a) The encoder maps the mid-plane vorticity field
-  $\boldsymbol{\omega}_z \in \mathbb{R}^{192 \times 96}$ to a latent $\zvec_t$
-  through a CNN stem, a six-layer ViT and a BatchNorm projection, and the
-  predictor advances the latent from its own history in either of its two
-  variants: the six-layer autoregressive transformer with rotary temporal
-  positions of table~\ref{tab:architecture}, or the \DirectFC{} of
-  \S\ref{sec:methods_rex}. No gust parameters enter either network; both are
-  unconditional. The heads read $\zvec_t$ during training under a smooth-$L_1$
-  loss at unit weight, mapping it to the scalar lift $C_L(t)$ ($L$), an
-  $80$-dimensional wake observable ($W$) and an $80$-dimensional Chang
-  lift-element observable ($N$); none is part of the latent-prediction loss. The
-  decoder $D_\psi$ pairs LapFiLM with a spectral loss. (b) At deployment the
-  pressure-only predict-correct estimator advances an ensemble of
-  $\FilterMembers$ members field free through the matched prediction model, then
-  corrects them from $\FilterTaps$ span-averaged wall-pressure taps held out
-  from training and placed by the per-model sensor selection. The innovation is
-  the measured minus the predicted observation, in tap space for the base filter
-  of \S\ref{sec:methods_enkf} and in encoded latent space for the filters of
-  \S\ref{sec:methods_lae} and \S\ref{sec:methods_rexenkf}, and the update is a
-  stochastic ensemble Kalman step at inflation $\rho = 1$ with calibrated
-  $\mathbf{Q}$ and $\mathbf{R}$. No vorticity field enters the loop, the state
-  is the same $32$-vector at every step, and the lift and wake probes never
-  enter the innovation. The evaluation protocol applied identically to every
+  \includegraphics[width=\linewidth]{sections/figures/tikz/fig1_jepa_architecture.pdf}
+  \caption{\rb{K}{S3-C1}{The training-time architecture, with the stage attribution for every module that no other text states.}The model at training time, and which modules survive it. The
+  encoder maps the mid-plane vorticity field $\boldsymbol{\omega}_z \in
+  \mathbb{R}^{192 \times 96}$ to a latent $\zvec_t$ through a CNN stem, a
+  six-layer ViT and a BatchNorm projection, and the predictor advances that
+  latent from its own history in either of its two variants: the six-layer
+  autoregressive transformer with rotary temporal positions of
+  table~\ref{tab:architecture}, or the \DirectFC{} of \S\ref{sec:methods_rex}.
+  No gust parameters enter either network; both are unconditional. The three
+  heads read $\zvec_t$ during training under a smooth-$L_1$ loss at unit weight,
+  mapping it to the scalar lift $C_L(t)$ ($L$), an $80$-dimensional wake
+  observable ($W$) and an $80$-dimensional Chang lift-element observable ($N$);
+  none is part of the latent-prediction loss. Each module carries the stages in
+  which it is active: the encoder is used in training and in every analysis that
+  reads $\zvec_t$, the three heads are dropped once training ends, the predictor
+  is the only trained module that also runs at deployment
+  (figure~\ref{fig:estimation_loop}), and the visualisation decoder $D_\psi$,
+  which pairs LapFiLM with a spectral loss, is trained on the frozen encoder and
+  serves analysis alone. The evaluation protocol applied identically to every
   encoder is figure~\ref{fig:eval_protocol} (appendix~\ref{app:reg}).\re}
+  \label{fig:method_arch}
   \label{fig:method}
 \end{figure}
+
+\input{sections/v4/s3_1_chang_head.tex}
+
 
 \subsection{Matched-predictor closure protocol}
 \label{sec:methods_closure}

@@ -1,0 +1,117 @@
+% Methods 3.1 - the near-body (Chang) lift-element supervision head.
+%
+% Added 2026-08-04 on Carlos's request (comment on S31-01): the head was
+% described in prose and by a field panel (fig:phi) but had no schematic of the
+% pipeline that turns the raw fields into its 80-dimensional target.
+%
+% What the figure has to make clear, because the prose alone did not:
+%   1. phi_L is solved ONCE, from the geometry alone. It carries no time
+%      dependence and no flow state, which is why it is drawn on its own branch
+%      entering the product from below rather than in the per-frame chain.
+%   2. The head supervises a TARGET built from the fields, not the fields
+%      themselves; the encoder never sees e(x,t).
+%   3. The 80-dimensional target has the same 64+16 construction as the wake
+%      head, which is the whole basis of the byte-matched claim. The two blocks
+%      are drawn at their real relative widths (64 vs 16) so that is visible.
+%   4. The loss closes between the head output and the target, and nothing here
+%      touches the latent-prediction loss.
+%
+% Colour convention follows fig_estimation_loop.tex: orange for the per-frame
+% flow path, green for the observation/target side, blue for the trained module.
+%
+% Standalone-compilable: pdflatex fig_nearbody_head.tex
+
+\documentclass[border=10pt,tikz]{standalone}
+\usepackage{tikz}
+\usepackage{amsmath,amssymb}
+\usetikzlibrary{positioning,arrows.meta,fit,calc,backgrounds}
+
+\begin{document}
+
+\begin{tikzpicture}[
+    font=\normalsize,
+    box/.style={draw, rounded corners=2pt, align=center, inner sep=5pt, thick,
+                minimum height=12mm},
+    field/.style={box, fill=orange!12, minimum width=23mm},
+    geom/.style={box, fill=gray!10, dashed, minimum width=30mm},
+    op/.style={draw, circle, thick, inner sep=1.5pt, fill=white},
+    tgt/.style={box, fill=green!12},
+    net/.style={box, fill=blue!10, minimum width=26mm},
+    arr/.style={-{Stealth[length=2.6mm]}, thick},
+    lbl/.style={font=\footnotesize},
+    tiny/.style={font=\scriptsize}
+  ]
+
+  % ===== per-frame flow path, left to right along the top =====
+  \node[field] (fields)
+    {mid-plane fields \\[1pt] $\omega_z,\, u,\, v$ \\[1pt] \tiny at frame $t$};
+
+  \node[op, right=8mm of fields] (prod) {$\times$};
+
+  \node[field, right=8mm of prod, minimum width=31mm] (e)
+    {lift-element density \\[1pt]
+     $e = \omega_z\left(-v\,\partial_x\phi_L + u\,\partial_y\phi_L\right)$};
+
+  \node[op, right=8mm of e] (mask) {$\times$};
+
+  \node[field, right=8mm of mask, minimum width=23mm] (banded)
+    {banded field \\[1pt] $w\,e$};
+
+  \draw[arr] (fields) -- (prod);
+  \draw[arr] (prod) -- (e);
+  \draw[arr] (e) -- (mask);
+  \draw[arr] (mask) -- (banded);
+
+  % ===== geometry-only branch, entering from below =====
+  % Drawn separately and dashed: solved once, no time dependence, no flow state.
+  \node[geom, below=12mm of prod, minimum width=31mm] (phi)
+    {auxiliary potential $\phi_L$ \\[1pt]
+     \tiny $\nabla^2\phi_L = 0$, solved once from geometry};
+  \node[geom, below=12mm of mask, minimum width=31mm] (band)
+    {feathered band $w(\mathbf{x})$ \\[1pt]
+     \tiny $\max\{0,\,1 - \delta(\mathbf{x})/0.3c\}$};
+
+  \draw[arr, gray!60!black] (phi) -- (prod);
+  \draw[arr, gray!60!black] (band) -- (mask);
+
+  % ===== the 80-dimensional target, below the banded field =====
+  % 38mm, not 15mm: the geometry branch sits between this row and the flow path,
+  % and the target box is wide enough to reach back over the band box.
+  \node[tgt, below=34mm of banded, minimum width=46mm] (target)
+    {\textbf{target} $\;80$-d \\[3pt]
+     \begin{tikzpicture}[baseline]
+       \draw[fill=green!30, draw=green!45!black]
+         (0,0) rectangle (2.6,0.32) node[midway, tiny, black] {$64$ patch};
+       \draw[fill=green!15, draw=green!45!black]
+         (2.6,0) rectangle (3.25,0.32) node[midway, tiny, black] {$16$};
+     \end{tikzpicture} \\[2pt]
+     \tiny $8\times4$ signed patch energies $\oplus$ $16$-bin radial spectrum};
+
+  \draw[arr] (banded) -- (target)
+    node[midway, right, lbl, align=left] {compress};
+
+  % ===== the trained head, closing the loss against the target =====
+  % 20mm, not 11mm: the "smooth-L_1" label is wider than an 11mm arrow and ran
+  % under the target box.
+  \node[net, left=20mm of target] (head)
+    {\textbf{head} $N$ \\[1pt] \tiny small MLP};
+  \node[net, left=9mm of head, fill=blue!6] (z) {latent $\mathbf{z}_t$};
+
+  \draw[arr] (z) -- (head);
+  \draw[arr] (head) -- (target)
+    node[midway, above, lbl] {$\hat{\mathbf{n}}_t$}
+    node[midway, below, lbl] {smooth-$L_1$};
+
+  % ===== grouping =====
+  \begin{scope}[on background layer]
+    \node[draw=orange!35, rounded corners=4pt, dashed, inner sep=3.5mm,
+          fit=(fields)(prod)(e)(mask)(banded),
+          label={[orange!55!black,font=\small]above:per frame, from the DNS fields}] {};
+    \node[draw=gray!45, rounded corners=4pt, dotted, inner sep=3mm,
+          fit=(phi)(band),
+          label={[gray!55!black,font=\small]below:geometry only, computed once}] {};
+  \end{scope}
+
+\end{tikzpicture}
+
+\end{document}

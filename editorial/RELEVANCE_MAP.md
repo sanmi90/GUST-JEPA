@@ -34,12 +34,12 @@ has to be re-run: `sections/tables/table_dns_metadata.tex`.
 
 | class | blocks |
 |---|---|
-| K | 137 |
+| K | 140 |
 | T | 15 |
-| A | 6 |
+| A | 4 |
 | S | 4 |
 | D | 2 |
-| **total** | **165** |
+| **total** | **167** |
 
 Blocks not marked keep, by file:
 
@@ -49,10 +49,9 @@ Blocks not marked keep, by file:
 | `sections/appendix_b_sensing.tex` | 2 |  |  |  |
 | `sections/section_1_introduction.tex` | 2 |  |  |  |
 | `sections/section_2_flow_and_data.tex` |  |  | 1 |  |
-| `sections/section_3_methods.tex` |  | 1 |  | 1 |
+| `sections/section_3_methods.tex` |  |  |  | 1 |
 | `sections/section_4_results.tex` | 4 | 1 |  | 1 |
 | `sections/section_5_discussion.tex` | 2 |  |  |  |
-| `sections/v4/s3_1_chang_head.tex` |  | 1 |  |  |
 | `sections/v4/s3_4_estimators.tex` |  | 2 |  |  |
 | `sections/v4/s4_b_reconstruction.tex` | 1 |  |  |  |
 | `sections/v4/s4_d_assimilation.tex` | 1 | 1 |  |  |
@@ -86,22 +85,24 @@ Blocks not marked keep, by file:
 | S3-03 | sections/section_3_methods.tex | 23-23 | para | K | The training objective and the anti-collapse term. Names the direct-forecaster-coupled lineage used at low dimension. |
 | S3-04 | sections/section_3_methods.tex | 25-40 | para | K | Defines the three supervision heads and the wake descriptor. The five-citation provenance of the descriptor design could move to appendix A. |
 | S3-05 | sections/section_3_methods.tex | 42-42 | para | K | The one asymmetry in the head comparison that is a design choice rather than an oversight: the linear basis carries no supervision channel. Cut from a five-point enumeration whose other four points are stated where they bind. |
-| S3-C1 | sections/section_3_methods.tex | 61-89 | caption | K | Carries the stage attribution for every module, which no other text states. Long, but that is the cost of emptying the boxes. |
-| S3-06 | sections/section_3_methods.tex | 96-96 | para | K | The single principle the comparison rests on: same pipeline, only the encoder differs. Also names the shared operator and the retired suited-operator protocol. |
-| S3-07 | sections/section_3_methods.tex | 100-100 | para | K | Defines representational closure, the headline figure of merit, and scopes the rollout as secondary. The whole Results section is read through this definition. |
-| S3-08 | sections/section_3_methods.tex | 104-104 | para | D | A two-sentence analogy between the filter's mixed timescales and the training objective. It carries no evidence and nothing downstream refers to it. |
-| S3-09 | sections/section_3_methods.tex | 113-113 | para | K | Defines the latent-drift diagnostic used in table 8 and \S4.4. Without it the near-null decomposition cannot be read. |
-| S3-10 | sections/section_3_methods.tex | 115-115 | para | K | Defines the parameter-only floor that makes the wake result non-trivial. \S4.1 and \S5.1 both depend on it. |
-| S3-11 | sections/section_3_methods.tex | 117-117 | para | K | The one-factor-at-a-time controls and the objective-free supervised control. This is the paragraph that answers the confound objection. |
+| S3-C1 | sections/section_3_methods.tex | 53-71 | caption | K | The training-time architecture, with the stage attribution for every module that no other text states. |
+| S3-06 | sections/section_3_methods.tex | 79-79 | para | K | The single principle the comparison rests on: same pipeline, only the encoder differs. Also names the shared operator and the retired suited-operator protocol. |
+| S3-07 | sections/section_3_methods.tex | 83-83 | para | K | Defines representational closure, the headline figure of merit, and scopes the rollout as secondary. The whole Results section is read through this definition. |
+| S3-08 | sections/section_3_methods.tex | 87-87 | para | D | A two-sentence analogy between the filter's mixed timescales and the training objective. It carries no evidence and nothing downstream refers to it. |
+| S3-09 | sections/section_3_methods.tex | 96-96 | para | K | Defines the latent-drift diagnostic used in table 8 and \S4.4. Without it the near-null decomposition cannot be read. |
+| S3-10 | sections/section_3_methods.tex | 98-98 | para | K | Defines the parameter-only floor that makes the wake result non-trivial. \S4.1 and \S5.1 both depend on it. |
+| S3-11 | sections/section_3_methods.tex | 100-100 | para | K | The one-factor-at-a-time controls and the objective-free supervised control. This is the paragraph that answers the confound objection. |
 | S31-01 | sections/v4/s3_1_chang_head.tex | 11-11 | para | K | The near-body head at the same depth as the other two: what the observable is, why it is not the wake target, and where the construction lives. Full construction moved to appendix A. |
+| S31-C1 | sections/v4/s3_1_chang_head.tex | 19-31 | caption | K | The near-body head pipeline. Makes the geometry-only status of $\phi_L$ and the shared $64+16$ construction visible, which the prose can only assert. |
 | S33-01 | sections/v4/s3_3_rex.tex | 7-37 | para | K | Defines the one operator under which every family is compared. The forecast result and the filter's process noise both depend on this specification. |
-| S34-01 | sections/v4/s3_4_estimators.tex | 12-33 | para | K | Why estimation must be sequential, and the delay-embedding principle honestly scoped as an organising idea rather than a guarantee. \S4.5 is read against it. |
-| S34-02 | sections/v4/s3_4_estimators.tex | 35-63 | para | K | The shared state-space problem, equations (5) and (6), plus the leakage guarantee. Every filter in the suite is defined by naming four ingredients of this pair. |
-| S34-03 | sections/v4/s3_4_estimators.tex | 68-107 | para | K | The base filter with its update equations. It is a diagnostic rather than the production estimator, but the equations are shared by the whole suite. |
-| S34-04 | sections/v4/s3_4_estimators.tex | 112-143 | para | K | Carries equation (9), the encoded observation used by three of the four configurations, and the one fixed definition of consistency failure. Load-bearing well beyond its own subsection. |
-| S34-05 | sections/v4/s3_4_estimators.tex | 148-183 | para | K | The production route: state-dependent noise, its two independent calibrations, and the two-stage schedule. This is the estimator the headline number comes from. |
-| S34-06 | sections/v4/s3_4_estimators.tex | 189-206 | para | A | A textbook fixed-lag recursion whose result is three sentences in \S4.6.3 and one clause of appendix B guidance. The recursion itself can sit in appendix A with the other configuration detail. |
-| S34-07 | sections/v4/s3_4_estimators.tex | 211-233 | para | A | The greedy placement criterion, whose own text notes that two of its four terms dominate. Placement robustness is already argued in appendix B, so the criterion belongs beside it. |
+| S34-C1 | sections/v4/s3_4_estimators.tex | 18-32 | caption | K | The deployment loop on its own, with the two slots that distinguish the four estimator configurations. The leakage guarantee sits here because the innovation path is what carries it. |
+| S34-01 | sections/v4/s3_4_estimators.tex | 36-57 | para | K | Why estimation must be sequential, and the delay-embedding principle honestly scoped as an organising idea rather than a guarantee. \S4.5 is read against it. |
+| S34-02 | sections/v4/s3_4_estimators.tex | 59-87 | para | K | The shared state-space problem, equations (5) and (6), plus the leakage guarantee. Every filter in the suite is defined by naming four ingredients of this pair. |
+| S34-03 | sections/v4/s3_4_estimators.tex | 92-131 | para | K | The base filter with its update equations. It is a diagnostic rather than the production estimator, but the equations are shared by the whole suite. |
+| S34-04 | sections/v4/s3_4_estimators.tex | 136-167 | para | K | Carries equation (9), the encoded observation used by three of the four configurations, and the one fixed definition of consistency failure. Load-bearing well beyond its own subsection. |
+| S34-05 | sections/v4/s3_4_estimators.tex | 172-207 | para | K | The production route: state-dependent noise, its two independent calibrations, and the two-stage schedule. This is the estimator the headline number comes from. |
+| S34-06 | sections/v4/s3_4_estimators.tex | 213-230 | para | A | A textbook fixed-lag recursion whose result is three sentences in \S4.6.3 and one clause of appendix B guidance. The recursion itself can sit in appendix A with the other configuration detail. |
+| S34-07 | sections/v4/s3_4_estimators.tex | 235-257 | para | A | The greedy placement criterion, whose own text notes that two of its four terms dominate. Placement robustness is already argued in appendix B, so the criterion belongs beside it. |
 | S35-01 | sections/v4/s3_5_protocol.tex | 7-42 | para | K | Defines the three phases and every load metric used in the paper. Trim internally: the SSIM convention is already given in S2-06. |
 | S35-02 | sections/v4/s3_5_protocol.tex | 44-62 | para | K | Points at the one uncertainty accounting and closes on the no-boundary-set-selection guarantee. The four-level enumeration it used to carry is now table 16; the sign-convention clause is still an open REVIEW-CLAIM. |
 | S4-01 | sections/section_4_results.tex | 13-13 | para | K | Names the three families and fixes the reporting policy that keeps the boundary set out of every selection. The section is unreadable without it. |

@@ -42,31 +42,33 @@
 - **S3-03** (para, L23-23) The encoder and the predictor are trained jointly on two terms. The first is a multi-step rollout error. From the two most recent encoded states the predictor i
 - **S3-04** (para, L25-40) Three auxiliary heads map the latent state to aerodynamic observables during training. They exist because predictability alone does not fix what the state conta
 - **S3-05** (para, L42-42) One asymmetry in that comparison is worth naming, because it is a design choice and not an oversight: the linear basis carries no supervision channel at all. Su
-- **S3-C1** (caption, L61-89) The framework, from representation to deployment. Each module in (a) carries the stages in which it is active: the encoder is used in training and in the analys
-- **S3-06** (para, L96-96) The comparison rests on a single principle: every baseline is the same pipeline, and only the encoder differs. Each encoder produces a latent trajectory $\zvec_
-- **S3-07** (para, L100-100) The headline figure of merit is representational closure: a fixed linear probe is applied to the latent encoded directly from a held-out field, and we ask wheth
-- **S3-08** (para, L104-104) The mixed timescales of this estimator, a transition map trained on sequences and an emission map trained per instant, mirror the structure of the training obje
-- **S3-09** (para, L113-113) Two diagnostics turn the closure result into a mechanism. The first is the latent drift, which addresses the fact that a predictor with low one-step error need 
-- **S3-10** (para, L115-115) The second diagnostic is a parameter-only floor, which matters here because the model never sees the gust parameters: it bounds what the parameters alone could 
-- **S3-11** (para, L117-117) Because the predictive encoder differs from the reconstructive baseline in objective, architecture, and auxiliary supervision at once, the comparison is accompa
+- **S3-C1** (caption, L53-71) The model at training time, and which modules survive it. The encoder maps the mid-plane vorticity field $\boldsymbol{\omega}_z \in \mathbb{R}^{192 \times 96}$ 
+- **S3-06** (para, L79-79) The comparison rests on a single principle: every baseline is the same pipeline, and only the encoder differs. Each encoder produces a latent trajectory $\zvec_
+- **S3-07** (para, L83-83) The headline figure of merit is representational closure: a fixed linear probe is applied to the latent encoded directly from a held-out field, and we ask wheth
+- **S3-08** (para, L87-87) The mixed timescales of this estimator, a transition map trained on sequences and an emission map trained per instant, mirror the structure of the training obje
+- **S3-09** (para, L96-96) Two diagnostics turn the closure result into a mechanism. The first is the latent drift, which addresses the fact that a predictor with low one-step error need 
+- **S3-10** (para, L98-98) The second diagnostic is a parameter-only floor, which matters here because the model never sees the gust parameters: it bounds what the parameters alone could 
+- **S3-11** (para, L100-100) Because the predictive encoder differs from the reconstructive baseline in objective, architecture, and auxiliary supervision at once, the comparison is accompa
 
-## sections/v4/s3_1_chang_head.tex  (S31, 1 blocks)
+## sections/v4/s3_1_chang_head.tex  (S31, 2 blocks)
 
 - **S31-01** (para, L11-11) The near-body head targets a physically constructed observable rather than a raw field, because not all vorticity contributes equally to the lift. The force-ele
+- **S31-C1** (caption, L19-31) The near-body supervision head. Along the top, the per-frame path that builds the target from the DNS fields: the mid-plane vorticity and velocity are weighted 
 
 ## sections/v4/s3_3_rex.tex  (S33, 1 blocks)
 
 - **S33-01** (para, L7-37) The forecast-merit comparison of \S\ref{sec:res_forecast} requires one operator trained identically on every family's latents; the operator used throughout is t
 
-## sections/v4/s3_4_estimators.tex  (S34, 7 blocks)
+## sections/v4/s3_4_estimators.tex  (S34, 8 blocks)
 
-- **S34-01** (para, L12-33) At deployment the vorticity field is unavailable and the wall pressure is not, by itself, enough to fix the state: a single pressure frame recovers little of th
-- **S34-02** (para, L35-63) Every estimator in this paper solves the same discrete state-estimation problem on the frozen coefficient state. Writing $\zvec_t \in \mathbb{R}^{d}$ for the en
-- **S34-03** (para, L68-107) The frozen production filter is a stochastic ensemble Kalman filter \citep{evensen2003} with $N = 64$ members. The prediction model $F$ is the matched autoregre
-- **S34-04** (para, L112-143) The structural-consistency retrofit, adapted from the latent-space assimilation construction of \citet{tong2026}, replaces both $F$ and $h$. The dynamics are li
-- **S34-05** (para, L148-183) The \FnoiseKF{} keeps the encoded observation \eqref{eq:eobs} and replaces the member propagation by the \DirectFC{} of \S\ref{sec:methods_rex}: each member is 
-- **S34-06** (para, L189-206) On the linear stack of \S\ref{sec:methods_lae} a fixed-lag Rauch--Tung--Striebel smoother provides the reanalysis reference. With forecast and analysis moments 
-- **S34-07** (para, L211-233) Each family senses at its own taps. The per-family placement is a greedy forward selection over the $192$ physical wall taps: at each step the candidate tap who
+- **S34-C1** (caption, L18-32) The predict-correct loop at deployment. An ensemble of $\FilterMembers$ members is advanced field free through the matched prediction model, then corrected from
+- **S34-01** (para, L36-57) At deployment the vorticity field is unavailable and the wall pressure is not, by itself, enough to fix the state: a single pressure frame recovers little of th
+- **S34-02** (para, L59-87) Every estimator in this paper solves the same discrete state-estimation problem on the frozen coefficient state. Writing $\zvec_t \in \mathbb{R}^{d}$ for the en
+- **S34-03** (para, L92-131) The frozen production filter is a stochastic ensemble Kalman filter \citep{evensen2003} with $N = 64$ members. The prediction model $F$ is the matched autoregre
+- **S34-04** (para, L136-167) The structural-consistency retrofit, adapted from the latent-space assimilation construction of \citet{tong2026}, replaces both $F$ and $h$. The dynamics are li
+- **S34-05** (para, L172-207) The \FnoiseKF{} keeps the encoded observation \eqref{eq:eobs} and replaces the member propagation by the \DirectFC{} of \S\ref{sec:methods_rex}: each member is 
+- **S34-06** (para, L213-230) On the linear stack of \S\ref{sec:methods_lae} a fixed-lag Rauch--Tung--Striebel smoother provides the reanalysis reference. With forecast and analysis moments 
+- **S34-07** (para, L235-257) Each family senses at its own taps. The per-family placement is a greedy forward selection over the $192$ physical wall taps: at each step the candidate tap who
 
 ## sections/v4/s3_5_protocol.tex  (S35, 2 blocks)
 
@@ -213,7 +215,7 @@
 - **APA-C6** (caption, L299-303) Task-dependent readability (\TestSplit{} set, linear probes on the per-frame state, seed mean over three encoder seeds per cell): lift and drag follow the $L$ h
 - **APA-C7** (caption, L310-315) The conditioning null on the shared \DirectFC{} (demoted from the forecast figure~\ref{fig:forecast}): decoded lift $R^2$ of the tuned forecaster on the \PredSt
 - **APA-C8** (caption, L322-326) Training history of the conditioning-cube collapse (demoted from figure~\ref{fig:cube}): participation ratio against iteration for one representative collapsed 
-- **APA-C9** (caption, L333-338) The evaluation protocol, applied identically to every encoder family (demoted from the framework figure~\ref{fig:method}). The same matched forecast operator is
+- **APA-C9** (caption, L333-338) The evaluation protocol, applied identically to every encoder family (demoted from the architecture figure~\ref{fig:method_arch}). The same matched forecast ope
 - **APA-09** (para, L350-354) The figures collected here support the decode-floor, physics and forecastability claims of \S\ref{sec:res_compress}--\S\ref{sec:res_forecast}: the Chang auxilia
 - **APA-C10** (caption, L359-363) The Chang auxiliary potential $\phi_L$ of equation~\eqref{eq:phiL} on the cache grid (contours), the feathered $\delta_n = 0.3c$ supervision band (dashed) and t
 - **APA-C11** (caption, L370-376) Decode floor on a representative held-out \TestSplit{} encounter (one decoder seed per model): DNS, the \PredState, the \LiftState, the wake autoencoder and the

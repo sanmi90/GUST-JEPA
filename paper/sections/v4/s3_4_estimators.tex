@@ -9,6 +9,30 @@
 \label{sec:methods_estimators}
 \label{sec:methods_estimator}
 
+% Split out of the combined framework float (S3-C1) and moved here, next to the
+% subsection that uses it, so the placer has a single-panel object and the
+% caption describes one thing.
+\begin{figure}
+  \centering
+  \includegraphics[width=\linewidth]{sections/figures/tikz/fig_estimation_loop.pdf}
+  \caption{\rb{K}{S34-C1}{The deployment loop on its own, with the two slots that distinguish the four estimator configurations. The leakage guarantee sits here because the innovation path is what carries it.}The predict-correct loop at deployment. An ensemble of
+  $\FilterMembers$ members is advanced field free through the matched prediction
+  model, then corrected from $\FilterTaps$ span-averaged wall-pressure taps held
+  out from training and placed by the per-model sensor selection. The innovation
+  is the measured minus the predicted observation, formed in tap space for the
+  base filter of \S\ref{sec:methods_enkf} and in encoded latent space for the
+  filters of \S\ref{sec:methods_lae} and \S\ref{sec:methods_rexenkf}, and the
+  update is a stochastic ensemble Kalman step at inflation $\rho = 1$ with
+  calibrated $\mathbf{Q}$ and $\mathbf{R}$. All four estimator configurations are
+  this one loop with only the two annotated slots swapped, the propagation
+  $(F, Q)$ and the observation path; table~\ref{tab:enkf} gives the settings per
+  configuration. No vorticity field enters the loop, the state is the
+  same $32$-vector at every step, and the lift and wake probes never enter the
+  innovation, which is what makes the reported analysis closure an estimate
+  rather than a quantity the filter was handed.\re}
+  \label{fig:estimation_loop}
+\end{figure}
+
 \rb{K}{S34-01}{Why estimation must be sequential, and the delay-embedding principle honestly scoped as an organising idea rather than a guarantee. \S4.5 is read against it.}At deployment the vorticity field is unavailable and the wall pressure is
 not, by itself, enough to fix the state: a single pressure frame recovers
 little of the wake through any of the latents (\S\ref{sec:res_wall}). The
@@ -53,7 +77,7 @@ table~\ref{tab:filter_params} collects every parameter. The frozen probes
 that read the lift and the wake enstrophy off the state can never enter
 the innovation: this leakage guarantee is enforced by construction and by
 a unit test, so the reported analysis closure is a genuine estimate, not a
-quantity the filter was given (figure~\ref{fig:estimation_loop}b). Two evaluation
+quantity the filter was given (figure~\ref{fig:estimation_loop}). Two evaluation
 frames are used and always stated. The envelope frame assimilates over
 $[t_{\mathrm{imp}} - 24,\, t_{\mathrm{imp}} + 48]$ frames with a field-free
 initialisation at the window start; the ladder frame runs the full

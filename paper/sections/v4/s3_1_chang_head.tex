@@ -8,4 +8,26 @@
 
 \label{sec:methods_chang}
 
-\rb{K}{S31-01}{The near-body head at the same depth as the other two: what the observable is, why it is not the wake target, and where the construction lives. Full construction moved to appendix A.}The near-body head targets a physically constructed observable rather than a raw field, because not all vorticity contributes equally to the lift. The force-element decomposition of \citet{chang1992}, in the form popularised for vortex-dominated flows by \citet{menon2021}, weights the vorticity at each point by an auxiliary potential that measures how strongly motion there projects onto the lift direction, so the resulting lift-element density is large where the flow is actually producing load and small where it is not. We supervise that density inside a feathered band within $0.3c$ of the surface, since the cache window truncates the domain and only the band-restricted field tracks the lift, and we compress it to $80$ dimensions by the identical construction used for the wake target above. The two field observables are therefore byte-matched in capacity and share one network class, and differ only in where they look: the wake head at the shed vortex layout, the near-body head at the vorticity that is generating the load. The construction, its discretisation and its pre-committed quality gate are given in appendix~\ref{app:nearbody}.\re
+\rb{K}{S31-01}{The near-body head at the same depth as the other two: what the observable is, why it is not the wake target, and where the construction lives. Full construction moved to appendix A.}The near-body head targets a physically constructed observable rather than a raw field, because not all vorticity contributes equally to the lift. The force-element decomposition of \citet{chang1992}, in the form popularised for vortex-dominated flows by \citet{menon2021}, weights the vorticity at each point by an auxiliary potential that measures how strongly motion there projects onto the lift direction, so the resulting lift-element density is large where the flow is actually producing load and small where it is not. We supervise that density inside a feathered band within $0.3c$ of the surface, since the cache window truncates the domain and only the band-restricted field tracks the lift, and we compress it to $80$ dimensions by the identical construction used for the wake target above. The two field observables are therefore byte-matched in capacity and share one network class, and differ only in where they look: the wake head at the shed vortex layout, the near-body head at the vorticity that is generating the load. Figure~\ref{fig:nearbody_head} shows the pipeline; the construction, its discretisation and its pre-committed quality gate are given in appendix~\ref{app:nearbody}.\re
+
+% Added 2026-08-04 on Carlos's request: the head had a field panel (fig:phi, in
+% appendix A) but no schematic of how the raw fields become its 80-d target.
+% Source sections/figures/tikz/fig_nearbody_head.tex, standalone-compilable.
+\begin{figure}
+  \centering
+  \includegraphics[width=\linewidth]{sections/figures/tikz/fig_nearbody_head.pdf}
+  \caption{\rb{K}{S31-C1}{The near-body head pipeline. Makes the geometry-only status of $\phi_L$ and the shared $64+16$ construction visible, which the prose can only assert.}The near-body supervision head. Along the top, the per-frame
+  path that builds the target from the DNS fields: the mid-plane vorticity and
+  velocity are weighted by the auxiliary potential $\phi_L$ to give the
+  lift-element density $e$, which is restricted to the feathered near-body band
+  $w$ and compressed to $80$ dimensions. The potential and the band, drawn on
+  the lower branch, depend on the geometry alone and are computed once; neither
+  carries time or flow state. Below, the trained part: the head reads the latent
+  $\mathbf{z}_t$ and is fit to that target under a smooth-$L_1$ loss. The
+  encoder never sees $e$ itself, and this loss is not part of the
+  latent-prediction objective. The $64 + 16$ split of the target, $8 \times 4$
+  signed patch energies followed by a $16$-bin radial spectrum, is the identical
+  construction used for the wake target of \S\ref{sec:methods_loss}, which is
+  what makes the two field observables byte-matched in capacity.\re}
+  \label{fig:nearbody_head}
+\end{figure}

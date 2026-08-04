@@ -80,6 +80,24 @@
       "contents": "this head should be at the same level as others, remove this subsubsection or include them for the other 2 heads\n\nThis should be greatly clarified",
       "quoted": "",
       "resolved": true
+    },
+    {
+      "block": "S31-01",
+      "author": "asolera",
+      "date": "2026-08-04 14:43",
+      "subtype": "Text",
+      "contents": "I would like to include an schematic for this near-body head",
+      "quoted": "",
+      "resolved": true
+    },
+    {
+      "block": "S3-C1",
+      "author": "asolera",
+      "date": "2026-08-04 14:43",
+      "subtype": "Text",
+      "contents": "I think we could separate (a) and (b) as two different figures to make them easier to place. Separate and clarify also the captions.",
+      "quoted": "",
+      "resolved": true
     }
   ]
 }
