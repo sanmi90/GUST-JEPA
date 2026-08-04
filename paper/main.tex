@@ -177,6 +177,14 @@ full responsibility for the content of the article.
 
 \begin{appen}
 
+% hyperref numbers its anchors from the raw section counter, which \begin{appen}
+% resets, so appendices A, B, C would claim the anchors section.1/2/3 that
+% sections 1, 2 and 3 already own and every \ref{app:...} link would jump to the
+% body. hyperref patches \appendix for this; the JFM class uses an environment
+% instead, so the patch never fires and the prefix has to be set here.
+% \theHsubsection and below are defined in terms of \theHsection and follow.
+\renewcommand{\theHsection}{app.\Alph{section}}
+
 \section{Architecture, anti-collapse regularisation, and uncertainty quantification}
 \label{app:reg}
 \input{sections/appendix_a_regularisation.tex}

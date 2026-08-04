@@ -441,3 +441,78 @@ supplementary rc=0 at 3 pp, `trace_numbers` PASS, `audit_numbers` PASS
 hyperref note. The clean build no longer matches the `solera` baseline, by
 design: a word-level diff shows exactly the five intended changes above and
 nothing else.
+
+## Applied 2026-08-04: PDF comments on S2-05 and S3-01..S3-04
+
+Read back with `scripts/review/read_annotations.py`, applied, and closed with
+`carry_comments.py --resolve`. Five comments, twelve requests.
+
+**S2-05** (`section_2_flow_and_data.tex`). Dropped "We verified the additional
+cases against the archive ... rather than by trusting the file metadata", which
+narrated our own process rather than the data, and folded the surviving
+mirror-transient evidence into one sentence. Block stays classified `S`.
+
+**S3-01** (`section_3_methods.tex:13`). The $d = \LatentDim$ justification
+asserted a bound without stating it. Now gives the arithmetic: $K$ taps over $m$
+delays yield $Km$ measurements, the bound admits $d$ once $Km > 2d$, and the
+production budget of $K = \FilterTaps$ over a ten-frame window admits $d$ up to
+$40$, so $32$ sits just inside the ceiling. Added the schematic pointer
+(figure~\ref{fig:method}a) and the configuration pointer
+(table~\ref{tab:architecture}).
+
+**S3-02**. Said outright that the training predictor is a recursive single-step
+model and not a sequence-to-sequence one, and named the direct forecaster as the
+one-shot alternative that cannot compound. Gave the estimator a self-contained
+gloss at first mention ("an ensemble Kalman filter that advances a cloud of
+candidate states through a prediction model and corrects them against sparse
+wall-pressure measurements") while keeping the forward reference.
+
+**S3-03**. The two loss terms are now two explained terms rather than one
+compound clause. Added why collapse happens at all: a constant encoder drives
+the rollout error to zero while carrying no information, so it is an attractor
+of the objective, and the regulariser bites because a constant has zero variance
+along every projection.
+
+**S3-04**. Rewrote the opening, added the motivation (predictability does not
+fix what the state *contains*), and enumerated the three heads (i)-(iii).
+
+**Appendix links were broken, and this was the one real defect.** Every
+`\ref{app:...}` resolved to the anchor `section.1/2/3`, already owned by
+sections 1, 2 and 3, so all three appendix links jumped into the body. hyperref
+patches `\appendix` for exactly this; the JFM class uses a `\begin{appen}`
+environment, so the patch never fired. Fixed in `main.tex` with
+`\renewcommand{\theHsection}{app.\Alph{section}}`; `\theHsubsection` is defined
+in terms of it and followed. Verified in the PDF: `section.app.A/B/C` now
+resolve to distinct page objects in the appendix, not to page object 75.
+
+Two deviations from the comments as written, both deliberate:
+
+- S3-04 asked for "map **predicted latent** variables to aerodynamic
+  observables". The heads read the encoder output $\zvec_t$, not the predictor
+  output, so the text says "map the latent state" and adds a sentence making the
+  distinction explicit. Writing it the other way would have misdescribed the
+  model.
+- S3-04 asked for a displayed enumeration. `JFM-FLM_Au.cls` builds its list
+  label box `\leftmargini` wide less `\labelsep` and ships both at zero, so
+  every label renders butted against its own text ("1.a lift head"), with or
+  without `\item[...]` overrides and with or without resetting those lengths.
+  Rather than patch a journal class for cosmetics, the enumeration is inline as
+  (i), (ii), (iii), which is the idiom S3-05 and S3-11 already use.
+
+Two tool bugs surfaced and were fixed:
+
+- `annotate_relevance.py` split a paragraph at `\begin{enumerate}`. TeX ends a
+  paragraph at a blank line, not at `\end{itemize}`, so prose resuming after a
+  displayed list is still that paragraph. The split renumbered every later block
+  in the file and silently misaligned the ledger rationales by one. `LIST_ENVS`
+  is now spanned the way `MATH_ENVS` already was.
+- `carry_comments.py --restore` re-added every resolved comment on each rebuild:
+  `key()` compared raw contents, but a resolved comment is written with the
+  `[done] ` prefix and stored without it, so it never matched. S1-08 had
+  accumulated three copies. `key()` now normalises the prefix; verified
+  idempotent over three consecutive restores.
+
+Gates: main rc=0 at 57 pp, supplementary rc=0 at 3 pp, `audit_numbers` PASS
+(968/868, 0 mismatches), `trace_numbers` PASS, 0 em-dashes, 1 undefined (the
+benign hyperref `\thepage` note), ledger 164 blocks / 0 unclassified / no ID
+churn.

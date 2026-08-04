@@ -8,6 +8,51 @@
       "contents": "Remove section 4 subsections from this paragraph",
       "quoted": "",
       "resolved": true
+    },
+    {
+      "block": "S2-05",
+      "author": "asolera",
+      "date": "2026-08-04 12:50",
+      "subtype": "Text",
+      "contents": "Remove the internal \"we verified instead of trusting the metadata\" and leave proposed to delete",
+      "quoted": "",
+      "resolved": true
+    },
+    {
+      "block": "S3-01",
+      "author": "asolera",
+      "date": "2026-08-04 13:06",
+      "subtype": "Text",
+      "contents": "why this? it should be clarified \"it is close to the largest state a sequential estimator can still track from eight wall-pressure taps under the delay-embedding bound\"\n\nWe should include here a tikz schematic of the model network, including number of layers and dimensions. There is one in the appendix, we should at least reference it here\n\n",
+      "quoted": "",
+      "resolved": true
+    },
+    {
+      "block": "S3-02",
+      "author": "asolera",
+      "date": "2026-08-04 13:08",
+      "subtype": "Text",
+      "contents": "We need a model schematic here too, or at least the reference to de appendix. clarify wether it is a sequence to sequence predictor or recursive single step predictor\n\nClarify here what is this in a self contained brief, keeping the reference for more \"The estimator of §3.3 r\"\n\nLiks to appendices are wrong, those redirect to sections 1, 2, 3. Fix them",
+      "quoted": "",
+      "resolved": true
+    },
+    {
+      "block": "S3-03",
+      "author": "asolera",
+      "date": "2026-08-04 13:09",
+      "subtype": "Text",
+      "contents": "Clarify this sentence \"the predictor rolled eight steps from its own outputs with no teacher forcing\nagainst detached online targets, and an anti-collapse regulariser that prevents the encoder\nfrom collapsing to a constant\"\n\n\nExplain why would the encoder collapse and how we prevent it",
+      "quoted": "",
+      "resolved": true
+    },
+    {
+      "block": "S3-04",
+      "author": "asolera",
+      "date": "2026-08-04 13:12",
+      "subtype": "Text",
+      "contents": "Clarify this sentence \"Three auxiliary heads read aerodynamic observables off the encoder output\" -> Three auxiliary heads map predicted latent variables to aerodynamic observables.\n\nExplain why we add these heads (to enhance descriptive content of the latent space or dimilar)\n\nUse an enumeration to separate the description for each head in a clearer way.",
+      "quoted": "",
+      "resolved": true
     }
   ]
 }

@@ -82,7 +82,17 @@ def save(sidecar: Path, data: dict) -> None:
 
 
 def key(c: dict) -> tuple:
-    return (c.get("block"), c.get("author", ""), (c.get("contents") or "").strip())
+    """Identity of a comment, for merging on save and for skipping on restore.
+
+    The DONE_PREFIX has to come off first. A resolved comment is written into
+    the PDF with the prefix but stored in the sidecar without it, so comparing
+    the raw contents makes every resolved comment look new to --restore, which
+    then appends another copy on each rebuild.
+    """
+    contents = (c.get("contents") or "").strip()
+    if contents.startswith(DONE_PREFIX.strip()):
+        contents = contents[len(DONE_PREFIX.strip()):].strip()
+    return (c.get("block"), c.get("author", ""), contents)
 
 
 # ----------------------------------------------------------------- save

@@ -24,12 +24,12 @@
 - **S2-C2** (caption, L82-94) The vortex gust as a wake-reorganisation event: a gust-strength sweep at fixed core diameter $D = 0.5$ and offset $Y = -0.1$ (first encounter of each case). Top
 - **S2-03** (para, L98-118) A consequence of the source characterisation \citep{fukami2025prf} is central to how we read the extrapolation case. For $|G| \le 3$ the encounter is primarily 
 - **S2-04** (para, L123-158) Each simulation case is one long run partitioned into encounters of $120$ cached frames at $\Delta t = 0.05\,t/c$, one encounter per gust release. The simulatio
-- **S2-05** (para, L163-175) The $|G| = 4$ extrapolation boundary is sampled symmetrically by combining the periodic archive cases with four additionally released cases at the opposite sign
-- **S2-06** (para, L183-200) For each frame the cache stores the mid-plane spanwise vorticity $\omegaz(192, 96)$, the span-averaged wall pressure $p_{\mathrm{wall}}(192)$, and the lift and 
-- **S2-07** (para, L202-218) We evaluate forward closure against five physical observables that together span body-force and spatially distributed wake diagnostics. The lift and drag coeffi
-- **S2-08** (para, L220-257) The five observables are defined on each frame of the masked vorticity field $\omegaz$ described above. The lift and drag coefficients $C_L, C_D$ are as defined
-- **S2-09** (para, L259-272) One definitional point bounds how these observables are read. The wake and flow observables (the enstrophy and the two circulations) are computed on the same mi
-- **S2-C3** (caption, L277-286) Parameter-space sampling of the $\NCases$ cases in the $(G, D, Y)$ gust envelope, shown as three two-dimensional projections and coloured by split: training ($\
+- **S2-05** (para, L163-172) The $|G| = 4$ extrapolation boundary is sampled symmetrically by combining the periodic archive cases with four additionally released cases at the opposite sign
+- **S2-06** (para, L180-197) For each frame the cache stores the mid-plane spanwise vorticity $\omegaz(192, 96)$, the span-averaged wall pressure $p_{\mathrm{wall}}(192)$, and the lift and 
+- **S2-07** (para, L199-215) We evaluate forward closure against five physical observables that together span body-force and spatially distributed wake diagnostics. The lift and drag coeffi
+- **S2-08** (para, L217-254) The five observables are defined on each frame of the masked vorticity field $\omegaz$ described above. The lift and drag coefficients $C_L, C_D$ are as defined
+- **S2-09** (para, L256-269) One definitional point bounds how these observables are read. The wake and flow observables (the enstrophy and the two circulations) are computed on the same mi
+- **S2-C3** (caption, L274-283) Parameter-space sampling of the $\NCases$ cases in the $(G, D, Y)$ gust envelope, shown as three two-dimensional projections and coloured by split: training ($\
 
 ## sections/tables/table_dns_metadata.tex  (TDNS, 1 blocks)
 
@@ -39,8 +39,8 @@
 
 - **S3-01** (para, L13-13) The model takes no gust parameters: neither the encoder nor the predictor receives $(G, D, Y)$. The predictive encoder $E_\theta$ maps the mid-plane vorticity f
 - **S3-02** (para, L15-21) The predictor $P_\phi$ advances the pooled state in time, from its own history alone, so the model is unconditioned end to end. Throughout the paper the forecas
-- **S3-03** (para, L23-23) The predictive encoder and predictor are trained jointly on a multi-step open-loop rollout term, the predictor rolled eight steps from its own outputs with no t
-- **S3-04** (para, L25-25) Three auxiliary heads read aerodynamic observables off the encoder output during training: a lift head that maps $\zvec_t$ to $C_L(t)$, a wake head that maps $\
+- **S3-03** (para, L23-23) The encoder and the predictor are trained jointly on two terms. The first is a multi-step rollout error. From the two most recent encoded states the predictor i
+- **S3-04** (para, L25-25) Three auxiliary heads map the latent state to aerodynamic observables during training. They exist because predictability alone does not fix what the state conta
 - **S3-05** (para, L27-27) Comparing a lift observable against a wake observable is only meaningful if the comparison is fair, and five choices make it so. First, both field-observable ta
 - **S3-C1** (caption, L46-74) The framework, from representation to deployment. Each module in (a) carries the stages in which it is active: the encoder is used in training and in the analys
 - **S3-06** (para, L81-81) The comparison rests on a single principle: every baseline is the same pipeline, and only the encoder differs. Each encoder produces a latent trajectory $\zvec_

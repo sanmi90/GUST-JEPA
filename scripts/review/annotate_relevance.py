@@ -54,6 +54,14 @@ MATH_ENVS = {
     "multline", "multline*", "eqnarray", "eqnarray*", "displaymath", "split",
 }
 
+# List environments. TeX ends a paragraph at a blank line, not at \end{itemize},
+# so prose that resumes straight after a displayed list is still that paragraph
+# and must stay one block: splitting it would renumber every later block in the
+# file and silently misalign the ledger. Unlike MATH_ENVS the continuation is
+# not required to start lowercase, and a blank line after the list still ends
+# the block, which is exactly TeX's own rule.
+LIST_ENVS = {"enumerate", "itemize", "description"}
+
 # A depth-0 line starting with one of these is structural, not prose.
 STRUCTURAL = re.compile(
     r"\\(section|subsection|subsubsection|paragraph|input|include|label|"
@@ -252,6 +260,8 @@ def parse_text(text: str, prefix: str) -> list[Block]:
             if begins:
                 if begins[0] in MATH_ENVS and cur:
                     pending_math_gap = True
+                elif begins[0] in LIST_ENVS and cur:
+                    pass  # span the list; only a blank line ends the block
                 else:
                     flush()
                     pending_math_gap = False
