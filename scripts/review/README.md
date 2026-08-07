@@ -140,8 +140,27 @@ the reader trusts ahead of any geometry.
 | Ubuntu | **Evince / Papers** | What this workflow is used with, and verified end to end. Right-click, "Add text annotation", type, then Ctrl+S. Sticky notes and highlights only, which is all that is needed. |
 | Ubuntu | **Okular** | A wider annotation set (strikeout, squiggle, free text). Press Ctrl+S after annotating; older versions keep notes in `~/.local/share/okular/docdata/` rather than in the file. |
 | Ubuntu | **Firefox** | Zero install: open the PDF, use the highlight, text and draw tools, then Save. |
-| Android | **Xodo** | The reliable free option. Notes, highlight, strikeout, free text. |
-| Android | **Adobe Acrobat Reader** | Notes, highlight, strikeout. Save, do not "share a flattened copy". |
+| Android | **MuPDF viewer** (F-Droid, AGPL) | The open-source pick. Built on the MuPDF engine, which writes real PDF annotation objects into the file rather than a sidecar database. Highlight, underline, strikeout and ink; check whether your build also offers a sticky note. Verify with the round-trip test below before a full pass. |
+| Android | **KOReader** (F-Droid, AGPL) | Also MuPDF-backed and more capable, but it keeps annotations in a `.sdr` sidecar folder by default, which this reader cannot see. You must turn on writing them back into the PDF, or nothing comes through. |
+| Android | **Xodo** | Proprietary, but the most complete free annotation set if the open-source options fall short. |
+| Android | **Adobe Acrobat Reader** | Proprietary. Notes, highlight, strikeout. Save, do not "share a flattened copy". |
+
+A highlight carrying a note is enough for this workflow: the reader takes the
+comment from the annotation's `/Contents` and the quoted text from what the
+highlight covers, so an app with no sticky-note tool is still usable.
+
+Annotating on a phone does not mean editing the working PDF. `--save` takes any
+path, and comments merge into the sidecar by block identifier, so the usual
+route is to copy the built PDF to the device, annotate it there, copy it back
+anywhere at all, and run
+
+```bash
+python scripts/review/carry_comments.py --save ~/Downloads/main.pdf
+scripts/review/rebuild.sh
+```
+
+The comments land on their blocks in the freshly built PDF. The annotated copy
+is then disposable.
 
 Evince and Okular both render through poppler, so the open and closed styles
 show as intended there: a yellow speech bubble against a muted green note. A
