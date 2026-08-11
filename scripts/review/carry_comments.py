@@ -24,6 +24,11 @@ stops coming back.
     --restore PDF       write unresolved comments into PDF, in place
     --resolve ID [...]  close every open comment on these blocks
     --reopen ID [...]   the inverse
+    --move FROM TO      re-attach every comment on one block to another. A
+                        comment drawn on a figure sits above that figure's
+                        caption tag, so reading order attaches it to the block
+                        before the float; read_annotations flags that case
+                        rather than guessing, and this is the correction.
     --list              show the sidecar
 
 Needs only qpdf and pdftotext. No Python dependencies.
@@ -298,6 +303,27 @@ def cmd_mark(sidecar: Path, blocks: list[str], resolved: bool) -> int:
     return 0
 
 
+def cmd_move(sidecar: Path, src: str, dst: str) -> int:
+    """Re-attach every comment on one block to another.
+
+    Needed because a comment drawn on a figure sits above that figure's caption
+    tag, so reading order attaches it to the block before the float. The reader
+    flags the case rather than guessing; this is the correction.
+    """
+    data = load(sidecar)
+    moved = [c for c in data["comments"] if c["block"] == src]
+    if not moved:
+        print(f"no comment attached to {src}")
+        return 1
+    for c in moved:
+        c["block"] = dst
+        print(f"  {src} -> {dst}: {c['contents'][:60]}")
+    save(sidecar, data)
+    print(f"{len(moved)} comment(s) moved; re-run --restore to redraw them "
+          f"on {dst}")
+    return 0
+
+
 def cmd_list(sidecar: Path) -> int:
     data = load(sidecar)
     if not data["comments"]:
@@ -318,6 +344,7 @@ def main() -> int:
     g.add_argument("--restore", type=Path, metavar="PDF")
     g.add_argument("--resolve", nargs="+", metavar="ID")
     g.add_argument("--reopen", nargs="+", metavar="ID")
+    g.add_argument("--move", nargs=2, metavar=("FROM", "TO"))
     g.add_argument("--list", action="store_true")
     ap.add_argument("--sidecar", type=Path)
     ap.add_argument("--config", type=Path, default=DEFAULT_CONFIG)
@@ -338,6 +365,8 @@ def main() -> int:
         return cmd_mark(sidecar, args.resolve, True)
     if args.reopen:
         return cmd_mark(sidecar, args.reopen, False)
+    if args.move:
+        return cmd_move(sidecar, *args.move)
     return cmd_list(sidecar)
 
 

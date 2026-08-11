@@ -43,6 +43,9 @@ IGNORED = {"/Link", "/Popup"}
 TEXT_MARKUP = {"/Highlight", "/Underline", "/StrikeOut", "/Squiggly"}
 ID_TOKEN = re.compile(r"\[([A-Z][A-Z0-9]*-C?\d+)\]")
 BARE_ID = re.compile(r"^([A-Z][A-Z0-9]*-C?\d+)$")
+# Caption identifiers carry a C. A caption is printed BELOW its float, which is
+# what makes a comment written on the artwork ambiguous; see resolve().
+CAPTION_ID = re.compile(r"^[A-Z][A-Z0-9]*-C\d+$")
 CLASSES = {"K", "T", "A", "S", "D"}
 LEAD_CLASS = re.compile(r"^\s*([KTASD])\b\s*[:.\-]?\s*(.*)$", re.S)
 
@@ -220,8 +223,20 @@ def resolve(pdf: Path) -> list[dict]:
         elif inline:
             a["block"] = inline[0]
         else:
-            prior = [bid for key, bid in anchors[a["page"]] if key <= anchor_key]
+            page_anchors = anchors[a["page"]]
+            prior = [bid for key, bid in page_anchors if key <= anchor_key]
+            later = [bid for key, bid in page_anchors if key > anchor_key]
             a["block"] = prior[-1] if prior else last_of_page.get(a["page"])
+            # A float prints its artwork ABOVE its caption, so a comment written
+            # on a figure sits after the preceding block's tag and before the
+            # caption's own, and reading order hands it to whatever text
+            # precedes the figure. Geometry cannot settle it: a comment on the
+            # last line of that preceding paragraph lands in the same gap, and
+            # the artwork of a vector figure carries real text of its own, so
+            # "is there text in between" does not separate the two cases. Say so
+            # instead of guessing, and let --move fix the ones that guess wrong.
+            if later and CAPTION_ID.match(later[0]) and a["block"] != later[0]:
+                a["ambiguous"] = later[0]
         a["page_label"] = a["page"] + 1
         _ = pw
     return annots
@@ -237,7 +252,9 @@ def report_md(annots: list[dict], pdf: Path) -> str:
 
     out = [f"# Comments read from `{pdf.name}`", "",
            f"{len(annots)} annotation(s) over {len(by_block)} block(s). "
-           "Attached by the nearest preceding block identifier printed in the PDF.",
+           "Attached by the nearest preceding block identifier printed in the PDF. "
+           "A comment drawn on a figure precedes that figure's caption tag, so it "
+           "attaches to the block above; those are flagged.",
            ""]
     for block in sorted(by_block, key=lambda b: (b == "(unattached)", b)):
         out.append(f"## {block}")
@@ -245,6 +262,10 @@ def report_md(annots: list[dict], pdf: Path) -> str:
             who = f" ({a['author']})" if a["author"] else ""
             when = f", {a['date']}" if a["date"] else ""
             out.append(f"- **{a['subtype']}**, p.{a['page_label']}{who}{when}")
+            if a.get("ambiguous"):
+                out.append(f"  - ⚠ sits above the caption of **{a['ambiguous']}**; "
+                           f"if it is about that float, "
+                           f"`carry_comments.py --move {block} {a['ambiguous']}`")
             if a["quoted"]:
                 q = a["quoted"]
                 out.append(f"  - on: “{q[:300]}{'...' if len(q) > 300 else ''}”")

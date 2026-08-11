@@ -73,6 +73,34 @@ to the block whose tag most recently precedes it, and a highlight or strikeout
 arrives with the text it was drawn over. Comments therefore survive a rebuild:
 the coordinates move, the identifiers do not.
 
+### Comments drawn on a figure
+
+A float prints its artwork **above** its caption, so a comment written on a
+figure sits after the preceding block's tag and before the caption's own, and
+reading order hands it to whatever text precedes the figure. Geometry cannot
+settle this: a comment on the last line of that preceding paragraph lands in the
+same gap, and a vector figure carries real text of its own, so "is there text in
+between" separates nothing.
+
+The reader does not guess. It attaches by reading order as usual and flags the
+case:
+
+```
+## S3-06
+- **Text**, p.13 (asolera)
+  - ⚠ sits above the caption of **S31-C1**; if it is about that float,
+    `carry_comments.py --move S3-06 S31-C1`
+```
+
+`--move FROM TO` re-attaches every comment on one block to another; run
+`--restore` afterwards to redraw them beside the new block's tag. Two ways to
+avoid needing it: write the comment just **below** the caption tag of the figure
+you mean, or on the caption text itself, which wins outright because the ID is
+then inside the annotated region.
+
+This applies only to comments you write. Restored ones record their block in
+`/Subj` and never depend on geometry.
+
 `--apply-classes` reads a comment that *begins* with a bare class letter and
 sets that class on the block's ledger row. `D`, `T: too long`, `A - move this`
 all work; `Keep this` does not, deliberately, since it does not start with a

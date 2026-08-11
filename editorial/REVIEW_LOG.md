@@ -602,3 +602,28 @@ Gates: main rc=0 at 57 pp, supplementary rc=0 at 3 pp, `audit_numbers` PASS,
 unclassified. Appendix A block IDs shifted by one (APA-07..APA-09 ->
 APA-08..APA-10) because a block was inserted mid-appendix; the four affected
 ledger rows were realigned by hand and verified against the preview.
+
+## 2026-08-11: comment mis-attribution on figures (tooling)
+
+Carlos's figure-5 comment was reported under S3-C1, the caption of figure 4, and
+I acted on figure 4 before he corrected me. The cause is structural, not a
+one-off: a float prints its artwork **above** its caption, so a comment written
+on a figure sits after the preceding block's tag and before the caption's own,
+and the reader's reading-order rule hands it to whatever text precedes the
+float.
+
+Geometry cannot settle it. A comment on the last line of that preceding
+paragraph lands in the same gap, and a vector figure carries real text of its
+own, so "are there words in between" separates nothing. Both candidate fixes,
+prefer-the-following-caption and require-empty-space, trade one silent
+misattribution for another.
+
+So the reader now says so instead of guessing: it attaches by reading order as
+before and flags the annotation with the caption it might belong to and the
+command that moves it. `carry_comments.py --move FROM TO` is that command, new
+here. Verified by simulating a sticky note 60 pt above the figure-5 caption tag:
+resolves to S3-06, flagged for S31-C1.
+
+Both figure-5 comments moved from S3-C1 to S31-C1 and redrawn there. Nothing in
+the manuscript changed; the figure-4 edit made on the wrong reading was reverted
+in the previous commit and its artwork is byte-identical to what was committed.
