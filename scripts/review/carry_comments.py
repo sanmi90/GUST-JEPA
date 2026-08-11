@@ -24,7 +24,9 @@ stops coming back.
     --restore PDF       write unresolved comments into PDF, in place
     --resolve ID [...]  close every open comment on these blocks
     --reopen ID [...]   the inverse
-    --move FROM TO      re-attach every comment on one block to another. A
+    --move FROM TO      re-attach comments on one block to another, all of
+                        them or, with --match TEXT, only those whose text
+                        contains TEXT. A
                         comment drawn on a figure sits above that figure's
                         caption tag, so reading order attaches it to the block
                         before the float; read_annotations flags that case
@@ -43,6 +45,7 @@ import shutil
 import subprocess
 import sys
 import tempfile
+from collections import Counter
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
@@ -66,6 +69,10 @@ ICON_RISE = 3.0      # lift it into the interline space, so the icon
 # /Subj, which read_annotations trusts ahead of any geometry. Geometry is only
 # how a HUMAN-placed comment gets resolved, and a human puts it where they mean.
 ICON_GAP = 4.0
+# Two comments on one block used to get byte-identical rectangles, and poppler
+# draws a fixed-size icon at the rect origin, so the second landed exactly on
+# the first and was invisible. Stack them down the empty margin instead.
+ICON_STACK = ICON + 3.0
 
 
 def repo_root(start: Path) -> Path:
@@ -210,6 +217,11 @@ def cmd_restore(pdf: Path, sidecar: Path) -> int:
         next_id = max(int(m.group(1))
                       for m in re.finditer(r"^(\d+) 0 obj\n", text, re.M)) + 1
 
+        # Seed the per-block count from what is already in the file, so a
+        # restore that adds only the second comment of a block still puts it in
+        # the second slot rather than on top of the first.
+        placed: dict[str, int] = Counter(a["block"] for a in resolve(pdf))
+
         new_objects, per_page, restored, orphan = [], {}, 0, []
         for c in todo:
             if c["block"] not in anchors:
@@ -223,7 +235,9 @@ def cmd_restore(pdf: Path, sidecar: Path) -> int:
             rx0 = line_right + ICON_GAP
             rx1 = rx0 + ICON
             _ = x0
-            ry1 = y1 + ICON_RISE
+            n = placed[c["block"]]
+            placed[c["block"]] = n + 1
+            ry1 = y1 + ICON_RISE - n * ICON_STACK
             ry0 = ry1 - ICON
             icon, colour = DONE_STYLE if c["resolved"] else OPEN_STYLE
             shown = (DONE_PREFIX if c["resolved"] else "") + c["contents"]
@@ -303,17 +317,23 @@ def cmd_mark(sidecar: Path, blocks: list[str], resolved: bool) -> int:
     return 0
 
 
-def cmd_move(sidecar: Path, src: str, dst: str) -> int:
-    """Re-attach every comment on one block to another.
+def cmd_move(sidecar: Path, src: str, dst: str, match: str | None = None) -> int:
+    """Re-attach comments on one block to another.
 
     Needed because a comment drawn on a figure sits above that figure's caption
     tag, so reading order attaches it to the block before the float. The reader
     flags the case rather than guessing; this is the correction.
+
+    Without --match every comment on src moves. That is wrong whenever a block
+    collected several comments and only some were misattributed, so --match
+    takes a case-insensitive substring of the comment text and moves only those.
     """
     data = load(sidecar)
-    moved = [c for c in data["comments"] if c["block"] == src]
+    moved = [c for c in data["comments"] if c["block"] == src
+             and (match is None or match.lower() in (c["contents"] or "").lower())]
     if not moved:
-        print(f"no comment attached to {src}")
+        extra = f" matching {match!r}" if match else ""
+        print(f"no comment attached to {src}{extra}")
         return 1
     for c in moved:
         c["block"] = dst
@@ -345,6 +365,8 @@ def main() -> int:
     g.add_argument("--resolve", nargs="+", metavar="ID")
     g.add_argument("--reopen", nargs="+", metavar="ID")
     g.add_argument("--move", nargs=2, metavar=("FROM", "TO"))
+    ap.add_argument("--match", metavar="TEXT",
+                    help="with --move, only comments whose text contains TEXT")
     g.add_argument("--list", action="store_true")
     ap.add_argument("--sidecar", type=Path)
     ap.add_argument("--config", type=Path, default=DEFAULT_CONFIG)
@@ -366,7 +388,7 @@ def main() -> int:
     if args.reopen:
         return cmd_mark(sidecar, args.reopen, False)
     if args.move:
-        return cmd_move(sidecar, *args.move)
+        return cmd_move(sidecar, *args.move, match=args.match)
     return cmd_list(sidecar)
 
 

@@ -627,3 +627,48 @@ resolves to S3-06, flagged for S31-C1.
 Both figure-5 comments moved from S3-C1 to S31-C1 and redrawn there. Nothing in
 the manuscript changed; the figure-4 edit made on the wrong reading was reverted
 in the previous commit and its artwork is byte-identical to what was committed.
+
+## Applied 2026-08-11, second round: S3-06 and S31-C1, plus two tooling fixes
+
+**S3-06, the legacy operator.** The body carried a full description of the
+superseded suited-operator protocol, and appendix~A carried a longer one. Both
+are gone. \S3.2 now says only that a superseded protocol fitted a different
+operator to each family and points at the supplementary; appendix~A keeps the
+shared operator and the filter's use of the matched transformer. Supplementary
+S4 absorbed the stability split that justified the protocol, the transformer
+diverging on the reference latents while the U-Net is stable on everything, and
+opens by stating it is the self-contained home for the topic. This is the
+disposition the ledger already carried for APA-01 (`T`, "spends twenty lines
+narrating a suited-operator protocol the paper no longer uses").
+
+**S3-06, the closing sentences.** Both read as defensive without saying what was
+done. Rewritten: the two choices are introduced as choices that could be read as
+favouring our own model, the strict-published variant is stated as something we
+trained rather than something we "found", "tuned baseline, not a hobbled one"
+becomes "the comparison here is against the stronger of the two", and the
+head-form sentence says what the shared form actually is, prediction at the
+current frame.
+
+**S31-C1.** "Lower branch" was simply wrong: the trained row is lower still, so
+the geometry branch is the middle one, and it is the only grey one. Relabelled.
+The $16$-bin radial power spectrum is now defined where it is used: the
+two-dimensional power spectrum averaged over rings of constant wavenumber
+magnitude, binned from the largest scales to the smallest, so each bin reports
+energy at a scale irrespective of direction, with one sentence saying what the
+two blocks of the target contribute (where the structure is, at which scales).
+
+### Two tooling defects, both mine
+
+**Icons drew on top of each other.** Every comment on a block got the identical
+rectangle, and poppler draws a fixed-size icon at the rect origin, so the second
+comment on a block was invisible underneath the first. Carlos lost comments to
+this. They now stack down the empty margin at `ICON + 3pt`, and the per-block
+counter is seeded from what is already in the file so a partial restore still
+lands in the next free slot. Verified: the three blocks carrying two comments
+each now report distinct icon rectangles.
+
+**`--move` was all-or-nothing.** Correcting the figure-4/figure-5 mix-up moved
+both comments off S3-C1 when only one belonged to figure 5. `--move` now takes
+`--match TEXT`, a case-insensitive substring, so a single comment can be moved
+off a block that collected several. The "separate (a) and (b)" comment is back
+on S3-C1 where it belongs.

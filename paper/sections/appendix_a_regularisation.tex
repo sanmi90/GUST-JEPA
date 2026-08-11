@@ -22,25 +22,12 @@ against online encoder targets that are detached (no exponential-moving-average
 target network), plus the regulariser below, with AdamW and bf16 mixed
 precision. The predictor advances the latent from its own history alone, with no
 gust input, so the gust parameters $\cvec = (G, D, Y)$ enter nowhere in the
-model. Two downstream forecast operators are fitted afterwards on each frozen
-latent, identically across families. Every family produces a pooled coefficient
-vector at the same dimension, and two matched forecast operators apply to all of
-them: an autoregressive transformer on the vector sequence, and a residual U-Net
-that tiles the vector to a grid and forecasts it convolutionally. The forecast
-merit of table~\ref{tab:closure} is computed under ONE shared operator, the
-\DirectFC{} of \S\ref{sec:methods_rex} trained identically on every state, and
-under it the three controlled wake-headed states are statistically tied
-(\S\ref{sec:res_construct}). The two fitted operators above describe the
-superseded suited-operator protocol, retained in the supplementary material:
-the transformer is stable across the pooled states of
-the controlled matrix, but refitted with the same recipe and budget on the
-reference latents (the $\beta$-VAE and the two Fukami autoencoders, which are plain
-convolutional autoencoders without skip connections) it diverges to large negative
-merit, and the residual U-Net is stable on every latent, so the suited protocol
-reported each latent under the operator numerically stable on it. The choice of
-operator is itself informative, which is why the suited table survives in the
-supplement, but the cross-family comparison the paper reports is the
-shared-operator one. The ensemble filter of
+model. The forecast merit of table~\ref{tab:closure} is computed under one shared
+operator, the \DirectFC{} of \S\ref{sec:methods_rex} trained identically on every
+state, and under it the three controlled wake-headed states are statistically tied
+(\S\ref{sec:res_construct}). The superseded protocol that fitted a different
+operator to each family is documented in the supplementary material. The ensemble
+filter of
 \S\ref{sec:methods_estimator} uses the same matched transformer on the \PredState's
 own pooled trajectories, where it is stable, and the \PredState's own co-trained
 predictor, the co-trained reduced-order model, is reported alongside.\re

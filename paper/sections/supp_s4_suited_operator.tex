@@ -5,11 +5,22 @@
 \section{The suited-operator forecast merit}
 \label{s:suited_merit}
 
-Before the shared-operator recomputation, the families table scored each
-state's forecast merit under the operator numerically stable on it: a
-matched autoregressive transformer on the pooled states of the controlled
-matrix and a matched residual U-Net on the reference latents, on which the
-transformer diverges. Those values, at horizon eight, are retained here
+This section is self-contained: the main text and appendix~A now carry only
+the shared-operator comparison, and everything about the superseded protocol
+lives here.
+
+Two forecast operators can be fitted on a frozen latent, identically across
+families: an autoregressive transformer on the vector sequence, and a residual
+U-Net that tiles the vector to a grid and forecasts it convolutionally. They do
+not have the same stability. The transformer is stable across the pooled states
+of the controlled matrix, but refitted with the same recipe and budget on the
+reference latents, the $\beta$-VAE and the two Fukami autoencoders, which are
+plain convolutional autoencoders without skip connections, it diverges to large
+negative merit. The residual U-Net is stable on every latent. Before the
+shared-operator recomputation the families table therefore scored each state
+under whichever of the two was numerically stable on it, transformer for the
+pooled states and U-Net for the reference latents, which is the suited-operator
+protocol. Its values, at horizon eight, are retained here
 because the choice of operator is itself informative: the no-wake
 predictive state that collapses under the shared \DirectFC{}
 ($\XmeritShEightJepaNowake$ at the same horizon) posts $\XmeritJepaNowake$
