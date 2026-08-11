@@ -42,18 +42,18 @@
 - **S3-03** (para, L23-23) The encoder and the predictor are trained jointly on two terms. The first is a multi-step rollout error. From the two most recent encoded states the predictor i
 - **S3-04** (para, L25-40) Three auxiliary heads map the latent state to aerodynamic observables during training. They exist because predictability alone does not fix what the state conta
 - **S3-05** (para, L42-42) One asymmetry in that comparison is worth naming, because it is a design choice and not an oversight: the linear basis carries no supervision channel at all. Su
-- **S3-C1** (caption, L53-71) The model at training time, and which modules survive it. The encoder maps the mid-plane vorticity field $\boldsymbol{\omega}_z \in \mathbb{R}^{192 \times 96}$ 
-- **S3-06** (para, L79-79) The comparison rests on a single principle: every baseline is the same pipeline, and only the encoder differs. Each encoder produces a latent trajectory $\zvec_
-- **S3-07** (para, L83-83) The headline figure of merit is representational closure: a fixed linear probe is applied to the latent encoded directly from a held-out field, and we ask wheth
-- **S3-08** (para, L87-87) The mixed timescales of this estimator, a transition map trained on sequences and an emission map trained per instant, mirror the structure of the training obje
-- **S3-09** (para, L96-96) Two diagnostics turn the closure result into a mechanism. The first is the latent drift, which addresses the fact that a predictor with low one-step error need 
-- **S3-10** (para, L98-98) The second diagnostic is a parameter-only floor, which matters here because the model never sees the gust parameters: it bounds what the parameters alone could 
-- **S3-11** (para, L100-100) Because the predictive encoder differs from the reconstructive baseline in objective, architecture, and auxiliary supervision at once, the comparison is accompa
+- **S3-C1** (caption, L51-69) The model at training time, and which modules survive it. The encoder maps the mid-plane vorticity field $\boldsymbol{\omega}_z \in \mathbb{R}^{192 \times 96}$ 
+- **S3-06** (para, L80-80) The comparison rests on a single principle: every baseline is the same pipeline, and only the encoder differs. Each encoder produces a latent trajectory $\zvec_
+- **S3-07** (para, L84-84) The headline figure of merit is representational closure: a fixed linear probe is applied to the latent encoded directly from a held-out field, and we ask wheth
+- **S3-08** (para, L88-88) The mixed timescales of this estimator, a transition map trained on sequences and an emission map trained per instant, mirror the structure of the training obje
+- **S3-09** (para, L97-97) Two diagnostics turn the closure result into a mechanism. The first is the latent drift, which addresses the fact that a predictor with low one-step error need 
+- **S3-10** (para, L99-99) The second diagnostic is a parameter-only floor, which matters here because the model never sees the gust parameters: it bounds what the parameters alone could 
+- **S3-11** (para, L101-101) Because the predictive encoder differs from the reconstructive baseline in objective, architecture, and auxiliary supervision at once, the comparison is accompa
 
 ## sections/v4/s3_1_chang_head.tex  (S31, 2 blocks)
 
 - **S31-01** (para, L11-11) The near-body head targets a physically constructed observable rather than a raw field, because not all vorticity contributes equally to the lift. The force-ele
-- **S31-C1** (caption, L19-31) The near-body supervision head. Along the top, the per-frame path that builds the target from the DNS fields: the mid-plane vorticity and velocity are weighted 
+- **S31-C1** (caption, L19-42) The near-body supervision head, which supplies the $N$ observable of \S\ref{sec:methods_loss}. \emph{Top row, per frame.} The mid-plane vorticity and velocity $
 
 ## sections/v4/s3_3_rex.tex  (S33, 1 blocks)
 

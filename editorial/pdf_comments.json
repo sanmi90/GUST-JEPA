@@ -98,6 +98,15 @@
       "contents": "I think we could separate (a) and (b) as two different figures to make them easier to place. Separate and clarify also the captions.",
       "quoted": "",
       "resolved": true
+    },
+    {
+      "block": "S3-C1",
+      "author": "Alberto",
+      "date": "2026-08-11 12:19",
+      "subtype": "Text",
+      "contents": "Increase the size of the smallest text, cut text in the figure if it does not fit and move to the caption. Make tha caption clearer and self-contained",
+      "quoted": "",
+      "resolved": true
     }
   ]
 }

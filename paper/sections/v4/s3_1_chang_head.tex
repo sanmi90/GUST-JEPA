@@ -16,18 +16,29 @@
 \begin{figure}
   \centering
   \includegraphics[width=\linewidth]{sections/figures/tikz/fig_nearbody_head.pdf}
-  \caption{\rb{K}{S31-C1}{The near-body head pipeline. Makes the geometry-only status of $\phi_L$ and the shared $64+16$ construction visible, which the prose can only assert.}The near-body supervision head. Along the top, the per-frame
-  path that builds the target from the DNS fields: the mid-plane vorticity and
-  velocity are weighted by the auxiliary potential $\phi_L$ to give the
-  lift-element density $e$, which is restricted to the feathered near-body band
-  $w$ and compressed to $80$ dimensions. The potential and the band, drawn on
-  the lower branch, depend on the geometry alone and are computed once; neither
-  carries time or flow state. Below, the trained part: the head reads the latent
-  $\mathbf{z}_t$ and is fit to that target under a smooth-$L_1$ loss. The
-  encoder never sees $e$ itself, and this loss is not part of the
-  latent-prediction objective. The $64 + 16$ split of the target, $8 \times 4$
-  signed patch energies followed by a $16$-bin radial spectrum, is the identical
-  construction used for the wake target of \S\ref{sec:methods_loss}, which is
-  what makes the two field observables byte-matched in capacity.\re}
+  \caption{\rb{K}{S31-C1}{The near-body head pipeline, self-contained. Carries the definitions of $\phi_L$ and $w$ that the artwork gives up, so that nothing in the figure is set below \texttt{footnotesize}.}The near-body supervision head, which supplies the $N$ observable
+  of \S\ref{sec:methods_loss}. \emph{Top row, per frame.} The mid-plane
+  vorticity and velocity $(\omega_z, u, v)$ at frame $t$ are weighted by the
+  auxiliary potential $\phi_L$ to give the lift-element density $e = \omega_z(-v
+  \,\partial_x \phi_L + u\,\partial_y \phi_L)$, which is restricted to a
+  near-body band and compressed to $80$ dimensions. This is the force-element
+  decomposition of \citet{chang1992}: $\phi_L$ weights each point by how
+  strongly motion there projects onto the lift direction, so $e$ is large where
+  the flow is producing load and small where it is not. \emph{Lower branch,
+  geometry only.} $\phi_L$ solves an exterior Laplace problem set by the airfoil
+  surface and the lift direction alone, and the band is the feathered mask
+  $w(\mathbf{x}) = \max\{0,\, 1 - \delta(\mathbf{x})/0.3c\}$ with $\delta$ the
+  distance to the body. Both are computed once and carry no time or flow state;
+  the band exists because the cache window truncates the domain, so only the
+  band-restricted field tracks the lift. \emph{Bottom row, trained.} The head, a
+  small multilayer perceptron, reads the latent $\mathbf{z}_t$ and is fit to the
+  target under a smooth-$L_1$ loss at unit weight. The encoder never sees $e$
+  itself, and this loss is no part of the latent-prediction objective. The
+  target's $64 + 16$ split, $8 \times 4$ signed patch energies followed by a
+  $16$-bin radial power spectrum, is the identical construction used for the
+  wake target, which is what makes the two field observables byte-matched in
+  capacity. The discretisation, the solution residual and the pre-committed
+  quality gate are in appendix~\ref{app:nearbody}; $\phi_L$ and the band are
+  drawn on the cache grid in figure~\ref{fig:phi}.\re}
   \label{fig:nearbody_head}
 \end{figure}

@@ -185,3 +185,29 @@ was 593 pt natural, a $0.65$ scale that put `\scriptsize` under 5 pt. It is now
 484 pt ($0.79$), reached by tightening the node geometry and by deleting two
 long annotation strings that the caption already carried. `fig_estimation_loop`
 sits at $0.70$ and `fig1_jepa_architecture` at $0.74$ for comparison.
+
+### 2026-08-11: figure 5 type size (S31-01, comment landed on S3-C1)
+
+Carlos: increase the smallest type, move text out of the artwork into the
+caption if it does not fit, make the caption self-contained. The comment was
+anchored to S3-C1 by the reader's fallback rule, since it sat above figure 4's
+tag on the page, but it was about figure 5.
+
+Nothing in the artwork is now set below `\footnotesize`. Three lines were cut,
+all of which the caption already carried or now carries: the Laplace problem
+under `auxiliary potential`, the mask formula under `feathered band`, and the
+`8x4 signed patch energies (+) 16-bin radial spectrum` line under the target
+bar. `at frame t` went too, since the group label above the row already says
+per frame, and `small MLP` moved into the caption.
+
+Effective type size at `\linewidth`: was `\scriptsize` at scale $0.793$, so
+$5.5$ pt. Now `\footnotesize` at $0.802$, so $6.4$ pt. The scale barely moved,
+because after the cuts the width is bound by the top row and the target box
+rather than by the deleted text; the gain is the size step, not the geometry.
+Tightening the node widths and gaps bought only 6 pt of natural width, which is
+worth knowing before anyone tries the same lever again.
+
+The caption now carries the definitions the artwork gave up ($\phi_L$ as the
+exterior Laplace problem, $w$ as the feathered mask with its formula) and is
+split into three labelled parts, per frame / geometry only / trained, matching
+the three regions of the drawing.

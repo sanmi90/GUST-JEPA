@@ -31,24 +31,24 @@
 \begin{tikzpicture}[
     font=\normalsize,
     box/.style={draw, rounded corners=2pt, align=center, inner sep=5pt, thick,
-                minimum height=12mm},
+                minimum height=11mm},
     field/.style={box, fill=orange!12, minimum width=23mm},
     geom/.style={box, fill=gray!10, dashed, minimum width=30mm},
     op/.style={draw, circle, thick, inner sep=1.5pt, fill=white},
     tgt/.style={box, fill=green!12},
-    net/.style={box, fill=blue!10, minimum width=26mm},
+    net/.style={box, fill=blue!10, minimum width=23mm},
     arr/.style={-{Stealth[length=2.6mm]}, thick},
     lbl/.style={font=\footnotesize},
-    tiny/.style={font=\scriptsize}
+    sub/.style={font=\footnotesize}
   ]
 
   % ===== per-frame flow path, left to right along the top =====
   \node[field] (fields)
-    {mid-plane fields \\[1pt] $\omega_z,\, u,\, v$ \\[1pt] \tiny at frame $t$};
+    {mid-plane fields \\[1pt] $\omega_z,\, u,\, v$};
 
   \node[op, right=8mm of fields] (prod) {$\times$};
 
-  \node[field, right=8mm of prod, minimum width=31mm] (e)
+  \node[field, right=8mm of prod, minimum width=29mm] (e)
     {lift-element density \\[1pt]
      $e = \omega_z\left(-v\,\partial_x\phi_L + u\,\partial_y\phi_L\right)$};
 
@@ -64,12 +64,10 @@
 
   % ===== geometry-only branch, entering from below =====
   % Drawn separately and dashed: solved once, no time dependence, no flow state.
-  \node[geom, below=12mm of prod, minimum width=31mm] (phi)
-    {auxiliary potential $\phi_L$ \\[1pt]
-     \tiny $\nabla^2\phi_L = 0$, solved once from geometry};
-  \node[geom, below=12mm of mask, minimum width=31mm] (band)
-    {feathered band $w(\mathbf{x})$ \\[1pt]
-     \tiny $\max\{0,\,1 - \delta(\mathbf{x})/0.3c\}$};
+  \node[geom, below=12mm of prod, minimum width=27mm] (phi)
+    {auxiliary potential $\phi_L$};
+  \node[geom, below=12mm of mask, minimum width=27mm] (band)
+    {feathered band $w(\mathbf{x})$};
 
   \draw[arr, gray!60!black] (phi) -- (prod);
   \draw[arr, gray!60!black] (band) -- (mask);
@@ -77,15 +75,14 @@
   % ===== the 80-dimensional target, below the banded field =====
   % 38mm, not 15mm: the geometry branch sits between this row and the flow path,
   % and the target box is wide enough to reach back over the band box.
-  \node[tgt, below=34mm of banded, minimum width=46mm] (target)
+  \node[tgt, below=32mm of banded, minimum width=42mm] (target)
     {\textbf{target} $\;80$-d \\[3pt]
      \begin{tikzpicture}[baseline]
        \draw[fill=green!30, draw=green!45!black]
-         (0,0) rectangle (2.6,0.32) node[midway, tiny, black] {$64$ patch};
+         (0,0) rectangle (2.6,0.32) node[midway, sub, black] {$64$ patch};
        \draw[fill=green!15, draw=green!45!black]
-         (2.6,0) rectangle (3.25,0.32) node[midway, tiny, black] {$16$};
-     \end{tikzpicture} \\[2pt]
-     \tiny $8\times4$ signed patch energies $\oplus$ $16$-bin radial spectrum};
+         (2.6,0) rectangle (3.25,0.32) node[midway, sub, black] {$16$};
+     \end{tikzpicture}};
 
   \draw[arr] (banded) -- (target)
     node[midway, right, lbl, align=left] {compress};
@@ -93,9 +90,9 @@
   % ===== the trained head, closing the loss against the target =====
   % 20mm, not 11mm: the "smooth-L_1" label is wider than an 11mm arrow and ran
   % under the target box.
-  \node[net, left=20mm of target] (head)
-    {\textbf{head} $N$ \\[1pt] \tiny small MLP};
-  \node[net, left=9mm of head, fill=blue!6] (z) {latent $\mathbf{z}_t$};
+  \node[net, left=16mm of target] (head)
+    {\textbf{head} $N$};
+  \node[net, left=7mm of head, fill=blue!6] (z) {latent $\mathbf{z}_t$};
 
   \draw[arr] (z) -- (head);
   \draw[arr] (head) -- (target)

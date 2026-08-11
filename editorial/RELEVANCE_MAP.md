@@ -34,7 +34,7 @@ has to be re-run: `sections/tables/table_dns_metadata.tex`.
 
 | class | blocks |
 |---|---|
-| K | 140 |
+| K | 142 |
 | T | 15 |
 | A | 4 |
 | S | 4 |
@@ -85,15 +85,15 @@ Blocks not marked keep, by file:
 | S3-03 | sections/section_3_methods.tex | 23-23 | para | K | The training objective and the anti-collapse term. Names the direct-forecaster-coupled lineage used at low dimension. |
 | S3-04 | sections/section_3_methods.tex | 25-40 | para | K | Defines the three supervision heads and the wake descriptor. The five-citation provenance of the descriptor design could move to appendix A. |
 | S3-05 | sections/section_3_methods.tex | 42-42 | para | K | The one asymmetry in the head comparison that is a design choice rather than an oversight: the linear basis carries no supervision channel. Cut from a five-point enumeration whose other four points are stated where they bind. |
-| S3-C1 | sections/section_3_methods.tex | 53-71 | caption | K | The training-time architecture, with the stage attribution for every module that no other text states. |
-| S3-06 | sections/section_3_methods.tex | 79-79 | para | K | The single principle the comparison rests on: same pipeline, only the encoder differs. Also names the shared operator and the retired suited-operator protocol. |
-| S3-07 | sections/section_3_methods.tex | 83-83 | para | K | Defines representational closure, the headline figure of merit, and scopes the rollout as secondary. The whole Results section is read through this definition. |
-| S3-08 | sections/section_3_methods.tex | 87-87 | para | D | A two-sentence analogy between the filter's mixed timescales and the training objective. It carries no evidence and nothing downstream refers to it. |
-| S3-09 | sections/section_3_methods.tex | 96-96 | para | K | Defines the latent-drift diagnostic used in table 8 and \S4.4. Without it the near-null decomposition cannot be read. |
-| S3-10 | sections/section_3_methods.tex | 98-98 | para | K | Defines the parameter-only floor that makes the wake result non-trivial. \S4.1 and \S5.1 both depend on it. |
-| S3-11 | sections/section_3_methods.tex | 100-100 | para | K | The one-factor-at-a-time controls and the objective-free supervised control. This is the paragraph that answers the confound objection. |
+| S3-C1 | sections/section_3_methods.tex | 51-69 | caption | K | The training-time architecture, with the stage attribution for every module that no other text states. |
+| S3-06 | sections/section_3_methods.tex | 80-80 | para | K | The single principle the comparison rests on: same pipeline, only the encoder differs. Also names the shared operator and the retired suited-operator protocol. |
+| S3-07 | sections/section_3_methods.tex | 84-84 | para | K | Defines representational closure, the headline figure of merit, and scopes the rollout as secondary. The whole Results section is read through this definition. |
+| S3-08 | sections/section_3_methods.tex | 88-88 | para | D | A two-sentence analogy between the filter's mixed timescales and the training objective. It carries no evidence and nothing downstream refers to it. |
+| S3-09 | sections/section_3_methods.tex | 97-97 | para | K | Defines the latent-drift diagnostic used in table 8 and \S4.4. Without it the near-null decomposition cannot be read. |
+| S3-10 | sections/section_3_methods.tex | 99-99 | para | K | Defines the parameter-only floor that makes the wake result non-trivial. \S4.1 and \S5.1 both depend on it. |
+| S3-11 | sections/section_3_methods.tex | 101-101 | para | K | The one-factor-at-a-time controls and the objective-free supervised control. This is the paragraph that answers the confound objection. |
 | S31-01 | sections/v4/s3_1_chang_head.tex | 11-11 | para | K | The near-body head at the same depth as the other two: what the observable is, why it is not the wake target, and where the construction lives. Full construction moved to appendix A. |
-| S31-C1 | sections/v4/s3_1_chang_head.tex | 19-31 | caption | K | The near-body head pipeline. Makes the geometry-only status of $\phi_L$ and the shared $64+16$ construction visible, which the prose can only assert. |
+| S31-C1 | sections/v4/s3_1_chang_head.tex | 19-42 | caption | K | The near-body head pipeline. Makes the geometry-only status of $\phi_L$ and the shared $64+16$ construction visible, which the prose can only assert. |
 | S33-01 | sections/v4/s3_3_rex.tex | 7-37 | para | K | Defines the one operator under which every family is compared. The forecast result and the filter's process noise both depend on this specification. |
 | S34-C1 | sections/v4/s3_4_estimators.tex | 18-32 | caption | K | The deployment loop on its own, with the two slots that distinguish the four estimator configurations. The leakage guarantee sits here because the innovation path is what carries it. |
 | S34-01 | sections/v4/s3_4_estimators.tex | 36-57 | para | K | Why estimation must be sequential, and the delay-embedding principle honestly scoped as an organising idea rather than a guarantee. \S4.5 is read against it. |
