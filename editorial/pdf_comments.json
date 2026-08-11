@@ -125,6 +125,42 @@
       "contents": "S31-C1: Lower branch, geometry only generates confusion, should be middle branch (gray). Clarify what is the \"16-bin radial power spectrum\"",
       "quoted": "",
       "resolved": true
+    },
+    {
+      "block": "S33-01",
+      "author": "Alberto",
+      "date": "2026-08-11 13:31",
+      "subtype": "Text",
+      "contents": "Clarify this \"Each context window of 𝐿 consecutive states (𝐿 drawn uniformly from 16 to 30 during training, fixed at 𝐿 = 25 at evaluation)\", Is this the lookback window that is explored from 16 to 30 during training and left at 25?",
+      "quoted": "",
+      "resolved": true
+    },
+    {
+      "block": "S33-01",
+      "author": "Alberto",
+      "date": "2026-08-11 13:33",
+      "subtype": "Text",
+      "contents": "We could cite https://arxiv.org/abs/2607.24569 in this paragraph as a justification to use the seq2seq predictor",
+      "quoted": "",
+      "resolved": true
+    },
+    {
+      "block": "S33-01",
+      "author": "Alberto",
+      "date": "2026-08-11 13:39",
+      "subtype": "Text",
+      "contents": "Reference and explain why the pinball loss\n\nThe Beck reference calls it xLSTM, why is here sLSTM? If the final model is LSTM, discard the reference to the alternative to avoid noise",
+      "quoted": "",
+      "resolved": true
+    },
+    {
+      "block": "S3-07",
+      "author": "Alberto",
+      "date": "2026-08-11 13:41",
+      "subtype": "Text",
+      "contents": "Remove this \"We do not headline a forecast-𝑅 2 -versus-horizon curve;\"",
+      "quoted": "through",
+      "resolved": true
     }
   ]
 }

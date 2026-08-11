@@ -9,17 +9,24 @@ operator trained identically on every family's latents; the operator used
 throughout is the \DirectFC, a direct sequence-to-sequence realisation of
 equation~\eqref{eq:forecast} that emits the full horizon in one pass. It is a
 quantile forecaster whose design
-transfers the deployable ingredients of the TiRex forecasting line \citep{tirex,tirex2} without its foundation-model machinery. Each context window
-of $L$ consecutive states ($L$ drawn uniformly from $16$ to $30$ during
-training, fixed at $L = 25$ at evaluation) is normalised per window,
+transfers the deployable ingredients of the TiRex forecasting line \citep{tirex,tirex2} without its foundation-model machinery. The operator reads a lookback
+window of the $L$ states preceding the forecast. $L$ is randomised during
+training, drawn uniformly from $16$ to $30$ so that the operator is not tuned to
+one context length, and held fixed at $L = 25$ for every evaluation reported
+here. Each window is normalised on itself,
 $\tilde{\zvec} = \operatorname{arcsinh}\!\left((\zvec - \mu)/\sigma\right)$
 with $\mu, \sigma$ the window mean and standard deviation (floored at
 $10^{-3}$), passed through a two-layer LSTM of width $512$, and mapped by
 a single feed-forward head to the full forecast tensor of $40$ horizon
 steps, $d$ coordinates and nine quantiles $q \in \{0.1, \dots, 0.9\}$ in
 one shot; the inverse transform restores physical scale. There is no
-autoregressive feedback, so rollout error cannot compound by construction.
-Training minimises the pinball loss
+autoregressive feedback, so rollout error cannot compound by construction. That
+is the reason for the design rather than a side effect of it: forecasts of
+learned latent coordinates in actuated wake flows degrade with horizon and can
+diverge catastrophically \citep{solerarico_compactness_underreview}, and
+emitting the whole horizon at once removes error compounding as one route to
+that failure.
+Training minimises the pinball loss of quantile regression \citep{koenker1978}
 \begin{equation}
   \mathcal{L} = \frac{1}{|\mathcal{Q}|} \sum_{q \in \mathcal{Q}}
   \left\langle \rho_q\!\left(z - \hat{z}_q\right) \right\rangle,
@@ -27,11 +34,13 @@ Training minimises the pinball loss
   \rho_q(u) = \max\!\left(q u,\ (q - 1) u\right),
   \label{eq:pinball}
 \end{equation}
-with AdamW. The
-median forecast is the point prediction everywhere; the predicted
-inter-quantile band supplies the state-dependent process noise of
+with AdamW. The loss is used because the filter needs a spread and not only a
+point estimate: $\rho_q$ is minimised in expectation by the $q$th quantile of the
+predictive distribution, so the nine outputs are calibrated quantiles rather than
+an arbitrary band, and the width between them can be read directly as a forecast
+uncertainty. The median forecast is the point prediction everywhere; that
+inter-quantile width supplies the state-dependent process noise of
 \S\ref{sec:methods_rexenkf}. The optimiser settings, the one-off backbone and
-width selection (LSTM against an sLSTM cell \citep{xlstm} at two widths and two
-quantile counts, the sLSTM tying within seed noise), and the adopted and rejected
+width selection over two widths and two quantile counts, and the adopted and rejected
 ingredients of the TiRex source line, including the oracle-covariate negative of
 \S\ref{sec:res_forecast}, are catalogued in the supplementary material.\re

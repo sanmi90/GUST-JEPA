@@ -57,7 +57,7 @@
 
 ## sections/v4/s3_3_rex.tex  (S33, 1 blocks)
 
-- **S33-01** (para, L7-37) The forecast-merit comparison of \S\ref{sec:res_forecast} requires one operator trained identically on every family's latents; the operator used throughout is t
+- **S33-01** (para, L7-46) The forecast-merit comparison of \S\ref{sec:res_forecast} requires one operator trained identically on every family's latents; the operator used throughout is t
 
 ## sections/v4/s3_4_estimators.tex  (S34, 8 blocks)
 

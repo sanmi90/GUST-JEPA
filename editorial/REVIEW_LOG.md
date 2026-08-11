@@ -672,3 +672,48 @@ both comments off S3-C1 when only one belonged to figure 5. `--move` now takes
 `--match TEXT`, a case-insensitive substring, so a single comment can be moved
 off a block that collected several. The "separate (a) and (b)" comment is back
 on S3-C1 where it belongs.
+
+## Applied 2026-08-11, third round: S33-01 (three) and S3-07
+
+**S33-01, the context window.** Carlos read "$L$ drawn uniformly from $16$ to
+$30$ during training, fixed at $L = 25$ at evaluation" and had to ask whether $L$
+is the lookback length. It is, and the sentence now says so before giving the
+numbers, with the reason for randomising it (so the operator is not tuned to one
+context length).
+
+**S33-01, the companion citation.** arXiv:2607.24569 is now cited where the
+one-shot design is justified. The bib already held this paper as
+`solerarico_compactness_underreview`, an `@unpublished` marked "under review, no
+arXiv index" per an earlier instruction, dated 2025. That instruction is
+superseded: it was posted 2026-07-27. Entry updated to `@article` with the arXiv
+ID and the correct year, title and author list confirmed against the abstract
+page; the key is unchanged so the two existing call sites in \S1 and \S5 do not
+move. The claim is scoped to what the paper actually shows, that latent forecasts
+in actuated wake flows degrade with horizon and can diverge catastrophically. It
+does not itself compare direct against autoregressive heads, so the text says
+emitting the horizon at once removes compounding as *one route* to that failure
+rather than attributing the finding to the citation.
+
+**S33-01, the pinball loss.** Now referenced (Koenker \& Bassett 1978, added to
+the bib) and motivated: $\rho_q$ is minimised in expectation by the $q$th
+quantile, so the nine outputs are calibrated quantiles rather than an arbitrary
+band, which is what lets the inter-quantile width be read as the filter's
+state-dependent process noise. The sLSTM comparison is gone from the body, per
+Carlos's point that citing the alternative is noise when the adopted model is a
+plain LSTM; supplementary S1 still records it, which is where a selection
+catalogue belongs.
+
+**S3-07.** "We do not headline a forecast-$R^2$-versus-horizon curve;" removed.
+The following clause already says what the rollout is for.
+
+### Pre-existing defect surfaced: the supplementary had no bibliography
+
+`supplementary.tex` cites work of its own but carried no `\bibliography`, so
+`\citep{xlstm}` rendered as a literal "(?)" in the built PDF, visible on page 1.
+This predates this session's work (the file has not changed since `fe68b4c`) and
+was missed because the supplementary gate only ever checked the return code and
+the page count, never the log for undefined citations. Fixed with the same style
+and `.bib` files as the main document: 0 undefined citations, still 3 pages, and
+the reference now renders as Beck et al. 2024 with a reference list.
+
+Worth adding to the standing gate: `grep -c "Citation.*undefined" supplementary.log`.

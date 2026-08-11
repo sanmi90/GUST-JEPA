@@ -83,15 +83,28 @@
   doi     = {10.1109/MCS.2018.2810460}
 }
 
-% --- The authors' companion paper. User instruction: cite as under review in    ---
-% --- JFM, no arXiv index. Confirm coauthor spelling and final title.            ---
-@unpublished{solerarico_compactness_underreview,
-  author = {Solera-Rico, Alberto and Garc\'{i}a-Caspue\~{n}as, Patricia and
-            Sanmiguel Vila, Carlos and Discetti, Stefano},
-  title  = {The balance between compactness and forecast accuracy of data-driven
-            latent-space reduced-order models in controlled wake flows},
-  note   = {Under review, Journal of Fluid Mechanics},
-  year   = {2025}
+% --- The authors' companion paper. The earlier "under review, no arXiv index"  ---
+% --- instruction is superseded: it was posted as arXiv:2607.24569 on 2026-07-27, ---
+% --- title and author list confirmed against the abstract page. Key kept so the  ---
+% --- existing call sites in s1 and s5 do not move.                               ---
+@article{solerarico_compactness_underreview,
+  author  = {Solera-Rico, Alberto and Garc\'{i}a-Caspue\~{n}as, Patricia and
+             Sanmiguel Vila, Carlos and Discetti, Stefano},
+  title   = {The balance between compactness and forecast accuracy of data-driven
+             latent-space reduced-order models in controlled wake flows},
+  journal = {arXiv preprint arXiv:2607.24569},
+  year    = {2026}
+}
+
+% --- The pinball (check) loss, for the quantile head of the direct forecaster.  ---
+@article{koenker1978,
+  author  = {Koenker, Roger and Bassett, Gilbert},
+  title   = {Regression quantiles},
+  journal = {Econometrica},
+  volume  = {46},
+  number  = {1},
+  pages   = {33--50},
+  year    = {1978}
 }
 
 % --- Introduction references (Session 23 research brief). The canonical field   ---
