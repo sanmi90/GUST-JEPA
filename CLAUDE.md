@@ -818,8 +818,24 @@ Probe methodology (Session 16 findings, must be followed)
   `split_v1.json`. Training on v1fuk still evaluates against v1's splits;
   Test C can be leaky if a v1 test_c case was promoted into v1fuk training.
 
+## Reviewing the manuscript on the PDF
+
+Carlos annotates the built `paper/main.pdf` and the comments are read back by
+block identifier, not by page, so they survive a rebuild. The tooling and the
+whole round trip are documented in `scripts/review/README.md`; the standing
+rhythm is read the open comments, apply them, rebuild through
+`scripts/review/rebuild.sh`, close the ones acted on, deliver the PDF.
+
+Delegate the mechanics to the `pdf-notes` subagent
+(`.claude/agents/pdf-notes.md`, Sonnet, `Bash` and `Read` only) rather than
+running `read_annotations.py` and `carry_comments.py` in the main context. It
+reads comments back verbatim, saves, resolves, moves and restores, and it cannot
+edit the manuscript. Deciding what a comment means and rewriting the text stays
+with the main model.
+
 ## Where to find more detail
 
+- `scripts/review/README.md`: the PDF review overlay, the comment round trip, the `pdf-notes` subagent
 - `HANDOFF.md`: decision log with rationales, open questions, suggested next steps
 - `SESSION_DATA_PREP.md`: preprocessing plan plus Step 0 schema findings
 - `SESSION_REPORT_2026-05-15.md`: bootstrap-session report (what landed, what was verified)

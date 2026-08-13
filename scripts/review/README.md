@@ -161,6 +161,37 @@ anything placed against the prose covers a few characters. Placement carries no
 meaning anyway, since each restored comment records its block in `/Subj`, which
 the reader trusts ahead of any geometry.
 
+### Handing the mechanics to a subagent
+
+None of the commands above need the model that is rewriting the manuscript. They
+need a shell and the ability to copy text out of a PDF, and their output is
+bulky: a full read is every comment ever written, most of them already closed.
+Running them in the main context spends it on plumbing.
+
+`.claude/agents/pdf-notes.md` defines a Sonnet subagent that owns exactly this
+plumbing. Delegate to it with `subagent_type: "pdf-notes"`:
+
+```
+read the annotations on paper/main.pdf and report the open ones verbatim
+resolve S34-01, S34-02 and S34-C1, then restore into paper/main.pdf
+move the comment on S3-06 that mentions "separate (a) and (b)" to S3-C1
+```
+
+It has `Bash` and `Read` and nothing else, so it cannot edit a `.tex` file even
+if asked. Three rules keep the division honest:
+
+- it reproduces `/Contents` verbatim, never paraphrased, because the caller acts
+  on the exact words and a summarised comment is a lost comment;
+- it never decides what a comment means or whether it was addressed, and closes
+  only the identifiers it is explicitly given;
+- it passes on the reader's `⚠` ambiguity flags rather than resolving them,
+  since choosing between a paragraph and the figure below it is a judgement
+  about content.
+
+The split is worth keeping even when the mechanics look trivial. The failure
+mode this workflow has actually hit is a comment silently lost or attached to
+the wrong block, and both come from the plumbing, not from the writing.
+
 ### Readers that work
 
 | platform | reader | notes |
