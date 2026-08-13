@@ -9,48 +9,59 @@ lead-in $[t_{\mathrm{imp}} - 8,\, t_{\mathrm{imp}})$, impact
 $[t_{\mathrm{imp}},\, t_{\mathrm{imp}} + 16)$ and relaxation
 $[t_{\mathrm{imp}} + 16,\, t_{\mathrm{imp}} + 48)$, all half-open in
 frames and clamped to the encounter. Load metrics are reported in three
-complementary forms because each corrects a failure mode of the others:
-the coefficient of determination $R^2 = 1 - \mathrm{SSE}/\mathrm{SST}$
-pooled over the phase frames, the root-mean-square and mean absolute
-errors in lift-coefficient units, and peak-relative quantities. The peak
-diagnostics locate the extremum of $|C_L|$ within the impact phase in the
-estimate and in the truth separately and report the value difference, its
-magnitude as a percentage of the true peak, and the timing difference in
-convective units at $\Delta t = 0.05$. Peak-region readability uses a
-pooled $R^2$ over windows of half-width $8$ frames centred on each
-encounter's true peak, with a persistence floor that holds the mean of
+complementary forms, because each corrects a failure mode of the others. The
+coefficient of determination $R^2 = 1 - \mathrm{SSE}/\mathrm{SST}$ is pooled
+over the phase frames, where $\mathrm{SSE}$ is the sum of squared errors of the
+estimate and $\mathrm{SST}$ the sum of squared deviations of the truth about its
+own mean, so $R^2$ measures skill against predicting that mean and is negative
+whenever the estimate is worse than the mean would have been. It is scale free,
+which is what makes it comparable across families, and that is also its failure
+mode: at a phase where the truth varies a great deal between encounters, a large
+$\mathrm{SST}$ flatters it. So we report alongside it the root-mean-square and
+mean absolute errors in lift-coefficient units, which are not scale free and
+expose exactly that case, and peak-relative quantities, which ask about the one
+instant an extreme-gust application cares about. The peak diagnostics locate the
+extremum of $|C_L|$ within the impact phase in the estimate and in the truth
+separately, and report the value difference, its magnitude as a percentage of
+the true peak, and the timing difference in convective units. Peak-region
+readability uses a pooled $R^2$ over windows of half-width $8$ frames centred on
+each encounter's true peak, against a persistence floor that holds the mean of
 frames $[0, 25)$ constant; phase lag is the argmax of the normalised
-cross-correlation within $\pm 20$ frames with parabolic sub-frame
-refinement, positive when the estimate trails the truth. Decoded fields
-are scored by the structural similarity index in the convention of
-\citet{wang2004ssim}, $K_1 = 0.01$, $K_2 = 0.03$, with the data range pinned
-per dataset version to twice the global 99.9th percentile of the
-normalised target magnitude ($L = 8.487$ for the present split), on three
-masks: the feathered near-body band of \S\ref{sec:methods_chang}, a wake
-window spanning $0 < x/c < 4.5$ and $|y/c| < 1.25$, and the full frame.
-Linear-probe $R^2$ is used throughout as a readability metric and never as
-an information metric; the control that motivates this distinction, a
-multilayer probe that equalises what a linear read-out cannot reach, is
-reported alongside every dimension comparison
-(\S\ref{sec:res_reconstruction}). When an observable is read at a specific
-instant of the encounter rather than over the window, the same linear probe,
-fit on the training window, is evaluated on the held-out encounters at the
-pre-impact, impact and peak-lift frames ($\pm 2$), and reported both as its
-$R^2$, with the mean observable at that instant as the baseline, and as its
-physical error, the root-mean-square deviation in the observable's own units;
-the two are complementary, the error exposing a large absolute miss where the
-high cross-encounter variance at a critical instant flatters the $R^2$.\re
+cross-correlation within $\pm 20$ frames with parabolic sub-frame refinement,
+positive when the estimate trails the truth. Decoded fields are scored by the
+structural similarity index of \citet{wang2004ssim} on three masks, the
+feathered near-body band of \S\ref{sec:methods_chang}, a wake window spanning $0
+< x/c < 4.5$ and $|y/c| < 1.25$, and the full frame; its constants and its
+dataset-dependent range are given in \S\ref{sec:flow_observables}. Linear-probe $R^2$ is
+used throughout as a readability metric and never as an information metric: a
+low value means the quantity is not linearly accessible in that latent, not that
+it is absent. The control that motivates the distinction, a multilayer probe
+that equalises what a linear read-out cannot reach, is reported alongside every
+dimension comparison (\S\ref{sec:res_reconstruction}). An observable read at one
+instant rather than over a window uses the same probe, fit on the training
+window and evaluated on held-out encounters at the pre-impact, impact and
+peak-lift frames ($\pm 2$), and is reported both as $R^2$ against the mean
+observable at that instant and as a root-mean-square deviation in the
+observable's own units, for the reason given above.\re
 
-\rb{K}{S35-02}{Points at the one uncertainty accounting and closes on the no-boundary-set-selection guarantee. The four-level enumeration it used to carry is now table 16; the sign-convention clause is still an open REVIEW-CLAIM.}Uncertainty comes from six sources, listed with their resampling or
-training unit, their count, and the results that carry them in
-table~\ref{tab:uncertainty}. No single number carries all six: which apply
-depends on what was varied to produce it, and every stochastic number in
-the paper states its count. Single-seed cells appear only in the dimension
-grid and are disclosed as such in each caption. The acceptance gates for the
-conditioning study and for the present campaign's follow-up runs were
-fixed in advance of evaluation: written and committed before any
-corresponding result was read, with both declarations shipping with the
-data record.
+\rb{K}{S35-02}{Enumerates the six uncertainty sources and points at the one authoritative accounting. The sign-convention clause is still an open REVIEW-CLAIM.}Uncertainty enters the reported numbers from six places. Two are sampling: a
+bootstrap over held-out encounters, and a clustered bootstrap over whole cases
+for every paired comparison between families, since encounters of one case are
+not independent of each other and treating them as such would understate the
+interval. Three are training stochasticity: the encoder seed, the seed of an
+operator fitted on a frozen representation, and the member-perturbation seed of
+the filter, which are separated because they answer different questions, namely
+whether a representation is reproducible, whether a downstream operator is, and
+whether the estimator is. The sixth is the read-out, cross-validated over cases,
+which bounds how much a probe result depends on the particular fit rather than
+on the latent. Table~\ref{tab:uncertainty} gives the resampling or training unit
+for each, its count, and which results carry it; that table is the authoritative
+accounting, and it is there because no single number carries all six and which
+apply depends on what was varied to produce it. Every stochastic number in the
+paper states its count. Single-seed cells appear only in the dimension grid and
+say so in their captions. The acceptance gates for the conditioning study and
+for this campaign's follow-up runs were written and committed before any
+corresponding result was read, and both declarations ship with the data record.
 % REVIEW-CLAIM: (Stage 4) the following sentence states the archive
 % (inventory) sign convention for the gust axis, which tenses against the
 % rewrite rule "physical G everywhere; archive identifiers only in the data

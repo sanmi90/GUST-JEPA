@@ -437,10 +437,13 @@ per-estimator settings of the ladder, and the uncertainty accounting
   \caption{\rb{K}{APA-C15}{The per-estimator configuration table, the Gupta table-1 analogue. What makes the estimator suite reproducible.}Per-estimator configuration (Gupta \emph{et al.} 2026, table~1
   analogue). All fits use the training split only; $\rho$ and the two $c$
   calibrations use validation-family splits as stated in the text and
-  nothing downstream of them. Ensemble size $N = 64$, sensors $K = 8$ at the
+  nothing downstream of them. Ensemble size $N = \FilterMembers$, sensors
+  $K = \FilterTaps$ at the
   family's own placement, delay $m = 10$, every-frame assimilation, and
   the consistency-failure criterion of \S\ref{sec:methods_lae} are common to all
-  rows.\re}
+  rows. Every ridge fit in the suite, the linear dynamics $A$, the sensor
+  read-out and the delay-embedding map $W$, uses unit penalty; the value is
+  stated here rather than three times in \S\ref{sec:methods_estimator}.\re}
   \label{tab:filter_params}
   \small
   \fittab{\begin{tabular}{l l l l l}

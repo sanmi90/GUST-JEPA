@@ -34,8 +34,40 @@ retains the most recoverable physics ($\WqObsJepa$ against $\WqObsFukami$ and
 $\WqObsPod$), so neither ordering is an artefact of the model-conditioned
 placement.\re
 
+% Moved out of Methods \S3.4 on Carlos's 2026-08-13 comment on S34-07, which asked
+% for a brief mention in the body and the content itself in an annex. It lands
+% here rather than in appendix A because APB-02 immediately above already argues
+% placement robustness, so the criterion and the argument that it does not drive
+% the ordering are now adjacent.
+\subsubsection*{The greedy placement criterion}
+\label{app:osp}
+
+\rb{K}{APB-03}{The greedy placement criterion, moved out of \S3.4. It sits beside APB-02, which argues that placement does not drive the ordering.}The model-conditioned placement above is built one sensor at a time. Starting
+from an empty set, each step adds the sensor that most improves a ridge
+prediction of the leading principal component of that family's own impact-frame
+states, made from the $30$-frame causal pressure windows of the sensors selected
+so far together with the candidate. Writing $r_j$ for the ridge residual mean
+square of the extended feature set and $g_j = \max\{0,\, r_\varnothing - r_j\}$
+for the reduction it achieves over the target variance, the sensor added is the
+one maximising
+\begin{equation}
+  J(j) = n\,g_j - \tfrac{1}{2}\,g_j - \tfrac{1}{2}\,n\,r_j
+  + \tfrac{1}{2}\,\frac{n\,g_j}{g_j + 10^{-6}},
+  \label{eq:osp}
+\end{equation}
+with $n$ the number of training encounters. At this configuration the first and
+third terms dominate the other two, so in practice the criterion is
+explained-variance gain penalised by the residual that remains; the smaller
+terms are a complexity penalty that does not change the ordering here. Selection
+is nested by construction, each budget warm-starting from the previous one, so
+the $K = 16$ array contains the $K = 8$ array and a sensor-count sweep varies
+only the budget. The shared target-blind reference array is instead the
+column-pivoted QR (qDEIM) selection of \citet{drmac2016qdeim} on the leading
+pressure modes, which uses no model at all. Which placement a given figure or
+table uses is stated in its caption.\re
+
 \subsubsection*{What the window recovers that the instant cannot}
-\rb{T}{APB-03}{Restates the window-against-instant result already given in S4-20 and S4-21, with the same macros. The appendix adds only the enstrophy figure.}At a single frame the wall is blind to the wake-circulation direction of the
+\rb{T}{APB-04}{Restates the window-against-instant result already given in S4-20 and S4-21, with the same macros. The appendix adds only the enstrophy figure.}At a single frame the wall is blind to the wake-circulation direction of the
 predictive state (\S\ref{sec:res_wall}); over the thirty-frame window the blind
 coordinate becomes partially recoverable ($\ToneCircNegWThirty$ held-out, from
 near zero at one frame), and the wake enstrophy read through the recovered state
@@ -47,7 +79,7 @@ the filter inherits the sequential version of it through its assimilation
 window rather than through any explicit delay embedding.\re
 
 \subsubsection*{The recovered field}
-\rb{K}{APB-04}{Reads the recovered-field panels and localises the loss to the wake structures. Connects the sensing result to physical space.}Decoding the pressure-recovered state through each family's diagnostic decoder
+\rb{K}{APB-05}{Reads the recovered-field panels and localises the loss to the wake structures. Connects the sensing result to physical space.}Decoding the pressure-recovered state through each family's diagnostic decoder
 makes the recovery visible in physical space
 (figure~\ref{fig:field_recovery}). The comparison within each row, recovered
 field against that family's own decode ceiling, isolates the pressure step from
@@ -71,7 +103,7 @@ wall reading the force-carrying directions best (\S\ref{sec:res_wall}).\re
 \end{figure}
 
 \subsubsection*{The out-of-distribution boundary from the sensing side}
-\rb{T}{APB-05}{Restates the boundary failure of every static approach, already carried by S4-25 and table 12. The appendix repeats the numbers without adding evidence.}At the $|G| = 4$ boundary every static approach fails on the load, the
+\rb{T}{APB-06}{Restates the boundary failure of every static approach, already carried by S4-25 and table 12. The appendix repeats the numbers without adding evidence.}At the $|G| = 4$ boundary every static approach fails on the load, the
 via-latent recovery at $\VrecCLGFour$ and the direct no-latent regression at
 $\DirectCLKeightGFour$ from the same sensors ($\DirectCLAllTapsGFour$ with the full
 array), while the nonlinear filters still track it (table~\ref{tab:family_filter}). The
@@ -81,7 +113,7 @@ a \StaticInv{} recovers little from a single instant, and only the accumulated
 pressure history carries the load through.\re
 
 \subsubsection*{Delay-coordinate knobs}
-\rb{K}{APB-06}{Justifies the delay stride and window as convention rather than tuning, and declines the false-nearest-neighbours criterion honestly. Methodologically careful.}The window sweeps of \S\ref{sec:res_delays} keep the delay stride at the cache
+\rb{K}{APB-07}{Justifies the delay stride and window as convention rather than tuning, and declines the false-nearest-neighbours criterion honestly. Methodologically careful.}The window sweeps of \S\ref{sec:res_delays} keep the delay stride at the cache
 cadence ($\Delta t = \DtTc\,c/u_\infty$), and this choice is a convention rather
 than a tuning: the first minimum of the time-lagged mutual information of the
 sensor signals \citep{fraser1986} sits near $\TmiTau$ frames, about one shedding
@@ -98,7 +130,7 @@ principle rather than a proof that a given sensor count suffices.\re
 
 % Moved from Results (Session 39, D-B): the streaming realism and d=4 filter
 % panels leave the main text with the estimator ladder.
-\rb{K}{APB-07}{The streaming realism protocol and the four-coefficient filter, both demoted from \S4.6. Real results, correctly placed.}Under a deployment-realism protocol, streaming multi-encounter assimilation with
+\rb{K}{APB-08}{The streaming realism protocol and the four-coefficient filter, both demoted from \S4.6. Real results, correctly placed.}Under a deployment-realism protocol, streaming multi-encounter assimilation with
 a pressure-only initialisation and no oracle anywhere, the filter on the
 \PredState{} holds an impact-phase lift closure of \PoneStreamCleanZero{} on
 clean sensors and \PoneStreamCleanFive, \PoneStreamCleanTen{} and
@@ -147,7 +179,7 @@ four-coefficient state is estimable from the wall as well as forecastable.\re
 
 % Moved from Discussion (Session 39, D-B): the estimator-selection guidance
 % lives with the sensing appendix in the comparison-led revision.
-\rb{K}{APB-08}{Explicit estimator-selection guidance in the Gupta idiom, ending in one sentence a practitioner can act on. The most useful paragraph in the appendices.}The ladder of \S\ref{sec:res_da} supports explicit selection guidance
+\rb{K}{APB-09}{Explicit estimator-selection guidance in the Gupta idiom, ending in one sentence a practitioner can act on. The most useful paragraph in the appendices.}The ladder of \S\ref{sec:res_da} supports explicit selection guidance
 \citep{gupta2026}. When only the in-distribution median matters and latency is
 irrelevant, the \StaticInv{} is the strongest and simplest tool; the moment the
 tails, the extrapolation boundary or continuous state tracking matter, the filters

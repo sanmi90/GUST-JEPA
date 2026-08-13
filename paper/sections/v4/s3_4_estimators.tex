@@ -25,7 +25,7 @@
   implies, $\hat{\mathbf{y}}_{t+1} = \mathcal{H}\zvec^{f}_{t+1}$; the wall
   pressure is then measured at $\FilterTaps$ span-averaged sensors, held out
   from training and placed by the per-model selection of
-  \S\ref{sec:methods_osp}; and the innovation is the measurement minus that
+  appendix~\ref{app:osp}; and the innovation is the measurement minus that
   prediction. Only the innovation, never the measurement itself, moves the
   state. The subtraction is performed in sensor space for the base filter of
   \S\ref{sec:methods_enkf}, so $\mathcal{H}$ is the pressure read-out, and in
@@ -37,9 +37,11 @@
   covariances $Q$ and $R$, and added to every member, giving the analysis
   $\zvec^{a}_{t+1}$ that the next predict step advances. All four estimator
   configurations are this one loop with only the two annotated slots swapped,
-  the propagation $(F, Q)$ and the observation path;
-  table~\ref{tab:enkf} gives the settings per configuration, including the
-  ensemble inflation applied before each update. No vorticity field enters at
+  the propagation $(F, Q)$ and the observation path. The production
+  configuration is the two-stage one: the direct forecaster with the encoded
+  observation inside the impact window, the matched transformer with the
+  pressure sensors outside it. Table~\ref{tab:enkf} gives the settings per
+  configuration, including the ensemble inflation applied before each update. No vorticity field enters at
   any point, the state is the same $\LatentDim$-vector at every step, and the
   frozen lift and wake probes are excluded from the innovation, which is what
   makes the reported analysis closure an estimate rather than a quantity the
@@ -103,13 +105,9 @@ that measurement has corrected it. The frozen probes that read the lift and the
 wake enstrophy from the state are excluded from the innovation by construction,
 so the only measured quantity entering an update is the wall pressure and the
 analysis closure reported in \S\ref{sec:res_da} is an estimate rather than a
-quantity supplied to the filter (figure~\ref{fig:estimation_loop}).
-%
-% Deliberately not a paragraph break: a blank line here would open a new block
-% and renumber S34-03 onward, silently misaligning every later rationale in the
-% relevance ledger. A comment swallows its line ending, so the two halves stay
-% one paragraph in the PDF and one block in the inventory.
-Two assimilation protocols are used, and each result states which one it
+quantity supplied to the filter (figure~\ref{fig:estimation_loop}).\re
+
+\rb{K}{S34-03}{The two assimilation protocols, split out of S34-02 so the state-space definition and the evaluation setting are separate paragraphs. Every result states which protocol it follows.}Two assimilation protocols are used, and each result states which one it
 follows. Under the envelope protocol, assimilation begins $\AssimPre$ frames
 before impact and ends $\AssimPost$ frames after it, and the ensemble is
 initialised at the start of that window without any field information. Under
@@ -118,67 +116,105 @@ is initialised at $t_0 = 9$, the first frame at which the ten-frame delay
 window is complete, from the encoded observation there, and scoring is
 restricted to the same impact window as the envelope protocol so that the two
 are comparable. Every estimator in either protocol is fitted on the training
-split alone.\re
+split alone. Each family senses at its own sensors, selected greedily on the
+training split so as to best expose that family's own state, with a shared
+target-blind array used wherever a sensor-budget claim must not depend on a
+placement tuned to any one model; the selection criterion and the two arrays are
+given in appendix~\ref{app:osp}.\re
 
 \subsubsection{Base stochastic ensemble filter}
 \label{sec:methods_enkf}
 
-\rb{K}{S34-03}{The base filter with its update equations. It is a diagnostic rather than the production estimator, but the equations are shared by the whole suite.}The frozen production filter is a stochastic ensemble Kalman filter
-\citep{evensen2003} with $N = 64$ members. The prediction model $F$ is the
-matched autoregressive transformer of \S\ref{sec:methods_arch}, refitted on
-the frozen pooled training trajectories; each member carries its own buffer
-of past analysis states (at most $32$ frames) and is advanced one step per
-frame. The process noise is state-independent, $Q_t \equiv Q$, estimated as
-the sample covariance of one-step teacher-forced predictor residuals over
-$256$ training sub-trajectories of length $32$, with a $10^{-6}$ diagonal
-floor. The observation map $h$ is a ridge-regularised linear read-out from
-the state to the $K$ sensors (penalty $1.0$), fitted on four fifths of the
-training encounters; the observation-noise covariance $R$ is the diagonal
-of the residual variance of that map on the held-out fifth, grouped by
-encounter, with floor $10^{-6}$. With ensemble mean
-$\bar{\zvec}^{f}_t = N^{-1}\sum_i \zvec^{f,(i)}_t$ and deviations
-$X^{f}_t = [\zvec^{f,(i)}_t - \bar{\zvec}^{f}_t]_i$, the update is the
-perturbed-observation analysis
+\rb{K}{S34-04}{The base filter and its fitted ingredients, including the encounter-grouped split behind $R$. It is the reference configuration, not the production estimator.}The base filter is a stochastic ensemble Kalman filter in the
+perturbed-observation form of \citet{burgers1998}, following
+\citet{evensen2003}, with $N = \FilterMembers$ members. It is the reference
+configuration against which the others are read, not the production estimator
+of \S\ref{sec:methods_rexenkf}, but its update is the one every configuration
+in the suite uses. The prediction model $F$ is the matched autoregressive
+transformer of \S\ref{sec:methods_arch}, refitted on the frozen pooled training
+trajectories; each member carries its own buffer of past analysis states (at
+most $32$ frames) and is advanced one step per frame. The process noise is
+state-independent, $Q_t \equiv Q$, estimated as the sample covariance of
+one-step teacher-forced predictor residuals over $256$ training
+sub-trajectories of length $32$, with a $10^{-6}$ diagonal floor. The
+observation map $h$ is a ridge-regularised linear read-out from the state to
+the $K$ sensors. It is fitted on four fifths of the training encounters and the
+observation-noise covariance $R$ is the diagonal residual variance of that map
+on the remaining fifth, with floor $10^{-6}$. The split is by whole encounter
+rather than by frame: frames within one encounter are strongly autocorrelated,
+so a frame-wise split would place near-copies of the fitted data in the
+held-out set and return an $R$ far smaller than the error the filter actually
+meets, which is the one quantity that tells the filter how much to trust its
+sensors. Both parts of the split lie inside the training split, so no held-out
+encounter is touched.\re
+
+\rb{K}{S34-05}{The ensemble-Kalman gain and update, written in the cross-covariance form the code implements, with the plain-language reading of what the gain does.}Write $\bar{\zvec}^{f}_t = N^{-1}\sum_i \zvec^{f,(i)}_t$ for the ensemble mean
+of the forecast, $X^{f}_t = [\zvec^{f,(i)}_t - \bar{\zvec}^{f}_t]_i$ for the
+$d \times N$ matrix of member deviations from it, and
+$Y^{f}_t = [h(\zvec^{f,(i)}_t) - \overline{h(\zvec^{f}_t)}]_i$ for the same
+deviations carried through the observation map. The gain and the update are
 \begin{equation}
-  P^{f}_t = \frac{X^{f}_t (X^{f}_t)^{\mathsf{T}}}{N - 1}, \qquad
-  K_t = P^{f}_t H^{\mathsf{T}} \left(H P^{f}_t H^{\mathsf{T}} + R\right)^{-1},
+  \Sigma^{zy}_t = \frac{X^{f}_t (Y^{f}_t)^{\mathsf{T}}}{N - 1}, \qquad
+  \Sigma^{yy}_t = \frac{Y^{f}_t (Y^{f}_t)^{\mathsf{T}}}{N - 1} + R, \qquad
+  K_t = \Sigma^{zy}_t \left(\Sigma^{yy}_t\right)^{-1},
   \label{eq:enkf_gain}
 \end{equation}
 \begin{equation}
   \zvec^{a,(i)}_t = \zvec^{f,(i)}_t
   + K_t \left(\mathbf{y}_t + \boldsymbol{\epsilon}^{(i)}_t
-  - H \zvec^{f,(i)}_t\right),
-  \qquad \boldsymbol{\epsilon}^{(i)}_t \sim \mathcal{N}(0, R),
+  - h\!\left(\zvec^{f,(i)}_t\right)\right),
+  \qquad \boldsymbol{\epsilon}^{(i)}_t \sim \mathcal{N}(0, R).
   \label{eq:enkf_update}
 \end{equation}
-where $H$ is the Jacobian of the linear $h$. Multiplicative inflation
-$\zvec^{f,(i)} \leftarrow \bar{\zvec}^{f} + \rho\,(\zvec^{f,(i)} -
-\bar{\zvec}^{f})$ is applied before the update; $\rho$ is selected per
-family on the validation split only ($\rho = 1.00$ for the predictive and
-linear families, $\rho = 1.05$ for the reconstructive one). The ensemble is
-initialised at the window start from a windowed pressure-to-state
-regressor (a Nystr\"om radial-basis ridge with $300$ components on a
-$12$-frame causal pressure window) by sampling its training-residual
-covariance around the regressed mean, so no field information enters the
-filter at any time. The frozen observable probes that score the filter
-never enter the innovation: the only measured quantity in
-\eqref{eq:enkf_update} is the $K$-sensor wall pressure.\re
+where $\Sigma^{zy}$ measures how each coordinate of the state co-varies
+with each sensor across the ensemble, and $\Sigma^{yy}$ is how much the
+predicted observation varies, from the spread of the ensemble and from sensor
+noise together. Their ratio $K_t$ is the weight given to being wrong at the
+wall, so a state coordinate that the sensors see clearly is corrected hard and
+one they barely see is left near its forecast. Each member is then moved by its
+own innovation, computed against its own independently perturbed copy of the
+measurement; perturbing the measurement per member is what stops the ensemble
+from collapsing to zero spread as it is corrected, and it is what makes the
+filter stochastic. Written this way the gain is formed from ensemble
+cross-covariances, exactly as implemented, and no $d \times d$ forecast
+covariance is ever built; for the linear $h$ used here this is algebraically
+the textbook $P^{f}H^{\mathsf{T}}(HP^{f}H^{\mathsf{T}} + R)^{-1}$.\re
+
+\rb{K}{S34-06}{Multiplicative inflation, what it corrects, and the field-free initialisation. Small but load-bearing: the inflation values differ by family.}Multiplicative inflation $\zvec^{f,(i)} \leftarrow \bar{\zvec}^{f} +
+\rho\,(\zvec^{f,(i)} - \bar{\zvec}^{f})$ is applied before the update. It
+rescales the ensemble about its mean, widening the spread when $\rho > 1$; the
+standard remedy for the tendency of a small ensemble to become overconfident,
+which if left alone makes $\Sigma^{yy}$ too small, the gain too large and the
+filter progressively deaf to its sensors. Here $\rho$ is selected per family on
+the validation split only ($\rho = \FeRhoJepa$ for the predictive and linear
+families, $\rho = \FeRhoFukami$ for the reconstructive one). The ensemble is
+initialised at the window start from a windowed pressure-to-state regressor (a
+Nystr\"om radial-basis ridge with $300$ components on a $12$-frame causal
+pressure window) by sampling its training-residual covariance around the
+regressed mean, so no field information enters the filter at any time. The
+frozen observable probes that score the filter never enter the innovation: the
+only measured quantity in \eqref{eq:enkf_update} is the $K$-sensor wall
+pressure.\re
 
 \subsubsection{The \LinLatKF{} with encoded observations}
 \label{sec:methods_lae}
 
-\rb{K}{S34-04}{Carries equation (9), the encoded observation used by three of the four configurations, and the one fixed definition of consistency failure. Load-bearing well beyond its own subsection.}The structural-consistency retrofit, adapted from the latent-space
-assimilation construction of \citet{tong2026},
-replaces both $F$ and $h$. The dynamics are linear,
-$F(\zvec) = A\zvec$, with $A$ the ridge solution of
-$\zvec_{t+1} \approx A \zvec_t$ over all training transitions (penalty
-$1.0$) followed by a projection of its singular values onto $[0, 1]$, the
-hard analogue of their spectral hinge penalty; $Q$ is the covariance of the
-resulting fit residuals. The observation side replaces the sparse sensors by
-an encoded full-state observation: a delay-embedding operator lifts the
-normalised sensor history $\mathbf{p}_{t-m+1:t} \in \mathbb{R}^{Km}$ with
-$m = 10$ (causal, edge-padded), and a ridge map $W$ (penalty $1.0$)
-regresses it onto the state, so that
+\rb{K}{S34-07}{Carries equation (9), the encoded observation used by three of the four configurations, and the one fixed definition of consistency failure. Load-bearing well beyond its own subsection.}This configuration replaces both ingredients of the base filter with their
+simplest stable counterparts, and it exists to separate what the estimator
+contributes from what the learned dynamics contribute: if a linear propagation
+driven by a full-state observation matches a nonlinear one, the gain was in the
+sensing rather than in the model. It follows the latent-space assimilation
+construction of \citet{tong2026}. The dynamics are linear, $F(\zvec) = A\zvec$,
+with $A$ the ridge solution of $\zvec_{t+1} \approx A \zvec_t$ over all training
+transitions, followed by a projection of its singular values onto $[0, 1]$. That
+projection is what keeps the propagation stable: a singular value above one is a
+direction the operator amplifies at every step, so a long rollout diverges along
+it, and clipping the spectrum removes those directions outright rather than
+penalising them as \citet{tong2026} do. $Q$ is the covariance of the resulting
+fit residuals. The observation side replaces the sparse sensors by an encoded
+full-state observation: a delay-embedding operator lifts the normalised sensor
+history $\mathbf{p}_{t-m+1:t} \in \mathbb{R}^{Km}$ with $m = 10$ (causal,
+edge-padded), and a ridge map $W$ regresses it onto the state, so that
 \begin{equation}
   \mathbf{y}_t = E_{\mathrm{obs}}\!\left(\mathbf{p}_{t-m+1:t}\right)
   = W^{\mathsf{T}} \operatorname{vec}\!\left(\mathbf{p}_{t-m+1:t}\right),
@@ -189,21 +225,21 @@ regresses it onto the state, so that
 with $\Gamma$ the covariance of the $E_{\mathrm{obs}}$ training residuals
 plus a $10^{-8}$ jitter. The same $E_{\mathrm{obs}}$, evaluated framewise
 with no dynamics at all, is the \StaticInv{} that anchors the estimator
-ladder. Filter consistency failure is an ensemble-consistency diagnostic,
-declared by one fixed criterion everywhere in the paper: the normalised
-innovation squared exceeds the $\chi^2_{0.99}$ quantile at the observation
-dimension for five or more consecutive frames, or any analysis Mahalanobis ratio
-exceeds $3$. It flags an under-dispersed or inconsistent ensemble and is distinct
-from a large-error encounter, for which the analysis lift itself fails
-(impact-phase $R^2$ below $-1$); a filter can post consistency failures while its
-mean still tracks the load. The observation-rate
-protocol subsamples the update, not the sensor: pressure is recorded every
-frame and the analysis step is applied every $m$-th frame only.\re
+ladder. Filter consistency failure is declared by one fixed criterion everywhere
+in the paper: the normalised innovation squared exceeds the $\chi^2_{0.99}$
+quantile at the observation dimension for five or more consecutive frames, or
+any analysis Mahalanobis ratio exceeds $3$. Both tests ask whether the filter's
+own error bars are honest, that is whether the innovations are as large as the
+ensemble spread and $R$ together say they should be; persistently larger means
+the ensemble has become overconfident and the gain is too small for the error it
+faces. It is therefore distinct from a large-error encounter, for which the
+analysis lift itself fails (impact-phase $R^2$ below $-1$), and a filter can
+post consistency failures while its mean still tracks the load.\re
 
 \subsubsection{Forecast-derived state-dependent process noise}
 \label{sec:methods_rexenkf}
 
-\rb{K}{S34-05}{The production route: state-dependent noise, its two independent calibrations, and the two-stage schedule. This is the estimator the headline number comes from.}The \FnoiseKF{} keeps the encoded observation \eqref{eq:eobs} and
+\rb{K}{S34-08}{The production route: state-dependent noise, its two independent calibrations, and the two-stage schedule. This is the estimator the headline number comes from.}The \FnoiseKF{} keeps the encoded observation \eqref{eq:eobs} and
 replaces the member propagation by the \DirectFC{} of
 \S\ref{sec:methods_rex}: each member is advanced by the one-step median
 forecast, and the process noise is read off the forecaster's own
@@ -218,74 +254,60 @@ uncertainty band at forecast time,
   \qquad \boldsymbol{\xi}^{(i)} \sim \mathcal{N}(0, \mathrm{Id}),
   \label{eq:rex_q}
 \end{equation}
-so $Q_t = c^2\operatorname{diag}(\boldsymbol{\sigma}_{t+1})^2$ is
-state-dependent through the predicted inter-quantile width (the
-denominator converts the $q_{0.9} - q_{0.1}$ band of a Gaussian to its
-standard deviation). The single scalar $c$ is the filter's only tuned
-quantity and it carries two independent, validation-only calibrations. The
-production value $c = 1.77$ makes the one-step $q_{0.1}$--$q_{0.9}$ band
-cover $80\,\%$ of held-out training transitions. A second calibration,
-fixed in advance, before any value was seen, selects $c$ on the held-out
-encounters of the training cases by matching the pooled impact-phase
-normalised innovation squared,
-$\mathrm{NIS}_t = \nu_t^{\mathsf{T}} S_t^{-1} \nu_t / d$ with
-$\nu_t = \mathbf{y}_t - \bar{\zvec}^{f}_t$ and $S_t = P^{f}_t + \Gamma$,
-toward its consistency expectation of one, over the fixed grid
-$c \in \{1.0, 1.4, 1.77, 2.5, 3.5, 4.5, 6.0\}$, followed by a single frozen
-run on the test splits. The outcome of that calibration, reported in
-\S\ref{sec:res_da}, is itself a result. The \TwoStageKF{} applies the
+where $\hat{\zvec}^{\,q}$ is the forecaster's predicted $q$th quantile of the
+next state, $\odot$ is the elementwise product, and $\boldsymbol{\xi}^{(i)}$ is
+an independent standard normal draw per member. In words: every member is put at
+the forecaster's median prediction and then scattered about it by an amount the
+forecaster itself nominates, so the ensemble is wide exactly where the
+forecaster expects to be wrong. The divisor turns a quantile band into a
+standard deviation: for a Gaussian the interval from $q_{0.1}$ to $q_{0.9}$ is
+$2\,\Phi^{-1}(0.9) = 2 \times 1.28155$ standard deviations wide, with $\Phi$ the
+standard normal distribution function, so dividing the predicted band by that
+number reads off the equivalent $\boldsymbol{\sigma}$. The process noise
+$Q_t = c^2\operatorname{diag}(\boldsymbol{\sigma}_{t+1})^2$ is therefore
+state-dependent: unlike the fixed $Q$ of the base filter, it grows and shrinks
+with the difficulty of the step, which is the property the whole configuration
+exists to exploit.\re
+
+\rb{K}{S34-09}{The two independent calibrations of the band scale and the NIS statistic they are judged by. Which calibration wins is itself a result.}The single scalar $c$ is the filter's only tuned quantity and it carries two
+independent calibrations, both on validation data alone. The production value
+$c = 1.77$ is the coverage calibration: it is the scale at which the one-step
+$q_{0.1}$ to $q_{0.9}$ band actually contains $80\,\%$ of held-out training
+transitions, as an $80\,\%$ band should. The second calibration, fixed in
+advance of seeing any value, tunes $c$ for filter consistency instead. It asks
+whether the innovations are the size the filter claims to expect, measured by
+the normalised innovation squared
+\begin{equation}
+  \mathrm{NIS}_t = \frac{1}{d}\,\nu_t^{\mathsf{T}} S_t^{-1} \nu_t,
+  \qquad \nu_t = \mathbf{y}_t - \bar{\zvec}^{f}_t,
+  \qquad S_t = P^{f}_t + \Gamma,
+  \label{eq:nis}
+\end{equation}
+in which $\nu_t$ is the innovation and $S_t$ is the covariance the filter
+predicts for it, the ensemble spread $P^{f}_t$ plus the observation noise
+$\Gamma$. Dividing by the observation dimension $d$ makes the expected value one
+when the filter's uncertainty is honest: below one it is overdispersed, claiming
+more uncertainty than it has, and above one it is overconfident. We select $c$
+by driving the pooled impact-phase $\mathrm{NIS}$ toward one over the fixed grid
+$c \in \{1.0, 1.4, 1.77, 2.5, 3.5, 4.5, 6.0\}$, on the held-out encounters of
+the training cases, followed by a single frozen run on the test splits. The two
+calibrations need not agree, and which one wins is itself a result
+(\S\ref{sec:res_da}). The \TwoStageKF{} applies the
 encoded-observation update \eqref{eq:eobs} with the median-forecast propagation
 \eqref{eq:rex_q} inside the impact window only, and outside it propagates
 members with the matched transformer and assimilates in sensor space through
 the linear map of \S\ref{sec:methods_enkf}; the schedule boundary is the
-frozen impact-window mask of the cache and is not tuned.\re
+frozen impact-window mask of the cache and is not tuned. One further member of
+the suite is a reanalysis rather than a filter: a fixed-lag
+Rauch--Tung--Striebel smoother on the linear stack of \S\ref{sec:methods_lae},
+which revises each estimate once five later frames of pressure have arrived and
+so buys accuracy at a fixed reporting latency of $0.25\,c/u_\infty$. Its
+recursion is given in appendix~\ref{app:rts}.\re
 
-
-\subsubsection{Fixed-lag smoother}
-\label{sec:methods_rts}
-
-\rb{A}{S34-06}{A textbook fixed-lag recursion whose result is three sentences in \S4.6.3 and one clause of appendix B guidance. The recursion itself can sit in appendix A with the other configuration detail.}On the linear stack of \S\ref{sec:methods_lae} a fixed-lag
-Rauch--Tung--Striebel smoother provides the reanalysis reference. With
-forecast and analysis moments $(\zvec^{f}_k, P^{f}_k)$ and
-$(\zvec^{a}_k, P^{a}_k)$ from the forward Kalman pass, the backward
-recursion over the lag window is
-\begin{equation}
-  C_k = P^{a}_k A^{\mathsf{T}} \left(P^{f}_{k+1}\right)^{-1},
-  \qquad
-  \zvec^{s}_k = \zvec^{a}_k + C_k\left(\zvec^{s}_{k+1} -
-  \zvec^{f}_{k+1}\right),
-  \label{eq:rts}
-\end{equation}
-applied over a lag of $L = 5$ frames, that is a fixed reporting latency of
-$0.25\,c/u_\infty$; the smoothed estimate at $t$ uses pressure up to
-$t + L$ and nothing later. The ensemble smoother variant on the \FnoiseKF{}
-(a lagged cross-covariance update of the stored member history) degrades
-the filter and is reported as a negative in
-the supplementary material.\re
-
-\subsubsection{Sensor placement}
-\label{sec:methods_osp}
-
-\rb{A}{S34-07}{The greedy placement criterion, whose own text notes that two of its four terms dominate. Placement robustness is already argued in appendix B, so the criterion belongs beside it.}Each family senses at its own sensors. The per-family placement is a greedy
-forward selection over the $192$ physical wall sensors: at each step the
-candidate sensor whose $30$-frame causal pressure window, concatenated to the
-already-selected windows, best ridge-predicts the leading principal
-component of the family's own impact-frame states is added. Writing
-$r_j$ for the ridge residual mean square of the joint feature set extended
-by sensor $j$, and $g_j = \max\{0,\, r_\varnothing - r_j\}$ for its
-reduction over the target variance, the selected sensor maximises
-\begin{equation}
-  J(j) = n\,g_j - \tfrac{1}{2}\,g_j - \tfrac{1}{2}\,n\,r_j
-  + \tfrac{1}{2}\,\frac{n\,g_j}{g_j + 10^{-6}},
-  \label{eq:osp}
-\end{equation}
-with $n$ the number of training encounters; at this configuration the
-first and third terms dominate, so the criterion is explained-variance
-gain penalised by the residual. The staircase is nested by construction,
-each budget warm-starts
-from the previous selection, so the $K = 16$ array contains the $K = 8$
-array. The shared target-blind reference array is the column-pivoted QR
-(qDEIM) selection of \citet{drmac2016qdeim} on the leading pressure modes. Which
-placement a given figure uses is stated in its caption. The per-estimator
-configuration is collected in table~\ref{tab:filter_params} in
-appendix~\ref{app:methods_tables}.\re
+% S34-06 (the RTS recursion) moved to appendix C and S34-07 (the greedy
+% placement criterion) to appendix B, on Carlos's 2026-08-13 comments. Both were
+% already classed A in the relevance ledger. The brief forms stay here: the
+% smoother in the sentence above, the placement in S34-02, because both are
+% referred to from the Results and a reader needs to know they exist without
+% needing their equations. The old labels went with the content; every call
+% site now points at app:rts or app:osp.

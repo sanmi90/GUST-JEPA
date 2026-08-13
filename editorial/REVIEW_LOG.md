@@ -777,3 +777,89 @@ and Correct and walks the loop in order, including what the Kalman step actually
 does with the innovation. "at inflation $\rho = 1$" is gone: it was unexplained
 and also wrong for one family, since §3.4.1 sets $\rho = 1.05$ for the
 reconstructive stack. The caption points at the table for it instead.
+
+## 2026-08-13, second batch: twelve comments on Methods 3.4, 3.5 and the diagnostics
+
+Sequenced deliberately: every content edit and every resolve happened first,
+while the block identifiers still meant what they meant when Carlos wrote the
+comments, and the three structural changes (one delete, two moves) went last in
+one pass. Three of the twelve remove a block, and each removal renumbers every
+later block in its file, so the reverse order would have closed comments against
+paragraphs they were not written about.
+
+**S34-C1, the figure.** The "predicted observation" label sat outside the dashed
+Correct box because `fit=` does not enumerate anonymous nodes attached to a
+`\draw`; naming the node and adding it to the fit list is the whole fix. The
+production-configuration note is out of the artwork and into the caption, where
+it was already half-stated.
+
+**S34-03, now S34-04 to S34-06.** It opened "The frozen production filter",
+which contradicts every other use of that phrase in the paper: §4.7 explicitly
+separates the base diagnostic filter from the production estimator, and the
+production estimator is the two-stage one. Now "the base filter ... the reference
+configuration against which the others are read, not the production estimator".
+The equations were correct but written in the textbook $P^{f}H^{\mathsf{T}}(HP^{f}
+H^{\mathsf{T}} + R)^{-1}$ form, which implies a $d \times d$ forecast covariance
+is formed; `src/estimation/enkf.py` forms ensemble cross-covariances instead and
+never builds it. Rewritten in the cross-covariance form actually implemented,
+with a note that the two agree for the linear $h$ used here, plus a
+plain-language reading of what the gain does and why the observation is perturbed
+per member. The perturbed-observation form is credited to \citet{burgers1998},
+which the code's own docstring already names; new bib entry. The four-fifths
+split is justified: it is by whole encounter, and a frame-wise split would put
+near-copies of the fitted data in the held-out set and return an $R$ far smaller
+than the error the filter meets. $\rho$ is explained where it is used.
+
+**S34-04, now S34-07.** "Penalty 1.0" appeared three times across the section
+and all three are gone from the prose, stated once instead in the
+`tab:filter_params` caption, which already collects what is common to every row.
+The "hard analogue of their spectral hinge penalty" is replaced by what the
+projection does and why: a singular value above one is a direction the operator
+amplifies every step. The observation-rate protocol is deleted outright, not
+trimmed: it was defined in Methods and referred to nowhere in the paper.
+
+**S34-05, now S34-08 and S34-09.** $1.28155$ is $\Phi^{-1}(0.9)$, verified
+against `scipy` and against `BAND_TO_SIGMA = 2.5631` in both filter drivers; the
+text now says so, so the reader can check the conversion rather than trust it.
+NIS is given as a numbered equation with each term named and the meaning of the
+expected value of one spelled out in both directions, overdispersed below and
+overconfident above.
+
+**S3-08 deleted** (Carlos: "delete"), which agrees with its own class D.
+
+**S34-06 to appendix C, S34-07 to appendix B.** The smoother recursion sits in
+appendix C beside the figure that already carries the smoother comparison; the
+placement criterion sits in appendix B immediately after APB-02, which argues
+that placement does not drive the ordering. Both keep a one-sentence form in the
+body, and the labels moved with the content: `sec:methods_rts` and
+`sec:methods_osp` are gone and every call site now points at `app:rts` or
+`app:osp`. One of those call sites was written earlier in this same session.
+
+**S35-01.** SSE and SST defined, and used to say what $R^2$ measures and where it
+misleads, which is the reason the paper reports physical error beside it. The
+SSIM constants are dropped here and pointed at §2, where they were already given
+in full; the block's own ledger rationale had flagged that duplication.
+
+**S35-02.** The six uncertainty sources are enumerated in prose with the reason
+each is separated. The table stays. Carlos suggested it might not be needed, but
+it is referenced twice from appendix A and it is the artefact that resolved three
+mutually inconsistent statements of the same protocol (see the source comment
+above `tab:uncertainty`); dropping it would reopen that. Prose enumeration plus
+the table as the authoritative accounting is the reading of his comment that
+keeps both. **Carlos to overrule if he wants the table gone.**
+
+**Net word delta: body +768, appendices +477.** Six of the twelve comments asked
+for clarification or justification and four asked for cuts, so this batch moves
+the wrong way against the length finding. The two appendix moves took roughly 380
+words out of the body and the clarifications put more back. Worth stating
+plainly, because the manuscript is already well over its own budget.
+
+### Tooling note
+
+The block parser ends a block at a display equation unless the text after
+`\end{equation}` begins lowercase. Writing "In words: ..." after the EnKF gain
+split S34-03 in two and silently renumbered everything after it, which the
+`--inventory` count caught. Changed to "where ...", which is the correct
+typography after an equation anyway. Ledger realignment after the structural pass
+was done by matching each block's opening text against the previous ledger rather
+than by identifier, since identifiers are positional.

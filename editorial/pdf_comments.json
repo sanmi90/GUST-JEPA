@@ -188,6 +188,114 @@
       "contents": "S34-02:\nImprove the wording here: \"time base 𝛥𝑡 = 0.05 𝑐/𝑢 ∞ , the cache frame spacing\"\n\nAre the f and a superindexes defined here?\n\nThis should be written much clearer: \"Two evaluation frames are used and always stated. The envelope frame assimilates over\n[𝑡 imp − 24, 𝑡 imp + 48] frames with a field-free initialisation at the window start; the ladder\nframe runs the full encounter with the ensemble initialised from the encoded observation\nat 𝑡 0 = 9 (the delay-embedding warm-up) and scores on the same impact window. All estimator fits, without exception, use the training split only.\"\nRewrite with a proper tone, drop the unit test part: \"The\nfrozen probes that read the lift and the wake enstrophy off the state can never enter the\ninnovation: this leakage guarantee is enforced by construction and by a unit test, so the reported analysis closure is a genuine estimate, not a quantity the filter was given (figure 6).\"\n\n\n",
       "quoted": "",
       "resolved": true
+    },
+    {
+      "block": "S34-C1",
+      "author": "Alberto",
+      "date": "2026-08-13 20:19",
+      "subtype": "Text",
+      "contents": "S34-C1: in the figure, \"predicted observation\" extends out of the dotted box, fix it. Remove the text from the schematic bottom: \"Production configuration (two-stage): direct forecaster with the encoded observation\ninside the impact window, matched transformer with the pressure sensors outside it.\"",
+      "quoted": "",
+      "resolved": true
+    },
+    {
+      "block": "S34-03",
+      "author": "Alberto",
+      "date": "2026-08-13 20:27",
+      "subtype": "Text",
+      "contents": "S34-03:\nThis looks like internal notes, reword it: \"The frozen production filter\"\nIs this needed? \"(penalty 1.0),\"\n\nThis data divison should be justified and carefully treated: \"fitted on four fifths of the training encounters; the observation-noise covariance 𝑅 is the diagonal of the residual variance of that map on the held-out fifth,\"\nVerify the equations\nClarify the description of the equation terms and add a sentence that describes the equation in very simple terms.\n\nwhat is rho here? \"(𝜌 = 1.00\nfor the predictive and linear families, 𝜌 = 1.05 for the reconstructive one).\"",
+      "quoted": "",
+      "resolved": true
+    },
+    {
+      "block": "S34-04",
+      "author": "Alberto",
+      "date": "2026-08-13 20:33",
+      "subtype": "Text",
+      "contents": "S34-04\n\nwhat is this? \"(penalty 1.0)\" improve how you mention it or drop.\n\nis that used anywhere? \"the hard analogue of their spectral hinge\npenalty\"\n\nClarify what is this filter and how it is used. Maybe drop some detail from the second half",
+      "quoted": "",
+      "resolved": true
+    },
+    {
+      "block": "S34-05",
+      "author": "Alberto",
+      "date": "2026-08-13 20:36",
+      "subtype": "Text",
+      "contents": "S34-05\nCheck the equations and add a clear description. \nwhere does \"1.28155\" comes from?\nClarify this area a lot: \"the pooled impact-phase normalised innovation squared, NIS ...\"\n",
+      "quoted": "",
+      "resolved": true
+    },
+    {
+      "block": "S34-06",
+      "author": "Alberto",
+      "date": "2026-08-13 20:37",
+      "subtype": "Text",
+      "contents": "Remove from the main text and include in brief form where needed only",
+      "quoted": "",
+      "resolved": true
+    },
+    {
+      "block": "S3-08",
+      "author": "Alberto",
+      "date": "2026-08-13 20:38",
+      "subtype": "Text",
+      "contents": "S3-08: delete",
+      "quoted": "",
+      "resolved": true
+    },
+    {
+      "block": "S34-07",
+      "author": "Alberto",
+      "date": "2026-08-13 20:40",
+      "subtype": "Text",
+      "contents": "S34-07:\nInclude a brief mention to sensor selection in the main text where needed. Clarify the content and move it to annex",
+      "quoted": "",
+      "resolved": true
+    },
+    {
+      "block": "S3-09",
+      "author": "Alberto",
+      "date": "2026-08-13 20:42",
+      "subtype": "Text",
+      "contents": "S3-09:\n\"need not produce\" sounds really bad, improve wording\n\nWhy the Mahalanobis distance? include a brief justification\n\n\n\n",
+      "quoted": "",
+      "resolved": true
+    },
+    {
+      "block": "S3-10",
+      "author": "Alberto",
+      "date": "2026-08-13 20:45",
+      "subtype": "Text",
+      "contents": "S3-10:\n\nClarify the importante of this in the overall work.",
+      "quoted": "",
+      "resolved": true
+    },
+    {
+      "block": "S3-11",
+      "author": "Alberto",
+      "date": "2026-08-13 20:49",
+      "subtype": "Text",
+      "contents": "S3-11:\n\nclarify what is c in \"a conditioned predictor variant that adds c\"\n\nClarify the paragraph, is it really needed?",
+      "quoted": "",
+      "resolved": true
+    },
+    {
+      "block": "S35-01",
+      "author": "Alberto",
+      "date": "2026-08-13 20:51",
+      "subtype": "Text",
+      "contents": "S35-01\n\nWhat is SSE/SST?\nClarify the paragraph and drop some details (or move to annex) if they are not needed here.",
+      "quoted": "",
+      "resolved": true
+    },
+    {
+      "block": "S35-02",
+      "author": "Alberto",
+      "date": "2026-08-13 20:53",
+      "subtype": "Text",
+      "contents": "I dont like this paragraph, the incertainty sources should be mentioned or enumerated and explained here. The table might not be needed. Most of the paragraph seems like internal notes that add little to the paper",
+      "quoted": "",
+      "resolved": true
     }
   ]
 }

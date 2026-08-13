@@ -34,12 +34,12 @@ has to be re-run: `sections/tables/table_dns_metadata.tex`.
 
 | class | blocks |
 |---|---|
-| K | 142 |
+| K | 148 |
 | T | 15 |
-| A | 4 |
+| A | 2 |
 | S | 4 |
-| D | 2 |
-| **total** | **167** |
+| D | 1 |
+| **total** | **170** |
 
 Blocks not marked keep, by file:
 
@@ -49,10 +49,8 @@ Blocks not marked keep, by file:
 | `sections/appendix_b_sensing.tex` | 2 |  |  |  |
 | `sections/section_1_introduction.tex` | 2 |  |  |  |
 | `sections/section_2_flow_and_data.tex` |  |  | 1 |  |
-| `sections/section_3_methods.tex` |  |  |  | 1 |
 | `sections/section_4_results.tex` | 4 | 1 |  | 1 |
 | `sections/section_5_discussion.tex` | 2 |  |  |  |
-| `sections/v4/s3_4_estimators.tex` |  | 2 |  |  |
 | `sections/v4/s4_b_reconstruction.tex` | 1 |  |  |  |
 | `sections/v4/s4_d_assimilation.tex` | 1 | 1 |  |  |
 
@@ -88,23 +86,24 @@ Blocks not marked keep, by file:
 | S3-C1 | sections/section_3_methods.tex | 51-69 | caption | K | The training-time architecture, with the stage attribution for every module that no other text states. |
 | S3-06 | sections/section_3_methods.tex | 80-80 | para | K | The single principle the comparison rests on: same pipeline, only the encoder differs. Also names the shared operator and the retired suited-operator protocol. |
 | S3-07 | sections/section_3_methods.tex | 84-84 | para | K | Defines representational closure, the headline figure of merit, and scopes the rollout as secondary. The whole Results section is read through this definition. |
-| S3-08 | sections/section_3_methods.tex | 88-88 | para | D | A two-sentence analogy between the filter's mixed timescales and the training objective. It carries no evidence and nothing downstream refers to it. |
-| S3-09 | sections/section_3_methods.tex | 97-97 | para | K | Defines the latent-drift diagnostic used in table 8 and \S4.4. Without it the near-null decomposition cannot be read. |
-| S3-10 | sections/section_3_methods.tex | 99-99 | para | K | Defines the parameter-only floor that makes the wake result non-trivial. \S4.1 and \S5.1 both depend on it. |
-| S3-11 | sections/section_3_methods.tex | 101-101 | para | K | The one-factor-at-a-time controls and the objective-free supervised control. This is the paragraph that answers the confound objection. |
+| S3-08 | sections/section_3_methods.tex | 100-100 | para | K | Defines the latent-drift diagnostic used in table 8 and \S4.4. Without it the near-null decomposition cannot be read. |
+| S3-09 | sections/section_3_methods.tex | 102-102 | para | K | Defines the parameter-only floor that makes the wake result non-trivial. \S4.1 and \S5.1 both depend on it. |
+| S3-10 | sections/section_3_methods.tex | 104-104 | para | K | The one-factor-at-a-time controls and the objective-free supervised control. This is the paragraph that answers the confound objection. |
 | S31-01 | sections/v4/s3_1_chang_head.tex | 11-11 | para | K | The near-body head at the same depth as the other two: what the observable is, why it is not the wake target, and where the construction lives. Full construction moved to appendix A. |
 | S31-C1 | sections/v4/s3_1_chang_head.tex | 19-48 | caption | K | The near-body head pipeline. Makes the geometry-only status of $\phi_L$ and the shared $64+16$ construction visible, which the prose can only assert. |
 | S33-01 | sections/v4/s3_3_rex.tex | 7-46 | para | K | Defines the one operator under which every family is compared. The forecast result and the filter's process noise both depend on this specification. |
-| S34-C1 | sections/v4/s3_4_estimators.tex | 18-46 | caption | K | The deployment loop on its own, with the two slots that distinguish the four estimator configurations. The leakage guarantee sits here because the innovation path is what carries it. |
-| S34-01 | sections/v4/s3_4_estimators.tex | 50-78 | para | K | Why estimation must be sequential, and the delay-embedding principle honestly scoped as an organising idea rather than a guarantee. \S4.5 is read against it. |
-| S34-02 | sections/v4/s3_4_estimators.tex | 80-121 | para | K | The shared state-space problem, equations (5) and (6), plus the leakage guarantee. Every filter in the suite is defined by naming four ingredients of this pair. |
-| S34-03 | sections/v4/s3_4_estimators.tex | 126-165 | para | K | The base filter with its update equations. It is a diagnostic rather than the production estimator, but the equations are shared by the whole suite. |
-| S34-04 | sections/v4/s3_4_estimators.tex | 170-201 | para | K | Carries equation (9), the encoded observation used by three of the four configurations, and the one fixed definition of consistency failure. Load-bearing well beyond its own subsection. |
-| S34-05 | sections/v4/s3_4_estimators.tex | 206-241 | para | K | The production route: state-dependent noise, its two independent calibrations, and the two-stage schedule. This is the estimator the headline number comes from. |
-| S34-06 | sections/v4/s3_4_estimators.tex | 247-264 | para | A | A textbook fixed-lag recursion whose result is three sentences in \S4.6.3 and one clause of appendix B guidance. The recursion itself can sit in appendix A with the other configuration detail. |
-| S34-07 | sections/v4/s3_4_estimators.tex | 269-291 | para | A | The greedy placement criterion, whose own text notes that two of its four terms dominate. Placement robustness is already argued in appendix B, so the criterion belongs beside it. |
-| S35-01 | sections/v4/s3_5_protocol.tex | 7-42 | para | K | Defines the three phases and every load metric used in the paper. Trim internally: the SSIM convention is already given in S2-06. |
-| S35-02 | sections/v4/s3_5_protocol.tex | 44-62 | para | K | Points at the one uncertainty accounting and closes on the no-boundary-set-selection guarantee. The four-level enumeration it used to carry is now table 16; the sign-convention clause is still an open REVIEW-CLAIM. |
+| S34-C1 | sections/v4/s3_4_estimators.tex | 18-48 | caption | K | The deployment loop on its own, with the two slots that distinguish the four estimator configurations. The leakage guarantee sits here because the innovation path is what carries it. |
+| S34-01 | sections/v4/s3_4_estimators.tex | 52-80 | para | K | Why estimation must be sequential, and the delay-embedding principle honestly scoped as an organising idea rather than a guarantee. \S4.5 is read against it. |
+| S34-02 | sections/v4/s3_4_estimators.tex | 82-108 | para | K | The shared state-space problem, equations (5) and (6), plus the leakage guarantee. Every filter in the suite is defined by naming four ingredients of this pair. |
+| S34-03 | sections/v4/s3_4_estimators.tex | 110-123 | para | K | The two assimilation protocols, split out of S34-02 so the state-space definition and the evaluation setting are separate paragraphs. Every result states which protocol it follows. |
+| S34-04 | sections/v4/s3_4_estimators.tex | 128-149 | para | K | The base filter and its fitted ingredients, including the encounter-grouped split behind $R$. It is the reference configuration, not the production estimator. |
+| S34-05 | sections/v4/s3_4_estimators.tex | 151-181 | para | K | The ensemble-Kalman gain and update, written in the cross-covariance form the code implements, with the plain-language reading of what the gain does. |
+| S34-06 | sections/v4/s3_4_estimators.tex | 183-197 | para | K | Multiplicative inflation, what it corrects, and the field-free initialisation. Small but load-bearing: the inflation values differ by family. |
+| S34-07 | sections/v4/s3_4_estimators.tex | 202-237 | para | K | Carries equation (9), the encoded observation used by three of the four configurations, and the one fixed definition of consistency failure. Load-bearing well beyond its own subsection. |
+| S34-08 | sections/v4/s3_4_estimators.tex | 242-270 | para | K | The production route: state-dependent noise, its two independent calibrations, and the two-stage schedule. This is the estimator the headline number comes from. |
+| S34-09 | sections/v4/s3_4_estimators.tex | 272-305 | para | K | The two independent calibrations of the band scale and the NIS statistic they are judged by. Which calibration wins is itself a result. |
+| S35-01 | sections/v4/s3_5_protocol.tex | 7-45 | para | K | Defines the three phases and every load metric used in the paper. Trim internally: the SSIM convention is already given in S2-06. |
+| S35-02 | sections/v4/s3_5_protocol.tex | 47-73 | para | K | Enumerates the six uncertainty sources and points at the one authoritative accounting. The sign-convention clause is still an open REVIEW-CLAIM. |
 | S4-01 | sections/section_4_results.tex | 13-13 | para | K | Names the three families and fixes the reporting policy that keeps the boundary set out of every selection. The section is unreadable without it. |
 | S4-02 | sections/section_4_results.tex | 24-24 | para | K | Establishes that the wake is a discriminating endpoint and reads table 5. The central representational result. |
 | S4-03 | sections/section_4_results.tex | 26-34 | para | K | The objective-free control and the shared-operator tie, which together attribute readability and forecastability to supervision rather than to the objective. The paper's most self-critical result. |
@@ -206,22 +205,24 @@ Blocks not marked keep, by file:
 | APA-C13 | sections/appendix_a_regularisation.tex | 381-386 | caption | K | The phase-split forecast merit, the exhibit S4-15 narrates. Self-contained. |
 | APA-10 | sections/appendix_a_regularisation.tex | 397-401 | para | T | A one-sentence list of the tables that follow, each of which has a caption. Pure connective tissue. |
 | APA-C14 | sections/appendix_a_regularisation.tex | 405-412 | caption | K | The encoder and predictor configuration, counted from the released checkpoint. The reproducibility record. |
-| APA-C15 | sections/appendix_a_regularisation.tex | 437-443 | caption | K | The per-estimator configuration table, the Gupta table-1 analogue. What makes the estimator suite reproducible. |
-| APA-C16 | sections/appendix_a_regularisation.tex | 470-476 | caption | K | The single authoritative uncertainty accounting, six sources with their units and counts. Replaces three partial statements that disagreed with each other. |
+| APA-C15 | sections/appendix_a_regularisation.tex | 437-446 | caption | K | The per-estimator configuration table, the Gupta table-1 analogue. What makes the estimator suite reproducible. |
+| APA-C16 | sections/appendix_a_regularisation.tex | 473-479 | caption | K | The single authoritative uncertainty accounting, six sources with their units and counts. Replaces three partial statements that disagreed with each other. |
 | TBAS-C1 | sections/tables/table_baselines.tex | 9-25 | caption | K | Defines every compared family in one place. The matched-dimension claim is checkable only against this table. |
 | TENK-C1 | sections/tables/table_enkf.tex | 15-25 | caption | K | The four estimator configurations side by side, which no other exhibit gives. Recently widened from a single-filter list. |
 | TMEC-C1 | sections/tables/table_mechanism.tex | 5-11 | caption | K | The rollout-departure decomposition behind the protected-subspace mechanism. Referenced from \S4.3. |
 | APB-01 | sections/appendix_b_sensing.tex | 8-15 | para | K | States the sensing conventions and how the recovery estimator is selected. Needed before any recovery number can be read. |
 | APB-02 | sections/appendix_b_sensing.tex | 18-35 | para | K | Why the ordering is not an artefact of model-conditioned placement, with the target-blind rerun. Answers a real objection. |
-| APB-03 | sections/appendix_b_sensing.tex | 38-47 | para | T | Restates the window-against-instant result already given in S4-20 and S4-21, with the same macros. The appendix adds only the enstrophy figure. |
-| APB-04 | sections/appendix_b_sensing.tex | 50-57 | para | K | Reads the recovered-field panels and localises the loss to the wake structures. Connects the sensing result to physical space. |
-| APB-C1 | sections/appendix_b_sensing.tex | 62-69 | caption | K | The recovered field against each family's own decode ceiling, which is the only fair comparison. The caption says so. |
-| APB-05 | sections/appendix_b_sensing.tex | 74-81 | para | T | Restates the boundary failure of every static approach, already carried by S4-25 and table 12. The appendix repeats the numbers without adding evidence. |
-| APB-06 | sections/appendix_b_sensing.tex | 84-95 | para | K | Justifies the delay stride and window as convention rather than tuning, and declines the false-nearest-neighbours criterion honestly. Methodologically careful. |
-| APB-07 | sections/appendix_b_sensing.tex | 101-109 | para | K | The streaming realism protocol and the four-coefficient filter, both demoted from \S4.6. Real results, correctly placed. |
-| APB-C2 | sections/appendix_b_sensing.tex | 114-117 | caption | K | The deployment-realism panels with the seed counts. Self-contained. |
-| APB-C3 | sections/appendix_b_sensing.tex | 126-130 | caption | K | Relative peak error across the envelope, the scale-invariance exhibit \S4.6.3 points at. Self-contained. |
-| APB-C4 | sections/appendix_b_sensing.tex | 138-141 | caption | K | The per-family end-to-end sweeps behind the own-stack claim. Single-seed provenance disclosed. |
-| APB-08 | sections/appendix_b_sensing.tex | 150-161 | para | K | Explicit estimator-selection guidance in the Gupta idiom, ending in one sentence a practitioner can act on. The most useful paragraph in the appendices. |
+| APB-03 | sections/appendix_b_sensing.tex | 45-67 | para | K | The greedy placement criterion, moved out of \S3.4. It sits beside APB-02, which argues that placement does not drive the ordering. |
+| APB-04 | sections/appendix_b_sensing.tex | 70-79 | para | T | Restates the window-against-instant result already given in S4-20 and S4-21, with the same macros. The appendix adds only the enstrophy figure. |
+| APB-05 | sections/appendix_b_sensing.tex | 82-89 | para | K | Reads the recovered-field panels and localises the loss to the wake structures. Connects the sensing result to physical space. |
+| APB-C1 | sections/appendix_b_sensing.tex | 94-101 | caption | K | The recovered field against each family's own decode ceiling, which is the only fair comparison. The caption says so. |
+| APB-06 | sections/appendix_b_sensing.tex | 106-113 | para | T | Restates the boundary failure of every static approach, already carried by S4-25 and table 12. The appendix repeats the numbers without adding evidence. |
+| APB-07 | sections/appendix_b_sensing.tex | 116-127 | para | K | Justifies the delay stride and window as convention rather than tuning, and declines the false-nearest-neighbours criterion honestly. Methodologically careful. |
+| APB-08 | sections/appendix_b_sensing.tex | 133-141 | para | K | The streaming realism protocol and the four-coefficient filter, both demoted from \S4.6. Real results, correctly placed. |
+| APB-C2 | sections/appendix_b_sensing.tex | 146-149 | caption | K | The deployment-realism panels with the seed counts. Self-contained. |
+| APB-C3 | sections/appendix_b_sensing.tex | 158-162 | caption | K | Relative peak error across the envelope, the scale-invariance exhibit \S4.6.3 points at. Self-contained. |
+| APB-C4 | sections/appendix_b_sensing.tex | 170-173 | caption | K | The per-family end-to-end sweeps behind the own-stack claim. Single-seed provenance disclosed. |
+| APB-09 | sections/appendix_b_sensing.tex | 182-193 | para | K | Explicit estimator-selection guidance in the Gupta idiom, ending in one sentence a practitioner can act on. The most useful paragraph in the appendices. |
 | APC-01 | sections/appendix_c_calibration.tex | 5-23 | para | K | The full audit trail for the band scale, including the excluded test-selected value quoted only here. Integrity material that must stay in the paper. |
-| APC-C1 | sections/appendix_c_calibration.tex | 30-38 | caption | K | The estimator ladder, the smoother comparison and the band calibration in one figure. Carries the static-inverse claim the abstract makes. |
+| APC-02 | sections/appendix_c_calibration.tex | 33-55 | para | K | The fixed-lag recursion, moved out of \S3.4. Its result is three sentences in \S4.6.3, and the figure below already carries the smoother comparison. |
+| APC-C1 | sections/appendix_c_calibration.tex | 62-70 | caption | K | The estimator ladder, the smoother comparison and the band calibration in one figure. Carries the static-inverse claim the abstract makes. |

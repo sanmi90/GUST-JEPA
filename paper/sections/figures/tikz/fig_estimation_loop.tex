@@ -95,14 +95,17 @@
   % predicted-observation label, which is the one piece of text that has to be
   % read to understand what is being subtracted from what.
   \node[diff, below=15mm of H] (sub) {$-$};
+  % The label is a NAMED node so the fit= below can see it. An anonymous
+  % node[midway] on a \draw is not a node the fit library enumerates, which is
+  % why this label used to hang outside the dashed Correct box.
   \draw[arr] (H) -- (sub)
-    node[midway, right, lbl, align=left]
+    node[midway, right, lbl, align=left] (yhat)
       {predicted observation \\ $\hat{\mathbf{y}}_{t+1} = \mathcal{H}\mathbf{z}^{f}_{t+1}$};
 
   \node[sensor, below=15mm of sub] (y)
     {\textbf{Measurement} \\[2pt] \slot{wall pressure $\mathbf{y}_{t+1}$}};
   \draw[obsarr] (y) -- (sub)
-    node[midway, right, lbl, black, align=left] {measured at the \\ $K$ sensors};
+    node[midway, right, lbl, black, align=left] (meas) {measured at the \\ $K$ sensors};
 
   % ===== innovation into the update, then the corrected state =====
   \node[upd, left=22mm of sub] (K)
@@ -124,18 +127,9 @@
           fit=(za)(pred)(zf),
           label={[orange!55!black,font=\small]above:Predict: field free, no vorticity enters}] {};
     \node[draw=blue!30, rounded corners=4pt, dashed, inner sep=4mm,
-          fit=(zanext)(K)(H)(sub)(y),
+          fit=(zanext)(K)(H)(sub)(y)(yhat)(meas),
           label={[blue!50!black,font=\small]below:Correct: sparse wall pressure only}] {};
   \end{scope}
-
-  % Anchored to the finished bounding box rather than to a node: the measurement
-  % box now sits at the bottom right, and any node-relative placement ran the
-  % note straight through it.
-  \node[anchor=north west, align=left, font=\footnotesize]
-    at ([shift={(0,-5mm)}]current bounding box.south west)
-    {\textit{Production configuration (two-stage):} direct forecaster with the encoded
-     observation \\
-     inside the impact window, matched transformer with the pressure sensors outside it.};
 
 \end{tikzpicture}
 

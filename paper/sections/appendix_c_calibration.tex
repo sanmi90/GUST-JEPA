@@ -22,6 +22,38 @@ the declared configuration existed; both frozen runs are reported in
 \S\ref{sec:res_da} regardless of outcome, and the declaration order ships
 with the data record.\re
 
+% Moved out of Methods \S3.4 on Carlos's 2026-08-13 comment on S34-06: a textbook
+% recursion whose result is three sentences in \S4.6.3. It sits here rather than
+% in appendix A because the figure below already carries the smoother comparison,
+% so the recursion and its result are now on the same page. \S3.4 keeps the
+% one-sentence form and points at app:rts.
+\subsubsection*{The fixed-lag smoother}
+\label{app:rts}
+
+\rb{K}{APC-02}{The fixed-lag recursion, moved out of \S3.4. Its result is three sentences in \S4.6.3, and the figure below already carries the smoother comparison.}The reanalysis reference of \S\ref{sec:methods_rexenkf} is a fixed-lag
+Rauch--Tung--Striebel smoother running on the linear stack of
+\S\ref{sec:methods_lae}. A filter reports the best estimate available from
+pressure up to the present frame; a smoother goes back and revises that estimate
+once a few later frames have arrived, which is legitimate whenever the
+application can tolerate the delay. Writing $(\zvec^{f}_k, P^{f}_k)$ and
+$(\zvec^{a}_k, P^{a}_k)$ for the forecast and analysis moments from the forward
+Kalman pass, the backward recursion over the lag window is
+\begin{equation}
+  C_k = P^{a}_k A^{\mathsf{T}} \left(P^{f}_{k+1}\right)^{-1},
+  \qquad
+  \zvec^{s}_k = \zvec^{a}_k + C_k\left(\zvec^{s}_{k+1} -
+  \zvec^{f}_{k+1}\right),
+  \label{eq:rts}
+\end{equation}
+in which $C_k$ weights how much of the later smoothed estimate to propagate
+back, large where the forward analysis was uncertain relative to the forecast it
+led to. We apply it over a lag of $L = 5$ frames, a fixed reporting latency of
+$0.25\,c/u_\infty$: the smoothed estimate at $t$ uses pressure up to $t + L$ and
+nothing later, so it remains causal at that delay. The ensemble smoother variant
+on the \FnoiseKF{}, a lagged cross-covariance update of the stored member
+history, degrades the filter and is reported as a negative in the supplementary
+material.\re
+
 % Moved from Results (Session 39 figure pass, D-B): the estimator-ladder, smoother
 % and NIS-calibration panels split off the main-text tracking figure.
 \begin{figure}

@@ -253,3 +253,17 @@ dependency, so on a machine holding those outputs each is a single command.
 
 Worth noting separately: this means three body figures cannot currently be
 regenerated from a clean clone of the repository.
+
+### 2026-08-13: fig_estimation_loop, second correction (S34-C1)
+
+Two defects from Carlos's read of the redraw. The "predicted observation" label
+hung outside the dashed Correct box: `fit=` does not enumerate an anonymous
+`node[midway]` attached to a `\draw`, so naming that node (and the measurement
+label beside it) and adding both to the fit list is the whole fix. The
+production-configuration note at the foot of the artwork is removed and its
+content moved into the caption, which is where a two-line sentence belongs.
+
+Natural width $453$ pt, so the scale at `\linewidth` is $0.85$; the note's
+removal cost a little of the height it had bought, and the labels being inside
+the box added a little width. Type size is unchanged from the first redraw and
+still well above the $0.70$ the figure had before either pass.
