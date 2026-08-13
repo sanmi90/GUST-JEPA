@@ -717,3 +717,63 @@ and `.bib` files as the main document: 0 undefined citations, still 3 pages, and
 the reference now renders as Beck et al. 2024 with a reference list.
 
 Worth adding to the standing gate: `grep -c "Citation.*undefined" supplementary.log`.
+
+## 2026-08-13: S34-01, S34-02, S34-C1 (the estimator subsection)
+
+**Terminology: "taps" becomes "sensors" throughout.** Carlos raised it on S34-01
+but the preference is global, and a partial rename would have been worse than
+none: 90 occurrences across fourteen files, all of them meaning the same thing.
+"Tap" is standard experimental-aerodynamics vocabulary for a physical pressure
+port, but there is no experiment here, only sampled surface locations in a DNS,
+and the paper already used "sensor" for the same object in "sensor count",
+"sensor placement" and "sparse-sensor". The rename removes that split. The
+`\FilterTaps` macro name is untouched, since it is internal and renaming it
+would churn the numbers pipeline for no reader-visible gain.
+
+Three body figures carry the old word in their axis labels and titles
+(`fig_deployment_v4`, `fig_ownstack_da_v4`, `fig_t_trade`). Their generating
+scripts are patched, but the figures **could not be regenerated**: the result
+JSONs they read are absent from this checkout. See FIGURE_PLAN.md; this is
+Carlos-owned and blocks nothing else.
+
+**S34-01.** Reworded to an academic register. What "up to a diffeomorphism"
+means is now stated rather than assumed: the delay vector and the true state are
+related by a smooth, smoothly invertible change of coordinates, so the
+reconstruction preserves the dynamics and every smooth function of the state but
+does not return the state in its original coordinates, which is why a learned
+map is still needed. The two closing claims are separated and each given its
+mechanism: temporal resolution is exchangeable for spatial resolution, and the
+wake circulation is recovered because it is dynamically coupled to the
+near-surface flow the sensors resolve and so leaves a signature in the pressure
+history.
+
+**S34-02.** The $f$ and $a$ superscripts were used in equation (5) and never
+defined; they now are, as forecast and analysis, in the sentence following the
+equation pair. The time base is stated as an interval between successive frames
+rather than as a parenthetical "time base", and is macro-bound (`\DtTc`), as are
+the assimilation bounds (`\AssimPre`, `\AssimPost`), which were hand-typed. The
+two protocols are renamed from "evaluation frames", which collided with "frame"
+as the time index everywhere else in the paper, to "assimilation protocols", and
+each is given in full. The unit test is dropped from the leakage sentence; the
+guarantee now rests on the construction alone, which is what a referee can check.
+
+**S34-C1, the figure.** Carlos was right that there was an error. The observation
+model maps the *forecast* to a *predicted* observation, and the innovation is
+that prediction subtracted from the measurement; the old drawing hung the label
+$y - \mathcal{H}z^f$ on the incoming measurement arrow with no node where the
+subtraction happened, so the measurement read as though it arrived carrying the
+innovation. The difference is now an explicit junction: predicted observation in
+from above, measurement in from below, innovation out to the left into the
+update. Moving the measurement below rather than to the right freed the whole
+right-hand side for the predicted-observation label and made the figure narrower,
+so at `\linewidth` the scale rose from $0.70$ to $0.87$ and every glyph is
+larger than before. The state boxes are tagged "analysis" and "forecast", which
+answers the S34-02 superscript question from the artwork as well as the prose.
+
+**S34-C1, the caption.** $\FilterMembers = 64$ verified against three independent
+places: the `enkf.py` signature default, the argparse defaults of both driver
+scripts, and the numbers pipeline entry. The caption is now split into Predict
+and Correct and walks the loop in order, including what the Kalman step actually
+does with the innovation. "at inflation $\rho = 1$" is gone: it was unexplained
+and also wrong for one family, since §3.4.1 sets $\rho = 1.05$ for the
+reconstructive stack. The caption points at the table for it instead.

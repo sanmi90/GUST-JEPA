@@ -61,14 +61,14 @@
 
 ## sections/v4/s3_4_estimators.tex  (S34, 8 blocks)
 
-- **S34-C1** (caption, L18-32) The predict-correct loop at deployment. An ensemble of $\FilterMembers$ members is advanced field free through the matched prediction model, then corrected from
-- **S34-01** (para, L36-57) At deployment the vorticity field is unavailable and the wall pressure is not, by itself, enough to fix the state: a single pressure frame recovers little of th
-- **S34-02** (para, L59-87) Every estimator in this paper solves the same discrete state-estimation problem on the frozen coefficient state. Writing $\zvec_t \in \mathbb{R}^{d}$ for the en
-- **S34-03** (para, L92-131) The frozen production filter is a stochastic ensemble Kalman filter \citep{evensen2003} with $N = 64$ members. The prediction model $F$ is the matched autoregre
-- **S34-04** (para, L136-167) The structural-consistency retrofit, adapted from the latent-space assimilation construction of \citet{tong2026}, replaces both $F$ and $h$. The dynamics are li
-- **S34-05** (para, L172-207) The \FnoiseKF{} keeps the encoded observation \eqref{eq:eobs} and replaces the member propagation by the \DirectFC{} of \S\ref{sec:methods_rex}: each member is 
-- **S34-06** (para, L213-230) On the linear stack of \S\ref{sec:methods_lae} a fixed-lag Rauch--Tung--Striebel smoother provides the reanalysis reference. With forecast and analysis moments 
-- **S34-07** (para, L235-257) Each family senses at its own taps. The per-family placement is a greedy forward selection over the $192$ physical wall taps: at each step the candidate tap who
+- **S34-C1** (caption, L18-46) The predict-correct loop at deployment, and the only route by which information reaches the state once the vorticity field is gone. \emph{Predict.} An ensemble 
+- **S34-01** (para, L50-78) At deployment the vorticity field is unavailable, and the wall pressure at a single instant does not determine the state: one pressure frame recovers little of 
+- **S34-02** (para, L80-121) Every estimator in this paper solves the same discrete state-estimation problem on the frozen coefficient state. Write $\zvec_t \in \mathbb{R}^{d}$ for the enco
+- **S34-03** (para, L126-165) The frozen production filter is a stochastic ensemble Kalman filter \citep{evensen2003} with $N = 64$ members. The prediction model $F$ is the matched autoregre
+- **S34-04** (para, L170-201) The structural-consistency retrofit, adapted from the latent-space assimilation construction of \citet{tong2026}, replaces both $F$ and $h$. The dynamics are li
+- **S34-05** (para, L206-241) The \FnoiseKF{} keeps the encoded observation \eqref{eq:eobs} and replaces the member propagation by the \DirectFC{} of \S\ref{sec:methods_rex}: each member is 
+- **S34-06** (para, L247-264) On the linear stack of \S\ref{sec:methods_lae} a fixed-lag Rauch--Tung--Striebel smoother provides the reanalysis reference. With forecast and analysis moments 
+- **S34-07** (para, L269-291) Each family senses at its own sensors. The per-family placement is a greedy forward selection over the $192$ physical wall sensors: at each step the candidate s
 
 ## sections/v4/s3_5_protocol.tex  (S35, 2 blocks)
 
@@ -96,12 +96,12 @@
 - **S4-16** (para, L115-115) When the forecast is decoded to the field rather than read in the latent, the families no longer separate. Decoding each family's forecast through its frozen de
 - **S4-17** (para, L123-123) What the predictive objective adds is long-horizon stability, and it is the multi-step form of the objective that adds it. Trained with a single-step rather tha
 - **S4-C2** (caption, L128-133) The rollout mechanism and what the multi-step objective adds. (a) Near-null departure fraction by family against the isotropic null, annotated with each latent 
-- **S4-18** (para, L142-142) At deployment the state must be read from the wall, so we ask how much of each latent a sparse set of pressure taps recovers over a window ending at the readout
+- **S4-18** (para, L142-142) At deployment the state must be read from the wall, so we ask how much of each latent a sparse set of pressure sensors recovers over a window ending at the read
 - **S4-19** (para, L149-149) The margin of the coefficient state over a raw high-dimensional field latent is real but modest. Its recoverability advantage is $\GateODelta$ in $R^2$, with a 
 - **S4-20** (para, L154-154) That the wall is blind to the negative-signed wake circulation at a single instant is a statement about one frame, not about the sensor count, and the delay-emb
-- **S4-21** (para, L156-156) Varying the tap count and the window together traces a spatial-for-temporal trade (figure~\ref{fig:trade}). A single tap read over a thirty-frame window approac
-- **S4-22** (para, L158-158) The grid uses a shared target-blind tap array so that the trade is free of any model-conditioned placement; rerunning its eight-tap, thirty-frame cell on the mo
-- **S4-C3** (caption, L165-171) Sensors traded for delays. (a) Recovery of each observable from eight wall-pressure taps against the length of the pressure window (\TestSplit{} set); the wall-
+- **S4-21** (para, L156-156) Varying the sensor count and the window together traces a spatial-for-temporal trade (figure~\ref{fig:trade}). A single sensor read over a thirty-frame window a
+- **S4-22** (para, L158-158) The grid uses a shared target-blind sensor array so that the trade is free of any model-conditioned placement; rerunning its eight-sensor, thirty-frame cell on 
+- **S4-C3** (caption, L165-171) Sensors traded for delays. (a) Recovery of each observable from eight wall-pressure sensors against the length of the pressure window (\TestSplit{} set); the wa
 - **S4-23** (para, L181-181) We now run the estimator. It is initialised from wall pressure alone before impact and corrected at every frame through the encounter, and it never sees the vor
 - **S4-24** (para, L183-187) Two boundaries frame what this demonstration does and does not establish, and we state them before the envelope. First, tracking the load inside the training ra
 - **S4-C4** (caption, L198-213) The estimator tracks the encounter from wall pressure alone. (a) Representative held-out encounters at $|G| = 1$, $1.5$ and $2$ (columns), lift coefficient and 
@@ -151,7 +151,7 @@
 
 ## sections/tables/table_recovery.tex  (TREC, 1 blocks)
 
-- **TREC-C1** (caption, L5-16) What eight wall-pressure taps recover of each family's coefficient state, on the \TestSplit{} set, with the recovery estimator selected by cross-validation per 
+- **TREC-C1** (caption, L5-16) What eight wall-pressure sensors recover of each family's coefficient state, on the \TestSplit{} set, with the recovery estimator selected by cross-validation p
 
 ## sections/tables/table_family_filter.tex  (TFAM, 1 blocks)
 
@@ -174,7 +174,7 @@
 - **S4D-05** (para, L79-95) What the training objective confers survives to the assimilation stage, and per-family end-to-end evaluation makes the comparison fair: each family senses at it
 - **S4D-06** (para, L97-120) The closing study runs the whole design axis through one identical per-family end-to-end protocol: three families at four dimensions (figure~\ref{fig:dimsgrid})
 - **S4D-07** (para, L122-133) Two loose ends close the section. The under-dispersion of the base filter has two regimes, not one: at impact it was calibration, and the state-dependent noise 
-- **S4D-C1** (caption, L138-146) Phase-resolved lift tracking with the \FnoiseKF{} at the production coverage band on the \TestSplit{} set ($n = 42$ encounters, $K = 8$ taps, delay $10$, $N = 6
+- **S4D-C1** (caption, L138-146) Phase-resolved lift tracking with the \FnoiseKF{} at the production coverage band on the \TestSplit{} set ($n = 42$ encounters, $K = 8$ sensors, delay $10$, $N 
 - **S4D-C2** (caption, L156-162) The assimilation-versus-dimension grid (\TestSplit{} set, per-family end-to-end stacks, $K = 8$, every-frame pressure; single seed per cell except the reconstru
 
 ## sections/section_5_discussion.tex  (S5, 10 blocks)
@@ -183,8 +183,8 @@
 - **S5-02** (para, L19-19) The central result is a design rule for a reduced state that a wall-pressure estimator can track. Such a state must carry the wake observables that govern the p
 - **S5-03** (para, L21-21) The wake, and not the forces, is where these requirements separate the families, and the coordinate-level reading of \S\ref{sec:res_code} explains why. The forc
 - **S5-04** (para, L23-23) One caveat is inherited from the compactness-versus-forecast comparison that motivates this study \citep{solerarico_compactness_underreview}: a more expressive 
-- **S5-05** (para, L28-28) The filter turns the design rule into a working estimator: from eight wall-pressure taps and no field measurement it tracks the load through the encounter and e
-- **S5-06** (para, L30-30) The delay-embedding view names the deployment knob and its limit. Because the encounter is low-dimensional, the state can be tracked from few taps read over a s
+- **S5-05** (para, L28-28) The filter turns the design rule into a working estimator: from eight wall-pressure sensors and no field measurement it tracks the load through the encounter an
+- **S5-06** (para, L30-30) The delay-embedding view names the deployment knob and its limit. Because the encounter is low-dimensional, the state can be tracked from few sensors read over 
 - **S5-07** (para, L35-35) A reduced state can be optimised for two deployments that pull apart. A spatially resolved latent decodes the vorticity field more sharply than the coefficient 
 - **S5-08** (para, L42-47) Five limitations bound the claims. First, the attribution of the instantaneous results is unglamorous: the wake readability is supplied by the observable superv
 - **S5-09** (para, L49-49) These limitations come into sharpest focus against the use the architecture is meant for. The predictor is, by construction, a latent dynamics function of the k
@@ -194,7 +194,7 @@
 
 - **S6-01** (para, L11-11) We asked whether a reduced state of an extreme vortex-gust encounter can be constructed to carry the wake dynamics, advanced in time, and recovered from wall pr
 - **S6-02** (para, L13-13) On compression, the statement is two-tier: load information is approximately unchanged over the tested dimensions under a nonlinear probe and is linearly access
-- **S6-03** (para, L15-15) On estimation, a two-stage ensemble filter sensing eight wall-pressure taps tracks the lift through the encounter, phase-resolved and in physical units, with an
+- **S6-03** (para, L15-15) On estimation, a two-stage ensemble filter sensing eight wall-pressure sensors tracks the lift through the encounter, phase-resolved and in physical units, with
 - **S6-04** (para, L17-17) The design principle is that a nonlinear latent can be made forecastable and wall-estimable by training it predictively under observable anchoring, at no cost i
 
 ## sections/appendix_a_regularisation.tex  (APA, 26 blocks)
@@ -241,14 +241,14 @@
 ## sections/appendix_b_sensing.tex  (APB, 12 blocks)
 
 - **APB-01** (para, L8-15) At deployment the vorticity field is not available; only the wall pressure is. This appendix records the sensing conventions behind \S\ref{sec:res_wall} and \S\
-- **APB-02** (para, L18-35) Two placements are used, deliberately. The filter and the recovery of table~\ref{tab:recovery} sense at each family's own model-conditioned taps, the greedy sel
+- **APB-02** (para, L18-35) Two placements are used, deliberately. The filter and the recovery of table~\ref{tab:recovery} sense at each family's own model-conditioned sensors, the greedy 
 - **APB-03** (para, L38-47) At a single frame the wall is blind to the wake-circulation direction of the predictive state (\S\ref{sec:res_wall}); over the thirty-frame window the blind coo
 - **APB-04** (para, L50-57) Decoding the pressure-recovered state through each family's diagnostic decoder makes the recovery visible in physical space (figure~\ref{fig:field_recovery}). T
-- **APB-C1** (caption, L62-69) Flow recovered from eight wall-pressure taps on the representative held-out encounter of figure~\ref{fig:hero}, at the impact-side frame, one row per family. Co
+- **APB-C1** (caption, L62-69) Flow recovered from eight wall-pressure sensors on the representative held-out encounter of figure~\ref{fig:hero}, at the impact-side frame, one row per family.
 - **APB-05** (para, L74-81) At the $|G| = 4$ boundary every static approach fails on the load, the via-latent recovery at $\VrecCLGFour$ and the direct no-latent regression at $\DirectCLKe
 - **APB-06** (para, L84-95) The window sweeps of \S\ref{sec:res_delays} keep the delay stride at the cache cadence ($\Delta t = \DtTc\,c/u_\infty$), and this choice is a convention rather 
 - **APB-07** (para, L101-109) Under a deployment-realism protocol, streaming multi-encounter assimilation with a pressure-only initialisation and no oracle anywhere, the filter on the \PredS
-- **APB-C2** (caption, L114-117) Deployment realism (\TestSplit{} set): (a)~streaming multi-encounter filter against tap noise, three member-noise seeds, validation-selected band (no test-set r
+- **APB-C2** (caption, L114-117) Deployment realism (\TestSplit{} set): (a)~streaming multi-encounter filter against sensor noise, three member-noise seeds, validation-selected band (no test-se
 - **APB-C3** (caption, L126-130) Relative peak error across the gust envelope (\TestSplit{} set, medians per $|G|$): the forecast-derived filter stays near $12$ to $14$ per cent at all but the 
 - **APB-C4** (caption, L138-141) Per-family end-to-end comparison (\TestSplit{} set, $42$ encounters, single filter seed): (a)~phase-resolved lift error per family; (b)~sensor-budget sweep on e
 - **APB-08** (para, L150-161) The ladder of \S\ref{sec:res_da} supports explicit selection guidance \citep{gupta2026}. When only the in-distribution median matters and latency is irrelevant,

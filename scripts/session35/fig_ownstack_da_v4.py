@@ -158,9 +158,9 @@ def main() -> None:
         )
     ax_c.set_xticks(noise_pct)
     ax_c.set_xticklabels(["0", "5", "10", "20"])
-    ax_c.set_xlabel("tap noise (%)")
+    ax_c.set_xlabel("sensor noise (%)")
     ax_c.set_ylabel(r"impact $C_L$ RMSE")
-    ax_c.set_title("(c) tap noise, $K=8$", fontsize=8)
+    ax_c.set_title("(c) sensor noise, $K=8$", fontsize=8)
 
     for ax in (ax_b, ax_c):
         ax.set_ylim(bottom=0.0)

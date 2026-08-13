@@ -78,7 +78,7 @@ linear smoother.\re
 
 \rb{K}{S4D-05}{The per-family end-to-end comparison, which is the fair version of the estimator claim. Also the sensor-budget and noise-robustness separation.}What the training objective confers survives to the assimilation stage, and
 per-family end-to-end evaluation makes the comparison fair: each family senses at its
-own taps, encodes its own observations, forecasts with its own operator
+own sensors, encodes its own observations, forecasts with its own operator
 and decodes through its own decoder. The \PredState{}
 cuts the reconstructive anchor's assimilated load error by more than a third
 at impact and by more than half in relaxation
@@ -86,9 +86,9 @@ at impact and by more than half in relaxation
 \OwnClwRelRmse{} against \OwnAeLwRelRmse; the \LiftState{} between at
 \OwnClnImpRmse), while decoded-field fidelity is family-insensitive
 (figure~\ref{fig:ownstack}a). The sensor axis separates the families
-further: the predictive state exploits every added tap monotonically
+further: the predictive state exploits every added sensor monotonically
 where the reconstructive one saturates at $K = 8$, and it degrades more
-slowly with tap noise, still beating the clean reconstructive stack at
+slowly with sensor noise, still beating the clean reconstructive stack at
 twenty per cent noise (figure~\ref{fig:ownstack}b,c). Streaming
 multi-encounter assimilation under a deployment-realism protocol, and a
 filter on the four-dimensional lift-critical state of
@@ -127,7 +127,7 @@ noise model fixes and the smoother does. And the wake-enstrophy null of
 the frozen filter, no family's filter tracks $E_w$, now has its
 mechanism: the wall constrains the lift-carrying near-body directions,
 the ones the Chang decomposition of \S\ref{sec:methods_chang} weights,
-while the wake enstrophy lives in shed structure the taps reach only
+while the wake enstrophy lives in shed structure the sensors reach only
 through the delay window, so the null is the sensing geometry, not the
 state; the delay-for-sensors trade of \S\ref{sec:res_wall} bounds what
 any wall-limited estimator of this flow can see.\re
@@ -138,7 +138,7 @@ any wall-limited estimator of this flow can see.\re
   \caption{\rb{K}{S4D-C1}{The phase-resolved tracking figure with the production band stated. Self-contained.}Phase-resolved lift tracking with the \FnoiseKF{} at the production
   coverage band on the \TestSplit{} set
   ($n = 42$
-  encounters, $K = 8$ taps, delay $10$, $N = 64$ members, every-frame pressure).
+  encounters, $K = 8$ sensors, delay $10$, $N = 64$ members, every-frame pressure).
   Lift error per phase in physical units (a) and in $R^2$ (b) at the
   val-calibrated band: the relaxation $R^2$ collapse is a variance artefact, the
   physical error the honest phase metric. The estimator ladder, its noise

@@ -437,7 +437,7 @@ per-estimator settings of the ladder, and the uncertainty accounting
   \caption{\rb{K}{APA-C15}{The per-estimator configuration table, the Gupta table-1 analogue. What makes the estimator suite reproducible.}Per-estimator configuration (Gupta \emph{et al.} 2026, table~1
   analogue). All fits use the training split only; $\rho$ and the two $c$
   calibrations use validation-family splits as stated in the text and
-  nothing downstream of them. Ensemble size $N = 64$, taps $K = 8$ at the
+  nothing downstream of them. Ensemble size $N = 64$, sensors $K = 8$ at the
   family's own placement, delay $m = 10$, every-frame assimilation, and
   the consistency-failure criterion of \S\ref{sec:methods_lae} are common to all
   rows.\re}
@@ -451,7 +451,7 @@ per-estimator settings of the ladder, and the uncertainty accounting
     base EnKF (frozen)        & matched transformer & linear $\zvec \to \mathbf{p}_K$ & teacher-forced residual cov. & $\rho = 1.00$ / $1.05$ \\
     \LinLatKF{}               & linear $A$ (SV-clipped) & $E_{\mathrm{obs}}$, $h = \mathrm{Id}$ & $A$-fit residual cov. & $\rho = 1.0$ \\
     \FnoiseKF{}               & forecaster median, eq.~\eqref{eq:rex_q} & $E_{\mathrm{obs}}$, $h = \mathrm{Id}$ & quantile band, eq.~\eqref{eq:rex_q} & $c = 1.77$ (coverage) \\
-    \TwoStageKF{}             & median forecast inside impact, transformer outside & $E_{\mathrm{obs}}$ inside, tap space outside & as per stage & $c$ as the \FnoiseKF{} \\
+    \TwoStageKF{}             & median forecast inside impact, transformer outside & $E_{\mathrm{obs}}$ inside, sensor space outside & as per stage & $c$ as the \FnoiseKF{} \\
     fixed-lag RTS             & linear $A$          & $E_{\mathrm{obs}}$, $h = \mathrm{Id}$ & $A$-fit residual cov. & lag $L = 5$ \\
     \bottomrule
   \end{tabular}}

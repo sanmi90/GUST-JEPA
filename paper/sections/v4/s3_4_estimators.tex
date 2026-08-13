@@ -15,52 +15,74 @@
 \begin{figure}
   \centering
   \includegraphics[width=\linewidth]{sections/figures/tikz/fig_estimation_loop.pdf}
-  \caption{\rb{K}{S34-C1}{The deployment loop on its own, with the two slots that distinguish the four estimator configurations. The leakage guarantee sits here because the innovation path is what carries it.}The predict-correct loop at deployment. An ensemble of
-  $\FilterMembers$ members is advanced field free through the matched prediction
-  model, then corrected from $\FilterTaps$ span-averaged wall-pressure taps held
-  out from training and placed by the per-model sensor selection. The innovation
-  is the measured minus the predicted observation, formed in tap space for the
-  base filter of \S\ref{sec:methods_enkf} and in encoded latent space for the
-  filters of \S\ref{sec:methods_lae} and \S\ref{sec:methods_rexenkf}, and the
-  update is a stochastic ensemble Kalman step at inflation $\rho = 1$ with
-  calibrated $\mathbf{Q}$ and $\mathbf{R}$. All four estimator configurations are
-  this one loop with only the two annotated slots swapped, the propagation
-  $(F, Q)$ and the observation path; table~\ref{tab:enkf} gives the settings per
-  configuration. No vorticity field enters the loop, the state is the
-  same $32$-vector at every step, and the lift and wake probes never enter the
-  innovation, which is what makes the reported analysis closure an estimate
-  rather than a quantity the filter was handed.\re}
+  \caption{\rb{K}{S34-C1}{The deployment loop on its own, with the two slots that distinguish the four estimator configurations. The leakage guarantee sits here because the innovation path is what carries it.}The predict-correct loop at deployment, and the
+  only route by which information reaches the state once the vorticity field is
+  gone. \emph{Predict.} An ensemble of $\FilterMembers$ members, each a copy of
+  the $\LatentDim$-dimensional coefficient state carrying its own perturbation,
+  is advanced one frame through the prediction model without any field input;
+  the forecast $\zvec^{f}_{t+1}$ is the result before any measurement is used.
+  \emph{Correct.} The observation model maps that forecast to the observation it
+  implies, $\hat{\mathbf{y}}_{t+1} = \mathcal{H}\zvec^{f}_{t+1}$; the wall
+  pressure is then measured at $\FilterTaps$ span-averaged sensors, held out
+  from training and placed by the per-model selection of
+  \S\ref{sec:methods_osp}; and the innovation is the measurement minus that
+  prediction. Only the innovation, never the measurement itself, moves the
+  state. The subtraction is performed in sensor space for the base filter of
+  \S\ref{sec:methods_enkf}, so $\mathcal{H}$ is the pressure read-out, and in
+  encoded latent space for the filters of \S\ref{sec:methods_lae} and
+  \S\ref{sec:methods_rexenkf}, where the sensor history is first lifted to a
+  state estimate by $E_{\mathrm{obs}}$ and $\mathcal{H}$ is the identity. The
+  update is a stochastic ensemble Kalman step: the innovation is multiplied by a
+  gain built from the ensemble spread and the calibrated process and observation
+  covariances $Q$ and $R$, and added to every member, giving the analysis
+  $\zvec^{a}_{t+1}$ that the next predict step advances. All four estimator
+  configurations are this one loop with only the two annotated slots swapped,
+  the propagation $(F, Q)$ and the observation path;
+  table~\ref{tab:enkf} gives the settings per configuration, including the
+  ensemble inflation applied before each update. No vorticity field enters at
+  any point, the state is the same $\LatentDim$-vector at every step, and the
+  frozen lift and wake probes are excluded from the innovation, which is what
+  makes the reported analysis closure an estimate rather than a quantity the
+  filter was handed.\re}
   \label{fig:estimation_loop}
 \end{figure}
 
-\rb{K}{S34-01}{Why estimation must be sequential, and the delay-embedding principle honestly scoped as an organising idea rather than a guarantee. \S4.5 is read against it.}At deployment the vorticity field is unavailable and the wall pressure is
-not, by itself, enough to fix the state: a single pressure frame recovers
+\rb{K}{S34-01}{Why estimation must be sequential, and the delay-embedding principle honestly scoped as an organising idea rather than a guarantee. \S4.5 is read against it.}At deployment the vorticity field is unavailable, and the wall pressure at a
+single instant does not determine the state: one pressure frame recovers
 little of the wake through any of the latents (\S\ref{sec:res_wall}). The
-reason a single frame is not enough, and a window is, is a statement about
-the dynamics rather than about the number of sensors. The encounter lies
-on an attractor of low effective dimension, a limit cycle with a gust
-excursion and a relaxation, into which the encoded latent concentrates its
-variance (\S\ref{sec:res_latent_physics}). Delay-embedding theory
-\citep{takens1981,sauer1991} motivates reading the wall pressure over a window
-of delays rather than at a single instant, since a generic observation of a
-low-dimensional system reconstructs its state up to a diffeomorphism once the
-product of tap count $K$ and delay count $m$ exceeds twice the attractor
-dimension. Its generic guarantees do not directly establish sufficiency for the
-finite, parametrically forced transient family considered here, so we take the
-theorem as an organising principle and treat the sensor-delay map of
-\S\ref{sec:res_wall} as the empirical evidence; there, a handful of taps over a
-modest window suffices and the delay window substitutes for sensor count. A coordinate the instantaneous
-pressure misses, the wake circulation, is still reconstructed by the
-window provided it is dynamically coupled to what the pressure sees, which
-for the coupled vortex dynamics it is. The estimator must therefore be
-sequential, accumulating pressure innovations through learned dynamics,
-which is the setting of data assimilation.\re
+limitation is dynamical rather than instrumental, and it is relieved by
+observing over a window of time rather than by adding sensors. The encounter
+evolves on an attractor of low effective dimension, a limit cycle carrying a
+gust excursion and a relaxation, into which the encoded latent concentrates its
+variance (\S\ref{sec:res_latent_physics}). For such a system, delay-embedding
+theory \citep{takens1981,sauer1991} establishes that a generic observation
+function sampled over a window of delays reconstructs the attractor up to a
+diffeomorphism, provided the product of the sensor count $K$ and the delay
+count $m$ exceeds twice the attractor dimension. Reconstruction up to a
+diffeomorphism means that the delay vector and the true state are related by a
+smooth, smoothly invertible change of coordinates: the reconstruction preserves
+the dynamics and every quantity that is a smooth function of the state, but it
+does not return that state in its original coordinates, so a learned map from
+the delay vector to $\zvec$ remains necessary. The genericity assumptions of
+the theorem are not established for the finite, parametrically forced transient
+family considered here, so we treat the result as an organising principle and
+take the sensor-delay map of \S\ref{sec:res_wall} as the governing empirical
+evidence. That map establishes two properties. A small number of sensors read
+over a short window suffices, and lengthening the window compensates for
+reducing the sensor count, so temporal resolution is exchangeable for spatial
+resolution. The wake circulation, a coordinate to which the instantaneous
+pressure is insensitive, is nonetheless recovered from the window, because the
+circulation is dynamically coupled to the near-surface flow that the sensors do
+resolve and therefore leaves a signature in the pressure history. Estimation
+must accordingly be sequential, accumulating pressure innovations through
+learned dynamics, which is the setting of data assimilation.\re
 
 \rb{K}{S34-02}{The shared state-space problem, equations (5) and (6), plus the leakage guarantee. Every filter in the suite is defined by naming four ingredients of this pair.}Every estimator in this paper solves the same discrete state-estimation
-problem on the frozen coefficient state. Writing $\zvec_t \in
-\mathbb{R}^{d}$ for the encoded state at frame $t$ (time base $\Delta t =
-0.05\,c/u_\infty$, the cache frame spacing) and $\mathbf{p}_t \in
-\mathbb{R}^{K}$ for the wall pressure at the $K$ selected taps, the pair
+problem on the frozen coefficient state. Write $\zvec_t \in \mathbb{R}^{d}$ for
+the encoded state at frame $t$ and $\mathbf{p}_t \in \mathbb{R}^{K}$ for the
+wall pressure at the $K$ selected sensors, with successive frames separated by
+$\Delta t = \DtTc\,c/u_\infty$, the interval at which the cache stores the
+simulation. The pair
 \begin{equation}
   \zvec^{f}_{t+1} = F\!\left(\zvec^{a}_{t}\right) + \boldsymbol{\eta}_t,
   \qquad \boldsymbol{\eta}_t \sim \mathcal{N}(0, Q_t),
@@ -73,18 +95,30 @@ problem on the frozen coefficient state. Writing $\zvec_t \in
 \end{equation}
 defines each member of the suite once its four ingredients $(F, h, Q_t, R)$
 are named; the remainder of this subsection does exactly that, and
-table~\ref{tab:filter_params} collects every parameter. The frozen probes
-that read the lift and the wake enstrophy off the state can never enter
-the innovation: this leakage guarantee is enforced by construction and by
-a unit test, so the reported analysis closure is a genuine estimate, not a
-quantity the filter was given (figure~\ref{fig:estimation_loop}). Two evaluation
-frames are used and always stated. The envelope frame assimilates over
-$[t_{\mathrm{imp}} - 24,\, t_{\mathrm{imp}} + 48]$ frames with a field-free
-initialisation at the window start; the ladder frame runs the full
-encounter with the ensemble initialised from the encoded observation at
-$t_0 = 9$ (the delay-embedding warm-up) and scores on the same impact
-window. All estimator fits, without exception, use the training split
-only.\re
+table~\ref{tab:filter_params} collects every parameter. The superscripts
+distinguish the two states of the assimilation cycle: $\zvec^{f}$ is the
+forecast, obtained by advancing the previous estimate through $F$ before the
+new measurement is used, and $\zvec^{a}$ is the analysis, the same state after
+that measurement has corrected it. The frozen probes that read the lift and the
+wake enstrophy from the state are excluded from the innovation by construction,
+so the only measured quantity entering an update is the wall pressure and the
+analysis closure reported in \S\ref{sec:res_da} is an estimate rather than a
+quantity supplied to the filter (figure~\ref{fig:estimation_loop}).
+%
+% Deliberately not a paragraph break: a blank line here would open a new block
+% and renumber S34-03 onward, silently misaligning every later rationale in the
+% relevance ledger. A comment swallows its line ending, so the two halves stay
+% one paragraph in the PDF and one block in the inventory.
+Two assimilation protocols are used, and each result states which one it
+follows. Under the envelope protocol, assimilation begins $\AssimPre$ frames
+before impact and ends $\AssimPost$ frames after it, and the ensemble is
+initialised at the start of that window without any field information. Under
+the ladder protocol, assimilation runs over the whole encounter: the ensemble
+is initialised at $t_0 = 9$, the first frame at which the ten-frame delay
+window is complete, from the encoded observation there, and scoring is
+restricted to the same impact window as the envelope protocol so that the two
+are comparable. Every estimator in either protocol is fitted on the training
+split alone.\re
 
 \subsubsection{Base stochastic ensemble filter}
 \label{sec:methods_enkf}
@@ -98,7 +132,7 @@ frame. The process noise is state-independent, $Q_t \equiv Q$, estimated as
 the sample covariance of one-step teacher-forced predictor residuals over
 $256$ training sub-trajectories of length $32$, with a $10^{-6}$ diagonal
 floor. The observation map $h$ is a ridge-regularised linear read-out from
-the state to the $K$ taps (penalty $1.0$), fitted on four fifths of the
+the state to the $K$ sensors (penalty $1.0$), fitted on four fifths of the
 training encounters; the observation-noise covariance $R$ is the diagonal
 of the residual variance of that map on the held-out fifth, grouped by
 encounter, with floor $10^{-6}$. With ensemble mean
@@ -128,7 +162,7 @@ $12$-frame causal pressure window) by sampling its training-residual
 covariance around the regressed mean, so no field information enters the
 filter at any time. The frozen observable probes that score the filter
 never enter the innovation: the only measured quantity in
-\eqref{eq:enkf_update} is the $K$-tap wall pressure.\re
+\eqref{eq:enkf_update} is the $K$-sensor wall pressure.\re
 
 \subsubsection{The \LinLatKF{} with encoded observations}
 \label{sec:methods_lae}
@@ -140,9 +174,9 @@ $F(\zvec) = A\zvec$, with $A$ the ridge solution of
 $\zvec_{t+1} \approx A \zvec_t$ over all training transitions (penalty
 $1.0$) followed by a projection of its singular values onto $[0, 1]$, the
 hard analogue of their spectral hinge penalty; $Q$ is the covariance of the
-resulting fit residuals. The observation side replaces the sparse taps by
+resulting fit residuals. The observation side replaces the sparse sensors by
 an encoded full-state observation: a delay-embedding operator lifts the
-normalised tap history $\mathbf{p}_{t-m+1:t} \in \mathbb{R}^{Km}$ with
+normalised sensor history $\mathbf{p}_{t-m+1:t} \in \mathbb{R}^{Km}$ with
 $m = 10$ (causal, edge-padded), and a ridge map $W$ (penalty $1.0$)
 regresses it onto the state, so that
 \begin{equation}
@@ -202,7 +236,7 @@ run on the test splits. The outcome of that calibration, reported in
 \S\ref{sec:res_da}, is itself a result. The \TwoStageKF{} applies the
 encoded-observation update \eqref{eq:eobs} with the median-forecast propagation
 \eqref{eq:rex_q} inside the impact window only, and outside it propagates
-members with the matched transformer and assimilates in tap space through
+members with the matched transformer and assimilates in sensor space through
 the linear map of \S\ref{sec:methods_enkf}; the schedule boundary is the
 frozen impact-window mask of the cache and is not tuned.\re
 
@@ -232,14 +266,14 @@ the supplementary material.\re
 \subsubsection{Sensor placement}
 \label{sec:methods_osp}
 
-\rb{A}{S34-07}{The greedy placement criterion, whose own text notes that two of its four terms dominate. Placement robustness is already argued in appendix B, so the criterion belongs beside it.}Each family senses at its own taps. The per-family placement is a greedy
-forward selection over the $192$ physical wall taps: at each step the
-candidate tap whose $30$-frame causal pressure window, concatenated to the
+\rb{A}{S34-07}{The greedy placement criterion, whose own text notes that two of its four terms dominate. Placement robustness is already argued in appendix B, so the criterion belongs beside it.}Each family senses at its own sensors. The per-family placement is a greedy
+forward selection over the $192$ physical wall sensors: at each step the
+candidate sensor whose $30$-frame causal pressure window, concatenated to the
 already-selected windows, best ridge-predicts the leading principal
 component of the family's own impact-frame states is added. Writing
 $r_j$ for the ridge residual mean square of the joint feature set extended
-by tap $j$, and $g_j = \max\{0,\, r_\varnothing - r_j\}$ for its
-reduction over the target variance, the selected tap maximises
+by sensor $j$, and $g_j = \max\{0,\, r_\varnothing - r_j\}$ for its
+reduction over the target variance, the selected sensor maximises
 \begin{equation}
   J(j) = n\,g_j - \tfrac{1}{2}\,g_j - \tfrac{1}{2}\,n\,r_j
   + \tfrac{1}{2}\,\frac{n\,g_j}{g_j + 10^{-6}},

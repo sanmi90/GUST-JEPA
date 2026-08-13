@@ -79,9 +79,9 @@ def main() -> None:
 
     ax_a.set_xticks(noise_pct)
     ax_a.set_xticklabels(["0", "5", "10", "20"])
-    ax_a.set_xlabel("tap noise (%)")
+    ax_a.set_xlabel("sensor noise (%)")
     ax_a.set_ylabel(r"impact median $C_L$ $R^2$")
-    ax_a.set_title("(a) streaming filter vs tap noise", fontsize=8)
+    ax_a.set_title("(a) streaming filter vs sensor noise", fontsize=8)
     lo_a, hi_a = ax_a.get_ylim()
     ax_a.set_ylim(lo_a - 0.06 * (hi_a - lo_a), hi_a)
     ax_a.legend(fontsize=6, loc="upper right", handlelength=1.4)

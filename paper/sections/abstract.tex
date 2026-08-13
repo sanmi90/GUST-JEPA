@@ -20,7 +20,7 @@ Direct numerical simulations of a NACA~0012 airfoil at $\alpha = 14^\circ$ and $
 A controlled supervision study shows that, within the predictive formulation considered, a lift target is necessary to avoid latent collapse, a near-body force-element target improves peak-load readability, and wake supervision is required to retain the wake enstrophy and circulation.
 Lift stays linearly accessible at four coefficients over the dimensions tested, whereas the spatial wake structure requires a larger distributed representation.
 Under a common direct multi-horizon forecaster the predictive states give the most accurate lift forecasts, while recursive prediction is limited by accumulated rollout error.
-A pressure-only ensemble estimator with eight wall-pressure taps tracks the lift through impact and relaxation, reaching impact-phase $R^2 = \PoneTwoStageCovImpact$ at a root-mean-square lift error of \PoneTwoStageCovRmse{} with the final two-stage configuration.
+A pressure-only ensemble estimator with eight wall-pressure sensors tracks the lift through impact and relaxation, reaching impact-phase $R^2 = \PoneTwoStageCovImpact$ at a root-mean-square lift error of \PoneTwoStageCovRmse{} with the final two-stage configuration.
 Where a static single-frame inverse matches it in distribution, the filter's advantage is in the tails, in continuous state tracking, and at the held-out $|G| = 4$ boundary.
 Wake enstrophy is not reliably recovered by the wall-sensor configurations considered.
 The results separate the roles of observable supervision, predictive training and sensing geometry in constructing reduced states for extreme aerodynamic transients.\re

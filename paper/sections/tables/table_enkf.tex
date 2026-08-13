@@ -31,7 +31,7 @@
     \midrule
     Filter                 & stochastic ensemble Kalman filter, latent space \\
     Ensemble size $N$       & $\FilterMembers$ members \\
-    Sensor count $K$        & $\FilterTaps$ taps, per-model optimal sensor placement (OSP) \\
+    Sensor count $K$        & $\FilterTaps$ sensors, per-model optimal sensor placement (OSP) \\
     Observation noise $\mathbf{R}$ & calibrated from held-out pressure residuals \\
     Inflation $\rho$        & validation-selected per family ($\FeRhoJepa$ predictive/linear, $\FeRhoFukami$ reconstruction) \\
     Initialisation          & field-free: windowed pressure-to-latent regressor $+$ its residual covariance \\
@@ -48,15 +48,15 @@
     \midrule
     Base (\S\ref{sec:methods_enkf})
       & matched autoregressive transformer,
-      & $K$ taps through a ridge read-out; \\
+      & $K$ sensors through a ridge read-out; \\
       & state-independent $\mathbf{Q}$ from its
-      & innovation in tap space \\
+      & innovation in sensor space \\
       & one-step residual covariance & \\[2pt]
     \LinLatKF{} (\S\ref{sec:methods_lae})
       & linear $F(\zvec) = A\zvec$, singular values
       & encoded $E_{\mathrm{obs}}$, eq.~\eqref{eq:eobs}: \\
       & projected onto $[0, 1]$; $\mathbf{Q}$ the
-      & delay-embedded tap history, $h = \mathrm{Id}$; \\
+      & delay-embedded sensor history, $h = \mathrm{Id}$; \\
       & covariance of its fit residuals
       & innovation in state space \\[2pt]
     \FnoiseKF{} (\S\ref{sec:methods_rexenkf})
@@ -69,7 +69,7 @@
       & \FnoiseKF{} inside the impact window,
       & encoded inside the window, \\
       & matched transformer outside
-      & tap space outside \\
+      & sensor space outside \\
     \bottomrule
   \end{tabular}}
 \end{table}

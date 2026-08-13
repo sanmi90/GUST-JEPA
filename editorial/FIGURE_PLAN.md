@@ -211,3 +211,45 @@ The caption now carries the definitions the artwork gave up ($\phi_L$ as the
 exterior Laplace problem, $w$ as the feathered mask with its formula) and is
 split into three labelled parts, per frame / geometry only / trained, matching
 the three regions of the drawing.
+
+### 2026-08-13: fig_estimation_loop redrawn (S34-C1)
+
+Carlos flagged a suspected error in the Observation and wall-pressure blocks. It
+was real. The loop predicts an observation from the forecast and differences it
+against the measurement, but the drawing showed the measurement arriving with
+the label $y - \mathcal{H}z^f$ already on it and no node performing the
+subtraction, so the predicted observation had no visual existence.
+
+Redrawn with an explicit difference junction. The measurement now enters that
+junction from below rather than from the right, which is what makes the layout
+work: the right-hand side of the vertical arrow is free for the
+predicted-observation label, and the picture is narrower. Natural width $441$ pt
+against the previous $549$ pt, so the scale at `\linewidth` goes $0.70
+\rightarrow 0.87$ and every glyph is larger, without a single node shrinking.
+The bottom note is anchored to `current bounding box.south west` rather than to
+a node, because the measurement box now occupies the bottom right and any
+node-relative placement ran the note through it. The state boxes gained
+"analysis" / "forecast" tags so the $a$ and $f$ superscripts can be read off the
+artwork.
+
+### PENDING, Carlos-owned: three figures still say "taps"
+
+The manuscript-wide rename of "tap" to "sensor" (2026-08-13, see REVIEW_LOG)
+reaches the prose, the tables and the TikZ sources, but three matplotlib figures
+carry the old word in axis labels and titles:
+
+| figure | script | strings |
+|---|---|---|
+| `fig_deployment_v4.pdf` | `scripts/session35/fig_deployment_v4.py` | x-label and title (a) |
+| `fig_ownstack_da_v4.pdf` | `scripts/session35/fig_ownstack_da_v4.py` | x-label and title (c) |
+| `fig_t_trade.pdf` | `scripts/session33/fig_track_t.py` | x-label, y-label, title (b) |
+
+All three scripts are already patched, so the fix is one re-run each. They could
+not be run here: every one of them reads result JSONs that are absent from this
+checkout (`outputs/session35/rex_stream_b177_noise*_s*.json`,
+`outputs/session34/da_phase_eval.json`, `outputs/session33/track_t_grid_vec.json`
+among others). They are pure JSON-to-matplotlib replots with no GPU or cache
+dependency, so on a machine holding those outputs each is a single command.
+
+Worth noting separately: this means three body figures cannot currently be
+regenerated from a clean clone of the repository.

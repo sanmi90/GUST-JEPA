@@ -161,6 +161,33 @@
       "contents": "Remove this \"We do not headline a forecast-𝑅 2 -versus-horizon curve;\"",
       "quoted": "through",
       "resolved": true
+    },
+    {
+      "block": "S34-01",
+      "author": "Alberto",
+      "date": "2026-08-13 19:42",
+      "subtype": "Text",
+      "contents": "S34-01: The first part justifying the use of a past window should be reworded with a more academical tone, now it looks like internal notes.\nClarify the use of diffeomorphism\nI would prefer the use of pressure sensors or similar instead of \"taps\".\nClarify this sentence \"l of taps over a modest window suffices and the delay window substitutes for\nsensor count. A coordinate the instantaneous pressure misses, the wake circulation, is still\nreconstructed by the window provided it is dynamically coupled to what the pressure sees,\nwhich for the coupled vortex dynamics it is\"\n",
+      "quoted": "",
+      "resolved": true
+    },
+    {
+      "block": "S34-C1",
+      "author": "Alberto",
+      "date": "2026-08-13 19:49",
+      "subtype": "Text",
+      "contents": "S34-C1 and figure:\n\nFigure: make the text annotations clear and self-contained.\nCheck the Observation and wall pressure blocks, I think there might be an error there. You can estimate the observation from the prediction and correct with the actual measurement. If that is the actual method it should be clearer in the schematic.\n\nCaption: An ensemble of 64 members? verify. \nThis is not clear: \"Kalman step at inflation 𝜌 = 1\"\n",
+      "quoted": "because the",
+      "resolved": true
+    },
+    {
+      "block": "S34-02",
+      "author": "Alberto",
+      "date": "2026-08-13 19:53",
+      "subtype": "Text",
+      "contents": "S34-02:\nImprove the wording here: \"time base 𝛥𝑡 = 0.05 𝑐/𝑢 ∞ , the cache frame spacing\"\n\nAre the f and a superindexes defined here?\n\nThis should be written much clearer: \"Two evaluation frames are used and always stated. The envelope frame assimilates over\n[𝑡 imp − 24, 𝑡 imp + 48] frames with a field-free initialisation at the window start; the ladder\nframe runs the full encounter with the ensemble initialised from the encoded observation\nat 𝑡 0 = 9 (the delay-embedding warm-up) and scores on the same impact window. All estimator fits, without exception, use the training split only.\"\nRewrite with a proper tone, drop the unit test part: \"The\nfrozen probes that read the lift and the wake enstrophy off the state can never enter the\ninnovation: this leakage guarantee is enforced by construction and by a unit test, so the reported analysis closure is a genuine estimate, not a quantity the filter was given (figure 6).\"\n\n\n",
+      "quoted": "",
+      "resolved": true
     }
   ]
 }
