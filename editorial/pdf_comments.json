@@ -199,7 +199,7 @@
       "resolved": true
     },
     {
-      "block": "S34-03",
+      "block": "S34-04",
       "author": "Alberto",
       "date": "2026-08-13 20:27",
       "subtype": "Text",
@@ -208,7 +208,7 @@
       "resolved": true
     },
     {
-      "block": "S34-04",
+      "block": "S34-07",
       "author": "Alberto",
       "date": "2026-08-13 20:33",
       "subtype": "Text",
@@ -217,7 +217,7 @@
       "resolved": true
     },
     {
-      "block": "S34-05",
+      "block": "S34-08",
       "author": "Alberto",
       "date": "2026-08-13 20:36",
       "subtype": "Text",
@@ -226,7 +226,7 @@
       "resolved": true
     },
     {
-      "block": "S34-06",
+      "block": "APC-02",
       "author": "Alberto",
       "date": "2026-08-13 20:37",
       "subtype": "Text",
@@ -235,7 +235,7 @@
       "resolved": true
     },
     {
-      "block": "S3-08",
+      "block": "S3-08-deleted",
       "author": "Alberto",
       "date": "2026-08-13 20:38",
       "subtype": "Text",
@@ -244,7 +244,7 @@
       "resolved": true
     },
     {
-      "block": "S34-07",
+      "block": "APB-03",
       "author": "Alberto",
       "date": "2026-08-13 20:40",
       "subtype": "Text",
@@ -253,7 +253,7 @@
       "resolved": true
     },
     {
-      "block": "S3-09",
+      "block": "S3-08",
       "author": "Alberto",
       "date": "2026-08-13 20:42",
       "subtype": "Text",
@@ -262,7 +262,7 @@
       "resolved": true
     },
     {
-      "block": "S3-10",
+      "block": "S3-09",
       "author": "Alberto",
       "date": "2026-08-13 20:45",
       "subtype": "Text",
@@ -271,7 +271,7 @@
       "resolved": true
     },
     {
-      "block": "S3-11",
+      "block": "S3-10",
       "author": "Alberto",
       "date": "2026-08-13 20:49",
       "subtype": "Text",

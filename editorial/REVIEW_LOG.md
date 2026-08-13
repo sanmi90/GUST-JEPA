@@ -863,3 +863,38 @@ split S34-03 in two and silently renumbered everything after it, which the
 typography after an equation anyway. Ledger realignment after the structural pass
 was done by matching each block's opening text against the previous ledger rather
 than by identifier, since identifiers are positional.
+
+### Defect in the record, found by the restore and fixed
+
+Sequencing the resolves before the structural pass protected the *edits*: every
+comment was closed against the paragraph it was written about. It did not protect
+the *record*. `--move` re-keys a comment; nothing re-keys one automatically when
+a block is deleted or split underneath it, so after the structural pass four
+comments in \S3 and five in \S3.4 were keyed to blocks that had shifted, and the
+restore stamped them beside paragraphs they were not about. The restore itself is
+what surfaced it, by refusing to place one comment whose block had vanished
+entirely.
+
+Re-keyed in an order chosen so no destination was occupied when written to: in
+\S3, one delete shifted three comments up by one, and the comment on the deleted
+block is parked at `S3-08-deleted` so the record survives without being stamped
+on an unrelated paragraph; in \S3.4, three splits and two appendix moves shifted
+five, two of them onto their new appendix blocks (`APB-03`, `APC-02`), which is
+where a reader following the audit trail should now find them.
+
+Worth remembering as a rule: closing a comment and re-keying it are two separate
+obligations, and only the first is discharged by resolving before the structural
+pass. `scripts/review/README.md` records the workflow; this failure mode belongs
+in it.
+
+**Second defect, from the fix itself.** `--restore` is idempotent per identifier,
+which is what makes it safe to run twice after a build that latexmk decided was
+unnecessary. It also means it does not remove a stamp whose comment has since
+been re-keyed: restoring after the nine `--move` calls added the comments under
+their new identifiers and left the eight old stamps in place, so the PDF carried
+$40$ annotations for $33$ comments. A plain rebuild clears every stamp, and one
+restore afterwards gives the correct $32$ (the parked `S3-08-deleted` has no
+block and is deliberately not drawn).
+
+The rule that follows, now in `scripts/review/README.md`: **rebuild between
+`--move` and `--restore`.** Do not restore straight after a move.

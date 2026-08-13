@@ -98,6 +98,28 @@ avoid needing it: write the comment just **below** the caption tag of the figure
 you mean, or on the caption text itself, which wins outright because the ID is
 then inside the annotated region.
 
+### After a block is deleted, split or moved
+
+Identifiers are positional, so deleting a paragraph shifts every later one in its
+file up by one, and splitting a paragraph shifts them down. Two obligations
+follow, and they are separate:
+
+- **Close comments before the structural change**, while each identifier still
+  means what it meant when the comment was written. Otherwise `--resolve S3-09`
+  closes a comment against a paragraph it was not about.
+- **Re-key them after it.** Nothing does this automatically. A closed comment
+  keyed to a shifted block gets stamped beside the wrong paragraph on the next
+  `--restore`, which quietly corrupts the record of what was raised and dealt
+  with.
+
+Re-key with `--move`, ordering the calls so no destination is occupied when it is
+written to: for a delete, work upward from the lowest surviving block; for a
+split, work downward from the highest. A comment whose block no longer exists at
+all has nowhere to go, so park it under a name that is not a real identifier
+(`S3-08-deleted`) rather than leaving it on whatever paragraph inherited the
+number. `--restore` names any block it cannot find, which is the check that the
+re-keying was complete.
+
 This applies only to comments you write. Restored ones record their block in
 `/Subj` and never depend on geometry.
 
@@ -139,8 +161,14 @@ Comments live in the sidecar named by `relevance.json` (`comments`), keyed by
 block identifier, so a restored comment is re-anchored on its block after the
 text reflows rather than pinned to a coordinate that has moved. `--save` merges,
 so nothing is duplicated and nothing already recorded is lost. `--restore` is
-idempotent, which matters because latexmk sometimes decides a rebuild is
-unnecessary and leaves the previous restore in place.
+idempotent **per identifier**, which matters because latexmk sometimes decides a
+rebuild is unnecessary and leaves the previous restore in place.
+
+Per identifier is the catch: a comment that has been `--move`d is a new
+identifier, and the stamp under its old one is not the same comment as far as
+`--restore` can tell, so it stays. Restoring straight after a batch of moves
+leaves both copies in the PDF. **Rebuild between `--move` and `--restore`**; a
+rebuild clears every stamp and the restore then draws each comment once.
 
 Closing a comment you have acted on:
 
