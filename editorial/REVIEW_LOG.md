@@ -898,3 +898,22 @@ block and is deliberately not drawn).
 
 The rule that follows, now in `scripts/review/README.md`: **rebuild between
 `--move` and `--restore`.** Do not restore straight after a move.
+
+**Third defect, and the one Carlos actually saw.** Several of his notes begin
+with the block identifier typed by hand ("S34-03:", "S3-09:"). Re-keying moved
+the note and left the words untouched, as instructed, so a note sitting beside
+S34-04 opened with "S34-03:". Geometry was verified correct first, every
+annotation on its block's page and $3$ pt above that block's tag row, extras
+stacked below; the mismatch was entirely in the text.
+
+Seven leading identifiers rewritten to the block the note now sits on, with
+`[re-keyed: written on X, which became Y when the section was restructured]`
+appended so the provenance survives. Nothing else in any comment was touched: the
+leading token is a pointer, not content, and a stale pointer is worth exactly as
+much as a wrong one. `S3-08-deleted` keeps its original label, which is still
+accurate: it names the block that was deleted, which is what the parked key
+records.
+
+Contents are part of the restore key, so the relabelled comments would have been
+drawn alongside their own previous stamps. Same rule as before: rebuild, then
+restore once.
